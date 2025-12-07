@@ -1,0 +1,120 @@
+.\" Copyright (c) 2004-2009 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR
+.\" ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./contrib/openbsm/bin/praudit/praudit.1
+.\" FRDP githash 6f3d7c0ea8941c53c455d060b6ece34e55c5871d
+.\" FRDP hash256 e0a65afb7003ebbaa63eae9485086a7a26c74ff2de8b4a63b219cc423d7500ff
+.Dd 11 июня 2018
+.Dt PRAUDIT 1
+.Os
+.Sh ИМЯ
+.Nm praudit
+.Sh СИНТАКСИС
+.Nm
+.Op Fl lnpx
+.Op Fl r | s
+.Op Fl d Ar разделитель
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит содержимое файлов журнала аудита в стандартный вывод
+в удобочитаемом виде.
+Если аргумент
+.Ar файл
+не указан, по умолчанию используется стандартный ввод.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl d Ar разделитель
+Задает разделитель.
+По умолчанию используется запятая.
+.It Fl l
+Выводит всю запись на одной строке.
+Если эта опция не указана,
+каждый токен отображается на отдельной строке.
+.It Fl n
+Не преобразовывать идентификаторы пользователей и групп в их имена,
+а оставлять в числовой форме.
+.It Fl p
+Укажите эту опцию, если ввод для
+.Nm
+передается по конвейеру от утилиты
+.Xr tail 1 .
+Это заставляет
+.Nm
+синхронизироваться с началом следующей записи.
+.It Fl r
+Выводит записи в их исходной, числовой форме.
+Эта опция несовместима с
+.Fl s .
+.It Fl s
+Выводит токены в их краткой форме.
+Отображаются короткие текстовые представления для
+типов записей и событий.
+Эта опция несовместима с
+.Fl r .
+.It Fl x
+Выводит записи аудита в формате XML.
+.El
+.Pp
+Если исходная или краткая формы не указаны, по умолчанию токены
+выводятся в их полной форме.
+События отображаются в соответствии с их описаниями, приведенными в
+.Pa /etc/security/audit_event ;
+UID и GID расшифровываются в имена;
+даты и время отображаются в удобочитаемом формате.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ФАЙЛЫ
+.It Pa /etc/security/audit_class
+Описания классов событий аудита.
+.It Pa /etc/security/audit_event
+Описания событий аудита.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr auditreduce 1 ,
+.Xr audit 4 ,
+.Xr auditpipe 4 ,
+.Xr audit_class 5 ,
+.Xr audit_event 5
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, исследовательским подразделением безопасности
+McAfee, Inc., по контракту с Apple Computer Inc.
+К числу дополнительных авторов относятся
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) для записей аудита и формат потока событий аудита
+были определены компанией Sun Microsystems.

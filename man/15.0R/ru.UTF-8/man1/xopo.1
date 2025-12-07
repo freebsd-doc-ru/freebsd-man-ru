@@ -1,0 +1,87 @@
+.\" #
+.\" # Copyright (c) 2015, Juniper Networks, Inc.
+.\" # All rights reserved.
+.\" # This SOFTWARE is licensed under the LICENSE provided in the
+.\" # ../Copyright file. By downloading, installing, copying, or 
+.\" # using the SOFTWARE, you agree to be bound by the terms of that
+.\" # LICENSE.
+.\" # Phil Shafer, July 2015
+.\" 
+.\" FRDP path ./contrib/libxo/xopo/xopo.1
+.\" FRDP githash fd5e3f3ec6c6248e892c9e7b2f17da3bfe7b6837
+.\" FRDP hash256 c481d69f1089e33a8069f2c071440c9a7f0c6de02adaca9e9c349ae3103e5192
+.Dd 9 июля 2015
+.Dt XOPO 1
+.Os
+.Sh ИМЯ
+.Nm xopo
+.Nd преобразование строк формата libxo в упрощённую форму
+.Sh СИНТАКСИС
+.Nm
+.Op параметры
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+упрощает строки формата libxo до формы, используемой для
+поиска
+.Xr gettext
+библиотекой
+.Nm libxo .
+С помощью
+.Nm
+пользователи могут преобразовывать
+.Em .pot
+файлы, созданные
+.Xr xgettext ,
+в данные, полезные для приложений с поддержкой libxo.
+.Pp
+Поскольку
+.Xr gettext
+использует строку в качестве ключа для доступа к каталогу сообщений,
+.Nm libxo
+использует упрощённую версию строки формата, которая удаляет
+несущественное форматирование полей и модификаторы, предотвращая влияние
+незначительных изменений форматирования на затратный процесс перевода.
+Разработчик
+проверяет все .po файлы.
+.Pp
+.Nm
+которые содержат строки формата в оставшейся части входной строки.
+Эти строки передаются в
+.Nm libxo
+для упрощения, и результирующие строки заменяются в
+выходном потоке, позволяя
+.Nm
+работать в качестве фильтра.
+.Pp
+.Bl -tag -width indent
+.It Ic -f файл_po | Ic --po  файл_po
+Использовать указанный po файл для ввода.
+.It Ic --help
+Показать этот текст справки
+.It Ic -o файл | Ic --output файл
+Записать выходные данные в указанный файл
+.It Ic -s текст | Ic --simplify текст
+Сгенерировать упрощённую версию отдельной текстовой строки.
+.It Ic -W | Ic --warn
+Генерировать предупреждения при разборе строк формата
+.It Ic --version
+Показать информацию о версии
+.El
+.Pp
+.Sh ПРИМЕР
+.Bd -literal
+  % xopo -f foo.pot -o foo.pot.new
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_format 5
+.Sh ИСТОРИЯ
+Библиотека
+.Nm libxo
+впервые появилась в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.Nm libxo
+была написана
+.An Phil Shafer Aq Mt phil@freebsd.org .

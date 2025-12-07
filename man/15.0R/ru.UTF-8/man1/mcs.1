@@ -1,0 +1,125 @@
+.\" Copyright (c) 2011 Joseph Koshy.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY JOSEPH KOSHY ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL JOSEPH KOSHY BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: mcs.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/elfcopy/mcs.1
+.\" FRDP githash ae500c1ff8974130f7f2692772cf288b90349e0d
+.\" FRDP hash256 1346368e3db17ed90b7eabbe92fafb9e393662e4b651e9f64a26b23a8e2750be
+.Dd 29 ноября 2011
+.Dt MCS 1
+.Os
+.Sh ИМЯ
+.Nm mcs
+.Nd управление разделом комментариев в объекте ELF
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar строка
+.Op Fl c
+.Op Fl n Ar имя
+.Op Fl p
+.Ar
+.Nm
+.Fl d
+.Op Fl n Ar имя
+.Ar
+.Nm
+.Fl h | Fl -help
+.Nm
+.Fl V | Fl -version
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления разделами комментариев в объекте ELF.
+Если аргумент командной строки
+.Ar файл
+указывает на архив
+.Xr ar 1 ,
+то
+.Nm
+будет работать с объектами ELF, содержащимися в архиве.
+.Pp
+По умолчанию
+.Nm
+работает с разделом ELF с именем
+.Dq .comment .
+Это можно изменить с помощью опции
+.Fl n .
+.Pp
+Утилита
+.Nm
+поддерживает следующие опции:
+.It Fl a Ar строка
+Добавить текст из
+.Ar строки
+в раздел комментариев.
+Эту опцию можно указывать несколько раз.
+.It Fl c
+Сжать раздел комментариев, удалив повторяющиеся записи.
+.It Fl d
+Удалить раздел комментариев из объекта ELF.
+.It Fl h | Fl -help
+Показать сообщение об использовании и выйти.
+.It Fl n Ar имя
+Работать с разделом с именем
+.Ar имя .
+.It Fl p
+Вывести содержимое раздела комментариев.
+Это действие выполняется после завершения действий, указанных опциями
+.Fl a
+и
+.Fl c
+(если они есть).
+.It Fl V | Fl -version
+Вывести идентификатор версии и выйти.
+.El
+.Sh СОВМЕСТИМОСТЬ
+Поведение утилиты
+.Nm
+отличается от её аналога в SVR4 следующим образом:
+.Bl -bullet -compact
+.It
+Если указана опция
+.Fl d ,
+она приводит к игнорированию любых присутствующих опций
+.Fl a ,
+.Fl c
+и
+.Fl p .
+.It
+Порядок опций
+.Fl a ,
+.Fl c ,
+.Fl d
+и
+.Fl p
+в командной строке не имеет значения.
+.El
+.Sh ДИАГНОСТИКА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr elfcopy 1 ,
+.Xr ld 1 ,
+.Xr nm 1 ,
+.Xr strip 1

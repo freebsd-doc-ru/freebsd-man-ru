@@ -1,0 +1,32 @@
+.\" Licensed under the OpenIB.org BSD license (FreeBSD Variant) - See COPYING.md
+.\" FRDP path ./contrib/ofed/libibverbs/man/ibv_asyncwatch.1
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 bdf42ac980facc9b5dbb14c91d03bd36292e9e275126c7925ea375b7e0a1d9da
+.ИМЯ  
+ibv_asyncwatch \- отображение асинхронных событий  
+
+.СИНТАКСИС  
+.B ibv_asyncwatch  
+[\-d устройство] [\-h]  
+
+.ОПИСАНИЕ  
+.PP  
+Отображает асинхронные события, пересылаемые в пользовательское пространство для устройства RDMA.  
+
+.ПАРАМЕТРЫ  
+
+.PP  
+.TP  
+\fB\-d\fR, \fB\-\-ib\-dev\fR=\fIУСТРОЙСТВО\fR  
+использовать устройство InfiniBand \fIУСТРОЙСТВО\fR (по умолчанию первое найденное устройство)  
+.TP  
+\fB\-h\fR, \fB\-\-help\fR=\fIУСТРОЙСТВО\fR  
+Вывести справочный текст и завершить работу.  
+
+.АВТОРЫ  
+.TP  
+Роланд Драйер  
+.RI < rolandd@cisco.com >  
+.TP  
+Эран Бен Элиша  
+.RI < eranbe@mellanox.com >

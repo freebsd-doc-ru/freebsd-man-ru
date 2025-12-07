@@ -1,0 +1,41 @@
+.\" Licensed under the OpenIB.org BSD license (FreeBSD Variant) - See COPYING.md
+.\" FRDP path ./contrib/ofed/libibverbs/man/ibv_devinfo.1
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 6d2aea51c93c4443cc3dd94874e80747facea4a29b6caa96cdf618888243098f
+.SH ИМЯ
+ibv_devinfo \- запрос информации об устройствах RDMA
+
+.SH СИНТАКСИС
+.B ibv_devinfo
+[\-d устройство] [\-i порт] [\-l] [\-v]
+
+.SH ОПИСАНИЕ
+.PP
+Выводит информацию об устройствах RDMA, доступных для использования из пользовательского пространства.
+
+.SH ПАРАМЕТРЫ
+
+.PP
+.TP
+\fB\-d\fR, \fB\-\-ib\-dev\fR=\fIУСТРОЙСТВО\fR
+использовать устройство InfiniBand \fIУСТРОЙСТВО\fR (по умолчанию первое найденное устройство)
+
+\fB\-i\fR, \fB\-\-ib\-port\fR=\fIПОРТ\fR
+запросить порт \fIПОРТ\fR (по умолчанию все порты)
+
+\fB\-l\fR, \fB\-\-list\fR
+только вывести список имён устройств RDMA
+
+\fB\-v\fR, \fB\-\-verbose\fR
+вывести всю доступную информацию об устройствах RDMA
+
+.SH СМ. ТАКЖЕ
+.BR ibv_devices (1)
+
+.SH АВТОРЫ
+.TP
+Dotan Barak
+.RI < dotanba@gmail.com >
+.TP
+Roland Dreier
+.RI < rolandd@cisco.com >

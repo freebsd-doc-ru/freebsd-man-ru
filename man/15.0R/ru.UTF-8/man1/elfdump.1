@@ -22,10 +22,13 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" FRDP path ./usr.bin/elfdump/elfdump.1
-.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
-.\" FRDP hash256 7ac88026c7749b07174a626ec5e86b9c07a69d80284ed5cdc4c9e540a97d00aa
-.Dd 5 ноября 2018
+.\" $FreeBSD: src/usr.bin/elfdump/elfdump.1,v 1.6 2005/01/18 13:43:48 ru Exp $
+.\" $Id: elfdump.1 3231 2015-07-30 13:47:56Z emaste $
+.\"
+.\" FRDP path ./contrib/elftoolchain/elfdump/elfdump.1
+.\" FRDP githash 656f49f8e2b0656824a5f10aeb760a00fdd3753f
+.\" FRDP hash256 fd4806da301f512d49493d7f9ff1c653910fda6b6fa7250abd47527e6ce674b8
+.Dd 25 августа 2011
 .Dt ELFDUMP 1
 .Os
 .Sh ИМЯ
@@ -34,9 +37,12 @@
 файлы
 .Sh СИНТАКСИС
 .Nm
-.Fl a | E | cdeGhinprs
+.Fl a | cdeGhiknprsv
+.Op Fl S
+.Op Fl V
+.Op Fl N Ar имя
 .Op Fl w Ar файл
-.Ar файл
+.Ar файл ...
 .Sh ОПИСАНИЕ
 Утилита
 .Nm
@@ -53,25 +59,36 @@
 Вывести динамические символы.
 .It Fl e
 Вывести заголовок ELF.
-.It Fl E
-Возвращает успех, если
-.Ar файл
-является файлом ELF, и неудачу, если это не так.
-Этот параметр исключает использование других параметров.
 .It Fl G
 Вывести GOT.
 .It Fl h
-Вывести значения хэша.
+Вывести хэш-значения.
 .It Fl i
 Вывести динамический интерпретатор.
+.It Fl k
+Вывести контрольную сумму ELF.
 .It Fl n
 Вывести разделы примечаний.
+.It Fl N Ar имя
+Выводить только раздел с указанным
+.Ar именем .
+Таблица символов архива может быть указана с помощью
+специального имени раздела ARSYM.
+Может присутствовать более одного параметра
+.Fl N .
 .It Fl p
 Вывести заголовок программы.
 .It Fl r
 Вывести перемещения.
 .It Fl s
 Вывести таблицу символов.
+.It Fl S
+Вывод в формате Solaris
+.Nm .
+.It Fl v
+Вывести разделы управления версиями символов.
+.It Fl V
+Вывести идентификатор версии и завершить работу.
 .It Fl w Ar файл
 Записать вывод в
 .Ar файл
@@ -82,14 +99,26 @@
 .Sh ПРИМЕРЫ
 Ниже приведен пример типичного использования
 команды
-.Nm
-:
+.Nm :
+.Pp
+.Pp
+Для вывода содержимого таблицы символов '.dynsym':
+.Pp
+.Pp
+Для вывода таблицы символов архива,
+но не таблиц символов членов архива:
+.Pp
+.Pp
+Для вывода содержимого раздела .got и
+разделов управления версиями символов в формате Solaris
+.Nm :
 .Pp
 .Sh СМ. ТАКЖЕ
 .Xr objdump 1 ,
-.Xr readelf 1
+.Xr readelf 1 ,
+.Xr elf 3
 .Rs
-.%U http://www.sco.com/developers/gabi/
+.%O http://www.sco.com/developers/gabi/
 .Re
 .Sh ИСТОРИЯ
 Утилита
@@ -102,9 +131,16 @@
 .Nm
 была написана
 .An Джейком Буркхолдером Aq Mt jake@FreeBSD.org .
+Позже она была переписана на основе
+библиотеки libelf.
 Эта
 страница руководства была написана
 .An Дэвидом О'Брайеном Aq Mt obrien@FreeBSD.org .
+.Pp
+.An Кай Ван Aq Mt kaiw@FreeBSD.org
+переписал её с использованием
+.Lb libelf
+и реализовал дополнительную функциональность.
 .Sh ИЗВЕСТНЫЕ ОШИБКИ
 Не полностью реализует
 .Tn ELF

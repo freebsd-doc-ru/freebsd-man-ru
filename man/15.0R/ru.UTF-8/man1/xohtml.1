@@ -1,0 +1,94 @@
+.\" #
+.\" # Copyright (c) 2015, Juniper Networks, Inc.
+.\" # All rights reserved.
+.\" # This SOFTWARE is licensed under the LICENSE provided in the
+.\" # ../Copyright file. By downloading, installing, copying, or 
+.\" # using the SOFTWARE, you agree to be bound by the terms of that
+.\" # LICENSE.
+.\" # Phil Shafer, July 2014
+.\" 
+.\" FRDP path ./contrib/libxo/xohtml/xohtml.1
+.\" FRDP githash fd5e3f3ec6c6248e892c9e7b2f17da3bfe7b6837
+.\" FRDP hash256 e1299cbeb38f8c7b4ba9cecf6ea868696f190bd883e8b010dbc30e99fd8c695a
+.Dd 4 декабря 2014
+.Dt XOHTML 1
+.Os
+.Sh ИМЯ
+.Nm xohtml
+.Nd отображение HTML вывода libxo
+.Xr xo_emit 3
+.Sh СИНТАКСИС
+.Nm xohtml
+.Op Ar команда [аргумент ...]
+.Sh ОПИСАНИЕ
+.Nm
+это инструмент для подготовки HTML вывода
+.Xr libxo 3
+к отображению в современных HTML веб-браузерах.
+.Nm
+может работать в двух режимах.
+Если команда предоставлена
+либо с опцией
+.Fl c ,
+либо как аргумент(ы) команды
+.Nm ,
+то эта команда выполняется, и полученный вывод обрабатывается.
+Если команда не указана, используется
+стандартный ввод.
+.Pp
+.Nm
+обычно используется для обёртывания
+вывода
+.Nm libxo
+достаточным HTML содержимым, чтобы позволить отображение в веб-браузере.
+Это включает родительские HTML теги, а также
+таблицы стилей
+.Nm CSS
+и файлы
+.Nm Javascript .
+.Pp
+Если команда указана непосредственно в командной строке,
+.Nm
+от
+приложений. Подробности см. в
+.Xr xo_options 7 .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Ic -b Ar база | Ic --base Ar база
+Указывает исходный путь для файлов CSS и Javascript, на которые ссылается
+вывод
+.Nm xohtml .
+.It Ic -c Ar команда | Ic --command Ar команда
+Использовать данную команду вместо указанной в командной строке.
+Эта команда должна быть заключена в кавычки, если состоит из нескольких токенов, и
+команда используется напрямую.
+.It Ic -f Ar файл | Ic --file Ar файл
+Вывод сохраняется в указанный файл, а не в стандартный вывод.
+.It Ic -w | --web
+Использует официальный URL веб-сайта
+.Nm libxo
+в качестве исходного пути для файлов CSS и Javascript,
+на которые ссылается вывод
+.Nm xohtml .
+.El
+.Pp
+.Sh ПРИМЕРЫ
+вывод в /tmp/src.html:
+.Bd -literal -offset indent
+    xohtml du ~/src > /tmp/src.html
+.Ed
+.Pp
+вывод в /tmp/src.html:
+.Bd -literal -offset indent
+    du --libxo=html,warn ~/src | xohtml -f /tmp/src.html
+.Ed
+.Pp
+вывод в /tmp/src.html:
+.Bd -literal -offset indent
+.Ed
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_emit 3 ,
+.Xr xo_options 7

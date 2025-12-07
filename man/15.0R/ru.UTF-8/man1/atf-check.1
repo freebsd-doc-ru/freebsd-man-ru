@@ -1,0 +1,172 @@
+.\" Copyright (c) 2008 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\" FRDP path ./contrib/atf/atf-sh/atf-check.1
+.\" FRDP githash c203bd70b5957f85616424b6fa374479372d06e3
+.\" FRDP hash256 dd090f5b54144cbefffb83377a7f26a842e0d317d09d1eb3d4a8a4b861c4b696
+.Dd 21 июня 2020
+.Dt ATF-CHECK 1
+.Os
+.Sh ИМЯ
+.Nm atf-check
+.Nd выполняет команду и анализирует её результаты
+.Sh СИНТАКСИС
+.Nm
+.Op Fl s Ar критерий:значение
+.Op Fl o Ar действие:аргумент ...
+.Op Fl e Ar действие:аргумент ...
+.Op Fl x
+.Ar команда
+.Sh ОПИСАНИЕ
+.Nm
+выполняет заданную команду и анализирует её результаты, включая
+код завершения, стандартный вывод и стандартный вывод ошибок.
+.Pp
+.Bf Em
+Тестовые случаи должны использовать
+встроенную функцию
+.Xr atf-sh 3 Ns ' Ns s
+.Nm atf_check
+вместо прямого вызова этой утилиты.
+.Ef
+.Pp
+В первой форме синтаксиса,
+.Nm
+выполнит предоставленную команду и применит проверки, указанные
+аргументами.
+По умолчанию он будет действовать так, как если бы был запущен с
+.Fl s
+.Ar exit:0
+.Fl o
+.Ar empty
+.Fl e
+.Ar empty .
+Допускается несколько проверок для одного и того же канала вывода, и если они указаны,
+их результаты будут объединены по логическому И (что означает, что вывод должен
+соответствовать всем предоставленным проверкам).
+.Pp
+Во второй форме синтаксиса,
+.Nm
+выведет информацию обо всех поддерживаемых опциях и их назначении.
+.Pp
+Доступны следующие опции:
+.Bl -tag  -width XкритерийXзначениеXX
+.It Fl s Ar критерий:значение
+Анализирует статус завершения.
+Должен быть одним из:
+.Bl -tag -width signal:<значение> -compact
+.It Ar exit:<значение>
+проверяет, что программа завершилась корректно и её статус выхода равен
+.Va значению .
+Код выхода может быть опущен вовсе, в этом случае принимается любое корректное завершение.
+.It Ar ignore
+игнорирует проверку выхода.
+.It Ar signal:<значение>
+проверяет, что программа завершилась из-за сигнала и что сигнал,
+который её завершил, равен
+.Va значению .
+Сигнал может быть указан как числом, так и именем, или также может быть
+опущен вовсе, в этом случае принимается любой сигнал.
+.El
+.Pp
+Большинство этих проверок могут быть предварены строкой
+.Sq not- ,
+что фактически инвертирует проверку.
+.It Fl o Ar действие:аргумент
+Анализирует стандартный вывод.
+Должен быть одним из:
+.Bl -tag -width inline:<значение> -compact
+.It Ar empty
+проверяет, что стандартный вывод пуст
+.It Ar ignore
+игнорирует стандартный вывод
+.It Ar file:<путь>
+сравнивает стандартный вывод с заданным файлом
+.It Ar inline:<значение>
+сравнивает стандартный вывод с встроенным значением
+.It Ar match:<регулярное_выражение>
+ищет регулярное выражение в стандартном выводе
+.It Ar save:<путь>
+сохраняет стандартный вывод в заданный файл
+.El
+.Pp
+Большинство этих проверок могут быть предварены строкой
+.Sq not- ,
+что фактически инвертирует проверку.
+.It Fl e Ar действие:аргумент
+Анализирует стандартный вывод ошибок (синтаксис идентичен вышеописанному)
+.It Fl x
+Выполняет
+.Ar команду
+как командную строку оболочки, запуская её с системной оболочкой, определённой
+.Va ATF_SHELL .
+Следует избегать использования этого флага, если это вообще возможно, чтобы предотвратить проблемы с кавычками оболочки.
+.It Fl r Ar таймаут[:интервал]
+Повторяет неудачные проверки до истечения
+.Ar таймаута
+(в секундах).
+Если не указано, значение по умолчанию для
+.Ar интервала
+(в миллисекундах) составляет 50 мс.
+Это может использоваться для ожидания ожидаемого обновления содержимого файла.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width ATFXSHELLXX -compact
+.It Va ATF_SHELL
+Путь к системной оболочке, которая будет использоваться, когда задан флаг
+.Fl x
+для выполнения команд.
+.El
+.Sh СТАТУС ВЫХОДА
+.Nm
+завершается с кодом 0 при успехе и другим (неопределённым) значением при неудаче.
+.Sh ПРИМЕРЫ
+Ниже приведены примеры вызовов из тестового случая.
+Обратите внимание, что мы используем функцию
+.Nm atf_check
+предоставленную
+.Xr atf-sh 3
+вместо прямого выполнения
+.Nm :
+.Bd -literal -offset indent
+# Код выхода 0, ничего в stdout/stderr
+atf_check 'true'
+
+# Типичное использование, если ожидается неудача
+atf_check -s not-exit:0 'false'
+
+# Проверка stdout/stderr
+echo foobar >expout
+
+# Проверка на аварийное завершение
+atf_check -s signal:sigsegv my_program
+
+# Комбинированные проверки
+atf_check -o match:foo -o not-match:bar echo foo baz
+
+# Ждать 5 секунд появления строки в файле
+atf-check -o ignore -e ignore -s exit:0 -r 5 \e
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr atf-sh 1

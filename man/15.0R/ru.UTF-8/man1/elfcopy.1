@@ -1,0 +1,369 @@
+.\" Copyright (c) 2008-2009,2011 Joseph Koshy.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" This software is provided by Joseph Koshy ``as is'' and
+.\" any express or implied warranties, including, but not limited to, the
+.\" implied warranties of merchantability and fitness for a particular purpose
+.\" are disclaimed.  in no event shall Joseph Koshy be liable
+.\" for any direct, indirect, incidental, special, exemplary, or consequential
+.\" damages (including, but not limited to, procurement of substitute goods
+.\" or services; loss of use, data, or profits; or business interruption)
+.\" however caused and on any theory of liability, whether in contract, strict
+.\" liability, or tort (including negligence or otherwise) arising in any way
+.\" out of the use of this software, even if advised of the possibility of
+.\" such damage.
+.\"
+.\" $Id: elfcopy.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/elfcopy/elfcopy.1
+.\" FRDP githash ae500c1ff8974130f7f2692772cf288b90349e0d
+.\" FRDP hash256 80c62c20ed6aa4434816d6fae253c96a61e13bb0a2a9c96066e7a4cf1f69d585
+.Dd 30 августа 2017
+.Dt ELFCOPY 1
+.Os
+.Sh ИМЯ
+.Nm elfcopy ,
+.Nm objcopy
+.Nd копирование и преобразование объектных файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl I Ar формат_объекта | Fl s Ar формат_объекта | Fl -input-target= Ns Ar формат_объекта
+.Op Fl K Ar имя_символа | Fl -keep-symbol= Ns Ar имя_символа
+.Op Fl L Ar имя_символа | Fl -localize-symbol= Ns Ar имя_символа
+.Op Fl N Ar имя_символа | Fl -strip-symbol= Ns Ar имя_символа
+.Op Fl O Ar формат_объекта | Fl -output-target= Ns Ar формат_объекта
+.Op Fl R Ar имя_раздела | Fl -remove-section= Ns Ar имя_раздела
+.Op Fl S | Fl -strip-all
+.Op Fl V | Fl -version
+.Op Fl W Ar имя_символа | Fl -weaken-symbol= Ns Ar имя_символа
+.Op Fl X | Fl -discard-locals
+.Op Fl d | Fl g | Fl -strip-debug
+.Op Fl h | Fl -help
+.Op Fl j Ar имя_раздела | Fl -only-section= Ns Ar имя_раздела
+.Op Fl p | Fl -preserve-dates
+.Op Fl w | Fl -wildcard
+.Op Fl x | Fl -discard-all
+.Op Fl -add-gnu-debuglink Ns = Ns Ar имя_файла
+.Op Fl -add-section Ar имя_раздела Ns = Ns Ar имя_файла
+.Oo
+.Fl -adjust-section-vma Ar раздел Ns {+|-|=} Ns Ar значение |
+.Fl -change-section-address Ar раздел Ns {+|-|=} Ns Ar значение
+.Oc
+.Oo
+.Fl -adjust-start Ns = Ns Ar приращение |
+.Fl -change-start Ns = Ns Ar приращение
+.Oc
+.Oo
+.Fl -adjust-vma Ns = Ns Ar приращение |
+.Fl -change-addresses Ns = Ns Ar приращение
+.Oc
+.Op Fl -adjust-warnings | Fl -change-warnings
+.Op Fl -change-section-lma Ar раздел Ns {+|-|=} Ns Ar значение
+.Op Fl -change-section-vma Ar раздел Ns {+|-|=} Ns Ar значение
+.Op Fl -extract-dwo
+.Op Fl -gap-fill Ns = Ns Ar значение
+.Op Fl -globalize-symbol Ns = Ns ar имя_символа
+.Op Fl -globalize-symbols Ns = Ns Ar имя_файла
+.Op Fl -localize-hidden
+.Op Fl -localize-symbols Ns = Ns Ar имя_файла
+.Op Fl -no-adjust-warnings | Fl -no-change-warnings
+.Op Fl -only-keep-debug
+.Op Fl -pad-to Ns = Ns Ar адрес
+.Op Fl -prefix-alloc-sections Ns = Ns Ar строка
+.Op Fl -prefix-sections Ns = Ns Ar строка
+.Op Fl -prefix-symbols Ns = Ns Ar строка
+.Op Fl -rename-section Ar старое_имя Ns = Ns Ar новое_имя Ns Op Ar ,флаги
+.Op Fl -set-section-flags Ar имя_раздела Ns = Ns Ar флаги
+.Op Fl -set-start Ns = Ns Ar адрес
+.Op Fl -srec-forceS3
+.Op Fl -srec-len Ns = Ns Ar значение
+.Op Fl -strip-dwo
+.Op Fl -strip-symbols= Ns Ar имя_файла
+.Op Fl -strip-unneeded
+.Ar входной_файл
+.Op Ar выходной_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует содержимое двоичного объекта, указанного аргументом
+.Ar входной_файл,
+в объект, указанный аргументом
+.Ar выходной_файл,
+преобразуя его в соответствии с заданными параметрами командной строки.
+Если аргумент
+.Ar выходной_файл
+не указан,
+.Nm
+создаст временный файл, а затем переименует его в
+.Ar входной_файл.
+.Pp
+Утилита
+.Nm
+поддерживает следующие опции:
+.Bl -tag -width indent
+.It Fl I Ar формат_объекта | Fl s Ar формат_объекта | Fl -input-target= Ns Ar формат_объекта
+Указывает, что входной файл, указанный аргументом
+.Ar входной_файл,
+имеет формат объекта, заданный аргументом
+.Ar формат_объекта.
+.It Fl K Ar имя_символа | Fl -keep-symbol= Ns Ar имя_символа
+Скопировать символ с именем, указанным аргументом
+.Ar имя_символа,
+в выходные данные.
+.It Fl L Ar имя_символа | Fl -localize-symbol= Ns Ar имя_символа
+Сделать символ с именем, указанным аргументом
+.Ar имя_символа,
+локальным для выходного файла.
+.It Fl N Ar символ | Fl -strip-symbol= Ns Ar имя_символа
+Не копировать символ с именем, указанным аргументом
+.Ar имя_символа,
+в выходные данные.
+.It Fl O Ar формат_объекта | Fl -output-target= Ns Ar формат_объекта
+Записать выходной файл, используя формат объекта, указанный в аргументе
+.Ar формат_объекта.
+Аргумент
+.Ar формат_объекта
+должен быть одним из имен целевых форматов, распознаваемых
+.Xr elftc_bfd_find_target 3.
+.It Fl R Ar имя_раздела | Fl -remove-section= Ns Ar имя_раздела
+Удалить любой раздел с именем
+.Ar имя_раздела
+из выходного файла.
+.It Fl S | Fl -strip-all
+Не копировать информацию о символах и перемещениях в целевой файл.
+.It Fl V | Fl -version
+Вывести идентификатор версии и выйти.
+.It Fl W Ar имя_символа | Fl -weaken-symbol= Ns Ar имя_символа
+Пометить символ с именем, указанным аргументом
+.Ar имя_символа,
+как слабый в выходных данных.
+.It Fl X | Fl -discard-locals
+Не копировать сгенерированные компилятором локальные символы в выходные данные.
+.It Fl d | Fl g | Fl -strip-debug
+Не копировать отладочную информацию в целевой файл.
+.It Fl h | Fl -help
+Показать справочное сообщение и выйти.
+.It Fl j Ar имя_раздела | Fl -only-section= Ns Ar имя_раздела
+Копировать только раздел с именем, указанным аргументом
+.Ar имя_раздела,
+в выходные данные.
+.It Fl p | Fl -preserve-dates
+Установить время доступа и изменения выходного файла таким же,
+как у входного файла.
+.It Fl w | Fl -wildcard
+Использовать шаблоны в стиле оболочки для именования символов.
+В шаблонах распознаются следующие метасимволы:
+.It Li !
+Если этот символ стоит первым в шаблоне, инвертировать смысл совпадения шаблона.
+.It Li *
+Соответствует любой строке символов в имени символа.
+.It Li ?
+Соответствует нулю или одному символу в имени символа.
+.It Li [
+Обозначает начало класса символов.
+.It Li \e
+Убрать специальное значение следующего символа в шаблоне.
+.It Li ]
+Обозначает конец класса символов.
+.El
+.It Fl x | Fl -discard-all
+Не копировать неглобальные символы в выходные данные.
+.It Fl -add-gnu-debuglink Ns = Ns Ar имя_файла
+Создать раздел .gnu_debuglink в выходном файле, который ссылается на
+отладочные данные в файле
+.Ar имя_файла.
+.It Fl -add-section Ar имя_раздела Ns = Ns Ar имя_файла
+Добавить новый раздел в выходной файл с именем
+.Ar имя_раздела.
+Содержимое раздела берется из файла, указанного аргументом
+.Ar имя_файла.
+Размер раздела будет равен количеству байтов в файле
+.Ar имя_файла.
+.It Xo
+.Fl -adjust-section-vma Ar раздел Ns {+|-|=} Ns Ar значение |
+.Fl -change-section-address Ar раздел Ns {+|-|=} Ns Ar значение
+.Xc
+В зависимости от указанного оператора увеличить, уменьшить или установить
+виртуальный адрес памяти и адрес загрузки в памяти для раздела
+с именем, указанным аргументом
+.Ar раздел.
+Аргумент
+.Ar значение
+определяет желаемое приращение, уменьшение или новое значение для
+адреса.
+.It Xo
+.Fl -adjust-start Ns = Ns Ar приращение |
+.Fl -change-start Ns = Ns Ar приращение
+.Xc
+Увеличить адрес точки входа выходного объекта ELF на величину,
+указанную в аргументе
+.Ar приращение.
+.It Xo
+.Fl -adjust-vma Ns = Ns Ar приращение |
+.Fl -change-addresses Ns = Ns Ar приращение
+.Xc
+Увеличить виртуальный адрес памяти и адрес загрузки в памяти для всех
+разделов на величину, указанную аргументом
+.Ar приращение.
+.It Fl -adjust-warnings | Fl -change-warnings
+Выдать предупреждение, если раздел, указанный опциями
+.Fl -change-section-address,
+.Fl -change-section-lma
+или
+.Fl -change-section-vma,
+отсутствует во входном объекте. Это поведение по умолчанию.
+.It Fl -change-section-lma Ar раздел Ns {+|-|=} Ns Ar значение
+Изменить или установить адрес загрузки в памяти для раздела с именем,
+указанным аргументом
+.Ar раздел.
+В зависимости от указанного оператора значение из аргумента
+.Ar значение
+будет использовано как приращение, уменьшение или новое значение
+адреса загрузки в памяти.
+.It Fl -change-section-vma Ar раздел Ns {+|-|=} Ns Ar значение
+Изменить или установить виртуальный адрес памяти для раздела с именем,
+указанным аргументом
+.Ar раздел.
+В зависимости от указанного оператора значение из аргумента
+.Ar значение
+будет использовано как приращение, уменьшение или новое значение
+виртуального адреса памяти.
+.It Fl -extract-dwo
+Копировать только отладочные разделы .dwo в выходной файл.
+.It Fl -gap-fill Ns = Ns Ar значение
+Заполнить промежутки между разделами байтовым значением, указанным
+аргументом
+.Ar значение.
+.It Fl -globalize-symbol Ns = Ns Ar имя_символа
+Сделать символ с именем, указанным аргументом
+.Ar имя_символа,
+глобальным, чтобы он был виден за пределами файла, в котором определен.
+.It Fl -globalize-symbols Ns = Ns Ar имя_файла
+Сделать каждый символ, перечисленный в файле, указанном аргументом
+.Ar имя_файла,
+глобальным.
+.It Fl -localize-hidden
+Сделать все скрытые символы локальными для выходного файла.
+Это включает символы с внутренней видимостью.
+.It Fl -localize-symbols Ns = Ns Ar имя_файла
+Сделать каждый символ, перечисленный в файле, указанном аргументом
+.Ar имя_файла,
+локальным для выходного файла.
+.It Fl -no-adjust-warnings | Fl -no-change-warnings
+Не выдавать предупреждение, если раздел, указанный опциями
+.Fl -change-section-address,
+.Fl -change-section-lma
+или
+.Fl -change-section-vma,
+отсутствует во входном объекте.
+.It Fl -only-keep-debug
+Копировать только отладочную информацию в выходной файл.
+.It Fl -pad-to Ns = Ns Ar адрес
+Дополнить адрес загрузки в памяти выходного объекта до значения,
+указанного аргументом
+.Ar адрес,
+путем увеличения размера раздела с самым высоким адресом загрузки в памяти.
+.It Fl -prefix-alloc-sections Ns = Ns Ar строка
+Добавить префикс
+.Ar строка
+к именам всех выделенных разделов.
+.It Fl -prefix-sections Ns = Ns Ar строка
+Добавить префикс
+.Ar строка
+к именам всех разделов.
+.It Fl -prefix-symbols Ns = Ns Ar строка
+Добавить префикс
+.Ar строка
+к именам всех символов.
+.It Fl -rename-section Ar старое_имя Ns = Ns Ar новое_имя Ns Op Ar ,флаги
+Переименовать раздел с именем, указанным аргументом
+.Ar старое_имя,
+в
+.Ar новое_имя,
+опционально изменив флаги раздела на указанные аргументом
+.Ar флаги.
+Допустимые значения для аргумента
+.Ar флаги
+такие же, как для опции
+.Fl -set-section-flags
+ниже.
+.It Fl -set-section-flags Ar имя_раздела Ns = Ns Ar флаги
+Установить флаги для раздела с именем, указанным аргументом
+.Ar имя_раздела,
+в значения, указанные аргументом
+.Ar флаги.
+Аргумент
+.Ar флаги
+представляет собой список, разделенный запятыми, следующих имен флагов:
+.It alloc
+Раздел занимает место в выходном файле.
+.It code
+Раздел содержит машинные инструкции.
+.It contents
+Этот флаг принимается, но игнорируется.
+.It data
+Раздел содержит записываемые данные.
+.It debug
+Раздел содержит отладочную информацию.
+.It load
+Раздел загружаемый.
+.It noload
+Раздел не должен загружаться в память.
+.It readonly
+Раздел не доступен для записи.
+.It rom
+Раздел содержит содержимое, пригодное для ПЗУ.
+.It share
+Этот флаг принимается, но игнорируется.
+.El
+.It Fl -set-start Ns = Ns Ar адрес
+Установить стартовый адрес выходного объекта ELF в значение, указанное
+аргументом
+.Ar адрес.
+.It Fl -srec-forceS3
+Генерировать только S-записи типа
+.Dq S3.
+Эта опция имеет смысл только когда выходной целевой формат установлен в
+.Dq srec.
+.It Fl -srec-len Ns = Ns Ar значение
+Установить максимальную длину строки S-записи в
+.Ar значение.
+Эта опция имеет смысл только когда выходной целевой формат установлен в
+.Dq srec.
+.It Fl -strip-dwo
+Не копировать отладочные разделы .dwo в выходной файл.
+.It Fl -strip-symbols= Ns Ar имя_файла
+Не копировать ни один из символов, указанных в файле
+.Ar имя_файла,
+в выходные данные.
+.It Fl -strip-unneeded
+Не копировать символы, которые не нужны для обработки перемещений.
+.El
+.Sh ДИАГНОСТИКА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr ld 1 ,
+.Xr mcs 1 ,
+.Xr strip 1 ,
+.Xr elf 3 ,
+.Xr elftc_bfd_find_target 3 ,
+.Xr ar 5 ,
+.Xr elf 5
+.Sh СОВМЕСТИМОСТЬ
+Ожидается, что утилита
+.Nm
+совместима по опциям с GNU
+.Nm objcopy.
+.Sh ИСТОРИЯ
+.Nm
+была реализована
+.An Кай Ван (Kai Wang) Aq Mt kaiwang27@users.sourceforge.net.

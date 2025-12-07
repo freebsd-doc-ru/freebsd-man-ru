@@ -1,0 +1,87 @@
+.\"
+.\" Copyright (C) 2004-2006
+.\"	Hartmut Brandt.
+.\"	All rights reserved.
+.\"
+.\" Author: Harti Brandt <harti@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Begemot: gensnmpdef.1 383 2006-05-30 07:40:49Z brandt_h $
+.\"
+.\" FRDP path ./contrib/bsnmp/gensnmpdef/gensnmpdef.1
+.\" FRDP githash e1d581b289848ffa97c452756dc52d45efb68a01
+.\" FRDP hash256 c0769e2a1dd149b25dc6ee87698dcd87e16e3bb782fae48e9d6c886884c2b3be
+.Dd 28 мая 2006
+.Dt GENSNMPDEF 1
+.Os
+.Sh ИМЯ
+.Nm gensnmpdef
+.Sh СИНТАКСИС
+.Nm
+.Op Fl hEe
+.Op Fl c Ar cut
+.Ar имя Op Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания начального файла описания MIB из
+одной или нескольких MIB.
+Файл описания необходимо отредактировать, чтобы он стал действительно полезным
+для передачи в
+.Xr gensnmptree 1 .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl c Ar cut
+Указать количество начальных sub-oid, которые следует опустить
+в дереве вывода.
+.Xr gensnmptree 1
+автоматически добавляет 1.3.6 перед всеми OID, поэтому значение по умолчанию
+равное 3 является правильным в большинстве случаев.
+.It Fl E
+Генерировать typedef для именованных перечислений.
+Это перечисления, определенные с помощью макроса TEXTUAL-CONVENTION.
+Обычный вывод дерева подавляется.
+.It Fl e
+Генерировать typedef для безымянных перечислений.
+Это перечисления, определенные в предложении SYNTAX макроса OBJECT-TYPE.
+Имя перечисления формируется путем добавления строки
+.Ql Type
+к имени объекта.
+Обычный вывод дерева подавляется.
+.It Fl h
+Вывести краткую справку и завершить работу.
+.El
+.Pp
+.Nm
+не предпринимает попыток сортировки дерева OID, поэтому в случае сложных и
+нестандартных MIB необходимо отсортировать дерево в результирующем файле определений
+вручную.
+.Sh СМ. ТАКЖЕ
+.Xr snmpd 1
+.Sh АВТОРЫ
+.An Hartmut Brandt Aq harti@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита ни в коем случае не является неуязвимой и может завершиться сбоем для сложных
+или нестандартных MIB.
+Предполагается, что её вывод будет редактироваться вручную.

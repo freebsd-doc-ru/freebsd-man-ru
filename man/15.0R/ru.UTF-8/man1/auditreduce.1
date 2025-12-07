@@ -1,0 +1,196 @@
+.\" Copyright (c) 2004 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR
+.\" ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./contrib/openbsm/bin/auditreduce/auditreduce.1
+.\" FRDP githash 71f8f48356585b1777d5d6a940c86f810bd20c6a
+.\" FRDP hash256 b3b3be6ca0a3fab2ad193a2eac164774641aa1075b3071f72ecc26c899696490
+.Dd 20 февраля 2020
+.Dt AUDITREDUCE 1
+.Os
+.Sh ИМЯ
+.Nm auditreduce
+.Sh СИНТАКСИС
+.Nm
+.Op Fl A
+.Op Fl a Ar ГГГГММДД Ns Op Ar ЧЧ Ns Op Ar ММ Ns Op Ar СС
+.Op Fl b Ar ГГГГММДД Ns Op Ar ЧЧ Ns Op Ar ММ Ns Op Ar СС
+.Op Fl c Ar флаги
+.Op Fl d Ar ГГГГММДД
+.Op Fl e Ar euid
+.Op Fl f Ar egid
+.Op Fl g Ar rgid
+.Op Fl j Ar id
+.Op Fl m Ar событие
+.Op Fl o Ar объект Ns = Ns Ar значение
+.Op Fl r Ar ruid
+.Op Fl u Ar auid
+.Op Fl v
+.Op Fl z Ar зона
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выбирает записи из файлов журнала аудита на основе указанных
+критериев.
+Соответствующие записи аудита выводятся на стандартный вывод в
+их исходной бинарной форме.
+Если аргумент
+.Ar файл
+не указан, по умолчанию используется стандартный ввод.
+Используйте утилиту
+.Xr praudit 1
+для вывода выбранных записей аудита в удобочитаемом формате.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl A
+Выбрать все записи.
+.It Fl a Ar ГГГГММДД Ns Op Ar ЧЧ Ns Op Ar ММ Ns Op Ar СС
+Выбрать записи, которые произошли после или в указанные дату и время.
+.It Fl b Ar ГГГГММДД Ns Op Ar ЧЧ Ns Op Ar ММ Ns Op Ar СС
+Выбрать записи, которые произошли до указанных даты и времени.
+.It Fl c Ar флаги
+Выбрать записи, соответствующие заданным классам аудита, указанным как
+список флагов аудита, разделённых запятыми.
+Описание флагов аудита см. в
+.Xr audit_control 5 .
+.It Fl d Ar ГГГГММДД
+Выбрать записи, которые произошли в указанную дату.
+Этот параметр нельзя использовать вместе с
+.Fl a
+или
+.Fl b .
+.It Fl e Ar euid
+Выбрать записи с указанным эффективным идентификатором пользователя или именем.
+.It Fl f Ar egid
+Выбрать записи с указанным эффективным идентификатором группы или именем.
+.It Fl g Ar rgid
+Выбрать записи с указанным реальным идентификатором группы или именем.
+.It Fl j Ar id
+Выбрать записи, содержащие токен субъекта с соответствующим идентификатором, где идентификатор — это идентификатор процесса.
+.It Fl m Ar событие
+Выбрать записи с указанным именем или номером события. Этот параметр можно
+использовать несколько раз для выбора записей нескольких типов событий.
+Описание имён и номеров событий аудита см. в
+.Xr audit_event 5 .
+.It Fl o Ar объект Ns = Ns Ar значение
+.It Cm файл
+Выбрать записи, содержащие токены пути, где имя пути соответствует
+одному из расширенных регулярных выражений, разделённых запятыми, содержащихся в
+заданной спецификации.
+Регулярные выражения, которым предшествует тильда
+.Pq Ql ~ ,
+исключаются
+из результатов поиска.
+Эти расширенные регулярные выражения обрабатываются слева направо,
+и путь будет либо выбран, либо исключён на основе первого совпадения.
+.Pp
+Поскольку запятые используются для разделения регулярных выражений, обратная косая черта
+.Pq Ql \e
+должна использоваться для экранирования запятой, если она является частью шаблона
+поиска.
+.It Cm msgqid
+Выбрать записи, содержащие указанный идентификатор очереди сообщений.
+.It Cm pid
+Выбрать записи, содержащие указанный идентификатор процесса.
+.It Cm semid
+Выбрать записи, содержащие указанный идентификатор семафора.
+.It Cm shmid
+Выбрать записи, содержащие указанный идентификатор разделяемой памяти.
+.El
+.It Fl r Ar ruid
+Выбрать записи с указанным реальным идентификатором пользователя или именем.
+.It Fl u Ar auid
+Выбрать записи с указанным идентификатором аудита.
+.It Fl v
+Инвертировать смысл соответствия, чтобы выбрать записи, которые не совпадают.
+.It Fl z Ar зона
+Выбрать записи из указанной зоны (зон).
+.Ar зона
+— это шаблон glob для сопоставления зон.
+.El
+.Sh ПРИМЕРЫ
+Чтобы выбрать все записи, связанные с эффективным идентификатором пользователя root, из журнала аудита
+.Pa /var/audit/20031016184719.20031017122634 :
+.Bd -literal -offset indent
+auditreduce -e root \e
+    /var/audit/20031016184719.20031017122634
+.Ed
+.Pp
+Чтобы выбрать все события
+.Xr setlogin 2
+из этого журнала:
+.Bd -literal -offset indent
+auditreduce -m AUE_SETLOGIN \e
+    /var/audit/20031016184719.20031017122634
+.Ed
+.Pp
+Вывод из вышеуказанных команд обычно передаётся в новый файл журнала
+или через стандартный вывод команде
+.Xr praudit 1 .
+.Pp
+Выбрать все записи, содержащие токен пути, где имя пути содержит
+.Pa /etc/master.passwd :
+.Bd -literal -offset indent
+auditreduce -o file=/etc/master.passwd \e
+    /var/audit/20031016184719.20031017122634
+.Ed
+.Pp
+Выбрать все записи, содержащие токены пути, где имя пути является
+устройством TTY:
+.Bd -literal -offset indent
+auditreduce -o file=/dev/tty.* \e
+    /var/audit/20031016184719.20031017122634
+.Ed
+.Pp
+Выбрать все записи, содержащие токены пути, где имя пути является
+устройством TTY, кроме
+.Pa /dev/ttyp2 :
+.Bd -literal -offset indent
+auditreduce -o file=/dev/tty.*,~/dev/ttyp2 \e
+    /var/audit/20031016184719.20031017122634
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr praudit 1 ,
+.Xr audit_control 5 ,
+.Xr audit_event 5
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, исследовательским подразделением безопасности
+McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс модуля базовой безопасности (BSM) для записей аудита и формат потока событий аудита
+были определены Sun Microsystems.

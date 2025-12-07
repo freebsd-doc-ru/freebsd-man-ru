@@ -1,0 +1,256 @@
+.\" Copyright (c) 2007 S.Sam Arun Raj
+.\" Copyright (c) 2008,2011 Joseph Koshy
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: size.1 3195 2015-05-12 17:22:19Z emaste $
+.\"
+.\" FRDP path ./contrib/elftoolchain/size/size.1
+.\" FRDP githash b00fe64f4acfe315181f65999af16e9a7bdc600b
+.\" FRDP hash256 ccebb3c9167e4cf625fd196fc640a9ad7066e9af45b755dc154208fe9007d7de
+.Dd 25 августа 2011
+.Dt SIZE 1
+.Os
+.Sh ИМЯ
+.Nm size
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -format= Ns Ar format
+.Op Fl -help
+.Op Fl -radix= Ns Ar radix
+.Op Fl -totals
+.Op Fl -version
+.Op Fl ABVdhotx
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит размеры разделов ELF и, опционально, общий размер для
+каждого входного
+.Ar файла,
+указанного в командной строке.
+Утилита
+.Nm
+может работать с объектами ELF, архивами
+.Xr ar 1 ,
+содержащими объекты ELF, и дампами памяти.
+Если имя файла не указано в командной строке,
+подразумевается файл
+.Pa a.out .
+.Pp
+Утилита
+.Nm
+распознает следующие опции:
+.Bl -tag -width indent
+.It Fl -format= Ns Ar format
+Выводить информацию, используя формат, указанный аргументом
+.Ar format .
+Поддерживаемые значения для этого аргумента:
+.Sq berkeley
+и
+.Sq sysv .
+Формат вывода по умолчанию —
+.Sq berkeley .
+Более подробная информация приведена в разделе
+.Sx ФОРМАТЫ ВЫВОДА
+ниже.
+.It Fl -help
+Вывести справочное сообщение и завершить работу.
+.It Fl -radix= Ns Ar radix
+Выводить числовые значения, используя систему счисления, указанную аргументом
+.Ar radix .
+Поддерживаемые значения для
+.Ar radix
+— 8, 10 и 16.
+Система счисления по умолчанию — 10.
+.It Fl -totals
+Показать совокупные итоги размеров разделов из всех объектов.
+Эта опция игнорируется для вывода в стиле System V.
+.It Fl -version
+Вывести идентификатор версии и завершить работу.
+.It Fl A
+Эквивалентно указанию опции
+.Fl -format= Ns Ar sysv .
+.It Fl B
+Эквивалентно указанию опции
+.Fl -format= Ns Ar berkeley .
+.It Fl V
+Эквивалентно указанию опции
+.Fl -version .
+.It Fl d
+Эквивалентно указанию опции
+.Fl -radix= Ns Ar 10 .
+.It Fl h
+Эквивалентно указанию опции
+.Fl -help .
+.It Fl o
+Эквивалентно указанию опции
+.Fl -radix= Ns Ar 8 .
+.It Fl t
+Эквивалентно указанию опции
+.Fl -totals .
+.It Fl x
+Эквивалентно указанию опции
+.Fl -radix= Ns Ar 16 .
+.El
+.Sh ФОРМАТЫ ВЫВОДА
+.Ss Вывод в стиле Berkeley
+Если активен вывод в стиле
+.Sq berkeley ,
+сначала выводится заголовок с именами полей,
+затем — по одной строке вывода для каждого объекта ELF, указанного
+в командной строке или найденного в архиве.
+.Pp
+Каждая строка содержит следующие поля, разделенные пробелами,
+в указанном порядке:
+.Bl -enum -compact
+.It
+Размер сегмента текста в объекте.
+.It
+Размер сегмента данных в объекте.
+.It
+Размер сегмента
+.Sq bss
+в объекте.
+.It
+Общий размер объекта в десятичной или восьмеричной системе.
+Десятичный вывод используется, если указанная система счисления для числовых значений
+равна 10 или 16.
+Восьмеричный вывод используется, если система счисления для числовых значений
+равна 8.
+.It
+Общий размер объекта в шестнадцатеричной системе.
+.It
+Имя файла объекта.
+.El
+.Pp
+Если указана опция
+.Fl -totals ,
+в конце будет выведена дополнительная строка в том же формате, что и выше,
+содержащая сумму соответствующих полей.
+В поле имени файла для этой строки будет указана строка
+.Sq (TOTALS) .
+.Ss Вывод в стиле System V
+Если выбран вывод в стиле System V,
+.Nm
+выведет следующую информацию для каждого объекта:
+.Bl -enum -compact
+.It
+Имя объекта, за которым следует двоеточие.
+.It
+Строка заголовка, содержащая имена полей для последующих строк.
+.It
+По одной строке для каждого раздела, присутствующего в объекте.
+Каждая строка имеет три поля:
+.Bl -enum -compact
+.It
+Имя раздела.
+.It
+Его размер в выбранной системе счисления для числовых значений.
+.It
+Адрес, связанный с разделом, в выбранной системе счисления.
+.El
+.It
+Строка, в поле имени раздела которой указана строка
+.Sq Total ,
+а в поле размера — сумма размеров всех указанных разделов.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы отобразить размеры разделов для
+.Pa /bin/ls ,
+используйте:
+.Bd -literal
+$ size /bin/ls
+text       data       bss        dec        hex        filename
+20975      540        392        21907      5593        /bin/ls
+.Ed
+.Pp
+Чтобы отобразить размеры и итог для
+.Pa /bin/ls
+и
+.Pa /bin/dd
+в шестнадцатеричной системе, используйте:
+.Bd -literal
+$ size -tx /bin/ls /bin/dd
+text       data       bss        dec        hex        filename
+0x51ef     0x21c      0x188      21907      5593        /bin/ls
+0x3df5     0x170      0x200      16741      4165        /bin/dd
+0x8fe4     0x38c      0x388      38648      96f8       (TOTALS)
+.Ed
+.Pp
+Чтобы отобразить размеры разделов для
+.Pa /bin/ls
+в формате System V, используйте:
+.Bd -literal
+$ size -A /bin/ls
+/bin/ls  :
+section            size       addr
+\&.interp            21         4194704
+\&.note.ABI-tag      24         4194728
+\&.hash              624        4194752
+\&.dynsym            2088       4195376
+\&.dynstr            810        4197464
+\&.rela.dyn          120        4198280
+\&.rela.plt          1656       4198400
+\&.init              19         4200056
+\&.plt               1120       4200076
+\&.text              15224      4201200
+\&.fini              14         4216424
+\&.rodata            1472       4216448
+\&.data              80         5267456
+\&.eh_frame          1624       5267536
+\&.dynamic           384        5269160
+\&.ctors             16         5269544
+\&.dtors             16         5269560
+\&.jcr               8          5269576
+\&.got               576        5269584
+\&.bss               528        5270176
+\&.comment           686        0
+Total              27110
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr nm 1 ,
+.Xr objdump 1 ,
+.Xr readelf 1 ,
+.Xr strings 1 ,
+.Xr elf 3 ,
+.Xr gelf 3
+.Rs
+.%O http://www.sco.com/developers/gabi/
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.At v6 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была переписана
+.An S. Sam Arun Raj Aq Mt samarunraj@gmail.com .
+Эта страница руководства была написана
+.An S. Sam Arun Raj Aq Mt samarunraj@gmail.com .

@@ -1,0 +1,211 @@
+.\" Copyright (c) 2009,2011 Joseph Koshy <jkoshy@users.sourceforge.net>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" $Id: readelf.1 3753 2019-06-28 01:13:13Z emaste $
+.\"
+.\" FRDP path ./contrib/elftoolchain/readelf/readelf.1
+.\" FRDP githash deef4b8ce8ba7292fe5088bf9f6d4e2e35662fe8
+.\" FRDP hash256 10242b8a490055f1470ce5d5a9387dd732aa887bb88750ccc472d8908b2b6c44
+.Dd 17 сентября 2021
+.Dt READELF 1
+.Os
+.Sh ИМЯ
+.Nm readelf
+.Nd отображает информацию об объектах ELF
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a | Fl -all
+.Op Fl c | Fl -archive-index
+.Op Fl d | Fl -dynamic
+.Op Fl e | Fl -headers
+.Op Fl g | Fl -section-groups
+.Op Fl h | Fl -file-header
+.Op Fl l | Fl -program-headers
+.Op Fl n | Fl -notes
+.Op Fl p Ar section | Fl -string-dump Ns = Ns Ar section
+.Op Fl r | Fl -relocs
+.Op Fl t | Fl -section-details
+.Op Fl u | Fl -unwind
+.Op Fl v | Fl -version
+.Oo
+.Fl w Ns Oo Ns Ar afilmoprsFLR Ns Oc |
+.Fl -debug-dump Ns Op Ns = Ns Ar long-option-name , Ns ...
+.Oc
+.Op Fl x Ar section | Fl -hex-dump Ns = Ns Ar section
+.Op Fl z | Fl -decompress
+.Op Fl A | Fl -arch-specific
+.Op Fl D | Fl -use-dynamic
+.Op Fl H | Fl -help
+.Op Fl I | Fl -histogram
+.Op Fl N | -full-section-name
+.Op Fl S | Fl -sections | Fl -section-headers
+.Op Fl V | Fl -version-info
+.Op Fl W | Fl -wide
+.Ar файл...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает информацию об объектах ELF и архивах
+.Xr ar 1 .
+.Pp
+Утилита
+.Nm
+распознает следующие опции:
+.Bl -tag -width indent
+.It Fl a | Fl -all
+Включает следующие флаги:
+.Fl d ,
+.Fl h ,
+.Fl I ,
+.Fl l ,
+.Fl n ,
+.Fl r ,
+.Fl s ,
+.Fl u ,
+.Fl A ,
+.Fl S
+и
+.Fl V .
+.It Fl c | Fl -archive-index
+Выводит таблицу символов архива для архивов.
+.It Fl d | Fl -dynamic
+Выводит содержимое разделов
+.Li SHT_DYNAMIC
+в объекте ELF.
+.It Fl e | Fl -headers
+Выводит все программные, файловые и секционные заголовки в объекте ELF.
+.It Fl g | Fl -section-groups
+Выводит содержимое групп разделов в объекте ELF.
+.It Fl h | Fl -file-header
+Выводит заголовок файла объекта ELF.
+.It Fl l | Fl -program-headers
+Выводит содержимое таблицы программных заголовков для объекта.
+.It Fl n | Fl -notes
+Выводит содержимое сегментов
+.Li PT_NOTE
+или разделов
+.Li SHT_NOTE
+присутствующих в объекте ELF.
+.It Fl p Ar section | Fl -string-dump Ns = Ns Ar section
+Выводит содержимое указанного раздела в виде печатаемых строк.
+Аргумент
+.Ar section
+должен быть именем раздела или числовым индексом раздела.
+.It Fl r | Fl -relocs
+Выводит информацию о перемещениях.
+.It Fl s | Fl -syms | Fl -symbols
+Выводит таблицы символов.
+.It Fl t | Fl -section-details
+Выводит дополнительную информацию о разделах, такую как поля флагов
+в заголовках разделов.
+Подразумевает
+.Fl S .
+.It Fl u | Fl -unwind
+Еще не реализовано (опция принимается, но игнорируется).
+.It Fl v | Fl -version
+Выводит идентификатор версии для
+.Nm
+и завершает работу.
+.It Fl w Ns Oo afilmoprsFLR Oc | Xo
+.Fl -debug-dump Ns Op Ns = Ns Ar long-option-name , Ns ...
+.Xc
+Отображает информацию DWARF.
+Опция
+.Fl w
+используется с короткими опциями в следующей
+таблице; опция
+.Fl -debug-dump
+используется с разделенным запятыми списком соответствующих длинных
+имен опций:
+.It Em Короткая опция Ta Em Длинная опция Ta Em Описание
+.It a Ta abbrev Ta Показать информацию об аббревиатурах.
+.It f Ta frames Ta Показать информацию о фреймах, отображая инструкции фреймов.
+.It i Ta info Ta Показать записи отладочной информации.
+.It l Ta rawline Ta Показать информацию о строках в сыром виде.
+.It m Ta macro Ta Показать информацию о макросах.
+.It o Ta loc Ta Показать информацию о списках локаций.
+.It p Ta pubnames Ta Показать глобальные имена.
+.It r Ta aranges|ranges Ta Показать информацию о диапазонах адресов.
+.It s Ta str Ta Показать таблицу строк отладки.
+.It F Ta frames-interp Ta Показать информацию о фреймах, отображая правила регистров.
+.It L Ta decodedline Ta Показать информацию о строках в декодированном виде.
+.It R Ta Ranges Ta Показать списки диапазонов.
+.El
+.Pp
+Если подопции не указаны, по умолчанию отображается информация,
+соответствующая коротким опциям
+.Ar a , f , i, l , o , p , r , s
+и
+.Ar R .
+.It Fl x Ar section | Fl -hex-dump Ns = Ns Ar section
+Отображает содержимое указанного раздела в шестнадцатеричном формате.
+Аргумент
+.Ar section
+должен быть именем раздела или числовым индексом раздела.
+.It Fl z | Fl -decompress
+Декомпрессировать содержимое разделов, указанных опциями
+.Fl x
+или
+.Fl p
+перед отображением.
+Если указанный раздел не сжат, он отображается как есть.
+.It Fl A | Fl -arch-specific
+Эта опция принимается, но в настоящее время не реализована.
+.It Fl D | Fl -use-dynamic
+Вывести таблицу символов, указанную записью
+.Li DT_SYMTAB
+в разделе
+.Dq Li .dynamic .
+.It Fl H | Fl -help
+Вывести справочное сообщение.
+.It Fl I | Fl -histogram
+Вывести информацию о длинах списков сегментов для разделов типа
+.Li SHT_HASH
+и
+.Li SHT_GNU_HASH .
+.It Fl N | Fl -full-section-name
+Эта опция принимается, но в настоящее время не реализована.
+.It Fl S | Fl -sections | Fl -section-headers
+Вывести информацию из заголовков разделов для каждого объекта ELF.
+.It Fl V | Fl -version-info
+Вывести информацию о версиях символов.
+.It Fl W | Fl -wide
+Вывести информацию о структурах ELF, используя одну длинную строку на
+структуру.
+Если эта опция не указана,
+.Nm
+будет выводить информацию в заголовках 64-битных объектов ELF на двух
+отдельных строках.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr nm 1 ,
+.Xr addr2line 1 ,
+.Xr elfcopy 1 ,
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Kai Wang Aq Mt kaiwang27@users.sourceforge.net .

@@ -1,0 +1,90 @@
+.\" Copyright (c) 2007 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\" FRDP path ./contrib/atf/doc/atf-test-program.1
+.\" FRDP githash 0677dfd1c4dadb62482e2c72fa4c6720902128a4
+.\" FRDP hash256 4345092c9734875112ac7b104337af71c7dd67e29fac36e21a6924310424aad7
+.Dd 2 марта 2014
+.Dt ATF-TEST-PROGRAM 1
+.Os
+.Sh ИМЯ
+.Nm atf-test-program
+.Nd общий интерфейс для тестовых программ ATF
+.Sh СИНТАКСИС
+.Nm
+.Op Fl r Ar файл_результатов
+.Op Fl s Ar исх_каталог
+.Op Fl v Ar переменная1=значение1 Op .. Fl v Ar переменнаяN=значениеN
+.Ar тестовый_случай
+.Nm
+.Fl l
+.Sh ОПИСАНИЕ
+Все тестовые программы, написанные с использованием библиотек ATF, имеют общий пользовательский интерфейс, который и описывается на этой странице руководства.
+.Em ПРИМЕЧАНИЕ: Не существует двоичного файла с именем
+.Nm ;
+.Em на этой странице руководства описывается интерфейс командной строки,
+.Em предоставляемый привязками atf-c, atf-c++ и atf-sh.
+.Pp
+В первой форме синтаксиса тестовая программа выполнит указанный тестовый случай и выведет его результаты на стандартный вывод, если иное не указано флагом
+.Fl r .
+При необходимости имя тестового случая может иметь суффикс
+.Sq :cleanup ,
+в этом случае будет выполнена процедура очистки тестового случая вместо тела тестового случая; см.
+.Xr atf-test-case 4 .
+Обратите внимание, что тестовый случай
+.Em выполняется без изоляции ,
+поэтому он может и, вероятно, будет создавать и изменять файлы в текущем каталоге.
+Для выполнения тестовых случаев контролируемым образом требуется среда выполнения, понимающая интерфейс ATF.
+Рекомендуемой средой выполнения является
+.Xr kyua 1 .
+Выполнять тестовые случаи вручную следует только для целей отладки.
+.Pp
+Во второй форме синтаксиса тестовая программа выведет список всех доступных тестовых случаев вместе с их метаданными в формате, пригодном для машинного анализа.
+Этот список обрабатывается
+.Xr kyua 1
+для определения способа выполнения тестовых случаев данной тестовой программы.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width XvXvarXvalueXX
+.It Fl l
+Выводит список доступных тестовых случаев с кратким описанием для каждого из них.
+.It Fl r Ar файл_результатов
+Указывает файл, который будет содержать результат тестового случая.
+Если не указан, тестовый случай выводит свои результаты в stdout.
+Если результат тестового случая должен быть обработан другой программой, необходимо использовать эту опцию для перенаправления результата в файл, а затем прочитать полученный файл из другой программы.
+Примечание:
+.Em не пытайтесь обрабатывать stdout тестового случая ,
+потому что ваша программа может перестать работать в будущем.
+.It Fl s Ar исх_каталог
+Путь к каталогу, где находится тестовая программа.
+Это необходимо во всех случаях, кроме тех, когда тестовая программа выполняется из текущего каталога.
+Тестовая программа будет использовать этот путь для поиска любых вспомогательных файлов данных или утилит.
+.It Fl v Ar переменная=значение
+Устанавливает конфигурационную переменную
+.Ar переменная
+в значение
+.Ar значение .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kyua 1

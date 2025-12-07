@@ -1,0 +1,88 @@
+.\" Copyright (c) 2007,2009-2012 Joseph Koshy.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" This software is provided by Joseph Koshy ``as is'' and
+.\" any express or implied warranties, including, but not limited to, the
+.\" implied warranties of merchantability and fitness for a particular purpose
+.\" are disclaimed.  in no event shall Joseph Koshy be liable
+.\" for any direct, indirect, incidental, special, exemplary, or consequential
+.\" damages (including, but not limited to, procurement of substitute goods
+.\" or services; loss of use, data, or profits; or business interruption)
+.\" however caused and on any theory of liability, whether in contract, strict
+.\" liability, or tort (including negligence or otherwise) arising in any way
+.\" out of the use of this software, even if advised of the possibility of
+.\" such damage.
+.\"
+.\" $Id: ranlib.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/ar/ranlib.1
+.\" FRDP githash ae500c1ff8974130f7f2692772cf288b90349e0d
+.\" FRDP hash256 0e48e69a032fb6ae208db767cd7a9c026032b18edc653e9b8eea510b260fd914
+.Dd 9 декабря 2012
+.Dt RANLIB 1
+.Os
+.Ш ИМЯ
+.Nm ranlib
+.Nd обновить таблицы символов архивов
+.Ш СИНТАКСИС
+.Nm
+.Op Fl D
+.Op Fl t
+.Ar архив Ns ...
+.Nm
+.Fl V
+.Ш ОПИСАНИЕ
+Утилита
+.Nm ranlib
+используется для обновления существующей таблицы символов архива в
+.Xr ar 1
+архиве или для добавления таблицы символов архива к архиву, в котором её нет.
+.Ш ПАРАМЕТРЫ
+Утилита
+.Nm
+поддерживает следующие параметры:
+.Bl -tag -width indent
+.It Fl D
+Использовать нули для полей mtime, uid и gid, а также режим 0644 для
+поля режима файла во всех заголовках членов архива.
+Это гарантирует, что контрольные суммы результирующих архивов будут воспроизводимы,
+если содержимое членов идентично.
+.It Fl t
+Этот параметр принимается, но игнорируется.
+.It Fl V
+Вывести идентификатор версии и завершить работу.
+.El
+.Ш ПРИМЕРЫ
+Чтобы обновить таблицу символов архива для архива
+.Pa lib.a ,
+используйте:
+.Ш ДИАГНОСТИКА
+.Ex -std
+.Ш СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr ld 1 ,
+.Xr archive 3 ,
+.Xr elf 3 ,
+.Xr ar 5
+.Ш ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в AT&T UNIX Version 7.
+.Pp
+В
+.Fx 8.0 ,
+.An Кай Ван Aq Mt kaiw@FreeBSD.org
+переработал
+.Nm
+с использованием
+.Lb libarchive
+и
+.Lb libelf .

@@ -1,0 +1,164 @@
+.\" Copyright (c) 2007 S.Sam Arun Raj
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: strings.1 3360 2016-01-24 18:34:06Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/strings/strings.1
+.\" FRDP githash 839529caa9c35f92b638dbe074655598e7a6bb6f
+.\" FRDP hash256 390167a04f6033fb9ddbfb1f54e9b71885868611512a0d57debd822199730845
+.Dd 24 января 2016
+.Dt STRINGS 1
+.Os
+.Sh ИМЯ
+.Nm strings
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a | Fl -all
+.Op Fl e Ar кодировка | Fl -encoding= Ns Ar кодировка
+.Op Fl f | Fl -print-file-name
+.Op Fl h | Fl -help
+.Op Fl n Ar число | Fl -bytes= Ns Ar число | Fl Ar число
+.Op Fl o
+.Op Fl t Ar основание | Fl -radix= Ns Ar основание
+.Op Fl v | Fl -version
+.Op Ar
+.Sh ОПИСАНИЕ
+Для каждого указанного
+.Ar файла
+утилита
+.Nm
+выводит непрерывные последовательности печатаемых
+символов длиной не менее
+.Va n
+символов, за которыми следует непечатаемый символ.
+Значение по умолчанию для
+.Va n
+равно 4.
+По умолчанию утилита
+.Nm
+сканирует только инициализированные и загруженные разделы объектов ELF;
+для файлов других типов сканируется весь файл.
+Утилита
+.Nm
+в основном используется для определения содержимого нетекстовых файлов.
+.Pp
+Если имя файла не указано в качестве аргумента, читается стандартный ввод.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a | Fl -all
+Для объектов ELF сканировать весь файл в поисках печатаемых строк.
+.It Fl e Ar кодировка | Fl -encoding= Ns Ar кодировка
+Выбрать кодировку символов, используемую при поиске строк.
+Допустимые значения для аргумента
+.Ar кодировка
+:
+.Bl -tag -width indent -compact
+.It Ar s
+для однобайтовых 7-битных символов (ASCII, ISO 8859).
+.It Ar S
+для однобайтовых 8-битных символов.
+.It Ar l
+для 16-битных с порядком байт от младшего к старшему (little-endian).
+.It Ar b
+для 16-битных с порядком байт от старшего к младшему (big-endian).
+.It Ar L
+для 32-битных с порядком байт от младшего к старшему (little-endian).
+.It Ar B
+для 32-битных с порядком байт от старшего к младшему (big-endian).
+.El
+По умолчанию предполагается, что символы закодированы с использованием одного
+7-битного байта.
+.It Fl f | Fl -print-file-name
+Печатать имя файла перед каждой строкой.
+.It Fl h | Fl -help
+Вывести краткую справку по использованию и завершить работу.
+.It Xo
+.Fl n Ar число |
+.Fl -bytes= Ns Ar число |
+.Fl Ar число
+.Xc
+Выводить непрерывную последовательность символов длиной не менее
+.Ar число
+символов, вместо значения по умолчанию в 4 символа.
+Аргумент
+.Ar число
+должен быть положительным целым числом в десятичной системе.
+.It Fl o
+Эквивалентно указанию
+.Fl t Ar o .
+.It Fl t Ar основание | Fl -radix= Ns Ar основание
+Выводить смещение от начала файла перед каждой строкой,
+используя указанное основание системы счисления.
+Допустимые значения для аргумента
+.Ar основание
+:
+.Bl -tag -width indent -compact
+.It Ar d
+для десятичной
+.It Ar o
+для восьмеричной
+.It Ar x
+для шестнадцатеричной
+.El
+.It Fl v | Fl -version
+Отобразить идентификатор версии и завершить работу.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы отобразить строки в
+.Pa /bin/ls
+используйте:
+.Pp
+Чтобы отобразить строки во всех разделах
+.Pa /bin/ln
+используйте:
+.Pp
+Чтобы отобразить строки во всех разделах
+.Pa /bin/cat
+с указанием имени файла и смещения внутри файла, используйте:
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr nm 1 ,
+.Xr objdump 1 ,
+.Xr ranlib ,
+.Xr readelf 1 ,
+.Xr size 1
+.Sh ИСТОРИЯ
+Первая утилита
+.Nm
+в FreeBSD появилась в
+.Fx v3.
+Позже она была исключена в
+.Fx v5,
+когда формат a.out, поддерживаемый только на i386, был заменён на ELF.
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была переписана
+.An S.Sam Arun Raj Aq Mt samarunraj@gmail.com .
+Эта страница руководства была написана
+.An S.Sam Arun Raj Aq Mt samarunraj@gmail.com .

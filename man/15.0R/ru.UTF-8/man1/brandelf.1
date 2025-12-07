@@ -21,10 +21,13 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" FRDP path ./usr.bin/brandelf/brandelf.1
-.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
-.\" FRDP hash256 fbe7a585037b174b5efc50ffa7a9618e06f7148d7f0dce48382d9374bbeb2b43
-.Dd 25 марта 2014
+.\" $FreeBSD: src/usr.bin/brandelf/brandelf.1,v 1.17 2007/03/09 14:36:18 ru Exp $
+.\" $Id: brandelf.1 3235 2015-07-31 16:44:47Z emaste $
+.\"
+.\" FRDP path ./contrib/elftoolchain/brandelf/brandelf.1
+.\" FRDP githash 656f49f8e2b0656824a5f10aeb760a00fdd3753f
+.\" FRDP hash256 f90e477636f0c2660b9a56e19cf00a805e036bc9bc3d365ca01d55f3b8b3991d
+.Dd 27 октября 2014
 .Dt BRANDELF 1
 .Os
 .Sh ИМЯ
@@ -32,61 +35,106 @@
 .Nd пометить ELF-бинарник для определённого ABI
 .Sh СИНТАКСИС
 .Nm
-.Op Fl lv
-.Op Fl f Ar номер_ELF_ABI
-.Op Fl t Ar строка
+.Op Fl V | Fl -version
+.Op Fl f Ar номер_ABI_ELF
+.Op Fl h | Fl -help
+.Op Fl l
+.Op Fl t Ar марка
+.Op Fl v
 .Ar
 .Sh ОПИСАНИЕ
 Утилита
 .Nm
-помечает ELF-бинарник для запуска под определённым ABI в
-.Fx .
+помечает ELF-бинарник для запуска под определённым ABI.
 .Pp
 Доступны следующие опции:
 .Bl -tag -width indent
-.It Fl f Ar номер_ELF_ABI
-Принудительно устанавливает маркировку с указанным номером ELF ABI.
+.It Fl f Ar номер_ABI_ELF
+Принудительно устанавливает маркировку с указанным номером ABI ELF.
 Несовместима с опцией
 .Fl t .
 Эти значения назначаются SCO/USL.
+.It Fl h | Fl -help
+Вывести сообщение об использовании и завершить работу.
 .It Fl l
-Выводит список всех известных типов ELF в стандартный поток ошибок.
-.It Fl v
-Включает подробный вывод.
-.It Fl t Ar строка
-Помечает указанные ELF-бинарники как соответствующие типу ABI
-.Ar строка .
-В настоящее время поддерживаются ABI:
+Вывести список всех известных типов ELF в стандартный вывод.
+.It Fl t Ar марка
+Помечает указанные ELF-бинарники как соответствующие ABI, заданному аргументом
+.Ar марка .
+Поддерживаемые ABI включают
+.Dq Li 86Open ,
+.Dq Li AIX ,
+.Dq Li ARM ,
+.Dq Li AROS ,
 .Dq Li FreeBSD ,
-.Dq Li Linux ,
+.Dq Li GNU ,
+.Dq Li HP/UX ,
+.Dq Li Hurd ,
+.Dq Li IRIX ,
+.Dq Li Linux
+(псевдоним для
+.Dq Li GNU ) ,
+.Dq Li Modesto ,
+.Dq Li NSK ,
+.Dq Li NetBSD ,
+.Dq Li None ,
+.Dq Li OpenBSD ,
+.Dq Li OpenVMS ,
+.Dq Li Standalone ,
+.Dq Li SVR4
+(псевдоним для
+.Dq Li None ) ,
+.Dq Li Solaris
 и
-.Dq Li SVR4 .
-.It Ar файл
-Если указана опция
-.Fl t Ar строка ,
-помечает
-.Ar файл
-как тип
-.Ar строка ,
-иначе просто отображает текущую маркировку
-.Ar файла .
+.Dq Li Tru64 .
+.It Fl v
+Эта опция принимается для совместимости с другими версиями
+.Nm ,
+но в остальном игнорируется.
+.It Fl V | Fl -version
+Вывести идентификатор версии и завершить работу.
 .El
+.Pp
+Если указаны опции
+.Fl f Ar номер_ABI_ELF
+или
+.Fl t Ar марка ,
+.Nm
+помечает файлы, перечисленные в аргументах командной строки
+.Ar ,
+как имеющие тип
+.Ar номер_ABI_ELF
+или
+.Ar марка
+соответственно.
+.Pp
+Если ни опция
+.Fl f ,
+ни
+.Fl t
+не указаны,
+.Nm
+отображает текущую маркировку для файлов, указанных в аргументах
+.Ar .
 .Sh СТАТУС ВЫХОДА
-Статус выхода равен 0 при успехе и 1 при неудаче, если файл не существует, слишком короток, не удаётся корректно промаркировать, или запрошенная маркировка не относится к известным типам и не установлена опция
+Статус выхода равен 0 при успехе и 1, если команда
+завершается неудачно из-за отсутствия файла, его недостаточной длины, ошибки маркировки
+или если запрошенная марка не относится к известным типам и не установлена опция
 .Fl f .
 .Sh ПРИМЕРЫ
-Пример типичного использования команды
+Ниже приведён пример типичного использования
+команды
 .Nm :
 .Bd -literal -offset indent
 brandelf файл
-brandelf -t Linux файл
+brandelf -t GNU файл
 .Ed
 .Sh СМ. ТАКЖЕ
 .Rs
 .%A The Santa Cruz Operation, Inc.
 .%T System V Application Binary Interface
 .%D 29 апреля 1998 (ЧЕРНОВИК)
-.%U http://www.sco.com/developer/devspecs/
+.%O http://www.sco.com/developer/devspecs/
 .Re
 .Sh ИСТОРИЯ
 Страница руководства

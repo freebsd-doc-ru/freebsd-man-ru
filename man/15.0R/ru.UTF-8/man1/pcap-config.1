@@ -1,0 +1,135 @@
+.\" Copyright (c) 1987, 1988, 1989, 1990, 1991, 1992, 1994, 1995, 1996, 1997
+.\"	The Regents of the University of California.  All rights reserved.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution, and (3) all advertising materials mentioning
+.\" features or use of this software display the following acknowledgement:
+.\" ``This product includes software developed by the University of California,
+.\" Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.\" FRDP path ./contrib/libpcap/pcap-config.1
+.\" FRDP githash afdbf109c6a661a729938f68211054a0a50d38ac
+.\" FRDP hash256 ed092cf360cb0f8de6cd4e61cf4e00e954b73b0c0b153322fe7f0e543799b431
+.ИМЯ
+pcap-config \- вывод флагов компилятора и компоновщика для libpcap на стандартный вывод
+
+.СИНТАКСИС
+.na
+.B pcap-config
+[
+.B \-\-help
+]
+[
+.B \-\-version
+]
+[
+.B \-\-cflags
+]
+.ti +12
+[
+.B \-\-libs
+|
+.B \-\-additional\-libs
+]
+.ti +12
+[
+.B \-\-static
+|
+.B \-\-static\-pcap\-only
+]
+.ad
+
+.ОПИСАНИЕ
+.LP
+.I pcap\-config
+выводит на стандартный вывод различные флаги компилятора и компоновщика, необходимые для
+сборки пользовательской программы с использованием libpcap. По умолчанию выводятся флаги, подходящие
+для сборки с динамически подключаемой версией libpcap; см. ниже информацию о статической компоновке.
+В зависимости от способа установки libpcap, некоторые опции или их комбинации могут выдавать пустой вывод — это предусмотрено.
+
+.ПАРАМЕТРЫ
+.TP
+.B \-\-help
+Вывести справочное сообщение и завершить работу.
+
+.TP
+.B \-\-version
+Вывести версию libpcap и завершить работу. Версия берётся из содержимого
+файла
+.I VERSION
+в дереве исходных кодов libpcap, а не из результата работы функции
+.BR \%pcap_lib_version (3PCAP).
+
+.TP
+.B \-\-cflags
+Выдать флаг компилятора
+.B \-I
+, необходимый для включения заголовочных файлов libpcap.
+
+.TP
+.B \-\-libs
+Выдать флаги компоновщика
+.B \-L
+и
+.B \-l
+, необходимые для компоновки с libpcap, включая
+флаги
+.B \-l
+для библиотек, требуемых libpcap.
+
+.TP
+.B \-\-additional\-libs
+Выдать флаги компоновщика
+.B \-L
+и
+.B \-l
+для библиотек, требуемых libpcap, но без флага
+.B \-l
+для компоновки с самой libpcap.
+
+.TP
+.B \-\-static
+Эта опция заставляет
+.B \-\-libs
+и
+.B \-\-additional\-libs
+выдавать флаги компоновщика, подходящие для статической компоновки с libpcap.
+
+.TP
+.B \-\-static\-pcap\-only
+Эта опция заставляет
+.B \-\-libs
+и
+.B \-\-additional\-libs
+выдавать флаги компоновщика, подходящие для статической компоновки с libpcap и
+динамической компоновки со всеми остальными библиотеками, включая библиотеки, требуемые libpcap.
+
+.СТАТУС ВЫХОДА
+.I pcap\-config
+завершается с ненулевым статусом при вызове с недопустимым параметром командной строки,
+и со статусом 0 в остальных случаях.
+
+.ОБРАТНАЯ СОВМЕСТИМОСТЬ
+.PP
+До выпуска libpcap 1.10.2
+.I pcap\-config
+не считал недопустимые параметры командной строки ошибкой. Флаг
+.B \-\-static\-pcap\-only
+появился в выпуске libpcap 1.10.2. Флаг
+.B \-\-static
+появился в выпуске libpcap 1.1.0.
+
+.СМ. ТАКЖЕ
+.BR pkg\-config (1),
+.BR pcap (3PCAP)

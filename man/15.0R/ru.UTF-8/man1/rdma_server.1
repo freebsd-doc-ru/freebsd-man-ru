@@ -1,0 +1,25 @@
+.\" Licensed under the OpenIB.org BSD license (FreeBSD Variant) - See COPYING.md
+.\" FRDP path ./contrib/ofed/librdmacm/man/rdma_server.1
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 9be3f76b2d08c66d5e03c0a8c8d164866b187ae4fead3a8d1a8fb26d97dfcc56
+.SH ИМЯ
+rdma_server \- простой тест соединения RDMA CM и пинг-понга.
+.SH СИНТАКСИС
+.sp
+.nf
+\fIrdma_server\fR [-p порт]
+.fi
+Использует синхронные вызовы librdmam для установки RDMA соединений между
+двумя узлами. Этот пример предназначен для предоставления очень простого
+кодового примера использования RDMA.
+.TP
+\-p порт
+Изменяет номер порта, который прослушивает сервер. По умолчанию сервер
+прослушивает порт 7471.
+Основное использование: запустить rdma_server, затем подключиться к серверу
+с помощью программы rdma_client.
+.P
+Поскольку этот тест отображает ресурсы RDMA в пользовательское пространство,
+пользователи должны убедиться, что у них есть доступные системные ресурсы и
+права. Дополнительные подробности смотрите в файле README libibverbs.
+rdma_cm(7), udaddy(1), mckey(1), rping(1), rdma_client(1)

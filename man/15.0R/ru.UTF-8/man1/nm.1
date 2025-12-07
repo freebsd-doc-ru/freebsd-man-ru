@@ -1,0 +1,339 @@
+.\" Copyright (c) 2007 Hyogeol Lee <hyogeollee@gmail.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" $Id: nm.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/nm/nm.1
+.\" FRDP githash ae500c1ff8974130f7f2692772cf288b90349e0d
+.\" FRDP hash256 81e73877cc34d43ad6d90835c2bc43e0d957e0153c96368c4160f2c06b4a7e1a
+.Dd 13 сентября 2017
+.Dt NM 1
+.Os
+.Sh ИМЯ
+.Nm nm
+.Nd отображение символьной информации в объектных файлах
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -debug-syms
+.Op Fl -defined-only
+.Op Fl -demangle Ns Op = Ns style
+.Op Fl -dynamic
+.Op Fl -extern-only
+.Op Fl -help
+.Op Fl -line-numbers
+.Op Fl -no-demangle
+.Op Fl -no-sort
+.Op Fl -numeric-sort
+.Op Fl -print-armap
+.Op Fl -print-file-name
+.Op Fl -print-size
+.Op Fl -radix= Ns Ar format
+.Op Fl -reverse-sort
+.Op Fl -size-sort
+.Op Fl -undefined-only
+.Op Fl -version
+.Op Fl A
+.Op Fl B
+.Op Fl C Op Ar style
+.Op Fl D
+.Op Fl P
+.Op Fl V
+.Op Fl a
+.Op Fl e
+.Op Fl g
+.Op Fl h
+.Op Fl l
+.Op Fl n
+.Op Fl o
+.Op Fl p
+.Op Fl r
+.Op Fl S
+.Op Fl s
+.Op Fl t Ar format
+.Op Fl u
+.Op Fl x
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает символьную информацию в объектных файлах,
+исполняемых файлах и файлах библиотек объектов, указанных в её аргументах.
+Отсутствие символьной информации в иначе корректном входном
+файле не считается ошибкой.
+Если в командной строке не указаны файлы,
+.Nm
+попытается прочитать
+.Pa a.out .
+.Pp
+Утилита
+.Nm
+распознаёт следующие опции:
+.It Fl -debug-syms
+Отображать все символы, включая символы только для отладчика.
+.It Fl -defined-only
+Отображать только определённые символы.
+.It Fl -demangle Ns Op = Ns Ar style
+Декодировать (деманглировать) низкоуровневые имена символов в читаемые человеком имена.
+Поддерживаемые значения для аргумента
+.Ar style
+это
+.Sq auto ,
+.Sq gnu-v2 ,
+.Sq gnu-v3
+и
+.Sq arm.
+Если аргумент
+.Ar style
+не указан, используется значение
+.Sq auto .
+.It Fl -dynamic
+Отображать только динамические символы.
+Эта опция имеет смысл только для разделяемых библиотек.
+.It Fl -extern-only
+Отображать информацию только о глобальных (внешних) символах.
+.It Fl -help
+Отобразить справочное сообщение и выйти.
+.It Fl -format Ns = Ns Ar format
+Отображать вывод в формате, указанном аргументом
+.Ar format .
+Поддерживаемые значения для аргумента формата:
+.Sq bsd ,
+.Sq sysv ,
+и
+.Sq posix .
+Формат вывода по умолчанию —
+.Sq bsd .
+.It Fl -line-numbers
+Отображать имя файла и номер строки, связанные с символом, используя
+любую отладочную информацию, присутствующую во входном файле.
+Для определённых символов искать номер строки, связанный с
+адресом символа.
+Для неопределённых символов искать номер строки, связанный с
+записью перемещения, ссылающейся на символ.
+Если информацию о номере строки удаётся определить, она отображается после
+другой символьной информации.
+.It Fl -no-demangle
+Не деманглировать имена символов (по умолчанию).
+.It Fl -no-sort
+Не сортировать символы.
+.It Fl -numeric-sort
+Сортировать символы численно по адресу, а не по алфавиту по имени.
+.It Fl -print-armap
+Для архивов
+.Xr ar 1
+включать индекс членов архива.
+.It Fl -print-file-name
+Записывать полный путь или имя библиотеки объекта в каждой строке,
+перед остальной информацией о символе.
+Если эта опция не указана,
+.Nm
+будет идентифицировать входной файл только один раз, перед перечислением
+его символов.
+.It Fl -print-size
+Выводить размер каждого символа вместо его значения.
+.It Fl -radix Ns = Ns Ar radix
+Выводить числовые значения, используя указанную систему счисления.
+Поддерживаемые значения для аргумента
+.Ar radix
+это
+.Sq d
+для десятичной,
+.Sq o
+для восьмеричной и
+.Sq x
+для шестнадцатеричной.
+.It Fl -reverse-sort
+Обратный порядок сортировки.
+.It Fl -size-sort
+Сортировать символы по размеру вместо алфавитной сортировки по имени.
+.It Fl -undefined-only
+Отображать только неопределённые символы.
+.It Fl -version
+Отобразить идентификатор версии для
+.Nm
+и выйти.
+.It Fl A
+Эквивалентно указанию опции
+.Fl -print-file-name .
+.It Fl B
+Эквивалентно указанию опции
+.Fl -format= Ns Ar bsd .
+.It Fl C Op Ar style
+Эквивалентно указанию опции
+.Fl -demangle Ns Op = Ns Ar style .
+.It Fl D
+Эквивалентно указанию опции
+.Fl -dynamic .
+.It Fl F Ar format
+Эквивалентно указанию опции
+.Fl -format Ns = Ns Ar format .
+.It Fl P
+Эквивалентно указанию опции
+.Fl -format Ns = Ns Ar posix .
+.It Fl S
+Эквивалентно указанию опции
+.Fl -print-size .
+.It Fl V
+Эквивалентно указанию опции
+.Fl -version .
+.It Fl a
+Эквивалентно указанию опции
+.Fl -debug-syms .
+.It Fl e
+Отображать информацию только для глобальных и статических символов.
+.It Fl f
+Выводить полный вывод (по умолчанию).
+.It Fl g
+Эквивалентно указанию опции
+.Fl -extern-only .
+.It Fl h
+Эквивалентно указанию опции
+.Fl -help .
+.It Fl l
+Эквивалентно указанию опции
+.Fl -line-numbers .
+.It Fl n
+Эквивалентно указанию опции
+.Fl -numeric-sort .
+.It Fl o
+Если вывод POSIX был указан с помощью опций
+.Fl F Ar posix
+или
+.Fl P ,
+эта опция эквивалентна указанию
+.Fl -radix Ns = Ns Sq Ar o .
+Если вывод POSIX не был указан, эта опция
+действует как синоним опции
+.Fl -print-file-name .
+.It Fl p
+Эквивалентно указанию опции
+.Fl -no-sort .
+.It Fl v
+Эквивалентно опции
+.Fl n .
+.It Fl r
+Эквивалентно указанию опции
+.Fl -reverse-sort
+.It Fl s
+Эквивалентно указанию опции
+.Fl -print-armap .
+.It Fl t Ar radix
+Эквивалентно указанию опции
+.Fl -radix= Ns Ar radix .
+.It Fl u
+Эквивалентно указанию опции
+.Fl -undefined-only .
+.It Fl x
+Записывать числовые значения в шестнадцатеричном виде (эквивалентно -t x).
+.El
+.Sh ФОРМАТ ВЫВОДА
+.Pp
+Утилита
+.Nm
+может представлять свою информацию в нескольких форматах, системах счисления
+и порядках сортировки.
+По умолчанию
+.Nm
+использует вывод в стиле BSD, шестнадцатеричную систему счисления, без сортировки вывода
+по алфавиту по имени и без демангляции имён.
+.Pp
+Для каждого перечисленного символа
+.Nm
+представляет следующую информацию:
+.Bl -bullet -compact
+.It
+Имя библиотеки или объекта, если указаны опции
+.Fl A
+или
+.Fl -print-file-name .
+.It
+Имя символа.
+.It
+Тип символа, обозначаемый одним символом, как указано ниже:
+.Bl -tag -compact -width indent
+.It A
+Глобальный, абсолютный символ.
+.It B
+Глобальный символ
+.Dq bss
+(неинициализированные данные).
+.It C
+Символ
+.Dq common ,
+представляющий неинициализированные данные.
+.It D
+Глобальный символ, именующий инициализированные данные.
+.It N
+Символ отладчика.
+.It R
+Символ только для чтения данных.
+.It T
+Глобальный текстовый символ.
+.It U
+Неопределённый символ.
+.It V
+Слабый объект.
+.It W
+Слабая ссылка.
+.It a
+Локальный абсолютный символ.
+.It b
+Локальный символ
+.Dq bss
+(неинициализированные данные).
+.It d
+Локальный символ данных.
+.It r
+Локальный символ только для чтения данных.
+.It t
+Локальный текстовый символ.
+.It v
+Слабый объект, который не определён.
+.It w
+Слабый символ, который не определён.
+.It ?
+Ни один из вышеперечисленных.
+.El
+.It
+Значение символа.
+.It
+Размер символа, если применимо.
+.It
+Информация о номере строки, если доступна и если указаны опции
+.Fl l
+или
+.Fl -line-numbers .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr objdump 1 ,
+.Xr ranlib 1 ,
+.Xr elf 3
+.Sh АВТОРЫ
+Утилита
+.Nm
+и эта страница руководства были написаны
+.An Hyogeol Lee Aq Mt hyogeollee@gmail.com .

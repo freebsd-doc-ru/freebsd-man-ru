@@ -1,0 +1,142 @@
+.\" Copyright (c) 2011 Joseph Koshy.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY JOSEPH KOSHY ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL JOSEPH KOSHY BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: strip.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/elfcopy/strip.1
+.\" FRDP githash 36d7818975359fd2aacb19e4f9442a841dc954bb
+.\" FRDP hash256 ae4baf7814849458ca4811ed345693e611c65afd7947a395b530024b952baa92
+.Dd 27 июля 2019
+.Dt STRIP 1
+.Os
+.Sh ИМЯ
+.Nm strip
+.Nd удаление информации из ELF-объектов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d | Fl g | Fl S | Fl -strip-debug
+.Op Fl h | Fl -help
+.Op Fl -only-keep-debug
+.Op Fl o Ar выходной_файл | Fl -output-file= Ns Ar выходной_файл
+.Op Fl p | Fl -preserve-dates
+.Op Fl s | Fl -strip-all
+.Op Fl -strip-unneeded
+.Op Fl w | Fl -wildcard
+.Op Fl x | Fl -discard-all
+.Op Fl I Ar формат | Fl -input-target= Ns Ar формат
+.Op Fl K Ar символ | Fl -keep-symbol= Ns Ar символ
+.Op Fl N Ar символ | Fl -strip-symbol= Ns Ar символ
+.Op Fl O Ar формат | Fl -output-target= Ns Ar формат
+.Op Fl R Ar имя_секции | Fl -remove-section= Ns Ar имя_секции
+.Op Fl V | Fl -version
+.Op Fl X | Fl -discard-locals
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для удаления информации из ELF-объектов,
+указанных аргументами
+.Ar .
+.Pp
+Если явное имя выходного файла не задано с помощью опции
+.Fl o ,
+утилита
+.Nm
+будет изменять свои входные аргументы на месте.
+.Pp
+Утилита
+.Nm
+поддерживает следующие опции:
+.Bl -tag -width indent
+.It Fl d | Fl g | Fl S | Fl -strip-debug
+Удалять только отладочные символы.
+.It Fl h | Fl -help
+Вывести справочное сообщение и завершить работу.
+.It Fl -only-keep-debug
+Удалить всё содержимое, кроме того, которое может быть использовано для отладки.
+.It Fl o Ar выходной_файл | Fl -output-file= Ns Ar выходной_файл
+Записать обработанный объект в файл
+.Ar выходной_файл
+вместо изменения входного файла на месте.
+Если используется эта опция, следует указать только один входной объект.
+.It Fl p | Fl -preserve-dates
+Сохранить время доступа и модификации объекта.
+.It Fl s | Fl -strip-all
+Удалить все символы.
+.It Fl -strip-unneeded
+Удалить все символы, не требуемые для дальнейшей обработки перемещений.
+.It Fl w | Fl -wildcard
+Использовать шаблоны в стиле оболочки для именования символов.
+В шаблонах распознаются следующие метасимволы:
+.It Li !
+Если это первый символ шаблона, инвертировать смысл сопоставления с шаблоном.
+.It Li *
+Соответствует любой строке символов в имени символа.
+.It Li ?
+Соответствует нулю или одному символу в имени символа.
+.It Li [
+Обозначает начало класса символов.
+.It Li \e
+Убрать специальное значение следующего символа в шаблоне.
+.It Li ]
+Обозначает конец класса символов.
+.El
+.It Fl x | Fl -discard-all
+Удалить все неглобальные символы.
+.It Fl I Ar формат | Fl -input-target= Ns Ar формат
+Эти опции принимаются, но игнорируются.
+.It Fl K Ar символ | Fl -keep-symbol= Ns Ar символ
+Сохранить символ
+.Ar символ
+даже если он должен быть удалён.
+Эту опцию можно указывать несколько раз.
+.It Fl N Ar символ | Fl -strip-symbol= Ns Ar символ
+Удалить символ
+.Ar символ
+даже если он должен быть сохранён.
+Эту опцию можно указывать несколько раз.
+.It Fl O Ar формат | Fl -output-target= Ns Ar формат
+Установить формат выходного файла в
+.Ar формат .
+Полный список поддерживаемых форматов см. в документации
+функции
+.Xr elftc_bfd_find_target 3 .
+.It Fl R Ar имя_секции | Fl -remove-section= Ns Ar имя_секции
+Удалить секцию с именем, указанным аргументом
+.Ar имя_секции .
+Эту опцию можно указывать несколько раз.
+.It Fl V | Fl -version
+Вывести идентификатор версии и завершить работу.
+.It Fl X | Fl -discard-locals
+Удалить локальные символы, сгенерированные компилятором.
+.El
+.Sh ДИАГНОСТИКА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr elfcopy 1 ,
+.Xr ld 1 ,
+.Xr mcs 1 ,
+.Xr elf 3 ,
+.Xr elftc_bfd_find_target 3 ,
+.Xr fnmatch 3

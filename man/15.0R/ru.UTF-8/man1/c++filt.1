@@ -1,0 +1,111 @@
+.\" Copyright (c) 2009-2011 Joseph Koshy <jkoshy@users.sourceforge.net>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" $Id: c++filt.1 3642 2018-10-14 14:24:28Z jkoshy $
+.\"
+.\" FRDP path ./contrib/elftoolchain/cxxfilt/c++filt.1
+.\" FRDP githash ae500c1ff8974130f7f2692772cf288b90349e0d
+.\" FRDP hash256 2f0b88da984394d9758d945764f58a0b94fd82ffa1e5076e0d4e1dec98c20d5e
+.Dd 24 августа 2011
+.Dt C++FILT 1
+.Os
+.Sh ИМЯ
+.Nm c++filt
+.Nd декодирование символов C++
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -help
+.Op Fl _ | Fl -strip-underscores
+.Op Fl n | Fl -no-strip-underscores
+.Op Fl p | Fl -no-params
+.Op Fl s Ar схема | Fl -format Ns = Ns Ar схема
+.Op Fl V | Fl -version
+.Op Ar закодированные-имена ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+преобразует закодированные имена символов C++ в удобочитаемую форму.
+.Pp
+Утилита
+.Nm
+работает в двух режимах.
+.Bl -bullet
+.It
+Если аргументы
+.Ar закодированные-имена
+не указаны, то
+.Nm
+будет действовать как фильтр, читая со стандартного ввода
+и записывая на стандартный вывод.
+.It
+Если аргументы
+.Ar закодированные-имена
+указаны, то
+.Nm
+будет декодировать каждый такой аргумент по очереди, записывая его декодированную форму
+на стандартный вывод.
+.El
+.Pp
+Утилита
+.Nm
+распознает следующие опции:
+.Bl -tag -width indent
+.It Fl -help
+Вывести справочное сообщение и завершить работу.
+.It Fl _ | Fl -strip-underscores
+Удалить ведущее подчеркивание из имен символов перед их декодированием.
+.It Fl n | Fl -no-strip-underscores
+Не удалять ведущие подчеркивания из имен.
+.It Fl p | Fl -no-params
+Эта опция распознается, но игнорируется.
+.It Fl s Ar схема | Fl -format Ns = Ns Ar схема
+Выбрать используемую схему кодирования.
+Аргумент
+.Ar схема
+может быть одним из следующих:
+.It Ar arm
+Использовать схему кодирования, указанную в Аннотированном справочном руководстве по C++.
+.It Ar auto
+Угадать схему кодирования на основе входных данных.
+.It Ar gnu
+Использовать схему кодирования, применяемую компилятором GNU C++.
+.It Ar gnu-v3
+Использовать схему кодирования, применяемую компилятором GNU C++, версия 3.
+.El
+.It Fl V | Fl -version
+Вывести идентификатор версии для
+.Nm
+и завершить работу.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr nm 1 ,
+.Xr strip 1 ,
+.Xr elftc_demangle 3
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Каем Вангом Aq Mt kaiwang27@users.sourceforge.net .
