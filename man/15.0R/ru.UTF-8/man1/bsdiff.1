@@ -1,0 +1,85 @@
+.\"-
+.\" Copyright 2003-2005 Colin Percival
+.\" All rights reserved
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted providing that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/bsdiff/bsdiff/bsdiff.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 7eb881191378905029067fa0bd2d1945ad4f359d7277fd7acb5734131c245366
+.Dd 18 мая 2003
+.Dt BSDIFF 1
+.Os
+.Sh ИМЯ
+.Nm bsdiff
+.Sh СИНТАКСИС
+.Nm
+.Ar старый_файл новый_файл файл_заплатки
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сравнивает
+.Ar старый_файл
+с
+.Ar новым_файлом
+и записывает в
+.Ar файл_заплатки
+бинарную заплатку, пригодную для использования утилитой
+.Xr bspatch 1 .
+Когда
+.Ar старый_файл
+и
+.Ar новый_файл
+являются двумя версиями исполняемой программы, создаваемые заплатки
+в среднем в пять раз меньше,
+чем создаваемые любым другим известным автору инструментом для бинарных заплаток.
+.Pp
+Утилита
+.Nm
+использует объём памяти, равный 17 размерам
+.Ar старого_файла ,
+и требует
+абсолютного минимального размера рабочего набора в 8 раз больше размера
+.Ar старого_файла .
+.Sh СМ. ТАКЖЕ
+.Xr bspatch 1
+.Sh АВТОРЫ
+.An Колин Персиваль Aq Mt cperciva@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+не сохраняет хеши
+.Ar старого_файла
+или
+.Ar нового_файла
+в
+.Ar файле_заплатки .
+В результате возможно наложение заплатки на неправильный файл; это
+обычно приводит к получению бессмысленных данных.
+Рекомендуется, чтобы пользователи
+.Nm
+сохраняли хеши
+.Ar старого_файла
+и
+.Ar нового_файла
+и сравнивали их до и после наложения
+.Ar файла_заплатки .

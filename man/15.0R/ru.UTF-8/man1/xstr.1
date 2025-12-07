@@ -1,0 +1,156 @@
+.\" Copyright (c) 1980, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)xstr.1	8.2 (Berkeley) 12/30/93
+.\"
+.\" FRDP path ./usr.bin/xstr/xstr.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 0127866e380194cf4c0d50538a49310feab8296c0328bf8bbd9a724b4ab0c521
+.Dd 30 декабря 1993
+.Dt XSTR 1
+.Os
+.Sh ИМЯ
+.Nm xstr
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cv
+.Op Fl
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+поддерживает файл
+.Pa strings,
+в который хешируются строки из составных частей большой программы.
+Эти строки заменяются ссылками на эту общую область.
+Это позволяет реализовать общие константные строки, что особенно полезно, если они также доступны только для чтения.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl
+Чтение из стандартного ввода.
+.It Fl c
+Извлечение строк из исходного C-файла
+.Ar file
+или стандартного ввода
+.Pq Fl ,
+с заменой ссылок на строки выражениями вида
+.Li (&xstr[номер])
+для некоторого
+.Ar номера .
+В начало файла добавляется соответствующее объявление
+.Va xstr.
+Полученный C-текст помещается в файл
+.Pa x.c
+для последующей компиляции.
+Строки из этого файла помещаются в базу данных
+.Pa strings,
+если их там ещё нет.
+Повторяющиеся строки и строки, являющиеся суффиксами существующих строк,
+не вносят изменений в базу данных.
+.It Fl v
+Подробный режим.
+.El
+.Pp
+После компиляции всех компонентов большой программы файл
+.Pa xs.c,
+объявляющий общее пространство
+.Va xstr,
+может быть создан командой вида
+.Pp
+.Dl xstr
+.Pp
+Затем файл
+.Pa xs.c
+следует скомпилировать и загрузить вместе с остальной частью программы.
+Если возможно, массив можно сделать доступным только для чтения (разделяемым), экономя место и снижая нагрузку на подкачку.
+.Pp
+Утилиту
+.Nm
+также можно использовать на отдельном файле.
+Команда
+.Bd -literal -offset indent
+xstr имя
+.Ed
+.Pp
+создаёт файлы
+.Pa x.c
+и
+.Pa xs.c,
+как и ранее, без использования или воздействия на какой-либо файл
+.Pa strings
+в том же каталоге.
+.Pp
+Может быть полезно запустить
+.Nm
+после препроцессора C, если какие-либо определения макросов порождают строки
+или если есть условный код, содержащий строки,
+которые, возможно, не требуются.
+Подходящая последовательность команд для запуска
+.Nm
+после препроцессора C:
+.Pp
+.Bd -literal -offset indent -compact
+cc -E имя.c | xstr -c -
+cc -c x.c
+mv x.o имя.o
+.Ed
+.Pp
+Утилита
+.Nm
+не изменяет файл
+.Pa strings,
+если не добавлены новые элементы, поэтому
+.Xr make 1
+может избежать пересборки
+.Pa xs.o,
+если это не действительно необходимо.
+.Sh ФАЙЛЫ
+.It Pa strings
+база данных строк
+.It Pa x.c
+обработанный исходный код на C
+.It Pa xs.c
+исходный код на C для определения массива
+.Va xstr
+.It Pa /tmp/xs*
+временный файл, когда
+не изменяет
+.Pa strings
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mkstr 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если строка является суффиксом другой строки в базе данных,
+но более короткая строка встречается первой для
+.Nm,
+обе строки будут помещены в базу данных, хотя достаточно было бы поместить туда только более длинную.

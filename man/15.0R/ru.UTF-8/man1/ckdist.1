@@ -1,0 +1,128 @@
+.\" Copyright (c) 1997 Robert Nordier
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/ckdist/ckdist.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c2da2353682c41187f5e02e3b8e155819197213dc59a4579762fa295d44ecdff
+.Dd 20 января 1997
+.Dt CKDIST 1
+.Os
+.Sh ИМЯ
+.Nm ckdist
+.Nd проверка дистрибутивов программного обеспечения
+.Sh СИНТАКСИС
+.Nm
+.Bq Fl airsx
+.Bq Fl d Ar каталог
+.Bq Fl n Ar имя
+.Bq Fl t Ar тип
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает файлы
+.Dq контрольных сумм
+(предполагается, что они описывают компоненты
+дистрибутива программного обеспечения) и проверяет целостность
+дистрибутива, валидируя контрольную сумму каждого файла компонента.
+Поддерживаются оба формата контрольных сумм: MD5 (128-битный)
+и
+.Pa .inf
+(32-битный CRC).
+.Pp
+Операнды
+.Ar файл
+могут ссылаться на обычные файлы или каталоги.
+Обычные файлы
+с именами
+.Pa md5 ,
+или имеющие расширение
+.Pa .md5
+или
+.Pa .inf ,
+считаются файлами подразумеваемого типа, в противном случае формат определяется по
+содержимому.
+Если указан каталог, он проверяется только на наличие
+файлов с соответствующими именами.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width 8n -offset indent
+.It Fl a
+Отчитываться обо всех компонентах дистрибутива, а не только о тех,
+для которых обнаружены ошибки.
+.It Fl i
+Игнорировать отсутствующие компоненты дистрибутива.
+.It Fl r
+Рекурсивно искать в указанных каталогах.
+.It Fl s
+Подавлять сообщения о недоступных файлах контрольных сумм и каталогах.
+.It Fl x
+Проверять существование компонентов дистрибутива (а также проверять размеры
+в случае файлов
+.Pa .inf ),
+но пропускать более затратный по времени шаг
+фактического вычисления и сравнения контрольных сумм.
+.It Fl d Ar каталог
+Искать компоненты дистрибутива в каталоге
+.Ar каталог .
+.It Fl n Ar имя
+Обращаться к компонентам дистрибутива, используя имя файла
+.Ar имя .
+При обращении к компонентам файлов
+.Pa .inf
+добавлять соответствующее
+расширение к имени файла.
+.It Fl t Ar тип
+Предполагать, что все указанные файлы контрольных сумм имеют формат
+.Ar тип ,
+и искать в каталогах только файлы этого формата (где
+.Ar тип
+это либо
+.Cm md5 ,
+либо
+.Cm inf ) .
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершает работу со следующими значениями:
+.Bl -tag -width indent
+.It 0
+Ошибок не обнаружено.
+.It 1
+В дистрибутиве найдены ошибки.
+.It 2
+Обнаружены ошибки использования, недоступные входные файлы или
+другие системные ошибки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cksum 1 ,
+.Xr md5 1
+.Sh ПРИМЕЧАНИЯ
+Доступны версии
+.Nm
+как для
+.Bx ,
+так и для
+.Tn DOS .

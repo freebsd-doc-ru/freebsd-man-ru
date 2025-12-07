@@ -1,0 +1,69 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-dis/llvm-dis.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 7aa51529e6e5f0462d76a66f681fd1b2c78f66d313a2a24535cea0e103c4b251
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-dis \- дизассемблер LLVM
+.SH СИНТАКСИС
+.sp
+\fBllvm\-dis\fP [\fIопции\fP] [\fIимя_файла\fP]
+.SH ОПИСАНИЕ
+.sp
+Команда \fBllvm\-dis\fP является дизассемблером LLVM. Она принимает файл биткода LLVM и преобразует его в читаемый человеком ассемблерный язык LLVM.
+.sp
+Если имя файла опущено или указано как \fB\-\fP, \fBllvm\-dis\fP читает входные данные из стандартного ввода.
+.sp
+Если ввод читается из стандартного ввода, то \fBllvm\-dis\fP по умолчанию отправляет свой вывод в стандартный вывод. В противном случае вывод будет записан в файл, названный по имени входного файла, с добавленным суффиксом \fB\&.ll\fP (любой существующий суффикс \fB\&.bc\fP будет сначала удалён). Вы можете переопределить выбор выходного файла с помощью опции \fB\-o\fP.
+.SH ОПЦИИ
+.sp
+\fB\-f\fP
+.INDENT 0.0
+.INDENT 3.5
+Включить двоичный вывод на терминалах. Обычно \fBllvm\-dis\fP отказывается записывать сырой биткод, если выходной поток является терминалом. С этой опцией \fBllvm\-dis\fP будет записывать сырой биткод независимо от выходного устройства.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-help\fP
+.INDENT 0.0
+.INDENT 3.5
+Вывести краткую сводку параметров командной строки.
+.UNINDENT
+.UNINDENT
+.sp
+\fB\-o\fP \fIимя_файла\fP
+.INDENT 0.0
+.INDENT 3.5
+Указать имя выходного файла. Если \fIимя_файла\fP равно \-, то вывод отправляется в стандартный вывод.
+.UNINDENT
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+Если \fBllvm\-dis\fP завершается успешно, он выходит с кодом 0. В противном случае, если происходит ошибка, он выходит с ненулевым значением.
+.SH СМ. ТАКЖЕ
+.sp
+\fBllvm\-as(1)\fP
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH АВТОРСКИЕ ПРАВА
+2003-2023, LLVM Project

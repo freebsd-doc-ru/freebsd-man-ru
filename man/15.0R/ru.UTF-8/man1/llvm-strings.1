@@ -1,0 +1,166 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-strings/llvm-strings.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 cb7bbe0470f03c31e8b62a265cd803b465fa5da8ae0618a59ff2005f1f995bd6
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-strings \- вывод строк
+.SH СИНТАКСИС
+.sp
+\fBllvm\-strings\fP [\fIпараметры\fP] [\fIвходные_файлы...\fP]
+.SH ОПИСАНИЕ
+.sp
+\fBllvm\-strings\fP — это инструмент, предназначенный для полной замены GNU
+\fBstrings\fP, который ищет печатаемые строки в файлах и выводит их
+в стандартный поток вывода. Печатаемая строка — это любая последовательность из четырёх (по
+умолчанию) или более печатаемых символов ASCII. Конец файла или любой другой
+байт завершает текущую последовательность.
+.sp
+\fBllvm\-strings\fP ищет строки в каждом указанном \fBвходном\fP файле.
+В отличие от GNU \fBstrings\fP, он просматривает весь входной файл независимо от
+формата файла, а не ограничивает поиск определёнными разделами объектных
+файлов. Если в качестве \fBвходного\fP файла указано «\fB\-\fP» или \fBвходной\fP файл не указан,
+программа читает из стандартного потока ввода.
+.SH ПРИМЕР
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ cat input.txt
+bars
+foo
+wibble blob
+$ llvm\-strings input.txt
+bars
+wibble blob
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH ПАРАМЕТРЫ
+.INDENT 0.0
+.TP
+.B \-\-all, \-a
+Тихий игнор. Присутствует для совместимости с GNU \fBstrings\fP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-bytes=<длина>, \-n
+Задать минимальное количество печатаемых символов ASCII, необходимое для того, чтобы последовательность
+байтов считалась строкой. Значение по умолчанию — 4.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help, \-h
+Вывести краткую справку по параметрам командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-print\-file\-name, \-f
+Выводить имя содержащего файла перед каждой строкой.
+.sp
+Пример:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-strings \-\-print\-file\-name test.o test.elf
+test.o: _Z5hellov
+test.o: some_bss
+test.o: test.cpp
+test.o: main
+test.elf: test.cpp
+test.elf: test2.cpp
+test.elf: _Z5hellov
+test.elf: main
+test.elf: some_bss
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-radix=<система_счисления>, \-t
+Выводить смещение каждой строки внутри файла перед строкой, используя
+указанную систему счисления. Допустимые значения \fB<система_счисления>\fP: \fBo\fP, \fBd\fP и \fBx\fP для
+восьмеричной, десятичной и шестнадцатеричной систем соответственно.
+.sp
+Пример:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-strings \-\-radix=o test.o
+    1054 _Z5hellov
+    1066 .rela.text
+    1101 .comment
+    1112 some_bss
+    1123 .bss
+    1130 test.cpp
+    1141 main
+$ llvm\-strings \-\-radix=d test.o
+    556 _Z5hellov
+    566 .rela.text
+    577 .comment
+    586 some_bss
+    595 .bss
+    600 test.cpp
+    609 main
+$ llvm\-strings \-t x test.o
+    22c _Z5hellov
+    236 .rela.text
+    241 .comment
+    24a some_bss
+    253 .bss
+    258 test.cpp
+    261 main
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Вывести версию исполняемого файла \fBllvm\-strings\fP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<ФАЙЛ>
+Читать параметры командной строки из файла ответов \fB<ФАЙЛ>\fP\&.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-strings\fP завершается с ненулевым кодом выхода при возникновении ошибки.
+В противном случае завершается с кодом 0.
+.SH ИЗВЕСТНЫЕ ОШИБКИ
+.sp
+Для сообщения об ошибках посетите <\fI\%https://github.com/llvm/llvm\-project/labels/tools:llvm\-strings/\fP>.
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH АВТОРСКИЕ ПРАВА
+2003-2023, Проект LLVM

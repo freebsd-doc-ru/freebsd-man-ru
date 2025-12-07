@@ -1,0 +1,121 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)expand.1	8.1 (Berkeley) 6/9/93
+.\"
+.\" FRDP path ./usr.bin/expand/expand.1
+.\" FRDP githash f3eeeb959c9b00c89a2e1ff009c78162eb398656
+.\" FRDP hash256 4eb9ddd6a6bb88b70879577cef92ce56b012ecd119710771dcede63e41ff93ed
+.Dd 6 июня 2015
+.Dt EXPAND 1
+.Os
+.ИМЯ
+.Nm expand ,
+.Nm unexpand
+.Nd преобразование табуляций в пробелы и обратно
+.СИНТАКСИС
+.Nm
+.Oo
+.Fl t
+.Sm off
+.Ar tab1 , tab2 , ... , tabn
+.Sm on
+.Oc
+.Op Ar
+.Nm unexpand
+.Oo
+.Fl a | t
+.Sm off
+.Ar tab1 , tab2 , ... , tabn
+.Sm on
+.Oc
+.Op Ar
+.ОПИСАНИЕ
+Утилита
+.Nm
+обрабатывает указанные файлы или стандартный ввод, записывая
+в стандартный вывод данные с заменой табуляций на пробелы.
+Символы возврата на шаг сохраняются в выводе и уменьшают
+счётчик столбцов для расчёта табуляций.
+Утилита
+.Nm
+полезна для предварительной обработки символьных файлов
+(перед сортировкой, просмотром определённых столбцов и т.д.),
+содержащих табуляции.
+.Pp
+Утилита
+.Nm unexpand
+возвращает табуляции в данные из стандартного ввода или указанных
+файлов и записывает результат в стандартный вывод.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+.Nm (только unexpand.)
+По умолчанию только ведущие пробелы и табуляции
+преобразуются обратно в максимальные последовательности табуляций.
+Если указана опция
+.Fl a ,
+то табуляции вставляются везде, где они могут сжать
+результирующий файл, заменив два или более символов.
+.It Fl t Xo
+.Sm off
+.Ar tab1 , tab2 , ... , tabn
+.Sm on
+.Xc
+Установить позиции табуляции в столбцах
+.Sm off
+.Ar tab1 , tab2 , ... , tabn .
+.Sm on
+Если указано только одно число, позиции табуляции устанавливаются
+через это количество столбцов вместо значения по умолчанию 8.
+.El
+.ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+и
+.Nm unexpand
+как описано в
+.Xr environ 7 .
+.СТАТУС ВЫХОДА
+.Ex -std expand unexpand
+.СТАНДАРТЫ
+Утилиты
+.Nm
+и
+.Nm unexpand
+соответствуют
+.St -p1003.1-2001 .
+.ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 1 .

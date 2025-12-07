@@ -1,0 +1,252 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/lldb-server/lldb-server.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 44924ee4fde7720159207dd68a4e5ca135b348f0764dbf15304034fb7ea4f2da
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+lldb-server \- Документация LLDB
+.SH СИНТАКСИС
+.nf
+\fBlldb\-server\fP v[ersion]
+\fBlldb\-server\fP g[dbserver] [\fIoptions\fP]
+\fBlldb\-server\fP p[latform] [\fIoptions\fP]
+.fi
+.sp
+.SH ОПИСАНИЕ
+.sp
+\fBlldb\-server\fP предоставляет серверную часть отладчика LLVM.
+Сервер запускает и контролирует отлаживаемую программу, в то время как пользователь взаимодействует
+с ним через клиент, работающий локально или подключающийся удалённо.
+.sp
+Весь код проекта LLDB доступен по лицензии Apache 2.0 License
+с исключениями LLVM.
+.SH КОМАНДЫ
+.sp
+Первый аргумент для lldb\-server указывает команду для выполнения.
+.INDENT 0.0
+.TP
+.B v[ersion]
+Выводит версию lldb\-server и завершает работу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B g[dbserver]
+Запускает сервер, использующий протокол gdb\-remote. LLDB может впоследствии
+подключиться к серверу с помощью команды \fIgdb\-remote\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B p[latform]
+Запускает сервер платформы. LLDB может впоследствии подключиться к серверу с помощью команд
+\fIplatform select\fP, затем \fIplatform connect\fP\&.
+.UNINDENT
+.SH КОМАНДА GDBSERVER
+.nf
+\fBlldb\-server\fP g[dbserver] [\fIoptions\fP] [[\fIhost\fP]:\fIport\fP] [[\-\-] \fIprogram\fP \fIargs\fP\&...]
+.fi
+.sp
+.SS ПОДКЛЮЧЕНИЕ
+.INDENT 0.0
+.TP
+.B host:port
+Указывает имя хоста и TCP\-порт для прослушивания. Обязательно, если не используется другая
+опция прослушивания. Если host пуст, будет использован \fIlocalhost\fP\&. Если port
+равен нулю, будет выбран случайный порт, и он будет записан, как указано в опциях \-\-pipe
+или \-\-named\-pipe.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-fd <fd>
+Осуществлять связь через указанный файловый дескриптор вместо сокетов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-named\-pipe <name>
+Записать номер порта для прослушивания в указанный именованный канал.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pipe <fd>
+Записать номер порта для прослушивания в указанный канал (fd).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-reverse\-connect
+Подключиться к клиенту вместо пассивного ожидания подключения. В этом
+случае, [host]:port обозначает удалённый адрес для подключения.
+.UNINDENT
+.SS ОБЩИЕ ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-\-help
+Выводит информацию об использовании и завершает работу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-log\-channels <channel1 categories...:channel2 categories...>
+Каналы для логирования. Список записей, разделённых двоеточием. Каждая запись начинается с
+канала, за которым следует список категорий, разделённых пробелами.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-log\-file <file>
+Файл назначения для логирования. Если пуст, лог ведётся в stderr.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-setsid
+Запустить lldb\-server в новой сессии.
+.UNINDENT
+.SS ВЫБОР ЦЕЛЕВОГО ПРОЦЕССА
+.INDENT 0.0
+.TP
+.B \-\-attach <pid\-or\-name>
+Присоединиться к процессу, заданному (числовым) идентификатором процесса или именем.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\- program args
+Запустить программу для отладки.
+.UNINDENT
+.sp
+Если ни одна из опций целевого процесса не используется, \fBlldb\-server\fP запускается
+без конкретной цели. Впоследствии клиент может дать ему указание запустить или присоединиться.
+.SH КОМАНДА PLATFORM
+.nf
+\fBlldb\-server\fP p[latform] [\fIoptions\fP] \-\-server \-\-listen [[\fIhost\fP]:\fIport\fP]
+.fi
+.sp
+.SS ПОДКЛЮЧЕНИЕ
+.INDENT 0.0
+.TP
+.B \-\-server
+Работать в режиме сервера, обрабатывая несколько подключений. Если это не указано,
+lldb\-server примет только одно подключение и завершит работу, когда оно будет завершено.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-listen <host>:<port>
+Имя хоста и порт для прослушивания. Обязательно. Если \fIport\fP равен нулю, будет использован случайный порт.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-socket\-file <path>
+Записать номер порта прослушивающего сокета в указанный файл.
+.UNINDENT
+.SS ОБЩИЕ ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-\-log\-channels <channel1 categories...:channel2 categories...>
+Каналы для логирования. Список записей, разделённых двоеточием. Каждая запись начинается с
+канала, за которым следует список категорий, разделённых пробелами.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-log\-file <file>
+Файл назначения для логирования. Если пуст, лог ведётся в stderr.
+.UNINDENT
+.SS ПОДКЛЮЧЕНИЯ GDB\-SERVER
+.INDENT 0.0
+.TP
+.B \-\-gdbserver\-port <port>
+Определить порт, который будет использоваться для подключений gdb\-server. Может быть указан несколько раз
+для разрешения использования нескольких портов. Не действует, если указаны \-\-min\-gdbserver\-port
+и \-\-max\-gdbserver\-port.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-min\-gdbserver\-port <port>
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-max\-gdbserver\-port <port>
+Задать диапазон портов, которые могут использоваться для подключений gdb\-server. Обе
+опции должны быть указаны одновременно. Имеет приоритет над \-\-gdbserver\-port.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-port\-offset <offset>
+Добавить указанное смещение к номерам портов, возвращаемым сервером. Это полезно,
+если сервер работает за межсетевым экраном, и диапазон портов перенаправляется
+на него со смещением.
+.UNINDENT
+.SH ПРИМЕРЫ
+.sp
+Сервер может быть запущен в нескольких режимах.
+.sp
+Чтобы запустить новый процесс внутри отладчика, передайте путь к нему
+и аргументы для отлаживаемого исполняемого файла в качестве позиционных аргументов.
+Чтобы разграничить аргументы, передаваемые lldb, и аргументы, передаваемые
+отлаживаемому исполняемому файлу, аргументы, начинающиеся с \-, должны передаваться после
+\-\-. Сервер запустит новый исполняемый файл и немедленно остановит его, ожидая
+подключения клиента.
+.INDENT 0.0
+.INDENT 3.5
+lldb\-server g :1234 /path/to/program program\-argument \-\- \-\-program\-option
+.UNINDENT
+.UNINDENT
+.sp
+Для удобства также поддерживается передача исполняемого файла после \-\-\&.
+.INDENT 0.0
+.INDENT 3.5
+lldb\-server g :1234 \-\- /path/to/program program\-argument \-\-program\-option
+.UNINDENT
+.UNINDENT
+.sp
+Чтобы присоединиться к уже запущенному процессу, передайте \-\-attach вместе с идентификатором
+процесса или именем. Процесс будет немедленно остановлен после запуска
+сервера. Обратите внимание, что завершение работы сервера обычно приводит к тому, что процесс
+отсоединяется и продолжает выполнение.
+.INDENT 0.0
+.INDENT 3.5
+lldb\-server g :1234 \-\-attach 12345
+lldb\-server g :1234 \-\-attach program\-name
+.UNINDENT
+.UNINDENT
+.sp
+Используйте команду \fIgdb\-remote\fP для подключения к серверу:
+.INDENT 0.0
+.INDENT 3.5
+(lldb) gdb\-remote 1234
+.UNINDENT
+.UNINDENT
+.sp
+lldb\-server также может быть запущен без целевого процесса. В этом случае клиент
+может выбрать цель после подключения к серверу. Обратите внимание, что некоторые команды
+(например, \fItarget create\fP) отключатся и запустят локальный lldb\-server вместо этого.
+.INDENT 0.0
+.INDENT 3.5
+lldb\-server g :1234
+.sp
+(lldb) gdb\-remote 1234
+(lldb) process launch a.out
+.UNINDENT
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+На странице проекта LLDB \fI\%https://lldb.llvm.org\fP есть множество различных ресурсов
+для пользователей \fBlldb\-server\fP\&.
+.SH АВТОРЫ
+Проект LLVM
+.SH АВТОРСКИЕ ПРАВА
+2007-2021, Команда LLDB

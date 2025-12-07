@@ -1,0 +1,177 @@
+.\"
+.\" Copyright (c) 1997 Joerg Wunsch
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" From FreeBSD: src/usr.bin/c89/c89.1,v 1.11 2007/03/10 07:10:01 ru Exp
+.\"
+.\" FRDP path ./usr.bin/c99/c99.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 0538dcd37118f89ef86a7cbc57038c50cf5d7860c3428cc57e859030128a769a
+.Dd 13 июля 2015
+.Dt C99 1
+.Os
+.ИМЯ
+.Nm c99
+.Nd компилятор стандартного языка C
+.СИНТАКСИС
+.Nm
+.Op Fl cEgs
+.Oo Fl D Ar имя Ns Oo = Ns Ar значение Oc Oc ...
+.Oo Fl I Ar каталог Oc ...
+.Oo Fl L Ar каталог Oc ...
+.Op Fl o Ar выходной_файл
+.Op Fl O Ar уровень_оптимизации
+.Oo Fl U Ar имя Oc ...
+.Ar операнд ...
+.ОПИСАНИЕ
+Это имя компилятора языка C, требуемое стандартом
+.St -p1003.1-2001 .
+.Pp
+Компилятор
+.Nm
+принимает следующие опции:
+.Bl -tag -width indent
+.It Fl c
+Подавить фазу редактирования связей компиляции и не удалять создаваемые объектные файлы.
+.It Fl D Ar имя Ns Op = Ns Ar значение
+Определить имя, как если бы директивой
+.Ic #define
+языка C.
+Если
+.Dq = Ns Ar значение
+не указано, будет использовано значение 1.
+Обратите внимание, что для запроса трансляции, указанной в
+.St -p1003.1-2001 ,
+необходимо определить
+.Dv _POSIX_C_SOURCE=200112L
+либо в исходном коде, либо с помощью этой опции.
+Опция
+.Fl D
+имеет более низкий приоритет, чем опция
+.Fl U .
+То есть, если
+.Ar имя
+используется и в опции
+.Fl U ,
+и в опции
+.Fl D ,
+то
+.Ar имя
+будет не определено независимо от порядка опций.
+Опция
+.Fl D
+может быть указана более одного раза.
+.It Fl E
+Копировать исходные файлы языка C на стандартный вывод, раскрывая все директивы препроцессора; компиляция выполняться не будет.
+.It Fl g
+Создавать символическую информацию в объектных или исполняемых файлах.
+.It Fl I Ar каталог
+Изменить алгоритм поиска заголовочных файлов, имена которых не являются абсолютными путями, чтобы сначала искать в каталоге, указанном путём
+.Ar каталог ,
+перед поиском в обычных местах.
+Таким образом, заголовочные файлы, имена которых заключены в двойные кавычки
+.Pq Qq ,
+будут искаться сначала в каталоге файла со строкой
+.Ic #include ,
+затем в каталогах, указанных в опциях
+.Fl I ,
+и, наконец, в обычных местах.
+Для заголовочных файлов, имена которых заключены в угловые скобки
+.Pq Aq ,
+поиск будет производиться только в каталогах, указанных в опциях
+.Fl I ,
+а затем в обычных местах.
+Каталоги, указанные в опциях
+.Fl I ,
+должны просматриваться в указанном порядке.
+Опция
+.Fl I
+может быть указана более одного раза.
+.It Fl L Ar каталог
+Изменить алгоритм поиска библиотек, указанных в объектах
+.Fl l ,
+чтобы сначала искать в каталоге, указанном путём
+.Ar каталог ,
+перед поиском в обычных местах.
+Каталоги, указанные в опциях
+.Fl L ,
+будут просматриваться в указанном порядке.
+Опция
+.Fl L
+может быть указана более одного раза.
+.It Fl o Ar выходной_файл
+Использовать путь
+.Ar выходной_файл
+вместо стандартного
+.Pa a.out
+для создаваемого исполняемого файла.
+.It Fl O Ar уровень_оптимизации
+Если
+.Ar уровень_оптимизации
+равен нулю, отключить все оптимизации.
+В противном случае включить оптимизации на указанном уровне.
+.It Fl s
+Создавать объектные и/или исполняемые файлы, из которых удалена (очищена) символическая и другая информация, не требуемая для корректного выполнения.
+.It Fl U Ar имя
+Удалить любое начальное определение
+.Ar имени .
+Опция
+.Fl U
+может быть указана более одного раза.
+.El
+.Pp
+Операнд имеет либо форму пути, либо форму
+.Fl l
+библиотека.
+Необходимо указать хотя бы один операнд в форме пути.
+Поддерживаемые операнды имеют форму:
+.It Ar файл Ns Pa .c
+Исходный файл языка C для компиляции и, возможно, связывания.
+Операнд должен быть в этой форме, если используется опция
+.Fl c .
+.It Ar файл Ns Pa .a
+Библиотека объектных файлов, созданная с помощью
+.Xr ar 1 ,
+передаваемая непосредственно редактору связей.
+.It Ar файл Ns Pa .o
+Объектный файл, созданный с помощью
+.Nm Fl c ,
+передаваемый непосредственно редактору связей.
+.It Fl l Ar библиотека
+Искать библиотеку с именем
+.Pa lib Ns Ar библиотека Ns Pa .a .
+Библиотека будет искаться при обнаружении её имени, поэтому размещение операнда
+.Fl l
+имеет значение.
+.El
+.СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr c89 1 ,
+.Xr cc 1 ,
+.Xr c99 7
+.СТАНДАРТЫ
+Интерфейс утилиты
+.Nm
+соответствует стандарту
+.St -p1003.1-2001 .

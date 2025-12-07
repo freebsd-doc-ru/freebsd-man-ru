@@ -1,0 +1,265 @@
+.\" Copyright (c) 1995 Wolfram Schneider <wosch@FreeBSD.org>. Berlin.
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)locate.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/locate/locate/locate.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 dcdd3dfcb84c42f6dc64bb63fe50c7a7368374470366a33e5e189bce7287cb54
+.Dd 11 декабря 2020
+.Dt LOCATE 1
+.Os
+.Sh ИМЯ
+.Nm locate
+.Nd быстрое нахождение имён файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 0Scims
+.Op Fl l Ar предел
+.Op Fl d Ar база_данных
+.Ar шаблон ...
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+выполняет поиск в базе данных всех путей, соответствующих указанному
+.Ar шаблону .
+База данных периодически пересчитывается (обычно еженедельно или ежедневно)
+и содержит пути
+всех файлов, которые являются общедоступными.
+.Pp
+Символы подстановки оболочки и кавычки
+.Dq ( * ,
+.Dq \&? ,
+.Dq \e ,
+.Dq \&[
+и
+.Dq \&] )
+могут использоваться в
+.Ar шаблоне ,
+хотя их придётся экранировать от оболочки.
+Предварение любого символа обратной косой чертой
+.Pq Dq \e
+устраняет любое специальное
+значение, которое он может иметь.
+Сопоставление отличается тем, что ни один символ не должен быть явно сопоставлен,
+включая косые черты
+.Pq Dq / .
+.Pp
+В качестве особого случая, шаблон, не содержащий символов подстановки
+.Pq Dq foo ,
+сопоставляется так, как если бы это был
+.Dq *foo* .
+.Pp
+Исторически locate хранил только символы от 32 до 127.
+Текущая реализация хранит любой символ, кроме перевода строки
+.Pq Sq \en
+и
+.Dv NUL
+.Pq Sq \e0 .
+Поддержка 8-битных символов не тратит дополнительное пространство для
+простых имён файлов ASCII.
+Символы меньше 32 или больше 127
+хранятся в 2 байтах.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width 10n
+.It Fl 0
+Выводить пути, разделённые символом ASCII
+.Dv NUL
+(код символа 0), вместо стандартного NL
+(перевод строки, код символа 10).
+.It Fl S
+Вывести некоторую статистику о базе данных и завершить работу.
+.It Fl c
+Подавить обычный вывод; вместо этого вывести количество соответствующих имён файлов.
+.It Fl d Ar база_данных
+Искать в
+.Ar базе_данных
+вместо стандартной базы данных имён файлов.
+Разрешено несколько
+.Fl d
+опций.
+Каждая дополнительная
+.Fl d
+опция добавляет указанную базу данных в список
+баз данных для поиска.
+.Pp
+Опция
+.Ar база_данных
+может быть списком баз данных, разделённых двоеточием.
+Одиночное двоеточие является ссылкой
+на базу данных по умолчанию.
+.Bd -literal
+$ locate -d $HOME/lib/mydb: foo
+.Ed
+.Pp
+сначала выполнит поиск строки
+.Dq foo
+в
+.Pa $HOME/lib/mydb ,
+а затем в
+.Pa /var/db/locate.database .
+.Bd -literal
+$ locate -d $HOME/lib/mydb::/cdrom/locate.database foo
+.Ed
+.Pp
+сначала выполнит поиск строки
+.Dq foo
+в
+.Pa $HOME/lib/mydb ,
+затем в
+.Pa /var/db/locate.database ,
+а затем в
+.Pa /cdrom/locate.database .
+.Pp
+.Pp
+это то же самое, что
+.Pp
+.Pp
+или
+.Pp
+.Pp
+Если в качестве имени базы данных указано
+.Fl - ,
+то будет читаться стандартный ввод.
+Например, вы можете сжать свою базу данных
+и использовать:
+.Bd -literal
+$ zcat database.gz | locate -d - шаблон
+.Ed
+.Pp
+Это может быть полезно на машинах с быстрым ЦП, малым объёмом ОЗУ и медленным
+вводом-выводом.
+Примечание: для stdin можно использовать только
+.Em один
+шаблон.
+.It Fl i
+Игнорировать различия регистра как в шаблоне, так и в базе данных.
+.It Fl l Ar число
+Ограничить вывод
+.Ar числом
+имён файлов и завершить работу.
+.It Fl m
+Использовать
+.Xr mmap 2
+вместо библиотеки
+.Xr stdio 3 .
+Это поведение по умолчанию
+и в большинстве случаев быстрее.
+.It Fl s
+Использовать библиотеку
+.Xr stdio 3
+вместо
+.Xr mmap 2 .
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width LOCATE_PATH -compact
+.It Pa LOCATE_PATH
+путь к базе данных locate, если установлен и не пуст; игнорируется, если
+указана опция
+.Fl d .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/periodic/weekly/310.locate -compact
+.It Pa /var/db/locate.database
+база данных locate
+.It Pa /usr/libexec/locate.updatedb
+Скрипт для обновления базы данных locate
+.It Pa /etc/periodic/weekly/310.locate
+Скрипт, запускающий перестроение базы данных
+.El
+.Sh СМ. ТАКЖЕ
+.Xr find 1 ,
+.Xr whereis 1 ,
+.Xr which 1 ,
+.Xr fnmatch 3 ,
+.Xr locate.updatedb 8
+.Rs
+.%A Woods, James A.
+.%D 1983
+.%V 8:1
+.%P pp. 8-10
+.Re
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Bx 4.4 .
+Множество новых возможностей было
+добавлено в
+.Fx 2.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Программа
+.Nm
+может не вывести список некоторых присутствующих файлов или может
+вывести список файлов, которые были удалены из системы.
+Это происходит потому, что
+locate сообщает только о файлах, присутствующих в базе данных, которая
+обычно перестраивается только раз в неделю скриптом
+.Pa /etc/periodic/weekly/310.locate .
+Используйте
+.Xr find 1
+для поиска файлов более изменчивой природы.
+.Pp
+База данных
+.Nm
+обычно строится пользователем
+.Dq nobody ,
+и утилита
+.Xr locate.updatedb 8
+пропускает каталоги,
+которые не доступны для чтения пользователю
+.Dq nobody ,
+группе
+.Dq nobody
+или
+миру.
+Например, если ваш домашний каталог не доступен для чтения миру,
+.Em ни один
+из ваших файлов не попадёт в базу данных.
+.Pp
+База данных
+.Nm
+не является независимой от порядка байтов.
+Невозможно
+делиться базами данных между машинами с разным порядком байтов.
+Текущая
+реализация
+.Nm
+понимает базы данных в порядке байтов хоста или
+сетевом порядке байтов, если обе архитектуры используют одинаковый размер целых чисел.
+Таким образом, на машине
+.Fx Ns /i386
+(от младшего к старшему),
+можно читать
+базу данных locate, построенную на машине SunOS/sparc
+(от старшего к младшему, сетевой порядок).
+.Pp
+Утилита
+.Nm
+не распознаёт многобайтовые символы.

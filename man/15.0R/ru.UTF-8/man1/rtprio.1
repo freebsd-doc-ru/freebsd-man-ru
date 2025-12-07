@@ -1,0 +1,196 @@
+.\"
+.\" Copyright (c) 1994, Henrik Vestergaard Draboel
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Henrik Vestergaard Draboel.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/rtprio/rtprio.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 cd70719a998ee321a7fa2cdb2e42b2db83d7527745f94467ef516c5385029c6a
+.Dd 8 декабря 2021
+.Dt RTPRIO 1
+.Os
+.Sh ИМЯ
+.Nm rtprio ,
+.Nm idprio
+.Nd выполнить, исследовать или изменить приоритет планирования в реальном времени или в режиме простоя утилиты или процесса
+.Sh СИНТАКСИС
+.Nm [id|rt]prio
+.Nm [id|rt]prio
+.Oo Fl Oc Ns Ar pid
+.Nm [id|rt]prio
+.Ar приоритет
+.Ar команда
+.Op аргументы
+.Nm [id|rt]prio
+.Ar приоритет
+.Fl Ar pid
+.Nm [id|rt]prio
+.Fl t
+.Ar команда
+.Op аргументы
+.Nm [id|rt]prio
+.Fl t
+.Fl Ar pid
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления планированием процессов в реальном времени.
+.Pp
+Утилита
+.Nm idprio
+используется для управления планированием процессов в режиме простоя и может вызываться
+с теми же опциями, что и
+.Nm .
+.Pp
+Процесс с приоритетом реального времени не подвержен снижению приоритета
+и будет вытеснен только другим процессом с равным или более высоким приоритетом реального времени.
+.Pp
+Процесс с приоритетом простоя будет выполняться только тогда, когда нет других
+доступных для выполнения процессов, и только если его приоритет простоя равен или выше
+всех других доступных процессов с приоритетом простоя.
+.Pp
+Обе утилиты
+.Nm
+или
+.Nm idprio
+при вызове без аргументов возвращают приоритет реального времени
+текущего процесса.
+.Pp
+Если
+.Nm
+вызывается с 1 аргументом, она возвращает приоритет реального времени
+процесса с указанным
+.Ar pid .
+.Pp
+Если указан
+.Ar приоритет ,
+процесс или программа запускаются с этим приоритетом реального времени.
+Если указан
+.Fl t ,
+процесс или программа запускаются как обычный (не в реальном времени)
+процесс.
+.Pp
+Если указан
+.Ar -pid ,
+будет изменён процесс с идентификатором
+.Ar pid ,
+иначе, если указана
+.Ar команда ,
+эта программа запускается со своими аргументами.
+.Pp
+.Ar Приоритет
+— целое число от 0 до RTP_PRIO_MAX (обычно 31).
+0 — наивысший приоритет.
+.Pp
+.Ar Pid
+.Pp
+Только root может устанавливать приоритет реального времени или простоя для процесса.
+Исключительные привилегии могут быть предоставлены через политику
+.Xr mac_priority 4
+и группы пользователей realtime и idletime.
+Переменная
+.Xr sysctl 8
+.Va security.bsd.unprivileged_idprio
+устарела.
+Если установлена в ненулевое значение, она позволяет любому пользователю изменять приоритет простоя процессов,
+которыми он владеет.
+.Pp
+Заметим, что приоритет простоя увеличивает вероятность возникновения взаимоблокировки,
+если процесс блокирует требуемый ресурс, а затем
+не получает возможности выполняться.
+.Sh СТАТУС ВЫХОДА
+Если
+.Nm
+выполняет команду, код выхода соответствует выполненной команде.
+Во всех остальных случаях
+.Nm
+завершается с кодом 0 при успехе и 1 при всех других ошибках.
+.Sh ПРИМЕРЫ
+Чтобы увидеть, с каким приоритетом реального времени работает текущий процесс:
+.Dl rtprio
+.Pp
+Чтобы увидеть приоритет реального времени процесса 1423:
+.Pp
+Чтобы запустить
+.Xr cron 8
+с наименьшим приоритетом реального времени:
+.Pp
+Чтобы изменить приоритет реального времени процесса 1423 на 16:
+.Pp
+Чтобы запустить
+.Xr tcpdump 1
+без приоритета реального времени:
+.Pp
+Чтобы изменить приоритет реального времени процесса 1423
+на
+.Dv RTP_PRIO_NORMAL
+(обычный приоритет, не реального времени):
+.Pp
+Чтобы выполнить make depend, не мешая другим задачам в системе:
+.Sh СМ. ТАКЖЕ
+.Xr nice 1 ,
+.Xr ps 1 ,
+.Xr rtprio 2 ,
+.Xr setpriority 2 ,
+.Xr nice 3 ,
+.Xr mac_priority 4 ,
+.Xr renice 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 2.0 ,
+но похожа на версию HP-UX.
+.Sh АВТОРЫ
+.An -nosplit
+.An Henrik Vestergaard Draboel Aq Mt hvd@terry.ping.dk
+является первоначальным автором.
+Эта реализация в
+.Fx
+была существенно переписана
+.An David Greenman .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Можно заблокировать себе доступ к системе, поместив процесс с высокой нагрузкой на CPU
+в приоритет реального времени.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Нет способа установить/просмотреть приоритет реального времени процесса 0
+(swapper) (см.
+.Xr ps 1 ) .
+.Pp
+В
+.Fx
+нет способа гарантировать, что страница процесса находится в памяти, поэтому
+процесс может быть остановлен для подкачки страницы (см.
+.Xr mprotect 2 ,
+.Xr madvise 2 ) .
+.Pp
+В
+.Fx
+системные вызовы в настоящее время никогда не вытесняются, поэтому процессы не реального времени
+могут "морить голодом" процессы реального времени, или процессы с приоритетом простоя могут
+"морить голодом" процессы с обычным приоритетом.

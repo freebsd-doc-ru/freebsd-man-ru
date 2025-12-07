@@ -1,0 +1,96 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)leave.1	8.3 (Berkeley) 4/28/95
+.\"
+.\" FRDP path ./usr.bin/leave/leave.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 d42d348a225c39f7a922c9ab589ffecdaf8a36120d8cb85344616bbbfdc2877d
+.Dd 28 апреля 1995
+.Dt LEAVE 1
+.Os
+.Sh ИМЯ
+.Nm leave
+.Nd напоминает, когда вам нужно уйти
+.Sh СИНТАКСИС
+.Nm
+.Op Oo Cm \&+ Oc Ns Ar ччмм
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+ожидает до указанного времени, а затем напоминает вам, что вам
+нужно уйти.
+Напоминание происходит за 5 минут и за 1 минуту до фактического
+времени, в само время и каждую минуту после этого.
+Когда вы выходите из системы,
+.Nm
+завершает работу непосредственно перед тем, как должна была бы
+быть выведено следующее сообщение.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Ar ччмм
+Время суток задаётся в формате
+.Ar ччмм
+где
+.Ar чч
+— это часы
+(по 12- или 24-часовому формату), а
+.Ar мм
+— минуты.
+Все времена преобразуются в 12-часовой формат и предполагаются
+в ближайшие 12 часов.
+.It Cm \&+
+Если перед временем указан
+.Sq Cm \&+ ,
+сигнал сработает через указанное количество часов и минут
+от текущего времени.
+.El
+.Pp
+Если аргумент не указан,
+.Nm
+запрашивает время.
+Ответ в виде символа новой строки приводит к завершению
+.Nm ,
+в противном случае ответ считается временем.
+Эта форма подходит для включения в
+.Pa .login
+или
+.Pa .profile .
+.Pp
+Чтобы избавиться от
+.Nm ,
+следует либо выйти из системы, либо использовать
+.Ql kill \-s KILL
+указав его идентификатор процесса.
+.Sh СМ. ТАКЖЕ
+.Xr calendar 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .

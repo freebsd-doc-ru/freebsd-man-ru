@@ -1,0 +1,214 @@
+.\"
+.\" Copyright 2000 Massachusetts Institute of Technology
+.\"
+.\" Permission to use, copy, modify, and distribute this software and
+.\" its documentation for any purpose and without fee is hereby
+.\" granted, provided that both the above copyright notice and this
+.\" permission notice appear in all copies, that both the above
+.\" copyright notice and this permission notice appear in all
+.\" supporting documentation, and that the name of M.I.T. not be used
+.\" in advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.  M.I.T. makes
+.\" no representations about the suitability of this software for any
+.\" purpose.  It is provided "as is" without express or implied
+.\" warranty.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY M.I.T. ``AS IS''.  M.I.T. DISCLAIMS
+.\" ALL EXPRESS OR IMPLIED WARRANTIES WITH REGARD TO THIS SOFTWARE,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
+.\" SHALL M.I.T. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/getconf/getconf.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f25ed8631d5fa1bc89ce86c97a823321aa87f72d28ab823cd0a0c9888e56a60b
+.Dd September 15, 2017
+.Dt GETCONF 1
+.Os
+.Sh ИМЯ
+.Nm getconf
+.Nd получить стандартные переменные конфигурации
+.Sh СИНТАКСИС
+.Nm
+.Fl a
+.Op Ar file
+.Nm
+.Op Fl v Ar environment
+.Ar path_var
+.Ar file
+.Nm
+.Op Fl v Ar environment
+.Ar system_var
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит значения конфигурационных переменных путей или системы
+.Tn POSIX
+или
+.Tn X/Open
+в стандартный вывод.
+Если переменная не определена, выводится строка
+.Dq Li undefined .
+.Pp
+Первая форма команды отображает все конфигурационные переменные путей или системы
+в стандартный вывод.
+Если указан
+.Ar file ,
+все конфигурационные переменные путей сообщаются для
+.Ar file
+с использованием
+.Xr pathconf 2 .
+В противном случае,
+все системные конфигурационные переменные сообщаются с использованием
+.Xr confstr 3
+и
+.Xr sysconf 3 .
+.Pp
+Вторая форма команды, с двумя обязательными
+аргументами, извлекает файловые и файлово-системно-зависимые
+конфигурационные переменные с использованием
+.Xr pathconf 2 .
+Третья форма, с одним аргументом, извлекает системные
+конфигурационные переменные с использованием
+.Xr confstr 3
+и
+.Xr sysconf 3 ,
+в зависимости от типа переменной.
+В качестве расширения, вторая форма также может использоваться для запроса статических пределов из
+.In limits.h .
+.Pp
+Все переменные
+.Xr sysconf 3
+и
+.Xr pathconf 2
+используют те же имена, что и манифестные константы, определённые в
+соответствующих стандартных привязках языка C, включая любые ведущие
+подчёркивания или префиксы.
+То есть,
+.Ar system_var
+может быть
+.Dv ARG_MAX
+или
+.Dv _POSIX_VERSION ,
+в отличие от имён
+.Xr sysconf 3
+.Dv _SC_ARG_MAX
+или
+.Dv _SC_POSIX_VERSION .
+Переменные, извлечённые из
+.Xr confstr 3 ,
+имеют отброшенный ведущий
+.Ql _CS_ ;
+таким образом,
+.Dv _CS_PATH
+запрашивается с помощью
+.Ar system_var
+.Dq Li PATH .
+.Ss Среды программирования
+Опция
+.Fl v Ar environment
+указывает среду программирования
+.St -p1003.1-2001 ,
+в рамках которой должны запрашиваться значения.
+В настоящее время эта опция ничего не делает, но в будущем может использоваться
+для выбора между 32-битными и 64-битными средами выполнения на платформах,
+которые поддерживают обе.
+Указание среды, которая не поддерживается на текущей платформе выполнения,
+даёт неопределённые результаты.
+.Pp
+Стандартные среды программирования следующие:
+.It Li POSIX_V6_ILP32_OFF32
+Ровно 32-битные integer, long, pointer и смещение в файле.
+.Sy Поддерживаемые платформы :
+Нет.
+.It Li POSIX_V6_ILP32_OFFBIG
+Ровно 32-битные integer, long и pointer; как минимум 64-битное смещение в файле.
+.Sy Поддерживаемые платформы :
+.Tn IA32 ,
+.Tn PowerPC .
+.It Li POSIX_V6_LP64_OFF64
+Ровно 32-битный integer; ровно 64-битные long, pointer и смещение в файле.
+.Sy Поддерживаемые платформы :
+.Tn AMD64 ,
+.Tn SPARC64 .
+.It Li POSIX_V6_LPBIG_OFFBIG
+Как минимум 32-битный integer; как минимум 64-битные long, pointer и смещение в файле.
+.Sy Поддерживаемые платформы :
+Нет.
+.El
+.Pp
+Команда:
+.Pp
+.Pp
+возвращает разделённый символами новой строки список сред, в которых ширина
+определённых фундаментальных типов не больше ширины собственного
+типа C
+.Vt long .
+В настоящее время все среды программирования, поддерживаемые
+.Fx ,
+обладают этим свойством.
+Несколько переменных
+.Xr confstr 3
+предоставляют информацию о необходимых флагах компилятора и компоновщика
+для использования стандартных сред программирования, описанных выше.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Команда:
+.Pp
+.Pp
+отобразит системную настройку по умолчанию для
+переменной окружения
+.Ev PATH .
+.Pp
+Команда:
+.Pp
+.Pp
+отобразит максимальную длину имени файла в
+директории
+.Pa /tmp .
+.Pp
+Команда:
+.Pp
+.Pp
+отобразит максимальное значение типа C
+.Vt long
+в среде программирования
+.Li POSIX_V6_LPBIG_OFFBIG ,
+если система поддерживает эту среду.
+.Sh ДИАГНОСТИКА
+Использование
+.Ar system_var
+или
+.Ar path_var ,
+которые полностью не распознаны, считается ошибкой,
+что приводит к выводу диагностического сообщения в стандартную ошибку.
+Те, которые известны, но просто не определены, не приводят к индикации ошибки.
+Утилита
+.Nm
+распознаёт все переменные, определённые для
+.St -p1003.1-2001 ,
+включая те, которые в настоящее время не реализованы.
+.Sh СМ. ТАКЖЕ
+.Xr pathconf 2 ,
+.Xr confstr 3 ,
+.Xr sysconf 3
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An Garrett A. Wollman Aq Mt wollman@lcs.mit.edu

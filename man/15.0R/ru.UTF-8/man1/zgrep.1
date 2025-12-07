@@ -1,0 +1,111 @@
+.\" Copyright (c) 2018 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/grep/zgrep.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 394709af4c8113e4055766381ae1a6a6270d97f7ad9fa8e1bcc93936daca59c3
+.Dd 20 июля 2020
+.Dt ZGREP 1
+.Os
+.Sh ИМЯ
+.Nm zgrep ,
+.Nm zegrep ,
+.Nm zfgrep ,
+.Nm bzgrep ,
+.Nm bzegrep ,
+.Nm bzfgrep ,
+.Nm lzgrep ,
+.Nm lzegrep ,
+.Nm lzfgrep ,
+.Nm xzgrep ,
+.Nm xzegrep ,
+.Nm xzfgrep ,
+.Nm zstdgrep ,
+.Nm zstdegrep ,
+.Nm zstdfgrep
+.Nd поиск в сжатых файлах
+.Sh СИНТАКСИС
+.Nm
+.Oo Аргументы Oc Файлы
+.Nm zegrep
+.Oo Аргументы Oc Файлы
+.Nm zfgrep
+.Oo Аргументы Oc Файлы
+.Pp
+.Nm bzgrep
+.Oo Аргументы Oc Файлы
+.Nm bzegrep
+.Oo Аргументы Oc Файлы
+.Nm bzfgrep
+.Oo Аргументы Oc Файлы
+.Pp
+.Nm lzgrep
+.Oo Аргументы Oc Файлы
+.Nm lzegrep
+.Oo Аргументы Oc Файлы
+.Nm lzfgrep
+.Oo Аргументы Oc Файлы
+.Pp
+.Nm xzgrep
+.Oo Аргументы Oc Файлы
+.Nm xzegrep
+.Oo Аргументы Oc Файлы
+.Nm xzfgrep
+.Oo Аргументы Oc Файлы
+.Pp
+.Nm zstdgrep
+.Oo Аргументы Oc Файлы
+.Nm zstdegrep
+.Oo Аргументы Oc Файлы
+.Nm zstdfgrep
+.Oo Аргументы Oc Файлы
+.Sh ОПИСАНИЕ
+Позволяет
+.Xr grep 1
+читать сжатые файлы.
+.Sh СМ. ТАКЖЕ
+.Xr bzip2 1 ,
+.Xr grep 1 ,
+.Xr gzip 1 ,
+.Xr xz 1 ,
+.Xr zstd 1
+.Sh АВТОРЫ
+Эта версия утилиты
+.Nm
+была написана
+.An Томасом Клауснером Aq Mt wiz@NetBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Xr zgrep 1
+не обрабатывает флаги, принимающие аргументы, если между флагом и аргументом нет пробела, например:
+.Pp
+.Pp
+При использовании более одного флага
+.Fl e
+совпадение должно происходить для любого из шаблонов (аналогично нескольким шаблонам, указанным в файле с флагом
+.Fl f
+).
+.Xr zgrep 1
+соответствует только последнему шаблону
+.Fl e
+.

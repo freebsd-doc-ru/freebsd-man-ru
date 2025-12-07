@@ -1,0 +1,181 @@
+.\" Copyright (c) 2001-2003 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: rfcomm_sppd.1,v 1.3 2003/09/07 18:15:55 max Exp $
+.\"
+.\" FRDP path ./usr.bin/bluetooth/rfcomm_sppd/rfcomm_sppd.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 015d64f04da5dfa34db9620456131e8cb5c6d64e067ebcc451155b6c70dd7a76
+.Dd 21 апреля 2008
+.Dt RFCOMM_SPPD 1
+.Os
+.Sh ИМЯ
+.Nm rfcomm_sppd
+.Nd Демон профиля последовательного порта RFCOMM
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bhtS
+.Fl a Ar адрес
+.Fl c Ar канал
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является демоном профиля последовательного порта.
+Она может работать в двух режимах: клиентском и серверном.
+.Pp
+В клиентском режиме
+.Nm
+устанавливает RFCOMM-соединение с указанным сервером
+.Ar адрес
+и
+.Ar каналом .
+После установки соединения утилита
+.Nm
+обеспечивает доступ к удалённому последовательному порту сервера через stdin/stdout
+или через интерфейс
+.Xr pts 4 ,
+если указана опция
+.Fl t .
+.Pp
+Если указана опция
+.Fl S ,
+.Nm
+будет работать в серверном режиме и выступать в качестве RFCOMM-сервера,
+ожидая соединений на адресе
+.Dv ANY
+и анонсируя виртуальный последовательный порт
+через демон
+.Xr sdpd 8 .
+Если указана опция
+.Fl t ,
+серверная сторона виртуального последовательного порта присоединяется к псевдотерминалу.
+В противном случае виртуальный последовательный порт присоединяется к stdin/stdout.
+В этом случае
+.Nm
+должна запускаться от имени root для взаимодействия с
+.Xr sdpd 8 .
+.Pp
+Утилита
+.Nm
+открывает как ведущий, так и ведомый псевдотерминалы.
+Это сделано для того, чтобы RFCOMM-соединение оставалось открытым до тех пор,
+пока не завершится работа
+.Nm .
+Данные, полученные от ведущего псевдотерминала, отправляются по
+RFCOMM-соединению.
+Данные, полученные из RFCOMM-соединения, записываются
+в ведущий псевдотерминал.
+Приложение, в свою очередь, открывает ведомый псевдотерминал
+и работает с ним так же, как если бы оно работало со стандартным последовательным
+портом.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a Ar адрес
+В клиентском режиме
+эта обязательная опция задаёт адрес удалённого RFCOMM-сервера.
+Если эта опция указана в серверном режиме,
+.Nm
+будет принимать соединения только от устройства
+.Tn Bluetooth
+с адресом
+.Ar адрес .
+Адрес может быть указан как BD_ADDR или имя.
+Если указано имя, то утилита
+.Nm
+попытается разрешить его через
+.Xr bt_gethostbyname 3 .
+.It Fl b
+Отсоединиться от управляющего терминала, т.е. работать в фоновом режиме.
+.It Fl c Ar канал
+Как в клиентском, так и в серверном режиме
+эта опция задаёт RFCOMM-канал для подключения или прослушивания.
+В серверном режиме
+канал должен быть числом от 1 до 30.
+Если не указан,
+.Nm
+попытается привязаться к
+.Dq подстановочному
+номеру RFCOMM-канала.
+Фактический RFCOMM-канал будет получен через вызов
+.Xr getsockname 2
+и будет использован для регистрации службы последовательного порта в
+.Xr sdpd 8 .
+В клиентском режиме
+канал может быть либо числом от 1 до 30, либо именем службы.
+Поддерживаемые имена служб:
+.Cm DUN
+(для службы удалённого доступа),
+.Cm FAX
+(для факс-службы),
+.Cm LAN
+(для службы доступа к LAN с использованием PPP) и
+.Cm SP
+(для службы последовательного порта).
+Если канал не указан, то утилита
+.Nm
+попытается получить RFCOMM-канал для службы последовательного порта через
+протокол обнаружения служб от сервера.
+.It Fl h
+Вывести сообщение об использовании и завершить работу.
+.It Fl S
+Серверный режим; см.
+.Sx ОПИСАНИЕ .
+.It Fl t
+Использовать ведомый псевдотерминал.
+Если не установлено, будут использоваться stdin/stdout.
+Эта опция обязательна, если указана опция
+.Fl b .
+.El
+.Sh ФАЙЛЫ
+.It Pa /dev/pts/[номер]
+ведомые псевдотерминалы
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Pp
+Запустит утилиту
+.Nm
+и откроет RFCOMM-соединение с сервером по адресу
+.Li 00:01:02:03:04:05
+и каналу
+.Li 1 .
+После установки соединения можно использовать
+.Xr pts 4
+для взаимодействия с удалённым последовательным портом на сервере.
+.Nm
+выводит имя
+.Xr pts 4 ,
+которое следует использовать, в stdout.
+.Sh СМ. ТАКЖЕ
+.Xr bluetooth 3 ,
+.Xr ng_btsocket 4 ,
+.Xr pts 4 ,
+.Xr rfcomm_pppd 8 ,
+.Xr sdpd 8
+.Sh АВТОРЫ
+.An Максим Евменкин Aq Mt m_evmenkin@yahoo.com
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Пожалуйста, сообщайте, если обнаружены.

@@ -1,0 +1,280 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-readobj/llvm-readelf.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 c28299ca91bd542fa9c239552b376f2bc0521de8b60ac65ee826542dfd7a5990
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-readelf \- GNU-совместимое средство чтения объектов LLVM
+.SH СИНТАКСИС
+.sp
+\fBllvm\-readelf\fP [\fIопции\fP] [\fIвходные_файлы...\fP]
+.SH ОПИСАНИЕ
+.sp
+Утилита \fBllvm\-readelf\fP отображает низкоуровневую информацию, специфичную для формата,
+об одном или нескольких объектных файлах.
+.sp
+Если \fBвход\fP равен \(dq\fB\-\fP\(dq, \fBllvm\-readelf\fP читает из стандартного
+ввода. В противном случае она будет читать из указанных \fBимен_файлов\fP\&.
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.B \-\-all, \-a
+Эквивалентно указанию всех основных опций отображения, относящихся к формату файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-addrsig
+Отобразить таблицу значимости адресов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-arch\-specific, \-A
+Отобразить архитектурно-специфичную информацию, например, раздел атрибутов ARM на ARM.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-bb\-addr\-map
+Отобразить содержимое раздела(ов) карты адресов базовых блоков, который содержит адрес каждой функции, вместе с относительным смещением каждого базового блока.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-demangle, \-C
+Отображать деманглированные имена символов в выводе.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dependent\-libraries
+Отобразить раздел зависимых библиотек.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dyn\-relocations
+Отобразить записи динамических перемещений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dyn\-symbols, \-\-dyn\-syms
+Отобразить таблицу динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dynamic\-table, \-\-dynamic, \-d
+Отобразить динамическую таблицу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-cg\-profile
+Отобразить раздел профиля графа вызовов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-histogram, \-I
+Отобразить гистограмму списка корзин для хэш-таблиц динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-elf\-linker\-options
+Отобразить раздел опций компоновщика.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-elf\-output\-style=<value>
+Форматировать информацию ELF в указанном стиле. Допустимые варианты: \fBLLVM\fP,
+\fBGNU\fP, и \fBJSON\fP\&. Вывод \fBLLVM\fP — это расширенный и структурированный формат.
+\fBGNU\fP (по умолчанию) вывод имитирует эквивалентный вывод GNU \fBreadelf\fP.
+\fBJSON\fP — это вывод в формате JSON, предназначенный для машинной обработки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-groups, \-g
+Отобразить группы разделов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-expand\-relocs
+При использовании с \fI\%\-\-relocations\fP, отображать каждое перемещение в расширенном многострочном формате.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-file\-header, \-h
+Отобразить заголовки файлов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-gnu\-hash\-table
+Отобразить таблицу GNU хэшей для динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hash\-symbols
+Отобразить расширенную хэш-таблицу с данными динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hash\-table
+Отобразить хэш-таблицу для динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-headers, \-e
+Эквивалентно установке: \fI\%\-\-file\-header\fP, \fI\%\-\-program\-headers\fP,
+и \fI\%\-\-sections\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help
+Отобразить краткую справку по параметрам командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hex\-dump=<section[,section,...]>, \-x
+Отобразить указанный раздел(ы) в виде шестнадцатеричных байтов. \fBsection\fP может быть
+индексом раздела или именем раздела.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-needed\-libs
+Отобразить необходимые библиотеки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-demangle
+Не отображать деманглированные имена символов в выводе. Включено по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-notes, \-n
+Отобразить все примечания.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pretty\-print
+При использовании с \fI\%\-\-elf\-output\-style\fP, вывод JSON будет отформатирован в
+более читаемом формате.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-program\-headers, \-\-segments, \-l
+Отобразить заголовки программ.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-raw\-relr
+Не декодировать перемещения в разделах перемещений RELR при их отображении.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-relocations, \-\-relocs, \-r
+Отобразить записи перемещений в файле.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sections, \-\-section\-headers, \-S
+Отобразить все разделы.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-data
+При использовании с \fI\%\-\-sections\fP, отображать данные раздела для каждого показанного
+раздела. Эта опция не имеет эффекта для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-details, \-t
+Отобразить все детали разделов. Используется как альтернатива \fI\%\-\-sections\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-mapping
+Отобразить отображение разделов на сегменты.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-relocations
+При использовании с \fI\%\-\-sections\fP, отображать перемещения для каждого показанного
+раздела. Эта опция не имеет эффекта для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-symbols
+При использовании с \fI\%\-\-sections\fP, отображать символы для каждого показанного
+раздела. Эта опция не имеет эффекта для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-stackmap
+Отобразить содержимое раздела stackmap.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-stack\-sizes
+Отобразить содержимое раздела(ов) размеров стека, т.е. пары имен функций
+и размеров их стековых фреймов. В настоящее время реализовано только для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-string\-dump=<section[,section,...]>, \-p
+Отобразить указанный раздел(ы) в виде списка строк. \fBsection\fP может быть
+индексом раздела или именем раздела.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-symbols, \-\-syms, \-s
+Отобразить таблицу символов. Также отображает таблицу динамических символов при использовании стиля вывода GNU для ELF.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-unwind, \-u
+Отобразить информацию о раскрутке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Отобразить версию исполняемого файла \fBllvm\-readelf\fP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version\-info, \-V
+Отобразить разделы версий.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-wide, \-W
+Игнорируется для совместимости с GNU readelf. Вывод уже аналогичен использованию -W с GNU readelf.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<FILE>
+Читать параметры командной строки из файла ответов \fI<FILE>\fP\&.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-readelf\fP возвращает 0 при нормальной работе. Он возвращает ненулевой
+код выхода, если произошли ошибки.
+.SH СМ. ТАКЖЕ
+.sp
+\fBllvm\-nm(1)\fP, \fBllvm\-objdump(1)\fP, \fBllvm\-readobj(1)\fP
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH COPYRIGHT
+2003-2023, LLVM Project

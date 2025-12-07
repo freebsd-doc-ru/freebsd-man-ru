@@ -1,0 +1,160 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-dwarfutil/llvm-dwarfutil.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 0727907eb7a448fd2f94c73e5e5253b1afea999d406405e142fbdfd627d1e33f
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.Ш ИМЯ
+llvm-dwarfutil \- Инструмент для копирования и манипуляции отладочной информацией
+.Ш СИНТАКСИС
+.sp
+\fBllvm\-dwarfutil\fP [\fIопции\fP] \fIвходной_файл\fP \fIвыходной_файл\fP
+.Ш ОПИСАНИЕ
+.sp
+\fBllvm\-dwarfutil\fP \- это инструмент для копирования и манипуляции отладочной информацией.
+.sp
+В базовом использовании он создаёт семантическую копию входного файла в выходной. Если указаны какие-либо
+опции, выходные данные могут быть изменены в процессе, например,
+путём удаления неиспользуемой отладочной информации.
+.sp
+Если для входного файла указано \(dq\-\(dq, ввод читается из стандартного входного потока программы. Если \(dq\-\(dq указано для выходного файла, вывод
+записывается в стандартный выходной поток программы.
+.sp
+Инструмент всё ещё находится в активной разработке.
+.Ш ПАРАМЕТРЫ КОМАНДНОЙ СТРОКИ
+.INDENT 0.0
+.TP
+.B \-\-garbage\-collection
+Удаляет части отладочной информации, связанные с удалёнными разделами.
+Когда компоновщик выполняет сборку мусора разделов, оставшаяся отладочная информация
+остаётся. Такая оставшаяся отладочная информация ссылается на адресные диапазоны, используя
+значения-надгробия. Таким образом, при указании этой опции инструмент удаляет
+отладочную информацию, которая помечена значением-надгробием.
+.sp
+Эта опция включена по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-odr\-deduplication
+Удаляет дублированные типы (если \(dqПравило Одного Определения\(dq поддерживается исходным
+языком). Сохраняет первое определение типа и удаляет другие определения,
+потенциально значительно уменьшая размер выходной отладочной информации.
+.sp
+Эта опция включена по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help, \-h
+Вывести сводку параметров командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-garbage\-collection
+Отключить \fI\%\-\-garbage\-collection\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-odr\-deduplication
+Отключить \fI\%\-\-odr\-deduplication\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-separate\-debug\-file
+Отключить \fI\%\-\-separate\-debug\-file\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-num\-threads=<n>, \-j
+Задаёт максимальное количество (\fIn\fP) одновременных потоков для использования
+при обработке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-separate\-debug\-file
+Создать отдельный файл, содержащий выходную отладочную информацию. Использование
+\fBllvm\-dwarfutil\fP с этой опцией эквивалентно
+следующему набору команд:
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+:program:\(gallvm\-objcopy\(ga \-\-only\-keep\-debug входной-файл выходной-файл.debug
+:program:\(gallvm\-objcopy\(ga \-\-strip\-debug входной-файл выходной-файл
+:program:\(gallvm\-objcopy\(ga \-\-add\-gnu\-debuglink=выходной-файл.debug выходной-файл
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-tombstone=<значение>
+<значение> может быть одним из следующих значений:
+.INDENT 7.0
+.INDENT 3.5
+.INDENT 0.0
+.IP \(bu 2
+\fIbfd\fP: ноль для всех адресов и [1,1] для адресных диапазонов DWARF v4 (или меньше) и исполняемых.
+.IP \(bu 2
+\fImaxpc\fP: \-1 для всех адресов и \-2 для адресных диапазонов DWARF v4 (или меньше).
+.IP \(bu 2
+\fIuniversal\fP: и \fIbfd\fP, и \fImaxpc\fP\&.
+.IP \(bu 2
+\fIexec\fP: соответствие с адресными диапазонами исполняемых разделов.
+.UNINDENT
+.sp
+Значение \fIuniversal\fP используется по умолчанию.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-verbose
+Включить подробное протоколирование. Эта опция отключает многопоточный режим.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-verify
+Запустить проверку DWARF на выходной отладочной информации DWARF.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Вывести версию этой программы.
+.UNINDENT
+.Ш ПОДДЕРЖИВАЕМЫЕ ФОРМАТЫ
+.sp
+Следующие форматы в настоящее время поддерживаются \fBllvm\-dwarfutil\fP:
+.sp
+ELF
+.Ш СТАТУС ВЫХОДА
+.sp
+\fBllvm\-dwarfutil\fP завершается с ненулевым кодом выхода при ошибке.
+В противном случае завершается с кодом 0.
+.Ш ИЗВЕСТНЫЕ ОШИБКИ
+.sp
+Для сообщения об ошибках посетите <\fI\%https://github.com/llvm/llvm\-project/labels/tools:llvm\-dwarfutil/\fP>.
+.Ш АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.Ш АВТОРСКИЕ ПРАВА
+2003-2023, LLVM Project

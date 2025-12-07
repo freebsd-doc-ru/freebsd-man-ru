@@ -1,0 +1,170 @@
+.\" Copyright (c) 2008 Poul-Henning Kamp
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/fifolog/fifolog_create/fifolog.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4254f51617e1645c37e2d9ba28ac87e72c9c14a8ff8c6c0cd0f8b867cd12b43b
+.Dd 9 февраля 2008
+.Dt FIFOLOG 1
+.Os
+.Sh ИМЯ
+.Nm fifolog_create , fifolog_writer , fifolog_reader
+.Sh СИНТАКСИС
+.Nm fifolog_create
+.Op Fl l Ar record-size
+.Op Fl r Ar record-count
+.Op Fl s Ar size
+.Ar file
+.Nm fifolog_reader
+.Op Fl t
+.Op Fl b Ar tstart
+.Op Fl B Ar Tstart
+.Op Fl e Ar tend
+.Op Fl E Ar Tend
+.Op Fl o Ar ofile
+.Op Fl R Ar regexp
+.Op Fl T Ar timefmt
+.Ar file
+.Nm fifolog_writer
+.Op Fl w Ar write-rate
+.Op Fl s Ar sync-rate
+.Op Fl z Ar compression
+.Ar file
+.Sh ОПИСАНИЕ
+Fifologs обеспечивают компактное циклическое кольцевое хранилище для записи текстовой и бинарной информации на постоянное хранилище ограниченным и предсказуемым образом, как по времени, так и по объему.
+.Pp
+Fifolog может храниться либо непосредственно на разделе диска, либо в обычном файле.
+.Pp
+Входной поток данных кодируется, сжимается и размечается временными метками перед записью в хранилище, что позволяет находить определенный временной интервал в сохраненных данных без необходимости распаковывать весь файл журнала.
+.Pp
+Утилита
+.Nm fifolog_create
+используется для инициализации первого сектора устройства хранения или файла файловой системы, чтобы превратить его в fifolog, и должна вызываться только один раз.
+.Pp
+Запуск
+.Nm fifolog_create
+на существующем fifolog сбросит его, так что
+.Nm fifolog_reader
+и
+.Nm fifolog_writer
+не увидят предыдущее содержимое. (Предыдущее содержимое не стирается физически, и, приложив некоторые усилия, все записи, кроме первой, можно легко восстановить.)
+.Pp
+Если
+.Ar file
+еще не существует,
+.Nm fifolog_create
+попытается создать его и обрезать с помощью
+.Xr ftruncate 2
+до указанного размера, по умолчанию — 86400 записей по 512 байт, если параметры
+.Fl r , l
+или
+.Fl s
+не заданы иначе.
+.Pp
+Утилита
+.Nm fifolog_writer
+будет читать стандартный ввод и записывать его в конец fifolog в соответствии с заданными параметрами.
+.Pp
+Запись происходит всякий раз, когда выходной буфер заполняется сжатыми данными или когда срабатывает один из двух таймеров, принудительно записывая частично заполненный буфер.
+.Pp
+Первый и более быстрый таймер,
+.Fl w Ar write-rate ,
+принудительно записывает доступные данные, но не сбрасывает и не очищает словарь сжатия. Этот таймер предназначен для минимизации объема данных журнала, теряемых в оперативной памяти в случае сбоя, и по умолчанию срабатывает через 10 секунд после предыдущей записи.
+.Pp
+Второй и более медленный таймер,
+.Fl s Ar sync-rate ,
+принудительно выполняет полную очистку и сброс механизма сжатия и приводит к тому, что следующая запись становится точкой синхронизации с несжатой временной меткой, что позволяет начать чтение файла журнала с этой записи. По умолчанию этот таймер срабатывает через минуту после предыдущей синхронизации.
+.Pp
+Опция
+.Fl z Ar compression
+управляет уровнем сжатия
+.Xr zlib 3 ;
+допустимые значения от нуля до девяти, что является значением по умолчанию.
+.Pp
+Утилита
+.Nm fifolog_reader
+будет извлекать записи из fifolog в соответствии с указанными параметрами и записывать их либо в стандартный вывод, либо в файл, указанный с помощью
+.Fl o .
+.Pp
+Можно указать время начала и окончания, чтобы ограничить объем данных, которые
+.Nm fifolog_reader
+выведет.
+Варианты в нижнем регистре
+.Fl b
+и
+.Fl e
+принимают значение
+.Vt time_t ,
+тогда как варианты в верхнем регистре
+.Fl B
+и
+.Fl E
+принимают удобочитаемые спецификации, такие как
+.Pp
+Опция
+.Fl t
+принудительно форматирует временные метки как вместо
+.Vt time_t ,
+а
+.Fl T
+позволяет указать строку форматирования
+.Xr strftime 3 .
+.Pp
+Наконец, записи могут быть отфильтрованы так, что выводятся только записи, соответствующие регулярному выражению (Dv REG_BASIC), указанному с помощью
+.Fl R .
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Данные, хранящиеся в fifolog, состоят из трех слоев: внешний слой, который позволяет осуществлять поиск точек синхронизации на основе временных меток без необходимости распаковывать и декодировать фактическое содержимое; слой сжатия, реализованный с помощью
+.Xr zlib 3 ; и внутренний слой сериализации и разметки временными метками.
+.Pp
+Точное кодирование описано в файле
+.Pa fifolog.h .
+.Pp
+Fifolog особенно хорошо подходит для использования на носителях на основе флеш-памяти, где он приводит к значительно меньшему износу от записи по сравнению с файловой системой с обычными файлами журналов, ротируемыми с помощью
+.Xr newsyslog 8
+и т.д.
+.Sh ПРИМЕРЫ
+Создать fifolog с 1024*1024 записями по 512 байт:
+.Pp
+.Pp
+Записать одну запись в этот файл:
+.Pp
+.Pp
+Прочитать её обратно с удобочитаемыми временными метками:
+.Pp
+.Pp
+Одно особенно полезное применение
+.Nm fifolog_writer —
+использование с
+.Xr syslogd 8
+с помощью строки в
+.Xr syslog.conf 5
+наподобие этой:
+.Pp
+.Sh ИСТОРИЯ
+Утилиты fifolog были выделены из приложения с открытым исходным кодом под названием
+.Dq measured ,
+которое отслеживает и контролирует удаленные радионавигационные передатчики для системы управления воздушным движением Дании.
+.Sh АВТОРЫ
+Утилиты fifolog были написаны
+.An Poul-Henning Kamp .

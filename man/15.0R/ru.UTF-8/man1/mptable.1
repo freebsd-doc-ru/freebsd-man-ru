@@ -1,0 +1,70 @@
+.\" Copyright (c) 1996
+.\"	Steve Passe <fsmp@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. The name of the developer may NOT be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/mptable/mptable.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 0cb0efc2436b699ec0cb3d2ee0e1e6a61cc40fc3865542724de4bafd7f6c647d
+.Dd 28 апреля 1997
+.Dt MPTABLE 1
+.Os
+.Sh ИМЯ
+.Nm mptable
+.Nd отобразить таблицу конфигурации MP
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dmesg
+.Op Fl verbose
+.Op Fl grope
+.Op Fl help
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+находит и анализирует таблицу конфигурации MP на
+материнской плате, соответствующей спецификации Intel(tm) MP.
+Она полезна для отладки SMP-ядра, которое не загружается, а также
+для изучения конфигурации системы.
+Может выполняться с UniProcessor-ядром.
+.Pp
+Должна запускаться с привилегиями группы kmem.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl dmesg
+Включить дамп dmesg.
+.It Fl grope
+Искать в областях, где это не должно быть НУЖНО, использовать ТОЛЬКО в крайнем случае.
+.It Fl help
+Вывести сообщение об использовании и завершить работу.
+.It Fl verbose
+Выводить дополнительную информацию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr smp 4 ,
+.Xr dmesg 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An Steve Passe Aq Mt fsmp@FreeBSD.org

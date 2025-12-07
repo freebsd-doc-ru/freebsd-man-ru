@@ -1,0 +1,245 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-size/llvm-size.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 74967a36e72c349b4e626b810b0c8ade4d246316c7c80e4657947685e218c716
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-size \- вывод информации о размерах
+.SH СИНТАКСИС
+.sp
+\fBllvm\-size\fP [\fIпараметры\fP] [\fIвходные_файлы...\fP]
+.SH ОПИСАНИЕ
+.sp
+\fBllvm\-size\fP — это утилита для вывода информации о размерах двоичных файлов.
+Она предназначена для полной замены GNU \fBsize\fP\&.
+.sp
+Утилита выводит информацию о размерах для каждого указанного \fBвходного_файла\fP. Если входной файл не указан, программа выводит информацию о размерах для \fBa.out\fP\&. Если в качестве входного файла указано \(dq\fB\-\fP\(dq, \fBllvm\-size\fP читает файл из стандартного потока ввода. Если входной файл является архивом, информация о размерах будет отображена для всех его членов.
+.SH ПАРАМЕТРЫ
+.INDENT 0.0
+.TP
+.B \-A
+Эквивалентно \fI\%\-\-format\fP со значением \fBsysv\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-arch=<архитектура>
+Архитектура(ы) из универсальных двоичных файлов Mach\-O, для которых следует отобразить информацию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-B
+Эквивалентно \fI\%\-\-format\fP со значением \fBberkeley\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-common
+Включать размеры общих символов ELF в размер bss для формата вывода \fBberkeley\fP или как отдельную запись раздела для формата вывода \fBsysv\fP. Если не указано, эти символы игнорируются.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d
+Эквивалентно \fI\%\-\-radix\fP со значением \fB10\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-l
+Отображать подробную информацию об адресах и смещениях для сегментов и разделов в файлах Mach\-O в формате \fBdarwin\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-format=<формат>
+Установить формат вывода в указанный \fB<формат>\fP. Доступные варианты \fB<формат>\fP: \fBberkeley\fP (по умолчанию), \fBsysv\fP и \fBdarwin\fP\&.
+.sp
+Вывод в формате Berkeley суммирует размеры text, data и bss в каждом файле, как показано ниже для типичной пары файлов ELF:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-format=berkeley test.o test2.o
+   text    data     bss     dec     hex filename
+    182      16       5     203      cb test.elf
+     82       8       1      91      5b test2.o
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Для файлов Mach\-O формат вывода немного отличается:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-format=berkeley macho.obj macho2.obj
+__TEXT  __DATA  __OBJC  others  dec     hex
+4       8       0       0       12      c       macho.obj
+16      32      0       0       48      30      macho2.obj
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Вывод в формате Sysv отображает информацию о размерах и адресах для большинства разделов, причем каждый файл перечисляется отдельно:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-format=sysv test.elf test2.o
+   test.elf  :
+   section       size      addr
+   .eh_frame       92   2097496
+   .text           90   2101248
+   .data           16   2105344
+   .bss             5   2105360
+   .comment       209         0
+   Total          412
+
+   test2.o  :
+   section             size   addr
+   .text                 26      0
+   .data                  8      0
+   .bss                   1      0
+   .comment             106      0
+   .note.GNU\-stack        0      0
+   .eh_frame             56      0
+   .llvm_addrsig          2      0
+   Total                199
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Формат \fBdarwin\fP влияет только на входные файлы Mach\-O. Если указан входной файл другого формата, \fBllvm\-size\fP переключается на формат \fBberkeley\fP\&. При выводе в формате \fBdarwin\fP утилита отображает информацию о сегментах и разделах:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-format=darwin macho.obj macho2.obj
+   macho.obj:
+   Segment : 12
+           Section (__TEXT, __text): 4
+           Section (__DATA, __data): 8
+           total 12
+   total 12
+   macho2.obj:
+   Segment : 48
+           Section (__TEXT, __text): 16
+           Section (__DATA, __data): 32
+           total 48
+   total 48
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help, \-h
+Показать сводку параметров командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-m
+Эквивалентно \fI\%\-\-format\fP со значением \fBdarwin\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-o
+Эквивалентно \fI\%\-\-radix\fP со значением \fB8\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-radix=<значение>
+Отображать информацию о размерах в указанной системе счисления. Допустимые значения: \fB8\fP, \fB10\fP (по умолчанию) и \fB16\fP для восьмеричного, десятичного и шестнадцатеричного вывода соответственно.
+.sp
+Пример:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-radix=8 test.o
+   text    data     bss     oct     hex filename
+   0152      04      04     162      72 test.o
+
+$ llvm\-size \-\-radix=10 test.o
+   text    data     bss     dec     hex filename
+    106       4       4     114      72 test.o
+
+$ llvm\-size \-\-radix=16 test.o
+   text    data     bss     dec     hex filename
+   0x6a     0x4     0x4     114      72 test.o
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-totals, \-t
+Применяется только к формату вывода \fBberkeley\fP. Отображать итоговые суммы для всех перечисленных полей в дополнение к спискам отдельных файлов.
+.sp
+Пример:
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-size \-\-totals test.elf test2.o
+   text    data     bss     dec     hex filename
+    182      16       5     203      cb test.elf
+     82       8       1      91      5b test2.o
+    264      24       6     294     126 (TOTALS)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Показать версию исполняемого файла \fBllvm\-size\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-x
+Эквивалентно \fI\%\-\-radix\fP со значением \fB16\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<ФАЙЛ>
+Читать параметры командной строки из файла ответов \fB<ФАЙЛ>\fP\&.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-size\fP завершается с ненулевым кодом выхода при ошибке. В противном случае завершается с кодом 0.
+.SH ИЗВЕСТНЫЕ ОШИБКИ
+.sp
+Для сообщения об ошибках посетите <\fI\%https://github.com/llvm/llvm\-project/labels/tools:llvm\-size/\fP>.
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH АВТОРСКИЕ ПРАВА
+2003-2023, LLVM Project

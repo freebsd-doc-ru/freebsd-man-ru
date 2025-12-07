@@ -1,0 +1,130 @@
+.\" Copyright (c) 2013 Hudson River Trading LLC
+.\" Written by: John H. Baldwin <jhb@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/protect/protect.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 64da41fe0857774a6e6b1cf379b6c2617c77b0a0187392cce41c5ba2f3fcf6b4
+.Dd 12 июля 2022
+.Dt PROTECT 1
+.Os
+.ИМЯ ИМЯ
+.Nm protect
+.СИНТАКСИС СИНТАКСИС
+.Nm
+.Op Fl i
+.Ar команда
+.Nm
+.Op Fl cdi
+.Fl g Ar группа_процессов
+.Nm
+.Op Fl cdi
+.Fl p Ar pid
+.ОПИСАНИЕ ОПИСАНИЕ
+Команда
+.Nm
+используется для пометки процессов как защищённых.
+Ядро не завершает защищённые процессы при исчерпании пространства подкачки.
+Обратите внимание, что это состояние защиты по умолчанию не наследуется дочерними процессами.
+.Pp
+Параметры:
+.Bl -tag -width command
+.It Fl c
+Снять защиту с указанных процессов.
+.It Fl d
+Применить операцию ко всем текущим дочерним процессам указанных процессов.
+.It Fl i
+Применить операцию ко всем будущим дочерним процессам указанных процессов.
+.It Fl g Ar группа_процессов
+Применить операцию ко всем процессам в указанной группе процессов.
+.It Fl p Ar pid
+Применить операцию к указанному процессу.
+.It Ar команда
+Выполнить
+.Ar команду
+как защищённый процесс.
+.El
+.Pp
+Обратите внимание, что при изменении состояния существующих процессов может быть указан только один из флагов
+.Fl p
+или
+.Fl g .
+.Pp
+Демоны могут быть защищены при запуске с помощью опции
+.Ao Ar имя Ac Ns Va _oomprotect
+из
+.Xr rc.conf 5 .
+.СТАТУС ВЫХОДА СТАТУС ВЫХОДА
+.Ex -std
+.ПРИМЕРЫ ПРИМЕРЫ
+Пометить сервер Xorg как защищённый:
+.Pp
+.Pp
+Защитить все сеансы ssh и их дочерние процессы:
+.Pp
+.Pp
+Снять защиту со всех текущих и будущих процессов:
+.Pp
+.Pp
+Использование
+.Xr ps 1
+для проверки, применён ли флаг защиты к процессу:
+.Pp
+.Pp
+.Pp
+В приведённом выше примере
+.Nm P
+указывает на флаг защиты, а
+.Nm PI
+указывает на флаг наследования.
+Процесс защищён, если бит
+.Nm P
+установлен в 1.
+Все дочерние процессы этого процесса также будут защищены, если бит
+.Nm PI
+установлен в 1.
+.ДИАГНОСТИКА ДИАГНОСТИКА
+.Bl -diag
+Команда
+.Nm
+не имеет необходимых прав для защиты выбранных процессов.
+Это может быть вызвано многими причинами, например:
+.Bl -dash
+.It
+.Nm
+не выполняется от имени root.
+.It
+.Nm
+выполняется внутри
+.Xr клетки 8 ,
+что в настоящее время не поддерживается.
+.El
+.El
+.СМ. ТАКЖЕ СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr procctl 2 ,
+.Xr rc.conf 5
+.ИЗВЕСТНЫЕ ОШИБКИ ИЗВЕСТНЫЕ ОШИБКИ
+Если защитить неуправляемый процесс, который выделяет всю память, система войдёт
+в состояние взаимоблокировки.

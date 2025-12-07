@@ -1,0 +1,173 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)logger.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/logger/logger.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 592dd2318431dac7b435b75bed64bc2d3772b69b196cad43d9c644e9146e9cba
+.Dd 3 июля 2023
+.Dt LOGGER 1
+.Os
+.Sh ИМЯ
+.Nm logger
+.Nd создавать записи в системном журнале
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 46Ais
+.Op Fl f Ar файл
+.Op Fl H Ar имя_хоста
+.Op Fl h Ar хост
+.Op Fl P Ar порт
+.Op Fl p Ar приоритет
+.Op Fl S Ar адрес Ns \&: Ns Ar порт
+.Op Fl t Ar метка
+.Op Ar сообщение ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет интерфейс командной оболочки к модулю системного журнала
+.Xr syslog 3 .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl 4
+Принудительно использовать только IPv4-адреса.
+.It Fl 6
+Принудительно использовать только IPv6-адреса.
+.It Fl A
+По умолчанию
+.Nm
+пытается отправить сообщение только на один адрес,
+даже если у хоста больше одной записи A или AAAA.
+Если указана эта опция,
+.Nm
+пытается отправить сообщение на все адреса.
+.It Fl i
+Записывать идентификатор процесса утилиты logger
+в каждую строку.
+Этот флаг игнорируется, и идентификатор процесса всегда записывается.
+См. также
+.Fl t .
+.It Fl s
+Записывать сообщение в стандартный поток ошибок, а также в системный журнал.
+.It Fl f Ar файл
+Прочитать содержимое указанного файла и записать в syslog.
+Эта опция игнорируется, если также указано сообщение.
+.It Fl H Ar имя_хоста
+Установить имя хоста в заголовке сообщения в указанное значение.
+Если не указано, будет использована часть хоста из
+.Xr gethostname 3 .
+.It Fl h Ar хост
+Отправить сообщение на удалённую систему
+.Ar хост
+вместо записи локально.
+Обратите внимание, что
+.Nm
+в настоящее время поддерживает семейства адресов
+.Li AF_INET
+.Pq IPv4 ,
+.Li AF_INET6
+.Pq IPv6 ,
+и
+.Li AF_LOCAL
+.Pq сокет домена Unix .
+В
+.Ar хост
+допустимы следующие форматы адресов:
+.Pp
+.It Li AF_INET
+192.168.2.1
+.It Li AF_INET6
+2001:db8::1
+.It Li AF_LOCAL
+.Pa /var/run/log
+.El
+.It Fl P Ar порт
+Отправить сообщение на указанный номер
+.Ar порта
+удалённой системы,
+который может быть указан как имя службы
+или как десятичное число.
+По умолчанию используется
+.Dq Li syslog .
+Если используется неизвестное имя службы,
+.Nm
+выводит предупреждение и возвращается к порту 514.
+.It Fl p Ar приоритет
+Записать сообщение с указанным приоритетом.
+Приоритет может быть указан численно или как пара
+.Li объект.уровень .
+Например,
+.Dq Fl p Li local3.info
+записывает сообщение(я) на
+.Ar информационном
+уровне в объекте
+.Ar local3 .
+По умолчанию используется
+.Dq Li user.notice .
+.It Fl S Ar адрес Ns \&: Ns Ar порт
+Указать исходный адрес и/или исходный порт при использовании опции
+.Fl h .
+Тот же адрес будет использоваться для всех удалённых адресов,
+когда включён флаг
+.Fl A .
+Обратите внимание, что числовой IPv6-адрес в
+.Ar адрес
+должен быть заключён в
+.Dq \&[
+и
+.Dq \&] .
+.It Fl t Ar метка
+Помечать каждую строку в журнале указанной
+.Ar меткой
+вместо имени текущего пользователя по умолчанию.
+Используйте
+.Fl t Ar метка[N]
+для вставки конкретного десятичного идентификатора процесса вместо идентификатора
+.Nm .
+.It Ar сообщение
+Записать сообщение в журнал; если не указано и не предоставлен флаг
+.Fl f ,
+записывается стандартный ввод.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent -compact
+logger Перезагрузка системы
+
+logger \-p local0.notice \-t HOSTIDM \-f /dev/idmc
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr syslog 3 ,
+.Xr syslogd 8
+.Sh СТАНДАРТЫ
+Команда
+.Nm
+ожидается совместимой со
+.St -p1003.2 .

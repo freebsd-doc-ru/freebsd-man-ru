@@ -1,0 +1,86 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)what.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/what/what.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 6e37ec26fef29cf939e4e702b2eaad2ee0e0624333b9765adbc5ef615bc102db
+.Dd 14 декабря 2006
+.Dt WHAT 1
+.Os
+.Sh ИМЯ
+.Nm what
+.Sh СИНТАКСИС
+.Nm
+.Op Fl qs
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+ищет в каждом указанном
+.Ar файле
+последовательности вида
+.Dq Li @(#) ,
+вставляемые системой управления исходным кодом
+.Tn SCCS .
+Она выводит оставшуюся часть строки после этого маркера до нулевого символа, перевода строки, двойной кавычки,
+.Ql \&>
+или обратной косой черты.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl q
+Выводить только совпадающий текст без форматирования.
+.It Fl s
+Прекращать поиск в каждом файле после первого совпадения.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0, если были найдены совпадения, иначе 1.
+.Sh СМ. ТАКЖЕ
+.Xr ident 1 ,
+.Xr strings 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+Опция
+.Fl q
+является нестандартным расширением
+.Fx ,
+которое может быть недоступно в других операционных системах.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Это переписанная версия команды
+.Tn SCCS
+с тем же именем,
+и её поведение может не быть полностью идентичным.

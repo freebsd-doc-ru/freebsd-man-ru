@@ -1,0 +1,231 @@
+.\"-
+.\" Copyright (c) 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)rm.1	8.5 (Berkeley) 12/5/94
+.\"
+.\" FRDP path ./bin/rm/rm.1
+.\" FRDP githash 90aea514c6249118e880d75972d063362f4bf492
+.\" FRDP hash256 520a0a88908596fe66310b79eaf8115f98f47528683f3e8289977f5cd4687219
+.Dd 10 ноября 2018
+.Dt RM 1
+.Os
+.Sh ИМЯ
+.Nm rm ,
+.Nm unlink
+.Nd удаление записей каталогов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f | i
+.Op Fl dIRrvWx
+.Ar
+.Nm unlink
+.Op Fl --
+.Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+пытается удалить файлы некаталогового типа, указанные в
+командной строке.
+Если разрешения файла не позволяют запись, и стандартное
+устройство ввода является терминалом, пользователю предлагается (в стандартном
+выводе ошибок) подтверждение.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl d
+Попытка удалить каталоги, а также другие типы файлов.
+.It Fl f
+Попытка удалить файлы без запроса подтверждения,
+независимо от разрешений файла.
+Если файл не существует, не отображать диагностическое сообщение или изменять
+статус выхода для отражения ошибки.
+Опция
+.Fl f
+отменяет любые предыдущие
+.Fl i
+опции.
+.It Fl i
+Запрашивать подтверждение перед попыткой удаления каждого файла, независимо от
+разрешений файла или от того, является ли стандартное устройство ввода
+терминалом.
+Опция
+.Fl i
+отменяет любые предыдущие
+.Fl f
+опции.
+.It Fl I
+Запрашивать подтверждение один раз, если удаляется более трех файлов или если
+каталог удаляется рекурсивно.
+Это гораздо менее навязчивая опция, чем
+.Fl i,
+но обеспечивающая почти тот же уровень защиты от ошибок.
+.It Fl P
+Этот флаг не имеет эффекта.
+Он сохранен только для обратной совместимости с
+.Bx 4.4 Lite2 .
+.It Fl R
+Попытка удалить иерархию файлов, коренящуюся в каждом
+.Ar файловом
+аргументе.
+Опция
+.Fl R
+подразумевает опцию
+.Fl d.
+Если указана опция
+.Fl i,
+пользователю предлагается подтверждение перед
+обработкой содержимого каждого каталога (а также перед попыткой
+удаления каталога).
+Если пользователь не отвечает утвердительно, иерархия файлов, коренящаяся в
+этом каталоге, пропускается.
+.It Fl r
+Эквивалентно
+.Fl R.
+.It Fl v
+Быть подробным при удалении файлов, показывая их по мере удаления.
+.It Fl W
+Попытка восстановить удаленные указанные файлы.
+В настоящее время эта опция может использоваться только для восстановления
+файлов, покрытых whiteouts в объединенной файловой системе (см.
+.Xr undelete 2).
+.It Fl x
+При удалении иерархии не пересекать точки монтирования.
+.El
+.Pp
+Утилита
+.Nm
+удаляет символические ссылки, а не файлы, на которые ссылаются ссылки.
+.Pp
+Ошибкой является попытка удалить файлы
+.Pa / ,
+.Pa .\&
+или
+.Pa .. .
+.Pp
+Когда утилита вызывается как
+.Nm unlink,
+может быть предоставлен только один аргумент,
+который не должен быть каталогом.
+В этом простом режиме работы не могут быть предоставлены опции,
+что выполняет операцию
+.Xr unlink 2
+над переданным аргументом.
+Однако обычный разделитель конца опций,
+.Fl --,
+может по желанию предшествовать аргументу.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0, если все указанные файлы или иерархии файлов были удалены,
+или если была указана опция
+.Fl f
+и все существующие файлы или иерархии файлов были
+удалены.
+Если возникает ошибка,
+.Nm
+завершается со значением >0.
+.Sh ЗАМЕЧАНИЯ
+Команда
+.Nm
+использует
+.Xr getopt 3
+для разбора своих аргументов, что позволяет ей принимать
+опцию
+.Sq Li --,
+которая заставит ее остановить обработку флаговых опций на этом
+моменте.
+Это позволит удалить имена файлов, которые начинаются
+с тире
+.Pq Sq -.
+Например:
+.Pp
+.Pp
+Такое же поведение может быть достигнуто с использованием абсолютной или относительной
+ссылки на путь.
+Например:
+.Pp
+.Sh ПРИМЕРЫ
+Рекурсивно удалить все файлы, содержащиеся в иерархии каталога
+.Pa foobar:
+.Pp
+.Dl $ rm -rf foobar
+.Pp
+Любая из этих команд удалит файл
+.Pa -f:
+.Bd -literal -offset indent
+$ rm -- -f
+$ rm ./-f
+$ unlink -f
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+Утилита
+.Nm
+отличается от исторических реализаций тем, что опция
+.Fl f
+маскирует только попытки удалить несуществующие файлы, вместо того чтобы
+маскировать большое разнообразие ошибок.
+Опция
+.Fl v
+нестандартна, и ее использование в скриптах не рекомендуется.
+.Pp
+Также исторические реализации
+.Bx
+запрашивали подтверждение в стандартном выводе,
+а не в стандартном выводе ошибок.
+.Pp
+Опция
+.Fl P
+не имеет никакого эффекта начиная с
+.Fx 13
+и может быть удалена в будущем.
+.Sh СМ. ТАКЖЕ
+.Xr chflags 1 ,
+.Xr rmdir 1 ,
+.Xr undelete 2 ,
+.Xr unlink 2 ,
+.Xr fts 3 ,
+.Xr getopt 3 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Команда
+.Nm
+соответствует
+.St -p1003.1-2013.
+.Pp
+Упрощенная команда
+.Nm unlink
+соответствует
+.St -susv2.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1.

@@ -1,0 +1,86 @@
+.\"-
+.\" Copyright (c) 2012 Eitan Adler
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/ssh-copy-id/ssh-copy-id.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 de80042818b96948cf2902a2708c9c7f80352285fb1089d8d773b60968a63928
+.Dd 28 февраля 2014
+.Dt SSH-COPY-ID 1
+.Os
+.Sh ИМЯ
+.Nm ssh-copy-id
+.Nd копирование открытых ключей на удалённый хост
+.Sh СИНТАКСИС
+.Nm
+.Op Fl lv
+.Op Fl i Ar файл_ключа
+.Op Fl o Ar опция
+.Op Fl p Ar порт
+.Oo Ar пользователь Ns @ Oc Ns Ar имя_хоста
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует открытые ключи в файл
+.Pa ~/.ssh/authorized_keys
+удалённого хоста (создавая файл и каталог при необходимости).
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl i Ar файл
+Скопировать открытый ключ из
+.Ar файла .
+Эту опцию можно указывать несколько раз и комбинировать с опцией
+.Fl l .
+Если указан закрытый ключ и найден открытый ключ, будет использован открытый ключ.
+.It Fl l
+Скопировать ключи, хранящиеся в данный момент в
+.Xr ssh-agent 1 .
+Это поведение по умолчанию, если опция
+.Fl i
+не указана.
+.It Fl o Ar ssh-опция
+Передать эту опцию напрямую в
+.Xr ssh 1 .
+Эту опцию можно указывать несколько раз.
+.It Fl p Ar порт
+Подключиться к указанному порту на удалённом хосте вместо порта по умолчанию.
+.It Fl v
+Передать -v в
+.Xr ssh 1 .
+.El
+.Pp
+Оставшиеся аргументы — это список удалённых хостов для подключения,
+каждый из которых может быть дополнительно указан с именем пользователя.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы отправить определённый ключ на несколько хостов:
+.Dl $ ssh-copy-id -i /путь/к/keyfile.pub user@host1 user@host2 user@host3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была написана
+.An Eitan Adler Aq Mt eadler@FreeBSD.org
+в качестве полной замены существующей утилиты, входящей в состав
+OpenSSH.

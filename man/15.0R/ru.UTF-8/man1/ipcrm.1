@@ -1,0 +1,121 @@
+.\" Copyright (c) 1994 Adam Glass
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. The name of the Author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Adam Glass ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Adam Glass BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\""
+.\" FRDP path ./usr.bin/ipcrm/ipcrm.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5d23902e491649387a1775ff13ea17e529aa5f7b5e306eb31e0bae32e8a270c7
+.Dd 12 декабря 2007
+.Dt IPCRM 1
+.Os
+.Sh ИМЯ
+.Nm ipcrm
+.Sh СИНТАКСИС
+.Nm
+.Op Fl W
+.Op Fl v
+.Op Fl q Ar msqid
+.Op Fl m Ar shmid
+.Op Fl s Ar semid
+.Op Fl Q Ar msgkey
+.Op Fl M Ar shmkey
+.Op Fl S Ar semkey
+.Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+удаляет указанные очереди сообщений, семафоры и сегменты разделяемой памяти.
+Эти объекты System V IPC могут быть указаны по их
+идентификатору создания или любому связанному ключу.
+.Pp
+Следующие опции являются общими:
+.Bl -tag -width indent
+.It Fl v
+Если указана один раз с -W или с -1 для объекта, она покажет
+все удалённые объекты.
+Если указана дважды с -W или с -1 для объектов, она покажет
+все удалённые объекты и все неудачные попытки удаления.
+.It Fl W
+Попытаться стереть все указанные очереди сообщений, семафоры и
+сегменты разделяемой памяти.
+.It Fl y
+Использовать интерфейс
+.Xr kvm 3
+вместо интерфейса
+.Xr sysctl 3
+для извлечения необходимой информации.
+Если
+.Nm
+должна работать на работающей системе,
+использование
+.Xr kvm 3
+потребует прав на чтение
+.Pa /dev/kmem .
+.El
+.Pp
+Следующие опции используются для указания, какие объекты IPC будут удалены.
+Может быть использовано любое количество и комбинация этих опций:
+.Bl -tag -width indent
+.It Fl q Ar msqid
+Удалить очередь сообщений, связанную с идентификатором
+.Ar msqid,
+из системы.
+.It Fl m Ar shmid
+Пометить сегмент разделяемой памяти, связанный с идентификатором
+.Ar shmid,
+для удаления.
+Этот помеченный сегмент будет уничтожен после последнего отсоединения.
+.It Fl s Ar semid
+Удалить набор семафоров, связанный с идентификатором
+.Ar semid,
+из системы.
+.It Fl Q Ar msgkey
+Удалить очередь сообщений, связанную с ключом
+.Ar msgkey,
+из системы.
+.It Fl M Ar shmkey
+Пометить сегмент разделяемой памяти, связанный с ключом
+.Ar shmkey,
+для удаления.
+Этот помеченный сегмент будет уничтожен после последнего отсоединения.
+.It Fl S Ar semkey
+Удалить набор семафоров, связанный с ключом
+.Ar semkey,
+из системы.
+.El
+.Pp
+Идентификаторы и ключи, связанные с этими объектами System V IPC, могут быть
+определены с помощью
+.Xr ipcs 1 .
+Если идентификатор или ключ равен -1, будут удалены все эти объекты.
+.Sh СМ. ТАКЖЕ
+.Xr ipcs 1
+.Sh ИСТОРИЯ
+Функция стирания всех объектов System V IPC была впервые реализована в
+.Fx 6.4 No и 7.1.
+.Sh АВТОРЫ
+Первоначальный автор —
+.An Adam Glass .
+Идея стирания всех объектов System V IPC принадлежит
+.An Callum Gibson ,
+а расширение и реализация —
+.An Edwin Groothuis .

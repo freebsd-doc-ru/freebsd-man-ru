@@ -1,0 +1,197 @@
+.\" Copyright (c) 1986, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)who.1	8.2 (Berkeley) 12/30/93
+.\"
+.\" FRDP path ./usr.bin/who/who.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 2774fa861603e0718d3a0d8a15f0736d6e173fdda8e77ba019090413cde2b5f7
+.Dd 30 августа 2020
+.Dt WHO 1
+.Os
+.Sh ИМЯ
+.Nm who
+.Nd отображает, кто находится в системе
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abHmqsTu
+.Op Cm am I
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает информацию о текущих вошедших в систему пользователях.
+По умолчанию это включает имя входа, имя tty, дату и время входа и
+имя удалённого хоста, если оно не локальное.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl a
+Эквивалентно
+.Fl bTu ,
+за исключением того, что вывод не ограничивается временем и датой
+последней перезагрузки системы.
+.It Fl b
+Выводит время и дату последней перезагрузки системы.
+.It Fl H
+Выводит заголовки столбцов над выводом.
+.It Fl m
+Показывает информацию только о терминале, подключённом к стандартному вводу.
+.It Fl q
+Выводит имена и количество вошедших пользователей в столбцах.
+Все остальные параметры командной строки игнорируются.
+.It Fl s
+Показывает только поля имени, линии и времени.
+Это значение по умолчанию.
+.It Fl T
+Указывает, принимает ли каждый пользователь сообщения.
+Выводится один из следующих символов:
+.Pp
+.Bl -tag -width 1n -compact
+.It Li +
+Пользователь принимает сообщения.
+.It Li \&-
+Пользователь не принимает сообщения.
+.It Li \&?
+Произошла ошибка.
+.El
+.It Fl u
+Показывает время простоя для каждого пользователя в часах и минутах как
+.Ar чч : Ns Ar мм ,
+.Ql \&.
+если пользователь простаивал менее минуты, и
+.Dq Li old
+если пользователь простаивал более 24 часов.
+.It Cm am I
+Эквивалентно
+.Fl m .
+.El
+.Pp
+По умолчанию
+.Nm
+собирает информацию из файла
+.Pa /var/run/utx.active .
+Может быть указан альтернативный
+.Ar файл ,
+обычно это
+.Pa /var/log/utx.log
+(или
+.Pa /var/log/utx.log.[0-6]
+в зависимости от политики сайта, так как
+.Pa utx.log
+может стать довольно большим, и ежедневные версии могут или не могут
+сохраняться после сжатия с помощью
+.Xr ac 8 ).
+Файл
+.Pa utx.log
+содержит запись каждого входа, выхода,
+сбоя, выключения и изменения даты
+с момента последнего усечения или создания
+.Pa utx.log .
+.Pp
+Если в качестве файла используется
+.Pa /var/log/utx.log ,
+имя пользователя может быть пустым
+или одним из специальных символов '|', '}' и '~'.
+Выходы из системы приводят к
+строке вывода без имени пользователя.
+Для получения дополнительной информации о
+специальных символах см.
+.Xr getutxent 3 .
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev COLUMNS , LANG , LC_ALL
+и
+.Ev LC_TIME
+влияют на выполнение
+.Nm ,
+как описано в
+.Xr environ 7 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/log/utx.log.[0-6] -compact
+.It Pa /var/run/utx.active
+.It Pa /var/log/utx.log
+.It Pa /var/log/utx.log.[0-6]
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Показать краткую сводку о вошедших пользователях:
+.Bd -literal -offset indent
+$ who -q
+fernape          root             root
+# users = 3
+.Ed
+.Pp
+Показать, кто вошёл в систему, вместе с полями линии и времени (без заголовков):
+.Bd -literal -offset indent
+$ who -s
+fernape          ttyv0        Aug 26 16:23
+root             ttyv1        Aug 26 16:23
+root             ttyv2        Aug 26 16:23
+.Ed
+.Pp
+Показать информацию о терминале, подключённом к стандартному вводу:
+.Bd -literal -offset indent
+$ who am i
+fernape                       Aug 26 16:24
+.Ed
+.Pp
+Показать время и дату последней перезагрузки системы, принимают ли пользователи сообщения
+и время простоя для каждого из них:
+.Bd -literal -offset indent
+$ who -a
+                 - system boot  Aug 26 16:23   .
+fernape          - ttyv0        Aug 26 16:23   .
+root             - ttyv1        Aug 26 16:23   .
+root             - ttyv2        Aug 26 16:23   .
+.Ed
+.Pp
+То же, что и выше, но с отображением заголовков:
+.Bd -literal -offset indent
+$ who -aH
+NAME             S LINE         TIME         IDLE  FROM
+                 - system boot  Aug 26 16:23   .
+fernape          - ttyv0        Aug 26 16:23   .
+root             - ttyv1        Aug 26 16:23 00:01
+root             - ttyv2        Aug 26 16:23 00:01
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr last 1 ,
+.Xr users 1 ,
+.Xr w 1 ,
+.Xr getutxent 3
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

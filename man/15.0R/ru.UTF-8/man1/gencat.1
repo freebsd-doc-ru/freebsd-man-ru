@@ -1,0 +1,180 @@
+.\"	$OpenBSD: gencat.1,v 1.3 1997/06/11 15:39:54 kstailey Exp $
+.\"
+.\" Copyright (c) 1997 Ken Stailey
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/gencat/gencat.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 1e475f362720ddf6fd899b7804aad725e97d5e123b64cb4127185902afeefd40
+.Dd 11 июня 1997
+.Dt GENCAT 1
+.Os
+.Sh ИМЯ
+.Nm gencat
+.Nd компилятор каталогов NLS
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+объединяет текстовые входные файлы NLS
+в форматированный файл каталога сообщений.
+Файл
+будет создан, если он ещё не существует.
+Если
+уже существует, его сообщения будут включены в новый
+Если задано и номера сообщений совпадают, новый текст сообщения, определённый в
+заменит старый текст сообщения, содержащийся в
+.Sh ВХОДНЫЕ ФАЙЛЫ
+Формат исходного файла текста сообщения определён ниже.
+Обратите внимание, что
+поля строки исходного текста сообщения разделены одним символом
+пробела: любые другие символы пробела считаются частью
+содержимого поля.
+.Bl -tag -width 3n
+.It Li $set Ar n комментарий
+Эта строка задаёт идентификатор набора для следующих сообщений до
+следующей
+.Li $set
+или конца файла.
+Аргумент
+.Ar n
+— это идентификатор набора, определённый как число в диапазоне
+[1, (NL_SETMAX)].
+Идентификаторы наборов должны встречаться в возрастающем порядке внутри
+одного исходного файла, но не обязательно быть последовательными.
+Любая строка, следующая
+за пробелом после идентификатора набора, трактуется как комментарий.
+Если
+директива
+.Li $set
+не указана в данном исходном файле, все сообщения будут
+размещены в наборе сообщений по умолчанию NL_SETD.
+.It Li $del Ar n комментарий
+Эта строка удаляет сообщения из набора
+.Ar n
+из каталога сообщений.
+.Ar n
+задаёт номер набора.
+Любая строка, следующая за пробелом после номера
+набора, трактуется как комментарий.
+.It Li $ Ar комментарий
+Строка, начинающаяся с
+.Li $
+и пробела, трактуется как комментарий.
+.It Ar m текст-сообщения
+Строка сообщения состоит из идентификатора сообщения
+.Ar m
+в диапазоне [1, (NL_MSGMAX)].
+.Ar текст-сообщения
+сохраняется в каталоге сообщений с идентификатором набора, заданным
+последней директивой
+.Li $set,
+и идентификатором сообщения
+.Ar m.
+Если
+.Ar текст-сообщения
+пуст и после идентификатора сообщения есть символ пробела,
+в каталог сообщений сохраняется пустая строка.
+Если
+.Ar текст-сообщения
+пуст и после идентификатора сообщения нет символа пробела,
+то существующее сообщение в текущем наборе с указанным идентификатором
+сообщения удаляется из каталога.
+Идентификаторы
+сообщений должны быть в возрастающем порядке внутри одного набора, но
+не обязательно быть последовательными.
+Длина
+.Ar текст-сообщения
+должна быть в диапазоне [0, (NL_TEXTMAX)].
+.It Li $quote Ar c
+Эта строка задаёт необязательный символ кавычки
+.Ar c,
+который может использоваться для обрамления
+.Ar текст-сообщения,
+чтобы завершающие пробелы или пустые сообщения были видны в исходных файлах
+сообщений.
+По умолчанию или если указана пустая директива
+.Li $quote,
+кавычки для
+.Ar текст-сообщения
+не распознаются.
+.El
+.Pp
+Пустые строки в исходных файлах сообщений игнорируются.
+Эффект от строк,
+начинающихся с любого символа, отличного от описанных выше, не
+определён.
+.Pp
+Текстовые строки могут содержать следующие специальные символы и escape-
+последовательности.
+Кроме того, если определён символ кавычки, он также может быть
+экранирован для вставки литерального символа кавычки.
+.Pp
+.It Li \en
+перевод строки
+.It Li \et
+горизонтальная табуляция
+.It Li \ev
+вертикальная табуляция
+.It Li \eb
+забой
+.It Li \er
+возврат каретки
+.It Li \ef
+прогон страницы
+.It Li \e\e
+обратная косая черта
+.It Li \eooo
+восьмеричное число в диапазоне [000, 377]
+.El
+.Pp
+Символ обратной косой черты непосредственно перед концом строки в файле
+используется для продолжения строки на следующей строке, например:
+.Pp
+.Dl 1 Эта строка продолжается \e
+.Dl на этой строке.
+.Pp
+Если символ, следующий за обратной косой чертой, не является одним из указанных,
+обратная косая черта игнорируется.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr catclose 3 ,
+.Xr catgets 3 ,
+.Xr catopen 3
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует стандарту
+.St -xpg4.
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была изначально написана
+.An Ken Stailey
+и позже переработана
+.An Terry Lambert.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Файл каталога сообщений, созданный из пустого входного файла, не может быть изменён;
+его необходимо удалить и создать заново.

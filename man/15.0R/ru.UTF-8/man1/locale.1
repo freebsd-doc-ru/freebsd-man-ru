@@ -1,0 +1,114 @@
+.\"
+.\" Copyright (c) 2003 Alexey Zelkin <phantom@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/locale/locale.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 754db07196edf193f32b3244c0d3cc4dc8f85d809cc5d2d78af86c78e03fcb19
+.Dd 18 ноября 2012
+.Dt LOCALE 1
+.Os
+.Sh ИМЯ
+.Nm locale
+.Nd получение информации, специфичной для локали
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a | m
+.Nm
+.Fl k
+.Ic list
+.Op Ar префикс
+.Nm
+.Op Fl ck
+.Op Ar ключевое_слово ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для вывода большей части информации, специфичной для локали,
+в стандартный вывод.
+.Pp
+При вызове
+.Nm
+без аргументов она выводит сводку о текущем окружении локали,
+в зависимости от настроек окружения и внутреннего состояния.
+.Pp
+При вызове
+.Nm
+с аргументами
+.Ar ключевое_слово
+и без указания опций, она выводит значения всех указанных ключевых слов,
+используя текущие настройки локали.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+Вывести имена всех доступных локалей.
+При поиске локалей
+.Nm
+учитывает переменную окружения
+.Ev PATH_LOCALE
+и использует её вместо системного каталога локалей по умолчанию.
+.It Fl c
+Вывести имя категории для всех выбранных ключевых слов.
+Если ключевые слова не выбраны, вывести имена категорий для всех определённых ключевых слов.
+.It Fl k
+Вывести имена и значения всех выбранных ключевых слов.
+Если ключевые слова не выбраны, вывести имена и значения всех определённых ключевых слов.
+.It Fl m
+Вывести имена всех доступных наборов символов (charmaps).
+.El
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Специальное (специфичное для
+.Fx )
+ключевое слово
+.Cm list
+можно использовать для получения удобочитаемого списка всех доступных ключевых слов.
+В этом случае можно определить строку префикса, чтобы ограничить количество возвращаемых ключевых слов.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr setlocale 3
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует стандарту
+.St -p1003.1-2004 .
+Переменные окружения
+.Ev LC_CTYPE ,
+.Ev LC_MESSAGES
+и
+.Ev NLSPATH
+не интерпретируются.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку
+.Fx
+не поддерживает
+.Em наборы символов (charmaps)
+в их
+.Tn POSIX
+значении,
+.Nm
+эмулирует опцию
+.Fl m
+с использованием списка CODESET всех доступных локалей.

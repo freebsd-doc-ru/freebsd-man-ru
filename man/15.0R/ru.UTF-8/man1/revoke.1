@@ -1,0 +1,55 @@
+.\" Copyright (c) 2009 Ed Schouten <ed@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/revoke/revoke.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8692ec39d64a88b4d06bdfb6bf7e7846c62f1ed85cc91a86997a1d05684d9f21
+.Dd 15 июня 2009
+.Dt REVOKE 1
+.Os
+.Sh ИМЯ
+.Nm revoke
+.Sh СИНТАКСИС
+.Nm
+.Ar
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+отзывает символьные устройства с помощью
+.Xr revoke 2 .
+При использовании на TTY вызовы, такие как
+.Xr read 2 ,
+.Xr write 2
+и
+.Xr ioctl 2 ,
+будут немедленно прерваны, что фактически приводит к завершению сеансов входа в систему.
+.Sh СМ. ТАКЖЕ
+.Xr revoke 2
+.Sh ИСТОРИЯ
+Программа
+.Nm
+впервые появилась в
+.Fx 8.0 .
+.Sh АВТОРЫ
+.An \&Ed Schouten Aq Mt ed@FreeBSD.org

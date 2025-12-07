@@ -1,0 +1,99 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)lorder.1	8.2 (Berkeley) 4/28/95
+.\"
+.\" FRDP path ./usr.bin/lorder/lorder.1
+.\" FRDP githash cf4d9bf8b38819da12c6d686d5cf6dbd6353cd61
+.\" FRDP hash256 6380082b944dffbe2999e3ca0870b07b978bb4ee07cbf6c14954527f588b3432
+.Dd 27 февраля 2024
+.Dt LORDER 1
+.Os
+.Sh ИМЯ
+.Nm lorder
+.Nd список зависимостей для объектных файлов
+.Sh СИНТАКСИС
+.Nm
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+использует
+.Xr nm 1
+для определения взаимозависимостей между объектными файлами и архивами библиотек,
+перечисленными в её командной строке.
+Затем она выводит список пар имён файлов, таких что первый файл в каждой паре
+ссылается хотя бы на один символ, определённый во втором.
+.Pp
+Вывод обычно используется с
+.Xr tsort 1
+при создании библиотеки для определения оптимального порядка размещения
+объектных модулей, чтобы все ссылки могли быть разрешены за один проход
+загрузчика.
+.Pp
+Аналогично, при статической компоновке бинарных файлов,
+.Nm
+и
+.Xr tsort 1
+могут использоваться для сортировки библиотек в порядке зависимости.
+.Pp
+Хотя современные компоновщики больше не требуют использования
+.Nm ,
+она предоставляется для удобства устаревших кодовых баз и систем сборки,
+которые всё ещё настаивают на её применении.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width indent
+.It Ev NM
+Путь к исполняемому файлу
+.Xr nm 1 ,
+по умолчанию
+.Dq Li nm .
+.It Ev NMFLAGS
+Флаги, передаваемые в
+.Xr nm 1 .
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent
+ar cr library.a `lorder ${OBJS} | tsort`
+cc -o foo ${OBJS} `lorder ${STATIC_LIBS} | tsort`
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ar 1 ,
+.Xr ld 1 ,
+.Xr nm 1 ,
+.Xr ranlib 1 ,
+.Xr tsort 1
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v7 .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Утилита
+.Nm
+будет работать некорректно, если ей передать имена файлов, содержащие пробелы
+или символы новой строки.

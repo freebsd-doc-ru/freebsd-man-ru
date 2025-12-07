@@ -1,0 +1,164 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)login.1	8.2 (Berkeley) 5/5/94
+.\"
+.\" FRDP path ./usr.bin/login/login.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 a029188dfc6df113ec850591d2da0114b0c6057cb8b64e094d2257bb7fff9d32
+.Dd 20 июля 2019
+.Dt LOGIN 1
+.Os
+.Sh ИМЯ
+.Nm login
+.Nd вход в компьютерную систему
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fp
+.Op Fl h Ar имя_хоста
+.Op Ar пользователь
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+осуществляет вход пользователей (и псевдопользователей) в компьютерную систему.
+.Pp
+Если пользователь не указан, или если пользователь указан, но его аутентификация
+не удалась,
+.Nm
+запрашивает имя пользователя.
+Аутентификация пользователей настраивается через
+.Xr pam 8 .
+Аутентификация по паролю используется по умолчанию.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl f
+Когда указано имя пользователя, эта опция указывает, что корректная
+аутентификация уже выполнена и запрашивать пароль не нужно.
+Эта опция может использоваться только суперпользователем или когда уже
+вошедший в систему пользователь входит под своим же именем.
+.It Fl h
+Указать хост, с которого получено соединение.
+Используется различными демонами, такими как
+.Xr telnetd 8 .
+Эта опция может использоваться только суперпользователем.
+.It Fl p
+По умолчанию
+.Nm
+уничтожает предыдущее окружение.
+Опция
+.Fl p
+отключает это поведение.
+.El
+.Pp
+Доступ для входа может контролироваться через
+.Xr login.access 5
+или класс входа в
+.Xr login.conf 5 ,
+который предоставляет
+записи разрешения и запрета на основе времени, tty и имени удаленного хоста.
+.Pp
+Если файл
+.Pa /etc/fbtab
+существует,
+.Nm
+изменяет защиту и владельца определенных устройств, указанных в этом
+файле.
+.Pp
+Сразу после входа пользователя в систему,
+.Nm
+отображает уведомление об авторских правах системы, дату и время последнего
+входа пользователя, сообщение дня, а также другую информацию.
+Если файл
+.Pa .hushlogin
+существует в домашнем каталоге пользователя, все эти сообщения подавляются.
+Это упрощает вход для нечеловеческих пользователей, таких как
+.Xr uucp 1 .
+.Pp
+Утилита
+.Nm
+помещает информацию в окружение (см.
+.Xr environ 7 ),
+указывая домашний каталог пользователя (HOME), командный интерпретатор (SHELL),
+путь поиска (PATH), тип терминала (TERM) и имя пользователя (как LOGNAME, так и
+USER).
+Другие переменные окружения могут быть установлены из-за записей в базе
+возможностей класса входа, для класса входа, назначенного в
+системной записи пароля пользователя.
+Класс входа также контролирует максимальные и текущие ограничения ресурсов
+процессов, предоставленных для входа, приоритеты процессов и многие другие аспекты
+окружения входа пользователя.
+.Pp
+Некоторые оболочки могут предоставлять встроенную команду
+.Nm ,
+которая похожа или идентична этой утилите.
+Обратитесь к странице руководства
+.Xr builtin 1 .
+.Pp
+Утилита
+.Nm
+отправит запись аудита при успешном или неудачном входе.
+Неудача при определении текущего состояния аудита приведет
+к завершению
+.Nm
+с ошибкой.
+.Sh ФАЙЛЫ
+.It Pa /etc/fbtab
+изменяет защиту устройств
+.It Pa /etc/login.conf
+база данных возможностей класса входа
+.It Pa /var/run/motd
+сообщение дня
+.It Pa /var/mail/пользователь
+системные почтовые ящики
+.It Pa \&.hushlogin
+делает вход тише
+.It Pa /etc/pam.d/login
+файл конфигурации
+.Xr pam 8
+.It Pa /etc/security/audit_user
+флаги пользователя для аудита
+.It Pa /etc/security/audit_control
+глобальные флаги для аудита
+.El
+.Sh СМ. ТАКЖЕ
+.Xr builtin 1 ,
+.Xr chpass 1 ,
+.Xr csh 1 ,
+.Xr newgrp 1 ,
+.Xr passwd 1 ,
+.Xr rlogin 1 ,
+.Xr getpass 3 ,
+.Xr fbtab 5 ,
+.Xr login.access 5 ,
+.Xr login.conf 5 ,
+.Xr environ 7
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v6 .

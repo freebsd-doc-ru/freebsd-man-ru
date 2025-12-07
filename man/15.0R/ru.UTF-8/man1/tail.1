@@ -1,0 +1,216 @@
+.\" Copyright (c) 1980, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)tail.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/tail/tail.1
+.\" FRDP githash 9f20787fe89e2a912a9e5dd2d3da56087722e8c2
+.\" FRDP hash256 5ccec1695effa776cf93f860ad16e8719056890617d69748c806a2a10c9e9a1a
+.Dd 28 ноября 2023
+.Dt TAIL 1
+.Os
+.Sh ИМЯ
+.Nm tail
+.Nd вывод последней части файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl F | f | r
+.Op Fl qv
+.Oo
+.Fl b Ar число | Fl c Ar число | Fl n Ar число
+.Oc
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит содержимое
+.Ar файла
+или, по умолчанию, своего стандартного ввода на стандартный вывод.
+.Pp
+Вывод начинается с позиции в байтах, строках или 512-байтовых блоках
+входных данных.
+Числа с ведущим знаком плюс
+.Pq Ql +
+отсчитываются от начала
+входных данных, например,
+начинает вывод со второго
+байта входных данных.
+Числа с ведущим знаком минус
+.Pq Ql -
+или без явного знака
+отсчитываются от конца входных данных, например,
+выводит последние две строки входных данных.
+Позиция начала по умолчанию —
+или последние 10 строк входных данных.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl b Ar число , Fl -blocks Ns = Ns Ar число
+Позиция —
+.Ar число
+512-байтовых блоков.
+.It Fl c Ar число , Fl -bytes Ns = Ns Ar число
+Позиция —
+.Ar число
+байт.
+.It Fl f
+Параметр
+.Fl f
+приводит к тому, что
+.Nm
+не останавливается при достижении конца файла, а ожидает добавления
+новых данных ко входу.
+Параметр
+.Fl f
+игнорируется, если стандартный ввод является каналом (pipe), но не если это FIFO.
+.It Fl F
+Параметр
+.Fl F
+подразумевает параметр
+.Fl f
+, но
+.Nm
+также будет проверять, был ли переименован или заменён (rotated) отслеживаемый файл.
+Файл закрывается и открывается заново, когда
+.Nm
+обнаруживает, что у имени файла, из которого идёт чтение, изменился номер inode.
+.Pp
+Если отслеживаемый файл (пока) не существует или был удалён, tail
+будет продолжать проверку и начнёт вывод файла с начала, если и когда
+он будет создан.
+.Pp
+Параметр
+.Fl F
+эквивалентен параметру
+.Fl f
+, если чтение идёт со стандартного ввода, а не из файла.
+.It Fl n Ar число , Fl -lines Ns = Ns Ar число
+Позиция —
+.Ar число
+строк.
+.It Fl q , Fl -quiet , Fl -silent
+Подавляет вывод заголовков при обработке нескольких файлов.
+.It Fl r
+Параметр
+.Fl r
+приводит к выводу входных данных в обратном порядке, по строкам.
+Кроме того, этот параметр изменяет смысл параметров
+.Fl b , c
+и
+.Fl n
+.
+При указании параметра
+.Fl r
+эти параметры задают количество байт, строк
+или 512-байтовых блоков для вывода, а не позицию в байтах, строках или блоках
+от начала или конца входных данных, с которой начинать вывод.
+По умолчанию при использовании параметра
+.Fl r
+выводятся все входные данные.
+.It Fl v , Fl -verbose
+Добавляет заголовок перед каждым файлом.
+.El
+.Pp
+Если указано более одного файла или используется параметр
+.Fl v
+, каждый файл предваряется
+заголовком, состоящим из строки
+где
+.Ar XXX
+— имя файла.
+Флаг
+.Fl q
+отключает вывод заголовка во всех случаях.
+.Pp
+Все аргументы
+.Ar число
+также могут быть указаны с суффиксами размеров, поддерживаемыми
+.Xr expand_number 3 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Вывести последние 500 строк файла
+.Ar foo :
+.Pp
+.Dl $ tail -n 500 foo
+.Pp
+Держать файл
+.Pa /var/log/messages
+открытым, выводя на стандартный вывод всё, что добавляется в файл:
+.Pp
+.Dl $ tail -F /var/log/messages
+.Pp
+Прочитать
+.Pa /var/log/messages
+с начала, а затем отслеживать файл как обычно:
+.Pp
+.Dl $ tail -F -n +1 /var/log/messages
+.Sh СМ. ТАКЖЕ
+.Xr cat 1 ,
+.Xr head 1 ,
+.Xr sed 1 ,
+.Xr expand_number 3
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+ожидается как надмножество спецификации
+.St -p1003.2-92
+.
+В частности, параметры
+.Fl F ,
+.Fl b
+и
+.Fl r
+являются расширениями этого стандарта.
+.Pp
+Данная реализация поддерживает исторический синтаксис командной строки
+.Nm
+.
+Единственное различие между этой реализацией и историческими версиями
+.Nm
+(после преобразования синтаксиса командной строки) заключается в том, что
+параметры
+.Fl b ,
+.Fl c
+и
+.Fl n
+модифицируют параметр
+.Fl r
+, т.е.
+выводит последние 4 символа последней строки
+входных данных, тогда как исторический tail (использующий исторический синтаксис
+.Dq Li -4cr )
+игнорировал бы параметр
+.Fl c
+и выводил последние 4 строки входных данных.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в PWB UNIX.

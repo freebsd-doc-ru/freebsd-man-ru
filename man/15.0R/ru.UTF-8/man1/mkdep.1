@@ -1,0 +1,127 @@
+.\" Copyright (c) 1987, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)mkdep.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/mkdep/mkdep.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 ec4694856356f43545e3a46c4119365572aacfa5cacaaef3c3dbba29b90e24b2
+.Dd 23 октября 2015
+.Dt MKDEP 1
+.Os
+.Sh ИМЯ
+.Nm mkdep
+.Nd построение списка зависимостей для Makefile
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ap
+.Op Fl f Ar файл
+.Op Ar флаги
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+принимает набор флагов для компилятора C и список
+исходных файлов C в качестве аргументов и строит набор зависимостей
+включаемых файлов, которые записываются в файл ``.depend''.
+Пример её использования в Makefile может быть таким:
+.Bd -literal -offset indent
+CFLAGS= -O -I../include
+SRCS= file1.c file2.c
+
+depend:
+	mkdep ${CFLAGS} ${SRCS}
+.Ed
+.Pp
+где макрос SRCS — это список исходных файлов C, а макрос
+CFLAGS — список флагов для компилятора C.
+.Pp
+Пользователь имеет возможность изменять используемый препроцессор и его параметры.
+Например, чтобы использовать
+.Sy cc
+в качестве препроцессора и игнорировать системные
+заголовки, следует использовать:
+.Bd -literal -offset indent
+depend:
+		${CFLAGS} ${SRCS}
+.Ed
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a
+Добавлять в выходной файл,
+чтобы несколько запусков
+.Nm
+могли выполняться из одного Makefile.
+.It Fl f
+Записывать зависимости включаемых файлов в
+.Ar файл ,
+вместо стандартного ``.depend''.
+.It Fl p
+Заставляет
+.Nm
+формировать зависимости вида:
+.Bd -literal -offset indent
+program: program.c
+.Ed
+.Pp
+так что последующие запуски make будут создавать
+.Ar program
+непосредственно из его модуля C, а не используя промежуточный
+.Pa \&.o
+модуль.
+Это полезно для программ, исходный код которых содержится в одном
+модуле.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width MKDEP_CPP_OPTS
+.It Ev CC
+Определяет используемый компилятор C.
+Ожидается, что указанный компилятор имеет
+параметры, совместимые с компилятором GNU C.
+По умолчанию —
+.Sy cc .
+.It Ev MKDEP_CPP
+Определяет используемый препроцессор.
+.It Ev MKDEP_CPP_OPTS
+Определяет параметры препроцессора, не относящиеся к CFLAGS.
+По умолчанию —
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width .depend -compact
+.It Pa .depend
+Файл, содержащий список зависимостей.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cc 1 ,
+.Xr cpp 1 ,
+.Xr make 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 Tahoe .

@@ -1,0 +1,71 @@
+.\"	$NetBSD: znew.1,v 1.2 2003/12/28 12:43:43 wiz Exp $
+.\"	$OpenBSD: znew.1,v 1.1 2003/08/02 20:52:50 otto Exp $
+.\"
+.\" Copyright (c) 2003 Otto Moerbeek <otto@drijf.net>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\" FRDP path ./usr.bin/gzip/znew.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f4ecc8dbfcca077876bd36ea5b154fff0d1ba45f8f802131f2932a90d6ab7b96
+.Dd 26 января 2007
+.Dt ZNEW 1
+.Os
+.Sh ИМЯ
+.Nm znew
+.Nd преобразование сжатых файлов в файлы, сжатые gzip
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ftv9K
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+распаковывает файлы, сжатые с помощью
+.Xr compress 1 ,
+и пересжимает их с использованием
+.Xr gzip 1 .
+.Pp
+Параметры:
+.Bl -tag -width Ds
+.It Fl f
+Перезаписывать существующие файлы
+.Sq .gz .
+Если этот параметр не указан,
+.Nm
+отказывается перезаписывать существующие файлы.
+.It Fl t
+Проверить целостность файла, сжатого gzip, перед удалением исходного файла.
+Если проверка целостности не пройдена, исходный файл
+.Sq .Z
+не удаляется.
+.It Fl v
+Вывести отчёт о достигнутых коэффициентах сжатия.
+.It Fl 9
+Использовать режим -9 в
+.Xr gzip 1 ,
+что обеспечивает лучшее сжатие ценой более медленного выполнения.
+.It Fl K
+Сохранять исходный файл
+.Sq .Z ,
+если он занимает меньше дисковых блоков, чем сжатый gzip.
+Дисковый блок равен 1024 байтам.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr gzip 1
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Утилита
+.Nm
+пытается сохранить режим доступа исходного файла.
+Если исходный файл не доступен для записи, это невозможно, и
+.Nm
+выведет предупреждение.

@@ -1,0 +1,308 @@
+.\"	$NetBSD: chio.1,v 1.4 1997/10/02 00:41:25 hubertf Exp $
+.\"-
+.\" Copyright (c) 1996 Jason R. Thorpe <thorpej@and.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgements:
+.\"	This product includes software developed by Jason R. Thorpe
+.\"	for And Communications, http://www.and.com/
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+.\" AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./bin/chio/chio.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8102b23ee737b5a9f2a7959f6f00734703307c7569b7ba60ceaaaca484fce887
+.Dd 5 октября 2016
+.Dt CHIO 1
+.Os
+.Sh ИМЯ
+.Nm chio
+.Nd утилита управления сменщиком носителей
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar сменщик
+.Ar команда
+.Op Fl <флаги>
+.Ar арг1
+.Ar арг2
+.Op Ar арг3 Op ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления работой сменщиков носителей, таких как
+те, что встречаются в роботизированных библиотеках ленточных и оптических дисков.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl f Ar сменщик
+Использовать устройство
+.Ar сменщик
+вместо устройства по умолчанию
+.Pa /dev/ch0 .
+.El
+.Pp
+Аппарат сменщика носителей состоит из
+.Em элементов .
+Существует пять типов элементов:
+.Em манипулятор
+(транспортировка носителя),
+.Em ячейка
+(хранение),
+.Em портал
+(импорт/экспорт),
+.Em накопитель
+(передача данных) и
+.Em voltag
+(выбор по идентификатору тома).
+Псевдотип элемента
+.Em voltag
+позволяет выбирать ленты по их тегу тома
+(обычно штрих-коду на ленте).
+.Pp
+В этом описании команд сокращение
+.Em ET
+будет использоваться для обозначения типа элемента, а
+.Em EU
+— для обозначения единицы элемента.
+Например, для представления первого роботизированного манипулятора в сменщике,
+.Em ET
+будет
+.Dq манипулятор
+, а
+.Em EU
+будет
+.Dq 0 .
+.Sh ПОДДЕРЖИВАЕМЫЕ КОМАНДЫ
+.Bl -tag -width indent
+.It Ic move Xo
+.Ar <от ET> <от EU> <к ET> <к EU>
+.Op Cm inv
+.Xc
+Переместить единицу носителя из
+.Ar <от ET/EU>
+в
+.Ar <к ET/EU> .
+Если указан необязательный модификатор
+.Cm inv,
+единица носителя будет перевёрнута перед вставкой.
+.It Ic exchange Xo
+.Ar <ист ET> <ист EU> <прием1 ET> <прием1 EU>
+.Op Ar <прием2 ET> <прием2 ET>
+.Op Cm inv1
+.Op Cm inv2
+.Xc
+Выполнить операцию обмена единиц носителя.
+Единица носителя в
+.Ar <ист ET/EU>
+перемещается в
+.Ar <прием1 ET/EU>,
+а единица носителя, ранее находившаяся в
+.Ar <прием1 ET/EU>,
+перемещается в
+.Ar <прием2 ET/EU>.
+В случае простого обмена
+.Ar <прием2 ET/EU>
+опускается, и вместо него используются значения
+.Ar <ист ET/EU>.
+Необязательные модификаторы
+.Cm inv1
+и
+.Cm inv2
+указывают, должны ли единицы носителя быть перевёрнуты перед вставкой в
+.Ar <прием1 ET/EU>
+и
+.Ar <прием2 ET/EU>
+соответственно.
+.Pp
+Примечание: не все сменщики носителей поддерживают операцию
+.Ic exchange;
+сменщик должен иметь несколько свободных манипуляторов или эмулировать
+несколько свободных манипуляторов с временным хранилищем.
+.It Ic return Xo
+.Ar <от ET> <от EU>
+.Xc
+Вернуть единицу носителя в её исходный элемент.
+Эта команда запросит статус указанной единицы носителя и
+переместит её в элемент, указанный в её атрибуте источника.
+Это удобный способ вернуть носитель из накопителя или портала
+в его предыдущий элемент в сменщике.
+.It Ic position Xo
+.Ar <к ET> <к EU>
+.Op Cm inv
+.Xc
+Поместить манипулятор перед элементом, описанным
+.Ar <к ET/EU>.
+Если указан необязательный модификатор
+.Cm inv,
+единица носителя будет перевёрнута перед вставкой.
+.Pp
+Примечание: не все сменщики ведут себя ожидаемо при получении этой команды.
+.It Ic params
+Сообщить количество ячеек, накопителей, манипуляторов и порталов в сменщике,
+а также какой блок манипулятора в данный момент настроен для использования.
+.It Ic getpicker
+Сообщить, какой блок манипулятора в данный момент настроен для использования.
+.It Ic setpicker Xo
+.Ar <единица>
+.Xc
+Настроить сменщик на использование манипулятора
+.Ar <единица>.
+.It Ic ielem Xo
+.Op Ar <таймаут>
+.Xc
+Выполнить операцию
+.Em INITIALIZE ELEMENT STATUS
+на сменщике.
+Необязательный параметр
+.Ar <таймаут>
+может быть указан для определения таймаута в секундах для
+операции.
+Это может быть использовано, если операция занимает необычно много времени
+из-за ошибок в прошивке или подобного.
+.It Ic voltag Xo
+.Op Fl fca
+.Ar <ET>
+.Ar <EU>
+.Op Ar <метка>
+.Op Ar <серийный>
+.Xc
+Изменить тег тома для элемента в сменщике носителей.
+Эта команда
+поддерживается лишь немногими сменщиками носителей.
+Если она не поддерживается
+.Pp
+Если указан флаг
+.Fl c,
+тег тома указанного элемента
+очищается.
+Если указан флаг
+.Fl f,
+тег тома заменяется указанным тегом,
+даже если для элемента уже определён тег тома.
+Является ошибкой не указывать флаг
+.Fl f
+при попытке установить метку для элемента, у которого уже
+определена информация о теге тома.
+.Pp
+Команда работает с основным тегом тома или, если указан флаг
+.Fl a,
+с альтернативным тегом тома.
+.It Ic status Xo
+.Op Fl vVsSbIa
+.Op Ar <тип>
+.Xc
+Сообщить статус всех элементов в сменщике.
+Если указан
+.Ar <тип>,
+сообщить статус всех элементов типа
+.Ar <тип>.
+.It Fl v
+Вывести основной тег тома для каждого загруженного носителя, если имеется.
+Тег тома
+выводится как
+.Dq <МЕТКА:СЕРИЙНЫЙ>.
+.It Fl V
+Вывести альтернативный тег тома для каждого загруженного носителя, если имеется.
+.It Fl s
+Вывести дополнительный код смысла и квалификатор дополнительного кода смысла для
+каждого элемента.
+.It Fl S
+Вывести адрес источника элемента для каждого элемента.
+.It Fl b
+Вывести информацию о шине SCSI для каждого элемента.
+Заметим, что эта информация
+действительна только для накопителей.
+.It Fl I
+Вывести внутренние адреса элементов для каждого элемента.
+Внутренний
+адрес элемента обычно не используется с этим драйвером.
+Он выводится
+только в диагностических целях.
+.It Fl a
+Вывести всю дополнительную информацию (как в
+.Fl vVsSba).
+.El
+.Pp
+Биты статуса определены следующим образом:
+.Bl -tag -width indent
+.It FULL
+Элемент содержит единицу носителя.
+.It IMPEXP
+Носитель был помещён в элемент внешним оператором-человеком.
+.It EXCEPT
+Элемент находится в аномальном состоянии.
+.It ACCESS
+Носитель в этом элементе доступен для манипулятора.
+.It EXENAB
+Элемент поддерживает передачу носителя (экспорт) внешнему оператору-человеку.
+.It INENAB
+Элемент поддерживает приём носителя (импорт) от внешнего оператора-человека.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width CHANGER
+.It Ev CHANGER
+Сменщик по умолчанию может быть переопределён установкой этой переменной
+окружения в желаемое устройство сменщика.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /dev/ch0 -compact
+.It Pa /dev/ch0
+устройство сменщика по умолчанию
+.El
+.Sh ПРИМЕРЫ
+.Bl -tag -width indent
+.It Li chio move slot 3 drive 0
+Переместить носитель из ячейки 3 (четвёртая ячейка) в накопитель 0 (первый накопитель).
+.It Li chio move voltag VOLUME01 drive 0
+Переместить носитель со штрих-кодом VOLUME01 в накопитель 0 (первый накопитель).
+.It Li chio return drive 0
+Извлечь ленту из накопителя 0 (первого накопителя) и вернуть её в исходное
+место в стойке.
+.It Li chio setpicker 2
+Настроить сменщик на использование манипулятора 2 (третьего манипулятора) для операций.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mt 1 ,
+.Xr mount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Nx 1.3 .
+.Nm
+впервые появилась в
+.Fx 2.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Программа
+.Nm
+и драйвер SCSI сменщика были написаны
+.An Jason R. Thorpe Aq Mt thorpej@and.com
+для And Communications,
+.Pa http://www.and.com/ .
+.Pp
+Дополнительная работа выполнена
+.An Hans Huebner Aq Mt hans@artcom.de
+и
+.An Steve Gunn Aq Mt csg@waterspout.com .

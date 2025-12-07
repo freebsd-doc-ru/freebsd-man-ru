@@ -1,0 +1,386 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/lldb/lldb.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 29c78ceb28bc9609525320983605d257adcbed36869dfdc31e04deaacc4de04c
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+lldb \- Документация LLDB
+.SH СИНТАКСИС
+.nf
+\fBlldb\fP [\fIопции\fP] \fIисполняемый_файл\fP
+.fi
+.sp
+.SH ОПИСАНИЕ
+.sp
+\fBlldb\fP — это отладчик нового поколения с высокой производительностью. Он построен как набор повторно используемых компонентов, которые активно используют существующие библиотеки из более крупного проекта LLVM, такие как синтаксический анализатор выражений Clang и дизассемблер LLVM.
+.sp
+\fBlldb\fP является отладчиком по умолчанию в Xcode на macOS и поддерживает отладку C, Objective-C и C++ на настольных компьютерах, устройствах iOS и симуляторе.
+.sp
+Весь код проекта LLDB доступен по лицензии Apache 2.0 с исключениями LLVM.
+.SH ПРИСОЕДИНЕНИЕ
+.INDENT 0.0
+.TP
+.B \-\-attach\-name <имя>
+Указывает отладчику присоединиться к процессу с указанным именем.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-attach\-pid <pid>
+Указывает отладчику присоединиться к процессу с указанным идентификатором (PID).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-n <значение>
+Псевдоним для \-\-attach\-name
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-p <значение>
+Псевдоним для \-\-attach\-pid
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-wait\-for
+Указывает отладчику ожидать запуска процесса с указанным идентификатором или именем перед присоединением.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-w
+Псевдоним для \-\-wait\-for
+.UNINDENT
+.SH КОМАНДЫ
+.INDENT 0.0
+.TP
+.B \-\-batch
+Указывает отладчику выполнить команды из \-s, \-S, \-o и \-O, а затем завершить работу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-b
+Псевдоним для \-\-batch
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-K <значение>
+Псевдоним для \-\-source\-on\-crash
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-k <значение>
+Псевдоним для \-\-one\-line\-on\-crash
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-local\-lldbinit
+Разрешает отладчику анализировать файлы .lldbinit в текущем рабочем каталоге, если не передан \-\-no\-lldbinit.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-lldbinit
+Не анализировать автоматически никакие файлы \(aq.lldbinit\(aq.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-one\-line\-before\-file <команда>
+Указывает отладчику выполнить эту однострочную команду lldb до загрузки любого файла, указанного в командной строке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-one\-line\-on\-crash <команда>
+В пакетном режиме указывает отладчику выполнить эту однострочную команду lldb при аварийном завершении цели.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-one\-line <команда>
+Указывает отладчику выполнить эту однострочную команду lldb после загрузки любого файла, указанного в командной строке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-O <значение>
+Псевдоним для \-\-one\-line\-before\-file
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-o <значение>
+Псевдоним для \-\-one\-line
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-Q
+Псевдоним для \-\-source\-quietly
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-source\-before\-file <файл>
+Указывает отладчику прочитать и выполнить команды lldb из указанного файла до загрузки любого файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-source\-on\-crash <файл>
+В пакетном режиме указывает отладчику загрузить этот файл команд lldb при аварийном завершении цели.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-source\-quietly
+Указывает отладчику выполнить эту однострочную команду lldb до загрузки любого файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-source <файл>
+Указывает отладчику прочитать и выполнить команды lldb из указанного файла после загрузки любого файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-S <значение>
+Псевдоним для \-\-source\-before\-file
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-s <значение>
+Псевдоним для \-\-source
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-x
+Псевдоним для \-\-no\-lldbinit
+.UNINDENT
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-\-arch <архитектура>
+Указывает отладчику использовать указанную архитектуру при запуске и выполнении программы.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-a <значение>
+Псевдоним для \-\-arch
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-capture\-path <имя_файла>
+Указывает отладчику использовать указанное имя файла для воспроизводителя.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-capture
+Указывает отладчику захватить воспроизводитель.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-core <имя_файла>
+Указывает отладчику использовать полный путь к <имя_файла> как файл дампа памяти (core).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-c <значение>
+Псевдоним для \-\-core
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-debug
+Указывает отладчику выводить дополнительную информацию для отладки самого себя.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d
+Псевдоним для \-\-debug
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-editor
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-e
+Псевдоним для \-\-editor
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-file <имя_файла>
+Указывает отладчику использовать файл <имя_файла> как программу для отладки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-f <значение>
+Псевдоним для \-\-file
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help
+Выводит информацию об использовании отладчика LLDB.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-h
+Псевдоним для \-\-help
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-use\-colors
+Не использовать цвета.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-replay <имя_файла>
+Указывает отладчику воспроизвести воспроизводитель из <имя_файла>.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Выводит текущий номер версии отладчика LLDB.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v
+Псевдоним для \-\-version
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-X
+Псевдоним для \-\-no\-use\-color
+.UNINDENT
+.SH REPL
+.INDENT 0.0
+.TP
+.B \-r=<флаги>
+Псевдоним для \-\-repl=<флаги>
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-repl\-language <язык>
+Выбирает язык для REPL.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-repl=<флаги>
+Запускает lldb в режиме REPL с заглушкой процесса с указанными флагами.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-R <значение>
+Псевдоним для \-\-repl\-language
+.UNINDENT
+.SH СКРИПТОВАНИЕ
+.INDENT 0.0
+.TP
+.B \-l <значение>
+Псевдоним для \-\-script\-language
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-python\-path
+Выводит путь к файлу lldb.py для этой версии lldb.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-P
+Псевдоним для \-\-python\-path
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-script\-language <язык>
+Указывает отладчику использовать указанный язык сценариев для пользовательских скриптов.
+.UNINDENT
+.SH ПРИМЕРЫ
+.sp
+Отладчик может быть запущен в нескольких режимах.
+.sp
+Передача исполняемого файла в качестве позиционного аргумента подготавливает lldb к отладке данного исполняемого файла. Чтобы разграничить аргументы, передаваемые lldb, и аргументы, передаваемые отлаживаемой программе, аргументы, начинающиеся с \-, должны передаваться после \-\-.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-\-arch x86_64 /путь/к/программе аргумент_программы \-\- \-\-arch arvm7
+.UNINDENT
+.UNINDENT
+.sp
+Для удобства также поддерживается передача исполняемого файла после \-\-.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-\-arch x86_64 \-\- /путь/к/программе аргумент_программы \-\-arch arvm7
+.UNINDENT
+.UNINDENT
+.sp
+Передача одной из опций присоединения приводит к немедленному присоединению \fBlldb\fP к указанному процессу.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-p <pid>
+lldb \-n <имя_процесса>
+.UNINDENT
+.UNINDENT
+.sp
+Передача \-\-repl запускает \fBlldb\fP в режиме REPL.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-r
+.UNINDENT
+.UNINDENT
+.sp
+Передача \-\-core заставляет \fBlldb\fP отлаживать файл дампа памяти.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-c /путь/к/дампу
+.UNINDENT
+.UNINDENT
+.sp
+Опции команд могут комбинироваться с этими режимами и заставляют \fBlldb\fP выполнять указанные команды до или после событий, таких как загрузка файла или аварийное завершение, в порядке, указанном в командной строке.
+.INDENT 0.0
+.INDENT 3.5
+lldb \-O \(aqsettings set stop\-disassembly\-count 20\(aq \-o \(aqrun\(aq \-o \(aqbt\(aq
+lldb \-S /source/before/file \-s /source/after/file
+lldb \-K /source/before/crash \-k /source/after/crash
+.UNINDENT
+.UNINDENT
+.sp
+Примечание: В режиме REPL файл не загружается, поэтому команды, указанные для выполнения после загрузки файла (через \-o или \-s), будут проигнорированы.
+.SH ИСПОЛЬЗОВАНИЕ LLDB
+.sp
+В \fBlldb\fP есть команда help, которую можно использовать для поиска описаний и примеров всех команд \fBlldb\fP.
+.sp
+Также есть команда apropos, которая будет искать заданный термин в тексте справки всех команд — это полезно для поиска команды по теме.
+.SH ФАЙЛЫ КОНФИГУРАЦИИ
+.sp
+\fBlldb\fP читает такие вещи, как настройки, псевдонимы и команды, из файла .lldbinit.
+.sp
+Сначала \fBlldb\fP попытается прочитать специфичный для приложения файл инициализации. Это будет ~/.lldbinit\-lldb для командной строки \fBlldb\fP и ~/.lldbinit\-Xcode для Xcode. Если специфичного файла инициализации приложения нет, \fBlldb\fP будет искать файл инициализации в домашнем каталоге. При запуске с опцией \fI\%REPL\fP сначала будет искаться файл конфигурации REPL, специфичный для языка REPL. Файл инициализации должен быть назван следующим образом: \fB\&.lldbinit\-<язык>\-repl\fP (например, \fB\&.lldbinit\-swift\-repl\fP). Если этот файл не существует, или \fBlldb\fP не был запущен с \fI\%REPL\fP, то есть нет ни файла инициализации REPL, ни специфичного файла инициализации приложения, \fBlldb\fP вернется к глобальному ~/.lldbinit.
+.sp
+Во-вторых, он будет искать файл .lldbinit в текущем рабочем каталоге. По соображениям безопасности, \fBlldb\fP выведет предупреждение и по умолчанию не будет загружать этот файл. Это поведение можно изменить, изменив настройку target.load\-cwd\-lldbinit.
+.sp
+Чтобы всегда загружать файл .lldbinit в текущем рабочем каталоге, добавьте следующую команду в ~/.lldbinit:
+.INDENT 0.0
+.INDENT 3.5
+settings set target.load\-cwd\-lldbinit true
+.UNINDENT
+.UNINDENT
+.sp
+Чтобы никогда не загружать файл .lldbinit в текущем рабочем каталоге и отключить предупреждение, добавьте следующую команду в ~/.lldbinit:
+.INDENT 0.0
+.INDENT 3.5
+settings set target.load\-cwd\-lldbinit false
+.UNINDENT
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+Страница проекта LLDB \fI\%https://lldb.llvm.org\fP содержит множество различных ресурсов для пользователей \fBlldb\fP — страница эквивалентности команд gdb/lldb \fI\%https://lldb.llvm.org/use/map.html\fP может быть особенно полезна для пользователей, переходящих с gdb.
+.SH АВТОРЫ
+Проект LLVM
+.SH АВТОРСКИЕ ПРАВА
+2007-2021, Команда LLDB

@@ -1,0 +1,218 @@
+.\" Copyright (C) 1995 by Joerg Wunsch, Dresden
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/killall/killall.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e1e6cb17da53ba52682130f189efd749441531f9dc5654ad375e48b018a187d9
+.Dd 27 июня, 2020
+.Dt KILLALL 1
+.Os
+.Sh ИМЯ
+.Nm killall
+.Nd убить процессы по имени
+.Sh СИНТАКСИС
+.Nm
+.Op Fl delmsvz
+.Op Fl help
+.Op Fl I
+.Op Fl j Ar клетка
+.Op Fl u Ar пользователь
+.Op Fl t Ar терминал
+.Op Fl c Ar имя_процесса
+.Op Fl Ar СИГНАЛ
+.Op Ar имя_процесса ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+убивает процессы, выбранные по имени, в отличие от выбора по PID,
+как в
+.Xr kill 1 .
+По умолчанию она отправляет сигнал
+.Dv TERM
+всем процессам с реальным UID, идентичным UID вызывающего
+.Nm ,
+которые соответствуют имени
+.Ar имя_процесса .
+Суперпользователю разрешено убивать любой процесс.
+.Pp
+Параметры следующие:
+.It Fl d
+Быть более подробным о том, что будет сделано, но не отправлять никаких сигналов.
+Показывается общее количество пользовательских процессов и реальный идентификатор пользователя.
+Будет выведен список процессов, которым будет отправлен сигнал, или сообщение о том, что соответствующие процессы не найдены.
+.It Fl e
+Использовать эффективный идентификатор пользователя вместо (по умолчанию) реального идентификатора пользователя для сопоставления
+процессов, указанных с параметром
+.Fl u .
+.It Fl help
+Вывести справку по использованию команды и выйти.
+.It Fl I
+Запрашивать подтверждение перед попыткой отправить сигнал каждому процессу.
+.It Fl l
+Вывести имена доступных сигналов и выйти, как в
+.Xr kill 1 .
+.It Fl m
+Сопоставлять аргумент
+.Ar имя_процесса
+как (чувствительное к регистру) регулярное выражение с именами
+найденных процессов.
+ВНИМАНИЕ!
+Это опасно, одиночная точка будет соответствовать любому процессу,
+запущенному под реальным UID вызывающего.
+.It Fl v
+Быть подробным о том, что будет сделано.
+.It Fl s
+То же, что и
+.Fl v ,
+но не отправлять никаких сигналов.
+.It Fl Ar СИГНАЛ
+Отправить другой сигнал вместо сигнала по умолчанию
+.Dv TERM .
+Сигнал может быть указан либо как имя
+(с ведущим
+.Dq Li SIG
+или без него),
+либо численно.
+.It Fl j Ar клетка
+Убить процессы в указанной
+.Ar клетке .
+.It Fl u Ar пользователь
+Ограничить потенциально соответствующие процессы теми, которые принадлежат
+указанному
+.Ar пользователю .
+.It Fl t Ar терминал
+Ограничить потенциально соответствующие процессы теми, которые запущены на
+указанном
+.Ar терминале .
+.It Fl c Ar имя_процесса
+Ограничить потенциально соответствующие процессы теми, которые соответствуют
+указанному
+.Ar имени_процесса .
+.It Fl q
+Подавить сообщение об ошибке, если процессы не найдены.
+.It Fl z
+Не пропускать зомби.
+Это не должно иметь никакого эффекта, кроме вывода нескольких сообщений об ошибках,
+если есть процессы-зомби, соответствующие указанному шаблону.
+.El
+.Sh ВСЕ ПРОЦЕССЫ
+Отправка сигнала всем процессам с заданным UID
+уже поддерживается в
+.Xr kill 1 .
+Поэтому используйте
+.Xr kill 1
+для этой задачи (например, как root).
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Эта реализация
+.Nm
+в
+.Fx
+имеет совершенно другую семантику по сравнению с традиционным
+поведением
+.Nm
+в
+.Ux
+System V.
+Последний убивает все процессы, которые текущий пользователь может
+убить, и предназначен только для использования процессом завершения работы системы.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+выходит с кодом 0, если некоторые процессы были найдены и
+успешно получили сигнал.
+В противном случае будет возвращен статус 1.
+.Sh ПРИМЕРЫ
+Отправить
+.Dv SIGTERM
+всем процессам firefox:
+.Bd -literal -offset indent
+killall firefox
+.Ed
+.Pp
+Отправить
+.Dv SIGTERM
+процессам firefox, принадлежащим
+.Va USER :
+.Bd -literal -offset indent
+killall -u ${USER} firefox
+.Ed
+.Pp
+Остановить все процессы firefox:
+.Bd -literal -offset indent
+killall -SIGSTOP firefox
+.Ed
+.Pp
+Возобновить процессы firefox:
+.Bd -literal -offset indent
+killall -SIGCONT firefox
+.Ed
+.Pp
+Показать, что будет сделано с процессами firefox, но фактически не отправлять им сигналы:
+.Bd -literal -offset indent
+killall -s firefox
+.Ed
+.Pp
+Отправить
+.Dv SIGKILL
+процессу csh, работающему внутри клетки с ID 282:
+.Bd -literal -offset indent
+killall -9 -j282 csh
+.Ed
+.Pp
+Отправить
+.Dv SIGTERM
+всем процессам, соответствующим предоставленному шаблону (например, vim и vimdiff):
+.Bd -literal -offset indent
+killall -m 'vim*'
+.Ed
+.Sh ДИАГНОСТИКА
+Диагностические сообщения будут выводиться только при использовании флага
+.Fl d .
+.Sh СМ. ТАКЖЕ
+.Xr kill 1 ,
+.Xr pkill 1 ,
+.Xr sysctl 3 ,
+.Xr jail 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 2.1 .
+Она была создана по образцу команды
+.Nm ,
+доступной на других платформах.
+.Sh АВТОРЫ
+.An -nosplit
+Программа
+.Nm
+была изначально написана на Perl и предоставлена
+.An Wolfram Schneider ,
+эта справочная страница была написана
+.An J\(:org Wunsch .
+Текущая версия
+.Nm
+была переписана на C
+.An Peter Wemm
+с использованием
+.Xr sysctl 3 .

@@ -1,0 +1,79 @@
+.\" Copyright (c) 1983, 1990 The Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     from: @(#)rwall.1	6.7 (Berkeley) 4/23/91
+.\"
+.\" FRDP path ./usr.bin/rwall/rwall.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 db53acac5e241234c74c0c210d426d2b5b0e2f8132700509fc527e101acfaf77
+.Dd 23 апреля 1991
+.Dt RWALL 1
+.Os
+.Sh ИМЯ
+.Nm rwall
+.Nd отправить сообщение пользователям, вошедшим на узел
+.Sh СИНТАКСИС
+.Nm
+.Ar узел
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+отправляет сообщение пользователям, вошедшим на указанный
+.Ar узел .
+Отправляемое сообщение можно ввести и завершить символом EOF, или оно может
+находиться в
+.Ar файле .
+.Sh ДИАГНОСТИКА
+.Bl -diag
+.It rwall: RPC: Программа не зарегистрирована
+Демон
+.Xr rpc.rwalld 8
+не запущен на удаленном узле.
+.It rwall: RPC: Истекло время ожидания
+Произошла ошибка связи.
+Либо сеть перегружена,
+либо демон
+.Xr rpc.rwalld 8
+завершил работу на удаленном узле.
+.It rwall: RPC: Сбой порт-маппера - RPC: Истекло время ожидания
+На удаленном узле не запущен порт-маппер (см.
+.Xr rpcbind 8 ) ,
+и он не может обслуживать службы на основе RPC.
+Узел может быть недоступен.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr who 1 ,
+.Xr rpc.rwalld 8 ,
+.Xr rpcbind 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Em Sun-OS .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Опции сортировки не реализованы.

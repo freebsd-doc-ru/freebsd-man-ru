@@ -1,0 +1,105 @@
+.\" Copyright (c) 1987, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)mesg.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/mesg/mesg.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 a4bde6d46d523b3863dd2c62ccb2957e79af94d94ac1d9a7c7119b89c876655d
+.Dd 5 мая 2002
+.Dt MESG 1
+.Os
+.Sh ИМЯ
+.Nm mesg
+.Nd отображать (не отображать) сообщения от других пользователей
+.Sh СИНТАКСИС
+.Nm
+.Op Cm n | Cm y
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+вызывается пользователем для управления доступом на запись,
+который другие пользователи имеют к терминальному устройству.
+Доступ на запись разрешён по умолчанию, и программы, такие как
+.Xr talk 1
+и
+.Xr write 1 ,
+могут отображать сообщения на терминале.
+.Pp
+Затрагивается первое терминальное устройство в последовательности устройств,
+связанных со стандартным вводом, стандартным выводом и стандартной ошибкой.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Cm n
+Запретить сообщения.
+.It Cm y
+Разрешить отображение сообщений.
+.El
+.Pp
+Если аргументы не указаны,
+.Nm
+выводит текущий статус сообщений на стандартный вывод.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершает работу со одним из следующих значений:
+.Pp
+.Bl -tag -width flag -compact -offset indent
+Сообщения разрешены.
+Сообщения не разрешены.
+Произошла ошибка.
+.El
+.Sh ПРИМЕРЫ
+Запретить сообщения от других пользователей на текущем терминале:
+.Pp
+.Pp
+Разрешить сообщения от других пользователей на
+.Pa ttyp1
+(при условии, что вы также вошли в систему на этом терминале):
+.Pp
+.Sh СОВМЕСТИМОСТЬ
+Предыдущие версии утилиты
+.Nm
+выводили статус сообщений на стандартный вывод ошибок и
+затрагивали терминал, подключённый к стандартной ошибке, без предварительной попытки
+использовать устройства стандартного ввода или вывода.
+.Sh СМ. ТАКЖЕ
+.Xr biff 1 ,
+.Xr talk 1 ,
+.Xr wall 1 ,
+.Xr write 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

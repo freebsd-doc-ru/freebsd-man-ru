@@ -1,0 +1,115 @@
+.\" Copyright (c) 2003 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: bthost.1,v 1.7 2003/05/21 22:19:00 max Exp $
+.\"
+.\" FRDP path ./usr.bin/bluetooth/bthost/bthost.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 6181c66ac7435c156f2108c07dc969b6b0017883a1ebba322f2ca9ae42fde6f3
+.Dd 8 мая 2003
+.Dt BTHOST 1
+.Os
+.Sh ИМЯ
+.Nm bthost
+.Nd поиск имён хостов Bluetooth и значений мультиплексора служб протоколов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bhp
+.Ar host_or_protocol
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+ищет информацию о хостах Bluetooth и
+значениях мультиплексора служб протоколов (PSM).
+Она получает эту информацию из файлов
+.Pa /etc/bluetooth/hosts
+и
+.Pa /etc/bluetooth/protocols
+.Pp
+В режиме хоста она просто преобразует между именами хостов и адресами Bluetooth.
+Аргументом может быть либо имя хоста, либо адрес Bluetooth.
+Программа сначала пытается интерпретировать его как адрес Bluetooth.
+Если это не удаётся, она рассматривает его как имя хоста.
+Адрес Bluetooth состоит из шести шестнадцатеричных байтов, разделённых двоеточием,
+например,
+.Dq Li 01:02:03:04:05:06 .
+Имя хоста состоит из имён, разделённых точками, например,
+.Dq Li my.cell.phone .
+.Pp
+В режиме протокола она просто преобразует между именами мультиплексора служб протоколов
+и назначенными номерами.
+Аргументом может быть либо имя мультиплексора служб протоколов, либо
+назначенный номер.
+Программа сначала пытается интерпретировать его как назначенный номер.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl b
+Выводить краткий результат.
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl p
+Активировать режим протокола.
+.El
+.Pp
+Утилита
+.Nm
+выводит результаты в стандартный вывод, а сообщения об ошибках — в
+стандартный поток ошибок.
+Вывод может быть довольно разным,
+вот пример, демонстрирующий все возможности:
+.Bd -literal -offset indent
+% bthost localhost
+Хост localhost имеет адрес FF:FF:FF:00:00:00
+% bthost ff:ff:ff:00:00:00
+Хост FF:FF:FF:00:00:00 имеет имя localhost
+% bthost -b localhost
+FF:FF:FF:00:00:00
+% bthost -b ff:ff:ff:00:00:00
+localhost
+% bthost do.not.exists
+do.not.exists: Неизвестный хост
+% bthost 0:0:0:0:0:0
+00:00:00:00:00:00: Неизвестный хост
+% bthost -p sdp
+Мультиплексор служб протоколов sdp имеет номер 1
+% bthost -p 3
+Мультиплексор служб протоколов rfcomm имеет номер 3
+% bthost -bp HID-Control
+17
+% bthost -p foo
+foo: Неизвестный мультиплексор служб протоколов
+.Ed
+.Sh ФАЙЛЫ
+.It Pa /etc/bluetooth/hosts
+.It Pa /etc/bluetooth/protocols
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr bluetooth 3 ,
+.Xr bluetooth.hosts 5 ,
+.Xr bluetooth.protocols 5
+.Sh АВТОРЫ
+.An Максим Евменкин Aq Mt m_evmenkin@yahoo.com

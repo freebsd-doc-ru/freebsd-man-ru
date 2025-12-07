@@ -1,0 +1,66 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)groups.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/id/groups.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 4207ca6e2000e68c39dc37c6242320bcb063510912ef4f7a5382af065d571fa4
+.Dd 6 июня 1993
+.Dt GROUPS 1
+.Os
+.ИМЯ
+.Nm groups
+.Nd показать членство в группах
+.СИНТАКСИС
+.Nm
+.Op Ar пользователь
+.ОПИСАНИЕ
+Утилита
+.Nm
+устарела и заменена утилитой
+.Xr id 1
+, и эквивалентна команде
+.Dq Nm id Fl Gn Op Ar пользователь .
+Для обычного интерактивного использования рекомендуется команда
+.Dq Nm id Fl p .
+.Pp
+Утилита
+.Nm
+отображает группы, к которым вы (или опционально указанный
+.Ar пользователь )
+принадлежите.
+.СТАТУС ВЫХОДА
+.Ex -std
+.ПРИМЕРЫ
+Показать группы, к которым принадлежит пользователь root:
+.Bd -literal -offset indent
+$ groups root
+wheel operator
+.Ed
+.СМ. ТАКЖЕ
+.Xr id 1

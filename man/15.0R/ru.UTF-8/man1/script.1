@@ -1,0 +1,304 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)script.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/script/script.1
+.\" FRDP githash 8ceac8e13dccbe4e177c8f2f443b87b7d2e3edb3
+.\" FRDP hash256 042d24ed9bade1f4770519f924cc72d04d0c40436750a7c26808a76beeb0e9ed
+.Dd 26 октября 2022 г.
+.Dt SCRIPT 1
+.Os
+.Sh ИМЯ
+.Nm script
+.Nd создание протокола терминальной сессии
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aeFfkqrw
+.Op Fl t Ar время
+.Op Ar файл Op Ar команда ...
+.Nm
+.Fl p
+.Op Fl deq
+.Op Fl T Ar формат
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт протокол всего, что выводится на ваш терминал.
+Она полезна для студентов, которым нужна твёрдая копия интерактивной
+сессии в качестве доказательства выполнения задания, так как файл протокола
+может быть позже распечатан с помощью
+.Xr lpr 1 .
+.Pp
+Если указан аргумент
+.Ar файл ,
+.Nm
+сохраняет весь диалог в
+.Ar файл .
+Если имя файла не указано, протокол сохраняется в файле
+.Pa typescript .
+.Pp
+Если указан аргумент
+.Ar команда ,
+.Nm
+запустит указанную команду с необязательным вектором аргументов
+вместо интерактивной оболочки.
+.Pp
+Доступны следующие опции:
+.It Fl a
+Дописывает вывод в
+.Ar файл
+или
+.Pa typescript ,
+сохраняя предыдущее содержимое.
+.It Fl d
+При воспроизведении сессии с флагом
+.Fl p
+не делать пауз между записями при воспроизведении сессии с отметками времени.
+.It Fl e
+Принято для совместимости с
+.Em util-linux
+.Nm .
+Статус выхода дочерней команды всегда равен статусу выхода
+.Nm .
+.It Fl F
+Немедленно сбрасывать вывод после каждой записи.
+Это позволяет пользователю создать именованный канал с помощью
+.Xr mkfifo 1
+, и другой пользователь может наблюдать за сессией в реальном времени с помощью утилиты, такой как
+.Xr cat 1 .
+.It Fl f
+Создать
+.Ar файл.filemon
+или
+.Pa typescript.filemon
+с использованием
+.Xr filemon 4 .
+.It Fl k
+Записывать клавиши, отправленные программе, а также вывод.
+.It Fl p
+Воспроизвести сессию, записанную с флагом
+.Fl r
+, в реальном времени.
+.It Fl q
+Работать в тихом режиме, опускать сообщения о запуске, остановке и статусе команды.
+.It Fl r
+Записать сессию с вводом, выводом и отметками времени.
+.It Fl t Ar время
+Указать интервал в секундах, с которым файл вывода script будет сбрасываться
+на диск.
+Значение 0
+заставляет
+.Nm
+сбрасывать после каждого события ввода-вывода символов.
+Интервал по умолчанию —
+30 секунд.
+.It Fl T Ar формат
+Подразумевает
+.Fl p ,
+но только отчитывается о временной метке каждого вывода.
+Это очень полезно для оценки времени событий.
+.Pp
+Если
+.Ar формат
+не содержит символов
+.Ql % ,
+это указывает на формат по умолчанию:
+.Ql %n@ %s [%Y-%m-%d %T]%n ,
+который полезен для чтения как инструментами, так и людьми, и должен использоваться.
+Обратите внимание, что временные метки будут выводиться только тогда, когда они отличаются от
+предыдущей.
+.It Fl w
+Пересылать изменения размера терминала по
+.Dv SIGWINCH .
+.El
+.Pp
+Скрипт завершается, когда порождённая оболочка (или команда) выходит ( 
+.Em управляющий-D
+для выхода из
+оболочки Борна
+.Pf ( Xr sh 1 ) ,
+и
+.Em exit ,
+.Em logout
+или
+.Em управляющий-D
+(если
+.Em ignoreeof
+не установлен) для
+C-shell,
+.Xr csh 1 ) .
+.Pp
+Некоторые интерактивные команды, такие как
+.Xr vi 1 ,
+создают мусор в файле протокола.
+Утилита
+.Nm
+лучше всего работает с командами, которые не манипулируют экраном.
+Результаты предназначены для эмуляции терминала с твёрдой копией, а не адресуемого.
+.Sh ОКРУЖЕНИЕ
+Следующие переменные окружения используются
+.Nm :
+.Bl -tag -width SCRIPT
+.It Ev SCRIPT
+Переменная окружения
+.Ev SCRIPT
+добавляется в под-оболочку.
+Если
+.Ev SCRIPT
+уже существовала в среде пользователя,
+её значение перезаписывается внутри под-оболочки.
+Значение
+.Ev SCRIPT
+— это имя файла
+.Ar протокола .
+.It Ev SHELL
+Если переменная
+.Ev SHELL
+существует, оболочка, порождённая
+.Nm ,
+будет этой оболочкой.
+Если
+.Ev SHELL
+не установлена, предполагается оболочка Борна.
+.Pq Большинство оболочек устанавливают эту переменную автоматически .
+.El
+.Sh ПРИМЕРЫ
+Записать простую сессию
+.Xr csh 1
+без дополнительных деталей, таких как ввод, вывод и отметки времени:
+.Bd -literal -offset indent
+$ SHELL=/bin/csh script
+Script started, output file is typescript
+% date
+Tue Jan  5 15:08:10 UTC 2021
+% exit
+exit
+
+Script done, output file is typescript
+.Ed
+.Pp
+Теперь воспроизвести сессию, записанную в предыдущем примере:
+.Bd -literal -offset indent
+$ cat ./typescript
+Script started on Tue Jan  5 15:08:08 2021
+% date
+Tue Jan  5 15:08:10 UTC 2021
+% exit
+exit
+
+Script done on Tue Jan  5 15:08:13 2021
+.Ed
+.Pp
+Записать сессию
+.Xr csh 1
+, но на этот раз с дополнительными деталями, такими как отметки времени:
+.Bd -literal -offset indent
+$ SHELL=/bin/csh script -r
+Script started, output file is typescript
+% date
+Tue Jan  5 15:17:11 UTC 2021
+% exit
+exit
+
+Script done, output file is typescript
+.Ed
+.Pp
+Чтобы воспроизвести сессии, записанные с флагом
+.Fl r
+, необходимо указать
+.Fl p
+.Po
+.Xr cat 1
+не сработает из-за всей дополнительной информации, хранящейся в файле сессии
+.Pc .
+Также давайте используем
+.Fl d
+, чтобы вывести всю сессию сразу:
+.Bd -literal -offset indent
+$ script -dp ./typescript
+Script started on Tue Jan  5 15:17:09 2021
+% date
+Tue Jan  5 15:17:11 UTC 2021
+% exit
+exit
+
+Script done on Tue Jan  5 15:17:14 2021
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr csh 1
+.Po
+для механизма
+.Em истории
+.Pc ,
+.Xr filemon 4
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .
+.Pp
+Опции
+.Fl d ,
+.Fl p
+и
+.Fl r
+впервые появились в
+.Nx 2.0
+и были портированы в
+.Fx 9.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+помещает
+.Sy всё
+в файл журнала, включая переводы строк и забои.
+Это не то, чего ожидает наивный пользователь.
+.Pp
+Невозможно указать команду без именования файла скрипта
+из-за проблем совместимости разбора аргументов.
+.Pp
+При работе в режиме
+.Fl k
+отмена эха далека от идеала.
+Режим ведомого терминала проверяется
+на наличие режима ECHO, чтобы определить, когда избегать ручного логирования эха.
+Это не
+работает, когда терминал находится в сыром режиме, где
+запущенная программа выполняет ручное эхо.
+.Pp
+Если
+.Nm
+читает ноль байт из терминала, она переключается в режим, когда
+пытается читать
+только раз в секунду, пока не появятся данные для чтения.
+Это предотвращает
+вращение
+.Nm
+на чтениях нулевых байт, но может вызвать задержку в 1 секунду при
+обработке пользовательского ввода.

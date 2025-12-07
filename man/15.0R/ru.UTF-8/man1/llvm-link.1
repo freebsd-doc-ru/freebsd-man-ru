@@ -1,0 +1,81 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-link/llvm-link.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 f6212a82b0f32041b11fe297975595782297f68be2319dd524db881705d1f0b1
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-link \- компоновщик LLVM биткода
+.SH СИНТАКСИС
+.sp
+\fBllvm\-link\fP [\fIопции\fP] \fIфайл ...\fP
+.SH ОПИСАНИЕ
+.sp
+\fBllvm\-link\fP принимает несколько файлов LLVM биткода и связывает их вместе
+в один файл LLVM биткода. Он записывает выходной файл в стандартный вывод,
+если только опция \fI\%\-o\fP не используется для указания имени файла.
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-f
+Включить двоичный вывод на терминалах. Обычно \fBllvm\-link\fP отказывается
+записывать сырой биткод, если выходной поток является терминалом. С этой
+опцией \fBllvm\-link\fP будет записывать сырой биткод независимо от выходного
+устройства.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-o имя_файла
+Указать имя выходного файла. Если \fBимя_файла\fP — \(dq\fB\-\fP\(dq, то
+\fBllvm\-link\fP запишет свой вывод в стандартный вывод.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-S
+Записывать вывод на промежуточном языке LLVM (вместо биткода).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d
+Если указано, \fBllvm\-link\fP выводит человеко-читаемую версию
+выходного файла биткода в стандартную ошибку.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-help
+Вывести краткую сводку опций командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v
+Подробный режим. Выводить информацию о действиях \fBllvm\-link\fP.
+Обычно включает сообщение для каждого связанного файла биткода и для каждой
+найденной библиотеки.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+Если \fBllvm\-link\fP завершается успешно, он выходит с кодом 0. В противном случае, при возникновении ошибки,
+он выходит с ненулевым значением.
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH АВТОРСКИЕ ПРАВА
+2003-2023, Проект LLVM

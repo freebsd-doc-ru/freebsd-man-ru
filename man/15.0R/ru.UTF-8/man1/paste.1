@@ -1,0 +1,150 @@
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Adam S. Moskowitz and the Institute of Electrical and Electronics
+.\" Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)paste.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/paste/paste.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 3af6f28c75b076211725aff7dd5c46140a1f6a778da94986a774334afdeb72ff
+.Dd 6 ноября 2022
+.Dt PASTE 1
+.Os
+.Sh ИМЯ
+.Nm paste
+.Nd объединить соответствующие или последующие строки файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl s
+.Op Fl d Ar список
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+объединяет соответствующие строки заданных входных файлов,
+заменяя символы новой строки всех файлов, кроме последнего, на символ табуляции,
+и записывает результирующие строки в стандартный вывод.
+Если конец файла достигнут во входном файле, в то время как другие входные файлы
+все ещё содержат данные, файл рассматривается как бесконечный источник
+пустых строк.
+.Pp
+Параметры следующие:
+.Bl -tag -width Fl
+.It Fl d Ar список
+Использовать один или несколько предоставленных символов для замены символов
+новой строки вместо стандартной табуляции.
+Символы в
+.Ar списке
+используются циклически, т.е., когда
+.Ar список
+исчерпан, первый символ из
+.Ar списка
+используется повторно.
+Это продолжается до тех пор, пока не будет выведена строка из последнего входного файла (при работе по умолчанию)
+или последняя строка в каждом файле (при использовании опции
+.Fl s ),
+после чего
+.Nm
+снова начинает выбирать символы с начала
+.Ar списка .
+.Pp
+Следующие специальные символы также могут использоваться в списке:
+.Pp
+.Bl -tag -width flag -compact
+.It Li \en
+символ новой строки
+.It Li \et
+символ табуляции
+.It Li \e\e
+символ обратной косой черты
+.It Li \e0
+Пустая строка (не нулевой символ).
+.El
+.Pp
+Любой другой символ, которому предшествует обратная косая черта, эквивалентен
+самому символу.
+.It Fl s
+Объединить все строки каждого отдельного входного файла в порядке их следования в командной строке.
+Символ новой строки каждой строки, кроме последней строки в каждом входном
+файле, заменяется символом табуляции, если не указано иное с помощью
+опции
+.Fl d .
+.El
+.Pp
+Если
+.Sq Fl
+указан для одного или нескольких входных файлов, используется стандартный
+ввод; стандартный ввод читается по одной строке за раз, циклически,
+для каждого экземпляра
+.Sq Fl .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Вывести список файлов в текущем каталоге в три столбца:
+.Pp
+.Pp
+Объединить пары строк из файла в одиночные строки:
+.Pp
+.Pp
+Пронумеровать строки в файле, аналогично
+.Xr nl 1 :
+.Pp
+.Pp
+Создать список каталогов с именем
+.Pa bin ,
+разделённый двоеточиями, пригодный
+для использования в переменной окружения
+.Ev PATH :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr cut 1 ,
+.Xr lam 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+ожидается совместимой со
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.At III
+и доступна с
+.Bx 4.3 Reno .
+.Sh АВТОРЫ
+.An -nosplit
+Оригинальная версия Bell Labs была написана
+.An Gottfried W. R. Luderer ,
+а версия
+.Bx
+—
+.An Adam S. Moskowitz
+и
+.An Marciano Pitargue .

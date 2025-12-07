@@ -1,0 +1,102 @@
+.\" Copyright (c) 2008-2009 Fredrik Lindberg
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/uhsoctl/uhsoctl.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 893e98e6ab998c091f96b32ff33139b96b4a8dd95a9f1d7f05fbc97dac687adf
+.Dd 12 августа 2009
+.Dt UHSOCTL 1
+.Os
+.Sh ИМЯ
+.Nm uhsoct
+.Nd утилита для подключения устройств на базе Option
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar apn
+.Op Fl c Ar cid
+.Op Fl p Ar pin
+.Op Fl u Ar имя_пользователя
+.Op Fl k Ar пароль
+.Op Fl r Ar путь
+.Op Fl f Ar путь
+.Op Fl b | n
+.Ar интерфейс
+.Nm
+.Fl d
+.Ar интерфейс
+.Nm
+.Fl h
+.Sh ОПИСАНИЕ
+.Nm
+— это небольшая утилита для подключения устройств компании Option N.V., основанных на пакетном интерфейсе Options и использующих проприетарные вызовы AT_* для установления соединений.
+Утилита (пытается) настроить как маршрут по умолчанию, так и серверы имён
+.Po Pa /etc/resolv.conf Pc .
+.Pp
+По умолчанию
+.Nm
+отсоединяется от терминала после успешного подключения; существует несколько параметров командной строки, позволяющих изменить это поведение.
+.Pp
+.Nm
+пытается найти доступный управляющий последовательный порт на основе предоставленного сетевого интерфейса.
+Если это не удаётся, вы можете указать последовательный порт вручную.
+.Sh ПАРАМЕТРЫ
+.Bl -tag -width XXXX
+.It Fl a Ar apn
+Указать APN для подключения.
+.It Fl c Ar cid
+Указать CID (идентификатор контекста) для использования; по умолчанию используется CID 1.
+Если APN был настроен один раз, достаточно указать CID для последующих подключений.
+.It Fl p Ar pin
+Указать PIN-код SIM-карты.
+.It Fl u Ar имя_пользователя
+Указать имя пользователя.
+.It Fl k Ar пароль
+Указать пароль.
+.It Fl r Ar путь
+Путь к файлу
+.Pa resolv.conf ,
+по умолчанию
+.Pa /etc/resolv.conf .
+Используйте
+.Pa /dev/null
+чтобы отключить обновление серверов имён.
+.It Fl f Ar путь
+Явно задать последовательный порт для использования в качестве управляющего терминала.
+Может потребоваться, если автоматическое определение не удалось.
+.It Fl b
+Перейти в фоновый режим сразу, до установления соединения.
+.It Fl n
+Никогда не переходить в фоновый режим, работать полностью в режиме переднего плана.
+.El
+.Sh ПРИМЕРЫ
+Подключиться к
+.Dq Li apn.example.com
+на интерфейсе
+.Dq Li uhso0
+и использовать PIN-код
+.Dq 1234
+для активации SIM-карты.
+.Pp
+Отключиться от ранее установленного соединения.
+.Sh СМ. ТАКЖЕ
+.Xr uhso 4

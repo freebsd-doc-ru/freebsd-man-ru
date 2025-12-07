@@ -1,0 +1,162 @@
+.\"-
+.\" Copyright (c) 2000  Peter Wemm <peter@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./bin/kenv/kenv.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 072bea2d5dc6085c5c13ab5a8a49b1999bc6a633cf5122f075776465f6fa2782
+.Dd 20 июня 2021
+.Dt KENV 1
+.Os
+.Sh ИМЯ
+.Nm kenv
+.Nd список или изменение окружения ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl l | s
+.Op Fl hNq
+.Nm
+.Op Fl qv
+.Ar переменная Ns Op = Ns Ar значение
+.Nm
+.Op Fl q
+.Fl u
+.Ar переменная
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит список всех переменных в окружении ядра, если
+вызвана без аргументов.
+.Pp
+Если указана опция
+.Fl l ,
+то будет выведено статическое окружение, предоставленное
+.Xr loader 8 .
+Аналогично, опция
+.Fl s
+выведет статическое окружение, определённое в конфигурации ядра.
+Обе опции
+.Fl l
+и
+.Fl s
+зависят от того, сконфигурировано ли ядро для сохранения ранних окружений ядра.
+Конфигурация ядра по умолчанию не сохраняет эти окружения.
+.Pp
+Если указана опция
+.Fl h ,
+отчёт будет ограничен подсказками для зондирования ядра.
+Если указано необязательное имя
+.Ar переменной ,
+.Nm
+выведет только это значение.
+Если указана опция
+.Fl N ,
+.Nm
+будет отображать только имена переменных, а не их значения.
+Если указана опция
+.Fl u ,
+.Nm
+удалит заданную переменную окружения.
+Если за переменной окружения следует необязательное
+.Ar значение ,
+.Nm
+установит переменную окружения в это значение.
+.Pp
+Если установлена опция
+.Fl q ,
+предупреждения, обычно выводимые при невозможности
+выполнить запрошенную операцию, будут подавлены.
+.Pp
+Если установлена опция
+.Fl v ,
+имя переменной будет выведено вместе со значением, когда
+.Nm
+выполняется с именем переменной.
+.Pp
+Переменные могут быть добавлены в окружение ядра с помощью файла
+.Pa /boot/loader.conf ,
+а также статически скомпилированы в ядро с использованием инструкции
+.Pp
+.Dl Ic env Ar имя_файла
+.Pp
+в конфигурационном файле ядра.
+Файл может содержать строки вида
+.Pp
+.Dl имя=значение
+.Pp
+где пробельные символы вокруг
+.Sq имени
+и
+.Sq = ,
+а также всё после символа
+.Sq #
+игнорируются.
+Почти любой печатный символ, кроме
+.Sq = ,
+допустим как часть имени.
+Кавычки необязательны и необходимы только если значение содержит пробелы.
+.Sh ПРИМЕРЫ
+Показать имена переменных подсказок для зондирования ядра и отфильтровать для устройства uart
+.Bd -literal -offset indent
+$ kenv -h -N | grep uart
+hint.uart.0.at
+hint.uart.0.flags
+hint.uart.0.irq
+hint.uart.0.port
+hint.uart.1.at
+hint.uart.1.irq
+hint.uart.1.port
+.Ed
+.Pp
+Показать значение конкретной переменной:
+.Bd -literal -offset indent
+$ kenv hint.uart.1.at
+isa
+.Ed
+.Pp
+То же, что выше, но с добавлением имени переменной в отчёт:
+.Bd -literal -offset indent
+$ kenv -v hint.uart.1.at
+hint.uart.1.at=isa
+.Ed
+.Pp
+Попытаться удалить переменную и подавить предупреждения, если они есть:
+.Bd -literal -offset indent
+$ kenv -q -u hint.uart.1.at
+.Ed
+.Pp
+Установить значение переменной
+.Ev verbose_loading
+.Bd -literal -offset indent
+$ kenv verbose_loading=YES
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kenv 2 ,
+.Xr config 5 ,
+.Xr loader.conf 5 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 4.1.1 .

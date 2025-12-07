@@ -1,0 +1,171 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Michael Rendell.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)col.1	8.1 (Berkeley) 6/29/93
+.\"
+.\" FRDP path ./usr.bin/col/col.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 c54269d17e60155f114983b34cda6f1db9682aa8ed137f10973a805e9debd303
+.Dd 21 октября 2020
+.Dt COL 1
+.Os
+.Sh ИМЯ
+.Nm col
+.Nd фильтрует обратные переводы строк из ввода
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bfhpx
+.Op Fl l Ar число
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+фильтрует обратные (и полуобратные) переводы строк так, чтобы вывод
+был в правильном порядке только с прямыми и полупрямыми переводами
+строк, и заменяет пробельные символы табуляциями, где это возможно.
+.Pp
+Утилита
+.Nm
+читает из стандартного ввода и пишет в стандартный вывод.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl b
+Не выводить никаких символов возврата на шаг, печатая только последний символ,
+записанный в каждую позицию столбца.
+.It Fl f
+Разрешаются полупрямые переводы строк (режим «точный»).
+Обычно символы, напечатанные на границе полустроки, печатаются
+на следующей строке.
+.It Fl h
+Не выводить несколько пробелов вместо табуляций (по умолчанию).
+.It Fl l Ar число
+Буферизовать как минимум
+.Ar число
+строк в памяти.
+По умолчанию буферизуется 128 строк.
+.It Fl p
+Принудительно пропускать неизвестные управляющие последовательности без изменений.
+Обычно
+.Nm
+отфильтровывает любые управляющие последовательности из ввода, кроме тех,
+которые распознаются и интерпретируются ей самой, перечисленных ниже.
+.It Fl x
+Выводить несколько пробелов вместо табуляций.
+.El
+.Pp
+Во входном потоке
+.Nm
+понимает как escape-последовательности вида escape-цифра,
+предписанные
+.St -susv2 ,
+так и традиционный
+.Bx
+формат escape-управляющий-символ.
+Управляющие последовательности для перемещения каретки и их значения ASCII
+следующие:
+.Pp
+.It ESC-звонок
+обратный перевод строки (escape, затем звонок).
+.It ESC-7
+обратный перевод строки (escape, затем 7).
+.It ESC-возврат
+полуобратный перевод строки (escape, затем возврат).
+.It ESC-8
+полуобратный перевод строки (escape, затем 8).
+.It ESC-табуляция
+полупрямой перевод строки (escape, затем табуляция).
+.It ESC-9
+полупрямой перевод строки (escape, затем 9).
+В режиме
+.Fl f
+эта последовательность также может встречаться в выходном потоке.
+.It возврат
+перемещает на один столбец назад (8); игнорируется в первом столбце.
+.It возврат каретки
+(13)
+.It новая строка
+прямой перевод строки (10); также выполняет возврат каретки.
+.It shift in
+переключение на обычный набор символов (15)
+.It shift out
+переключение на альтернативный набор символов (14)
+.It пробел
+перемещает на один столбец вперёд (32)
+.It табуляция
+перемещает к следующей позиции табуляции (9)
+.It вертикальная табуляция
+обратный перевод строки (11)
+.El
+.Pp
+Все нераспознанные управляющие символы и escape-последовательности
+отбрасываются.
+.Pp
+Утилита
+.Nm
+отслеживает набор символов по мере их чтения и гарантирует,
+что набор символов корректен при их выводе.
+.Pp
+Если ввод пытается вернуться к последней сброшенной строке,
+.Nm
+выведет предупреждающее сообщение.
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Мы можем использовать
+.Nm
+для фильтрации вывода
+.Xr man 1
+и удаления символов возврата на шаг (
+.Em ^H
+) перед поиском текста:
+.Bd -literal -offset indent
+man ls | col -b | grep HISTORY
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr expand 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -susv2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v6 .

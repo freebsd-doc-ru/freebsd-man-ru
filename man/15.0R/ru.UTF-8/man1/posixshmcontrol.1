@@ -1,0 +1,171 @@
+.\" Copyright (c) 2019 The FreeBSD Foundation, Inc.
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/posixshmcontrol/posixshmcontrol.1
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 f7716ed42adc12413fe5c40ec331b89d74f5f0f436e201d62f47028ce69e931e
+.Dd 25 мая 2023
+.Dt POSIXSHMCONTROL 1
+.Os
+.Sh ИМЯ
+.Nm posixshmcontrol
+.Nd Управление сегментами разделяемой памяти POSIX
+.Sh СИНТАКСИС
+.Nm
+.Ar create
+.Op Fl l Ar размер_страницы
+.Op Fl m Ar режим
+.Op Pa путь \&...
+.Nm
+.Ar rm
+.Op Pa путь \&...
+.Nm
+.Ar ls
+.Op Fl h
+.Op Fl n
+.Op Fl j Ar клетка
+.Nm
+.Ar dump
+.Op Pa путь \&...
+.Nm
+.Ar stat
+.Op Fl h
+.Op Fl n
+.Op Pa путь \&...
+.Nm
+.Ar truncate
+.Op Fl s Ar длина
+.Op Pa путь \&...
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+управляет именованными сегментами разделяемой памяти POSIX.
+Она позволяет проверять существующие сегменты, выводить их метаданные или содержимое,
+и удалять их.
+.Pp
+Удаление убирает имя из системы и, когда последний процесс
+отменяет отображение сегмента и закрывает файловый дескриптор, указывающий на сегмент,
+освобождает выделенную память.
+.Pp
+Количество жёстких ссылок, отображаемое подкомандой
+.Ic stat,
+равно количеству ссылок на базовый объект виртуальной памяти.
+Оно почти всегда равно количеству отображений +1, за исключением
+временных ссылок.
+.Pp
+Предоставляются следующие подкоманды:
+.Bl -tag -width truncate
+.It Ic create
+Создать сегменты с указанными путями, если они ещё не существуют.
+.Pp
+Необязательный аргумент
+.Ar размер_страницы
+задаёт размер виртуальных страниц, используемых для отображения
+объекта с помощью
+.Xr mmap 2 .
+По умолчанию используется системный размер страницы, но на некоторых платформах можно
+указать больший размер страницы.
+Размер объекта, поддерживаемого большими страницами, должен быть кратен указанному
+размеру страницы.
+Переменная sysctl
+.Va hw.pagesizes
+перечисляет доступные размеры страниц.
+.Pp
+Необязательный числовой аргумент
+.Ar режим
+задаёт начальный режим доступа.
+.It Ic rm
+Удалить указанные пути.
+.It Ic ls
+Вывести список всех связанных именованных сегментов разделяемой памяти, видимых вызывающей стороне.
+Для каждого сегмента отображаются владелец (пользователь и группа), размер и путь.
+Опция
+.Fl j
+ограничивает вывод сегментами в пределах указанного имени или идентификатора
+.Ar клетки.
+.It Ic dump
+Вывести необработанные байтовые значения из сегмента в стандартный вывод.
+.It Ic stat
+Вывести метаданные для указанного пути в формате, аналогичном утилите
+.Xr stat 1 .
+.It Ic truncate
+Изменить длину сегментов.
+Аргумент опции
+.Fl s
+задаёт новую длину.
+Можно использовать удобные для человека суффиксы 'k', 'm', 'g', см.
+.Xr expand_number 3 .
+Если опция не указана, предполагаемая длина равна нулю.
+.El
+.Pp
+Для некоторых команд могут быть предоставлены следующие опции:
+.Bl -tag -width XXX
+.It Fl h
+Если указана, запрашивает удобочитаемый вывод размера, см.
+.Xr humanize_number 3 .
+.It Fl n
+Предотвращает преобразование владельца и группы в символьные имена
+с использованием служб переключения имён; вместо этого выводятся необработанные числовые значения.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Чтобы показать содержимое сегмента разделяемой памяти с путём
+.Pa /1 ,
+используйте команду
+.It
+Чтобы создать сегмент с путём
+.Pa /2
+и затем увеличить его до 1M, используйте последовательность команд
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hexdump 1 ,
+.Xr stat 1 ,
+.Xr ftruncate 2 ,
+.Xr mmap 2 ,
+.Xr read 2 ,
+.Xr shm_open 2 ,
+.Xr shm_unlink 2 ,
+.Xr stat 2 ,
+.Xr expand_number 3 ,
+.Xr humanize_number 3 ,
+.Xr shm_create_largepage 3 ,
+.Xr sysctl 3
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 12.1 .
+.Sh АВТОРЫ
+Команда
+.Nm
+и эта страница руководства были написаны
+.An Константином Белоусовым Aq Mt kib@freebsd.org
+при спонсорской поддержке Фонда
+.Fx .

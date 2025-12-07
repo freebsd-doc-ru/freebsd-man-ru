@@ -1,0 +1,166 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)uname.1	8.3 (Berkeley) 4/8/94
+.\"
+.\" FRDP path ./usr.bin/uname/uname.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 d5023a497349beaff7fa91ec231acea21a0603aa2a6b92de3c5a465620883334
+.Dd 14 сентября 2022
+.Dt UNAME 1
+.Os
+.Sh ИМЯ
+.Nm uname
+.Nd вывести информацию о системе
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abiKmnoprsUv
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+выводит название реализации операционной системы в стандартный вывод.
+При указании опций в стандартный вывод выводятся строки, представляющие одну или несколько характеристик системы.
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl a
+Ведут себя так, как если бы были указаны опции
+.Fl m , n , r , s ,
+и
+.Fl v .
+.It Fl b
+Выводит идентификатор сборки ядра, сгенерированный компоновщиком, в стандартный вывод.
+.It Fl i
+Выводит идентификатор ядра в стандартный вывод.
+.It Fl K
+Выводит версию ядра
+.Fx .
+.It Fl m
+Выводит тип текущей аппаратной платформы в стандартный вывод.
+.Po Xr make 1
+использует это для установки переменной
+.Va MACHINE .
+.Pc
+.It Fl n
+Выводит название системы в стандартный вывод.
+.It Fl o
+Это синоним опции
+.Fl s ,
+для совместимости с другими системами.
+.It Fl p
+Выводит тип архитектуры процессора машины в стандартный вывод.
+.Po Xr make 1
+использует это для установки переменной
+.Va MACHINE_ARCH .
+.Pc
+.It Fl r
+Выводит текущий уровень выпуска ядра
+в стандартный вывод.
+.Xr freebsd-version 1
+может использоваться для вывода уровня выпуска пользовательского окружения.
+.It Fl s
+Выводит название реализации операционной системы в стандартный вывод.
+.It Fl U
+Выводит версию пользовательского окружения
+.Fx .
+.It Fl v
+Выводит уровень версии данного выпуска операционной системы
+в стандартный вывод.
+.El
+.Pp
+Если указан флаг
+.Fl a
+или несколько флагов, весь
+вывод осуществляется в одну строку, разделённую пробелами.
+.Pp
+Флаги
+.Fl K
+и
+.Fl U
+предназначены для детального различения инкрементальной
+разработки
+.Fx
+и изменений, видимых пользователю.
+Обратите внимание, что при указании обеих этих опций, независимо от их
+порядка, сначала будет выведена версия ядра, а затем версия
+пользовательского окружения.
+.Sh ОКРУЖЕНИЕ
+Переменная окружения, состоящая из строки
+.Ev UNAME_
+и любого флага утилиты
+.Nm
+(кроме
+.Fl a ),
+позволит установить соответствующие данные в содержимое
+переменной окружения.
+Подробнее см.
+.Xr uname 3 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Аппаратная платформа
+.Pq Fl m
+может отличаться от архитектуры процессора машины
+.Pq Fl p ,
+например, на 64-битном PowerPC,
+.Fl m
+вернёт
+.Va powerpc ,
+а
+.Fl p
+вернёт
+.Va powerpc64 .
+.Sh СМ. ТАКЖЕ
+.Xr freebsd-version 1 ,
+.Xr feature_present 3 ,
+.Xr getosreldate 3 ,
+.Xr sysctl 3 ,
+.Xr uname 3 ,
+.Xr sysctl 8
+.Sh СТАНДАРТЫ
+Ожидается, что команда
+.Nm
+соответствует спецификации
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в PWB UNIX 1.0, однако
+.Bx 4.4
+был первым выпуском Berkeley с командой
+.Nm .
+.Pp
+Флаги расширения
+.Fl K
+и
+.Fl U
+появились в
+.Fx 10.0 .
+Флаг расширения
+.Fl b
+появился в
+.Fx 13.0 .

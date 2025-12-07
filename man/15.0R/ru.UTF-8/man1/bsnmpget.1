@@ -1,0 +1,417 @@
+.\"
+.\" Copyright (c) 2010 The FreeBSD Foundation
+.\" All rights reserved.
+.\"
+.\" Portions of this documentation were written by Shteryana Sotirova Shopova
+.\" under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Copyright (c) 2005-2007 The FreeBSD Project.
+.\"	All rights reserved.
+.\"
+.\" Author: Shteryana Shopova <syrinx@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/bsnmpd/tools/bsnmptools/bsnmpget.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e20cf917e7e7e8dc73fa79f983f4f48e9dc4fd7df524e3f4ef6d9d7e93f03f50
+.Dd 10 января 2012
+.Dt BSNMPGET 1
+.Os
+.Ш ИМЯ
+.Nm bsnmpget ,
+.Nm bsnmpwalk ,
+.Nm bsnmpset
+.Ш СИНТАКСИС
+.Nm
+.Op Fl aDdehnK
+.Op Fl A Ar опции
+.Op Fl b Ar размер_буфера
+.Op Fl C Ar опции
+.Op Fl I Ar опции
+.Op Fl i Ar список_файлов
+.Op Fl l Ar имя_файла
+.Op Fl M Ar max-repetitions
+.Op Fl N Ar non-repeaters
+.Op Fl o Ar вывод
+.Op Fl P Ar опции
+.Op Fl p Ar pdu
+.Op Fl r Ar попытки
+.Op Fl s Ar [trans::][сообщество@][сервер][:порт]
+.Op Fl t Ar таймаут
+.Op Fl U Ar опции
+.Op Fl v Ar версия
+.Op Ar OID ...
+.Pp
+.Nm bsnmpwalk
+.Op Fl dhnK
+.Op Fl A Ar опции
+.Op Fl b Ar размер_буфера
+.Op Fl C Ar опции
+.Op Fl I Ar опции
+.Op Fl i Ar список_файлов
+.Op Fl l Ar имя_файла
+.Op Fl o Ar вывод
+.Op Fl P Ar опции
+.Op Fl r Ar попытки
+.Op Fl s Ar [trans::][сообщество@][сервер][:порт]
+.Op Fl t Ar таймаут
+.Op Fl U Ar опции
+.Op Fl v Ar версия
+.Op Ar OID ...
+.Pp
+.Nm bsnmpset
+.Op Fl adehnK
+.Op Fl A Ar опции
+.Op Fl b Ar размер_буфера
+.Op Fl C Ar опции
+.Op Fl I Ar опции
+.Op Fl i Ar список_файлов
+.Op Fl l Ar имя_файла
+.Op Fl o Ar вывод
+.Op Fl P Ar опции
+.Op Fl r Ar попытки
+.Op Fl s Ar [trans::][сообщество@][сервер][:порт]
+.Op Fl t Ar таймаут
+.Op Fl U Ar опции
+.Op Fl v Ar версия
+.Ar OID Ns = Ar синтаксис Ns : Ns Ar значение
+.Op Ar OID Ns = Ar синтаксис Ns : Ns Ar значение ...
+.Ш ОПИСАНИЕ
+.Nm ,
+.Nm bsnmpwalk
+и
+.Nm bsnmpset
+представляют собой простые инструменты для получения управляющей информации от агента
+Simple Network Management Protocol (SNMP) и установки управляющей информации ему.
+.Pp
+В зависимости от опций,
+.Nm bsnmpget
+формирует либо пакет SNMP GetRequest, GetNextRequest,
+либо GetBulkRequest, заполняет идентификаторы объектов (OID)
+объектов, значения которых требуется получить, ожидает ответа и выводит его при
+успешном получении.
+.Pp
+.Nm Bsnmpwalk
+запрашивает агента с помощью пакетов SNMP GetNextRequest или GetBulkRequest,
+запрашивая значения экземпляров OID, которые являются частью поддерева объектов,
+корнем которого являются предоставленные OID.
+.Pp
+.Nm Bsnmpset
+формирует пакет SNMP SetRequest, заполняет OID (идентификаторы объектов),
+синтаксисы и значения объектов, значения которых требуется установить, и ожидает
+ответа от сервера.
+.Ш ОПЦИИ
+Опции следующие (не все применимы ко всем трём программам):
+.It Fl A Ar опции
+Параметры аутентификации для использования с PDU SNMPv3
+.Bl -tag -width \&
+.It Cm proto=[md5|sha]
+Протокол, используемый при вычислении дайджеста сообщения PDU.
+.It Cm key=ключ_аутентификации
+Бинарный локализованный ключ аутентификации, используемый при вычислении дайджеста сообщения PDU.
+.El
+.Pp
+По умолчанию PDU SNMPv3 отправляются без аутентификации.
+.It Fl a
+Пропускать проверки при добавлении OID в блок данных протокола (PDU):
+игнорировать синтаксис/тип доступа, разрешать добавление неконечных объектов для GetPdu и
+объектов только для чтения в SetPDU.
+.It Fl b Ar размер_буфера
+Настроить размер буферов, используемых для отправки и приёма пакетов.
+Размер по умолчанию — 10000 байт, что должно быть достаточно, если только агент не отправляет
+действительно большую строку октетов.
+Максимально допустимая длина согласно Structure of Management Information (SMIv2) составляет 65535.
+.It Fl C Ar опции
+Контекст для запроса с PDU SNMPv3.
+.Bl -tag -width \&
+.It Cm context=имя
+Имя контекста.
+.It Cm context-engine=идентификатор_движка
+Идентификатор SNMP Engine ID контекста для запроса с PDU SNMPv3, представленный в виде
+бинарной строки октетов.
+По умолчанию установлен на Engine ID агента SNMP.
+.El
+.It Fl D
+Выполнить обнаружение SNMP USM Engine вместо отправки запроса на значение
+конкретного объекта.
+.It Fl d
+Включить отладку.
+Эта опция приведёт к выводу отправленных и полученных пакетов на терминал.
+.It Fl e
+Повторять при ошибке.
+Если в ответном PDU возвращается ошибка, повторно отправить запрос, удаляя
+переменную, вызвавшую ошибку, до получения корректного ответа.
+Полезно только для PDU GetRequest и GetNextRequest.
+.It Fl h
+Вывести краткую справку со значениями по умолчанию для различных опций.
+.It Fl I Ar опции
+Загрузить каждый файл описания MIB из заданного списка для перевода символьных
+имён объектов в их числовое представление и обратно.
+Используйте другие опции для получения нестандартного поведения:
+.Bl -tag -width \&
+.It Cm cut=OID
+Задаёт начальный OID, который был обрезан
+.Xr gensnmpdef 1
+при создании файла описания MIB.
+Значение по умолчанию — .iso(1).org(3).dod(6), что должно было быть
+использовано для всех файлов, установленных в
+.Pa /usr/share/snmp/defs .
+Используйте это только если вы сгенерировали собственные файлы, указав
+.Fl c
+в
+.Xr gensnmpdef 1 .
+.It Cm path=каталог_файлов
+Каталог, в котором будет производиться поиск файлов из списка.
+По умолчанию —
+.Pa /usr/share/snmp/defs Ns .
+.It Cm file=список_файлов
+Список файлов, разделённых запятыми, к которым будут применены две предыдущие опции.
+.El
+.Pp
+Подопция file должна идти после других подопций, чтобы их
+нестандартные значения были применены к списку файлов.
+Порядок других подопций перед каждой подопцией file может быть произвольным.
+Подопции могут быть разделены запятыми или пробелами.
+При использовании пробелов убедитесь, что вся строка опции является одним аргументом, например,
+используя кавычки.
+.It Fl i Ar список_файлов
+Список файлов описания MIB, созданных
+.Xr gensnmpdef 1 ,
+которые
+.Nm bsnmpget ,
+.Nm bsnmpwalk
+или
+.Nm bsnmpset
+будет искать для перевода числовых OID в их символьные имена объектов.
+Несколько файлов могут быть предоставлены либо путём многократного указания этой опции,
+либо списком имён файлов, разделённых запятыми.
+Если имя файла начинается с буквы, будет производиться поиск в каталоге по умолчанию,
+.Pa /usr/share/snmp/defs .
+.It Fl K
+Вычислить и отобразить локализованные ключи аутентификации и приватности,
+соответствующие паролю в открытом тексте.
+Пароль получается из окружения.
+Дополнительно, если указан один или несколько OID, вычисленные
+ключи используются при обработке запросов SNMPv3.
+.It Fl l Ar имя_файла
+Путь к локальному сокету posix (домен Unix), если используется локальный
+транспорт.
+.It Fl M Ar max-repetitions
+Значение для поля max-repetitions в PDU GetBulk.
+По умолчанию — 10.
+.It Fl N Ar non-repeaters
+Значение для поля non-repeaters в PDU GetBulk.
+По умолчанию — 0.
+.It Fl n
+Использовать только числовое представление для входных и выходных OID и не
+пытаться разрешать символьные имена объектов.
+Обратите внимание, что
+.Nm bsnmpget ,
+.Nm bsnmpwalk
+и
+.Nm bsnmpset
+все равно будут выводить числовые OID, если соответствующее строковое представление
+не найдено в файлах описания MIB.
+.It Fl o Ar [quiet|short|verbose]
+Формат, используемый для вывода полученного ответа.
+Quiet выводит только значения, short (по умолчанию) выводит сокращённое представление OID
+и значение.
+В дополнение к краткому выводу verbose выводит тип перед значением.
+.It Fl P Ar опции
+Параметры приватности для использования с PDU SNMPv3
+.Bl -tag -width \&
+.It Cm proto=[aes|des]
+Протокол, используемый при шифровании/дешифровании данных PDU SNMPv3.
+.It Cm key=приватный_ключ
+Бинарный локализованный приватный ключ, используемый при шифровании/дешифровании данных PDU SNMPv3.
+.El
+.Pp
+По умолчанию отправляются PDU SNMPv3 в открытом тексте.
+.It Fl p Ar [get|getnext|getbulk]
+Тип PDU для отправки
+.Nm bsnmpget
+и
+.Nm bsnmpwalk .
+По умолчанию — get
+для
+.Nm bsnmpget
+и getnext для
+.Nm bsnmpwalk .
+несколько столбцов для получения в одном PDU с помощью
+.Nm bsnmpwalk .
+.It Fl r Ar попытки
+Количество повторных отправок запросов перед сдачей, если агент не
+отвечает после первой попытки.
+По умолчанию — 3.
+.It Fl s Ar [trans::] Ns Ar [сообщество@] Ns Ar [сервер] Ns Ar [:порт]
+Каждый из компонентов спецификации сервера является необязательным, но хотя бы один
+должен быть предоставлен, если используется
+.Ar s
+опция.
+Спецификация сервера строится следующим образом:
+.Bl -tag -width \&
+.It Cm trans::
+Тип транспорта может быть одним из udp, stream или dgram.
+Если эта опция не предоставлена, будет использоваться сокет UDP inet/inet6, что
+наиболее распространено.
+Stream означает потоковый сокет posix local, а датаграммный сокет posix local
+будет использоваться, если указан dgram.
+.It Cm сообщество@
+Указать строку сообщества SNMP для использования при отправке пакетов.
+.Nm
+и
+.Nm bsnmpwalk
+.Nm bsnmpset .
+.It Cm сервер
+Это может быть либо IP-адрес, либо имя хоста, где работает агент.
+По умолчанию —
+.Qq localhost .
+.It Cm порт
+Порт назначения для отправки запросов.
+Полезно, если агент SNMP слушает нестандартный порт.
+По умолчанию определяется записью
+.Qq snmp
+в
+.Pa /etc/services ,
+порт 161.
+.El
+.It Fl t Ar таймаут
+Количество секунд перед повторной отправкой пакета запроса, если агент не
+отвечает.
+Значение по умолчанию — 3 секунды.
+.It Fl U Ar опции
+Учётные данные пользователя при отправке PDU SNMPv3.
+.Bl -tag -width \&
+.It Cm engine=идентификатор
+Идентификатор Engine ID агента SNMP, представленный в виде бинарной строки октетов.
+.It Cm engine-boots=значение
+Значение snmpEngineBoots агента SNMP.
+.It Cm engine-time=значение
+Значение snmpEngineTime агента SNMP.
+.Pp
+Если любой из вышеуказанных не указан, предпринимается попытка обнаружения SNMP USM Engine.
+Это также поведение по умолчанию.
+.It Cm name=имя_пользователя
+Имя пользователя USM, включаемое в PDU SNMPv3.
+По умолчанию имя пользователя
+получается из окружения.
+.El
+.It Fl v Ar версия
+Версия протокола SNMP, используемая при отправке запросов.
+Поддерживаются версии SNMP 1, 2 и
+3.
+Если опция версии не предоставлена,
+.Nm bsnmpget ,
+.Nm bsnmpwalk
+и
+.Nm bsnmpset
+будут использовать версию 2.
+Обратите внимание, что PDU GetBulkRequest были введены в SNMPv2, поэтому установка
+версии в 1 несовместима с отправкой PDU GetBulk.
+.It OID
+Идентификатор объекта, значение которого требуется получить.
+Хотя бы один OID должен быть предоставлен для
+.Nm bsnmpget
+, чтобы можно было отправить запрос.
+.Pp
+Для
+.Nm bsnmpwalk
+это корневой идентификатор объекта поддерева, значения которого должны быть
+получены.
+Если OID не предоставлен,
+.Nm bsnmpwalk
+пройдёт по поддереву mib2 с корнем
+в .iso(1).org(3).dod(6).internet(1).mgmt(2).mib2(1) .
+.Pp
+Любой из форматов, используемых для вывода одной переменной,
+допустим в качестве входного OID:
+.Bl -tag -width \&
+.It 1.3.6.1.2.1.25.1.1.0
+.It sysDescr
+.It ifPhysAddress.1
+.It ifRcvAddressStatus.2.6.255.255.255.255.255.255
+.It ifRcvAddressType[2,ff:ff:ff:ff:ff:ff]
+.It ifRcvAddressStatus[Integer:1,OctetString:ff:ff:ff:ff:ff:ff]
+(требует опции
+.Fl o Ar verbose )
+.El
+.Pp
+Квадратные скобки используются для обозначения индексов записи.
+При использовании во входном OID квадратные скобки, возможно, придётся
+экранировать или OID должен быть заключён в кавычки для защиты от оболочки.
+.It OID Ns = Ns Ar [синтаксис Ns :] Ns Ar значение
+Идентификатор объекта с его типом синтаксиса и значением, которое требуется установить.
+Хотя бы одна такая строка OID=[синтаксис:]значение должна быть предоставлена
+.Nm bsnmpset
+, чтобы можно было отправить запрос.
+.Bl -tag -width \&
+.It Cm OID
+OID может быть введён как строка, строка, за которой следует произвольное количество целых чисел
+(подобъектов), разделённых точками, последовательность целых чисел, разделённых точками — то есть
+если используется
+.Ar n
+опция — и в таком случае синтаксис требуется для каждого значения,
+или строка, за которой следуют квадратные скобки (используемые для обозначения индексов записи) и
+соответствующие индексы.
+Любой из форматов, используемых для вывода одной переменной
+.Nm bsnmpset
+, также действителен в качестве входного OID:
+.Bl -tag -width \&
+.It 1.3.6.1.2.1.25.1.1.0=TimeTicks:537615486
+.It 1.3.6.1.2.1.2.2.1.6.1=OctetString:ffffffffffff
+.It ifRcvAddressStatus.1.6.255.255.255.255.255.255=1
+(с опцией
+.Fl o Ar verbose )
+.El
+.It Cm синтаксис
+где строка синтаксиса одна из:
+Integer, OctetString, OID, IpAddress, Counter32, Gauge, TimeTicks, Counter64.
+.It Cm значение
+Значение для установки — IP-адрес в форме u.u.u.u — например,
+1.3.1.6.1.2.0=IpAddress:192.168.0.1, строки требуют обратных кавычек, если они
+содержат специальные символы или пробелы, все другие числовые типы — нет.
+.El
+.El
+.Ш ОКРУЖЕНИЕ
+.Nm ,
+.Nm bsnmpwalk
+и
+.Nm bsnmpset
+используют следующие переменные окружения:
+.Bl -tag -width SNMPAUTH
+.It Ev SNMPAUTH
+Указывает протокол аутентификации SNMP USM по умолчанию.
+.It Ev SNMPPRIV
+Указывает протокол приватности SNMP USM по умолчанию.
+.It Ev SNMPUSER
+Указывает имя пользователя SNMP USM по умолчанию.
+.It Ev SNMPPASSWD
+Указывает пароль в открытом тексте SNMP USM для использования при вычислении локализованных
+ключей аутентификации и приватности.
+Если эта переменная существует в окружении,
+SNMPv3 является версией по умолчанию для исходящих запросов.
+.El
+.Ш СМ. ТАКЖЕ
+.Xr gensnmpdef 1
+.Ш АВТОРЫ
+.An Штеряна Шопова Aq Mt syrinx@FreeBSD.org

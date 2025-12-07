@@ -1,0 +1,94 @@
+.\" Copyright (c) 2008 Cisco systems
+.\"	Author Julian Elischer.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/setfib/setfib.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 84080e377a8de39b74622364c1cf552bbd405f634b03f6dd90ccd94f71d329b5
+.Dd 20 октября 2008
+.Dt SETFIB 1
+.Os
+.Sh ИМЯ
+.Nm setfib
+.Nd запуск утилиты с измененным сетевым представлением по умолчанию
+.Sh СИНТАКСИС
+.Nm
+.Op Fl F
+.Ar fib
+.Ar утилита
+.Op Ar аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запускает другую
+.Ar утилиту
+с другой таблицей маршрутизации.
+Номер таблицы
+.Ar fib
+будет использоваться по умолчанию для всех сокетов, запущенных этим
+процессом или его потомками.
+.Sh ОКРУЖЕНИЕ
+Переменная окружения
+.Ev PATH
+используется для поиска запрашиваемой
+.Ar утилиты,
+если имя не содержит символов
+.Ql / .
+.Sh СТАТУС ВЫХОДА
+Если
+.Ar утилита
+вызвана, статус выхода
+.Nm
+равен статусу выхода
+.Ar утилиты .
+.Pp
+Статус выхода 126 указывает, что
+.Ar утилита
+была найдена, но не может быть выполнена.
+Статус выхода 127 указывает, что
+.Ar утилита
+не может быть найдена.
+.Sh ПРИМЕРЫ
+Запустите
+.Xr netstat 1
+для просмотра второй таблицы маршрутизации.
+.Pp
+или
+или
+.Sh СМ. ТАКЖЕ
+.Xr setfib 2 ,
+.Xr setsockopt 2
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+является специфичным расширением
+.Fx .
+Однако многие
+.Ux Ns - Ns
+подобные системы
+имеют эквивалентную функцию.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 7.1 .

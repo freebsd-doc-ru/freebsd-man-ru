@@ -1,0 +1,42 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-ar/llvm-ranlib.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 d546512c07ec2c10e6c667e4f8270c428326154fc8db4ca36e54e2368c8be628
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.ИМЯ
+llvm-ranlib \- генерирует индекс архива
+.СИНТАКСИС
+.sp
+\fBllvm\-ranlib\fP [\fIпараметры\fP] \fIархив...\fP
+.ОПИСАНИЕ
+.sp
+\fBllvm\-ranlib\fP является псевдонимом для инструмента \fI\%llvm\-ar\fP, который генерирует индекс для одного или нескольких архивов. Может использоваться как замена инструмента GNU \fBranlib\fP\&.
+.sp
+Запуск \fBllvm\-ranlib\fP эквивалентен запуску \fBllvm\-ar s\fP\&.
+.СМ. ТАКЖЕ
+.sp
+\fBllvm\-ar(1)\fP
+.АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.АВТОРСКИЕ ПРАВА
+2003-2023, Проект LLVM

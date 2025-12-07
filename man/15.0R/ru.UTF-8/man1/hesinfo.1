@@ -1,0 +1,187 @@
+.\"	$NetBSD: hesinfo.1,v 1.1 1999/01/25 22:45:55 lukem Exp $
+.\"
+.\" from: #Id: hesinfo.1,v 1.9 1996/11/07 01:57:12 ghudson Exp #
+.\"
+.\" Copyright 1987, 1996 by the Massachusetts Institute of Technology.
+.\"
+.\" Permission to use, copy, modify, and distribute this
+.\" software and its documentation for any purpose and without
+.\" fee is hereby granted, provided that the above copyright
+.\" notice appear in all copies and that both that copyright
+.\" notice and this permission notice appear in supporting
+.\" documentation, and that the name of M.I.T. not be used in
+.\" advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.
+.\" M.I.T. makes no representations about the suitability of
+.\" this software for any purpose.  It is provided "as is"
+.\" without express or implied warranty.
+.\"
+.\" FRDP path ./usr.bin/hesinfo/hesinfo.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 6d5c55aa00c9e14c9b15909004f8250c61862a5c6f1381942893a0dedbd8df07
+.Dd 27 июня 2022
+.Dt HESINFO 1
+.Os
+.Sh ИМЯ
+.Nm hesinfo
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bl
+.Ar HesiodName HesiodNameType
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+принимает два аргумента: имя для разрешения и строку, известную как
+.Ar HesiodNameType .
+Затем она выводит информацию, возвращённую
+сервером имён Hesiod.
+.Pp
+Значение, возвращаемое
+.Nm ,
+имеет тип
+.Ar HesiodNameType .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl l
+Выбирает длинный формат.
+.It Fl b
+Выводит полностью определённую строку, переданную серверу имён.
+.El
+.Ss ДОПУСТИМЫЕ Hesiod_Names
+Следующие типы идентификаторов могут использоваться в аргументе
+.Ar HesiodName
+для
+.Nm .
+Эти значения будут разрешены путём доступа к базе данных
+.Xr hesiod 3 .
+.Bl -tag -width indent
+.It Aq Ar username
+строка длиной не более 8 символов, используемая для идентификации пользователей или классов
+(например, joeuser, root, 1.00 и т.д.).
+Используется с
+.Ar Hesiod_Name_Types
+.Cm passwd ,
+.Cm pobox ,
+и
+.Cm filsys .
+.It Aq Ar uid
+идентификационный номер, назначенный пользователю.
+.It Aq Ar groupid
+идентификационный номер, назначенный группе.
+.It Aq Ar groupname
+имя, идентифицирующее уникальную группу.
+.It Aq Ar file\-system\-name
+имя файловой системы Athena.
+.It Xo
+.Xc
+имя сервера rvd и пакета, разделённые двоеточием.
+.It Xo
+.Xc
+имя сервера
+.Tn NFS
+и его раздела, разделённые двоеточием.
+.It Aq Ar workstation\-name
+имя машины рабочей станции Athena (например, E40\-343\-3).
+.It Aq Ar service\-name
+имя службы Athena (например, Zephyr).
+.It Aq Ar service\-type
+имя службы
+.Ux
+(допустимые записи определены в
+.Pa /etc/services ) .
+.It Aq Ar printer\-name
+имя принтера.
+.It Aq Ar printer\-cluster\-name
+имя кластера печати Athena.
+.It Aq Ar foo
+некоторые вызовы
+.Nm
+(например,
+.Cm prclusterlist )
+не требуют конкретного аргумента
+.Ar HesiodName .
+Однако необходимо включить фиктивную строку (например,
+.Ql foo ),
+чтобы
+.Nm
+работала правильно.
+.El
+.Ss ДОПУСТИМЫЕ Hesiod_Name_Types
+Следующие символы являются допустимыми заменами для аргумента
+.Ar HesiodNameType
+в
+.Nm .
+.Bl -tag -width indent
+.It Cm passwd
+возвращает строку, пригодную для включения в
+.Pa /etc/passwd ,
+поиск по
+.Aq Ar username .
+.It Cm pobox
+возвращает информацию о почтовом ящике, назначенном пользователю, указанному в
+.Ar HesiodName ,
+поиск по
+.Aq Ar username .
+.It Cm uid
+возвращает строку, пригодную для включения в
+.Pa /etc/passwd ,
+поиск по
+.Aq Ar uid .
+.It Cm gid
+возвращает строку, пригодную для включения в
+.Pa /etc/group ,
+поиск по
+.Aq Ar groupid .
+.It Cm group
+возвращает строку, пригодную для включения в
+.Pa /etc/group ,
+поиск по
+.Aq Ar groupname .
+.It Cm grplist
+возвращает подгруппы, включённые в надмножество,
+определённое
+.Aq Ar groupname .
+.It Cm filsys
+возвращает тип файловой системы, точку экспорта, сервер, режим монтирования и точку импорта
+для следующих допустимых
+.Ar HesiodNames
+(см. выше) -
+.Aq Ar username ,
+и
+.It Cm cluster
+возвращает информацию о локальном кластере рабочей станции, указанной в
+Включена информация о локальных файловых и печатных серверах.
+Эта информация доступна через
+.Sy clusterinfo
+во время загрузки.
+.It Cm sloc
+возвращает сетевое имя хоста службы для
+.Aq Ar service\-name .
+.It Cm service
+возвращает тип интернет-протокола и порт службы протокола для
+.Aq Ar service\-type .
+.It Cm pcap
+возвращает допустимую запись для
+.Pa /etc/printcap
+для
+.Aq Ar printer\-name .
+.It Cm prcluserlist
+возвращает список кластеров печати.
+.It Cm prcluster
+возвращает список принтеров в кластере, указанном
+.Aq Ar printer\-cluster\-name .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/hesiod.conf
+.It Pa /etc/hesiod.conf
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hesiod 3
+.Rs
+.Re
+.Sh АВТОРЫ
+.An Steve Dyer ,
+IBM/Project Athena
+.Pp
+Авторские права 1987, 1988, 1996 Массачусетским технологическим институтом.

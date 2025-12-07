@@ -1,0 +1,206 @@
+.\" $OpenBSD: diff3.1,v 1.7 2007/05/31 19:20:09 jmc Exp $
+.\"
+.\" Copyright (c) 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)diff3.1	8.2 (Berkeley) 4/18/94
+.\"
+.\" FRDP path ./usr.bin/diff3/diff3.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 3701c9bf00bd38cdea9a6d35a804c1ec3633ef4e91d9ace5ca5d9fb2fb043524
+.Dd 23 августа 2021
+.Dt DIFF3 1
+.Os
+.ИМЯ
+.Nm diff3
+.Nd трёхстороннее сравнение файлов
+.СИНТАКСИС
+.Nm diff3
+.Op Fl 3aEeiTXx
+.Op Fl Fl diff-program Ar программа
+.Op Fl Fl strip-trailing-cr
+.Op Fl L | Fl Fl label Ar метка1
+.Op Fl L | Fl Fl label Ar метка2
+.Op Fl L | Fl Fl label Ar метка3
+.Ar файл1 файл2 файл3
+.ОПИСАНИЕ
+Утилита
+.Nm
+сравнивает содержимое трёх различных версий файла:
+.Ar файл1 ,
+.Ar файл2
+и
+.Ar файл3 ,
+выводя результат в стандартный поток вывода.
+Параметры описывают различные методы слияния и очистки
+отдельных версий в новый файл.
+.Nm
+используется утилитой
+.Xr rcs 1
+для слияния определённых версий или создания
+новых версий.
+.Pp
+Параметры следующие:
+.It Fl 3 , Fl Fl easy-only
+Создаёт выходной скрипт, пригодный для
+.Xr ed 1 ,
+с изменениями,
+специфичными только для
+.Ar файл3 .
+.It Fl a , Fl Fl text
+Рассматривать все файлы как ASCII.
+.It Fl E , Fl Fl show-overlap
+.It Fl X
+Аналогичны
+.Fl e
+и
+.Fl x
+соответственно, но обрабатывают перекрывающиеся изменения (т.е. изменения, которые
+были бы отмечены как ==== в обычном выводе) иначе.
+Перекрывающиеся строки из обоих файлов будут вставлены скриптом редактирования.
+.It Fl e , Fl Fl ed
+Формирует вывод в виде, пригодном как входной скрипт для утилиты
+.Xr ed 1 .
+Этот скрипт может затем использоваться для объединения различий, общих для всех
+трёх файлов, и различий, специфичных для
+.Ar файл1
+и
+.Ar файл3 .
+Другими словами, параметр
+.Fl e
+игнорирует различия, специфичные для
+.Ar файл1
+и
+.Ar файл2 ,
+а также для
+.Ar файл2
+и
+.Ar файл3 .
+Он полезен для отмены изменений, специфичных только для
+.Ar файл2 .
+.It Fl i
+Добавляет команды 'w' и 'q' для
+.Xr ed 1 .
+.It Fl L , Fl Fl label
+Определяет метки для вывода вместо имён файлов
+.Ar файл1 ,
+.Ar файл2
+и
+.Ar файл3 .
+.It Fl T, Fl Fl initial-tab
+В обычном выводе
+использует табуляцию вместо двух пробелов
+в начале каждой строки.
+В режимах, формирующих скрипт для
+.Xr ed 1 ,
+этот параметр ничего не меняет.
+.It Fl x, Fl Fl overlap-only
+Создаёт выходной скрипт, пригодный для
+.Xr ed 1 ,
+с изменениями,
+специфичными только для всех трёх версий.
+.It Fl Fl diff-program Ar программа
+Использовать
+.Ar программу
+вместо утилиты по умолчанию
+.Xr diff 1
+для сравнения файлов.
+.It Fl Fl strip-trailing-cr
+Удалять завершающий символ возврата каретки во входных файлах.
+.El
+.Pp
+Параметр
+.Fl E
+используется утилитой
+.Tn RCS
+.Xr merge 1
+для обеспечения сохранения перекрывающихся изменений в объединённых файлах
+и привлечения к ним внимания.
+.Pp
+Например, предположим, что строки 7-8 изменены и в
+.Ar файл1 ,
+и в
+.Ar файл2 .
+Применение скрипта редактирования, сгенерированного командой
+.Pp
+.Dl $ diff3 -E файл1 файл2 файл3
+.Pp
+к
+.Ar файл1
+даёт файл:
+.Bd -literal -offset indent
+строки 1-6
+из файл1
+<<<<<<< файл1
+строки 7-8
+из файл1
+=======
+строки 7-8
+из файл3
+>>>>>>> файл3
+остаток файл1
+.Ed
+.Pp
+Вывод
+.Nm
+по умолчанию содержит обозначения различий между всеми файлами, а также
+различий, специфичных для каждой пары файлов.
+Изменения описываются командами, необходимыми для
+.Xr ed 1 ,
+чтобы создать желаемый целевой файл из различных версий.
+Описание команд см. в
+.Xr diff 1 .
+.It Li \&====
+Строки под этим обозначением — это диапазоны строк, которые различаются
+во всех файлах.
+.It \&==== Ns Va n
+Строки под этим обозначением — это диапазоны строк, которые различаются
+исключительно в файле
+.Va n .
+.El
+.СМ. ТАКЖЕ
+.Xr diff 1 ,
+.Xr ed 1 ,
+.Xr merge 1 ,
+.Xr rcs 1 ,
+.Xr sdiff 1
+.ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v7 .
+.ИЗВЕСТНЫЕ ОШИБКИ
+Параметр
+.Fl e
+не может обработать и изменить строки, у которых
+первым и единственным символом в строке является
+.Ql \&. .
+Результирующий скрипт завершится ошибкой на этой строке,
+так как
+.Ql \&.
+является командой редактирования в
+.Xr ed 1 .

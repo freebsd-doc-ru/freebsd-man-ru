@@ -1,0 +1,125 @@
+.\" Manpage Copyright (c) 1995, Jordan Hubbard <jkh@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed by the FreeBSD Project
+.\"      its contributors.
+.\" 4. Neither the name of the FreeBSD Project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE CONTRIBUTOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/which/which.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f0482c8fbea72121f12d44968198bb7c6d1162ae05bd843af9379a1f8cc665e7
+.Dd 24 сентября 2020
+.Dt WHICH 1
+.Os
+.Sh ИМЯ
+.Nm which
+.Sh СИНТАКСИС
+.Nm
+.Op Fl as
+.Ar программа ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+принимает список имён команд и ищет в пути для каждого исполняемого
+файла, который был бы запущен, если бы эти команды действительно были вызваны.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+Вывести все найденные экземпляры исполняемых файлов (вместо только первого
+для каждой команды).
+.It Fl s
+Без вывода, просто возвращает 0, если все исполняемые файлы найдены, или 1, если
+некоторые не найдены.
+.El
+.Pp
+Некоторые оболочки могут предоставлять встроенную команду
+.Nm
+, которая похожа или идентична этой утилите.
+Обратитесь к странице руководства
+.Xr builtin 1 .
+.Sh ПРИМЕРЫ
+Найти команды
+.Xr ls 1
+и
+.Xr cp 1
+:
+.Bd -literal -offset indent
+$ /usr/bin/which ls cp
+/bin/ls
+/bin/cp
+.Ed
+.Pp
+То же, что и выше, с указанным
+.Ev PATH
+и показом всех вхождений:
+.Bd -literal -offset indent
+$ PATH=/bin:/rescue /usr/bin/which -a ls cp
+/bin/ls
+/rescue/ls
+/bin/cp
+/rescue/cp
+.Ed
+.Pp
+.Nm which
+покажет дубликаты, если один и тот же исполняемый файл найден более одного раза:
+.Bd -literal -offset indent
+$ PATH=/bin:/bin /usr/bin/which -a ls
+/bin/ls
+/bin/ls
+.Ed
+.Pp
+Не выводить результат.
+Просто завершить работу с соответствующим кодом возврата:
+.Bd -literal -offset indent
+$ /usr/bin/which -s ls cp
+$ echo $?
+0
+
+$ /usr/bin/which -s fakecommand
+$ echo $?
+1
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr builtin 1 ,
+.Xr csh 1 ,
+.Xr find 1 ,
+.Xr locate 1 ,
+.Xr whereis 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 2.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+изначально была написана на Perl и была предоставлена
+.An Вольфрамом Шнайдером Aq Mt wosch@FreeBSD.org .
+Текущая версия
+.Nm
+была переписана на C
+.An Даниэлем Папасяном Aq Mt dpapasia@andrew.cmu.edu .

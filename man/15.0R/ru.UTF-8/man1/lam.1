@@ -1,0 +1,159 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)lam.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/lam/lam.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 8d1c9fc81ad23f4d41b19439376007cbdd27f1d6c75f0b5885fc0ff8590b05e5
+.Dd 7 апреля 2015
+.Dt LAM 1
+.Os
+.Sh ИМЯ
+.Nm lam
+.Nd ламинировать файлы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar мин . Ns Ar макс
+.Op Fl s Ar строка_разделителя
+.Op Fl t Ar символ
+.Ar
+.Nm
+.Op Fl p Ar мин . Ns Ar макс
+.Op Fl s Ar строка_разделителя
+.Op Fl t Ar символ
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует указанные файлы бок о бок на стандартный вывод.
+Строки с номером
+.Em n
+из входных
+.Ar файлов
+считаются фрагментами одной длинной выходной строки с номером
+.Em n,
+в которую они собираются.
+Имя `\fB\-\fP' означает стандартный ввод и может повторяться.
+.Pp
+.Bl -tag -width indent
+.It Fl f Ar мин . Ns Ar макс , Fl F Ar мин . Ns Ar макс
+Печатать фрагменты строк в соответствии со строкой формата
+.Ar мин . Ns Ar макс,
+где
+.Ar мин
+— минимальная ширина поля, а
+.Ar макс
+— максимальная ширина поля.
+Если
+.Ar мин
+начинается с нуля, нули будут добавлены для достижения ширины поля,
+а если она начинается с `\-', фрагмент будет выровнен по левому краю
+внутри поля.
+Использование
+.Fl f
+применяется только к следующему файлу, в то время как
+.Fl F
+применяется ко всем последующим файлам, пока снова не появится в строчном варианте.
+.It Fl p Ar мин . Ns Ar макс , Fl P Ar мин . Ns Ar макс
+Аналогично
+.Fl f,
+но заполняет поле этого файла, когда достигнут конец файла,
+а другие файлы всё ещё активны.
+Использование
+.Fl p
+применяется только к следующему файлу, в то время как
+.Fl P
+применяется ко всем последующим файлам, пока снова не появится в строчном варианте.
+.It Fl s Ar строка_разделителя , Fl S Ar строка_разделителя
+Печатать
+.Ar строку_разделителя
+перед печатью фрагментов строк из следующего файла.
+Эта опция может появиться после последнего файла.
+Использование
+.Fl s
+применяется только к следующему файлу, в то время как
+.Fl S
+применяется ко всем последующим файлам, пока снова не появится в строчном варианте.
+.It Fl t Ar символ , Fl T Ar символ
+Разделитель входных строк —
+.Ar символ
+вместо символа новой строки.
+Символ новой строки, обычно добавляемый к каждой выходной строке, опускается.
+Использование
+.Fl t
+применяется только к следующему файлу, в то время как
+.Fl T
+применяется ко всем последующим файлам, пока снова не появится в строчном варианте.
+.El
+.Pp
+Для одновременной печати файлов для удобного просмотра используйте
+.Xr pr 1 .
+.Sh ПРИМЕРЫ
+Команда
+.Bd -literal
+lam файл1 файл2 файл3 файл4
+.Ed
+.Pp
+объединяет 4 файла построчно.
+Чтобы объединить строки из четырёх разных файлов, используйте
+.Bd -literal
+lam файл1 файл2 файл3 файл4
+.Ed
+.Pp
+Каждые 2 строки файла могут быть объединены в одну строку с помощью
+.Bd -literal
+lam \- \- < файл
+.Ed
+.Pp
+а письмо-форма с подстановками, ключевыми по символу `@', может быть выполнено с помощью
+.Bd -literal
+lam \-t @ письмо изменения
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr join 1 ,
+.Xr paste 1 ,
+.Xr pr 1 ,
+.Xr printf 3
+.Sh СТАНДАРТЫ
+Часть функциональности
+.Nm
+стандартизирована как утилита
+.Xr paste 1
+в
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 4.2 .
+.Sh АВТОРЫ
+.An John A. Kunze
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+не распознаёт многобайтовые символы.

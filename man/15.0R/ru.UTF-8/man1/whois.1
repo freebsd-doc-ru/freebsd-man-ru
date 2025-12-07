@@ -1,0 +1,280 @@
+.\" Copyright (c) 1985, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     From: @(#)whois.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/whois/whois.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 18558ffa95c2ffc4692f11b560ec224a662c5160b97d1785ad703c109677b669
+.Dd 1 августа 2019
+.Dt WHOIS 1
+.Os
+.Sh ИМЯ
+.Nm whois
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aAbfgiIklmPQrRS
+.Op Fl c Ar TLD | Fl h Ar хост
+.Op Fl p Ar порт
+.Op Fl -
+.Ar имя ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет поиск записей в базах данных, поддерживаемых несколькими
+Сетевыми информационными центрами
+.Pq Tn NICs .
+.Pp
+По умолчанию
+.Nm
+начинает с запроса к whois-серверу Администрации адресного пространства Интернета (IANA)
+и следует перенаправлениям к whois-серверам,
+которые содержат более конкретные сведения об объекте запроса
+.Ar имя .
+Whois-сервер IANA содержит информацию об
+IP-адресах и номерах AS (автономных систем),
+а также о доменных именах.
+.Pp
+Существует несколько особых случаев, когда перенаправления не работают, поэтому
+.Nm
+обращается напрямую к соответствующему серверу.
+К ним относятся идентификаторы точек контакта для ARIN,
+.Pa nic.at ,
+NORID и RIPE,
+а также доменные имена в зоне
+.Pa ac.uk .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+Использовать базу данных Американского реестра интернет-номеров
+.Pq Tn ARIN .
+Она содержит номера сетей, используемых в тех регионах мира, которые не охвачены
+.Tn APNIC , AfriNIC , LACNIC ,
+или
+.Tn RIPE .
+Синтаксис запроса документирован по адресу
+.Pa https://www.arin.net/resources/whoisrws/whois_api.html#nicname
+.It Fl A
+Использовать базу данных Азиатско-Тихоокеанского сетевого информационного центра
+.Pq Tn APNIC .
+Она содержит номера сетей, используемых в Восточной Азии, Австралии,
+Новой Зеландии и на островах Тихого океана.
+Документацию по синтаксису запросов можно получить с помощью команды
+.Ic whois -A help
+.It Fl b
+Использовать базу данных Центра обработки сетевых злоупотреблений (Network Abuse Clearinghouse).
+Она содержит адреса, на которые следует сообщать о сетевых злоупотреблениях,
+индексированные по доменному имени.
+.It Fl c Ar TLD
+Эквивалентно использованию опции
+.Fl h
+с аргументом
+.Qq Ar TLD Ns Li .whois-servers.net .
+Может быть полезно для поиска whois-серверов для национальных доменов верхнего уровня (TLD).
+.It Fl f
+Использовать базу данных Африканского сетевого информационного центра
+.Pq Tn AfriNIC .
+Она содержит номера сетей, используемых в Африке и на островах
+западной части Индийского океана.
+Документацию по синтаксису запросов можно получить с помощью команды
+.Ic whois -f help
+.It Fl g
+Использовать базу данных неправительственных федеральных органов США, которая содержит точки
+контакта для поддоменов
+.Pa .GOV .
+.It Fl h Ar хост
+Использовать указанный хост вместо сервера по умолчанию.
+Можно указать как имя хоста, так и IP-адрес.
+.It Fl i
+Использовать традиционную базу данных Сетевого информационного центра (InterNIC)
+.Pq Pa whois.internic.net .
+Теперь она содержит только регистрации доменных имен в зонах
+.Pa .COM ,
+.Pa .NET ,
+.Pa .EDU .
+Можно указать тип объекта для поиска, например:
+.Ic whois -i ' Ns Ar тип Ar имя Ns Ic '
+где
+.Ar тип
+может быть
+.Nm domain , nameserver , registrar .
+В
+.Ar имени
+можно использовать подстановочные знаки
+.Li * .
+.It Fl I
+Использовать базу данных Администрации адресного пространства Интернета
+.Pq Tn IANA .
+.It Fl k
+Использовать базу данных Корейского агентства развития интернета
+.Pq Tn KRNIC .
+Она содержит номера сетей и контактную информацию о доменах
+для Кореи.
+.It Fl l
+Использовать базу данных Регионального реестра IP-адресов Латинской Америки и Карибского бассейна
+.Pq Tn LACNIC .
+Она содержит номера сетей, используемых в большей части Латинской Америки и
+Карибского бассейна.
+.It Fl m
+Использовать базу данных Route Arbiter Database
+.Pq Tn RADB .
+Она содержит спецификации политик маршрутизации для большого
+количества сетей операторов.
+.It Fl p Ar порт
+Подключаться к whois-серверу на указанном
+.Ar порту .
+Если эта опция не указана,
+.Nm
+использует порт 43 по умолчанию.
+.It Fl P
+Использовать базу данных PeeringDB номеров AS.
+Она содержит сведения о присутствии в точках пиринга интернета
+для многих сетевых операторов.
+.It Fl Q
+Выполнить быстрый поиск;
+.Nm
+не будет пытаться следовать перенаправлениям на другие whois-серверы.
+Это поведение по умолчанию, если сервер явно указан
+с помощью одной из других опций или в переменной окружения.
+См. также опцию
+.Fl R .
+.It Fl r
+Использовать базу данных R\(aaeseaux IP Europ\(aaeens
+.Pq Tn RIPE .
+Она содержит номера сетей и контактную информацию о доменах
+для Европы.
+Документацию по синтаксису запросов можно получить с помощью команды
+.Ic whois -r help
+.It Fl R
+Выполнить рекурсивный поиск;
+.Nm
+будет пытаться следовать перенаправлениям на другие whois-серверы.
+Это поведение по умолчанию, если сервер явно не указан.
+См. также опцию
+.Fl Q .
+.It Fl S
+По умолчанию
+.Nm
+корректирует простые запросы (без пробелов), чтобы получить более полезный вывод
+от некоторых whois-серверов,
+и подавляет часть неинформативного вывода.
+С опцией
+.Fl S
+.Nm
+отправляет запрос и выводит результат дословно.
+.El
+.Pp
+Операнды, указанные для
+.Nm
+обрабатываются независимо и могут использоваться
+в качестве запросов к разным whois-серверам.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width WHOIS_SERVER
+.It Ev WHOIS_SERVER
+Основной whois-сервер по умолчанию.
+Если переменная не установлена,
+.Nm
+использует переменную окружения
+.Ev RA_SERVER .
+.It Ev RA_SERVER
+Дополнительный whois-сервер по умолчанию.
+Если эта переменная также не установлена,
+.Nm
+будет использовать
+.Pa whois.iana.org .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы получить контактную информацию об
+администраторе, находящемся в российском
+домене верхнего уровня
+.Tn TLD
+.Qq Li RU ,
+используйте опцию
+.Fl c
+как показано в следующем примере, где
+.Ar ИДЕНТИФИКАТОР-КОНТАКТА
+заменяется на фактический идентификатор контакта.
+.Pp
+.Dl Ic whois -c RU ИДЕНТИФИКАТОР-КОНТАКТА
+.Pp
+(Примечание: Этот пример относится конкретно к
+.Tn TLD
+.Qq Li RU ,
+но другие
+.Tn TLD
+можно запрашивать, используя аналогичный синтаксис.)
+.Pp
+Следующий пример демонстрирует, как выполнить запрос к
+whois-серверу, используя нестандартный порт, где
+.Dq Li данные-запроса
+это запрос, отправляемый на
+.Dq Li whois.example.com
+на порт
+.Dq Li rwhois
+(числовое значение 4321).
+.Pp
+.Dl Ic whois -h whois.example.com -p rwhois данные-запроса
+.Pp
+Некоторые whois-серверы поддерживают сложные запросы
+с опциями в виде дефиса и буквы.
+Можно использовать опцию
+.Fl -
+чтобы отделить опции команды
+.Nm
+от опций запроса whois-сервера.
+Запрос, содержащий пробелы, должен быть заключён в кавычки как один
+аргумент команды
+.Nm .
+Следующий пример запрашивает у whois-сервера RIPE
+краткое описание его типа объекта
+.Dq Li domain :
+.Pp
+.Dl Ic whois -r -- '-t domain'
+.Sh СТАНДАРТЫ
+.Rs
+.%A K. Harrenstien
+.%A M. Stahl
+.%A E. Feinler
+.%D Октябрь 1985
+.%R RFC 954
+.%T NICNAME/WHOIS
+.Re
+.Pp
+.Rs
+.%A L. Daigle
+.%D Сентябрь 2004
+.%R RFC 3912
+.%T Спецификация протокола WHOIS
+.Re
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 .

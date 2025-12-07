@@ -1,0 +1,270 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)od.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/hexdump/od.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 7a9c49f73016b3f31bbaf1471cab32e738c45002072b4acb378e4b843a41dffb
+.Dd 22 декабря 2011
+.Dt OD 1
+.Os
+.Sh ИМЯ
+.Nm od
+.Nd восьмеричный, десятичный, шестнадцатеричный, ASCII дамп
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aBbcDdeFfHhIiLlOosvXx
+.Op Fl A Ar основание
+.Op Fl j Ar пропуск
+.Op Fl N Ar длина
+.Op Fl t Ar тип
+.Op Oo Cm + Oc Ns Ar смещение Ns Oo Cm \&. Oc Ns Op Cm Bb
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является фильтром, который отображает указанные файлы или стандартный
+ввод, если файлы не указаны, в формате, заданном пользователем.
+.Pp
+Параметры следующие:
+.It Fl A Ar основание
+Указать основание адреса ввода.
+Аргумент
+.Ar основание
+может быть одним из
+.Cm d ,
+.Cm o ,
+.Cm x
+или
+.Cm n ,
+что задаёт десятичные, восьмеричные, шестнадцатеричные
+адреса или отсутствие адреса соответственно.
+.It Fl a
+Вывод именованных символов.
+Эквивалентно
+.Fl t Cm a .
+.It Fl B , o
+Вывод восьмеричных коротких целых.
+Эквивалентно
+.Fl t Cm o2 .
+.It Fl b
+Вывод восьмеричных байт.
+Эквивалентно
+.Fl t Cm o1 .
+.It Fl c
+Вывод символов с экранированием в стиле C.
+Эквивалентно
+.Fl t Cm c .
+.It Fl D
+Вывод беззнаковых десятичных целых чисел.
+Эквивалентно
+.Fl t Cm u4 .
+.It Fl d
+Вывод беззнаковых десятичных коротких целых.
+Эквивалентно
+.Fl t Cm u2 .
+.It Fl e , F
+Вывод чисел двойной точности с плавающей запятой.
+Эквивалентно
+.Fl t Cm fD .
+.It Fl f
+Вывод чисел одинарной точности с плавающей запятой.
+Эквивалентно
+.Fl t Cm fF .
+.It Fl H , X
+Вывод шестнадцатеричных целых чисел.
+Эквивалентно
+.Fl t Cm x4 .
+.It Fl h , x
+Вывод шестнадцатеричных коротких целых.
+Эквивалентно
+.Fl t Cm x2 .
+.It Fl I , L , l
+Вывод знаковых десятичных длинных целых.
+Эквивалентно
+.Fl t Cm dL .
+.It Fl i
+Вывод знаковых десятичных целых чисел.
+Эквивалентно
+.Fl t Cm dI .
+.It Fl j Ar пропуск
+Пропустить
+.Ar пропуск
+байт объединённого ввода перед дампом.
+Число может сопровождаться одним из
+.Cm b , k
+или
+.Cm m ,
+которые задают единицы измерения числа как блоки (512 байт), килобайты и
+мегабайты соответственно.
+.It Fl N Ar длина
+Вывести не более
+.Ar длина
+байт ввода.
+.It Fl O
+Вывод восьмеричных целых чисел.
+Эквивалентно
+.Fl t Cm o4 .
+.It Fl s
+Вывод знаковых десятичных коротких целых.
+Эквивалентно
+.Fl t Cm d2 .
+.It Fl t Ar тип
+Задать формат вывода.
+Аргумент
+.Ar тип
+— это строка, содержащая один или несколько спецификаторов типа следующего вида:
+.Bl -tag -width indent
+.It Cm a
+Именованные символы
+.Pq ASCII .
+Управляющие символы отображаются с использованием следующих имён:
+.El
+.It Cm c
+Символы в наборе символов по умолчанию.
+Непечатаемые символы
+представлены как 3-значные восьмеричные коды символов, за исключением следующих
+символов, которые представлены как экранированные последовательности C:
+.Pp
+.Bl -tag -width carriage-return -compact
+.It NUL
+\e0
+.It alert
+\ea
+.It backspace
+\eb
+.It newline
+\en
+.It carriage-return
+\er
+.It tab
+\et
+.It vertical tab
+\ev
+.El
+.Pp
+Многобайтовые символы отображаются в области, соответствующей первому
+байту символа.
+Остальные байты отображаются как
+.Ql ** .
+.It Xo
+.Sm off
+.Op Cm d | o | u | x
+.Op Cm C | S | I | L | Ar n
+.Sm on
+.Xc
+Знаковое десятичное
+.Pq Cm d ,
+восьмеричное
+.Pq Cm o ,
+беззнаковое десятичное
+.Pq Cm u
+или
+шестнадцатеричное
+.Pq Cm x .
+За которым следует необязательный спецификатор размера, который может быть либо
+.Cm C
+.Pq Vt char ,
+.Cm S
+.Pq Vt short ,
+.Cm I
+.Pq Vt int ,
+.Cm L
+.Pq Vt long ,
+либо счётчик байт в виде десятичного целого числа.
+.It Xo
+.Sm off
+.Cm f
+.Op Cm F | D | L | Ar n
+.Sm on
+.Xc
+Число с плавающей запятой.
+За которым следует необязательный спецификатор размера, который может быть либо
+.Cm F
+.Pq Vt float ,
+.Cm D
+.Pq Vt double
+или
+.Cm L
+.El
+.It Fl v
+Записывать все входные данные, вместо замены строк повторяющихся значений на
+.Ql * .
+.El
+.Pp
+Можно использовать несколько параметров, задающих формат вывода;
+вывод будет
+содержать одну строку для каждого формата.
+.Pp
+Если формат вывода не указан,
+предполагается
+.Fl t Cm oS .
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Дамп стандартного ввода и отображение вывода с использованием именованных символов и символов с экранированием в стиле C:
+.Bd -literal -offset indent
+0000000    F   r   e   e   B   S   D   :  sp   T   h   e  sp   p   o   w
+           F   r   e   e   B   S   D   :       T   h   e       p   o   w
+0000020    e   r  sp   t   o  sp   s   e   r   v   e  nl
+           e   r       t   o       s   e   r   v   e  \en
+0000034
+.Ed
+.Pp
+Дамп стандартного ввода с пропуском первых 13 байт с использованием именованных символов и выводом не более 5 байт:
+.Bd -literal -offset indent
+           p   o   w   e   r
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+Традиционный параметр
+.Fl s
+для извлечения строковых констант не поддерживается; рекомендуется использовать
+.Xr strings 1
+вместо этого.
+.Sh СМ. ТАКЖЕ
+.Xr hexdump 1 ,
+.Xr strings 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

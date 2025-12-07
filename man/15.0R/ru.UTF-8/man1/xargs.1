@@ -1,0 +1,360 @@
+.\" Copyright (c) 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" John B. Roll Jr. and the Institute of Electrical and Electronics
+.\" Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)xargs.1	8.1 (Berkeley) 6/6/93
+.\" $xMach: xargs.1,v 1.2 2002/02/23 05:23:37 tim Exp $
+.\"
+.\" FRDP path ./usr.bin/xargs/xargs.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 904fae54c8f89574191a03c49b8cec2f30f562d1abb30bbe9f51ff9561faae57
+.Dd 21 сентября 2020
+.Dt XARGS 1
+.Os
+.Sh ИМЯ
+.Nm xargs
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 0oprt
+.Op Fl E Ar eofstr
+.Oo
+.Fl I Ar replstr
+.Op Fl R Ar replacements
+.Op Fl S Ar replsize
+.Oc
+.Op Fl J Ar replstr
+.Op Fl L Ar number
+.Oo
+.Fl n Ar number
+.Op Fl x
+.Oc
+.Op Fl P Ar maxprocs
+.Op Fl s Ar size
+.Op Ar utility Op Ar argument ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает строки, разделённые пробелами, табуляциями, символами новой строки и концом файла, из стандартного ввода и выполняет
+.Ar utility
+с этими строками в качестве аргументов.
+.Pp
+Любые аргументы, указанные в командной строке, передаются
+.Ar utility
+при каждом вызове, за которыми следует некоторое количество аргументов, прочитанных из стандартного ввода
+.Nm .
+Это повторяется до исчерпания стандартного ввода.
+.Pp
+Пробелы, табуляции и символы новой строки могут быть встроены в аргументы с помощью одинарных
+.Pq Dq \&
+или двойных
+.Pq Sy \&
+кавычек.
+Одинарные кавычки экранируют все символы, кроме одинарных кавычек, исключая символы новой строки, до соответствующей одинарной кавычки.
+Двойные кавычки экранируют все символы, кроме двойных кавычек, исключая символы новой строки, до соответствующей двойной кавычки.
+Любой одиночный символ, включая символы новой строки, может быть экранирован обратной косой чертой.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl 0 , Fl -null
+Изменяет
+.Nm
+, чтобы ожидать символы NUL
+.Pq Dq \e0
+в качестве разделителей, вместо пробелов и символов новой строки.
+Предполагается, что это будет использоваться вместе с функцией
+.Fl print0
+в
+.Xr find 1 .
+.It Fl E Ar eofstr
+Использовать
+.Ar eofstr
+в качестве логического маркера EOF.
+.It Fl I Ar replstr
+Выполняет
+.Ar utility
+для каждой строки ввода, заменяя одно или несколько вхождений
+.Ar replstr
+в не более чем
+.Ar replacements
+.Pq или 5, если не указан флаг Fl R
+аргументах
+.Ar utility
+всей строкой ввода.
+Результирующие аргументы, после замены, не могут превышать
+.Ar replsize
+.Pq или 255, если не указан флаг Fl S
+байт; это реализовано путём конкатенации как можно большей части аргумента, содержащего
+.Ar replstr ,
+к сконструированным аргументам для
+.Ar utility ,
+до
+.Ar replsize
+байт.
+Ограничение по размеру не применяется к аргументам
+.Ar utility ,
+которые не содержат
+.Ar replstr ,
+и, кроме того, замена не будет выполнена для самой
+.Ar utility .
+Подразумевает
+.Fl x .
+.It Fl J Ar replstr
+Если указана эта опция,
+.Nm
+будет использовать данные, прочитанные из стандартного ввода, для замены первого вхождения
+.Ar replstr
+вместо добавления этих данных после всех других аргументов.
+Эта опция не влияет на то, сколько аргументов будет прочитано из ввода
+.Pq Fl n ,
+или на размер команды(команд), которые сгенерирует
+.Nm
+.Pq Fl s .
+Опция просто перемещает, где эти аргументы будут размещены в команде(командах), которые выполняются.
+.Ar replstr
+должен появляться как отдельный
+.Ar argument
+для
+.Nm .
+Он не будет распознан, если, например, находится в середине quoted строки.
+Кроме того, будет заменено только первое вхождение
+.Ar replstr .
+Например, следующая команда скопирует список файлов и каталогов, которые начинаются с заглавной буквы в текущем каталоге, в
+.Pa destdir :
+.Pp
+.Dl /bin/ls -1d [A-Z]* | xargs -J % cp -Rp % destdir
+.It Fl L Ar number
+Вызывать
+.Ar utility
+для каждых
+.Ar number
+прочитанных строк.
+Если достигнут EOF и прочитано меньше строк, чем
+.Ar number ,
+то
+.Ar utility
+будет вызвана с доступными строками.
+.It Fl n Ar number , Fl -max-args= Ns Ar number
+Установить максимальное количество аргументов, принимаемых из стандартного ввода для каждого вызова
+.Ar utility .
+Вызов
+.Ar utility
+использует менее
+.Ar number
+аргументов стандартного ввода, если количество накопленных байт (см. опцию
+.Fl s )
+превышает указанный
+.Ar size
+или если осталось меньше
+.Ar number
+аргументов для последнего вызова
+.Ar utility .
+Текущее значение по умолчанию для
+.Ar number
+равно 5000.
+.It Fl o
+Переоткрыть stdin как
+.Pa /dev/tty
+в дочернем процессе перед выполнением команды.
+Это полезно, если вы хотите, чтобы
+.Nm
+запускал интерактивное приложение.
+.It Fl P Ar maxprocs , Fl -max-procs= Ns Ar maxprocs
+Параллельный режим: запускать не более
+.Ar maxprocs
+вызовов
+.Ar utility
+одновременно.
+Если
+.Ar maxprocs
+установлен в 0,
+.Nm
+будет запускать как можно больше процессов.
+.It Fl p , Fl -interactive
+Выводить каждую команду, которая будет выполнена, и спрашивать пользователя, следует ли её выполнять.
+Положительный ответ,
+.Ql y
+в локали POSIX,
+приводит к выполнению команды, любой другой ответ приводит к её пропуску.
+Никакие команды не выполняются, если процесс не прикреплён к терминалу.
+.It Fl r , Fl -no-run-if-empty
+Совместимость с GNU
+.Nm .
+Версия GNU
+.Nm
+запускает аргумент
+.Ar utility
+хотя бы один раз, даже если ввод
+.Nm
+пуст, и она поддерживает опцию
+.Fl r
+для запрета этого поведения.
+Версия
+.Fx
+.Nm
+не запускает аргумент
+.Ar utility
+на пустом вводе, но поддерживает опцию
+.Fl r
+для совместимости командной строки с GNU
+.Nm ,
+но опция
+.Fl r
+ничего не делает в версии
+.Fx
+.Nm .
+.It Fl R Ar replacements
+Указать максимальное количество аргументов, в которых
+.Fl I
+выполнит замену.
+Если
+.Ar replacements
+отрицательно, количество аргументов для замены неограниченно.
+.It Fl S Ar replsize
+Указать объём пространства (в байтах), которое
+.Fl I
+может использовать для замен.
+Значение по умолчанию для
+.Ar replsize
+равно 255.
+.It Fl s Ar size , Fl -max-chars= Ns Ar size
+Установить максимальное количество байт для длины командной строки, предоставляемой
+.Ar utility .
+Сумма длины имени утилиты, аргументов, передаваемых
+.Ar utility
+.Pq включая Dv NULL
+терминаторы), и текущего окружения будет меньше или равна этому числу.
+Текущее значение по умолчанию для
+.Ar size
+равно
+.Dv ARG_MAX
+- 4096.
+.It Fl t , Fl -verbose
+Выводить команду, которая будет выполнена, в стандартный поток ошибок непосредственно перед её выполнением.
+.It Fl x , Fl -exit
+Заставить
+.Nm
+немедленно завершиться, если командная строка, содержащая
+.Ar number
+аргументов, не поместится в указанную (или по умолчанию) длину командной строки.
+.El
+.Pp
+Если
+.Ar utility
+опущена, используется
+.Xr echo 1 .
+.Pp
+Неопределённое поведение может возникнуть, если
+.Ar utility
+читает из стандартного ввода.
+.Pp
+Если командная строка не может быть собрана, или не может быть вызвана, или если вызов
+.Ar utility
+завершается сигналом, или вызов
+.Ar utility
+завершается со значением 255, утилита
+.Nm
+останавливает обработку ввода и завершается после того, как все вызовы
+.Ar utility
+завершат обработку.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается со значением 0, если не возникает ошибок.
+Если
+.Ar utility
+не может быть найдена,
+.Nm
+завершается со значением 127, в противном случае, если
+.Ar utility
+не может быть выполнена,
+.Nm
+завершается со значением 126.
+Если происходит любая другая ошибка,
+.Nm
+завершается со значением 1.
+.Sh ПРИМЕРЫ
+Создать матрицу 3x3 с числами от 1 до 9.
+Каждый экземпляр
+.Xr echo 1
+получает три строки в качестве аргументов:
+.Bd -literal -offset indent
+$ seq 1 9 | xargs -L3 echo
+1 2 3
+4 5 6
+7 8 9
+.Ed
+.Pp
+Дублировать каждую строку из стандартного ввода:
+.Bd -literal -offset indent
+one one
+two two
+three three
+.Ed
+.Pp
+Выполнить не более 2 параллельных экземпляров
+.Xr find 1 ,
+каждый из которых использует один из каталогов из стандартного ввода:
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr echo 1 ,
+.Xr find 1 ,
+.Xr execvp 3
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+.St -p1003.2 .
+Опции
+.Fl J , o , P , R
+и
+.Fl S
+являются нестандартными расширениями
+.Fx ,
+которые могут быть недоступны в других операционных системах.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в PWB UNIX.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если
+.Ar utility
+пытается вызвать другую команду так, что количество аргументов или размер окружения увеличивается, это рискует привести к неудаче
+.Xr execvp 3
+с ошибкой
+.Er E2BIG .
+.Pp
+Утилита
+.Nm
+не принимает во внимание многобайтовые символы при выполнении строковых сравнений для опций
+.Fl I
+и
+.Fl J ,
+что может привести к некорректным результатам в некоторых локалях.

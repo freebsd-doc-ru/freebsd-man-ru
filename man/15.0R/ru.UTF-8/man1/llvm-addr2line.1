@@ -1,0 +1,64 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-symbolizer/llvm-addr2line.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 78693da2ac7dd48885e384ab7e3f15055d221f27f32f1b2e192b6371f0cd8e50
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.ИМЯ
+llvm-addr2line \- прямая замена для addr2line
+.СИНТАКСИС
+.sp
+\fBllvm\-addr2line\fP [\fIопции\fP]
+.ОПИСАНИЕ
+.sp
+\fBllvm\-addr2line\fP является псевдонимом для инструмента \fBllvm\-symbolizer(1)\fP
+с другими значениями по умолчанию. Цель — сделать его прямой заменой для
+\fBaddr2line\fP от GNU.
+.sp
+Вот некоторые из этих различий:
+.INDENT 0.0
+.IP \(bu 2
+\fBllvm\-addr2line\fP интерпретирует все адреса как шестнадцатеричные и игнорирует необязательный
+префикс \fB0x\fP, тогда как \fBllvm\-symbolizer\fP пытается определить
+основание системы счисления по префиксу литерала и по умолчанию использует десятичную систему, если префикса нет.
+.IP \(bu 2
+\fBllvm\-addr2line\fP по умолчанию не выводит имена функций. Используйте \fI\%\-f\fP, чтобы включить
+эту возможность.
+.IP \(bu 2
+\fBllvm\-addr2line\fP по умолчанию не деманглирует имена функций. Используйте \fI\%\-C\fP, чтобы
+включить деманглирование.
+.IP \(bu 2
+\fBllvm\-addr2line\fP по умолчанию не выводит встроенные фреймы. Используйте \fI\%\-i\fP, чтобы показать
+встроенные фреймы для местоположения исходного кода во встроенной функции.
+.IP \(bu 2
+\fBllvm\-addr2line\fP использует \fI\%\-\-output\-style=GNU\fP по умолчанию.
+.IP \(bu 2
+\fBllvm\-addr2line\fP считывает опции из переменной окружения
+\fBLLVM_ADDR2LINE_OPTS\fP вместо \fBLLVM_SYMBOLIZER_OPTS\fP\&.
+.UNINDENT
+.СМ. ТАКЖЕ
+.sp
+\fBllvm\-symbolizer(1)\fP
+.АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.АВТОРСКИЕ ПРАВА
+2003-2023, Проект LLVM

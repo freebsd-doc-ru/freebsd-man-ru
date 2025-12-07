@@ -1,0 +1,110 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-cxxfilt/llvm-cxxfilt.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 9eb35bd0f210a8bf2e17d9abae48f4cfda42ad31161592be37167fa85992da77
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-cxxfilt \- LLVM деманглер имён символов
+.SH СИНТАКСИС
+.sp
+\fBllvm\-cxxfilt\fP [\fIопции\fP] [\fIискажённые имена...\fP]
+.SH ОПИСАНИЕ
+.sp
+\fBllvm\-cxxfilt\fP — это деманглер символов, который может использоваться в качестве замены
+для инструмента GNU \fBc++filt\fP. Он принимает ряд имён символов и
+выводит их деманглированную форму в стандартный поток вывода. Если имя не может быть
+деманглировано, оно просто выводится как есть.
+.sp
+Если имена не указаны в командной строке, имена считываются интерактивно из
+стандартного потока ввода. При чтении имён из стандартного ввода каждая входная
+строка разбивается по символам, не являющимся частью допустимых искажений имён в стиле Itanium,
+т.е. по символам, не являющимся буквенно-цифровыми, \(aq.\(aq, \(aq$\(aq или \(aq_\(aq. Разделители между
+именами копируются в вывод как есть.
+.SH ПРИМЕР
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-cxxfilt _Z3foov _Z3bari not_mangled
+foo()
+bar(int)
+not_mangled
+$ cat input.txt
+| _Z3foov *** _Z3bari *** not_mangled |
+$ llvm\-cxxfilt < input.txt
+| foo() *** bar(int) *** not_mangled |
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-\-format=<значение>, \-s
+Схема искажения, которую следует предполагать. Допустимые значения: \fBauto\fP (по умолчанию, автоопределение
+стиля) и \fBgnu\fP (предполагать стиль GNU/Itanium).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help, \-h
+Вывести краткую справку по параметрам командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-strip\-underscore, \-n
+Не удалять ведущее подчёркивание. Это поведение по умолчанию для всех платформ,
+кроме основанных на Mach\-O.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-strip\-underscore, \-_
+Удалить одно ведущее подчёркивание, если оно присутствует, из каждого входного имени перед
+деманглированием. Включено по умолчанию на платформах, основанных на Mach\-O.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-types, \-t
+Пытаться деманглировать имена как имён типов, а также имён функций.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Отобразить версию исполняемого файла \fBllvm\-cxxfilt\fP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<ФАЙЛ>
+Читать параметры командной строки из файла ответов \fI<ФАЙЛ>\fP\&.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-cxxfilt\fP возвращает 0, если не возникает ошибка использования, в противном
+случае возвращается ненулевой код выхода.
+.SH СМ. ТАКЖЕ
+.sp
+\fBllvm\-nm(1)\fP
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH АВТОРСКИЕ ПРАВА
+2003-2023, LLVM Project

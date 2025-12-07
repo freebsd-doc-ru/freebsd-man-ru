@@ -1,0 +1,162 @@
+.\" Copyright (c) 2002 Tim J. Robbins.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/csplit/csplit.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 14ed22065d3a1bc75b9e6ec38933caab21566bbf29a7500f61e6eb895c504d07
+.Dd 6 февраля 2014
+.Dt CSPLIT 1
+.Os
+.Sh ИМЯ
+.Nm csplit
+.Nd разделение файлов по контексту
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ks
+.Op Fl f Ar префикс
+.Op Fl n Ar число
+.Ar файл аргументы ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+разделяет
+.Ar файл
+на части, используя шаблоны
+.Ar аргументы .
+Если
+.Ar файл
+представляет собой тире
+.Pq Sq Fl ,
+.Nm
+читает данные со стандартного ввода.
+.Pp
+Файлы создаются с префиксом
+.Dq xx
+и двумя десятичными цифрами.
+Размер каждого создаваемого файла выводится на стандартный вывод.
+Если во время создания файлов возникает ошибка
+или поступает сигнал
+.Dv HUP ,
+.Dv INT ,
+или
+.Dv TERM ,
+все ранее записанные файлы удаляются.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl f Ar префикс
+Создавать имена файлов, начинающиеся с
+.Ar префикса ,
+вместо
+.Dq Pa xx .
+.It Fl k
+Не удалять ранее созданные файлы при возникновении ошибки или получении сигнала
+.Dv HUP ,
+.Dv INT ,
+или
+.Dv TERM .
+.It Fl n Ar число
+Создавать имена файлов, содержащие
+.Ar число
+десятичных цифр после префикса,
+вместо 2.
+.It Fl s
+Не выводить размер каждого создаваемого выходного файла на стандартный вывод.
+.El
+.Pp
+Операнды
+.Ar аргументы
+могут представлять собой комбинацию следующих шаблонов:
+.Bl -tag -width indent
+.It Xo
+.Sm off
+.Cm / Ar регвыр Cm / Op Oo Cm + | - Oc Ar смещение
+.Sm on
+.Xc
+Создать файл, содержащий входные данные от текущей строки до (но не включая)
+следующей строки, соответствующей заданному базовому регулярному выражению.
+Можно указать необязательное
+.Ar смещение
+от строки, которая совпала.
+.It Xo
+.Sm off
+.Cm % Ar регвыр Cm % Op Oo Cm + | - Oc Ar смещение
+.Sm on
+.Xc
+Аналогично предыдущему, но файл для вывода не создаётся.
+.It Ar номер_строки
+Создать файл, содержащий входные данные от текущей строки до (но не включая)
+указанного номера строки.
+.It Cm { Ns Ar число Ns Cm }
+Повторить предыдущий шаблон указанное количество раз.
+Если он следует за шаблоном номера строки, новый файл будет создаваться для каждых
+.Ar номер_строки
+строк,
+.Ar число
+раз.
+По историческим причинам первая строка файла имеет номер 1.
+.El
+.Pp
+После обработки всех шаблонов оставшиеся входные данные
+(если они есть) будут записаны в новый файл.
+.Pp
+Попытка разделить файл на строке, предшествующей текущему номеру строки,
+или после конца файла приведёт к ошибке.
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL , LC_COLLATE
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Разделить файл
+.Xr mdoc 7
+.Pa foo.1
+на отдельные файлы для каждого раздела (до 21 плюс один для остатка, если он есть):
+.Pp
+.Pp
+Разделить стандартный ввод после первых 99 строк и затем каждые 100 строк:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr sed 1 ,
+.Xr split 1 ,
+.Xr re_format 7
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в PWB UNIX.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Длина входных строк ограничена
+.Dv LINE_MAX
+(2048) байтами.

@@ -1,0 +1,250 @@
+.\"-
+.\" Copyright (c) 1989, 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)chflags.1	8.4 (Berkeley) 5/2/95
+.\"
+.\" FRDP path ./bin/chflags/chflags.1
+.\" FRDP githash 90aea514c6249118e880d75972d063362f4bf492
+.\" FRDP hash256 ca433d78712c75fb41c599a9fe436c1f4810f747a983f70d0e41a8cc67e457e5
+.Dd 12 июня 2018
+.Dt CHFLAGS 1
+.Os
+.Sh ИМЯ
+.Nm chflags
+.Nd изменить флаги файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fhvx
+.Oo
+.Fl R
+.Op Fl H | Fl L | Fl P
+.Oc
+.Ar флаги
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет флаги файлов для указанных файлов
+в соответствии с операндом
+.Ar флаги .
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl f
+Не выводить диагностическое сообщение, если
+.Nm
+не может изменить флаги для
+.Va файла ,
+а также не изменять статус выхода для отражения таких сбоев.
+.It Fl H
+Если указан параметр
+.Fl R ,
+символические ссылки в командной строке отслеживаются
+и, следовательно, не затрагиваются командой.
+(Символические ссылки, встреченные при обходе, не отслеживаются.)
+.It Fl h
+Если
+.Ar файл
+является символической ссылкой,
+изменить флаги самой ссылки, а не файла, на который она указывает.
+.It Fl L
+Если указан параметр
+.Fl R ,
+все символические ссылки отслеживаются.
+.It Fl P
+Если указан параметр
+.Fl R ,
+символические ссылки не отслеживаются.
+Это поведение по умолчанию.
+.It Fl R
+Изменять флаги файлов для иерархий файлов, корнями которых являются указанные файлы,
+вместо только самих файлов.
+Будьте осторожны, чтобы случайно не сопоставить
+жёсткую ссылку на родительский каталог при использовании шаблонов, таких как
+.It Fl v
+Приводит к тому, что
+.Nm
+работает в подробном режиме, показывая имена файлов по мере изменения флагов.
+Если параметр
+.Fl v
+указан более одного раза, также будут выведены старые и новые флаги файла
+в восьмеричной записи.
+.It Fl x
+Не переходить точки монтирования.
+.El
+.Pp
+Флаги указываются как восьмеричное число или разделённый запятыми список
+ключевых слов.
+В настоящее время определены следующие ключевые слова:
+.It Cm arch , archived
+установить флаг archived (только суперпользователь)
+.It Cm nodump
+установить флаг nodump (только владелец или суперпользователь)
+.It Cm opaque
+установить флаг opaque (только владелец или суперпользователь)
+.It Cm sappnd , sappend
+установить системный флаг append-only (только суперпользователь)
+.It Cm schg , schange , simmutable
+установить системный флаг immutable (только суперпользователь)
+.It Cm snapshot
+установить флаг snapshot (файловые системы не позволяют изменять этот флаг)
+.It Cm sunlnk , sunlink
+установить системный флаг undeletable (только суперпользователь)
+.It Cm uappnd , uappend
+установить пользовательский флаг append-only (только владелец или суперпользователь)
+.It Cm uarch , uarchive
+установить флаг archive (только владелец или суперпользователь)
+.It Cm uchg , uchange , uimmutable
+установить пользовательский флаг immutable (только владелец или суперпользователь)
+.It Cm uhidden , hidden
+установить атрибут файла hidden (только владелец или суперпользователь)
+.It Cm uoffline , offline
+установить атрибут файла offline (только владелец или суперпользователь)
+.It Cm urdonly , rdonly , readonly
+установить флаг readonly для DOS, Windows и CIFS (только владелец или суперпользователь)
+.It Cm usparse , sparse
+установить атрибут файла sparse (только владелец или суперпользователь)
+.It Cm usystem , system
+установить флаг system для DOS, Windows и CIFS (только владелец или суперпользователь)
+.It Cm ureparse , reparse
+установить атрибут файла Windows reparse point (только владелец или суперпользователь)
+.It Cm uunlnk , uunlink
+установить пользовательский флаг undeletable (только владелец или суперпользователь)
+.El
+.Pp
+Добавление букв
+.Dq Ar no
+перед или удаление букв
+.Dq Ar no
+из ключевого слова приводит к сбросу флага.
+Например:
+.Pp
+.It Cm nouchg
+сбросить пользовательский флаг immutable (только владелец или суперпользователь)
+.It Cm dump
+сбросить флаг nodump (только владелец или суперпользователь)
+.El
+.Pp
+Некоторые из восьмеричных значений включают:
+.It Li 0
+Очистить все флаги файла.
+.It Li 1
+Соответствует ключевому слову
+.Cm nodump .
+.It Li 2
+Соответствует ключевому слову
+.Cm uchg .
+.It Li 3
+Соответствует ключевым словам
+.Cm uchg , nodump .
+.It Li 4
+Соответствует ключевому слову
+.Cm uappnd .
+.It Li 10
+Соответствует ключевому слову
+.Cm opaque .
+.It Li 20
+соответствует ключевому слову
+.Cm uunlnk .
+.El
+.Pp
+Другие комбинации ключевых слов могут быть заданы с использованием
+назначенных октетов; однако, указанные выше являются наиболее примечательными.
+.Pp
+Если не заданы параметры
+.Fl H ,
+.Fl L ,
+или
+.Fl h ,
+.Nm
+для символической ссылки всегда завершается успешно и не оказывает эффекта.
+Параметры
+.Fl H ,
+.Fl L
+и
+.Fl P
+игнорируются, если не указан параметр
+.Fl R .
+Кроме того, эти параметры переопределяют друг друга, и
+действия команды определяются последним указанным параметром.
+.Pp
+.Pp
+Обратите внимание, что возможность изменения определённых флагов зависит
+от текущей настройки
+.Va securelevel
+ядром.
+См.
+.Xr security 7
+для получения дополнительной информации об этой настройке.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент
+.Cm status
+для
+.Xr stty 1 ) ,
+то отображаются текущее имя файла, а также старые и новые флаги.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Рекурсивно очистить все флаги на файлах и каталогах, содержащихся в
+иерархии каталога
+.Fa foobar :
+.Dl Nm Fl R Ar 0 Ar foobar
+.Sh СМ. ТАКЖЕ
+.Xr ls 1 ,
+.Xr chflags 2 ,
+.Xr stat 2 ,
+.Xr fts 3 ,
+.Xr security 7 ,
+.Xr symlink 7
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Только ограниченное количество утилит учитывают
+.Nm .
+Некоторые из этих инструментов включают
+.Xr ls 1 ,
+.Xr cp 1 ,
+.Xr find 1 ,
+.Xr install 1 ,
+.Xr dump 8 ,
+и
+.Xr restore 8 .
+В частности, утилита, которая в настоящее время не учитывает
+.Nm ,
+это
+.Xr pax 1 .

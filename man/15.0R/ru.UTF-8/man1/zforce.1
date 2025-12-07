@@ -1,0 +1,54 @@
+.\"	$NetBSD: zforce.1,v 1.2 2003/12/28 12:43:43 wiz Exp $
+.\"	$OpenBSD: zforce.1,v 1.1 2003/07/29 11:50:09 otto Exp $
+.\"
+.\" Copyright (c) 2003 Otto Moerbeek <otto@drijf.net>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\" FRDP path ./usr.bin/gzip/zforce.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 51a31e4721592d0c6f255eeaf3b5819ffe38f87351be31ad2c94cbec221d5d72
+.Dd 26 января 2007
+.Dt ZFORCE 1
+.Os
+.Sh ИМЯ
+.Nm zforce
+.Nd принудительное добавление суффикса .gz к файлам gzip
+.Sh СИНТАКСИС
+.Nm zforce
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+переименовывает файлы
+.Xr gzip 1
+для добавления суффикса
+.Sq .gz ,
+чтобы
+.Xr gzip 1
+не сжимал их повторно.
+Это может быть полезно, если имена файлов были усечены при передаче.
+Файлы, уже имеющие суффиксы
+.Sq .gz ,
+.Sq -gz ,
+.Sq _gz ,
+.Sq .tgz
+или
+.Sq .taz ,
+а также файлы, не сжатые с помощью
+.Xr gzip 1 ,
+игнорируются.
+.Sh СМ. ТАКЖЕ
+.Xr gzip 1
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+.Nm
+перезаписывает существующие файлы без предупреждения.

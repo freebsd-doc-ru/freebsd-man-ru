@@ -1,0 +1,169 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Robert Elz at The University of Melbourne.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	from: @(#)quota.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/quota/quota.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 e2a9f637dda5266afd5fde68362fe5b41cd2d8550dc4cdc19100821527fa2b50
+.Dd 3 февраля 2007
+.Dt QUOTA 1
+.Os
+.Sh ИМЯ
+.Nm quota
+.Nd отображение использования диска и ограничений
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ghlu
+.Op Fl f Ar путь
+.Op Fl v | q | r
+.Nm
+.Op Fl hlu
+.Op Fl f Ar путь
+.Op Fl v | q | r
+.Ar пользователь ...
+.Nm
+.Fl g
+.Op Fl hl
+.Op Fl f Ar путь
+.Op Fl v | q | r
+.Ar группа ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает использование диска и ограничения пользователей.
+По умолчанию выводятся только пользовательские квоты.
+Использование и ограничения блоков диска показываются в блоках по 1024 байта.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl f Ar путь
+Отображать информацию о квотах только для файловой системы,
+содержащей указанный путь.
+Это может быть любой файл в смонтированной файловой системе.
+.It Fl g
+Выводить групповые квоты для группы,
+членом которой является пользователь.
+.It Fl h
+Использовать суффиксы единиц измерения: Байт, Килобайт, Мегабайт, Гигабайт, Терабайт и Петабайт.
+.It Fl l
+Не отчитываться о квотах на файловых системах
+.Tn NFS .
+.It Fl q
+Выводить более краткое сообщение,
+содержащее информацию только о файловых системах,
+где использование превышает квоту.
+Флаг
+.Fl q
+имеет приоритет над флагом
+.Fl v .
+.It Fl r
+Отображать сырую информацию о квотах, как она представлена в структуре квот.
+Ненулевые значения времени также будут отображены в формате
+.Xr ctime 3 .
+Эта опция подразумевает
+.Fl v
+и переопределит флаг
+.Fl q .
+.It Fl u
+Выводить пользовательские квоты.
+Это поведение по умолчанию, если не указан
+.Fl g .
+.It Fl v
+Отображать квоты на файловых системах,
+где не выделено хранилище.
+.El
+.Pp
+Указание одновременно
+.Fl g
+и
+.Fl u
+выводит как пользовательские квоты, так и групповые квоты (для
+пользователя).
+.Pp
+Только суперпользователь может использовать флаг
+.Fl u
+и необязательный аргумент
+.Ar пользователь
+для просмотра ограничений других пользователей.
+Не-суперпользователи могут использовать флаг
+.Fl g
+и необязательный аргумент
+.Ar группа
+для просмотра только ограничений групп, членами которых они являются.
+.Pp
+Утилита
+.Nm
+пытается отчитаться о квотах всех смонтированных файловых систем.
+Если файловая система смонтирована через
+.Tn NFS ,
+она попытается связаться с демоном
+.Xr rpc.rquotad 8
+на сервере
+.Tn NFS .
+Для файловых систем
+.Tn UFS
+квоты должны быть включены в
+.Pa /etc/fstab .
+Если
+.Nm
+завершается с ненулевым статусом, одна или несколько файловых систем
+превышают квоту или путь, указанный с опцией
+.Fl f ,
+не существует.
+.Pp
+Если указан флаг
+.Fl l ,
+.Nm
+не будет проверять файловые системы
+.Tn NFS .
+.Sh ФАЙЛЫ
+.Bl -tag -width quota.group -compact
+.It Pa quota.user
+расположен в корне файловой системы с пользовательскими квотами
+.It Pa quota.group
+расположен в корне файловой системы с групповыми квотами
+.It Pa /etc/fstab
+для поиска имён и расположений файловых систем
+.El
+.Sh СМ. ТАКЖЕ
+.Xr quotactl 2 ,
+.Xr ctime 3 ,
+.Xr fstab 5 ,
+.Xr edquota 8 ,
+.Xr quotacheck 8 ,
+.Xr quotaon 8 ,
+.Xr repquota 8 ,
+.Xr rpc.rquotad 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .

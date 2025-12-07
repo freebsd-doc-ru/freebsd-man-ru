@@ -1,0 +1,129 @@
+.\" Copyright (c) 2001, 2002 Chuck Rouillard
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/pathchk/pathchk.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 58ba4f480c0c8665cc5a34eee6b540d2b3b98b5b0edbed551ce0d2c077a6b31e
+.Dd 1 мая 2010
+.Dt PATHCHK 1
+.Os
+.Ш ИМЯ
+.Nm pathchk
+.Nd проверка имён путей
+.Ш СИНТАКСИС
+.Nm
+.Op Fl pP
+.Ar путь ...
+.Ш ОПИСАНИЕ
+Утилита
+.Nm
+проверяет, является ли каждый из указанных аргументов
+.Ar путь
+допустимым или переносимым.
+.Pp
+Для каждого аргумента выводится диагностическое сообщение, если он:
+.Bl -bullet
+.It
+Длиннее
+.Dv PATH_MAX
+байт.
+.It
+Содержит любой компонент длиннее
+.Dv NAME_MAX
+байт.
+(Значение
+.Dv NAME_MAX
+зависит от базовой файловой системы.)
+.It
+Содержит компонент каталога, который недоступен для поиска.
+.El
+.Pp
+Не считается ошибкой, если аргумент
+.Ar путь
+содержит несуществующий компонент, при условии, что компонент с таким
+именем может быть создан.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl p
+Выполнить проверки на переносимость для указанных аргументов
+.Ar путь .
+Диагностические сообщения будут выведены для каждого аргумента, который:
+.Bl -bullet
+.It
+Длиннее
+.Dv _POSIX_PATH_MAX
+.Pq 255
+байт.
+.It
+Содержит компонент длиннее
+.Dv _POSIX_NAME_MAX
+.Pq 14
+байт.
+.It
+Содержит любой символ не из переносимого набора символов имени файла (т.е.
+буквенно-цифровые символы,
+.Ql \&. ,
+.Ql \&-
+и
+.Ql _ ) .
+Ни один компонент не может начинаться с символа дефиса
+.Pq Ql \&- .
+.El
+.It Fl P
+В дополнение к проверкам по умолчанию или с
+.Fl p ,
+вывести диагностику для каждого аргумента, который:
+.Bl -bullet
+.It
+Является пустым.
+.It
+Содержит компонент, начинающийся с дефиса.
+.El
+.El
+.Ш СТАТУС ВЫХОДА
+.Ex -std
+.Ш ПРИМЕРЫ
+Проверить, являются ли имена файлов в текущем каталоге переносимыми на
+другие
+.Tn POSIX
+системы:
+.Pp
+.Ш СМ. ТАКЖЕ
+.Xr getconf 1 ,
+.Xr pathconf 2 ,
+.Xr stat 2
+.Ш СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Ш ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.0 .

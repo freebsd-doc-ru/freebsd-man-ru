@@ -1,0 +1,653 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-symbolizer/llvm-symbolizer.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 71e8e954c5d7a38e403629e5b35d0781634b24c5415c9648e8556d5166db6274
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-symbolizer \- преобразует адреса в местоположения в исходном коде
+.SH СИНТАКСИС
+.sp
+\fBllvm\-symbolizer\fP [\fIопции\fP] [\fIадреса...\fP]
+.SH ОПИСАНИЕ
+.sp
+\fBllvm\-symbolizer\fP читает имена входных данных и адреса из командной строки
+и выводит соответствующие местоположения в исходном коде в стандартный вывод. Он также может
+символизировать логи, содержащие \fI\%Разметку Symbolizer\fP, с помощью
+\fI\%\-\-filter\-markup\fP\&.
+.sp
+Если адрес не указан в командной строке, он читает адреса из
+стандартного ввода. Если имя входного файла не указано в командной строке, но адреса
+указаны, или если в любой момент входное значение не распознано, входные данные просто
+повторяются на выводе.
+.sp
+Имена входных файлов могут быть указаны вместе с адресами либо в стандартном
+вводе, либо как позиционные аргументы в командной строке. По умолчанию, имена входных файлов
+интерпретируются как пути к объектным файлам. Однако, добавление префикса
+\fBBUILDID:\fP указывает, что это шестнадцатеричный идентификатор сборки, а не путь. Это позволит
+найти соответствующий отладочный бинарный файл. Для согласованности, добавление префикса
+\fBFILE:\fP явно указывает, что это путь к объектному файлу (по умолчанию).
+.sp
+Позиционный аргумент или значение стандартного ввода может предваряться “DATA” или
+“CODE”, чтобы указать, что адрес должен быть символизирован как данные или исполняемый
+код соответственно. Если ни один не указан, предполагается “CODE”. DATA
+символизируется как адрес и размер символа, а не номер строки.
+.sp
+\fBllvm\-symbolizer\fP анализирует опции из переменной окружения
+\fBLLVM_SYMBOLIZER_OPTS\fP после анализа опций из командной строки.
+\fBLLVM_SYMBOLIZER_OPTS\fP в основном полезен для дополнения опций командной строки,
+когда \fBllvm\-symbolizer\fP вызывается другой программой или
+средой выполнения.
+.SH ПРИМЕРЫ
+.sp
+Все следующие примеры используют следующие два исходных файла в качестве входных данных. Они
+используют смесь C-стиля и C++-стиля связывания, чтобы показать, как эти имена
+выводятся по-разному (см. \fI\%\-\-demangle\fP).
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+// test.h
+extern “C” inline int foz() {
+  return 1234;
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+// test.cpp
+#include “test.h”
+int bar=42;
+
+int foo() {
+  return bar;
+}
+
+int baz() {
+  volatile int k = 42;
+  return foz() + k;
+}
+
+int main() {
+  return foo() + baz();
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Эти файлы собраны следующим образом:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ clang \-g test.cpp \-o test.elf
+$ clang \-g \-O2 test.cpp \-o inlined.elf
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 1 \- адреса и объект в командной строке:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=test.elf 0x4004d0 0x400490
+foz
+/tmp/test.h:1:0
+
+baz()
+/tmp/test.cpp:11:0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 2 \- адреса в стандартном вводе:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ cat addr.txt
+0x4004a0
+0x400490
+0x4004d0
+$ llvm\-symbolizer \-\-obj=test.elf < addr.txt
+main
+/tmp/test.cpp:15:0
+
+baz()
+/tmp/test.cpp:11:0
+
+foz
+/tmp/./test.h:1:0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 3 \- объект, указанный с адресом:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer “test.elf 0x400490” “FILE:inlined.elf 0x400480”
+baz()
+/tmp/test.cpp:11:0
+
+foo()
+/tmp/test.cpp:8:10
+
+$ cat addr2.txt
+FILE:test.elf 0x4004a0
+inlined.elf 0x400480
+
+$ llvm\-symbolizer < addr2.txt
+main
+/tmp/test.cpp:15:0
+
+foo()
+/tmp/test.cpp:8:10
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 4 \- префиксы BUILDID и FILE:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer “FILE:test.elf 0x400490” “DATA BUILDID:123456789abcdef 0x601028”
+baz()
+/tmp/test.cpp:11:0
+
+bar
+6295592 4
+
+$ cat addr3.txt
+FILE:test.elf 0x400490
+DATA BUILDID:123456789abcdef 0x601028
+
+$ llvm\-symbolizer < addr3.txt
+baz()
+/tmp/test.cpp:11:0
+
+bar
+6295592 4
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 5 \- префиксы CODE и DATA:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=test.elf “CODE 0x400490” “DATA 0x601028”
+baz()
+/tmp/test.cpp:11:0
+
+bar
+6295592 4
+
+$ cat addr4.txt
+CODE test.elf 0x4004a0
+DATA inlined.elf 0x601028
+
+$ llvm\-symbolizer < addr4.txt
+main
+/tmp/test.cpp:15:0
+
+bar
+6295592 4
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Пример 6 \- опции стиля пути:
+.sp
+Этот пример использует тот же исходный файл, что и выше, но полный путь к исходному файлу
+— /tmp/foo/test.cpp, и он скомпилирован следующим образом. Первый случай
+показывает путь по умолчанию (абсолютный), второй \-\-basenames, и третий
+показывает \-\-relativenames.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ pwd
+/tmp
+$ clang \-g foo/test.cpp \-o test.elf
+$ llvm\-symbolizer \-\-obj=test.elf 0x4004a0
+main
+/tmp/foo/test.cpp:15:0
+$ llvm\-symbolizer \-\-obj=test.elf 0x4004a0 \-\-basenames
+main
+test.cpp:15:0
+$ llvm\-symbolizer \-\-obj=test.elf 0x4004a0 \-\-relativenames
+main
+foo/test.cpp:15:0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \-\-adjust\-vma <смещение>
+Добавляет указанное смещение к адресам объектного файла при выполнении поиска.
+Это может быть использовано для выполнения поиска, как если бы объект был перемещен на
+смещение.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-basenames, \-s
+Выводит только имя файла без каталогов, вместо
+абсолютного пути.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-build\-id
+Ищет объект с использованием заданного идентификатора сборки, указанного в виде шестнадцатеричной
+строки. Взаимоисключается с \fI\%\-\-obj\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-color [=<always|auto|never>]
+Указывает, использовать ли цвет в режиме \fI\%\-\-filter\-markup\fP. По умолчанию
+\fBauto\fP, который определяет, поддерживает ли стандартный вывод цвет. Указание
+\fB\-\-color\fP без значения эквивалентно \fB\-\-color=always\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-debug\-file\-directory <путь>
+Предоставляет путь к каталогу с подкаталогом \fI\&.build\-id\fP для поиска
+отладочной информации для stripped бинарных файлов. Несколько экземпляров этого аргумента
+ищутся в указанном порядке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-debuginfod, \-\-no\-debuginfod
+Включить или отключить попытки поиска через debuginfod для отладочных бинарных файлов. Если не указано,
+debuginfod включается только если libcurl был скомпилирован (\fBLLVM_ENABLE_CURL\fP)
+и была предоставлена хотя бы одна URL-адрес сервера через переменную окружения
+\fBDEBUGINFOD_URLS\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-demangle, \-C
+Выводит деманглированные имена функций, если имена являются манглированными (например, манглированное
+имя \fI_Z3bazv\fP становится \fIbaz()\fP, в то время как неманглированное имя \fIfoz\fP выводится
+как есть). По умолчанию true.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dwp <путь>
+Использует указанный файл DWP по \fB<путь>\fP для любых CU, которые имеют разделенные DWARF
+отладочные данные.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-fallback\-debug\-path <путь>
+Когда отдельный файл содержит отладочные данные и ссылается на него раздел GNU debug
+link, использует указанный путь в качестве основы для поиска отладочных данных, если
+они не могут быть найдены относительно объекта.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-filter\-markup
+Читает из стандартного ввода, преобразует содержащуюся
+\fI\%Разметку Symbolizer\fP в удобочитаемую форму
+и выводит результаты в стандартный вывод. Следующие элементы разметки пока
+не поддерживаются:
+.INDENT 7.0
+.IP \(bu 2
+\fB{{{hexdict}}}\fP
+.IP \(bu 2
+\fB{{{dumpfile}}}\fP
+.UNINDENT
+.sp
+Элемент обратной трассировки \fB{{{bt}}}\fP отображает кадры, используя следующий синтаксис:
+.sp
+\fB#<номер>[.<встроенный>] <адрес> <функция> <файл>:<строка>:<столбец> (<модуль>+<относительный адрес>)\fP
+.sp
+\fB<встроенный>\fP предоставляет номера кадров для вызовов, встроенных в вызывающую функцию,
+соответствующих \fB<номер>\fP\&. Номера встроенных вызовов начинаются с 1 и увеличиваются
+от вызываемого к вызывающему.
+.sp
+\fB<адрес>\fP — это адрес внутри инструкции вызова функции. Адрес может не быть
+началом инструкции. \fB<относительный адрес>\fP — это соответствующее виртуальное смещение
+в \fB<модуле>\fP, загруженном по этому адресу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-functions [=<none|short|linkage>], \-f
+Указывает способ вывода имен функций (пропустить имя функции, вывести краткое
+имя функции или вывести полное имя связывания, соответственно). По умолчанию
+\fBlinkage\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help, \-h
+Показать справку и использование этой команды.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-inlining, \-\-inlines, \-i
+Если местоположение в исходном коде находится во встроенной функции, выводит все встроенные
+кадры. Это поведение по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-inlines
+Не выводить встроенные кадры.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-no\-demangle
+Не выводить деманглированные имена функций.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-obj <путь>, \-\-exe, \-e
+Путь к объектному файлу для символизации. Если указано \fB\-\fP, читает объект
+напрямую из стандартного потока ввода. Взаимоисключается с
+\fI\%\-\-build\-id\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-output\-style <LLVM|GNU|JSON>
+Указывает предпочтительный стиль вывода. По умолчанию \fBLLVM\fP\&. Когда стиль
+вывода установлен в \fBGNU\fP, инструмент следует стилю GNU \fBaddr2line\fP\&.
+Отличия от стиля \fBLLVM\fP:
+.INDENT 7.0
+.IP \(bu 2
+Не выводит столбец местоположения в исходном коде.
+.IP \(bu 2
+Не добавляет пустую строку после отчета для адреса.
+.IP \(bu 2
+Не заменяет имя встроенной функции именем самого верхнего вызывающего, когда
+встроенные кадры не показаны.
+.IP \(bu 2
+Выводит дискриминатор отладочных данных адреса, когда он не равен нулю. Один из способов
+получить дискриминаторы — скомпилировать с опцией clang \-fdebug\-info\-for\-profiling.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B Стиль \fBJSON\fP предоставляет машиночитаемый вывод в формате JSON. Если адреса
+передаются через stdin, вывод JSON будет представлять собой серию отдельных объектов.
+В противном случае все результаты будут содержаться в одном массиве.
+.UNINDENT
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=inlined.elf 0x4004be 0x400486 \-p
+baz() at /tmp/test.cpp:11:18
+ (inlined by) main at /tmp/test.cpp:15:0
+
+foo() at /tmp/test.cpp:6:3
+
+$ llvm\-symbolizer \-\-output\-style=LLVM \-\-obj=inlined.elf 0x4004be 0x400486 \-p \-\-no\-inlines
+main at /tmp/test.cpp:11:18
+
+foo() at /tmp/test.cpp:6:3
+
+$ llvm\-symbolizer \-\-output\-style=GNU \-\-obj=inlined.elf 0x4004be 0x400486 \-p \-\-no\-inlines
+baz() at /tmp/test.cpp:11
+foo() at /tmp/test.cpp:6
+
+$ clang \-g \-fdebug\-info\-for\-profiling test.cpp \-o profiling.elf
+$ llvm\-symbolizer \-\-output\-style=GNU \-\-obj=profiling.elf 0x401167 \-p \-\-no\-inlines
+main at /tmp/test.cpp:15 (discriminator 2)
+
+$ llvm\-symbolizer \-\-output\-style=JSON \-\-obj=inlined.elf 0x4004be 0x400486 \-p
+[
+  {
+    “Address”: “0x4004be”,
+    “ModuleName”: “inlined.elf”,
+    “Symbol”: [
+      {
+        “Column”: 18,
+        “Discriminator”: 0,
+        “FileName”: “/tmp/test.cpp”,
+        “FunctionName”: “baz()”,
+        “Line”: 11,
+        “StartAddress”: “0x4004be”,
+        “StartFileName”: “/tmp/test.cpp”,
+        “StartLine”: 9
+      },
+      {
+        “Column”: 0,
+        “Discriminator”: 0,
+        “FileName”: “/tmp/test.cpp”,
+        “FunctionName”: “main”,
+        “Line”: 15,
+        “StartAddress”: “0x4004be”,
+        “StartFileName”: “/tmp/test.cpp”,
+        “StartLine”: 14
+      }
+    ]
+  },
+  {
+    “Address”: “0x400486”,
+    “ModuleName”: “inlined.elf”,
+    “Symbol”: [
+      {
+        “Column”: 3,
+        “Discriminator”: 0,
+        “FileName”: “/tmp/test.cpp”,
+        “FunctionName”: “foo()”,
+        “Line”: 6,
+        “StartAddress”: “0x400486”,
+        “StartFileName”: “/tmp/test.cpp”,
+        “StartLine”: 5
+      }
+    ]
+  }
+]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pretty\-print, \-p
+Выводит удобочитаемый вывод. Если указано \fI\%\-\-inlining\fP,
+охватывающая область помечается префиксом (inlined by).
+Для вывода JSON опция приведет к отступам и разбивке JSON по новым строкам.
+В противном случае вывод JSON будет выводиться в компактной форме.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=inlined.elf 0x4004be \-\-inlining \-\-pretty\-print
+baz() at /tmp/test.cpp:11:18
+ (inlined by) main at /tmp/test.cpp:15:0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-print\-address, \-\-addresses, \-a
+Выводит адрес перед местоположением в исходном коде. По умолчанию false.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=inlined.elf \-\-print\-address 0x4004be
+0x4004be
+baz()
+/tmp/test.cpp:11:18
+main
+/tmp/test.cpp:15:0
+
+$ llvm\-symbolizer \-\-obj=inlined.elf 0x4004be \-\-pretty\-print \-\-print\-address
+0x4004be: baz() at /tmp/test.cpp:11:18
+ (inlined by) main at /tmp/test.cpp:15:0
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-print\-source\-context\-lines <N>
+Выводит \fBN\fP строк контекста исходного кода для каждого символизированного адреса.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=test.elf 0x400490 \-\-print\-source\-context\-lines=3
+baz()
+/tmp/test.cpp:11:0
+10  :   volatile int k = 42;
+11 >:   return foz() + k;
+12  : }
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-relativenames
+Выводит путь к файлу относительно каталога компиляции, вместо
+абсолютного пути. Если в командной строке компилятора был указан
+полный путь, это будет совпадать с поведением по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-verbose
+Выводит подробную информацию об адресе, строке и столбце.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ llvm\-symbolizer \-\-obj=inlined.elf \-\-verbose 0x4004be
+baz()
+  Filename: /tmp/test.cpp
+  Function start filename: /tmp/test.cpp
+  Function start line: 9
+  Function start address: 0x4004b6
+  Line: 11
+  Column: 18
+main
+  Filename: /tmp/test.cpp
+  Function start filename: /tmp/test.cpp
+  Function start line: 14
+  Function start address: 0x4004b0
+  Line: 15
+  Column: 18
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version, \-v
+Выводит информацию о версии инструмента.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<ФАЙЛ>
+Читает опции командной строки из файла ответов \fI<ФАЙЛ>\fP\&.
+.UNINDENT
+.SH ОПЦИИ, СПЕЦИФИЧНЫЕ ДЛЯ WINDOWS/PDB
+.INDENT 0.0
+.TP
+.B \-\-dia
+Использует Windows DIA SDK для символизации. Если DIA SDK не найден,
+llvm\-symbolizer вернется к нативной реализации.
+.UNINDENT
+.SH ОПЦИИ, СПЕЦИФИЧНЫЕ ДЛЯ MACH-O
+.INDENT 0.0
+.TP
+.B \-\-default\-arch <архитектура>
+Если бинарный файл содержит объектные файлы для нескольких архитектур (например, это
+универсальный бинарный файл Mach\-O), символизирует объектный файл для заданной архитектуры.
+Вы также можете указать архитектуру, написав \fBимя_бинарного_файла:имя_архитектуры\fP во
+входных данных (см. пример ниже). Если архитектура не указана ни одним из способов,
+адрес не будет символизирован. По умолчанию пустая строка.
+.INDENT 7.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ cat addr.txt
+/tmp/mach_universal_binary:i386 0x1f84
+/tmp/mach_universal_binary:x86_64 0x100000f24
+
+$ llvm\-symbolizer < addr.txt
+_main
+/tmp/source_i386.cc:8
+
+_main
+/tmp/source_x86_64.cc:8
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dsym\-hint <путь/к/файлу.dSYM>
+Если отладочная информация для бинарного файла отсутствует в расположении по умолчанию, ищет
+отладочную информацию по пути .dSYM, предоставленному через эту опцию. Этот флаг может быть
+использован несколько раз.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-symbolizer\fP возвращает 0. Другие коды выхода подразумевают внутреннюю ошибку
+программы.
+.SH СМ. ТАКЖЕ
+.sp
+\fBllvm\-addr2line(1)\fP
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH COPYRIGHT
+2003-2023, LLVM Project

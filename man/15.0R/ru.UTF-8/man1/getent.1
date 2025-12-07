@@ -1,0 +1,145 @@
+.\"	$NetBSD: getent.1,v 1.13 2005/09/11 23:16:15 wiz Exp $
+.\"
+.\" Copyright (c) 2004 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Luke Mewburn.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/getent/getent.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 22097a819358a20188e74a5814f51fb1461b282ff66cc5d3377406407fdc650a
+.Dd 24 октября 2020
+.Dt GETENT 1
+.Os
+.Sh ИМЯ
+.Nm getent
+.Nd получить записи из административной базы данных
+.Sh СИНТАКСИС
+.Nm
+.Ar база_данных
+.Op Ar ключ ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+извлекает и отображает записи из административной
+базы данных, указанной в
+.Ar база_данных ,
+используя порядок поиска, заданный в
+.Xr nsswitch.conf 5 .
+Формат отображения для данной
+.Ar базы_данных
+соответствует
+.Dq традиционному
+формату файла для этой базы данных.
+.Pp
+Аргумент
+.Ar база_данных
+может быть одним из:
+.Pp
+.Sy База данных Ta Sy Формат отображения
+.It Li ethers Ta адрес имя
+.It Li group Ta группа:пароль:gid:[участник[,участник]...]
+.It Li hosts Ta адрес имя [псевдоним ...]
+.It Li netgroup Ta (хост,пользователь,домен) [...]
+.It Li networks Ta имя сеть [псевдоним ...]
+.It Li passwd Ta пользователь:пароль:uid:gid:gecos:домашний_каталог:оболочка
+.It Li protocols Ta имя протокол [псевдоним ...]
+.It Li rpc Ta имя номер [псевдоним ...]
+.It Li services Ta имя порт/протокол [псевдоним ...]
+.It Li shells Ta /путь/к/оболочке
+.It Li utmpx Ta [время] тип: свойства
+.El
+.Pp
+Если указан один или несколько аргументов
+.Ar ключ ,
+они будут искаться в
+.Ar база_данных
+с использованием соответствующей функции.
+Например,
+.Dq Li passwd
+поддерживает числовой UID или имя пользователя;
+.Dq Li hosts
+поддерживает IPv4-адрес, IPv6-адрес или имя хоста;
+а
+.Dq Li services
+поддерживает имя службы, имя службы/имя протокола, числовой порт или
+числовой порт/имя протокола.
+.Pp
+Если
+.Ar ключ
+не указан и
+.Ar база_данных
+поддерживает перечисление, все записи для
+.Ar базы_данных
+будут извлечены с использованием соответствующей функции перечисления и выведены.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе,
+1 при ошибке в синтаксисе команды,
+2 если одно из указанных имён ключей не найдено в
+.Ar база_данных ,
+или 3 если для
+.Ar базы_данных
+отсутствует поддержка перечисления.
+.Sh ПРИМЕРЫ
+Показать запись для пользователя sshd из базы данных passwd:
+.Bd -literal -offset indent
+$ getent passwd sshd
+sshd:*:22:22:Демон безопасной оболочки:/var/empty:/usr/sbin/nologin
+.Ed
+.Pp
+Показать запись для TCP из базы данных protocols:
+.Bd -literal -offset indent
+$ getent protocols tcp
+tcp                   6  TCP
+.Ed
+.Pp
+Показать запись для IPv6-адреса localhost ::1 из базы данных hosts:
+.Bd -literal -offset indent
+$ getent hosts ::1
+::1               localhost  localhost.my.domain
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr getutxent 3 ,
+.Xr ethers 5 ,
+.Xr group 5 ,
+.Xr hosts 5 ,
+.Xr netgroup 5 ,
+.Xr networks 5 ,
+.Xr nsswitch.conf 5 ,
+.Xr passwd 5 ,
+.Xr protocols 5 ,
+.Xr rpc 5 ,
+.Xr services 5 ,
+.Xr shells 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Nx 3.0
+и была импортирована в
+.Fx 7.0 .
+Она основана на одноимённой команде из Solaris и Linux.

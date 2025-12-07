@@ -1,0 +1,290 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)join.1	8.3 (Berkeley) 4/28/95
+.\"
+.\" FRDP path ./usr.bin/join/join.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 ce1295cd753130a937c24b0e5ee1174e104b03fe65dcfeaaabd5b60b9add4c6e
+.Dd 20 июня 2020
+.Dt JOIN 1
+.Os
+.Sh ИМЯ
+.Nm join
+.Nd оператор реляционной базы данных
+.Sh СИНТАКСИС
+.Nm
+.Oo
+.Fl a Ar номер_файла | Fl v Ar номер_файла
+.Oc
+.Op Fl e Ar строка
+.Op Fl o Ar список
+.Op Fl t Ar символ
+.Op Fl 1 Ar поле
+.Op Fl 2 Ar поле
+.Ar файл1
+.Ar файл2
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет
+.Dq соединение по равенству
+указанных файлов
+и выводит результат на стандартный вывод.
+.Dq Поле соединения
+— это поле в каждом файле, по которому файлы сравниваются.
+По умолчанию используется первое поле в каждой строке.
+Для каждой пары строк в
+.Ar файле1
+и
+.Ar файле2
+с одинаковыми полями соединения выводится одна строка.
+Каждая выходная строка состоит из поля соединения, остальных полей из
+.Ar файла1 ,
+а затем остальных полей из
+.Ar файла2 .
+.Pp
+Разделителями полей по умолчанию являются символы табуляции и пробела.
+В этом случае множественные табуляции и пробелы считаются одним разделителем полей,
+а ведущие табуляции и пробелы игнорируются.
+Разделителем полей вывода по умолчанию является один символ пробела.
+.Pp
+Многие опции используют номера файлов и полей.
+Нумерация файлов и полей начинается с 1, т.е. первый файл в
+командной строке имеет номер 1, а первое поле — номер 1.
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a Ar номер_файла
+В дополнение к стандартному выводу создавать строку для каждой
+непарной строки в файле с номером
+.Ar номер_файла .
+.It Fl e Ar строка
+Заменять пустые выходные поля на
+.Ar строку .
+.It Fl o Ar список
+Опция
+.Fl o
+определяет поля, которые будут выводиться из каждого файла для
+каждой строки с совпадающими полями соединения.
+Каждый элемент
+.Ar списка
+имеет либо форму
+.Ar номер_файла . Ns Ar поле ,
+где
+.Ar номер_файла
+— это номер файла, а
+.Ar поле
+— номер поля, либо форму
+.Ql 0
+.Pq ноль ,
+представляющую поле соединения.
+Элементы списка должны быть разделены либо запятой
+.Pq Ql \&,
+либо пробельным символом.
+(Последнее требует экранирования от оболочки, или, более простой
+подход — использовать несколько опций
+.Fl o .)
+.It Fl t Ar символ
+Использовать символ
+.Ar символ
+в качестве разделителя полей как для ввода, так и для вывода.
+Каждое вхождение
+.Ar символа
+в строке является значимым.
+.It Fl v Ar номер_файла
+Не выводить стандартный вывод, но выводить строку для каждой
+непарной строки в файле с номером
+.Ar номер_файла .
+Опции
+.Fl v Cm 1
+и
+.Fl v Cm 2
+могут быть указаны одновременно.
+.It Fl 1 Ar поле
+Соединять по
+.Ar полю Ns -ому
+полю
+.Ar файла1 .
+.It Fl 2 Ar поле
+Соединять по
+.Ar полю Ns -ому
+полю
+.Ar файла2 .
+.El
+.Pp
+При использовании символов-разделителей полей по умолчанию файлы для соединения
+должны быть отсортированы в последовательности сортировки
+.Xr sort 1
+с использованием опции
+.Fl b
+по полям, по которым они соединяются, иначе
+.Nm
+может не сообщить обо всех совпадениях полей.
+Когда символы-разделители полей указаны опцией
+.Fl t ,
+последовательность сортировки должна быть такой же, как в
+.Xr sort 1
+без опции
+.Fl b .
+.Pp
+Если один из аргументов
+.Ar файл1
+или
+.Ar файл2
+равен
+.Sq Fl ,
+используется стандартный ввод.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Предположим, существует файл
+.Pa nobel_laureates.txt
+с информацией о некоторых первых лауреатах Нобелевской премии мира:
+.Bd -literal -offset indent
+1901,Jean Henri Dunant,M
+1901,Frederic Passy,M
+1902,Elie Ducommun,M
+1905,Baroness Bertha Sophie Felicita Von Suttner,F
+1910,Permanent International Peace Bureau,
+.Ed
+.Pp
+и второй файл
+.Pa nobel_nationalities.txt
+с их национальностями:
+.Bd -literal -offset indent
+Jean Henri Dunant,Switzerland
+Frederic Passy,France
+Elie Ducommun,Switzerland
+Baroness Bertha Sophie Felicita Von Suttner
+.Ed
+.Pp
+Соединить два файла, используя второй столбец из первого файла и стандартный первый
+столбец из второго файла, указав пользовательский разделитель полей:
+.Bd -literal -offset indent
+$ join -t, -1 2 nobel_laureates.txt nobel_nationalities.txt
+Jean Henri Dunant,1901,M,Switzerland
+Frederic Passy,1901,M,France
+Elie Ducommun,1902,M,Switzerland
+Baroness Bertha Sophie Felicita Von Suttner,1905,F
+.Ed
+.Pp
+Показать только год и национальность лауреата, используя
+.Ql <<NULL>>
+для замены пустых полей:
+.Bd -literal -offset indent
+1901,Switzerland
+1901,France
+1902,Switzerland
+1905,<<NULL>>
+.Ed
+.Pp
+Показать только строки из первого файла, которые не имеют соответствия во втором файле:
+.Bd -literal -offset indent
+$ join -v1 -t, -1 2 nobel_laureates.txt nobel_nationalities.txt
+Permanent International Peace Bureau,1910,
+.Ed
+.Pp
+Предположим, существует файл
+.Pa capitals.txt
+со следующим содержимым:
+.Bd -literal -offset indent
+Belgium,Brussels
+France,Paris
+Italy,Rome
+Switzerland
+.Ed
+.Pp
+Показать имя и столицу страны, где родился лауреат.
+В этом примере используется
+.Pa nobel_nationalities.txt
+в качестве связующего звена, но информация из этого файла не отображается.
+Также обратите внимание на примечание о
+.Xr sort 1
+выше, чтобы понять, почему нам нужно сортировать промежуточный результат.
+.Bd -literal -offset indent
+$ join -t, -1 2 -o 1.2 2.2 nobel_laureates.txt nobel_nationalities.txt | \e
+Elie Ducommun,<<NULL>>
+Jean Henri Dunant,<<NULL>>
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+Для совместимости с историческими версиями
+.Nm
+доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+В дополнение к стандартному выводу создавать строку для каждой
+непарной строки как в
+.Ar файле1 ,
+так и в
+.Ar файле2 .
+.It Fl j1 Ar поле
+Соединять по
+.Ar полю Ns -ому
+полю
+.Ar файла1 .
+.It Fl j2 Ar поле
+Соединять по
+.Ar полю Ns -ому
+полю
+.Ar файла2 .
+.It Fl j Ar поле
+Соединять по
+.Ar полю Ns -ому
+полю как
+.Ar файла1 ,
+так и
+.Ar файла2 .
+.It Fl o Ar список ...
+Исторические реализации
+.Nm
+допускали несколько аргументов к опции
+.Fl o .
+Эти аргументы имели форму
+.Ar номер_файла . Ns Ar номер_поля ,
+как описано
+для текущей опции
+.Fl o .
+Это создаёт очевидные трудности при наличии файлов с именем
+.Pa 1.2 .
+.El
+.Pp
+Эти опции доступны только для того, чтобы старые сценарии оболочки не требовали
+изменений, и не должны использоваться.
+.Sh СМ. ТАКЖЕ
+.Xr awk 1 ,
+.Xr comm 1 ,
+.Xr paste 1 ,
+.Xr sort 1 ,
+.Xr uniq 1
+.Sh СТАНДАРТЫ
+Команда
+.Nm
+соответствует
+.St -p1003.1-2001 .

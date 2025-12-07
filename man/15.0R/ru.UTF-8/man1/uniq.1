@@ -1,0 +1,203 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     From: @(#)uniq.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/uniq/uniq.1
+.\" FRDP githash b93791f5e7b0246b121dd98c10d6563298d6b2b0
+.\" FRDP hash256 3c9a2d613b0f7f64f1f003b3c7800a18619b39fa01124b773417907d23a2c125
+.Dd 9 декабря 2024
+.Dt UNIQ 1
+.Os
+.Sh ИМЯ
+.Nm uniq
+.Nd выводит или отфильтровывает повторяющиеся строки в файле
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cdiu
+.Op Fl D Ns Op Ar типразделителя
+.Op Fl f Ar число
+.Op Fl s Ar символы
+.Oo
+.Ar входной_файл
+.Op Ar выходной_файл
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает указанный
+.Ar входной_файл,
+сравнивая соседние строки, и записывает копию каждой уникальной входной строки в
+.Ar выходной_файл.
+Если
+.Ar входной_файл
+представлен как один дефис
+.Pq Sq Fl
+или отсутствует, читается стандартный ввод.
+Если
+.Ar выходной_файл
+отсутствует, для вывода используется стандартный вывод.
+Вторая и последующие копии идентичных соседних входных строк
+не записываются.
+Повторяющиеся строки во входных данных не будут обнаружены, если они не являются соседними,
+поэтому может потребоваться предварительная сортировка файлов.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width Ds
+.It Fl c , Fl -count
+Предварять каждую выходную строку количеством раз, которое строка
+встречалась во входных данных, за которым следует один пробел.
+.It Fl d , Fl -repeated
+Выводить по одной копии каждой строки, которая повторяется во входных данных.
+Игнорируется, если также указана опция
+.Fl D.
+.It Fl D , Fl -all-repeated Op Ar типразделителя
+Выводить все строки, которые повторяются (как
+.Fl d,
+но записывается каждая копия повторяющейся строки).
+Необязательный аргумент
+.Ar типразделителя
+управляет тем, как разделять группы повторяющихся строк в выводе;
+он должен быть одним из следующих значений:
+.Pp
+.Bl -tag -compact -width separate
+.It none
+Не разделять группы строк (это значение по умолчанию).
+.It prepend
+Выводить пустую строку перед каждой группой строк.
+.It separate
+Выводить пустую строку после каждой группы строк.
+.El
+.It Fl f Ar число , Fl -skip-fields Ar число
+Игнорировать первые
+.Ar число
+полей в каждой входной строке при сравнении.
+Поле — это строка непробельных символов, отделённая от соседних полей
+пробелами.
+Номера полей начинаются с единицы, т.е. первое поле — это поле один.
+.It Fl i , Fl -ignore-case
+Сравнение строк без учёта регистра.
+.It Fl s Ar символы , Fl -skip-chars Ar символы
+Игнорировать первые
+.Ar символы
+символов в каждой входной строке при сравнении.
+Если указано вместе с опцией
+.Fl f , Fl -unique,
+первые
+.Ar символы
+символов после первых
+.Ar число
+полей будут проигнорированы.
+Номера символов начинаются с единицы, т.е. первый символ — это символ один.
+.It Fl u , Fl -unique
+Выводить только строки, которые не повторяются во входных данных.
+.El
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG,
+.Ev LC_ALL,
+.Ev LC_COLLATE
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm,
+как описано в
+.Xr environ 7.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Предположим, существует файл с именем cities.txt со следующим содержимым:
+.Bd -literal -offset indent
+Madrid
+Lisbon
+Madrid
+.Ed
+.Pp
+Следующая команда выводит три различные строки, поскольку идентичные элементы
+не являются соседними:
+.Bd -literal -offset indent
+$ uniq -u cities.txt
+Madrid
+Lisbon
+Madrid
+.Ed
+.Pp
+Отсортировать файл и подсчитать количество идентичных строк:
+.Bd -literal -offset indent
+$ sort cities.txt | uniq -c
+	1 Lisbon
+	2 Madrid
+.Ed
+.Pp
+Предположим, следующее содержимое для файла cities.txt:
+.Bd -literal -offset indent
+madrid
+Madrid
+Lisbon
+.Ed
+.Pp
+Показать повторяющиеся строки, игнорируя чувствительность к регистру:
+.Bd -literal -offset indent
+$ uniq -d -i cities.txt
+madrid
+.Ed
+.Pp
+То же, что и выше, но показывая всю группу повторяющихся строк:
+.Bd -literal -offset indent
+$ uniq -D -i cities.txt
+madrid
+Madrid
+.Ed
+.Pp
+Вывести количество идентичных строк, игнорируя первый символ каждой строки:
+.Bd -literal -offset indent
+$ uniq -s 1 -c cities.txt
+	2 madrid
+	1 Lisbon
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+Исторические опции
+.Cm \&\(pl Ns Ar число
+и
+.Fl Ns Ar число
+устарели, но всё ещё поддерживаются в данной реализации.
+.Sh СМ. ТАКЖЕ
+.Xr sort 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001
+с поправкой Cor.\& 1-2002.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v3.

@@ -1,0 +1,105 @@
+.\"-
+.\" Copyright (c) 2004 Dag-Erling Coïdan Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/logins/logins.1
+.\" FRDP githash e738085b94631f90e21a49852538ac95974baf44
+.\" FRDP hash256 5c1b3798172ab4976a134e23be2a80a3e69aedea8062aeed6638c0c733d2be51
+.Dd 6 марта 2004
+.Dt LOGINS 1
+.Os
+.Sh ИМЯ
+.Nm logins
+.Nd вывод информации об учётных записях
+.Sh СИНТАКСИС
+.Nm
+.Op Fl admopstux
+.Op Fl g Ar группы
+.Op Fl l Ar имена
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит информацию о пользовательских и системных учётных записях.
+.Pp
+Доступны следующие опции:
+.It Fl a
+Выводить информацию о времени изменения пароля и истечения срока
+действия для каждой учётной записи.
+.It Fl d
+Выбирать учётные записи с повторяющимися UID.
+.It Fl g Ar группы
+Выбирать учётные записи, входящие в указанные группы.
+Если указано несколько имён групп, они должны быть разделены
+запятыми.
+.It Fl l Ar имена
+Выбирать учётные записи, соответствующие указанным именам входа.
+Если указано несколько имён, они должны быть разделены запятыми.
+.It Fl m
+Показывать информацию о дополнительных группах.
+.It Fl o
+Выводить информацию для каждой учётной записи в одной строке
+с полями, разделёнными двоеточиями.
+.It Fl p
+Выбирать учётные записи без пароля.
+.It Fl s
+Выбирать системные учётные записи.
+В настоящее время определяются как учётные записи с UID ниже 1000,
+плюс учётная запись
+.Dq Li nobody
+(UID 65534).
+.It Fl t
+Сортировать выбранные учётные записи по имени, а не по UID.
+.It Fl u
+Выбирать пользовательские учётные записи.
+В настоящее время определяются как учётные записи с UID выше 1000,
+за исключением учётной записи
+.Dq Li nobody
+(UID 65534).
+.It Fl x
+Выводить информацию о домашнем каталоге и оболочке каждой учётной записи.
+.El
+.Pp
+Если указано несколько опций выбора, будут показаны все учётные записи,
+соответствующие любому из критериев отбора.
+.Pp
+Если опции выбора не указаны, будут показаны все учётные записи.
+.Sh СМ. ТАКЖЕ
+.Xr getgrent 3 ,
+.Xr getpwent 3 ,
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr pw 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 4.10 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org
+на основе аналогичных утилит в других операционных системах.

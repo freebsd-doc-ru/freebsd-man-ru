@@ -1,0 +1,159 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)talk.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/talk/talk.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 f4eb80975cf0705a3c3be2af63751b41ea1a8f3ebf9eeb299324fb2f078c6fe6
+.Dd 21 января 2010
+.Dt TALK 1
+.Os
+.Sh ИМЯ
+.Nm talk
+.Nd общение с другим пользователем
+.Sh СИНТАКСИС
+.Nm
+.Ar пользователь
+.Op Ar имя_терминала
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является программой визуального общения, которая копирует строки с вашего
+терминала на терминал другого пользователя.
+.Pp
+Доступные опции:
+.Bl -tag -width имя_терминала
+.It Ar пользователь
+Если вы хотите поговорить с кем-то на своей машине, то
+.Ar пользователь
+— это просто имя входа этого человека.
+Если вы хотите поговорить с пользователем на
+другом хосте, то
+.Ar пользователь
+имеет вид
+.Ql пользователь@хост
+или
+.Ql хост!пользователь
+или
+.Ql хост:пользователь .
+.It Ar имя_терминала
+Если вы хотите поговорить с пользователем, который вошел в систему более одного раза, аргумент
+.Ar имя_терминала
+может использоваться для указания соответствующего имени терминала,
+где
+.Ar имя_терминала
+имеет вид
+.Ql ttyXX .
+.El
+.Pp
+При первом вызове
+.Nm
+отправляет сообщение
+.Bd -literal -offset indent -compact
+Сообщение от TalkDaemon@его_машина...
+talk: запрос на соединение от ваше_имя@ваша_машина.
+talk: ответьте: talk ваше_имя@ваша_машина
+.Ed
+.Pp
+пользователю, с которым вы хотите поговорить.
+В этот момент получатель
+сообщения должен ответить, набрав
+.Pp
+.Dl talk \ ваше_имя@ваша_машина
+.Pp
+Неважно, с какой машины отвечает получатель, если
+его имя входа совпадает.
+После установления связи
+обе стороны могут печатать одновременно, при этом их вывод появляется
+в отдельных окнах.
+Нажатие control-L
+.Ql ^L
+приведет к перерисовке
+экрана.
+Нажатие control-D
+.Ql ^D
+очистит обе части вашего экрана, в то время как
+символ control-D будет отправлен на удаленную сторону
+(и просто отображен этим клиентом
+.Nm ).
+Ваши символы стирания, удаления и удаления слова будут
+вести себя нормально.
+Для выхода просто наберите символ прерывания;
+.Nm
+затем перемещает курсор в нижнюю часть экрана и восстанавливает
+терминал в предыдущее состояние.
+.Pp
+Разрешение на общение может быть запрещено или предоставлено с помощью команды
+.Xr mesg 1 .
+Изначально общение разрешено.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/run/utx.active -compact
+.It Pa /etc/hosts
+для поиска машины получателя
+.It Pa /var/run/utx.active
+для поиска терминала получателя
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mail 1 ,
+.Xr mesg 1 ,
+.Xr wall 1 ,
+.Xr who 1 ,
+.Xr write 1 ,
+.Xr talkd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .
+.Pp
+В
+.Fx 5.3 ,
+поведение по умолчанию
+.Nm
+было изменено, чтобы обрабатывать локальные запросы на общение как исходящие
+и завершающиеся на
+.Em localhost .
+До этого изменения требовалось, чтобы имя хоста (согласно
+.Xr gethostname 3 )
+разрешало в действительный IPv4-адрес (через
+.Xr gethostbyname 3 ) ,
+что делало
+.Nm
+непригодным для использования в конфигурациях, где
+.Xr talkd 8
+был привязан к интерфейсу обратной петли (обычно по соображениям безопасности).
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Версия
+.Nm
+выпущенная с
+.Bx 4.3
+использует протокол, который
+несовместим с протоколом, используемым в версии, выпущенной с
+.Bx 4.2 .
+.Pp
+Многобайтовые символы не распознаются.

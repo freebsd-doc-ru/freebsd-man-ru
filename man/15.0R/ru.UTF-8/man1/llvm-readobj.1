@@ -1,0 +1,406 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path ./usr.bin/clang/llvm-readobj/llvm-readobj.1
+.\" FRDP githash a324c34037ef2e1101962fca4ad0c021253288e1
+.\" FRDP hash256 7d4608a03ddd106ddeb9dc2c5c27f946d7453f4287c09335451088065651a033
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+llvm-readobj \- Чтение объектов LLVM
+.SH СИНТАКСИС
+.sp
+\fBllvm\-readobj\fP [\fIпараметры\fP] [\fIвходные_файлы...\fP]
+.SH ОПИСАНИЕ
+.sp
+Утилита \fBllvm\-readobj\fP отображает низкоуровневую, специфичную для формата информацию об одном или нескольких объектных файлах.
+.sp
+Если \fBвходные_файлы\fP заданы как \(dq\fB\-\fP\(dq, \fBllvm\-readobj\fP читает данные со стандартного ввода. В противном случае она будет читать указанные \fBимена_файлов\fP\&.
+.SH DIFFERENCES TO LLVM-READELF
+.sp
+\fBllvm\-readelf\fP является псевдонимом для утилиты \fBllvm\-readobj\fP с немного другим интерфейсом командной строки и выводом, совместимым с GNU. Ниже приведен список различий между \fBllvm\-readelf\fP и \fBllvm\-readobj\fP:
+.INDENT 0.0
+.IP \(bu 2
+\fBllvm\-readelf\fP использует \fIGNU\fP в качестве значения по умолчанию для параметра \fI\%\-\-elf\-output\-style\fP. \fBllvm\-readobj\fP использует \fILLVM\fP\&.
+.IP \(bu 2
+\fBllvm\-readelf\fP допускает сгруппированные однобуквенные флаги (например, \fBllvm\-readelf \-SW\fP эквивалентно \fBllvm\-readelf \-S \-W\fP). \fBllvm\-readobj\fP не допускает группировки.
+.IP \(bu 2
+\fBllvm\-readelf\fP предоставляет \fI\%\-s\fP в качестве псевдонима для \fI\%\-\-symbols\fP для совместимости с GNU \fBreadelf\fP, тогда как в \fBllvm\-readobj\fP это псевдоним для \fI\%\-\-section\-headers\fP\&.
+.IP \(bu 2
+\fBllvm\-readobj\fP предоставляет \fB\-t\fP в качестве псевдонима для \fI\%\-\-symbols\fP\&. \fBllvm\-readelf\fP — нет.
+.IP \(bu 2
+\fBllvm\-readobj\fP предоставляет \fB\-\-sr\fP, \fB\-\-sd\fP, \fB\-\-st\fP и \fB\-\-dt\fP в качестве псевдонимов для \fI\%\-\-section\-relocations\fP, \fI\%\-\-section\-data\fP, \fI\%\-\-section\-symbols\fP и \fI\%\-\-dyn\-symbols\fP соответственно. \fBllvm\-readelf\fP не предоставляет этих псевдонимов, чтобы избежать конфликта с сгруппированными флагами.
+.UNINDENT
+.SH GENERAL AND MULTI-FORMAT OPTIONS
+.sp
+Эти параметры применимы более чем к одному формату файлов или не связаны с форматами файлов.
+.INDENT 0.0
+.TP
+.B \-\-all
+Эквивалентно указанию всех основных параметров отображения, относящихся к формату файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-addrsig
+Отобразить таблицу значимости адресов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-expand\-relocs
+При использовании с \fI\%\-\-relocs\fP отображает каждое перемещение в расширенном многострочном формате.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-file\-header, \-h
+Отобразить заголовки файла.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-headers, \-e
+Эквивалентно установке: \fI\%\-\-file\-header\fP, \fI\%\-\-program\-headers\fP и \fI\%\-\-sections\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-help
+Показать сводку параметров командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hex\-dump=<section[,section,...]>, \-x
+Отобразить указанный раздел(ы) в виде шестнадцатеричных байтов. \fBsection\fP может быть индексом раздела или именем раздела.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-needed\-libs
+Отобразить необходимые библиотеки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-relocations, \-\-relocs, \-r
+Отобразить записи о перемещениях в файле.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sections, \-\-section\-headers, \-S
+Отобразить все разделы.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-data, \-\-sd
+При использовании с \fI\%\-\-sections\fP отображает данные раздела для каждого показанного раздела. Этот параметр не действует для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-relocations, \-\-sr
+При использовании с \fI\%\-\-sections\fP отображает перемещения для каждого показанного раздела. Этот параметр не действует для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-symbols, \-\-st
+При использовании с \fI\%\-\-sections\fP отображает символы для каждого показанного раздела. Этот параметр не действует для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-sort\-symbols=<sort_key[,sort_key]>
+Задать ключи для сортировки символов перед отображением таблицы символов.
+Допустимые значения для sort_key: \fBname\fP и \fBtype\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-stackmap
+Отобразить содержимое раздела карты стека.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-string\-dump=<section[,section,...]>, \-p
+Отобразить указанный раздел(ы) в виде списка строк. \fBsection\fP может быть индексом раздела или именем раздела.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-string\-table
+Отобразить содержимое таблицы строк.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-symbols, \-\-syms, \-s
+Отобразить таблицу символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-unwind, \-u
+Отобразить информацию о раскрутке.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version
+Показать версию исполняемого файла \fBllvm\-readobj\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B @<FILE>
+Прочитать параметры командной строки из файла ответов \fI<FILE>\fP\&.
+.UNINDENT
+.SH ELF SPECIFIC OPTIONS
+.sp
+Следующие параметры реализованы только для формата файла ELF.
+.INDENT 0.0
+.TP
+.B \-\-arch\-specific, \-A
+Отобразить архитектурно-специфичную информацию, например, раздел атрибутов ARM на ARM.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-bb\-addr\-map
+Отобразить содержимое раздела(ов) карты адресов базовых блоков, которые содержат адрес каждой функции вместе с относительным смещением каждого базового блока.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-demangle, \-C
+Отображать деманглированные имена символов в выводе.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dependent\-libraries
+Отобразить раздел зависимых библиотек.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dyn\-relocations
+Отобразить записи динамических перемещений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dyn\-symbols, \-\-dyn\-syms, \-\-dt
+Отобразить таблицу динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-dynamic\-table, \-\-dynamic, \-d
+Отобразить динамическую таблицу.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-cg\-profile
+Отобразить раздел профиля графа вызовов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-histogram, \-I
+Отобразить гистограмму в виде списка корзин для хэш-таблиц динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-elf\-linker\-options
+Отобразить раздел параметров компоновщика.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-elf\-output\-style=<value>
+Форматировать информацию ELF в указанном стиле. Допустимые варианты: \fBLLVM\fP, \fBGNU\fP и \fBJSON\fP\&. Вывод в стиле \fBLLVM\fP (по умолчанию) — это расширенный структурированный формат. Вывод в стиле \fBGNU\fP имитирует соответствующий вывод GNU \fBreadelf\fP\&. \fBJSON\fP — это вывод в формате JSON, предназначенный для машинной обработки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-groups, \-g
+Отобразить группы разделов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-gnu\-hash\-table
+Отобразить таблицу GNU хэшей для динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hash\-symbols
+Отобразить расширенную хэш-таблицу с данными динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-hash\-table
+Отобразить хэш-таблицу для динамических символов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-notes, \-n
+Отобразить все примечания.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-pretty\-print
+При использовании с \fI\%\-\-elf\-output\-style\fP вывод JSON будет отформатирован в более читаемом формате.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-program\-headers, \-\-segments, \-l
+Отобразить заголовки программ.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-raw\-relr
+Не декодировать перемещения в разделах перемещений RELR при их отображении.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-section\-mapping
+Отобразить сопоставление разделов с сегментами.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-stack\-sizes
+Отобразить содержимое раздела(ов) размеров стека, т.е. пары имен функций и размеров их стековых фреймов. В настоящее время реализовано только для вывода в стиле GNU.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-version\-info, \-V
+Отобразить разделы версий.
+.UNINDENT
+.SH MACH-O SPECIFIC OPTIONS
+.sp
+Следующие параметры реализованы только для формата файла Mach\-O.
+.INDENT 0.0
+.TP
+.B \-\-macho\-data\-in\-code
+Отобразить команду Data in Code.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-macho\-dsymtab
+Отобразить команду Dsymtab.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-macho\-indirect\-symbols
+Отобразить косвенные символы.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-macho\-linker\-options
+Отобразить параметры компоновщика, специфичные для Mach\-O.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-macho\-segment
+Отобразить команду Segment.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-macho\-version\-min
+Отобразить команду version min.
+.UNINDENT
+.SH PE/COFF SPECIFIC OPTIONS
+.sp
+Следующие параметры реализованы только для формата файла PE/COFF.
+.INDENT 0.0
+.TP
+.B \-\-codeview
+Отобразить отладочную информацию CodeView.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-codeview\-ghash
+Включить глобальное хэширование для дедупликации потока типов CodeView.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-codeview\-merged\-types
+Отобразить объединенный поток типов CodeView.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-codeview\-subsection\-bytes
+Вывести необработанное содержимое разделов и записей отладки CodeView.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-basereloc
+Отобразить раздел .reloc.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-debug\-directory
+Отобразить каталог отладки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-tls\-directory
+Отобразить каталог TLS.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-directives
+Отобразить раздел .drectve.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-exports
+Отобразить таблицу экспорта.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-imports
+Отобразить таблицу импорта.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-load\-config
+Отобразить конфигурацию загрузки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-coff\-resources
+Отобразить раздел .rsrc.
+.UNINDENT
+.SH XCOFF SPECIFIC OPTIONS
+.sp
+Следующие параметры реализованы только для формата файла XCOFF.
+.INDENT 0.0
+.TP
+.B \-\-auxiliary\-header
+Отобразить вспомогательный заголовок XCOFF.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-exception\-section
+Отобразить записи раздела исключений XCOFF.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-loader\-section\-header
+Отобразить заголовок раздела загрузчика XCOFF.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-loader\-section\-symbols
+Отобразить таблицу символов раздела загрузчика.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-loader\-section\-relocations
+Отобразить записи перемещений раздела загрузчика.
+.UNINDENT
+.SH СТАТУС ВЫХОДА
+.sp
+\fBllvm\-readobj\fP возвращает 0 при нормальной работе. Он возвращает ненулевой код выхода при возникновении ошибок.
+.SH СМ. ТАКЖЕ
+.sp
+\fBllvm\-nm(1)\fP, \fBllvm\-objdump(1)\fP, \fBllvm\-readelf(1)\fP
+.SH АВТОРЫ
+Поддерживается командой LLVM (https://llvm.org/).
+.SH COPYRIGHT
+2003-2023, LLVM Project

@@ -1,0 +1,154 @@
+.\" Copyright (c) 2005-2011 Stanislav Sedov <stas@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/fstat/fuser.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 126b4b730d970bd1a206ba537a448315f6ba335a1180d431623f9e2e71161b9e
+.Dd 18 июня 2020
+.Dt FUSER 1
+.Os
+.Sh ИМЯ
+.Nm fuser
+.Nd выводит идентификаторы всех процессов, у которых открыт один или несколько файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cfkmu
+.Op Fl M Ar ядро
+.Op Fl N Ar система
+.Op Fl s Ar сигнал
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+записывает в стандартный вывод PID процессов, у которых открыт один или
+несколько указанных файлов.
+Для блочных и символьных специальных устройств выводятся все процессы, использующие файлы
+на этом устройстве.
+Файл считается открытым процессом, если он был явно открыт,
+является рабочим каталогом, корневым каталогом, корневым каталогом клетки,
+активным исполняемым текстом, файлом трассировки ядра или управляющим терминалом
+процесса.
+Если указана опция
+.Fl m ,
+утилита
+.Nm
+также будет проверять отображённые в память файлы.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl c
+Рассматривать файлы как точки монтирования и сообщать о любых открытых файлах в файловой системе.
+.It Fl f
+Отчёт должен быть только для указанных файлов.
+.It Fl k
+Отправить сигнал указанным процессам
+.Pq по умолчанию Dv SIGKILL .
+.It Fl M Ar ядро
+Извлекать значения, связанные со списком имён, из указанного файла ядра
+вместо стандартного
+.Pa /dev/kmem .
+.It Fl m
+Также искать в отображённых в память файлах.
+.It Fl N Ar система
+Извлекать список имён из указанной системы вместо стандартной,
+которая является образом ядра, с которого загрузилась система.
+.It Fl s Ar сигнал
+Использовать указанное имя сигнала вместо стандартного
+.Dv SIGKILL .
+.It Fl u
+Записывать имя пользователя, связанное с каждым процессом, в стандартный поток ошибок.
+.El
+.Pp
+Следующие символы, записываемые в стандартный поток ошибок, указывают, как используются файлы:
+.Pp
+.Bl -tag -width indent -compact
+.It Sy a
+Файл открыт только для добавления
+.Pq был указан Dv O_APPEND .
+.It Sy c
+Файл является текущим рабочим каталогом процесса.
+.It Sy d
+Процесс обходит кэш файловой системы при записи в этот файл
+.Pq был указан Dv O_DIRECT .
+.It Sy e
+Удерживается эксклюзивная блокировка.
+.It Sy j
+Файл является корневым каталогом клетки процесса.
+.It Sy m
+Файл отображён в память.
+.It Sy r
+Файл является корневым каталогом процесса.
+.It Sy s
+Удерживается разделяемая блокировка.
+.It Sy t
+Файл является файлом трассировки ядра для процесса.
+.It Sy w
+Файл открыт для записи.
+.It Sy x
+Файл является исполняемым текстом процесса.
+.It Sy y
+Процесс использует этот файл в качестве управляющего tty.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Команда
+записывает в стандартный вывод идентификаторы процессов, которые используют
+текущий каталог, и записывает в стандартный поток ошибок указание, как эти процессы
+используют каталог, и имена пользователей, связанные с процессами, использующими
+этот каталог.
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr ps 1 ,
+.Xr systat 1 ,
+.Xr iostat 8 ,
+.Xr pstat 8 ,
+.Xr vmstat 8
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Утилиту
+.Nm
+и эту страницу руководства написал
+.An Станислав Седов Aq Mt stas@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку
+.Nm
+делает снимок системы, он корректен только в течение очень короткого периода
+времени.
+При работе через интерфейс
+.Xr kvm 3
+отчёт будет ограничен файловыми системами, о которых
+утилита
+.Nm
+знает (в настоящее время только cd9660, devfs, nfs, ntfs, nwfs, udf,
+ufs и zfs).

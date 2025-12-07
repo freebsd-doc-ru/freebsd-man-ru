@@ -1,0 +1,105 @@
+.\"	$NetBSD: zmore.1,v 1.4 2013/11/12 21:58:37 pettai Exp $
+.\"	$OpenBSD: zmore.1,v 1.10 2009/08/16 09:41:08 sobrado Exp $
+.\"
+.\" Copyright (c) 2003 Todd C. Miller <Todd.Miller@courtesan.com>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" Sponsored in part by the Defense Advanced Research Projects
+.\" Agency (DARPA) and Air Force Research Laboratory, Air Force
+.\" Materiel Command, USAF, under agreement number F39502-99-1-0512.
+.\" FRDP path ./usr.bin/gzip/zmore.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f0c92a69790143693e7c92b2718e54b570790b42bb3978b748bd1804b2fca878
+.Dd 22 октября 2014
+.Dt ZMORE 1
+.Os
+.Sh ИМЯ
+.Nm zmore ,
+.Nm zless
+.Nd просмотр сжатых файлов
+.Sh СИНТАКСИС
+.Nm zmore
+.Op Ar флаги
+.Op Ar
+.Nm zless
+.Op Ar флаги
+.Op Ar
+.Sh ОПИСАНИЕ
+.Nm
+представляет собой фильтр, позволяющий просматривать файлы, сжатые с использованием кодирования Лемпеля-Зива.
+Такие файлы обычно имеют расширение
+.Dq Z
+или
+.Dq gz
+(поддерживаются форматы как
+.Xr compress 1 ,
+так и
+.Xr gzip 1 ).
+Любые указанные
+.Ar флаги
+передаются предпочитаемому пользователем
+.Ev PAGER
+(по умолчанию это
+.Pa /usr/bin/more ).
+.Pp
+.Nm zless
+эквивалентен
+.Nm zmore ,
+но использует
+.Xr less 1
+в качестве программы постраничного вывода вместо
+.Xr more 1 .
+.Pp
+При указании нескольких файлов
+.Nm
+будет останавливаться в конце каждого файла и выводить пользователю следующую подсказку:
+.Bd -literal -offset indent
+предыдущий_файл (КОНЕЦ) - Следующий: следующий_файл
+.Ed
+.Pp
+Где
+.Sy предыдущий_файл
+— только что отображённый файл, а
+.Sy следующий_файл
+— следующий файл для отображения.
+В ответ на подсказку распознаются следующие клавиши:
+.It Ic e No или Ic q
+выйти из
+.Nm zmore .
+.It Ic s
+пропустить следующий файл (или выйти, если следующий файл является последним).
+.El
+.Pp
+Если файлы не указаны,
+.Nm
+будет читать данные со стандартного ввода.
+В этом режиме
+.Nm
+предполагает сжатие в стиле
+.Xr gzip 1 ,
+поскольку отсутствует суффикс, на основе которого можно принять решение.
+.Sh ОКРУЖЕНИЕ
+.It Ev PAGER
+Программа, используемая для отображения файлов.
+Если не задана, используется
+.Pa /usr/bin/more
+.Pq Nm zmore
+или
+.Pa /usr/bin/less
+.Pq Nm zless .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr compress 1 ,
+.Xr less 1 ,
+.Xr more 1

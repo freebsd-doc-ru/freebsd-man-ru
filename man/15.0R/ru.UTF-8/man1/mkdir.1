@@ -1,0 +1,122 @@
+.\"-
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)mkdir.1	8.2 (Berkeley) 1/25/94
+.\"
+.\" FRDP path ./bin/mkdir/mkdir.1
+.\" FRDP githash 90aea514c6249118e880d75972d063362f4bf492
+.\" FRDP hash256 d3039f43eeea6cd097e853e5059beaa8af16aeeafa5916a06f372f4b72d71ec5
+.Dd 15 марта 2013
+.Dt MKDIR 1
+.Os
+.Sh ИМЯ
+.Nm mkdir
+.Nd создание каталогов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl pv
+.Op Fl m Ar режим
+.Ar имя_каталога ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт каталоги с именами, указанными в качестве операндов, в заданном порядке,
+используя режим
+.Dq Li rwxrwxrwx
+(0777),
+изменённый текущим
+.Xr umask 2 .
+.Pp
+Параметры следующие:
+.It Fl m Ar режим
+Устанавливает биты прав доступа к файлу для окончательно созданного каталога в
+указанный режим.
+Аргумент
+.Ar режим
+может быть в любом из форматов, указанных для команды
+.Xr chmod 1 .
+Если указан символьный режим, операционные символы
+.Ql +
+и
+.Ql -
+интерпретируются относительно начального режима
+.Dq Li a=rwx .
+.It Fl p
+Создавать промежуточные каталоги по мере необходимости.
+Если этот параметр не указан, полный префикс пути каждого
+операнда должен уже существовать.
+С другой стороны, при указании этого параметра ошибка не будет
+сообщена, если каталог, указанный в качестве операнда, уже существует.
+Промежуточные каталоги создаются с битами прав доступа
+.Dq Li rwxrwxrwx
+(0777),
+изменёнными текущим umask, плюс право на запись и поиск
+для владельца.
+.It Fl v
+Быть подробным при создании каталогов, перечисляя их по мере создания.
+.El
+.Pp
+Пользователь должен иметь право на запись в родительском каталоге.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Создать каталог с именем
+.Pa foobar :
+.Pp
+.Dl $ mkdir foobar
+.Pp
+Создать каталог с именем
+.Pa foobar
+и установить его режим файла в 700:
+.Pp
+.Dl $ mkdir -m 700 foobar
+.Pp
+Создать каталог с именем
+.Pa cow/horse/monkey ,
+создавая любые отсутствующие промежуточные каталоги по мере необходимости:
+.Pp
+.Dl $ mkdir -p cow/horse/monkey
+.Sh СОВМЕСТИМОСТЬ
+Параметр
+.Fl v
+нестандартен, и его использование в сценариях не рекомендуется.
+.Sh СМ. ТАКЖЕ
+.Xr rmdir 1
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+совместима со
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

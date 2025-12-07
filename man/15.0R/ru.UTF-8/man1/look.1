@@ -1,0 +1,154 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)look.1	8.1 (Berkeley) 6/14/93
+.\"
+.\" FRDP path ./usr.bin/look/look.1
+.\" FRDP githash 7df526eb10c9095e4988e77900f60ba00c42b095
+.\" FRDP hash256 c3f1b008a3a89265ce8dc26b90b5f72504dc3e2a1248475e1c57a9d45e4f9983
+.Dd 29 декабря 2020
+.Dt LOOK 1
+.Os
+.Sh ИМЯ
+.Nm look
+.Nd вывод строк, начинающихся с заданной строки
+.Sh СИНТАКСИС
+.Nm
+.Op Fl df
+.Op Fl t Ar символ_окончания
+.Ar строка
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит все строки в
+.Ar файле,
+которые содержат
+.Ar строку
+в качестве префикса.
+Поскольку
+.Nm
+выполняет двоичный поиск, строки в
+.Ar файле
+должны быть отсортированы.
+.Pp
+Если
+.Ar файл
+не указан, используется файл
+.Pa /usr/share/dict/words,
+при этом сравниваются только буквенно-цифровые символы,
+а регистр букв игнорируется.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl d , -alphanum
+Словарный набор символов и порядок, т.е. сравниваются только
+буквенно-цифровые символы.
+.It Fl f , -ignore-case
+Игнорировать регистр буквенных символов.
+.It Fl t , -terminate Ar символ_окончания
+Задать символ завершения строки, т.е. сравниваются только символы
+в
+.Ar строке
+вплоть до первого вхождения
+.Ar символа_окончания
+включительно.
+.El
+.Sh ОКРУЖЕНИЕ
+На выполнение утилиты
+.Nm
+влияют переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE .
+Их действие описано в
+.Xr environ 7 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/dict/words -compact
+.It Pa /usr/share/dict/words
+словарь
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0, если найдена и выведена одна или несколько строк,
+1, если строк не найдено, и >1 при возникновении ошибки.
+.Sh ПРИМЕРЫ
+Поиск строк, начинающихся с
+.Ql xylen
+в файле
+.Pa /usr/share/dict/words :
+.Bd -literal -offset indent
+$ look xylen
+xylene
+xylenol
+xylenyl
+.Ed
+.Pp
+То же, что и выше, но не учитывать символы в
+.Ar строке
+после первой
+.Ql e .
+Обратите внимание, что
+.Fl f
+подразумевается, поскольку мы ищем в файле по умолчанию
+.Pa /usr/share/dict/words :
+.Bd -literal -offset indent
+$ look -t e xylen
+Xyleborus
+xylem
+xylene
+xylenol
+xylenyl
+xyletic
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+В оригинальной странице руководства утверждалось, что табуляции и пробелы
+участвуют в сравнениях при указании опции
+.Fl d .
+Это было неверно, и текущая страница руководства соответствует исторической
+реализации.
+.Pp
+Флаги
+.Fl a
+и
+.Fl -alternative
+игнорируются для совместимости.
+.Sh СМ. ТАКЖЕ
+.Xr grep 1 ,
+.Xr sort 1
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v7 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Строки не сравниваются в соответствии с порядком сортировки текущей локали.
+Входные файлы должны быть отсортированы с установленной переменной
+.Ev LC_COLLATE
+в
+.Ql C .
