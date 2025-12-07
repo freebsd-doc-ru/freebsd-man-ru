@@ -1,0 +1,117 @@
+.\" Copyright (c) 2008 George V. Neville-Neil
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./tools/tools/mctest/mctest.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c408699f6efa84c27bfbb014ec28fd5be9a052ae41c9fb34cfb8f5c59fb8d0f5
+.Dd 3 апреля 2008
+.Dt MCTEST 1
+.Os
+.Sh ИМЯ
+.Nm mctest
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i Ar интерфейс
+.Op Fl g Ar группа
+.Op Fl b Ar базовый порт
+.Op Fl n Ar количество
+.Op Fl s Ar размер
+.Op Fl t Ar интервал между пакетами
+.Op Fl M Ar количество клиентов (только источник)
+.Op Fl m Ar мой номер клиента (только приемник)
+.Op Fl r
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+реализует тест многоадресной рассылки, включающий источник
+и приемник.
+Источник отправляет пакеты на предварительно настроенный
+адрес многоадресной рассылки через интерфейс, указанный в качестве аргумента
+командной строки.
+Приемник прослушивает многоадресные пакеты, записывает
+время их получения, а затем отражает их обратно
+по одноадресной рассылке к источнику.
+Когда источник захватит все
+отраженные пакеты, он выводит время кругового пути каждого из них.
+.Pp
+Источник выводит время кругового пути пакетов, отправленных на
+приемники.
+Приемник выводит время между полученными пакетами.
+.Pp
+Параметры следующие:
+.It Fl i Ar интерфейс
+Сетевой интерфейс, который можно найти с помощью
+.Xr ifconfig 8 .
+.It Fl g Ar группа
+Группа многоадресной рассылки.
+.It Fl b Ar базовый порт
+Порт для прослушивания.
+.It Fl s Ar размер
+Размер пакета в байтах.
+.It Fl n Ar количество
+Количество пакетов.
+.It Fl t Ar интервал
+Интервал между пакетами в наносекундах.
+.It Fl M Ar клиенты
+Количество клиентов, которые прослушивают.
+.It Fl m Ar мой номер
+Номер клиента: 0, 1 и т.д.
+.It Fl r
+Эта версия
+.Nm
+является приемником, также известным как сток.
+Этот параметр ДОЛЖЕН
+использоваться только с одной копией программы за раз.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведен пример типичного использования
+команды
+.Nm :
+.Pp
+Источник
+Приемник
+.Pp
+Отправить 100 пакетов по 1024 байта с интервалом между пакетами в 1 наносекунду.
+.Pp
+Интервалы измеряются с помощью
+.Xr nanosleep 2 ,
+поэтому они не точны до наносекунд,
+а зависят от настройки
+.Va kern.hz .
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr nanosleep 2 ,
+.Xr ifconfig 8
+.Sh ИСТОРИЯ
+Программа
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An Джорджем В. Невиллом-Нилом Aq Mt gnn@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ошибки следует сообщать автору или по адресу
+.Aq Mt net@FreeBSD.org .

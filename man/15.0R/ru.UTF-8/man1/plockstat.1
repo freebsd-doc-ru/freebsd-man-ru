@@ -1,0 +1,94 @@
+.\"
+.\" Copyright (c) 2010 The FreeBSD Foundation 
+.\" All rights reserved. 
+.\" 
+.\" This software was developed by Rui Paulo under sponsorship from the
+.\" FreeBSD Foundation. 
+.\"  
+.\" Redistribution and use in source and binary forms, with or without 
+.\" modification, are permitted provided that the following conditions 
+.\" are met: 
+.\" 1. Redistributions of source code must retain the above copyright 
+.\"    notice, this list of conditions and the following disclaimer. 
+.\" 2. Redistributions in binary form must reproduce the above copyright 
+.\"    notice, this list of conditions and the following disclaimer in the 
+.\"    documentation and/or other materials provided with the distribution. 
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND 
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE 
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+.\" SUCH DAMAGE. 
+.\"
+.\" FRDP path ./cddl/usr.sbin/plockstat/plockstat.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 340e17d78b0b6b3c5fd70ff061d5f90c680c72f2804840923961937bd9d160a2
+.Dd 13 сентября 2010 г.
+.Dt PLOCKSTAT 1
+.Os
+.Sh ИМЯ
+.Nm plockstat
+.Nd Трассировка статистики блокировок pthread с использованием DTrace
+.Sh СИНТАКСИС
+.Nm
+.Op Fl vACHV
+.Op Fl n Ar количество
+.Op Fl s Ar глубина
+.Op Fl e Ar секунды
+.Op Fl x Ar опция Ns = Ns Ar значение
+.Ar команда
+.Op аргумент...
+.Nm
+.Op Fl vACHV
+.Op Fl n Ar количество
+.Op Fl s Ar глубина
+.Op Fl e Ar секунды
+.Op Fl x Ar опция Ns = Ns Ar значение
+.Fl p Ar pid
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+трассирует блокировки pthread (мьютексы и rwlock) и выводит статистику по ним.
+Вы можете использовать
+.Nm
+для исследования узких мест в вашем программном обеспечении.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl v
+Подробный вывод.
+.It Fl A
+Выводить всю статистику.
+.It Fl C
+Выводить накопительную статистику (по умолчанию).
+.It Fl H
+Выводить гистограмму.
+.It Fl V
+Выводить сценарий DTrace, который будет использован, в stderr.
+.It Fl n Ar количество
+Установить количество агрегаций для набора данных.
+.It Fl s Ar глубина
+Установить глубину стека вызовов (пользовательского стека).
+.It Fl e Ar секунды
+В настоящее время ничего не делает.
+.It Fl x Ar опция Ns = Ns Ar значение
+Указать опции DTrace.
+Подробнее см. на странице руководства
+.Xr dtrace 1 .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr dtrace 1 ,
+.Xr pthread 3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+происходит из OpenSolaris и была впервые импортирована в
+.Fx 9.0 .

@@ -1,0 +1,90 @@
+.\" Copyright (c) 2000 - 2001 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./crypto/heimdal/tools/krb5-config.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 5bea92049b25fb93a8590e44369227db5ff266380b1909ad62c0a411f491efe1
+.Dd 30 ноября 2000
+.Dt KRB5-CONFIG 1
+.Os HEIMDAL
+.ИМЯ
+.Nm krb5-config
+.СИНТАКСИС
+.Nm
+.Op Fl Fl prefix Ns Op = Ns Ar каталог
+.Op Fl Fl exec-prefix Ns Op = Ns Ar каталог
+.Op Fl Fl libs
+.Op Fl Fl cflags
+.Op Ar библиотеки
+.ОПИСАНИЕ
+.Nm
+сообщает программисту, какие специальные флаги использовать для компиляции
+и линковки программ с библиотеками, установленными Heimdal.
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl Fl prefix Ns Op = Ns Ar каталог
+Выводит префикс, если
+.Ar каталог
+не указан, в противном случае устанавливает префикс в
+.Ar каталог .
+.It Fl Fl exec-prefix Ns Op = Ns Ar каталог
+Выводит exec-префикс, если
+.Ar каталог
+не указан, в противном случае устанавливает exec-префикс в
+.Ar каталог .
+.It Fl Fl libs
+Выводит набор библиотек, с которыми следует линковаться.
+.It Fl Fl cflags
+Выводит набор флагов для передачи компилятору C при использовании
+библиотек Heimdal.
+.El
+.Pp
+По умолчанию
+.Nm
+выводит набор флагов и библиотек, которые должен использовать обычная
+программа, применяющая API krb5. Пользователь также может указать библиотеку
+для использования, поддерживаемые из них:
+.Bl -tag -width Ds
+.It krb5
+(по умолчанию)
+.It gssapi
+использовать механизм gssapi krb5
+.It kadm-client
+использовать клиентские библиотеки kadmin
+.It kadm-server
+использовать серверные библиотеки kadmin
+.El
+.СМ. ТАКЖЕ
+.Xr cc 1
+.ИСТОРИЯ
+.Nm
+появился в Heimdal 0.3d.

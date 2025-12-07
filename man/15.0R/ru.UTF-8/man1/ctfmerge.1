@@ -1,0 +1,122 @@
+.\"
+.\" Copyright (c) 2010 The FreeBSD Foundation 
+.\" All rights reserved. 
+.\" 
+.\" This software was developed by Rui Paulo under sponsorship from the
+.\" FreeBSD Foundation. 
+.\"  
+.\" Redistribution and use in source and binary forms, with or without 
+.\" modification, are permitted provided that the following conditions 
+.\" are met: 
+.\" 1. Redistributions of source code must retain the above copyright 
+.\"    notice, this list of conditions and the following disclaimer. 
+.\" 2. Redistributions in binary form must reproduce the above copyright 
+.\"    notice, this list of conditions and the following disclaimer in the 
+.\"    documentation and/or other materials provided with the distribution. 
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND 
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE 
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+.\" SUCH DAMAGE. 
+.\"
+.\" FRDP path ./cddl/usr.bin/ctfmerge/ctfmerge.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 204a6b7c845c7a52cd09248f4698ff8bb807c61c62c1a06e139dcde447b80f51
+.Dd 21 апреля 2022
+.Dt CTFMERGE 1
+.Os
+.Sh ИМЯ
+.Nm ctfmerge
+.Nd объединить несколько секций данных CTF в одну
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fgstv
+.Fl l Ar метка
+.Fl L Ar переменная_метки
+.Fl o Ar выходной_файл
+файл ...
+.Nm
+.Op Fl fgstv
+.Fl l Ar метка
+.Fl L Ar переменная_метки
+.Fl o Ar выходной_файл
+.Fl d Ar уникальный_файл
+.Op Fl g
+.Op Fl D Ar уникальная_метка
+файл ...
+.Nm
+.Op Fl fgstv
+.Fl l Ar метка
+.Fl L Ar переменная_метки
+.Fl o Ar выходной_файл
+.Fl w Ar файл_с_данными
+файл ...
+.Nm
+.Op Fl g
+.Fl c Ar исходный_файл
+.Ar целевой_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+объединяет несколько секций данных CTF (Compact C Type Format) из нескольких
+файлов в один выходной файл, унифицируя общие данные.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl f
+Сопоставить глобальные символы с глобальными данными CTF.
+.It Fl g
+Не удалять исходные отладочные секции.
+.It Fl s
+Использовать секцию ELF .dynsym вместо секции ELF .symtab.
+.It Fl t
+Убедиться, что все объектные файлы имеют секцию CTF.
+.It Fl v
+Включить подробный режим.
+.It Fl l Ar метка
+Устанавливает метку как
+.Ar метка .
+.It Fl L Ar переменная_метки
+Указывает
+.Nm
+прочитать метку из переменной окружения
+.Ar переменная_метки .
+.It Fl o Ar выходной_файл
+Использовать
+.Ar выходной_файл
+для хранения объединённых данных CTF.
+.It Fl d Ar уникальный_файл
+Уникализировать относительно
+.Ar уникальный_файл .
+.It Fl D Ar уникальная_метка
+Уникализировать относительно метки
+.Ar уникальная_метка .
+.It Fl w Ar файл_с_данными
+Аддитивное объединение с
+.Ar файл_с_данными .
+.It Fl c Ar исходный_файл Ar целевой_файл
+Копировать данные CTF из
+.Ar исходный_файл
+в
+.Ar целевой_файл .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ctfconvert 1 ,
+.Xr ctfdump 1 ,
+.Xr ctf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Утилиты CTF пришли из OpenSolaris.

@@ -1,0 +1,138 @@
+.\" Copyright (c) 2000 - 2005 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/kuser/klist.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 e697742463d74c9ea321a730a4c16a9163ab7e4e5d357330396de843bae3de38
+.Dd 6 октября 2005
+.Dt KLIST 1
+.Os HEIMDAL
+.Ш ИМЯ
+.Nm klist
+.Nd список учётных данных Kerberos
+.Ш СИНТАКСИС
+.Nm
+.Bk -words
+.Oo Fl c Ar кэш \*(Ba Xo
+.Fl Fl cache= Ns Ar кэш
+.Xc
+.Oc
+.Op Fl s | Fl t | Fl Fl test
+.Op Fl T | Fl Fl tokens
+.Op Fl 5 | Fl Fl v5
+.Op Fl v | Fl Fl verbose
+.Op Fl l | Fl Fl list-caches
+.Op Fl f
+.Op Fl Fl version
+.Op Fl Fl help
+.Ek
+.Ш ОПИСАНИЕ
+.Nm
+читает и отображает текущие билеты в кэше учётных данных (также
+известном как файл билетов).
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl c Ar кэш , Fl Fl cache= Ns Ar кэш
+кэш учётных данных для отображения
+.It Fl s , Fl t , Fl Fl test
+Проверить наличие активного и действительного TGT для локального домена
+пользователя в кэше учётных данных.
+.It Fl T , Fl Fl tokens
+отобразить токены AFS
+.It Fl 5 , Fl Fl v5
+отобразить кэш учётных данных v5 (это значение по умолчанию)
+.It Fl f
+Включить флаги билета в краткой форме, каждый символ обозначает
+определённый флаг, как показано ниже:
+.Bl -tag -width  XXX -compact -offset indent
+.It F
+пересылаемый
+.It f
+пересланный
+.It P
+проксируемый
+.It p
+проксированный
+.It D
+поддерживающий постдатирование
+.It d
+постдатированный
+.It R
+возобновляемый
+.It I
+начальный
+.It i
+недействительный
+.It A
+предварительно аутентифицированный
+.It H
+аутентифицированный аппаратно
+.El
+.Pp
+Эта информация также выводится с опцией
+.Fl Fl verbose,
+но в более подробном виде.
+.It Fl v , Fl Fl verbose
+Подробный вывод. Включает всю возможную информацию:
+.Bl -tag -width XXXX -offset indent
+.It Сервер
+принципал, для которого предназначен билет
+.It Тип шифрования билета
+тип шифрования, использованный в билете, за которым следует версия ключа
+билета, если она доступна
+.It Сеансовый ключ
+тип шифрования сеансового ключа, если он отличается от
+типа шифрования билета
+.It Время аутентификации
+время, когда произошёл обмен аутентификацией
+.It Время начала
+время, с которого этот билет действителен (выводится только если оно
+отличается от времени аутентификации)
+.It Время окончания
+когда билет истекает; если он уже истёк, это также отмечается
+.It Время возобновления до
+максимально возможное время окончания любого билета, полученного из этого
+.It Флаги билета
+флаги, установленные для билета
+.It Адреса
+набор адресов, с которых этот билет действителен
+.El
+.It Fl l , Fl Fl list-caches
+Перечислить кэши учётных данных для текущих пользователей; не все типы кэшей
+поддерживают перечисление нескольких кэшей.
+.Pp
+.El
+.Ш СМ. ТАКЖЕ
+.Xr kdestroy 1 ,
+.Xr kinit 1

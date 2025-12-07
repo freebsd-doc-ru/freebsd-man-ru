@@ -1,0 +1,136 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) [year] [your name]
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Note: The date here should be updated whenever a non-trivial
+.\" change is made to the manual page.
+.\" FRDP path ./share/examples/mdoc/example.1
+.\" FRDP githash 4d846d260e2b9a3d4d0a701462568268cbfe7a5b
+.\" FRDP hash256 bfa485d3be49d71b6b6de254e81e95cbf1eb74ca4f74a6a2a0553ea8dd1d9809
+.Dd 8 декабря 1999
+.Dt EXAMPLE 1
+.Os
+.Sh ИМЯ
+.Nm example
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abc
+.Op Fl d Ar аргумент
+.Ar файл
+.Sh ОПИСАНИЕ
+Это пример страницы руководства для команды
+.Nm .
+Предполагается, что этот пример можно использовать как шаблон
+при написании новой страницы руководства.
+.Pp
+Параметры следующие:
+.It Fl a
+Пример необязательного параметра
+.Fl a .
+.It Fl b
+Пример необязательного параметра
+.Fl b .
+.It Fl c
+Пример необязательного параметра
+.Fl c .
+.It Fl d Ar аргумент
+Пример необязательного параметра
+.Fl d
+с обязательным аргументом
+.Ar аргумент .
+.It Ar файл
+Обязательный аргумент
+.Ar файл .
+.El
+.Sh ОКРУЖЕНИЕ
+Команда
+.Nm
+игнорирует переменную окружения
+.Ev EXAMPLE .
+.Sh ФАЙЛЫ
+.It Pa /dev/null
+Пример файла в разделе
+.Sx ФАЙЛЫ .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Ниже приведен пример типичного использования
+команды
+.Nm :
+.Pp
+.Sh ДИАГНОСТИКА
+Команда может завершиться неудачей по одной из следующих причин:
+.Bl -diag
+Пример сообщения об ошибке.
+Самоочевидно.
+.El
+.Sh СОВМЕСТИМОСТЬ
+У команды
+.Nm
+нет известных проблем совместимости.
+.Sh СМ. ТАКЖЕ
+.Xr example 3 ,
+.Xr example 4 ,
+.Xr mdoc 7 ,
+.Xr example 9
+.Rs
+.%O RFC0000
+.Re
+.Rs
+.%O ISBN-0-000-00000-0
+.Re
+.Rs
+.Re
+.Sh СТАНДАРТЫ
+Если команда соответствует какому-либо стандарту, например
+.St -p1003.2
+или
+.St -isoC ,
+это следует указать здесь.
+.Sh ИСТОРИЯ
+Пример страницы руководства
+.Nm
+впервые появился в
+.Fx 2.2 .
+.Pp
+Некоторые другие распространенные примеры раздела
+.Sx ИСТОРИЯ :
+.Pp
+Пример страницы руководства
+.Nm
+впервые появился в
+.Bx 4.4 .
+.Pp
+Пример страницы руководства
+.Nm
+впервые появился в
+.At v6 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An Майком Притчардом Aq Mt mpp@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Фактический код этой команды является vaporware.

@@ -1,0 +1,80 @@
+.\" Copyright (c) 2008 George V. Neville-Neil
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./tools/tools/mcgrab/mcgrab.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 638f31a9957107b0be600886f437c8aba0f048711d6e31b2e6a2fa9c0971c458
+.Dd 9 июля 2008
+.Dt MCGRAB 1
+.Os
+.Sh ИМЯ
+.Nm mcgrab
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i Ar интерфейс
+.Op Fl g Ar группа
+.Op Fl n Ar количество
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+реализует тест многоадресной рассылки, который захватывает и удерживает
+N многоадресных адресов.
+Цель теста — посмотреть, что
+происходит, когда сетевой интерфейс больше не может фильтровать
+многоадресный трафик на аппаратном уровне и должен переключиться в режим
+неразборчивого приёма или многоадресного неразборчивого приёма.
+Успешный тест не имеет какого-либо
+результата, но неудачный тест будет иметь пагубные побочные эффекты.
+Размер пакета в байтах.
+Параметры следующие:
+.It Fl i Ar интерфейс
+Сетевой интерфейс, который можно найти с помощью
+.Xr ifconfig 8 .
+.It Fl g Ar группа
+Группа многоадресной рассылки.
+.It Fl n Ar количество
+Количество групп для присоединения.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён пример типичного использования
+команды
+.Nm :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr mctest 1 ,
+.Xr netstat 1 ,
+.Xr nanosleep 2 ,
+.Xr ifconfig 8
+.Sh ИСТОРИЯ
+Программа
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An Джорджем В. Невиллом-Нилом Aq Mt gnn@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ошибки следует сообщать автору или по адресу
+.Aq Mt net@FreeBSD.org .

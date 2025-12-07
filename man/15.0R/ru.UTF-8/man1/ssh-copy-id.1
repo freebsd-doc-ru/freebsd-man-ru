@@ -1,86 +1,219 @@
-.\"-
-.\" Copyright (c) 2012 Eitan Adler
-.\"
-.\" Redistribution and use in source and binary forms, with or without
-.\" modification, are permitted provided that the following conditions
-.\" are met:
-.\" 1. Redistributions of source code must retain the above copyright
-.\"    notice, this list of conditions and the following disclaimer.
-.\" 2. Redistributions in binary form must reproduce the above copyright
-.\"    notice, this list of conditions and the following disclaimer in the
-.\"    documentation and/or other materials provided with the distribution.
-.\"
-.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-.\" SUCH DAMAGE.
-.\"
-.\" FRDP path ./usr.bin/ssh-copy-id/ssh-copy-id.1
-.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
-.\" FRDP hash256 de80042818b96948cf2902a2708c9c7f80352285fb1089d8d773b60968a63928
-.Dd 28 февраля 2014
+.\" FRDP path ./crypto/openssh/contrib/ssh-copy-id.1
+.\" FRDP githash 3d9fd9fcb432750f3716b28f6ccb0104cd9d351a
+.\" FRDP hash256 f20d7c3a9900e5ea26b811eddbf5e728eac38e145975e1c53942efe69b502402
+.\\\" Translated from English to Russian by the system's automated tools.
+.\\\" Copyright (c) 1999-2024 Philip Hands <phil@hands.com>
+.\\\"
+.\\\" Redistribution and use in source and binary forms, with or without
+.\\\" modification, are permitted provided that the following conditions
+.\\\" are met:
+.\\\" 1. Redistributions of source code must retain the above copyright
+.\\\"    notice, this list of conditions and the following disclaimer.
+.\\\" 2. Redistributions in binary form must reproduce the above copyright
+.\\\"    notice, this list of conditions and the following disclaimer in the
+.\\\"    documentation and/or other materials provided with the distribution.
+.\\\"
+.\\\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\\\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\\\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\\\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\\\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\\\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\\\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\\\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\\\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\\\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\\\"
+.Dd $Mdocdate: 17 июня 2010 $
 .Dt SSH-COPY-ID 1
 .Os
 .Sh ИМЯ
 .Nm ssh-copy-id
-.Nd копирование открытых ключей на удалённый хост
+.Nd использовать локально доступные ключи для авторизации входов на удалённой машине
 .Sh СИНТАКСИС
 .Nm
-.Op Fl lv
-.Op Fl i Ar файл_ключа
-.Op Fl o Ar опция
+.Op Fl f
+.Op Fl n
+.Op Fl s
+.Op Fl x
+.Op Fl i Op Ar файл_ключа
+.Op Fl t Ar путь_назначения
+.Op Fl F Ar ssh_config
+.Op Bo Fl o Ar опция_ssh Bc ...
 .Op Fl p Ar порт
-.Oo Ar пользователь Ns @ Oc Ns Ar имя_хоста
-.Sh ОПИСАНИЕ
-Утилита
+.Op Ar пользователь Ns @ Ns
+.Ar имя_хоста
 .Nm
-копирует открытые ключи в файл
+.Fl h | Fl ?
+.br
+.Sh ОПИСАНИЕ
+.Nm
+это скрипт, который использует
+.Xr ssh 1
+для входа на удалённую машину (предположительно, используя пароль для входа,
+поэтому аутентификация по паролю должна быть включена, если только вы не применили
+какую-либо хитрость с использованием множественных идентичностей).
+Он собирает список из одного или нескольких отпечатков (как описано ниже)
+и пытается войти с каждым ключом,
+чтобы проверить, не установлены ли они уже (конечно, если вы не используете
+.Xr ssh-agent 1 ,
+это может привести к многократным запросам фраз-паролей).
+Затем он собирает список ключей, с которыми не удалось войти, и, используя
+.Xr ssh 1 ,
+включает вход с этими ключами на удалённом сервере.
+По умолчанию он добавляет ключи, дописывая их в файл
 .Pa ~/.ssh/authorized_keys
-удалённого хоста (создавая файл и каталог при необходимости).
+удалённого пользователя (создавая файл и каталог при необходимости).
+Он также способен определить, является ли удалённая система NetScreen,
+и использовать вместо этого её команду
+.Ql set ssh pka-dsa key ...
 .Pp
-Доступны следующие опции:
-.Bl -tag -width indent
-.It Fl i Ar файл
-Скопировать открытый ключ из
-.Ar файла .
-Эту опцию можно указывать несколько раз и комбинировать с опцией
-.Fl l .
-Если указан закрытый ключ и найден открытый ключ, будет использован открытый ключ.
-.It Fl l
-Скопировать ключи, хранящиеся в данный момент в
-.Xr ssh-agent 1 .
-Это поведение по умолчанию, если опция
-.Fl i
-не указана.
-.It Fl o Ar ssh-опция
-Передать эту опцию напрямую в
-.Xr ssh 1 .
-Эту опцию можно указывать несколько раз.
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl i Op Ar файл_ключа
+Использовать только ключ(и), содержащиеся в
+.Ar файл_ключа
+(вместо поиска идентичностей через
+.Xr ssh-add 1
+или в
+.Ic default_ID_file ) .
+Если имя файла не заканчивается на
+.Pa .pub ,
+это расширение добавляется.
+Если имя файла опущено, используется
+.Ic default_ID_file .
+.Pp
+Заметим, что это можно использовать, чтобы гарантировать, что копируемые ключи
+имеют желаемый комментарий и/или применены дополнительные опции, обеспечив,
+чтобы в файле ключа эти настройки были установлены как предпочтительные перед попыткой копирования.
+.It Fl f
+Принудительный режим: не проверяет, присутствуют ли ключи на удалённом сервере.
+Это означает, что приватный ключ не нужен.
+Конечно, это может привести к установке более одной копии ключа
+на удалённой системе.
+.It Fl n
+пробный запуск.
+Вместо установки ключей на удалённой системе просто
+выводит ключ(и), которые были бы установлены.
+.It Fl s
+Режим SFTP: обычно открытые ключи устанавливаются
+путём выполнения команд на удалённой стороне.
+С этой опцией файл
+.Pa ~/.ssh/authorized_keys
+пользователя будет загружен, изменён локально и загружен обратно с помощью sftp.
+Эта опция полезна, если на сервере есть ограничения
+на команды, которые можно использовать на удалённой стороне.
+.It Fl t Ar путь_назначения
+путь в целевой системе, куда должны быть добавлены ключи
 .It Fl p Ar порт
-Подключиться к указанному порту на удалённом хосте вместо порта по умолчанию.
-.It Fl v
-Передать -v в
-.Xr ssh 1 .
+Задаёт порт для подключения на удалённом хосте.
+.It Fl F Ar ssh_config , Fl o Ar опция_ssh
+Эти опции просто передаются без изменений (вместе со своими аргументами)
+в ssh/sftp,
+позволяя задать альтернативный файл конфигурации
+или другие опции соответственно.
+.Pp
+Вместо указания этих опций в командной строке,
+часто лучше использовать (пост-хостовые) настройки в
+файле конфигурации
+.Xr ssh 1 :
+.Xr ssh_config 5 .
+.It Fl x
+Эта опция предназначена для отладки самого скрипта
+.Nm .
+Она устанавливает флаг -x оболочки, так что можно видеть выполняемые команды.
+.It Fl h , Fl ?
+Вывести краткую справку по использованию
 .El
 .Pp
-Оставшиеся аргументы — это список удалённых хостов для подключения,
-каждый из которых может быть дополнительно указан с именем пользователя.
-.Sh СТАТУС ВЫХОДА
-.Ex -std
-.Sh ПРИМЕРЫ
-Чтобы отправить определённый ключ на несколько хостов:
-.Dl $ ssh-copy-id -i /путь/к/keyfile.pub user@host1 user@host2 user@host3
-.Sh ИСТОРИЯ
-Утилита
+Поведение по умолчанию без
+.Fl i
+состоит в проверке, выдаёт ли
+.Ql ssh-add -L
+какой-либо вывод, и если да, используются эти ключи.
+Заметим, что это приводит к тому, что комментарий к ключу
+становится именем файла, который был передан в
+.Xr ssh-add 1
+при загрузке ключа в ваш
+.Xr ssh-agent 1 ,
+а не комментарием, содержащимся в этом файле, что несколько досадно.
+В противном случае, если
+.Xr ssh-add 1
+не выдаёт ключей, будет использовано содержимое
+.Ic default_ID_file .
+.Pp
+.Ic default_ID_file
+— это самый последний файл, соответствующий шаблону:
+.Pa ~/.ssh/id*.pub
+(исключая те, что соответствуют
+.Pa ~/.ssh/*-cert.pub ),
+так что если вы создали ключ, который не хотите, чтобы
 .Nm
-была написана
-.An Eitan Adler Aq Mt eadler@FreeBSD.org
-в качестве полной замены существующей утилиты, входящей в состав
-OpenSSH.
+использовал, просто примените
+.Xr touch 1
+к файлу
+.Pa .pub
+предпочтительного ключа, чтобы восстановить его как самый последний.
+.Sh ПРИМЕРЫ
+Если вы уже установили ключи с одной системы на множество удалённых
+хостов, а затем создали новый ключ, скажем, на новой клиентской машине,
+может быть сложно отслеживать, на каких системах вы уже установили новый ключ.
+Один из способов справиться с этим — загрузить как новый ключ, так и старый(ие) ключ(и)
+в ваш
+.Xr ssh-agent 1 .
+Сначала загрузите новый ключ без опции
+.Fl c ,
+затем загрузите один или несколько старых ключей в агент, возможно, через
+ssh-подключение к клиентской машине, на которой есть этот старый ключ, используя опцию
+.Fl A
+для разрешения проброски агента:
+.Pp
+.D1 user@newclient$ ssh-add
+.D1 user@newclient$ ssh -A old.client
+.D1 user@oldl$ ssh-add -c
+.D1 No   ... запрос фразы-пароля ...
+.D1 user@old$ logoff
+.D1 user@newclient$ ssh someserver
+.Pp
+теперь, если новый ключ установлен на сервере, вас пропустят без запроса,
+тогда как если включены только старые ключи, у вас запросят подтверждение,
+что является сигналом выйти и выполнить
+.Pp
+.D1 user@newclient$ ssh-copy-id -i someserver
+.Pp
+Причина, по которой вы можете захотеть указать опцию
+.Fl i
+в этом случае, — гарантировать, что комментарий установленного ключа взят из файла
+.Pa .pub ,
+а не просто из имени файла, загруженного в ваш агент.
+Это также гарантирует, что будет установлен только нужный идентификатор, а не
+все ключи, которые есть в вашем
+.Xr ssh-agent 1 .
+Конечно, вы можете указать другой идентификатор или использовать содержимое
+.Xr ssh-agent 1
+по своему усмотрению.
+.Pp
+Упомянув опцию
+.Fl c
+в
+.Xr ssh-add 1 ,
+вы можете рассмотреть её использование при проброске агента,
+чтобы избежать перехвата вашего ключа, но гораздо лучше вместо этого использовать
+.Ar ProxyCommand
+и опцию
+.Fl W
+в
+.Xr ssh 1 ,
+чтобы проходить через удалённые серверы, всегда выполняя прямую сквозную
+аутентификацию.
+Таким образом, промежуточные хосты не получают доступ к вашему
+.Xr ssh-agent 1 .
+Поиск в интернете по
+.Ql ssh proxycommand nc
+должен прояснить ситуацию (заметим, современный подход — использовать опцию
+.Fl W ,
+а не
+.Xr nc 1 ) .
+.Xr ssh 1 ,
+.Xr ssh-agent 1 ,
+.Xr sshd 8
