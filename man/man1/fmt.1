@@ -1,0 +1,202 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)fmt.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" Modified by Gareth McCaughan to describe the new version of `fmt'
+.\" rather than the old one.
+.\" FRDP path ./usr.bin/fmt/fmt.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 d740e77d725f501f669407b1fc49a514d8df34f116834df0761fd7be20592853
+.Dd 29 октября 2020
+.Dt FMT 1
+.Os
+.Ш ИМЯ
+.Nm fmt
+.Nd простой форматировщик текста
+.Ш СИНТАКСИС
+.Nm
+.Op Fl cmnps
+.Op Fl d Ar символы
+.Op Fl l Ar число
+.Op Fl t Ar число
+.Op Ar цель Oo Ar максимум Oc | Fl Ns Ar ширина | Fl w Ar ширина
+.Op Ar
+.Ш ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой простой форматировщик текста, который читает объединение входных
+файлов (или стандартный ввод, если они не указаны) и выводит на стандартный
+вывод версию своего ввода со строками, максимально близкими к
+.Ar целевой
+длине,
+не превышая
+.Ar максимум .
+По умолчанию
+.Ar целевая
+длина составляет
+65, а
+.Ar максимум
+— на 10 больше, чем
+.Ar целевая
+длина.
+В качестве альтернативы, можно указать единственный параметр
+.Ar ширины,
+либо добавив перед ним дефис, либо с помощью
+.Fl w .
+Например,
+.Dq Li fmt -w 72 ,
+.Dq Li fmt -72 ,
+и
+.Dq Li fmt 72 72
+дают идентичный вывод.
+Пробелы в начале входных строк сохраняются в выводе,
+как и пустые строки и пробелы между словами.
+Строки объединяются или разделяются только по пробельным символам; то есть слова никогда
+не объединяются и не переносятся через дефис.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl c
+Центрировать текст построчно.
+В этом случае большинство других
+параметров игнорируются; объединение или разделение строк не выполняется.
+.It Fl m
+Пытаться разумно форматировать строки заголовков писем, содержащиеся во входных данных.
+.It Fl n
+Форматировать строки, начинающиеся с символа
+.Ql \&.
+(точка).
+.It Fl p
+Разрешить абзацы с отступами.
+Без флага
+.Fl p
+любое изменение количества пробелов в начале строки
+приводит к началу нового абзаца.
+.It Fl s
+Сжимать пробелы внутри строк, так что несколько пробельных
+символов превращаются в один пробел.
+(Или, в конце
+предложения, в двойной пробел.)
+.It Fl d Ar символы
+Считать
+.Ar символы
+(и только их) знаками конца предложения.
+По умолчанию
+знаками конца предложения являются точка
+.Pq Ql \&. ,
+вопросительный знак
+.Pq Ql \&?
+и восклицательный знак
+.Pq Ql \&! .
+Помните, что некоторые символы может потребоваться
+экранировать, чтобы защитить их от интерпретации оболочкой.
+.It Fl l Ar число
+Заменять несколько пробелов табуляциями в начале каждой выходной
+строки, если это возможно.
+Каждые
+.Ar число
+пробелов будут заменены одной табуляцией.
+По умолчанию 8.
+Если
+.Ar число
+равно 0, пробелы сохраняются.
+.It Fl t Ar число
+Предполагать, что табуляции во входных файлах соответствуют
+.Ar числу
+пробелов на позицию табуляции.
+По умолчанию 8.
+.El
+.Pp
+Утилита
+.Nm
+предназначена для форматирования почтовых сообщений перед отправкой, но также может быть полезна
+для других простых задач.
+Например,
+в визуальном режиме редактора
+.Xr ex 1
+(например,
+.Xr vi 1 )
+команда
+.Pp
+.Dl \&!}fmt
+.Pp
+переформатирует абзац,
+выравнивая строки.
+.Ш ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Ш ПРИМЕРЫ
+Центрировать текст из стандартного ввода:
+.Bd -literal -offset indent
+$ echo -e 'The merit of all things\enlies\enin their difficulty' | fmt -c
+                     The merit of all things
+                               lies
+                       in their difficulty
+.Ed
+.Pp
+Отформатировать текст из стандартного ввода, сжимая пробелы:
+.Bd -literal -offset indent
+$ echo -e 'Multiple   spaces    will be collapsed' | fmt -s
+Multiple spaces will be collapsed
+.Ed
+.Ш СМ. ТАКЖЕ
+.Xr fold 1 ,
+.Xr mail 1
+.Ш ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3 .
+.Pp
+Описанная здесь версия является полной переработкой и появилась в
+.Fx 4.4 .
+.Ш АВТОРЫ
+.An Kurt Shoens
+.An Liz Allen
+(добавила концепцию
+.Ar целевой
+длины)
+.An Gareth McCaughan
+.Ш ИЗВЕСТНЫЕ ОШИБКИ
+Программа была разработана для простоты и скорости — для более сложных
+операций стандартные текстовые процессоры, вероятно, будут более уместны.
+.Pp
+Когда первая строка абзаца с отступом очень длинная (более
+примерно чем в два раза превышает целевую длину), отступ в выводе может быть
+неправильным.
+.Pp
+Утилита
+.Nm
+не является безошибочной в определении того, какие строки являются заголовками писем, а какие
+нет.

@@ -1,0 +1,107 @@
+.\" Copyright (c) 2000 - 2001 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/appl/kf/kf.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 b0ed7d23aa6e18c804d6a8295efe78c12e086e99b769ff0816954caf3831b780
+.Dd 2 июля 2000
+.Dt KF 1
+.Os Heimdal
+.Sh ИМЯ
+.Nm kf
+.Nd безопасная пересылка билетов
+.Sh СИНТАКСИС
+.Nm
+.Oo
+.Fl p Ar порт |
+.Fl Fl port Ns = Ns Ar порт
+.Oc
+.Oo
+.Fl l Ar логин |
+.Fl Fl login Ns = Ns Ar логин
+.Oc
+.Oo
+.Fl c Ar кэш |
+.Fl Fl ccache Ns = Ns Ar кэш
+.Oc
+.Op Fl F | -forwardable
+.Op Fl G | -no-forwardable
+.Op Fl h | -help
+.Op Fl Fl version
+.Ar хост ...
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+пересылает билеты на удалённый хост через аутентифицированный
+и зашифрованный поток.
+Поддерживаемые опции:
+.Bl -tag -width indent
+.It Xo
+.Fl p Ar порт ,
+.Fl Fl port Ns = Ns Ar порт
+.Xc
+порт для подключения
+.It Xo
+.Fl l Ar логин ,
+.Fl Fl login Ns = Ns Ar логин
+.Xc
+удалённое имя пользователя
+.It Xo
+.Fl c Ar кэш ,
+.Fl Fl ccache Ns = Ns Ar кэш
+.Xc
+удалённый кэш учётных данных
+.It Fl F , -forwardable
+пересылать пересылаемые учётные данные
+.It Fl G , -no-forwardable
+не пересылать пересылаемые учётные данные
+.It Fl h , -help
+.It Fl Fl version
+.El
+.Pp
+.Nm
+полезна, когда вы не хотите вводить пароль на удалённом хосте,
+но хотите иметь свои билеты, например, для AFS.
+.Pp
+Для работы
+.Nm
+вам потребуется получить начальный билет с флагом пересылаемости,
+т.е.
+.Nm kinit Fl Fl forwardable .
+.Pp
+.Nm telnet
+способен пересылать билеты самостоятельно.
+.Sh СМ. ТАКЖЕ
+.Xr kinit 1 ,
+.Xr telnet 1 ,
+.Xr kfd 8

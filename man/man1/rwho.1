@@ -1,0 +1,80 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)rwho.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/rwho/rwho.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 b95a29ec642b030a53b35d5bfaba65ce552d98e1380790bda346b8e2c4582d57
+.Dd 8 августа 2017
+.Dt RWHO 1
+.Os
+.Sh ИМЯ
+.Nm rwho
+.Nd показывает, кто в системе на локальных машинах
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+выводит информацию, аналогичную
+.Xr who 1 ,
+но для всех машин в локальной сети.
+Если от машины не поступало отчётов в течение 11 минут, то
+.Nm
+считает, что машина не работает, и не показывает пользователей,
+которые, как известно, были в системе на этой машине.
+.Pp
+Если пользователь не вводил команды в систему минуту или более, то
+.Nm
+указывает это время простоя.
+.Pp
+Доступна следующая опция:
+.Bl -tag -width indent
+.It Fl a
+Включить всех пользователей.
+По умолчанию, если пользователь не вводил команды в систему
+час или более, то он не будет показан в выводе.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/rwho/whod.* -compact
+.It Pa /var/rwho/whod.*
+информация о других машинах
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ruptime 1 ,
+.Xr who 1 ,
+.Xr rwhod 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Неудобна в использовании, когда количество машин
+в локальной сети велико.

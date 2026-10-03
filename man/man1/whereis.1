@@ -1,0 +1,180 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Copyright 2002	Joerg Wunsch
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)whereis.1	8.2 (Berkeley) 12/30/93
+.\"
+.\" FRDP path ./usr.bin/whereis/whereis.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 76026a3b9c49a0f87ee519497642aec952c8122019ee7ac14c40817003131add
+.Dd 22 августа 2002
+.Dt WHEREIS 1
+.Os
+.Sh ИМЯ
+.Nm whereis
+.Nd поиск программ
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abmqsux
+.Op Fl BMS Ar каталог ... Fl f
+.Ar программа ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+проверяет стандартные каталоги бинарных файлов, страниц руководств и исходных
+кодов для указанных программ, выводя пути ко всем найденным.
+Предоставленные имена программ сначала очищаются от ведущих
+компонентов пути, любого одиночного завершающего расширения, добавленного
+.Xr gzip 1 ,
+.Xr compress 1 ,
+или
+.Xr bzip2 1 ,
+а также ведущего
+.Ql s.\&
+или завершающего
+.Ql ,v
+от системы контроля версий исходного кода.
+.Pp
+Путь поиска по умолчанию — строка, возвращаемая утилитой
+.Xr sysctl 8
+для строки
+.Dq user.cs_path ,
+с добавлением
+.Pa /usr/libexec
+и текущего
+.Ev $PATH
+пользователя.
+Страницы руководств по умолчанию ищутся вдоль
+.Ev $MANPATH .
+Исходные коды программ располагаются в списке известных стандартных мест,
+включая все подкаталоги
+.Pa /usr/src
+и
+.Pa /usr/ports .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl B
+Указать каталоги для поиска бинарных файлов.
+Требует опцию
+.Fl f .
+.It Fl M
+Указать каталоги для поиска страниц руководств.
+Требует опцию
+.Fl f .
+.It Fl S
+Указать каталоги для поиска исходных кодов программ.
+Требует опцию
+.Fl f .
+.It Fl a
+Сообщать обо всех совпадениях вместо только первого для каждого запрошенного типа.
+.It Fl b
+Искать бинарные файлы.
+.It Fl f
+Разделяет список каталогов после опций
+.Fl B ,
+.Fl M ,
+или
+.Fl S
+и указывает начало списка
+.Ar программ .
+.It Fl m
+Искать страницы руководств.
+.It Fl q
+.Pq "тихо" .
+Подавлять вывод имени утилиты перед обычной
+строкой вывода.
+Это может быть удобно для использования в обратной подстановке командной
+строки оболочки, см.
+.Sx ПРИМЕРЫ .
+.It Fl s
+Искать каталоги исходных кодов.
+.It Fl u
+Искать
+.Dq необычные
+записи.
+Файл считается необычным, если у него нет хотя бы
+одной записи каждого запрошенного типа.
+Выводится только имя необычной записи.
+.It Fl x
+Не использовать
+.Dq дорогие
+инструменты при поиске каталогов исходных кодов.
+Обычно, после безуспешного поиска по всем подкаталогам первого уровня
+в списке каталогов исходных кодов,
+.Nm
+попросит
+.Xr locate 1
+найти запись от её имени.
+Поскольку это может занять гораздо больше времени, это можно отключить с помощью
+.Fl x .
+.El
+.Sh ПРИМЕРЫ
+Следующая команда находит все утилиты в
+.Pa /usr/bin ,
+у которых нет документации:
+.Pp
+.Dl whereis -m -u /usr/bin/*
+.Pp
+Перейти в каталог исходного кода
+.Xr ls 1 :
+.Pp
+.Dl cd `whereis -sq ls`
+.Sh СМ. ТАКЖЕ
+.Xr find 1 ,
+.Xr locate 1 ,
+.Xr man 1 ,
+.Xr which 1 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 3.0 .
+Эта версия перереализует историческую
+функциональность, которая была утрачена в
+.Bx 4.4 .
+.Sh АВТОРЫ
+Эта реализация команды
+.Nm
+была написана
+.An J\(:org Wunsch .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эта перереализация утилиты
+.Nm
+не совместима с историческими версиями вплоть до каждой ошибки.
+Считается, что она совместима с версией, поставлявшейся с
+.Fx 2.2
+по
+.Fx 4.5 .
+.Pp
+Утилита
+.Nm
+может сообщать о некоторых несвязанных записях исходных кодов, когда указана
+опция
+.Fl a .

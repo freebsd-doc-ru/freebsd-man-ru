@@ -1,0 +1,236 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)touch.1	8.3 (Berkeley) 4/28/95
+.\"
+.\" FRDP path ./usr.bin/touch/touch.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 3a0306d52105b7ad4bc1d1b6f064b4cb538ade10f3ea0f5e190077ee35f2a077
+.Dd 1 июня, 2018
+.Dt TOUCH 1
+.Os
+.Sh ИМЯ
+.Nm touch
+.Nd изменить время доступа и модификации файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl A Ar [-][[hh]mm]SS
+.Op Fl achm
+.Op Fl r Ar файл
+.Op Fl t Ar [[CC]YY]MMDDhhmm[.SS]
+.Op Fl d Ar ГГГГ-ММ-ДДTчч:мм:СС[.дробь][вп]
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+устанавливает время модификации и доступа файлов.
+Если какой-либо файл не существует, он создаётся с правами по умолчанию.
+.Pp
+По умолчанию
+.Nm
+изменяет как время модификации, так и время доступа.
+Флаги
+.Fl a
+и
+.Fl m
+могут быть использованы для выбора соответственно только времени доступа или только времени модификации.
+Выбор обоих эквивалентен поведению по умолчанию.
+По умолчанию временные метки устанавливаются на текущее время.
+Флаги
+.Fl d
+и
+.Fl t
+явно указывают другое время, а флаг
+.Fl r
+указывает установить времена равными временам указанного файла.
+Флаг
+.Fl A
+корректирует значения на указанную величину.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width Ds
+.It Fl A
+Скорректировать временные метки доступа и модификации для файла на указанное значение.
+Этот флаг предназначен для изменения файлов с неправильно установленными временными метками.
+.Pp
+Аргумент имеет вид
+.Dq [-][[hh]mm]SS
+где каждая пара букв представляет следующее:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Ar -
+Сделать корректировку отрицательной: новая временная метка устанавливается более ранней, чем старая.
+.It Ar hh
+Количество часов, от 00 до 99.
+.It Ar mm
+Количество минут, от 00 до 59.
+.It Ar SS
+Количество секунд, от 00 до 59.
+.El
+.Pp
+Флаг
+.Fl A
+подразумевает флаг
+.Fl c
+: если какой-либо указанный файл не существует, он будет тихо проигнорирован.
+.It Fl a
+Изменить время доступа файла.
+Время модификации файла не меняется, если также не указан флаг
+.Fl m .
+.It Fl c
+Не создавать файл, если он не существует.
+Утилита
+.Nm
+не рассматривает это как ошибку.
+Сообщения об ошибке не выводятся, и код выхода не затрагивается.
+.It Fl d
+Изменить времена доступа и модификации на указанные дату и время вместо текущего времени суток.
+Аргумент имеет вид
+.Dq ГГГГ-ММ-ДДTчч:мм:СС[.дробь][вп]
+где буквы представляют следующее:
+.Bl -tag -width Ds -compact -offset indent
+.It Ar ГГГГ
+Как минимум четыре десятичные цифры, представляющие год.
+.It Ar MM , Ar ДД , Ar чч , Ar мм , Ar СС
+Как и во времени для
+.Fl t .
+.It Ar T
+Буква
+.Li T
+или пробел — это обозначение времени.
+.It Ar .дробь
+Необязательная дробная часть, состоящая из точки или запятой, за которой следует одна или более цифр.
+Количество значащих цифр зависит от конфигурации ядра и файловой системы и может быть равно нулю.
+.It Ar вп
+Необязательная буква
+.Li Z
+, указывающая, что время представлено в
+.Tn UTC
+.
+В противном случае время считается локальным.
+На локальное время влияет значение переменной окружения
+.Ev TZ
+.
+.El
+.It Fl h
+Если файл является символической ссылкой, изменить времена самой ссылки, а не файла, на который она указывает.
+Заметьте, что
+.Fl h
+подразумевает
+.Fl c
+и, следовательно, не будет создавать никаких новых файлов.
+.It Fl m
+Изменить время модификации файла.
+Время доступа файла не изменяется, если также не указан флаг
+.Fl a .
+.It Fl r
+Использовать времена доступа и модификации из указанного файла вместо текущего времени суток.
+.It Fl t
+Изменить времена доступа и модификации на указанное время вместо текущего времени суток.
+Аргумент имеет вид
+.Dq [[CC]YY]MMDDhhmm[.SS]
+где каждая пара букв представляет следующее:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Ar CC
+Первые две цифры года (век).
+.It Ar YY
+Вторые две цифры года.
+Если указано
+.Dq YY
+, но
+.Dq CC
+нет, то значение
+.Dq YY
+в диапазоне от 69 до 99 приводит к значению
+.Dq CC
+, равному 19.
+В противном случае используется значение
+.Dq CC
+, равное 20.
+.It Ar MM
+Месяц года, от 01 до 12.
+.It Ar DD
+День месяца, от 01 до 31.
+.It Ar hh
+Час дня, от 00 до 23.
+.It Ar mm
+Минута часа, от 00 до 59.
+.It Ar SS
+Секунда минуты, от 00 до 60.
+.El
+.Pp
+Если пары букв
+.Dq CC
+и
+.Dq YY
+не указаны, их значения по умолчанию берутся из текущего года.
+Если пара букв
+.Dq SS
+не указана, значение по умолчанию равно 0.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СОВМЕСТИМОСТЬ
+Поддерживается устаревшая форма
+.Nm ,
+в которой формат времени указывается в качестве первого аргумента.
+Когда не указана опция
+.Fl r
+или
+.Fl t
+, имеется как минимум два аргумента, и первый аргумент представляет собой строку цифр длиной либо восемь, либо десять символов, то первый аргумент интерпретируется как спецификация времени вида
+.Dq MMDDhhmm[YY] .
+.Pp
+Пары букв
+.Dq MM ,
+.Dq DD ,
+.Dq hh
+и
+.Dq mm
+обрабатываются как их аналоги, указанные для опции
+.Fl t .
+Если пара букв
+.Dq YY
+находится в диапазоне от 39 до 99, год устанавливается в диапазон 1939–1999, в противном случае год устанавливается в 21 век.
+.Sh СМ. ТАКЖЕ
+.Xr utimensat 2
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+является надмножеством спецификации
+.St -p1003.2
+.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v7
+.

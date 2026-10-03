@@ -1,0 +1,85 @@
+.\"
+.\" Copyright (c) 2010 The FreeBSD Foundation 
+.\" All rights reserved. 
+.\" 
+.\" This software was developed by Rui Paulo under sponsorship from the
+.\" FreeBSD Foundation. 
+.\"  
+.\" Redistribution and use in source and binary forms, with or without 
+.\" modification, are permitted provided that the following conditions 
+.\" are met: 
+.\" 1. Redistributions of source code must retain the above copyright 
+.\"    notice, this list of conditions and the following disclaimer. 
+.\" 2. Redistributions in binary form must reproduce the above copyright 
+.\"    notice, this list of conditions and the following disclaimer in the 
+.\"    documentation and/or other materials provided with the distribution. 
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND 
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE 
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+.\" SUCH DAMAGE. 
+.\"
+.\" FRDP path ./cddl/usr.bin/ctfdump/ctfdump.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 dafc3852261e508b9edd96ff24f3b1f2ae156c6346e6a060985bd572e89154e4
+.Dd 21 апреля 2022
+.Dt CTFDUMP 1
+.Os
+.Sh ИМЯ
+.Nm ctfdump
+.Nd выводит содержимое раздела SUNW_ctf файла ELF
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dfhlsSt
+.Fl u Ar файл
+файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит содержимое раздела данных CTF (Compact C Type Format)
+(SUNW_ctf), присутствующего в двоичном файле ELF.
+Этот раздел был ранее создан с помощью
+.Xr ctfconvert 1
+или
+.Xr ctfmerge 1 .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl d
+Показать раздел объектов данных.
+.It Fl f
+Показать раздел функций.
+.It Fl h
+Показать заголовок.
+.It Fl l
+Показать раздел меток.
+.It Fl s
+Показать таблицу строк.
+.It Fl S
+Показать статистику.
+.It Fl t
+Показать раздел типов.
+.It Fl u Ar файл_вывода
+Записать несжатые данные CTF в сырой CTF-файл с именем
+.Ar файл_вывода .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ctfconvert 1 ,
+.Xr ctfmerge 1 ,
+.Xr ctf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Утилиты CTF пришли из OpenSolaris.

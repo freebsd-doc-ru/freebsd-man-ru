@@ -1,0 +1,159 @@
+.\" Copyright (c) 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This manual is derived from one contributed to Berkeley by
+.\" Michael Rendell of Memorial University of Newfoundland.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)tsort.1	8.3 (Berkeley) 4/1/94
+.\"
+.\" FRDP path ./usr.bin/tsort/tsort.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 8da100f146d6a4955b0a7677bcc3943d71c7bd6039256f5e382600e229431f04
+.Dd 30 августа 2020
+.Dt TSORT 1
+.Os
+.Sh ИМЯ
+.Nm tsort
+.Nd топологическая сортировка направленного графа
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dlq
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+принимает список пар имён узлов, представляющих направленные дуги в
+графе, и выводит узлы в топологическом порядке на стандартный вывод.
+Ввод осуществляется из указанного
+.Ar файла
+или со стандартного ввода, если файл не задан.
+.Pp
+Во входных данных должно быть чётное количество узлов.
+Имена узлов, указанные в одной строке, должны разделяться пробельными символами.
+.Pp
+Наличие узла в графе может быть представлено дугой от узла
+к самому себе.
+Это полезно, когда узел не соединён с другими узлами.
+.Pp
+Если граф содержит цикл (и, следовательно, не может быть корректно отсортирован),
+одна из дуг цикла игнорируется, и сортировка продолжается.
+О циклах сообщается на стандартный вывод ошибок.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl d
+Включить отладку.
+.It Fl l
+Найти и отобразить самый длинный цикл.
+Может занимать очень много времени.
+.It Fl q
+Не отображать информационные сообщения о циклах.
+Предназначено в первую очередь
+для сборки библиотек, где оптимальный порядок не критичен,
+а циклы встречаются часто.
+.El
+.Sh ПРИМЕРЫ
+Предположим, существует файл с именем
+.Pa dag,
+содержащий следующий направленный ациклический граф:
+.Bd -literal -offset indent
+A B
+A F
+B C
+B D
+D E
+.Ed
+.Pp
+Отсортируем узлы графа:
+.Bd -literal -offset indent
+$ tsort dag
+A
+F
+B
+D
+C
+E
+.Ed
+.Pp
+Пробельные символы и символы новой строки считаются равнозначными.
+Например, этот файл считается эквивалентным предыдущему:
+.Bd -literal -offset indent
+$ cat dga
+A B A F B C B D D E
+.Ed
+.Pp
+Предположим, мы добавили новую направленную дугу от D к A, создав цикл:
+.Bd -literal -offset indent
+A B
+A F
+B C
+B D
+D E
+D A
+.Ed
+.Pp
+Упорядочивание графа обнаруживает цикл:
+.Bd -literal -offset indent
+$ tsort dag
+tsort: cycle in data
+tsort: A
+tsort: B
+tsort: D
+D
+E
+A
+F
+B
+C
+.Ed
+.Pp
+То же самое, но без предупреждения о цикле:
+.Bd -literal -offset indent
+$ tsort -q dag
+D
+E
+A
+F
+B
+C
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ar 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v7 .
+Данная команда
+.Nm
+и страница руководства созданы на основе исходных кодов, предоставленных Беркли
+.An Майклом Ренделлом
+из Мемориального университета Ньюфаундленда.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+не распознаёт многобайтовые символы.

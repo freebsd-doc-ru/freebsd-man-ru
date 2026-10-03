@@ -1,0 +1,126 @@
+.\" $NetBSD: iconv.1,v 1.3 2008/03/20 11:35:44 tnozaki Exp $
+.\"
+.\" Copyright (c)2003 Citrus Project,
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/iconv/iconv.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 d449af41d18bb7d01afd0fae00e812de9d17ddc4980a53c40807a7e9e47172c0
+.Dd 22 октября 2009
+.Dt ICONV 1
+.Os
+.Sh ИМЯ
+.Nm iconv
+.Nd утилита преобразования кодировок
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cs
+.Fl f
+.Ar from_name
+.Fl t
+.Ar to_name
+.Op Ar файл ...
+.Nm
+.Fl f
+.Ar from_name
+.Op Fl cs
+.Op Fl t Ar to_name
+.Op Ar файл ...
+.Nm
+.Fl t
+.Ar to_name
+.Op Fl cs
+.Op Fl f Ar from_name
+.Op Ar файл ...
+.Nm
+.Fl l
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+преобразует кодировку
+.Ar файла
+(или стандартного ввода, если файл не указан) из кодировки
+.Ar from_name
+в кодировку
+.Ar to_name
+и выводит преобразованный текст на стандартный вывод.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width 0123
+.It Fl c
+Запретить вывод любых недопустимых символов.
+По умолчанию,
+.Nm
+выводит
+.Dq недопустимый символ,
+определённый кодировкой
+.Ar to_name,
+когда встречает символ, допустимый в кодировке
+.Ar from_name,
+но не имеющий соответствующего символа в кодировке
+.Ar to_name.
+.It Fl f
+Задаёт исходную кодировку как
+.Ar from_name.
+.It Fl l
+Выводит список доступных имён кодировок.
+Обратите внимание, что не все комбинации
+.Ar from_name
+и
+.Ar to_name
+являются допустимыми.
+.It Fl s
+Тихий режим.
+По умолчанию,
+.Nm
+выводит количество
+.Dq недопустимых символов
+в стандартный поток ошибок, если они существуют.
+Эта опция предотвращает такое поведение.
+.It Fl t
+Задаёт целевую кодировку как
+.Ar to_name.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std iconv
+.Sh ПРИМЕРЫ
+Преобразовать
+.Pa file.txt
+из IBM273 в UTF-8 и сохранить результат в
+.Pa converted.txt:
+.Pp
+.Dl iconv -f IBM273 -t UTF-8 file.txt > converted.txt
+.Sh СМ. ТАКЖЕ
+.Xr mkcsmapper 1 ,
+.Xr mkesdb 1 ,
+.Xr iconv 3
+.Sh СТАНДАРТЫ
+.Nm
+соответствует
+.St -p1003.1-2008.
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Nx 2.0 и была включена в
+.Fx 9.0.
