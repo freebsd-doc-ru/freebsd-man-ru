@@ -1,0 +1,97 @@
+.\" Copyright (c) 2005 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/appl/afsutil/pagsh.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 d825c530af6a167179df6380246e2a3747e037d890d054121ba2110706500f81
+.Dd 12 февраля 2005
+.Dt PAGSH 1
+.Os Heimdal
+.Sh ИМЯ
+.Nm pagsh
+.Nd создает новую песочницу для кэша учетных данных
+.Sh СИНТАКСИС
+.Nm
+.Op Fl c Ar строка-команды
+.Op Fl h | Fl Fl help
+.Op Fl Fl version
+.Op Fl Fl cache-type= Ns Ar строка
+.Ar команда [аргументы...]
+.Sh ОПИСАНИЕ
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Xo
+.Fl c Ar строка-команды
+Выполняет команду(ы), содержащиеся в
+.Ar строке-команды .
+.Xc
+.It Xo
+.Fl Fl cache-type= Ns Ar строка
+.Xc
+.It Xo
+.Fl h ,
+.Fl Fl help
+.Xc
+.It Xo
+.Fl Fl version
+.Xc
+.El
+.Pp
+.Nm
+создает новую песочницу для кэша учетных данных, в которой будет работать пользователь.
+Если на компьютере установлена AFS, пользователь помещается в новую
+созданную группу аутентификации процессов (Process Authentication Group, PAG).
+.Pp
+Для Kerberos 5 тип кэша учетных данных, который используется, совпадает с
+типом кэша учетных данных, использовавшимся на момент
+вызова
+.Nm .
+Тип кэша учетных данных может контролироваться опцией
+.Fl Fl cache-type .
+.Sh ПРИМЕРЫ
+Создать новую песочницу, в которой можно использовать новые учетные данные, в то время как старые
+учетные данные могут использоваться другими процессами.
+.Bd -literal -offset indent
+$ klist
+Кэш учетных данных: FILE:/tmp/krb5cc_913
+        Принципал: lha@E.KTH.SE
+
+  Выдан           Истекает          Принципал
+12 фев 10:08:31  12 фев 20:06:36  krbtgt/E.KTH.SE@E.KTH.SE
+$ pagsh
+$ klist
+klist: Нет файла билета: /tmp/krb5cc_03014a
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr afslog 1 ,
+.Xr kinit 1
