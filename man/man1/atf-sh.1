@@ -1,0 +1,105 @@
+.\" Copyright (c) 2010 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\" FRDP path ./contrib/atf/atf-sh/atf-sh.1
+.\" FRDP githash b93c1b1a3b046e4d36d85cb7265c25e19b793388
+.\" FRDP hash256 94201c5f7fae55cd937fcd19eea367d6451e02708479e6fc3fc319ee1b74d23d
+.Dd 6 марта 2017
+.Dt ATF-SH 1
+.Os
+.ИМЯ
+.Nm atf-sh
+.Nd интерпретатор для тестовых программ на основе оболочки
+.СИНТАКСИС
+.Nm
+.Op Fl s Ar оболочка
+.Ar скрипт
+.ОПИСАНИЕ
+.Nm
+является интерпретатором, который запускает тестовую программу, указанную в
+.Ar скрипте
+после загрузки библиотеки
+.Xr atf-sh 3 .
+.Pp
+Однако
+.Nm
+не является настоящим интерпретатором: это всего лишь обёртка вокруг
+системной оболочки, определённой переменной
+.Va ATF_SHELL .
+.Nm
+запускает интерпретатор, загружает библиотеку
+.Xr atf-sh 3
+и затем выполняет скрипт.
+Следует считать, что по умолчанию
+.Nm atf-sh
+является оболочкой POSIX, и поэтому не следует использовать нестандартные
+расширения.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width XsXоболочкаXXX
+.It Fl s Ar оболочка
+Указывает оболочку для использования вместо значения, предоставленного
+.Va ATF_SHELL .
+.El
+.ОКРУЖЕНИЕ
+.Bl -tag -width ATFXLIBEXECDIRXX -compact
+.It Va ATF_LIBEXECDIR
+Переопределяет встроенный каталог, где расположен
+.Nm .
+Не следует переопределять, за исключением целей тестирования.
+.It Va ATF_PKGDATADIR
+Переопределяет встроенный каталог, где расположен файл
+.Pa libatf-sh.subr .
+Не следует переопределять, за исключением целей тестирования.
+.It Va ATF_SHELL
+Путь к системной оболочке, которая будет использоваться в генерируемых скриптах.
+Скрипты не должны полагаться на установку этой переменной для выбора конкретного
+интерпретатора.
+.It Va ATF_SHELL
+Путь к системной оболочке, которая будет использоваться в генерируемых скриптах.
+.El
+.ПРИМЕРЫ
+Скрипты, использующие
+.Xr atf-sh 3 ,
+должны начинаться с:
+.Bd -literal -offset indent
+#! /usr/bin/env atf-sh
+.Ed
+.Pp
+В качестве альтернативы, если вы хотите явно выбрать интерпретатор оболочки, вы не можете
+полагаться на
+.Xr env 1
+для поиска
+.Nm .
+Вместо этого необходимо жёстко прописать путь к
+.Nm
+в скрипте, а затем использовать опцию
+.Fl s
+после этого как
+.Em единственный параметр :
+.Bd -literal -offset indent
+#! /path/to/bin/atf-sh -s/bin/bash
+.Ed
+.СМ. ТАКЖЕ
+.Xr atf-sh 3

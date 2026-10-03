@@ -1,0 +1,86 @@
+.\"	$Id: soelim.1,v 1.5 2017/07/04 23:40:01 schwarze Exp $
+.\"
+.\" Copyright (c) 2014 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./contrib/mandoc/soelim.1
+.\" FRDP githash 61d06d6bd19dafe8ea971dd43e8328fa1b473456
+.\" FRDP hash256 c17eafe7897039f5da44abfe7c5b11209ef07b59695662260d3e9d38999dfaf0
+.Dd $Mdocdate: 4 июля 2017 $
+.Dt SOELIM 1
+.Os
+.ИМЯ
+.Nm soelim
+.Nd интерпретировать запросы .so в man-страницах
+.СИНТАКСИС
+.Nm
+.Op Fl Crtv
+.Op Fl I Ar каталог
+.Op Ar файлы ...
+.ОПИСАНИЕ
+.Nm
+читает
+.Ar файлы
+построчно.
+.Pp
+Если строка начинается с:
+.Dq .so другойфайл
+она заменяется обработкой
+.Dq другойфайл .
+В противном случае строка выводится на stdout.
+.It Fl C
+Распознавать
+.Em .so
+даже если за ним не следует пробел.
+.It Fl r
+Совместимость с GNU groff
+.Nm soelim
+(ничего не делает).
+.It Fl t
+Совместимость с GNU groff
+.Nm soelim
+(ничего не делает).
+.It Fl v
+Совместимость с GNU groff
+.Nm soelim
+(ничего не делает).
+.It Fl I Ar каталог
+Эта опция задаёт каталоги, в которых
+.Nm
+ищет файлы (как указанные в командной строке, так и названные в директиве
+.Dq .so ).
+Эту опцию можно указывать несколько раз.
+Каталоги будут просматриваться в указанном порядке.
+.El
+.Pp
+Файлы всегда сначала ищутся в текущем каталоге.
+.Pp
+Файл, указанный абсолютным путём, будет открыт напрямую без поиска.
+.СМ. ТАКЖЕ
+.Xr mandoc 1
+.АВТОРЫ
+Эта версия утилиты
+.Nm
+была написана
+.An Baptiste Daroussin Aq Mt bapt@freebsd.org .

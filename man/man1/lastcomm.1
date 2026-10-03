@@ -1,0 +1,181 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	From: @(#)lastcomm.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/lastcomm/lastcomm.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 287fa7ce3aca443f6dd22d2744c3b4f4ecf5d640c6db9b5fd57100787d690595
+.Dd 17 мая 2012
+.Dt LASTCOMM 1
+.Os
+.Sh ИМЯ
+.Nm lastcomm
+.Nd показать последние выполненные команды
+.Sh СИНТАКСИС
+.Nm
+.Op Fl EScesu
+.Op Fl f Ar файл
+.Op Cm + Ns Ar формат
+.Op Ar команда ...\&
+.Op Ar пользователь ...\&
+.Op Ar терминал ...\&
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет информацию о ранее выполненных командах.
+Без аргументов,
+.Nm
+выводит информацию обо всех командах, записанных
+в течение времени существования текущего файла учёта.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl E
+Вывести время завершения процесса.
+.It Fl S
+Вывести время начала процесса.
+.It Fl c
+Вывести количество процессорного времени, использованного процессом.
+.It Fl e
+Вывести количество затраченного времени, использованного процессом.
+.It Fl s
+Вывести количество системного времени, использованного процессом.
+.It Fl u
+Вывести количество пользовательского времени, использованного процессом.
+.It Fl f Ar файл
+Читать из
+.Ar файла
+вместо стандартного
+.Pa /var/account/acct .
+Если
+.Ar файл
+представляет собой одиночный дефис
+.Pq Sq \&-
+.Nm
+читает записи учёта из стандартного ввода.
+.El
+.Pp
+Операнд с ведущим знаком плюс
+.Pq Sq +
+сопровождается пользовательской строкой формата, которая определяет формат
+отображения даты и времени начала или завершения процесса.
+Строка формата может содержать любые спецификации преобразования,
+описанные на странице руководства
+.Xr strftime 3 ,
+а также произвольный текст.
+.Pp
+Если опции не указаны,
+предполагается
+.Fl cS .
+Если
+.Nm
+вызывается с аргументами, выводятся только записи учёта с
+соответствующим именем
+.Ar команды ,
+именем
+.Ar пользователя
+или именем
+.Ar терминала .
+Например:
+.Pp
+.Dl lastcomm a.out root ttyd0
+.Pp
+выведет список всех выполнений команд с именем
+.Pa a.out
+пользователем
+.Ar root
+на терминале
+.Ar ttyd0 .
+.Pp
+Для каждой записи процесса выводятся следующие данные.
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Имя пользователя, запустившего процесс.
+.It
+Флаги, собранные средствами учёта в системе.
+.It
+Имя команды, под которым был вызван процесс.
+.It
+Количество
+процессорного
+.Pq Fl c ,
+реального
+.Pq Fl e ,
+системного
+.Pq Fl s
+или пользовательского
+.Pq Fl u
+времени, использованного процессом (в секундах).
+.It
+Время начала
+.Pq Fl S
+или завершения
+.Pq Fl E
+процесса.
+.El
+.Pp
+Флаги кодируются следующим образом: «S» указывает, что команда была
+выполнена суперпользователем, «F» указывает, что команда запускалась после
+fork, но без последующего
+.Xr exec 3 ,
+«D» указывает, что команда завершилась с созданием
+.Pa core
+файла, а «X» указывает, что команда была завершена сигналом.
+.Pp
+По умолчанию записи учёта выводятся в обратном хронологическом порядке,
+начиная с времени выполнения
+.Nm .
+Однако, если
+.Nm
+читает записи из своего стандартного ввода, то записи выводятся в
+порядке их чтения.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/account/acct -compact
+.It Pa /var/account/acct
+стандартный файл учёта
+.El
+.Sh ПРИМЕРЫ
+Команда
+.Dl lastcomm -Ee
+выведет время завершения и затраченное время каждой команды, записанной в
+.Pa /var/account/acct ,
+в то время как
+.Dl tail -f -c 0 /var/account/acct | lastcomm -f -
+выведет детали каждой завершающейся команды.
+.Sh СМ. ТАКЖЕ
+.Xr last 1 ,
+.Xr sigaction 2 ,
+.Xr strftime 3 ,
+.Xr acct 5 ,
+.Xr core 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .

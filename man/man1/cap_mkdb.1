@@ -1,0 +1,95 @@
+.\" Copyright (c) 1992, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)cap_mkdb.1	8.1 (Berkeley) 6/6/93
+.\"
+.\" FRDP path ./usr.bin/cap_mkdb/cap_mkdb.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 9eb612772e568a8b42a476a4008a5dd87ca329c3e80c8a9df37d228f9cf28c58
+.Dd 22 февраля 2005
+.Dt CAP_MKDB 1
+.Os
+.Sh ИМЯ
+.Nm cap_mkdb
+.Nd создать базу данных возможностей
+.Sh СИНТАКСИС
+.Nm
+.Op Fl b | l
+.Op Fl v
+.Op Fl f Ar файл_вывода
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+строит хэшированную базу данных из логической базы данных
+.Xr getcap 3 ,
+сформированной путем объединения указанных файлов.
+.Pp
+База данных именуется по базовому имени первого аргумента-файла и строке
+.Dq .db .
+Подпрограммы
+.Xr getcap 3
+могут обращаться к базе данных в этой форме гораздо быстрее,
+чем к исходным текстовым файлам.
+.Pp
+Возможности ``tc'' записей раскрываются перед сохранением записи в базу данных.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl b
+Использовать порядок байтов big-endian для метаданных базы данных.
+.It Fl f Ar файл_вывода
+Указать другое базовое имя для базы данных.
+.It Fl l
+Использовать порядок байтов little-endian для метаданных базы данных.
+.It Fl v
+Вывести количество записей возможностей в базе данных.
+.El
+.Pp
+Флаги
+.Fl b
+и
+.Fl l
+взаимоисключающие.
+Порядок байтов по умолчанию соответствует порядку текущего хоста.
+.Sh ФОРМАТ
+Каждая запись хранится в базе данных с использованием двух различных типов ключей.
+.Pp
+Первый тип — это ключ, состоящий из первой возможности записи (не включая завершающее двоеточие (``:'')), с полем данных, содержащим специальный байт, за которым следует остальная часть записи.
+Специальный байт — это либо 0, либо 1, где 0 означает, что запись корректна, а 1 означает, что в записи присутствовала возможность ``tc'', которую не удалось раскрыть.
+.Pp
+Второй тип — это ключ, состоящий из одного из имен из первой возможности записи, с полем данных, содержащим специальный байт, за которым следует первая возможность записи.
+Специальный байт равен 2.
+.Pp
+При обычной работе имена ищутся в базе данных, что приводит к паре ключ/данные второго типа.
+Поле данных этой пары ключ/данные используется для поиска пары ключ/данные первого типа, которая содержит реальные данные, связанные с именем.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr dbopen 3 ,
+.Xr getcap 3 ,
+.Xr termcap 5
