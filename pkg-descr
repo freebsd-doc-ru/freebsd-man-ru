@@ -1,0 +1,11 @@
+Russian translations of FreeBSD manual pages.
+
+This package installs translated manual pages into man/ru/.
+The translations are tracked per FreeBSD version via separate
+flavors.  Choose the flavor matching your FreeBSD release:
+
+  - main        for FreeBSD main (CURRENT)
+  - releng_15_0 for FreeBSD 15.0
+  - releng_15_1 for FreeBSD 15.1
+
+WWW: https://github.com/freebsd-doc-ru/freebsd-man-ru
