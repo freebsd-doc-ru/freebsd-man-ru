@@ -2,9 +2,9 @@
 .\" FRDP path ./contrib/ofed/librdmacm/man/rdma_xserver.1
 .\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
 .\" FRDP hash256 a7af44d16707e287bf487d4a03c9ba62e4c7ce94da9fe0440820291f772a3f07
-.ИМЯ
+.SH ИМЯ
 rdma_xserver \- тестовая программа сервера связи RDMA CM
-.СИНТАКСИС
+.SH СИНТАКСИС
 .sp
 .nf
 \fIrdma_xserver\fR [-p порт] [-c тип_коммуникации]

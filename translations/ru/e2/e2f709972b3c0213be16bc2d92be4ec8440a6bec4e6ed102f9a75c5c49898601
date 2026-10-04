@@ -37,11 +37,11 @@
 .Dd 10 января 2012
 .Dt BSNMPGET 1
 .Os
-.Ш ИМЯ
+.Sh ИМЯ
 .Nm bsnmpget ,
 .Nm bsnmpwalk ,
 .Nm bsnmpset
-.Ш СИНТАКСИС
+.Sh СИНТАКСИС
 .Nm
 .Op Fl aDdehnK
 .Op Fl A Ar опции
@@ -96,7 +96,7 @@
 .Op Fl v Ar версия
 .Ar OID Ns = Ar синтаксис Ns : Ns Ar значение
 .Op Ar OID Ns = Ar синтаксис Ns : Ns Ar значение ...
-.Ш ОПИСАНИЕ
+.Sh ОПИСАНИЕ
 .Nm ,
 .Nm bsnmpwalk
 и
@@ -120,7 +120,7 @@ Simple Network Management Protocol (SNMP) и установки управляю
 формирует пакет SNMP SetRequest, заполняет OID (идентификаторы объектов),
 синтаксисы и значения объектов, значения которых требуется установить, и ожидает
 ответа от сервера.
-.Ш ОПЦИИ
+.Sh ОПЦИИ
 Опции следующие (не все применимы ко всем трём программам):
 .It Fl A Ar опции
 Параметры аутентификации для использования с PDU SNMPv3
@@ -392,7 +392,7 @@ Integer, OctetString, OID, IpAddress, Counter32, Gauge, TimeTicks, Counter64.
 содержат специальные символы или пробелы, все другие числовые типы — нет.
 .El
 .El
-.Ш ОКРУЖЕНИЕ
+.Sh ОКРУЖЕНИЕ
 .Nm ,
 .Nm bsnmpwalk
 и
@@ -411,7 +411,7 @@ Integer, OctetString, OID, IpAddress, Counter32, Gauge, TimeTicks, Counter64.
 Если эта переменная существует в окружении,
 SNMPv3 является версией по умолчанию для исходящих запросов.
 .El
-.Ш СМ. ТАКЖЕ
+.Sh СМ. ТАКЖЕ
 .Xr gensnmpdef 1
-.Ш АВТОРЫ
+.Sh АВТОРЫ
 .An Штеряна Шопова Aq Mt syrinx@FreeBSD.org

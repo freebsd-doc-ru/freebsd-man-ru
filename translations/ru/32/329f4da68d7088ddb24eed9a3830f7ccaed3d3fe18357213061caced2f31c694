@@ -14,10 +14,10 @@
 .\" FRDP path ./contrib/sendmail/vacation/vacation.1
 .\" FRDP githash d39bd2c1388b520fcba9abed1932acacead60fba
 .\" FRDP hash256 329f4da68d7088ddb24eed9a3830f7ccaed3d3fe18357213061caced2f31c694
-.ИМЯ
+.SH ИМЯ
 vacation
 \- автоответчик для электронной почты
-.СИНТАКСИС
+.SH СИНТАКСИС
 .B vacation
 .RB [ \-a
 .IR псевдоним ]
@@ -44,7 +44,7 @@ vacation
 .RB [ \-x ]
 .RB [ \-z ]
 .I логин
-.ОПИСАНИЕ
+.SH ОПИСАНИЕ
 .B Vacation
 возвращает отправителю сообщение,
 по умолчанию из файла
@@ -286,7 +286,7 @@ Precedence: bulk
 которое вызвало программу
 .B vacation
 .
-.ФАЙЛЫ
+.SH ФАЙЛЫ
 .TP 1.8i
 ~/.vacation.db
 база данных по умолчанию для db(3)
@@ -296,10 +296,10 @@ Precedence: bulk
 .TP
 ~/.vacation.msg
 сообщение для отправки по умолчанию
-.СМ. ТАКЖЕ
+.SH СМ. ТАКЖЕ
 sendmail(8),
 syslog(8)
-.ИСТОРИЯ
+.SH ИСТОРИЯ
 Команда
 .B vacation
 появилась в

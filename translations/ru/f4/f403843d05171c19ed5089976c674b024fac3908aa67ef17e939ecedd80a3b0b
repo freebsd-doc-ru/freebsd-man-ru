@@ -23,20 +23,20 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .nr rst2man-indent-level -1
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
-.ИМЯ
+.SH ИМЯ
 llvm-ranlib \- генерирует индекс архива
-.СИНТАКСИС
+.SH СИНТАКСИС
 .sp
 \fBllvm\-ranlib\fP [\fIпараметры\fP] \fIархив...\fP
-.ОПИСАНИЕ
+.SH ОПИСАНИЕ
 .sp
 \fBllvm\-ranlib\fP является псевдонимом для инструмента \fI\%llvm\-ar\fP, который генерирует индекс для одного или нескольких архивов. Может использоваться как замена инструмента GNU \fBranlib\fP\&.
 .sp
 Запуск \fBllvm\-ranlib\fP эквивалентен запуску \fBllvm\-ar s\fP\&.
-.СМ. ТАКЖЕ
+.SH СМ. ТАКЖЕ
 .sp
 \fBllvm\-ar(1)\fP
-.АВТОРЫ
+.SH АВТОРЫ
 Поддерживается командой LLVM (https://llvm.org/).
-.АВТОРСКИЕ ПРАВА
+.SH АВТОРСКИЕ ПРАВА
 2003-2023, Проект LLVM

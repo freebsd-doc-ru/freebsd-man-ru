@@ -2,10 +2,10 @@
 .\" FRDP path ./contrib/ofed/librdmacm/man/ucmatose.1
 .\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
 .\" FRDP hash256 2e30018823c5aa9fb9bd0a4703602f264d7535c63bd1c45a155dd742002646a4
-.ИМЯ
+.SH ИМЯ
 ucmatose \- тест соединения RDMA CM и простой пинг-понг.
 
-.СИНТАКСИС
+.SH СИНТАКСИС
 .sp
 .nf
 \fIucmatose\fR [-s адрес_сервера] [-b адрес_привязки]

@@ -147,6 +147,14 @@
 Обратная косая черта, за которой следуют определённые специальные символы,
 отображается на специальные
 значения.
+.Bl -column "\ea"
+.It "\ea	<alert character>"
+.It "\eb	<backspace>"
+.It "\ef	<form-feed>"
+.It "\en	<newline>"
+.It "\er	<carriage return>"
+.It "\et	<tab>"
+.It "\ev	<vertical tab>"
 .El
 .Pp
 Обратная косая черта, за которой следует любой другой символ, отображается на этот символ.
@@ -169,6 +177,23 @@
 .It [:класс:]
 Представляет все символы, принадлежащие определённому классу символов.
 Имена классов:
+.Bl -column "phonogram"
+.It "alnum	<alphanumeric characters>"
+.It "alpha	<alphabetic characters>"
+.It "blank	<whitespace characters>"
+.It "cntrl	<control characters>"
+.It "digit	<numeric characters>"
+.It "graph	<graphic characters>"
+.It "ideogram	<ideographic characters>"
+.It "lower	<lower-case alphabetic characters>"
+.It "phonogram	<phonographic characters>"
+.It "print	<printable characters>"
+.It "punct	<punctuation characters>"
+.It "rune	<valid characters>"
+.It "space	<space characters>"
+.It "special	<special characters>"
+.It "upper	<upper-case characters>"
+.It "xdigit	<hexadecimal characters>"
 .El
 .Pp
 Когда

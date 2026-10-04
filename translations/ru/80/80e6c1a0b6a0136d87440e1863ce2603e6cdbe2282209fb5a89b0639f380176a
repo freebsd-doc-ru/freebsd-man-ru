@@ -2,9 +2,9 @@
 .\" FRDP path ./contrib/ofed/librdmacm/man/rping.1
 .\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
 .\" FRDP hash256 80e6c1a0b6a0136d87440e1863ce2603e6cdbe2282209fb5a89b0639f380176a
-.ИМЯ
+.SH ИМЯ
 rping \- тест соединения RDMA CM и пинг-понг RDMA.
-.СИНТАКСИС
+.SH СИНТАКСИС
 .sp
 .nf
 \fIrping\fR -s [-v] [-V] [-d] [-P] [-a адрес] [-p порт]
