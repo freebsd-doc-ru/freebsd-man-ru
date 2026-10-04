@@ -1,0 +1,63 @@
+.\" FRDP path cddl/usr.bin/ctfconvert/ctfconvert.1
+.\" FRDP githash 3fd42db26c3dd0882cf69c54850a59e79b027e33
+.\" FRDP hash256 f2784528fe6a1816a4810bdd798cb7da9334bc4ece021f14e5ad75faa21442d7
+.Dd April 21, 2022
+.Dt CTFCONVERT 1
+.Os
+.Sh ИМЯ
+.Nm ctfconvert
+.Nd преобразовать отладочные данные в данные CTF
+.Sh СИНТАКСИС
+.Nm
+.Op Fl gis
+.Fl L Ar labelenv
+.Fl l Ar label
+.Op Fl o Ar outfile
+объектный_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+преобразует отладочную информацию из двоичного файла в данные CTF
+.Pq Compact C Type Format
+и заменяет секцию отладки этого файла на секцию CTF
+с именем SUNW_ctf.
+Эта новая секция добавляется во входной файл, если только не указана
+опция
+.Fl o .
+Вы также можете сохранить исходную секцию отладки с помощью
+опции
+.Fl g .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width ".Fl L Ar labelenv" -compact
+.It Fl g
+Не удалять исходную секцию отладки.
+.It Fl i
+Игнорировать объектные файлы, созданные из языков, отличных от C.
+.It Fl L Ar labelenv
+Указывает
+.Nm
+прочитать метку из переменной окружения
+.Ev labelenv .
+.It Fl l Ar label
+Устанавливает метку как
+.Ar label .
+.It Fl o Ar outfile
+Записать вывод в файл
+.Ar outfile .
+.It Fl s
+Использовать секцию ELF .dynsym вместо секции ELF .symtab.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ctfdump 1 ,
+.Xr ctfmerge 1 ,
+.Xr ctf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Утилиты CTF пришли из OpenSolaris.
