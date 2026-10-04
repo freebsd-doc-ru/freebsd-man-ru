@@ -56,6 +56,7 @@
 отчитывается обо всех открытых файлах в системе для процессов, к которым у пользователя есть доступ.
 .Pp
 Доступны следующие опции:
+.Bl -tag -width "-N system"
 .It Fl f
 Ограничить проверку файлами, открытыми в тех же файловых системах, что и
 указанные файловые аргументы, или файловой системой, содержащей
@@ -241,6 +242,7 @@
 .Nm
 :
 .Bd -literal -offset indent
+$ fstat | awk '$2 != "fstat"'
 ПОЛЬЗОВАТЕЛЬ     КОМАНДА          ПИД   ФД МОНТИРОВАНИЕ      ИНОД РЕЖИМ         РАЗМЕР|УСТРОЙСТВО Чт/Зп
 alice  bash         469 text /usr/local 143355 -rwxr-xr-x  1166448  r
 alice  bash         469 ctty /dev        346 crw--w----  pts/81 rw
@@ -278,12 +280,14 @@ fstat: 469: No such file or directory
 .Pp
 Показать количество каналов, открытых процессами firefox:
 .Bd -literal -offset indent
+$ fstat | awk '$2=="firefox" && $5=="pipe"' | wc -l
 .Ed
 .Pp
 Показать процессы, принадлежащие пользователю
 .Dq bob
 , у которых дескриптор стандартной ошибки открыт в ttyv0:
 .Bd -literal -offset indent
+$ fstat -u bob | awk '$4 == 2 && $8 == "ttyv0"'
 bob  firefox    77842    2 /dev        103 crw-------   ttyv0 rw
 bob  xinit       1194    2 /dev        103 crw-------   ttyv0 rw
 \&...
@@ -294,6 +298,7 @@ bob  xinit       1194    2 /dev        103 crw-------   ttyv0 rw
 .Ql netstat -A -p tcp
 :
 .Bd -literal -offset indent
+$ fstat | awk '$7 == "tcp"'
 alice  firefox    77991   32* internet stream tcp fffff800b7f147a0
 alice  firefox    77991  137* internet stream tcp fffff800b7f12b70
 \&...
@@ -304,6 +309,7 @@ alice  firefox    77991  137* internet stream tcp fffff800b7f12b70
 .Xr fuser 1
 :
 .Bd -literal -offset indent
+$ fstat . | awk 'NR > 1 {printf "%d%s(%s) ", $3, $4, $1;}'
 2133wd(alice) 2132wd(alice) 1991wd(alice)
 .Ed
 .Pp
