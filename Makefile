@@ -1,5 +1,5 @@
 PORTNAME=	freebsd-man-ru
-DISTVERSION=	1.0
+DISTVERSION=	1.1
 CATEGORIES=	russian docs
 
 MAINTAINER=	vladlen@FreeBSD.org
@@ -22,11 +22,11 @@ GH_PROJECT=	freebsd-man-ru
 
 # GH_TAGNAME assigned conditionally
 .if ${FLAVOR:U} == main
-GH_TAGNAME=	ru_main-1
+GH_TAGNAME=	ru_main-2
 .elif ${FLAVOR:U} == releng_15_0
-GH_TAGNAME=	ru_releng/15.0-1
+GH_TAGNAME=	ru_releng/15.0-2
 .elif ${FLAVOR:U} == releng_15_1
-GH_TAGNAME=	ru_releng/15.1-1
+GH_TAGNAME=	ru_releng/15.1-2
 .endif
 
 NO_BUILD=	yes

@@ -1,7 +1,9 @@
-TIMESTAMP = 1791049146
-SHA256 (freebsd-doc-ru-freebsd-man-ru-1.0-ru_main-1_GH0.tar.gz) = 1cb367a3ab699647eb2cf51caacfe12661ec232b5e646c70c3ccd0f4c6c4171a
-SIZE (freebsd-doc-ru-freebsd-man-ru-1.0-ru_main-1_GH0.tar.gz) = 511296
-SHA256 (freebsd-doc-ru-freebsd-man-ru-1.0-ru_releng-15.0-1_GH0.tar.gz) = 9d213bcd84111e0a919b28ab1c5ee9d67a2184fefdef989f6eabda126161d8f2
-SIZE (freebsd-doc-ru-freebsd-man-ru-1.0-ru_releng-15.0-1_GH0.tar.gz) = 603840
-SHA256 (freebsd-doc-ru-freebsd-man-ru-1.0-ru_releng-15.1-1_GH0.tar.gz) = 85b8d08ff086536c7af59cc534ff63a64e5b93e7e40acddf997a17cff7ef0d12
-SIZE (freebsd-doc-ru-freebsd-man-ru-1.0-ru_releng-15.1-1_GH0.tar.gz) = 576980
+TIMESTAMP = 1791135083
+SHA256 (freebsd-doc-ru-freebsd-man-ru-1.1-ru_main-2_GH0.tar.gz) = 15fbfeefe247bb1528974d3a6a18f5a4e0b1f065a6f258de1e2f0a15ed085ed8
+SIZE (freebsd-doc-ru-freebsd-man-ru-1.1-ru_main-2_GH0.tar.gz) = 905430
+TIMESTAMP = 1791135083
+SHA256 (freebsd-doc-ru-freebsd-man-ru-1.1-ru_releng-15.0-2_GH0.tar.gz) = 2825a5a2c472684484084e5f40a06bfdd2cd16ca23b057ee480a6aa59be6735b
+SIZE (freebsd-doc-ru-freebsd-man-ru-1.1-ru_releng-15.0-2_GH0.tar.gz) = 844700
+TIMESTAMP = 1791135084
+SHA256 (freebsd-doc-ru-freebsd-man-ru-1.1-ru_releng-15.1-2_GH0.tar.gz) = 08ee72976705b6bc33395fca92471e5d1fe4ea5459bedb6a709d714ef0023b65
+SIZE (freebsd-doc-ru-freebsd-man-ru-1.1-ru_releng-15.1-2_GH0.tar.gz) = 829191
