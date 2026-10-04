@@ -199,7 +199,8 @@ first_real=$(sed -n '
     fi
 
     # src_path: relative to src_dir, without a leading "./".
-    rel=${file#"$src_dir"/}
+    rel=${file#"$src_dir"}
+    rel=${rel#/}
 
     # target_path: man<N>/<basename>, N from the suffix.
     base=$(basename "$file")
