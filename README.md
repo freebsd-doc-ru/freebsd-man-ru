@@ -107,8 +107,14 @@ tools/man-tr-fix.sh meta/releng15.1.tsv translations/ru
 
 Scan repository `~/freebsd-src/` (it must be checked out to required branch manually before run) and rewrite
 metadata file `meta/releng15.0.tsv`. Previous copy of metadata saved in `meta/releng15.0.tsv.bak`. man files stored as symbolic-links are skipped.
+
+-s 1 - siffixes of man files (default - 1). 
+Example: 
+-s 1,8
+-s 148
+
 ```sh
-tools/man-tr-scan.sh  ~/freebsd-src/  meta/releng15.0.tsv
+tools/man-tr-scan.sh -s 1 ~/freebsd-src/  meta/releng15.0.tsv
 ```
 
 Recomended run sequence:
