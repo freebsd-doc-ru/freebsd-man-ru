@@ -2,7 +2,7 @@ PORTNAME=	freebsd-man-ru
 DISTVERSION=	1.0
 CATEGORIES=	russian docs
 
-MAINTAINER=	freebsd-doc-ru@example.org
+MAINTAINER=	vladlen@FreeBSD.org
 COMMENT=	Russian translations of FreeBSD manual pages
 WWW=		https://github.com/freebsd-doc-ru/freebsd-man-ru
 
@@ -11,19 +11,22 @@ LICENSE=	BSD2CLAUSE
 FLAVORS=	main releng_15_0 releng_15_1
 FLAVOR?=	main
 
+# define suffix for every flavor
+main_PKGNAMESUFFIX=		-main
+releng_15_0_PKGNAMESUFFIX=	-releng15_0
+releng_15_1_PKGNAMESUFFIX=	-releng15_1
+
 USE_GITHUB=	yes
 GH_ACCOUNT=	freebsd-doc-ru
 GH_PROJECT=	freebsd-man-ru
 
+# GH_TAGNAME assigned conditionally
 .if ${FLAVOR:U} == main
 GH_TAGNAME=	ru_main-1
-PKGNAMESUFFIX=	-main
 .elif ${FLAVOR:U} == releng_15_0
 GH_TAGNAME=	ru_releng/15.0-1
-PKGNAMESUFFIX=	-releng15_0
 .elif ${FLAVOR:U} == releng_15_1
 GH_TAGNAME=	ru_releng/15.1-1
-PKGNAMESUFFIX=	-releng15_1
 .endif
 
 NO_BUILD=	yes
