@@ -1,5 +1,5 @@
-.\"	$NetBSD: zdiff.1,v 1.5 2010/04/14 19:52:05 wiz Exp $
-.\"	$OpenBSD: zdiff.1,v 1.2 2003/07/13 17:39:14 millert Exp $
+.\"\t$NetBSD: zdiff.1,v 1.5 2010/04/14 19:52:05 wiz Exp $
+.\"\t$OpenBSD: zdiff.1,v 1.2 2003/07/13 17:39:14 millert Exp $
 .\"
 .\" Copyright (c) 2003 Todd C. Miller <Todd.Miller@courtesan.com>
 .\" Copyright (c) 2010 Joerg Sonnenberger <joerg@NetBSD.org>
@@ -31,13 +31,13 @@
 .Nd сравнение сжатых файлов
 .Sh СИНТАКСИС
 .Nm zcmp
-.Op Аргументы
+.Op Ar аргументы
 .Ar файл1
-.Op Аргументы файл2
+.Op Ar файл2
 .Nm zdiff
-.Op Аргументы
+.Op Ar аргументы
 .Ar файл1
-.Op Аргументы файл2
+.Op Ar файл2
 .Sh ОПИСАНИЕ
 .Nm zcmp
 и
@@ -102,12 +102,14 @@ tlz,
 txz.
 .El
 .Sh ОКРУЖЕНИЕ
+.Bl -tag -width "TMPDIR"
 .It Ev TMPDIR
 Каталог для размещения временных файлов.
 Если не установлен, используется
 .Pa /tmp .
 .El
 .Sh ФАЙЛЫ
+.Bl -tag -width "/tmp/zdiff.XXXXXXXXXX" -compact
 .It Pa /tmp/zcmp.XXXXXXXXXX
 Временный файл для
 .Nm zcmp .

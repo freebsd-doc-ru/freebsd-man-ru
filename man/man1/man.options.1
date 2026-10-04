@@ -1,0 +1,1318 @@
+.\" FRDP path contrib/mandoc/man.options.1
+.\" FRDP githash 59fc2b0166f71c791113379d16b8cef7039f289d
+.\" FRDP hash256 12296b6c2d2d1a6833312db404581fa844a499123ba28a1ec6dfe70c041be200
+.Dd $Mdocdate: August 28 2025 $
+.Dt MAN.OPTIONS 1
+.Os
+.Sh ИМЯ
+.Nm man.options
+.Nd назначение букв опций в утилитах для работы со страницами руководства
+.de PWB
+.No PWB/UNIX 1.0 Pq 1 июля 1977 \\\\$1
+..
+.de At7
+.At v7 Pq январь 1979 \\\\$1
+..
+.de At3
+.At III Pq июнь 1980 \\\\$1
+..
+.de Bx4
+.Bx 4 Pq 16 ноября 1980 \\\\$1
+..
+.de At5
+.At V Pq январь 1983 \\\\$1
+..
+.de At8
+.No Версия 8 At Pq февраль 1985 \\\\$1
+..
+.de Bx43
+.Bx 4.3 Pq июнь 1986 \\\\$1
+..
+.de At9
+.No Версия 9 At Pq сентябрь 1986 \\\\$1
+..
+.de At10
+.No Версия 10 At Pq октябрь 1989 \\\\$1
+..
+.de g04
+.No вероятно до groff-0.4 Pq до 14 июля 1990 \\\\$1
+..
+.de Eaton
+.No Eaton Pq до 7 июля 1993; 1990/91?\\& \\\\$1
+..
+.de man15e
+.No man-1.5e Pq не ранее 1993, не позднее 1998 \\\\$1
+..
+.de man15g
+.No man-1.5g Pq не ранее 1993, не позднее 1999 \\\\$1
+..
+.de dbI
+.No man-db вероятно до 2.2a4 Pq до 8 ноября 1994 \\\\$1
+..
+.Sh ОПИСАНИЕ
+В этой странице руководства перечислены буквы опций, используемые во многих различных версиях следующих утилит:
+.Nm man ,
+.Nm apropos ,
+.Nm whatis ,
+.Nm mandoc ,
+.Nm makewhatis ,
+.Nm mandb ,
+.Nm makemandb ,
+.Nm catman ,
+и
+.Nm manpath .
+Буквы опций, используемые
+.Nm groff ,
+.Nm nroff ,
+.Nm troff ,
+и
+.Nm roff ,
+также включены, поскольку начиная с
+.At v7 ,
+многие версии
+.Xr man 1
+передают нераспознанные опции этим программам.
+.Pp
+Для каждой буквы опции информация сначала сгруппирована в абзацы,
+причем каждый абзац описывает похожую функциональность и начинается с
+одной строки, кратко резюмирующей эту функциональность.
+.Pp
+Для каждой программы, использующей эту букву для данной функциональности,
+приводится одна строка, содержащая имя программы, двоеточие, систему,
+где эта буква впервые появилась для данной функциональности в этой
+программе, необязательно запятую и список других версий систем,
+в которых она была введена, точку с запятой и список текущих систем,
+которые ее поддерживают.
+Если система указана перед точкой с запятой, далее она не повторяется.
+.Pp
+Записи отсортированы по историческому старшинству, за исключением того,
+что устаревшие опции перемещены в конец.
+Даты — это даты коммитов, где они известны, и даты выпуска в противном случае.
+.Bl -tag -width 3n
+.It Fl a
+отображать все соответствующие страницы руководства
+.br
+.Nm man :
+.Bx 4.3 Tahoe Pq июнь 1988 ,
+.Eaton ;
+.Ox , Fx , Nx , No man-db , man-1.6 , illumos , Solaris 9-11
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+отображать только элементы, соответствующие всем ключевым словам
+.br
+.Nm apropos :
+.No man-db Pq 29 августа 2007
+.Pp
+использовать все каталоги и файлы для
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.Pp
+.Bq заменено на Fl T Cm ascii
+режим вывода ASCII
+.br
+.Nm troff :
+.At7
+.br
+.Nm groff :
+.g04
+.It Fl B
+использовать указанный браузер
+.br
+.Nm man :
+.No man-1.6 Pq 24 июня 2005
+.It Fl b
+печатать обратную трассировку с каждым предупреждением или сообщением об ошибке
+.br
+.Nm groff :
+.g04
+.Pp
+.Bq устаревшее оборудование
+сообщать, занят ли фотонаборный автомат
+.br
+.Nm troff :
+.At7
+.It Fl C
+альтернативный файл конфигурации
+.br
+.Nm apropos , whatis :
+.Bx 4.4 Lite1 Pq 22 апреля 1994 ,
+.No man-db Pq 22 февраля 2003 ;
+.Ox , Nx
+.br
+.Nm man :
+.Nx 1.0 Pq 26 октября 1994 ,
+.man15e ;
+.Ox
+.br
+.Nm mandb , catman , manpath :
+.No man-db Pq 22 февраля 2003
+.br
+.Nm makemandb :
+.Nx Pq 7 февраля 2012
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+.Bq устарело
+включить режим совместимости
+.br
+.Nm groff :
+.No до groff-0.5 Pq до 3 августа 1990
+.It Fl c
+не использовать пейджер
+.br
+.Nm man :
+.Bx 4.3 Reno Pq июнь 1990 ;
+.Ox , Nx
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+обработать заданный catpath
+.br
+.Nm makewhatis :
+.Pq не ранее 1992, не позднее 1995
+.Pp
+пересоздать базы данных с нуля
+.br
+.Nm mandb :
+.dbI
+.Pp
+создать catpath, а не manpath
+.br
+.Nm manpath :
+.dbI
+.Pp
+внутренняя опция для использования
+.Xr catman 1
+.br
+.Nm man :
+.dbI
+.Pp
+переформатировать исходную страницу, даже если cat-страница существует
+.br
+.Nm man :
+.man15e
+.Pp
+отключить цветной вывод терминала в
+.Xr grotty 1
+.br
+.Nm groff :
+.No groff-1.18.0 Pq 4 октября 2001
+.Pp
+пересоздать версии nroff из исходников SGML
+.br
+.Nm catman :
+.No Solaris 9-11
+.Pp
+.Bq устарело
+постобработать с помощью
+.Xr col 1
+.br
+.Nm man :
+.At3 ,
+.At5
+.It Fl D
+сбросить все, что было установлено с помощью
+.Ev MANOPT
+.br
+.Nm man :
+.dbI
+.Pp
+печатать отладочную информацию в дополнение к странице руководства
+.br
+.Nm man :
+.man15e
+.Pp
+установить кодировку ввода по умолчанию для
+.Xr preconv 1
+.br
+.Nm groff :
+.No groff-1.20 Pq 20 августа 2008
+.Pp
+отображать все файлы, добавленные в
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.It Fl d
+определить пользовательскую строку
+.br
+.Nm groff :
+.g04
+.Pp
+печатать отладочную информацию
+.br
+.Nm man :
+.Eaton ;
+.Fx , No man-db , man-1.6 , illumos , Solaris 9-11
+.br
+.Nm manpath :
+.Eaton ;
+.Fx , No man-db
+.br
+.Nm apropos , whatis :
+.dbI ;
+.Fx
+.br
+.Nm mandb , catman :
+.dbI
+.Pp
+удалить и снова добавить файл в
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 2.7 Pq 3 февраля 2000
+.Pp
+.Bq заменено на Fl l
+интерпретировать аргументы как имена файлов
+.br
+.Nm man :
+.At3 ,
+.At5
+.It Fl E
+подавить все сообщения об ошибках
+.br
+.Nm groff :
+.g04
+.Pp
+выбрать кодировку вывода
+.br
+.Nm man :
+.No man-db Pq 23 декабря 2001
+.It Fl e
+предварительно обработать с помощью
+.Xr eqn 7
+.br
+.Nm man :
+.At7
+.br
+.Nm groff :
+.g04
+.Pp
+выровнять текст по левому и правому полям
+.br
+.Nm nroff :
+.At7
+.Pp
+использовать точное сопоставление
+.br
+.Nm apropos , whatis :
+.dbI
+.Pp
+ограничить поиск расширением раздела
+.br
+.Nm man :
+.No man-db-2.3.5 Pq 21 апреля 1995
+.It Fl F
+использовать альтернативный каталог шрифтов
+.br
+.Nm troff :
+.Bx 4.2 Pq сентябрь 1983
+.br
+.Nm groff :
+.g04
+.Pp
+только предварительное форматирование, не отображать
+.br
+.Nm man :
+.No man-1.5g Pq 7 апреля 1999
+.Pp
+принудительно искать в каталогах, не использовать индекс (по умолчанию)
+.br
+.Nm man :
+.No illumos , Solaris 9-11
+.It Fl f
+режим
+.Xr whatis 1
+.br
+.Nm man :
+.Bx4 ,
+.Eaton ;
+.Ox , Fx , No man-db , man-1.6
+.br
+.Nm apropos , whatis :
+.No man-db Pq 2 декабря 2010 ,
+.Ox 5.7 Pq 27 августа 2014
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+установить семейство шрифтов по умолчанию
+.br
+.Nm groff :
+.g04
+.Pp
+принудительно форматировать, даже если cat-страница новее
+.br
+.Nm catman :
+.Fx Pq 15 марта 1995
+.Pp
+обновить только записи для заданного файла
+.br
+.Nm mandb :
+.No man-db Pq 21 февраля 2003
+.Pp
+принудительно перестроить базу данных с нуля
+.br
+.Nm makemandb :
+.Nx Pq 7 февраля 2012
+.Pp
+найти страницу руководства, связанную с заданным именем файла
+.br
+.Nm man :
+.No illumos , Solaris 9-11
+.Pp
+.Bq устаревшее оборудование
+не подавать бумагу и не останавливать фотонаборный автомат
+.br
+.Nm troff :
+.At7
+.Pp
+.Bq заменено на Fl l
+интерпретировать аргументы как имена файлов
+.br
+.Nm man :
+.At10
+.It Fl G
+предварительно обработать с помощью
+.Xr grap 1
+.br
+.Nm groff :
+.No groff-1.16 Pq 1 мая 2000
+.It Fl g
+создать глобальный manpath
+.br
+.Nm manpath :
+.No man-db-2.2a7 Pq 16 ноября 1994
+.Pp
+предварительно обработать с помощью
+.Xr grn 1
+.br
+.Nm groff :
+.No groff-1.16 Pq 20 февраля 2000
+.Pp
+.Bq устаревшее оборудование
+вывод на фотонаборный автомат GCOS
+.br
+.Nm troff :
+.At7
+.Pp
+.Bq устаревшее оборудование
+вывод на терминал DASI 300 в режиме 12 знаков на дюйм
+.br
+.Nm man :
+.PWB
+.It Fl H
+читать шаблоны переносов из заданного файла
+.br
+.Nm groff :
+.g04
+.Pp
+создать вывод HTML
+.br
+.Nm man :
+.No man-db-1.3.12 до 1.3.17 Pq не ранее 1996, не позднее 2001
+.Pp
+использовать программу для преобразования HTML-файлов в текст
+.br
+.Nm man :
+.No man-1.6 Pq 24 июня 2005
+.It Fl h
+вывести сообщение справки и выйти
+.br
+.Nm groff :
+.g04
+.br
+.Nm man :
+.Eaton ;
+.Fx , No man-db , man-1.6
+.br
+.Nm manpath :
+.Eaton ;
+.Fx , No man-db
+.br
+.Nm apropos , whatis , mandb , catman :
+.dbI
+.Pp
+отображать только строки СИНТАКСИСА
+.br
+.Nm man :
+.Bx 4.3 Net/2 Pq 20 августа 1991 ;
+.Ox , Nx
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 3 сентября 2014
+.Pp
+включить форматирование HTML
+.br
+.Nm apropos :
+.Nx Pq 2 апреля 2013
+.Pp
+.Bq устарело
+заменять пробелы табуляциями в выводе
+.br
+.Nm roff , nroff :
+.At7
+.It Fl I
+путь поиска входных файлов для
+.Xr soelim 1
+.br
+.Nm groff :
+.No groff-1.12 Pq 11 сентября 1999
+.Pp
+учитывать регистр при сопоставлении имен страниц руководства
+.br
+.Nm man , catman :
+.No man-db Pq 21 апреля 2002
+.Pp
+входные опции, в частности имя операционной системы по умолчанию
+.br
+.Nm mandoc :
+.Ox 5.2 Pq 24 мая 2012
+.br
+.Nm man , apropos , whatis :
+.Ox 5.7 Pq 27 августа 2014
+.It Fl i
+читать стандартный ввод после исчерпания входных файлов
+.br
+.Nm nroff , troff :
+.At7
+.br
+.Nm groff :
+.g04
+.Pp
+игнорировать регистр при сопоставлении имен страниц руководства
+.br
+.Nm man , catman :
+.No man-db Pq 21 апреля 2002
+.Pp
+включить форматирование управляющими кодами терминала
+.br
+.Nm apropos :
+.Nx Pq 29 марта 2013
+.It Fl J
+предварительно обработать с помощью
+.Xr gideal 1
+.br
+.Nm groff :
+.No groff-1.22.3 Pq 17 июня 2014
+.It Fl j
+предварительно обработать с помощью
+.Xr chem 1
+.br
+.Nm groff :
+.No groff-1.22 Pq 22 января 2011
+.It Fl K
+полнотекстовый поиск по исходному коду
+.br
+.Nm man :
+.man15e ,
+.No man-db Pq 28 июня 2009 ;
+.No Solaris 11
+.Pp
+входная кодировка
+.br
+.Nm groff :
+.No groff-1.20 Pq 31 декабря 2005
+.br
+.Nm man , apropos , whatis , mandoc :
+.Ox 5.7 Pq 30 октября 2014
+.It Fl k
+режим
+.Xr apropos 1
+.br
+.Nm man :
+.Bx4 ,
+.At10 ,
+.Eaton ;
+.No POSIX , Ox , Fx , Nx , No man-db , man-1.6 , illumos , Solaris 9-11
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+игнорировать ошибки форматирования
+.br
+.Nm catman :
+.Nx Pq 26 апреля 1994
+.Pp
+предварительно обработать с помощью
+.Xr preconv 1
+.br
+.Nm groff :
+.No groff-1.20 Pq 31 декабря 2005
+.Pp
+.Bq устаревшее оборудование
+отображать на терминале Tektronix 4014
+.br
+.Nm man :
+.At7
+.It Fl L
+передать аргумент спулеру
+.br
+.Nm groff :
+.No groff-0.6 Pq 14 сентября 1990
+.Pp
+использовать альтернативную
+.Xr locale 1
+.br
+.Nm man , apropos , whatis :
+.No до man-db-2.2a13 Pq до 15 декабря 1994
+.Pp
+вывести список локалей
+.br
+.Nm manpath :
+.Fx Pq 23 ноября 1999
+.Pp
+использовать
+.Xr locale 1
+указанную в окружении
+.br
+.Nm catman :
+.Fx Pq 18 мая 2002
+.It Fl l
+поставить вывод в очередь
+.br
+.Nm groff :
+.g04
+.Pp
+интерпретировать аргументы как имена файлов
+.br
+.Nm man :
+.No до man-2.2a7 Pq до 16 ноября 1994 ,
+.Ox 5.7 Pq 30 августа 2014
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 30 августа 2014
+.Pp
+не обрезать вывод по ширине терминала
+.br
+.Nm apropos , whatis :
+.No man-db Pq 19 августа 2007
+.Pp
+разбирать только разделы NAME
+.br
+.Nm makemandb :
+.Nx Pq 7 февраля 2012
+.Pp
+устаревший режим: поиск по Nm,Nd, без контекста и форматирования
+.br
+.Nm apropos :
+.Nx Pq 29 марта 2013
+.Pp
+вывести все страницы руководства, соответствующие имени в пределах пути поиска
+.br
+.Nm man :
+.No illumos , Solaris 9-11
+.It Fl M
+переопределить путь поиска страниц руководства
+.br
+.Nm man :
+.Bx43 ,
+.Eaton ;
+.Ox , Fx , Nx , No man-db , man-1.6 , illumos , Solaris 9-11
+.br
+.Nm apropos , whatis :
+.Bx43 ,
+.No до man-db-2.2a14 Pq до 16 декабря 1994 ;
+.Ox , No illumos
+.br
+.Nm catman :
+.dbI ;
+.Nx Pq 27 июля 1993 ,
+.No Solaris 9-11
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+добавить в начало пути поиска файлов макросов
+.br
+.Nm groff :
+.g04
+.Pp
+не показывать контекст совпадения
+.br
+.Nm apropos :
+.Nx Pq 22 мая 2016
+.It Fl m
+указать язык входных макросов
+.br
+.Nm nroff , troff :
+.At7
+.br
+.Nm groff :
+.g04
+.br
+.Nm mandoc :
+.Ox 4.8 Pq 6 апреля 2009
+.Pp
+дополнить путь поиска страниц руководства
+.br
+.Nm man , apropos , whatis :
+.Bx 4.3 Reno Pq июнь 1990 ;
+.Ox , Nx
+.br
+.Nm catman :
+.Nx Pq 4 апреля 1999
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+переопределить операционную систему
+.br
+.Nm man :
+.Eaton ;
+.No man-db , man-1.6
+.br
+.Nm apropos , whatis , manpath :
+.dbI
+.Pp
+переопределить архитектуру
+.br
+.Nm man :
+.Fx Pq 11 января 2002
+.Pp
+показывать контекст совпадения
+.br
+.Nm apropos :
+.Nx Pq 22 мая 2016
+.It Fl N
+не разрешать переводы строк между разделителями
+.Xr eqn 7
+.br
+.Nm groff :
+.No groff-1.01 Pq 21 февраля 1991
+.It Fl n
+указать номер первой страницы
+.br
+.Nm troff :
+.At7
+.br
+.Nm groff :
+.g04
+.Pp
+режим вывода
+.Xr nroff 1
+.br
+.Nm man :
+.At7 ,
+.At8 ,
+.At10
+.Pp
+не создавать базу данных
+.Xr whatis 1
+.br
+.Nm catman :
+.Nx Pq 27 июля 1993
+.Pp
+выводить команды вместо их выполнения
+.br
+.Nm catman :
+.Fx Pq 18 мая 2002 ,
+.No Solaris 9-11
+.Pp
+ограничить число результатов
+.br
+.Nm apropos :
+.Nx Pq 7 февраля 2012
+.Pp
+пробный запуск с имитацией создания
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.It Fl O
+опции вывода
+.br
+.Nm mandoc :
+.Ox 4.8 Pq 27 октября 2009
+.br
+.Nm man , apropos , whatis :
+.Ox 5.7 Pq 27 августа 2014
+.It Fl o
+выбирать страницы по номерам
+.br
+.Nm nroff , troff :
+.At7
+.br
+.Nm groff :
+.g04
+.Pp
+принудительно использовать нелокализованные страницы руководства
+.br
+.Nm man :
+.Fx Pq 7 июня 1999
+.Pp
+оптимизировать индекс для скорости и места на диске
+.br
+.Nm makemandb :
+.Nx Pq 7 февраля 2012
+.It Fl P
+передать аргумент постпроцессору
+.br
+.Nm groff :
+.No groff-0.6 Pq 14 сентября 1990
+.Pp
+использовать указанный пейджер
+.br
+.Nm man :
+.Eaton ;
+.Fx , No man-db , man-1.6
+.Pp
+включить форматирование для пейджера
+.br
+.Nm apropos :
+.Nx Pq 2 апреля 2013
+.It Fl p
+предварительно обработать с помощью
+.Xr pic 1
+.br
+.Nm groff :
+.g04
+.Pp
+использовать заданный список препроцессоров
+.br
+.Nm man :
+.Eaton ;
+.Fx , No man-db , man-1.6
+.Pp
+пробный запуск, выводить команды вместо их выполнения
+.br
+.Nm catman :
+.Nx Pq 27 июля 1993 ,
+.Fx Pq с 15 марта 1995 по 18 мая 2002 ,
+.No Solaris 9-11
+.Pp
+выводить предупреждения при построении
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 2.7 Pq 23 апреля 2000
+.Pp
+не искать удаленные страницы руководства
+.br
+.Nm mandb :
+.No man-db Pq 28 июня 2001
+.Pp
+вывести путь поиска страниц руководства
+.br
+.Nm man :
+.Nx Pq 14 июня 2011
+.Pp
+включить форматирование для пейджера и передать через пейджер
+.br
+.Nm apropos :
+.Nx Pq 7 февраля 2012
+.Pp
+.Bq устаревшее оборудование
+установить размер шрифта фотонаборного автомата
+.br
+.Nm troff :
+.At7
+.It Fl Q
+выводить только фатальные сообщения об ошибках
+.br
+.Nm makemandb :
+.Nx Pq 29 августа 2012
+.Pp
+быстрый режим создания
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.It Fl q
+вызвать режим одновременного ввода-вывода запроса .rd
+.br
+.Nm nroff , troff :
+.At7
+.Pp
+быстрый режим: предпочитать предварительно отформатированную страницу, если доступна
+.br
+.Nm man :
+.At8 ,
+.At10
+.Pp
+не выдавать предупреждения
+.br
+.Nm manpath :
+.Eaton ;
+.Fx , No man-db
+.br
+.Nm mandb :
+.dbI
+.Pp
+выводить только предупреждения и ошибки, без обновлений состояния
+.br
+.Nm makemandb :
+.Nx Pq 29 августа 2012
+.It Fl R
+постобработать с помощью
+.Xr refer 1
+.br
+.Nm groff :
+.No groff-1.02 Pq 2 июня 1991
+.Pp
+перекодировать в указанную кодировку
+.br
+.Nm man :
+.No man-db Pq 31 декабря 2007
+.It Fl r
+установить числовой регистр
+.br
+.Nm nroff , troff :
+.At7
+.br
+.Nm groff :
+.g04
+.Pp
+сканировать и удалять мусорные файлы
+.br
+.Nm catman :
+.Fx Pq 31 марта 1995
+.Pp
+установить приглашение
+.Xr less 1
+.br
+.Nm man :
+.No man-db-2.3.5 Pq 21 апреля 1995
+.Pp
+использовать сопоставление по регулярному выражению
+.br
+.Nm apropos , whatis :
+.No man-db-2.3.5 Pq 21 апреля 1995
+.Pp
+отключить форматирование
+.br
+.Nm apropos :
+.Nx Pq 10 февраля 2013
+.Pp
+проверять ошибки форматирования, не отображать
+.br
+.Nm man :
+.No illumos , Solaris 9-11
+.It Fl S
+список поиска разделов руководства
+.br
+.Nm man :
+.Eaton ;
+.Fx , No man-db , man-1.6
+.Pp
+более безопасный режим
+.br
+.Nm groff :
+.No groff-1.10 Pq 17 мая 1994
+.Pp
+ограничить архитектуру
+.br
+.Nm man :
+.Ox 2.3 Pq 9 марта 1998 ,
+.Nx Pq 27 мая 2000
+.br
+.Nm apropos :
+.Ox 4.5 Pq 24 декабря 2008 ,
+.Nx Pq 8 мая 2009
+.br
+.Nm whatis :
+.Ox 5.6 Pq 18 апреля 2014
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.It Fl s
+предварительно обработать с помощью
+.Xr soelim 1
+.br
+.Nm groff :
+.g04
+.Pp
+тихий режим, не повторять команды
+.br
+.Nm catman :
+.Nx Pq 26 апреля 1994
+.Pp
+ограничить раздел
+.br
+.Nm makewhatis :
+.man15g
+.br
+.Nm man :
+.Ox 2.3 Pq 9 марта 1998 ,
+.Nx Pq 12 июня 2000 ;
+.No illumos , Solaris 9-11
+.br
+.Nm apropos :
+.No man-db Pq 16 ноября 2003 ,
+.Ox 4.5 Pq 24 декабря 2008 ,
+.Nx Pq 8 мая 2009 ;
+.No illumos
+.br
+.Nm whatis :
+.No man-db Pq 16 ноября 2003 ,
+.Ox 5.6 Pq 18 апреля 2014 ;
+.No illumos
+.br
+.Nm mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+не искать потерянные cat-страницы
+.br
+.Nm mandb :
+.dbI
+.Pp
+.Bq совместимость с SysV, рекомендуется Fl S
+список поиска разделов руководства
+.br
+.Nm man :
+.No man-db Pq 1 января 2008
+.Pp
+.Bq заменено на Fl h
+отображать только строки СИНТАКСИСА
+.br
+.Nm man :
+.PWB
+.Pp
+.Bq устаревшее оборудование
+пауза перед каждой страницей для манипуляций с бумагой
+.br
+.Nm roff :
+.At7
+.Pp
+.Bq устаревшее оборудование
+режим вывода
+.Xr troff 1 ,
+малый формат
+.br
+.Nm man :
+.At3 ,
+.At5
+.It Fl T
+выбрать формат вывода для терминала
+.br
+.Nm nroff :
+.At7
+.br
+.Nm man :
+.At3 ,
+.At5 ,
+.dbI ,
+.Ox 5.7 Pq 27 августа 2014
+.br
+.Nm groff :
+.g04
+.br
+.Nm mandoc :
+.Ox 4.8 Pq 6 апреля 2009
+.br
+.Nm apropos , whatis :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+использовать UTF-8 для
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 5.6 Pq 18 апреля 2014
+.Pp
+.Bq заменено на Fl m
+использовать другой пакет макросов
+.br
+.Nm man , catman :
+.No Solaris 9-11
+.It Fl t
+режим вывода
+.Xr troff 1
+.br
+.Nm man :
+.PWB ,
+.At7 ,
+.Bx 2 Pq 10 мая 1979 ,
+.At3 ,
+.At5 ,
+.At8 ,
+.At10 ,
+.Eaton ;
+.Fx , No man-db , man-1.6 , illumos , Solaris 9-11
+.br
+.Nm catman :
+.No Solaris 9-11
+.Pp
+предварительно обработать с помощью
+.Xr tbl 7
+.br
+.Nm groff :
+.g04
+.Pp
+проверять страницы руководства в иерархии
+.br
+.Nm mandb :
+.No man-db-1.3.12 до 1.3.17 Pq не ранее 1996, не позднее 2001
+.Pp
+проверять файлы на проблемы, связанные с
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 2.7 Pq 23 апреля 2000
+.It Fl U
+небезопасный режим
+.br
+.Nm groff :
+.No groff-1.12 Pq 13 декабря 1999
+.It Fl u
+обновить базу данных
+.br
+.Nm makewhatis :
+.Pq не ранее 1992, не позднее 1995
+.Pp
+создавать только пользовательские базы данных
+.br
+.Nm mandb :
+.dbI
+.Pp
+обновить кэш базы данных (требуется suid)
+.br
+.Nm man :
+.No до man-db-2.2a10 Pq до 6 декабря 1994
+.Pp
+удалять файлы из
+.Xr mandoc.db 5
+.br
+.Nm makewhatis :
+.Ox 3.4 Pq 9 июля 2003
+.It Fl V
+вывести конвейер в стандартный вывод вместо его выполнения
+.br
+.Nm groff :
+.No groff-0.6 Pq 2 сентября 1990
+.Pp
+вывести информацию о версии
+.br
+.Nm man , apropos , whatis , mandb , catman , manpath :
+.dbI
+.It Fl v
+вывести номер версии
+.br
+.Nm groff :
+.g04
+.Pp
+подробный режим
+.br
+.Nm catman :
+.Fx Pq 15 марта 1995 ,
+.No mandoc Pq 30 июня 2025
+.br
+.Nm makewhatis :
+.man15g
+.br
+.Nm apropos , whatis :
+.No man-db Pq 29 декабря 2002
+.Pp
+вывести имя каждого разобранного файла
+.br
+.Nm makemandb :
+.Nx Pq 7 февраля 2012
+.Pp
+.Bq устаревшее оборудование
+вывод на принтер Versatec
+.br
+.Nm man :
+.PWB
+.It Fl W
+отключить указанное предупреждение
+.br
+.Nm groff :
+.No groff-0.5 Pq 14 августа 1990
+.Pp
+вывести пути без дополнительной информации
+.br
+.Nm man :
+.man15e
+.Pp
+вывести пути cat-файлов
+.br
+.Nm man :
+.No man-db Pq 13 августа 2002
+.Pp
+минимальный уровень сообщений для отображения
+.br
+.Nm mandoc :
+.Ox 4.8 Pq 6 апреля 2009
+.br
+.Nm man , apropos , whatis :
+.Ox 5.7 Pq 27 августа 2014
+.It Fl w
+вывести пути
+.br
+.Nm man :
+.At7 ,
+.At3 ,
+.At5 ,
+.At8 ,
+.Eaton ;
+.Ox , Fx , Nx , No man-db , man-1.6
+.br
+.Nm apropos , whatis , mandoc :
+.Ox 5.7 Pq 27 августа 2014
+.Pp
+включить указанное предупреждение
+.br
+.Nm groff :
+.No groff-0.5 Pq 14 августа 1990
+.Pp
+создавать только базу данных
+.Xr whatis 1
+.br
+.Nm catman :
+.Nx Pq 27 июля 1993 ,
+.No Solaris 9-11
+.Pp
+использовать сопоставление по шаблону
+.br
+.Nm apropos , whatis :
+.No man-db-2.3.5 Pq 21 апреля 1995
+.Pp
+использовать manpath, полученный из man --path
+.br
+.Nm makewhatis :
+.man15g
+.Pp
+обновить базу данных
+.Xr whatis 1
+.br
+.Nm man :
+.No illumos
+.Pp
+.Bq устаревшее оборудование
+ждать, пока фотонаборный автомат станет доступен
+.br
+.Nm troff :
+.At7
+.It Fl X
+отображать с помощью
+.Xr gxditview 1
+.br
+.Nm groff :
+.No groff-1.06 Pq 1 сентября 1992
+.br
+.Nm man :
+.dbI
+.It Fl y
+использовать некомпактную версию макросов
+.br
+.Nm man :
+.At3 ,
+.At5
+.It Fl Z
+не запускать препроцессоры
+.br
+.Nm groff :
+.g04
+.br
+.Nm man :
+.No man-db-2.2a5 Pq 10 ноября 1994
+.It Fl z
+подавить форматированный вывод от
+.Xr troff 1 ,
+выводить только сообщения об ошибках
+.br
+.Nm groff :
+.g04
+.It Fl 7
+режим вывода ASCII
+.br
+.Nm man :
+.No man-db-2.3.5 Pq 21 апреля 1995
+.It Fl \&?
+вывести сообщение справки и выйти
+.br
+.Nm groff :
+.g04
+.br
+.Nm man , manpath :
+.Eaton ;
+.Fx , No man-db
+.br
+.Nm apropos , whatis , mandb , catman :
+.dbI
+.El
+.Pp
+Многобуквенные опции:
+.Bl -tag -width Ds
+.It Fl hp
+.Bq устаревшее оборудование
+вывод на терминал Hewlett Packard
+.br
+.Nm man :
+.PWB
+.It Fl 12
+.Bq устаревшее оборудование
+использовать 12-pitch для некоторых терминалов
+.br
+.Nm man :
+.At3 ,
+.At5
+.It Fl 450
+.Bq устаревшее оборудование
+вывод на терминал DASI 450
+.br
+.Nm man :
+.PWB
+.El
+.Pp
+В
+.At v3 ,
+.Xr man 1
+не имела опций.
+.br
+Синтаксис был:
+.Sy man Ar name Op Ar section
+.Pp
+В
+.At v4 ,
+.br
+синтаксис изменился на:
+.Sy man Oo Ar section Oc Op Ar name ...
+.Sh АВТОРЫ
+Эта информация была собрана
+.An Ingo Schwarze Aq Mt schwarze@openbsd.org
+с использованием
+.Bl -bullet -compact
+.It
+архива Unix Общества наследия Unix
+.It
+CD-ROM архива CSRG
+.It
+репозитория SVN
+.Fx
+.It
+репозитория CVS
+.Ox
+.It
+репозитория CVS
+.Nx
+.It
+git-репозитория GNU roff (groff)
+.It
+файла CHANGES groff из 4.3BSD-Net/2 (октябрь 1990 — март 1991)
+.It
+файла ChangeLog groff из 4.3BSD-Net/2 (июль 1990 — март 1991)
+.It
+репозиториев CVS и git man-db (с апреля 2001)
+.It
+файла NEWS man-db (апрель 1995 — декабрь 2016)
+.It
+файла ChangeLog-2013 man-db (ноябрь 1994 — декабрь 2013)
+.It
+tar-архивов выпусков man-1.5g (июль 1998) — man-1.5p (январь 2005),
+man-1.6 (июнь 2005) и man-1.6a — man-1.6g (декабрь 2010)
+.It
+tar-архива выпуска makewhatis без номера версии от 1995 года
+.It
+страниц руководства illumos в WWW
+.It
+и машин Solaris 11, SunOS 5.10 и SunOS 5.9 на opencsw.org.
+.El

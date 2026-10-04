@@ -35,10 +35,10 @@
 .Dd 29 октября 2020
 .Dt FMT 1
 .Os
-.Ш ИМЯ
+.Sh ИМЯ
 .Nm fmt
 .Nd простой форматировщик текста
-.Ш СИНТАКСИС
+.Sh СИНТАКСИС
 .Nm
 .Op Fl cmnps
 .Op Fl d Ar символы
@@ -46,7 +46,7 @@
 .Op Fl t Ar число
 .Op Ar цель Oo Ar максимум Oc | Fl Ns Ar ширина | Fl w Ar ширина
 .Op Ar
-.Ш ОПИСАНИЕ
+.Sh ОПИСАНИЕ
 Утилита
 .Nm
 представляет собой простой форматировщик текста, который читает объединение входных
@@ -147,7 +147,7 @@
 .Pp
 переформатирует абзац,
 выравнивая строки.
-.Ш ОКРУЖЕНИЕ
+.Sh ОКРУЖЕНИЕ
 Переменные окружения
 .Ev LANG , LC_ALL
 и
@@ -156,7 +156,7 @@
 .Nm
 как описано в
 .Xr environ 7 .
-.Ш ПРИМЕРЫ
+.Sh ПРИМЕРЫ
 Центрировать текст из стандартного ввода:
 .Bd -literal -offset indent
 $ echo -e 'The merit of all things\enlies\enin their difficulty' | fmt -c
@@ -170,10 +170,10 @@ $ echo -e 'The merit of all things\enlies\enin their difficulty' | fmt -c
 $ echo -e 'Multiple   spaces    will be collapsed' | fmt -s
 Multiple spaces will be collapsed
 .Ed
-.Ш СМ. ТАКЖЕ
+.Sh СМ. ТАКЖЕ
 .Xr fold 1 ,
 .Xr mail 1
-.Ш ИСТОРИЯ
+.Sh ИСТОРИЯ
 Команда
 .Nm
 появилась в
@@ -181,14 +181,14 @@ Multiple spaces will be collapsed
 .Pp
 Описанная здесь версия является полной переработкой и появилась в
 .Fx 4.4 .
-.Ш АВТОРЫ
+.Sh АВТОРЫ
 .An Kurt Shoens
 .An Liz Allen
 (добавила концепцию
 .Ar целевой
 длины)
 .An Gareth McCaughan
-.Ш ИЗВЕСТНЫЕ ОШИБКИ
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
 Программа была разработана для простоты и скорости — для более сложных
 операций стандартные текстовые процессоры, вероятно, будут более уместны.
 .Pp

@@ -33,6 +33,7 @@
 .Os
 .Sh ИМЯ
 .Nm auditreduce
+.Nd "выбирает записи из файлов журнала аудита"
 .Sh СИНТАКСИС
 .Nm
 .Op Fl A
@@ -98,6 +99,7 @@
 Описание имён и номеров событий аудита см. в
 .Xr audit_event 5 .
 .It Fl o Ar объект Ns = Ns Ar значение
+.Bl -tag -width ".Cm msgqid"
 .It Cm файл
 Выбрать записи, содержащие токены пути, где имя пути соответствует
 одному из расширенных регулярных выражений, разделённых запятыми, содержащихся в
@@ -137,7 +139,7 @@
 Чтобы выбрать все записи, связанные с эффективным идентификатором пользователя root, из журнала аудита
 .Pa /var/audit/20031016184719.20031017122634 :
 .Bd -literal -offset indent
-auditreduce -e root \e
+auditreduce -e root \
     /var/audit/20031016184719.20031017122634
 .Ed
 .Pp
@@ -145,7 +147,7 @@ auditreduce -e root \e
 .Xr setlogin 2
 из этого журнала:
 .Bd -literal -offset indent
-auditreduce -m AUE_SETLOGIN \e
+auditreduce -m AUE_SETLOGIN \
     /var/audit/20031016184719.20031017122634
 .Ed
 .Pp
@@ -156,14 +158,14 @@ auditreduce -m AUE_SETLOGIN \e
 Выбрать все записи, содержащие токен пути, где имя пути содержит
 .Pa /etc/master.passwd :
 .Bd -literal -offset indent
-auditreduce -o file=/etc/master.passwd \e
+auditreduce -o file="/etc/master.passwd" \
     /var/audit/20031016184719.20031017122634
 .Ed
 .Pp
 Выбрать все записи, содержащие токены пути, где имя пути является
 устройством TTY:
 .Bd -literal -offset indent
-auditreduce -o file=/dev/tty.* \e
+auditreduce -o file="/dev/tty[a-zA-Z][0-9]+" \
     /var/audit/20031016184719.20031017122634
 .Ed
 .Pp
@@ -171,7 +173,7 @@ auditreduce -o file=/dev/tty.* \e
 устройством TTY, кроме
 .Pa /dev/ttyp2 :
 .Bd -literal -offset indent
-auditreduce -o file=/dev/tty.*,~/dev/ttyp2 \e
+auditreduce -o file="~/dev/ttyp2,/dev/tty[a-zA-Z][0-9]+" \
     /var/audit/20031016184719.20031017122634
 .Ed
 .Sh СМ. ТАКЖЕ

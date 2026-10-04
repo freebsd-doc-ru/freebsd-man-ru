@@ -1,7 +1,7 @@
 .\" Copyright (c) 1999-2002 Proofpoint, Inc. and its suppliers.
-.\"	All rights reserved.
+.\"\tAll rights reserved.
 .\" Copyright (c) 1985, 1987, 1990, 1991, 1993
-.\"	The Regents of the University of California.  All rights reserved.
+.\"\tThe Regents of the University of California.  All rights reserved.
 .\"
 .\"
 .\" By using this file, you agree to the terms and conditions set
@@ -9,15 +9,15 @@
 .\" the sendmail distribution.
 .\"
 .\"
-.\"	$Id: vacation.1,v 8.35 2013-11-22 20:52:02 ca Exp $
+.\"\t$Id: vacation.1,v 8.35 2013-11-22 20:52:02 ca Exp $
 .\"
 .\" FRDP path ./contrib/sendmail/vacation/vacation.1
 .\" FRDP githash d39bd2c1388b520fcba9abed1932acacead60fba
 .\" FRDP hash256 329f4da68d7088ddb24eed9a3830f7ccaed3d3fe18357213061caced2f31c694
-.ИМЯ
+.SH ИМЯ
 vacation
 \- автоответчик для электронной почты
-.СИНТАКСИС
+.SH СИНТАКСИС
 .B vacation
 .RB [ \-a
 .IR псевдоним ]
@@ -44,7 +44,7 @@ vacation
 .RB [ \-x ]
 .RB [ \-z ]
 .I логин
-.ОПИСАНИЕ
+.SH ОПИСАНИЕ
 .B Vacation
 возвращает отправителю сообщение,
 по умолчанию из файла
@@ -54,8 +54,8 @@ vacation
 .B \-r
 ниже).
 Предполагается использование в файле
-.I .forward
-. Например, ваш файл
+.I .forward.
+Например, ваш файл
 .I .forward
 может содержать:
 .IP
@@ -286,7 +286,7 @@ Precedence: bulk
 которое вызвало программу
 .B vacation
 .
-.ФАЙЛЫ
+.SH ФАЙЛЫ
 .TP 1.8i
 ~/.vacation.db
 база данных по умолчанию для db(3)
@@ -296,10 +296,10 @@ Precedence: bulk
 .TP
 ~/.vacation.msg
 сообщение для отправки по умолчанию
-.СМ. ТАКЖЕ
+.SH СМ. ТАКЖЕ
 sendmail(8),
 syslog(8)
-.ИСТОРИЯ
+.SH ИСТОРИЯ
 Команда
 .B vacation
 появилась в

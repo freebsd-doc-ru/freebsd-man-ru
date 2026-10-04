@@ -52,6 +52,7 @@
 ввод, если файлы не указаны, в формате, заданном пользователем.
 .Pp
 Параметры следующие:
+.Bl -tag -width ".Fl I , L , l"
 .It Fl A Ar основание
 Указать основание адреса ввода.
 Аргумент
@@ -144,6 +145,13 @@
 Именованные символы
 .Pq ASCII .
 Управляющие символы отображаются с использованием следующих имён:
+.Bl -column "000 NUL" "001 SOH" "002 STX" "003 ETX" "004 EOT" "005 ENQ"
+.It "000 NUL\t001 SOH\t002 STX\t003 ETX\t004 EOT\t005 ENQ"
+.It "006 ACK\t007 BEL\t008 BS\t009 HT\t00A NL\t00B VT"
+.It "00C FF\t00D CR\t00E SO\t00F SI\t010 DLE\t011 DC1"
+.It "012 DC2\t013 DC3\t014 DC4\t015 NAK\t016 SYN\t017 ETB"
+.It "018 CAN\t019 EM\t01A SUB\t01B ESC\t01C FS\t01D GS"
+.It "01E RS\t01F US\t020 SP\t07F DEL\t\\&\t\\&"
 .El
 .It Cm c
 Символы в наборе символов по умолчанию.
@@ -211,6 +219,7 @@
 .Pq Vt double
 или
 .Cm L
+.Pq Vt "long double" .
 .El
 .It Fl v
 Записывать все входные данные, вместо замены строк повторяющихся значений на
@@ -238,15 +247,17 @@
 .Sh ПРИМЕРЫ
 Дамп стандартного ввода и отображение вывода с использованием именованных символов и символов с экранированием в стиле C:
 .Bd -literal -offset indent
+$ echo "FreeBSD: The power to serve" | od -a -c
 0000000    F   r   e   e   B   S   D   :  sp   T   h   e  sp   p   o   w
            F   r   e   e   B   S   D   :       T   h   e       p   o   w
 0000020    e   r  sp   t   o  sp   s   e   r   v   e  nl
-           e   r       t   o       s   e   r   v   e  \en
+           e   r       t   o       s   e   r   v   e  \\en
 0000034
 .Ed
 .Pp
 Дамп стандартного ввода с пропуском первых 13 байт с использованием именованных символов и выводом не более 5 байт:
 .Bd -literal -offset indent
+$ echo "FreeBSD: The power to serve" | od -An -a -j 13 -N 5
            p   o   w   e   r
 .Ed
 .Sh СОВМЕСТИМОСТЬ

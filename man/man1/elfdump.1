@@ -33,8 +33,9 @@
 .Os
 .Sh ИМЯ
 .Nm elfdump
+.Nd "выводит информацию о"
 .Tn ELF
-файлы
+файлах
 .Sh СИНТАКСИС
 .Nm
 .Fl a | cdeGhiknprsv
@@ -51,6 +52,7 @@
 .Ar файле .
 .Pp
 Параметры следующие:
+.Bl -tag -width ".Fl w Ar file"
 .It Fl a
 Вывести всю информацию.
 .It Fl c
@@ -101,23 +103,29 @@
 команды
 .Nm :
 .Pp
+.Dl "elfdump -a -w output /bin/ls"
 .Pp
 Для вывода содержимого таблицы символов '.dynsym':
 .Pp
+.Dl "elfdump -s -N .dynsym /bin/ls"
 .Pp
 Для вывода таблицы символов архива,
 но не таблиц символов членов архива:
 .Pp
+.Dl "elfdump -s -N ARSYM /usr/lib/libelf.a"
 .Pp
 Для вывода содержимого раздела .got и
 разделов управления версиями символов в формате Solaris
 .Nm :
 .Pp
+.Dl "elfdump -S -Gv /bin/ls"
 .Sh СМ. ТАКЖЕ
 .Xr objdump 1 ,
 .Xr readelf 1 ,
 .Xr elf 3
 .Rs
+.%A "AT&T Unix Systems Labs"
+.%T "System V Application Binary Interface"
 .%O http://www.sco.com/developers/gabi/
 .Re
 .Sh ИСТОРИЯ

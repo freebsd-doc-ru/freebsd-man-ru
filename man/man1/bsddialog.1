@@ -1,0 +1,907 @@
+.\" FRDP path contrib/bsddialog/utility/bsddialog.1
+.\" FRDP githash f2d966f6c13d93cccceb8e594a69d1a50471d314
+.\" FRDP hash256 b97dc8f874f1d508f2ff8f7fbaefe3f83803a7af69b5a3bf1bde80d63f74f1a9
+.Dd June 24, 2025
+.Dt BSDDIALOG 1
+.Os
+.Sh ИМЯ
+.Nm bsddialog
+.Nd "диалоги TUI"
+.Sh СИНТАКСИС
+.Nm
+.Fl Fl help | Fl Fl version
+.Nm
+.Op Fl Fl option
+.Fl Fl dialog
+.Ar текст
+.Ar строки
+.Ar столбцы
+.Op Ar аргумент-диалога
+.Op Fl Fl option
+.Nm
+\&...
+.Fl Fl dialog1
+.Ar ...
+.Oo Fl Fl and-dialog
+.Fl Fl dialog2
+.Ar ...
+.Oc ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm bsddialog
+создаёт диалоги и виджеты текстового пользовательского интерфейса.
+.Pp
+Опция
+.Fl Fl help
+выводит краткий список возможностей и завершает работу.
+Опция
+.Fl Fl version
+выводит версию и завершает работу.
+Опция
+.Fl Fl and-dialog
+создаёт следующий диалог, если предыдущий не вернул Ошибка, ESC или Отмена.
+.Pp
+Каждый диалог принимает
+.Ar текст
+для вывода сообщения внутри,
+.Ar строки
+и
+.Ar столбцы
+для установки высоты и ширины,
+.Dv 0
+для автоматического размера и
+.Dv -1
+для полноэкранного режима.
+.Pp
+Возможный ввод из пользовательского интерфейса выводится в стандартный поток ошибок при выходе.
+.Ss Опции
+Следующие опции могут изменять поведение утилиты по умолчанию и являются
+общими для некоторых диалогов.
+.Bl -tag -width Ds
+.It Fl Fl alternate-screen
+Установить режим альтернативного экрана, если терминал и
+.Xr curses 3
+поддерживают его.
+Если включено, bsddialog рисует на альтернативном экране и восстанавливает основной экран
+после выхода.
+См.
+.Dq smcup
+в
+.Xr terminfo 5 .
+.It Fl Fl ascii-lines
+Символы ASCII для рисования линий.
+.It Fl Fl backtitle Ar заголовок_экрана
+Заголовок экрана.
+.It Fl Fl begin-x Ar x
+Установить горизонтальную позицию диалога,
+.Dv -1
+по центру,
+.Dv 0
+слева экрана.
+.It Fl Fl begin-y Ar y
+Установить вертикальную позицию диалога,
+.Dv -1
+по центру,
+.Dv 0
+сверху экрана.
+.It Fl Fl bikeshed
+Случайные настройки.
+Цвета, разделитель заголовка, разделитель кнопок; см. возможности темы.
+Отступ заголовка.
+Кнопки всегда активны или TAB переключает фокус с другими компонентами, см.
+.Fl Fl switch-buttons .
+Дополнение нулями при выводе времени; см.
+.Fl Fl time-format .
+Дополнение нулями при выводе даты; см.
+.Fl Fl date-format .
+Формат даты пользовательского интерфейса для
+.Fl Fl datebox ;
+см.
+.Fl Fl datebox-format .
+.It Fl Fl cancel-exit-code Ar код_возврата
+Установить значение кода выхода для кнопки
+.Dq Отмена .
+.It Fl Fl cancel-label Ar метка
+Метка для кнопки
+.Dq Отмена .
+.It Fl Fl clear-dialog
+Скрыть диалог при выходе.
+.It Fl Fl clear-screen
+Очистить экран, дождаться диалога, если он создан.
+.It Fl Fl columns-per-row Ar столбцы
+Попытаться установить число столбцов для строки текста при авторазмере; по умолчанию
+.Dv 10 .
+.It Fl Fl cr-wrap
+Сохранять перевод строки в
+.Ar текст
+также если он содержит
+.Dq \en ,
+см.
+.Fl Fl text-unchanged .
+.It Fl Fl datebox-format Ar формат
+Строка для настройки интерфейса
+.Fl Fl datebox
+возможные значения:
+.Dq d/m/y ,
+.Dq m/y/d ,
+.Dq y/m/d .
+.It Fl Fl date-format Ar формат
+Строка, принимаемая
+.Xr strftime 3
+для настройки вывода
+.Fl Fl datebox
+и
+.Fl Fl calendar .
+.It Fl Fl default-button Ar метка
+Фокус на кнопке с
+.Ar метка
+при запуске.
+.It Fl Fl default-item Ar имя
+Фокус на элементе с
+.Ar имя ,
+для Checklist, Menu, Radiolist и Treeview.
+.It Fl Fl default-no
+Фокус на кнопке
+.Dq Отмена
+или
+.Dq \&Нет
+при запуске.
+.It Fl Fl disable-esc
+Отключить клавишу ESC для выхода.
+.It Fl Fl error-exit-code Ar код_возврата
+Установить значение кода выхода для
+.Nm
+ошибок.
+.It Fl Fl esc-exit-code Ar код_возврата
+Установить значение кода выхода для клавиши
+.Dv ESC .
+.It Fl Fl extra-button
+Добавить кнопку с меткой
+.Dq Дополнительно .
+.It Fl Fl extra-exit-code Ar код_возврата
+Установить значение кода выхода для кнопки
+.Dq Дополнительно .
+.It Fl Fl extra-label Ar метка
+Установить
+.Ar метка
+для кнопки
+.Dq Дополнительно .
+.It Fl Fl left1-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl left1-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl left1-button .
+.It Fl Fl left2-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl left2-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl left2-button .
+.It Fl Fl left3-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl left3-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl left3-button .
+.It Fl Fl help-button
+Добавить кнопку с меткой
+.Dq Справка .
+.It Fl Fl help-exit-code Ar код_возврата
+Установить значение кода выхода для кнопки
+.Dq Справка .
+.It Fl Fl help-label Ar метка
+Установить
+.Ar метка
+для кнопки
+.Dq Справка .
+.It Fl Fl help-print-items
+Выводить также выбранные элементы или значения формы, если нажата кнопка
+.Dq Справка .
+.It Fl Fl help-print-name
+Выводить имя элемента в фокусе, если нажата кнопка
+.Dq Справка ,
+также с
+.Fl Fl item-bottom-desc .
+.It Fl Fl hfile Ar имя_файла
+Открыть
+.Ar имя_файла
+в Textbox, если нажата клавиша F1.
+.It Fl Fl hline Ar строка
+Подзаголовок диалога.
+.It Fl Fl hmsg Ar строка
+Открыть Msgbox с
+.Ar строка
+если нажата клавиша F1.
+.It Fl Fl ignore
+Не завершать работу при неизвестных опциях.
+.It Fl Fl insecure
+Выводить
+.Sq *
+для скрытия паролей при вводе, иначе пробелы.
+.It Fl Fl item-bottom-desc
+Установить строку справки для каждого элемента Checklist, Form, Menu, Mixedform,
+Passwordform, Radiolist и Treeview для отображения в нижней части экрана.
+.It Fl Fl item-depth
+Указать отступ для элементов, доступно для Checklist, Menu и Radiolist.
+.It Fl Fl item-prefix
+Установить строку-префикс для каждого элемента Checklist, Menu, Radiolist или Treeview.
+.It Fl Fl load-theme Ar файл
+Загрузить тему из
+.Ar файл .
+.It Fl Fl max-input Ar размер
+Максимальная длина ввода для
+.Fl Fl inputbox
+и
+.Fl Fl passwordbox ,
+по умолчанию 2048.
+.It Fl Fl no-cancel
+Не показывать кнопку
+.Dq Отмена .
+.It Fl Fl no-descriptions
+Не отображать описание элементов, для Checklist, Menu, Radiolist или Treeview;
+взаимоисключающе с
+.Fl Fl no-names .
+.It Fl Fl no-lines
+Не рисовать границы и линии.
+.It Fl Fl no-names
+Не отображать имена элементов, для Checklist, Menu и Radiolist; взаимоисключающе
+с
+.Fl Fl no-descriptions .
+.It Fl Fl no-ok
+Не рисовать кнопку
+.Dq OK .
+.It Fl Fl no-shadow
+Не рисовать тень диалога.
+.It Fl Fl ok-label Ar метка
+Установить
+.Ar метка
+для кнопки
+.Dq OK .
+.It Fl Fl ok-exit-code Ar код_возврата
+Установить значение кода выхода для кнопки
+.Dq Ok .
+.It Fl Fl normal-screen
+Установить нормальный режим экрана.
+bsddialog не восстанавливает предыдущий экран после выхода.
+См.
+.Dq rmcup
+в
+.Xr terminfo 5 .
+.It Fl Fl output-fd Ar дескриптор
+Выводить ввод из пользовательского интерфейса в указанный файловый дескриптор.
+.It Fl Fl output-separator Ar разделитель
+Установить разделитель для элементов в выводе, по умолчанию пробел.
+.It Fl Fl print-maxsize
+Размер экрана.
+Эту опцию можно использовать без диалога.
+.It Fl Fl print-size
+Выводить высоту и ширину диалога при выходе.
+.It Fl Fl print-version
+Выводить версию.
+Эту опцию можно использовать без диалога.
+.It Fl Fl quoted
+Заключать элементы в кавычки в выводе, по умолчанию только при необходимости.
+.It Fl Fl right1-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl right1-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl right1-button .
+.It Fl Fl right2-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl right2-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl right2-button .
+.It Fl Fl right3-button Ar метка
+Добавить кнопку с
+.Ar метка .
+.It Fl Fl right3-exit-code Ar код_возврата
+Установить код выхода для
+.Fl Fl right3-button .
+.It Fl Fl save-theme Ar файл
+Сохранить текущую тему.
+Эту опцию можно использовать без диалога.
+.It Fl Fl separate-output
+Выводить выбранные элементы, разделённые новой строкой, и избегать кавычек.
+.It Fl Fl shadow
+Показывать тень для диалога, включено по умолчанию.
+.It Fl Fl single-quoted
+Использовать одинарные кавычки для элементов в выводе.
+.It Fl Fl sleep Ar сек
+Ждать
+.Ar сек
+секунд для закрытия диалога.
+.It Fl Fl stderr
+Выводить ввод из пользовательского интерфейса в стандартный поток ошибок, по умолчанию.
+.It Fl Fl stdout
+Выводить ввод из пользовательского интерфейса в стандартный вывод.
+.It Fl Fl switch-buttons
+Включить переключение фокуса между кнопками и компонентами ввода нажатием TAB,
+иначе кнопки всегда активны и клавиша ENTER закрывает диалог.
+Подходит для:
+.Fl Fl form ,
+.Fl Fl inputbox ,
+.Fl Fl mixedform ,
+.Fl Fl passwordbox ,
+.Fl Fl passwordform ,
+.Fl Fl timebox ,
+.Fl Fl calendar
+и
+.Fl Fl datebox .
+.It Fl Fl tab-escape
+Заменять
+.Dq \et
+на табуляцию в
+.Ar текст .
+.It Fl Fl tab-len Ar пробелы
+Число пробелов для отображения TAB в
+.Ar текст .
+.It Fl Fl text-escape
+Включить escape-последовательности в
+.Ar текст :
+.Bl -column -compact
+.It Dq \eZ0
+чёрный.
+.It Dq \eZ1
+красный.
+.It Dq \eZ2
+зелёный.
+.It Dq \eZ3
+жёлтый.
+.It Dq \eZ4
+синий.
+.It Dq \eZ5
+пурпурный.
+.It Dq \eZ6
+голубой.
+.It Dq \eZ7
+белый.
+.It Dq \eZb
+жирный.
+.It Dq \eZB
+отключить жирный.
+.It Dq \eZd
+половинная яркость.
+.It Dq \eZD
+отключить половинную яркость.
+.It Dq \eZk
+мигание.
+.It Dq \eZK
+отключить мигание.
+.It Dq \eZr
+инвертировать передний план и фон.
+.It Dq \eZR
+отключить инверсию.
+.It Dq \eZs
+подсветка.
+.It Dq \eZS
+отключить подсветку.
+.It Dq \eZu
+подчёркивание.
+.It Dq \eZU
+отключить подчёркивание.
+.It Dq \eZn
+отключить каждую настройку.
+.El
+.It Fl Fl text-unchanged
+Отключить модификацию
+.Ar текст .
+По умолчанию
+.Ar текст
+изменяется перед выводом в диалоге.
+Если он содержит хотя бы один
+.Dq \en
+каждый перевод строки и TAB преобразуется в пробел, последующие пробелы объединяются.
+Иначе символы перевода строки сохраняются, а TAB становится пробелом.
+.It Fl Fl theme Ar тема
+Установить тему, возможные значения:
+.Dq 3d ,
+.Dq blackwhite ,
+.Dq flat .
+.It Fl Fl time-format Ar формат
+Строка, принимаемая
+.Xr strftime 3
+для настройки вывода
+.Fl Fl timebox .
+.It Fl Fl timeout-exit-code Ar код_возврата
+Установить значение кода выхода для тайм-аута
+.Fl Fl pause .
+.It Fl Fl title Ar заголовок
+Заголовок диалога.
+.El
+.Ss Клавиши
+Следующие клавиши доступны во время выполнения:
+.Bl -tag -width Ds
+.It Ctrl-l
+Перерисовать диалог.
+.It F1
+См.
+.Fl Fl hfile
+и
+.Fl Fl hmsg .
+.It SPACE
+Выбрать элемент меню.
+.It UP DOWN LEFT RIGHT - + HOME END PAGEUP PAGEDOWN Ctrl-p Ctrl-n TAB
+Навигация по элементам и установка значения, в зависимости от диалога.
+.El
+.Ss Диалоги
+Следующие диалоги доступны:
+.Bl -tag -width Ds
+.It Fl Fl calendar Ar текст Ar строки Ar столбцы Op Ar день Ar месяц Ar год
+Диалог для выбора даты.
+.It Fl Fl checklist Ar текст Ar строки Ar столбцы Ar строк_меню Oo Ar имя Ar описание \
+Ar статус Oc ...
+Checklist для выбора некоторых элементов из списка клавишей SPACE.
+Элемент имеет
+.Ar имя ,
+.Ar описание
+и значение по умолчанию
+.Ar статус
+заданное
+.Dq on
+или
+.Dq off .
+Имена выбранных элементов выводятся в стандартный поток ошибок.
+.Ar строк_меню
+— графическая высота списка, 0 для авторазмера.
+.It Fl Fl datebox Ar текст Ar строки Ar столбцы Op Ar день Ar месяц Ar год
+Диалог для выбора даты.
+.It Fl Fl form Ar текст Ar строки Ar столбцы Ar строк_формы Oo Ar метка Ar y_метка \
+Ar x_метка Ar нач_знач Ar y_поле Ar x_поле Ar длина_поля Ar макс_букв Oc ...
+Диалог для получения списка строк через формы.
+Форма имеет
+.Ar метка
+в позиции
+.Ar y_метка
+и
+.Ar x_метка ,
+поле для ввода в позиции
+.Ar y_поле
+и
+.Ar x_поле .
+.Ar длина_поля
+— ширина поля; если отрицательна, поле только для чтения, а ширина равна абсолютному значению;
+если
+.Dv 0
+поле становится только для чтения, а его значением является ширина
+.Ar нач_знач .
+Ввод поля не выводится, если оно только для чтения.
+.Ar макс_букв
+— максимальная длина ввода; если
+.Dv 0
+его значение равно
+.Ar длина_поля .
+.Ar нач_знач
+— значение по умолчанию в поле.
+.Ar строк_формы
+— графическая высота списка,
+.Dv 0
+для авторазмера.
+.It Fl Fl gauge Ar текст Ar строки Ar столбцы Op Ar процент
+Диалог с индикатором для отображения
+.Ar процент ,
+затем он ожидает чтения
+.Dq XXX
+из стандартного ввода, затем первая строка заменяет percentage, а
+следующие строки заменяют
+.Ar текст
+до следующего
+.Dq XXX ,
+цикл завершается чтением
+.Dq EOF .
+.It Fl Fl infobox Ar текст Ar строки Ar столбцы
+Диалог без кнопок для отображения сообщения и немедленного выхода.
+.It Fl Fl inputbox Ar текст Ar строки Ar столбцы Op Ar нач_знач
+Диалог для получения строки ввода,
+.Ar нач_знач
+— значение по умолчанию.
+.It Fl Fl menu Ar текст Ar строки Ar столбцы Ar строк_меню Oo Ar имя Ar описание Oc ...
+Создаёт меню для выбора элемента из списка, клавиша SPACE эквивалентна ENTER.
+Элемент имеет
+.Ar имя
+и
+.Ar описание .
+Имя выбранного элемента выводится в стандартный поток ошибок.
+.Ar строк_меню
+— графическая высота списка, 0 для авторазмера.
+.It Fl Fl mixedform Ar текст Ar строки Ar столбцы Ar строк_формы Oo Ar метка Ar y_метка \
+Ar x_метка Ar нач_знач Ar y_поле Ar x_поле Ar длина_поля Ar макс_букв Ar флаг Oc ...
+Диалог для получения списка строк через формы.
+Форма имеет
+.Ar метка
+в позиции
+.Ar y_метка
+и
+.Ar x_метка ,
+поле для ввода в позиции
+.Ar y_поле
+и
+.Ar x_поле .
+.Ar длина_поля
+— ширина поля; если отрицательна, поле только для чтения, а ширина равна абсолютному значению;
+если
+.Dv 0
+поле становится только для чтения, а его значением является ширина
+.Ar нач_знач .
+Ввод поля не выводится, если
+.Ar длина_поля
+меньше или равно
+.Dv 0 .
+.Ar макс_букв
+— максимальная длина ввода; если
+.Dv 0
+его значение равно
+.Ar длина_поля .
+.Ar нач_знач
+— значение по умолчанию в поле.
+.Ar флаг
+может настраивать
+.Ar field :
+.Dv 0
+обычное,
+.Dv 1
+скрывать введённые символы,
+.Dv 2
+только для чтения.
+.Ar строк_формы
+— графическая высота списка,
+.Dv 0
+для авторазмера.
+.It Fl Fl mixedgauge Ar текст Ar строки Ar столбцы Ar осн_процент Oo Ar мини_метка \
+Ar мини_процент Oc ...
+Диалог для отображения основного индикатора, представляющего
+.Ar осн_процент
+от 0 до 100.
+Некоторые мини-индикаторы со строкой
+.Ar мини_метка
+и
+.Ar мини_процент
+со значением от 0 до 100 или отрицательным для вывода описательной строки: -1
+.Dq Succeeded ,
+-2
+.Dq Failed ,
+-3
+.Dq Passed ,
+-4
+.Dq Completed ,
+-5
+.Dq Checked ,
+-6
+.Dq Done ,
+-7
+.Dq Skipped ,
+-8
+.Dq \&In Progress ,
+-9
+для скрытия
+.Fa miniperc ,
+-10
+.Dq N/A ,
+-11
+.Dq Pending ,
+иначе
+.Dq UNKNOWN .
+.It Fl Fl msgbox Ar текст Ar строки Ar столбцы
+Диалог для отображения сообщения без кнопки
+.Dq Отмена .
+.It Fl Fl passwordbox Ar текст Ar строки Ar столбцы Op Ar нач_знач
+Диалог для получения пароля,
+.Ar нач_знач
+— значение по умолчанию.
+.It Fl Fl passwordform Ar текст Ar строки Ar столбцы Ar строк_формы Oo Ar метка \
+Ar y_метка Ar x_метка Ar нач_знач Ar y_поле Ar x_поле  Ar длина_поля Ar макс_букв \
+Oc ...
+Диалог для получения списка паролей, эквивалентен
+.Fl Fl form
+кроме того, что введённые символы скрыты.
+.It Fl Fl pause Ar текст Ar строки Ar столбцы Ar секунды
+Диалог выполняется до истечения тайм-аута
+.Ar секунды
+или нажатия кнопки.
+.It Fl Fl radiolist Ar текст Ar строки Ar столбцы Ar строк_меню Oo Ar имя Ar описание \
+Ar статус Oc ...
+Radiolist для выбора не более одного элемента из списка клавишей SPACE.
+Элемент имеет
+.Ar имя ,
+.Ar описание
+и значение по умолчанию
+.Ar статус
+заданное
+.Dq on
+или
+.Dq off .
+Имя выбранного элемента выводится в стандартный поток ошибок.
+.Ar строк_меню
+— графическая высота списка, 0 для авторазмера.
+.It Fl Fl rangebox Ar текст Ar строки Ar столбцы Ar мин Ar макс Op Ar нач_знач
+Диалог для выбора значения между
+.Ar мин
+и
+.Ar макс ,
+.Ar нач_знач
+— значение по умолчанию.
+.It Fl Fl textbox Ar файл Ar строки Ar столбцы
+Открывает и выводит
+.Ar файл .
+TAB меняет кнопку.
+Дополнительные клавиши 0, h, l, k, j доступны для навигации по тексту.
+Кнопка
+.Dq OK
+переименована в
+.Dq ВЫХОД .
+.It Fl Fl timebox Ar текст Ar строки Ar столбцы Op Ar часы Ar мин Ar сек
+Диалог для выбора времени.
+.It Fl Fl treeview Ar текст Ar строки Ar столбцы Ar строк_меню Oo Ar глубина Ar имя \
+Ar описание Ar статус Oc ...
+Эквивалент Radiolist с
+.Fl Fl  item-depth
+и
+.Fl Fl no-name .
+.It Fl Fl yesno Ar текст Ar строки Ar столбцы
+.Dq Вопрос Да-Нет ,
+кнопки
+.Dq OK
+и
+.Dq Отмена
+переименованы в
+.Dq Да
+и
+.Dq \&Нет .
+.El
+.Sh ОКРУЖЕНИЕ
+Следующие переменные окружения действуют только при запуске, другие опции
+могут переопределить их настройки.
+.Bl -tag -width indent
+.It Ev NO_COLOR
+Если присутствует и не является пустой строкой (независимо от значения), эквивалентно
+.Fl Fl theme Ar blackwhite .
+.It Ev BSDDIALOG_ERROR , Ev BSDDIALOG_OK , Ev BSDDIALOG_CANCEL , \
+Ev BSDDIALOG_HELP , Ev BSDDIALOG_EXTRA , Ev BSDDIALOG_TIMEOUT , \
+Ev BSDDIALOG_ESC , Ev BSDDIALOG_LEFT1 , Ev BSDDIALOG_LEFT2 , \
+Ev BSDDIALOG_LEFT3 , Ev BSDDIALOG_RIGHT1 , Ev BSDDIALOG_RIGHT2 , \
+Ev BSDDIALOG_RIGHT3
+Устанавливают коды выхода.
+.It Ev BSDDIALOG_THEMEFILE Ar файл
+Эквивалентно
+.Fl Fl load-theme Ar файл .
+.El
+.Sh ФАЙЛЫ
+Файл темы
+.Pa $HOME/.bsddialog.conf
+читается при запуске, если существует.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 255 при неудаче, иначе в зависимости от нажатой кнопки или клавиши
+могут быть возвращены следующие значения:
+.Bl -column -compact
+.It 0
+.Dq OK ,
+.Dq Да
+или
+.Dq Выход
+кнопка.
+.It 1
+.Dq Отмена
+или
+.Dq \&Нет
+кнопка.
+.It 2
+.Dq Справка
+кнопка.
+.It 3
+.Dq Дополнительно
+кнопка.
+.It 4
+Тайм-аут.
+.It 5
+клавиша ESC.
+.It 6
+Универсальная кнопка Left1.
+.It 7
+Универсальная кнопка Left2.
+.It 8
+Универсальная кнопка Left3.
+.It 9
+Универсальная кнопка Right1.
+.It 10
+Универсальная кнопка Right2.
+.It 11
+Универсальная кнопка Right3.
+.El
+.Sh ПРИМЕРЫ
+Заголовок экрана, заголовок и сообщение:
+.Dl bsddialog --backtitle MESSAGE --title Msgbox --msgbox Message 0 0
+.Pp
+Вопрос Да-Нет и тема:
+.Dl bsddialog --theme blackwhite --yesno Question 10 30
+.Pp
+Сохранить пользовательскую тему:
+.Dl bsddialog --save-theme mytheme.txt --infobox \*qSaving theme...\*q 0 0
+.Pp
+Загрузить пользовательскую тему:
+.Dl bsddialog --load-theme mytheme.txt --infobox \*qCustom theme\*q 0 0
+.Pp
+Checklist:
+.Dl bsddialog --checklist Checklist 0 0 3 N1 \&D1 off N2 D2 on N3 D3 off
+.Pp
+Форма:
+.Dl bsddialog --form Form 0 0 0 L1: 0 0 X 0 4 20 25 L2: 1 0 Y 1 4 20 25
+.Pp
+Мультидиалог:
+.Dl bsddialog --normal-screen --begin-y 1 --yesno Continue? 0 0  \e \
+--and-dialog --begin-y 10 --infobox Yes 0 0
+.Pp
+Bikeshed:
+.Dl bsddialog --bikeshed --inputbox Example 0 0
+.Dl bsddialog --bikeshed --datebox Example 0 0
+.Pp
+Mixedgauge:
+.Dl bsddialog --sleep 3 --mixedgauge Example 10 30 60 L1 \*q -1\*q L2 30
+.Pp
+Скрипт Mixedgauge:
+.Bd -literal -offset indent -compact
+perc=0
+while [ $perc -le 100 ]
+do
+	bsddialog --sleep 1 --title Mixedgauge          \e
+
+	perc=`expr $perc + 20`
+done
+.Ed
+.Pp
+Скрипт Gauge:
+.Bd -literal -offset indent -compact
+i=1
+for c in A B C D E F G H
+do
+	sleep 1
+	echo XXX
+	echo XXX
+	if [ $i -eq 8 ]
+	then
+		sleep 1
+		echo EOF
+	fi
+	i=`expr $i + 1`
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+Устаревшие опции сохранены для совместимости, используются соответствующие эквивалентные опции:
+.Bd -literal -offset indent -compact
+Устаревшая                   Эквивалент
+--and-widget                 --and-dialog
+--calendar <text> 2 <cols>   --calendar <text> 0 <cols>
+--clear                      --clear-screen
+--colors                     --text-escape
+--defaultno                  --default-no
+--exit-label                 --ok-label
+--help-status                --help-print-items
+--help-tags                  --help-print-name
+--item-help                  --item-bottom-desc
+--keep-tite                  --alternate-screen
+--no-items                   --no-descriptions
+--no-label                   --cancel-label
+--no-tags                    --no-names
+--nocancel                   --no-cancel
+--nook                       --no-ok
+--separator                  --output-separator
+--yes-label                  --ok-label
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr bsddialog 3 ,
+.Xr strftime 3 ,
+.Xr terminfo 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm bsddialog
+впервые появилась в
+.Fx 14.0 .
+.Sh АВТОРЫ
+.Nm bsddialog
+был написан
+.An Alfonso Sabato Siciliano
+.Aq Mt asiciliano@FreeBSD.org .
+.An Braulio Rivas
+.Aq Mt brauliorivas@FreeBSD.org
+реализовал диалог slider для
+.Dq GSoC 2025 Full Disk Administration Tool for FreeBSD .
+.Pp
+.Nm bsddialog
+также предоставляет подмножество функциональности, описанной в руководстве
+.Nm dialog .
+Следующие возможности были реализованы заново:
+.Pp
+Опции:
+.Fl Fl and-widget ,
+.Fl Fl ascii-lines ,
+.Fl Fl backtitle ,
+.Fl Fl cancel-label ,
+.Fl Fl clear ,
+.Fl Fl colors ,
+.Fl Fl cr-wrap ,
+.Fl Fl date-format ,
+.Fl Fl defaultno ,
+.Fl Fl default-button ,
+.Fl Fl default-no ,
+.Fl Fl default-item ,
+.Fl Fl exit-label ,
+.Fl Fl extra-button ,
+.Fl Fl extra-label ,
+.Fl Fl help ,
+.Fl Fl help-button ,
+.Fl Fl help-label ,
+.Fl Fl help-status ,
+.Fl Fl help-tags ,
+.Fl Fl hfile ,
+.Fl Fl hline ,
+.Fl Fl ignore ,
+.Fl Fl insecure ,
+.Fl Fl item-help ,
+.Fl Fl keep-tite ,
+.Fl Fl max-input ,
+.Fl Fl no-cancel ,
+.Fl Fl nocancel ,
+.Fl Fl no-items ,
+.Fl Fl no-label ,
+.Fl Fl no-lines ,
+.Fl Fl no-ok ,
+.Fl Fl nook ,
+.Fl Fl no-shadow ,
+.Fl Fl no-tags ,
+.Fl Fl ok-label ,
+.Fl Fl output-fd ,
+.Fl Fl output-separator ,
+.Fl Fl print-maxsize ,
+.Fl Fl print-size ,
+.Fl Fl print-version ,
+.Fl Fl quoted ,
+.Fl Fl separate-output ,
+.Fl Fl separator ,
+.Fl Fl shadow ,
+.Fl Fl single-quoted ,
+.Fl Fl sleep ,
+.Fl Fl stderr ,
+.Fl Fl stdout ,
+.Fl Fl tab-len ,
+.Fl Fl time-format ,
+.Fl Fl title ,
+.Fl Fl version ,
+.Fl Fl yes-label .
+.Pp
+Клавиши: Ctrl-l, F1.
+.Pp
+Диалоги:
+.Fl Fl calendar ,
+.Fl Fl checklist ,
+.Fl Fl form ,
+.Fl Fl gauge ,
+.Fl Fl infobox ,
+.Fl Fl inputbox ,
+.Fl Fl menu ,
+.Fl Fl mixedform ,
+.Fl Fl mixedgauge ,
+.Fl Fl msgbox ,
+.Fl Fl passwordbox ,
+.Fl Fl passwordform ,
+.Fl Fl pause ,
+.Fl Fl radiolist ,
+.Fl Fl rangebox ,
+.Fl Fl textbox ,
+.Fl Fl timebox ,
+.Fl Fl treeview ,
+.Fl Fl yesno .
+.Pp
+Некоторые возможности различаются по вводу, выводу или поведению.
+Совместимость не является приоритетом для будущей разработки.
+.Sh БЛАГОДАРНОСТИ
+.An Baptiste Daroussin
+.Aq Mt bapt@FreeBSD.org ,
+.An \&Ed Maste
+.Aq Mt emaste@FreeBSD.org ,
+.An Juraj Lutter
+.Aq Mt otis@FreeBSD.org
+и
+.An Trenton Schulz
+за предложения, помощь и тестирование.
