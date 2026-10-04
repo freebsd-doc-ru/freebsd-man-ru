@@ -1,0 +1,18 @@
+Установлены страницы Справочника на русском языке.
+Страницы на русском языке расположены в /usr/local/share/man/ru.UTF-8/.
+
+Так как системные страницы на английском языке с теми же именами (например, dd.1) уже
+существуют в системе, man(1) может показать их раньше.
+
+man(1) строит порядок поиска каталогов на основе переменной PATH.
+Чтобы русские страницы находились первыми, поместите /usr/local/bin
+перед /usr/bin в вашей переменной PATH.
+
+Russian manual pages installed.
+They are located in /usr/local/share/man/ru.UTF-8/.
+
+English pages with the same names may be found first because man(1)
+constructs its search path from PATH.
+
+To make Russian pages take priority, ensure /usr/local/bin appears
+before /usr/bin in your PATH.
