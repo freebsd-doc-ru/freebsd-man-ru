@@ -5,15 +5,15 @@
 .Dd 25 августа 2016
 .Dt CDCONTROL 1
 .Os
-.ИМЯ
+.Sh ИМЯ
 .Nm cdcontrol
 .Nd утилита управления компакт-диском
-.СИНТАКСИС
+.Sh СИНТАКСИС
 .Nm
 .Op Fl sv
 .Op Fl f Ar устройство
 .Op Ar команда ...
-.ОПИСАНИЕ
+.Sh ОПИСАНИЕ
 Утилита
 .Nm
 предназначена для управления аудиофункциями привода компакт-дисков.
@@ -148,6 +148,7 @@
 .It Ic status Op Cm audio | media | volume
 Вывести информацию о диске:
 .Pp
+.Bl -tag -width ".Cm volume" -compact
 .It Cm audio
 текущий статус воспроизведения и позиция
 .It Cm media
@@ -180,10 +181,11 @@
 .It Ic quit
 Выйти из программы.
 .El
-.ОКРУЖЕНИЕ
+.Sh ОКРУЖЕНИЕ
 На выполнение
 .Nm
 влияют следующие переменные окружения:
+.Bl -tag -width ".Ev CD_DRIVE"
 .It Ev CDROM
 Устройство CD для использования, если оно не указано с помощью опции
 .Fl f .
@@ -191,15 +193,16 @@
 Эти переменные устарели в пользу
 .Ev CDROM .
 .El
-.ФАЙЛЫ
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /dev/cd0" -compact
 .It Pa /dev/cd0
 .El
-.ИСТОРИЯ
+.Sh ИСТОРИЯ
 Команда
 .Nm
 появилась в
 .Fx 2.1 .
-.АВТОРЫ
+.Sh АВТОРЫ
 .An Jean-Marc Zucconi
 .An Andrey A. Chernov
 .An Serge V. Vakulenko

@@ -1,0 +1,66 @@
+.\" FRDP path bin/hostname/hostname.1
+.\" FRDP githash 26cf4a61f693339ca261d3acaf4d01290acc525e
+.\" FRDP hash256 7b9bb0cebd93ebe97ec1dcd1ec2cf50569999ba42a68f7ab8d5c4b5fe8d34773
+.Dd October 5, 2020
+.Dt HOSTNAME 1
+.Os
+.Sh ИМЯ
+.Nm hostname
+.Nd "задать или вывести имя текущего узла"
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f
+.Op Fl s | d
+.Op Ar имя-хоста
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит имя текущего узла.
+Суперпользователь может
+задать имя узла, указав аргумент; обычно это делается в
+сценарии инициализации
+.Pa /etc/rc.d/hostname ,
+который обычно запускается во время загрузки.
+Этот сценарий использует переменную
+.Va hostname
+в
+.Pa /etc/rc.conf .
+.Pp
+Параметры:
+.Bl -tag -width flag
+.It Fl f
+Включать информацию о домене в выводимое имя.
+Это поведение по умолчанию.
+.It Fl s
+Удалять любую информацию о домене из выводимого
+имени.
+.It Fl d
+Выводить только информацию о домене.
+.El
+.Sh ПРИМЕРЫ
+Задайте имя узла машины и проверьте результат:
+.Bd -literal -offset indent
+$ hostname beastie.localdomain.org
+$ hostname
+beastie.localdomain.org
+.Ed
+.Pp
+Не показывать информацию о домене:
+.Bd -literal -offset indent
+$ hostname -s
+beastie
+.Ed
+.Pp
+Показывать только информацию о домене:
+.Bd -literal -offset indent
+$ hostname -d
+localdomain.org
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr gethostname 3 ,
+.Xr rc.conf 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .

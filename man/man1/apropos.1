@@ -1,3 +1,4 @@
+.\" FRDP hash256 448e419afe55cea5b4a4d8eaf964f9dee7dabc0983992da8f18d0082bf641ff0
 .\" $Id: apropos.1,v 1.51 2020/10/01 22:50:00 schwarze Exp $
 .\"
 .\" Copyright (c) 2011, 2012 Kristaps Dzonsons <kristaps@bsd.lv>
@@ -149,7 +150,7 @@
 .Fl o ,
 и оба вычисляются слева направо.
 .Bl -tag -width Ds
-.It \&( Ar выражение No \&)
+.It \\&( Ar выражение No \\&)
 Истинно, если подвыражение
 .Ar выражение
 истинно.
@@ -239,65 +240,72 @@
 может использоваться для соответствия любому доступному ключу макроса.
 .Pp
 Имена и описание:
-.It Li \&Nm Ta имя руководства
-.It Li \&Nd Ta однострочное описание руководства
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&Nm Ta имя руководства
+.It Li \\&Nd Ta однострочное описание руководства
 .It Li архитектура Ta архитектура машины (регистронезависимо)
 .It Li раздел  Ta номер раздела руководства
 .El
 .Pp
 Разделы и перекрёстные ссылки:
-.It Li \&Sh Ta заголовок раздела (исключая стандартные разделы)
-.It Li \&Ss Ta заголовок подраздела
-.It Li \&Xr Ta перекрёстная ссылка на другую страницу руководства
-.It Li \&Rs Ta библиографическая ссылка
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&Sh Ta заголовок раздела (исключая стандартные разделы)
+.It Li \\&Ss Ta заголовок подраздела
+.It Li \\&Xr Ta перекрёстная ссылка на другую страницу руководства
+.It Li \\&Rs Ta библиографическая ссылка
 .El
 .Pp
 Семантическая разметка для утилит командной строки:
-.It Li \&Fl Ta параметры командной строки (флаги)
-.It Li \&Cm Ta модификатор команды
-.It Li \&Ar Ta аргумент команды
-.It Li \&Ic Ta внутренняя или интерактивная команда
-.It Li \&Ev Ta переменная окружения
-.It Li \&Pa Ta путь файловой системы
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&Fl Ta параметры командной строки (флаги)
+.It Li \\&Cm Ta модификатор команды
+.It Li \\&Ar Ta аргумент команды
+.It Li \\&Ic Ta внутренняя или интерактивная команда
+.It Li \\&Ev Ta переменная окружения
+.It Li \\&Pa Ta путь файловой системы
 .El
 .Pp
 Семантическая разметка для библиотек функций:
-.It Li \&Lb Ta имя библиотеки функций
-.It Li \&In Ta включаемый файл
-.It Li \&Ft Ta тип возвращаемого значения функции
-.It Li \&Fn Ta имя функции
-.It Li \&Fa Ta тип и имя аргумента функции
-.It Li \&Vt Ta тип переменной
-.It Li \&Va Ta имя переменной
-.It Li \&Dv Ta определённая переменная или препроцессорная константа
-.It Li \&Er Ta константа ошибки
-.It Li \&Ev Ta переменная окружения
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&Lb Ta имя библиотеки функций
+.It Li \\&In Ta включаемый файл
+.It Li \\&Ft Ta тип возвращаемого значения функции
+.It Li \\&Fn Ta имя функции
+.It Li \\&Fa Ta тип и имя аргумента функции
+.It Li \\&Vt Ta тип переменной
+.It Li \\&Va Ta имя переменной
+.It Li \\&Dv Ta определённая переменная или препроцессорная константа
+.It Li \\&Er Ta константа ошибки
+.It Li \\&Ev Ta переменная окружения
 .El
 .Pp
 Различная семантическая разметка:
-.It Li \&An Ta имя автора
-.It Li \&Lk Ta гиперссылка
-.It Li \&Mt Ta Do mailto Dc гиперссылка
-.It Li \&Cd Ta объявление конфигурации ядра
-.It Li \&Ms Ta математический символ
-.It Li \&Tn Ta торговая марка
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&An Ta имя автора
+.It Li \\&Lk Ta гиперссылка
+.It Li \\&Mt Ta Do mailto Dc гиперссылка
+.It Li \\&Cd Ta объявление конфигурации ядра
+.It Li \\&Ms Ta математический символ
+.It Li \\&Tn Ta торговая марка
 .El
 .Pp
 Физическая разметка:
-.It Li \&Em Ta курсив или подчёркивание
-.It Li \&Sy Ta полужирный шрифт
-.It Li \&Li Ta моноширинный шрифт
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&Em Ta курсив или подчёркивание
+.It Li \\&Sy Ta полужирный шрифт
+.It Li \\&Li Ta моноширинный шрифт
 .El
 .Pp
 Текстовое оформление:
-.It Li \&St Ta ссылка на стандартный документ
-.It Li \&At Ta At No ссылка на версию
-.It Li \&Bx Ta Bx No ссылка на версию
-.It Li \&Bsx Ta Bsx No ссылка на версию
-.It Li \&Nx Ta Nx No ссылка на версию
-.It Li \&Fx Ta Fx No ссылка на версию
-.It Li \&Ox Ta Ox No ссылка на версию
-.It Li \&Dx Ta Dx No ссылка на версию
+.Bl -column \"xLix\" description -offset indent -compact
+.It Li \\&St Ta ссылка на стандартный документ
+.It Li \\&At Ta At No ссылка на версию
+.It Li \\&Bx Ta Bx No ссылка на версию
+.It Li \\&Bsx Ta Bsx No ссылка на версию
+.It Li \\&Nx Ta Nx No ссылка на версию
+.It Li \\&Fx Ta Fx No ссылка на версию
+.It Li \\&Ox Ta Ox No ссылка на версию
+.It Li \\&Dx Ta Dx No ссылка на версию
 .El
 .Pp
 В общем случае, ключи макросов предназначены для предоставления полных результатов без
@@ -305,18 +313,18 @@
 Например, результаты включают:
 .Pp
 .Bl -tag -width 3n -offset 3n -compact
-.It Li \&Fa
+.It Li \\&Fa
 аргументы функций, появляющиеся в строках
-.Ic \&Fn
-.It Li \&Fn
+.Ic \\&Fn
+.It Li \\&Fn
 имена функций, размеченные с помощью макросов
-.Ic \&Fo
-.It Li \&In
+.Ic \\&Fo
+.It Li \\&In
 имена включаемых файлов, размеченные с помощью макросов
-.Ic \&Fd
-.It Li \&Vt
+.Ic \\&Fd
+.It Li \\&Vt
 типы, появляющиеся как типы возвращаемых значений функций, и
-.It \&
+.It Li \\&
 типы, появляющиеся в аргументах функций в СИНТАКСИСЕ
 .El
 .Sh ОКРУЖЕНИЕ
@@ -351,6 +359,7 @@
 .Fl l .
 .El
 .Sh ФАЙЛЫ
+.Bl -tag -width \"/etc/man.conf\" -compact
 .It Pa mandoc.db
 имя базы данных ключевых слов
 .Xr makewhatis 8
