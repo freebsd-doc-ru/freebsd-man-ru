@@ -1,29 +1,26 @@
-.\" FRDP path ./crypto/openssh/contrib/ssh-copy-id.1
-.\" FRDP githash 3d9fd9fcb432750f3716b28f6ccb0104cd9d351a
-.\" FRDP hash256 ab85a3d3a7267eba91744582ec53ec5bd778188469bf3bd5900013bdac5ee990
-.\\\" Translated from English to Russian by the system's automated tools.
-.\\\" Copyright (c) 1999-2024 Philip Hands <phil@hands.com>
-.\\\"
-.\\\" Redistribution and use in source and binary forms, with or without
-.\\\" modification, are permitted provided that the following conditions
-.\\\" are met:
-.\\\" 1. Redistributions of source code must retain the above copyright
-.\\\"    notice, this list of conditions and the following disclaimer.
-.\\\" 2. Redistributions in binary form must reproduce the above copyright
-.\\\"    notice, this list of conditions and the following disclaimer in the
-.\\\"    documentation and/or other materials provided with the distribution.
-.\\\"
-.\\\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-.\\\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-.\\\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-.\\\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-.\\\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-.\\\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-.\\\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-.\\\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-.\\\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-.\\\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-.\\\"
+.\" Translated from English to Russian by the system's automated tools.
+.\" Copyright (c) 1999-2024 Philip Hands <phil@hands.com>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
 .Dd $Mdocdate: 17 июня 2010 $
 .Dt SSH-COPY-ID 1
 .Os
@@ -214,6 +211,7 @@ ssh-подключение к клиентской машине, на котор
 .Fl W ,
 а не
 .Xr nc 1 ) .
+.Sh СМОТРИ ТАКЖЕ
 .Xr ssh 1 ,
 .Xr ssh-agent 1 ,
 .Xr sshd 8

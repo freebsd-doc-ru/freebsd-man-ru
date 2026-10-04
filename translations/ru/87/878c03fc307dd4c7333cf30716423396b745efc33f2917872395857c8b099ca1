@@ -102,6 +102,7 @@ do.not.exists: Неизвестный хост
 foo: Неизвестный мультиплексор служб протоколов
 .Ed
 .Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /etc/bluetooth/hosts" -compact
 .It Pa /etc/bluetooth/hosts
 .It Pa /etc/bluetooth/protocols
 .El

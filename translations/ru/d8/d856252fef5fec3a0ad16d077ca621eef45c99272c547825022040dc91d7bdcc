@@ -491,6 +491,7 @@
 .Pp
 В-пятых, хотя вы можете обойтись, поместив 582 списка различий в один файл, вероятно, разумнее сгруппировать связанные исправления в отдельные файлы на случай, если что-то пойдёт не так.
 .Sh ОКРУЖЕНИЕ
+.Bl -tag -width "PATCH_VERSION_CONTROL" -compact
 .It Ev POSIXLY_CORRECT
 При установке ведёт себя так, как если бы была указана опция
 .Fl Fl posix .
@@ -507,6 +508,7 @@
 .Ev PATCH_VERSION_CONTROL .
 .El
 .Sh ФАЙЛЫ
+.Bl -tag -width "$TMPDIR/patch*" -compact
 .It Pa $TMPDIR/patch*
 временные файлы
 .Nm

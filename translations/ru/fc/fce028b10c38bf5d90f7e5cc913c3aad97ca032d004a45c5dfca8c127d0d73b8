@@ -80,7 +80,7 @@ sqlite>
 .B .help
 .nf
 .tr %.
-...
+\&...
 .sp
 .fi
 

@@ -414,6 +414,7 @@ cpio, ar, zip, 7-zip и shar.
 .Nm
 запущен в режиме x от имени root.
 В настоящее время поддерживается только для форматов pax
+.Po включая "pax restricted", формат tar по умолчанию для
 .Nm bsdtar Pc
 .It Fl Fl mtime Ar дата
 (только режимы c, r, u)

@@ -31,9 +31,6 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" FRDP path ./usr.sbin/bsnmpd/tools/bsnmptools/bsnmpget.1
-.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
-.\" FRDP hash256 e2f709972b3c0213be16bc2d92be4ec8440a6bec4e6ed102f9a75c5c49898601
 .Dd 10 января 2012
 .Dt BSNMPGET 1
 .Os
@@ -41,6 +38,7 @@
 .Nm bsnmpget ,
 .Nm bsnmpwalk ,
 .Nm bsnmpset
+.Nd "простые инструменты для запроса агентов SNMP"
 .Sh СИНТАКСИС
 .Nm
 .Op Fl aDdehnK
@@ -122,6 +120,7 @@ Simple Network Management Protocol (SNMP) и установки управляю
 ответа от сервера.
 .Sh ОПЦИИ
 Опции следующие (не все применимы ко всем трём программам):
+.Bl -tag -width ".It Fl D Ar options"
 .It Fl A Ar опции
 Параметры аутентификации для использования с PDU SNMPv3
 .Bl -tag -width \&
@@ -257,7 +256,8 @@ Quiet выводит только значения, short (по умолчани
 .Nm bsnmpget
 и getnext для
 .Nm bsnmpwalk .
-несколько столбцов для получения в одном PDU с помощью
+Getbulk позволяет выполнять так называемые SNMP "bulkwalks", позволяя получать значения
+нескольких столбцов в одном PDU с помощью
 .Nm bsnmpwalk .
 .It Fl r Ar попытки
 Количество повторных отправок запросов перед сдачей, если агент не
@@ -278,10 +278,13 @@ Stream означает потоковый сокет posix local, а датаг
 будет использоваться, если указан dgram.
 .It Cm сообщество@
 Указать строку сообщества SNMP для использования при отправке пакетов.
+Если опция пропущена, для
 .Nm
 и
 .Nm bsnmpwalk
-.Nm bsnmpset .
+будет использоваться строка сообщества по умолчанию "public", а для
+.Nm bsnmpset
+будет использоваться строка сообщества по умолчанию "private".
 .It Cm сервер
 Это может быть либо IP-адрес, либо имя хоста, где работает агент.
 По умолчанию —
@@ -359,6 +362,7 @@ Stream означает потоковый сокет posix local, а датаг
 Квадратные скобки используются для обозначения индексов записи.
 При использовании во входном OID квадратные скобки, возможно, придётся
 экранировать или OID должен быть заключён в кавычки для защиты от оболочки.
+Обратите внимание, что нет разницы между ifName.1 и "ifName[1]".
 .It OID Ns = Ns Ar [синтаксис Ns :] Ns Ar значение
 Идентификатор объекта с его типом синтаксиса и значением, которое требуется установить.
 Хотя бы одна такая строка OID=[синтаксис:]значение должна быть предоставлена
@@ -378,17 +382,22 @@ OID может быть введён как строка, строка, за к�
 , также действителен в качестве входного OID:
 .Bl -tag -width \&
 .It 1.3.6.1.2.1.25.1.1.0=TimeTicks:537615486
+.It sysLocation=OctetString:\"@ Home\" (with Fl o Ar verbose No option)
+.It sysLocation.0=\"@ Home\"
 .It 1.3.6.1.2.1.2.2.1.6.1=OctetString:ffffffffffff
+.It ifPhysAddress.1=\"00:02:b3:1d:1c:a3\"
 .It ifRcvAddressStatus.1.6.255.255.255.255.255.255=1
-(с опцией
-.Fl o Ar verbose )
+.It \"ifRcvAddressStatus[Integer:1,OctetString:ff:ff:ff:ff:ff:ff]=Integer:1\"
+(with the
+.Fl o Ar verbose
+option)
 .El
 .It Cm синтаксис
 где строка синтаксиса одна из:
 Integer, OctetString, OID, IpAddress, Counter32, Gauge, TimeTicks, Counter64.
 .It Cm значение
 Значение для установки — IP-адрес в форме u.u.u.u — например,
-1.3.1.6.1.2.0=IpAddress:192.168.0.1, строки требуют обратных кавычек, если они
+1.3.1.6.1.2.0=IpAddress:192.168.0.1, строки требуют кавычек, если они
 содержат специальные символы или пробелы, все другие числовые типы — нет.
 .El
 .El

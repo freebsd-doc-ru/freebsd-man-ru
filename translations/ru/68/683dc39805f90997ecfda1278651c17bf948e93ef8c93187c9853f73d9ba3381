@@ -102,6 +102,7 @@
 Определяет альтернативный принтер по умолчанию.
 .El
 .Sh ФАЙЛЫ
+.Bl -tag -width "/var/spool/*/lock" -compact
 .It Pa /etc/printcap
 Для определения характеристик принтера.
 .It Pa /var/spool/*

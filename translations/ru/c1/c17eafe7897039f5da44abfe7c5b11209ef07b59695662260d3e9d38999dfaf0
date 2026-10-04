@@ -1,4 +1,4 @@
-.\"	$Id: soelim.1,v 1.5 2017/07/04 23:40:01 schwarze Exp $
+.\"\t$Id: soelim.1,v 1.5 2017/07/04 23:40:01 schwarze Exp $
 .\"
 .\" Copyright (c) 2014 Baptiste Daroussin <bapt@FreeBSD.org>
 .\" All rights reserved.
@@ -49,6 +49,7 @@
 она заменяется обработкой
 .Dq другойфайл .
 В противном случае строка выводится на stdout.
+.Bl -tag -width "-I dir"
 .It Fl C
 Распознавать
 .Em .so

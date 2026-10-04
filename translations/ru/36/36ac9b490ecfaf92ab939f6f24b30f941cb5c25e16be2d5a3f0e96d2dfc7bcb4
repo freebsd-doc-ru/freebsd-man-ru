@@ -110,6 +110,7 @@
 Создавать выходной архив в указанном формате.
 Поддерживаемые форматы включают:
 .Pp
+.Bl -tag -width "iso9660" -compact
 .It Ar cpio
 Синоним для
 .Ar odc .
@@ -297,6 +298,7 @@
 На выполнение
 .Nm
 влияют следующие переменные окружения:
+.Bl -tag -width ".Ev BLOCKSIZE"
 .It Ev LANG
 Используемая локаль.
 См.
@@ -336,7 +338,7 @@
 в
 .Pa dest ,
 которые старше 2 дней и содержат слово
-.Dq foobar :
+.Do foobar Dc :
 .Dl Nm find Pa src Fl mtime Ar +2 | Nm xargs Nm grep -l foobar | Nm Fl pdmu Pa dest
 .Sh СОВМЕСТИМОСТЬ
 Опции режимов i, o и p, а также опции
