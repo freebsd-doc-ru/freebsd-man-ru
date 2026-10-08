@@ -1,0 +1,33 @@
+.\" FRDP path contrib/libdiff/man/diff.1
+.\" FRDP githash 59c8e88e72633afbc47a4ace0d2170d00d51f7dc
+.\" FRDP hash256 84118d0d9dc2304172f2176d510a6ac84ca06d6fe6cd3aff941198fa9fd983e9
+.Dd $Mdocdate: August 28 2017 $
+.Dt DIFF 1
+.Os
+.Sh ИМЯ
+.Nm diff
+.Nd сравнить файлы
+.Sh СИНТАКСИС
+.Nm diff
+.Ar file1 file2
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сравнивает содержимое
+.Ar file1
+и
+.Ar file2
+построчно.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с одним из следующих значений:
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It 0
+Различий не найдено.
+.It 1
+Обнаружены различия.
+.It >1
+Произошла ошибка.
+.El

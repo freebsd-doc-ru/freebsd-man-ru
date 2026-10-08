@@ -1,0 +1,94 @@
+.\" -*- nroff -*-
+.\"
+.\" Copyright (c) 1985, 1991 The Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/rup/rup.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 14044f9a44bc1aa2837789718b04fba6a734bd9b6078b793d0088a2852f0ac0b
+.Dd 7 июня 1993
+.Dt RUP 1
+.Os
+.Sh ИМЯ
+.Nm rup
+.Nd отображение состояния удалённой системы
+.Sh СИНТАКСИС
+.Nm
+.Op Ar хост ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает сводку текущего состояния системы для указанного
+.Ar хоста
+или всех хостов в локальной сети.
+В выводе показывается текущее время, продолжительность работы системы
+без перезагрузки,
+и усреднённая загрузка.
+Числа усреднённой загрузки показывают количество заданий в очереди выполнения,
+усреднённое за 1, 5 и 15 минут.
+.Pp
+Для работы этой команды на удалённом хосте должен быть запущен
+демон
+.Xr rpc.rstatd 8 .
+Утилита
+.Nm
+использует протокол RPC, определённый в
+.In rpcsvc/rstat.x .
+.Sh ПРИМЕРЫ
+.Bd -literal
+example% rup otherhost
+otherhost   7:36am  up 6 дней, 16:45,  усреднённая загрузка: 0.20, 0.23, 0.18
+example%
+.Ed
+.Sh ДИАГНОСТИКА
+.Bl -diag
+.It rup: RPC: Программа не зарегистрирована
+Демон
+.Xr rpc.rstatd 8
+не запущен на удалённом хосте.
+.It rup: RPC: Таймаут
+Произошла ошибка связи.
+Либо сеть перегружена,
+либо демон
+.Xr rpc.rstatd 8
+завершил работу на удалённом хосте.
+.It rup: RPC: Ошибка портового отображателя - RPC: Таймаут
+Удалённый хост не запустил портовый отображатель (см.
+.Xr rpcbind 8 ) ,
+и не может обслуживать сервисы на основе RPC.
+Хост может быть выключен.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rpc.rstatd 8 ,
+.Xr rpcbind 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Tn Sun-OS .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Опции сортировки не реализованы.
