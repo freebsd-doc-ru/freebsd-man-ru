@@ -1,5 +1,5 @@
 PORTNAME=	freebsd-man-ru
-DISTVERSION=	1.1
+DISTVERSION=	1.2
 CATEGORIES=	russian docs
 
 MAINTAINER=	vladlen@FreeBSD.org
@@ -8,25 +8,31 @@ WWW=		https://github.com/freebsd-doc-ru/freebsd-man-ru
 
 LICENSE=	BSD2CLAUSE
 
-FLAVORS=	main releng_15_0 releng_15_1
-FLAVOR?=	main
+FLAVORS=	current 15_0 15_1 15_2 stable15 
+FLAVOR?=	current
 
 # define suffix for every flavor
-main_PKGNAMESUFFIX=		-main
-releng_15_0_PKGNAMESUFFIX=	-releng15_0
-releng_15_1_PKGNAMESUFFIX=	-releng15_1
+current_PKGNAMESUFFIX=		-current
+15_0_PKGNAMESUFFIX=	-15_0
+15_1_PKGNAMESUFFIX=	-15_1
+15_2_PKGNAMESUFFIX=	-15_2
+stable15_PKGNAMESUFFIX=	-stable15
 
 USE_GITHUB=	yes
 GH_ACCOUNT=	freebsd-doc-ru
 GH_PROJECT=	freebsd-man-ru
 
 # GH_TAGNAME assigned conditionally
-.if ${FLAVOR:U} == main
-GH_TAGNAME=	ru_main-2
-.elif ${FLAVOR:U} == releng_15_0
-GH_TAGNAME=	ru_releng/15.0-2
-.elif ${FLAVOR:U} == releng_15_1
-GH_TAGNAME=	ru_releng/15.1-2
+.if ${FLAVOR:U} == current
+GH_TAGNAME=	ru_main-3
+.elif ${FLAVOR:U} == 15_0
+GH_TAGNAME=	ru_releng/15.0-3
+.elif ${FLAVOR:U} == 15_1
+GH_TAGNAME=	ru_releng/15.1-3
+.elif ${FLAVOR:U} == 15_2
+GH_TAGNAME=	ru_releng/15.2-3
+.elif ${FLAVOR:U} == stable15
+GH_TAGNAME=	ru_stable/15-3
 .endif
 
 NO_BUILD=	yes
