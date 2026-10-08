@@ -114,7 +114,28 @@ Example:
 -s 148
 
 ```sh
-tools/man-tr-scan.sh -s 1 ~/freebsd-src/  meta/releng15.0.tsv
+git -C ~/freebsd-src checkout main
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/main.tsv
+git -C ~/freebsd-src checkout stable/15
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/stable15.tsv
+git -C ~/freebsd-src checkout releng/15.1
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.1.tsv
+git -C ~/freebsd-src checkout releng/15.0
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.0.tsv
+git -C ~/freebsd-src checkout stable/14
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/stable14.tsv
+git -C ~/freebsd-src checkout releng/14.5
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.5.tsv
+git -C ~/freebsd-src checkout releng/14.4
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.4.tsv
+git -C ~/freebsd-src checkout releng/14.3
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.3.tsv
+git -C ~/freebsd-src checkout releng/14.2
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.2.tsv
+git -C ~/freebsd-src checkout releng/14.1
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.1.tsv
+git -C ~/freebsd-src checkout releng/14.0
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.0.tsv
 ```
 
 Recomended run sequence:
@@ -131,7 +152,11 @@ in the format of usual man files layout ( `man1`, `man2` etc).
 tools/man-tr-assemble.sh meta/releng15.0.tsv translations/ru target15.0
 ```
 
-
+Prepare candidates list for translation based on `meta/main.tsv`, check existing translations in `translations/ru`
+and output result into `output.txt`
+```sh
+tools/man-tr-candidates.sh meta/main.tsv translations/ru output.txt
+```
 
 
 ## Contributing

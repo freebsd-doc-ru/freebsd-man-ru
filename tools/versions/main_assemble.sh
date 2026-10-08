@@ -1,4 +1,4 @@
-git -C ~/freebsd-man-ru-branches chechout ru_main
+git -C ~/freebsd-man-ru-branches checkout ru_main
 git -C ~/freebsd-man-ru-branches pull
 ~/freebsd-man-ru/tools/man-tr-assemble.sh ~/freebsd-man-ru/meta/main.tsv \
     ~/freebsd-man-ru/translations/ru ~/freebsd-man-ru-branches/man/

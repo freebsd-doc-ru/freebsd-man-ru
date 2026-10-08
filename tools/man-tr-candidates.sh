@@ -27,7 +27,7 @@
 #
 # Output format: tab-separated fields, one line per candidate:
 #
-#   name<TAB>section<TAB>version<TAB>src_path<TAB>git_hash<TAB>orig_hash
+#   name<TAB>section<TAB>version<TAB>src_path<TAB>git_hash<TAB>orig_hash<TAB>count
 #
 # where:
 #   name      -- file name without the trailing .<digit> section suffix
@@ -37,6 +37,9 @@
 #   src_path  -- source path from the metadata
 #   git_hash  -- git commit hash of the last change to the source file
 #   orig_hash -- SHA-256 hash of the original file
+#   count     -- how many .tsv files in the translation store mention
+#                this orig_hash (the original hash, not the translation
+#                hash); used as the primary sort key (descending)
 #
 # Usage:
 #   man-tr-candidates.sh [-q] [-f] <meta-file> <tr-dir> <out-file>
@@ -123,6 +126,23 @@ tmp_translated=$(mktemp) || exit 1
 tmp_candidates=$(mktemp) || exit 1
 tmp_out=$(mktemp) || exit 1
 trap 'rm -f "$tmp_translated" "$tmp_candidates" "$tmp_out"' EXIT HUP INT TERM
+
+# Temporary file with hash -> count mapping.
+tmp_hashcount=$(mktemp) || exit 1
+trap 'rm -f "$tmp_translated" "$tmp_candidates" "$tmp_out" "$tmp_hashcount"' EXIT HUP INT TERM
+
+# --- Index pass: count occurrences of each orig_hash in all .tsv files. ---
+# The .tsv files list translations; the third field (between the second
+# and third '|') is the original hash.  Count how many such files contain
+# each hash.  Duplicate lines within a single file are not expected, but
+# if they occur, they are still counted once per file per line — see below.
+# Directory containing the metadata file — the .tsv files live there.
+meta_dir=$(dirname "$meta_file")
+
+# --- Index pass: count occurrences of each orig_hash in all .tsv files. ---
+find "$meta_dir" -type f -name '*.tsv' -print | while IFS= read -r tsv; do
+    awk -F'|' 'NF >= 5 && $3 != "" { print $3 }' "$tsv"
+done | sort | uniq -c | awk '{print $2 "\t" $1}' > "$tmp_hashcount"
 
 total=0
 candidates=0
@@ -215,15 +235,20 @@ while IFS= read -r line; do
     section=${base##*.}
     name=${base%.*}
 
-    printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+    hash_count=$(awk -F'\t' -v h="$orig_hash" '$1 == h { print $2; exit }' "$tmp_hashcount")
+    [ -n "$hash_count" ] || hash_count=0
+
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
         "$name" "$section" "$version" "$src_path" "$git_hash" "$orig_hash" \
+        "$hash_count" \
         >> "$tmp_out"
 
     candidates=$((candidates + 1))
 done < "$meta_file"
 
-# Move candidate data to the output file.
-mv "$tmp_out" "$out_file"
+# Sort by descending occurrence count (field 7), then by name (field 1),
+# then by section (field 2), and write the result to the output file.
+sort -t"$(printf '\t')" -k7,7nr -k1,1 -k2,2 "$tmp_out" > "$out_file"
 
 if [ "$quiet" -eq 0 ]; then
     echo "Meta file:                    $meta_file"
