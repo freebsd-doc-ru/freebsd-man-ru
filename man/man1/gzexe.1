@@ -1,0 +1,74 @@
+.\"	$NetBSD: gzexe.1,v 1.3 2003/12/28 12:49:41 wiz Exp $
+.\"	$OpenBSD: gzexe.1,v 1.1 2003/07/31 07:32:47 otto Exp $
+.\"
+.\" Copyright (c) 2003 Otto Moerbeek <otto@drijf.net>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\" FRDP path ./usr.bin/gzip/gzexe.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 80a6eb5e8bff4cd531e7263884be06ab31fd0a47834c91a61eb696cf190c9c7c
+.Dd 26 января 2007
+.Dt GZEXE 1
+.Os
+.Sh ИМЯ
+.Nm gzexe
+.Nd создание самораспаковывающихся исполняемых файлов
+.Sh СИНТАКСИС
+.Nm gzexe
+.Op Fl d
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+использует
+.Xr gzip 1
+для сжатия исполняемых файлов, создавая исполняемые файлы, которые распаковываются на лету
+при запуске.
+Это экономит место на диске ценой увеличения времени выполнения.
+Оригинальные исполняемые файлы сохраняются путем копирования каждого из них в файл с
+тем же именем, к которому добавлен суффикс
+.Sq ~
+.
+После проверки того, что сжатые исполняемые файлы работают как ожидалось, резервные
+файлы можно удалить.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl d
+Распаковать исполняемые файлы, ранее сжатые с помощью
+.Nm .
+.El
+.Pp
+Программа
+.Nm
+отказывается сжимать нерегулярные или неисполняемые файлы,
+файлы с установленными битами setuid или setgid, файлы, уже
+сжатые с помощью
+.Nm
+или программы, необходимые для выполнения распаковки на лету:
+.Xr sh 1 ,
+.Xr mktemp 1 ,
+.Xr rm 1 ,
+.Xr echo 1 ,
+.Xr tail 1 ,
+.Xr gzip 1 ,
+и
+.Xr chmod 1 .
+.Sh СМ. ТАКЖЕ
+.Xr gzip 1
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Утилита
+.Nm
+заменяет файлы, перезаписывая их сгенерированным
+сжатым исполняемым файлом.
+Чтобы иметь возможность это сделать, требуется, чтобы исходные файлы были доступны для записи.

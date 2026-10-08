@@ -1,0 +1,250 @@
+.\" FRDP path usr.bin/tftp/tftp.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 67c8043dd9b4520c0b860034894b225afb3854b36eca0c54391f1054f3ccaf1e
+.Dd March 2, 2020
+.Dt TFTP 1
+.Os
+.Sh ИМЯ
+.Nm tftp
+.Nd тривиальная программа передачи файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Ar host Op Ar port
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это пользовательский интерфейс к интернет-протоколу
+.Tn TFTP
+(Trivial File Transfer Protocol),
+который позволяет пользователям передавать файлы на удалённую машину и с неё.
+Удалённый
+.Ar host
+можно указать в командной строке, и в этом случае
+.Nm
+использует
+.Ar host
+как хост по умолчанию для будущих передач (см. команду
+.Cm connect
+ниже).
+.Sh КОМАНДЫ
+После запуска
+.Nm
+выдаёт приглашение
+.Dq Li tftp>
+и распознаёт следующие команды:
+.Pp
+.Bl -tag -width verbose -compact
+.It Cm \&? Ar command-name ...
+Вывести справочную информацию.
+.Pp
+.It Cm ascii
+.Pp
+.It Cm binary
+.Pp
+.It Cm blocksize Ar [size]
+Устанавливает опцию TFTP blksize в пакетах TFTP Read Request или Write Request
+в
+.Ar [size]
+как указано в RFC 2348.
+Допустимые значения — от 8 до 65464.
+Если blocksize не указан, то по умолчанию будет использоваться размер блока 512 байт.
+.Pp
+.It Cm blocksize2 Ar [size]
+Устанавливает опцию TFTP blksize2 в пакетах TFTP Read Request или Write Request
+в
+.Ar [size] .
+Значения ограничены степенями двойки от 8 до 32768.
+Это нестандартная опция TFTP.
+.Pp
+.It Cm connect Ar host Op Ar port
+Установить
+.Ar host
+(и, при желании,
+.Ar port )
+для передач.
+Обратите внимание, что протокол
+.Tn TFTP ,
+в отличие от протокола
+.Tn FTP ,
+не поддерживает соединения между передачами; таким образом, команда
+.Cm connect
+фактически не создаёт соединение,
+а лишь запоминает, какой хост должен использоваться для передач.
+Вам не обязательно использовать команду
+.Cm connect ;
+удалённый хост можно указать как часть команд
+.Cm get
+или
+.Cm put .
+.Pp
+.It Cm debug Ar level
+Включить или отключить уровни отладки во время подробного вывода.
+Значение
+.Ar level
+может быть одним из
+.Cm packet , simple , options
+или
+.Cm access .
+.Pp
+.It Cm get Oo Ar host : Oc Ns Ar file Op Ar localname
+.It Cm get Xo
+.Oo Ar host1 : Oc Ns Ar file1
+.Oo Ar host2 : Oc Ns Ar file2 ...
+.Oo Ar hostN : Oc Ns Ar fileN
+.Xc
+Получить один или несколько файлов с удалённого хоста.
+При использовании аргумента
+.Ar host
+.Ar host
+будет использоваться как хост по умолчанию для будущих передач.
+Если указан
+.Ar localname ,
+файл сохраняется локально как
+.Ar localname ,
+иначе используется исходное имя файла.
+Обратите внимание, что невозможно загрузить два файла одновременно, только
+один, три или более трёх файлов за раз.
+.Pp
+Чтобы указать числовой адрес IPv6 для хоста, заключите его в квадратные
+скобки, например
+.Dq Li [3ffe:2900:e00c:ffee::1234] : Ns Ar file ,
+чтобы отличить двоеточия, используемые в адресе IPv6, от двоеточия, разделяющего хост и
+имя файла.
+.Pp
+.It Cm mode Ar transfer-mode
+Установить режим передач;
+.Ar transfer-mode
+может быть одним из
+.Em ascii
+или
+.Em binary .
+По умолчанию
+.Em binary .
+.Pp
+.It Cm packetdrop [arg]
+Случайным образом отбрасывать
+.Ar arg
+из 100 пакетов во время передачи.
+Это отладочная возможность.
+.Pp
+.It Cm put Ar file Op Oo Ar host : Oc Ns Ar remotename
+.It Cm put Ar file1 file2 ... fileN Op Oo Ar host : Oc Ns Ar remote-directory
+Положить файл или набор файлов на удалённый хост.
+Когда
+.Ar remotename
+указан, файл сохраняется удалённо как
+.Ar remotename ,
+иначе используется исходное имя файла.
+Если используется аргумент
+.Ar remote-directory ,
+предполагается, что удалённый хост — это машина
+.Ux .
+Чтобы указать числовой адрес IPv6 для
+.Ar host ,
+см. пример в
+команде
+.Cm get .
+.Pp
+.It Cm options Ar [arg]
+Включить или отключить поддержку опций TFTP.
+Допустимые значения
+.Ar arg :
+.Cm on
+(включить опции RFC 2347),
+.Cm off
+(отключить опции RFC 2347) и
+.Cm extra
+(переключить поддержку опций, не определённых в RFC).
+.Pp
+.It Cm quit
+Выйти из
+.Nm .
+Конец файла также выполняет выход.
+.Pp
+.It Cm rexmt Ar retransmission-timeout
+Установить тайм-аут повторной передачи на пакет в секундах.
+.Pp
+.It Cm rollover [arg]
+Указать опцию rollover в пакетах TFTP Read Request или Write
+Request.
+После передачи 65535 пакетов установить счётчик блоков в
+.Ar arg .
+Допустимые значения
+.Ar arg
+— 0 и 1. Это нестандартная опция TFTP.
+.Pp
+.It Cm status
+Показать текущее состояние.
+.Pp
+.It Cm timeout Ar total-transmission-timeout
+Установить общий тайм-аут передачи в секундах.
+.Pp
+.It Cm trace
+Переключить трассировку пакетов.
+.Pp
+.It Cm verbose
+Переключить подробный режим.
+.Pp
+.It Cm windowsize Op Ar size
+Устанавливает опцию TFTP windowsize в пакетах TFTP Read Request или Write Request в
+.Op Ar size
+блоков как указано в RFC 7440.
+Допустимые значения — от 1 до 65535.
+Если windowsize не указан,
+то по умолчанию будет использоваться размер окна в 1 блок.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr tftpd 8
+.Pp
+Поддерживаются следующие RFC:
+.Rs
+.%T RFC 1350: The TFTP Protocol (Revision 2)
+.Re
+.Rs
+.%T RFC 2347: TFTP Option Extension
+.Re
+.Rs
+.%T RFC 2348: TFTP Blocksize Option
+.Re
+.Rs
+.%T RFC 2349: TFTP Timeout Interval and Transfer Size Options
+.Re
+.Rs
+.%T RFC 3617: Uniform Resource Identifier (URI) Scheme and Applicability Statement for the Trivial File Transfer Protocol (TFTP)
+.Re
+.Rs
+.%T RFC 7440: TFTP Windowsize Option
+.Re
+.Pp
+Нестандартные опции TFTP
+.Cm rollover
+и
+.Cm blksize2
+упоминаются здесь:
+.Rs
+.%T Extending TFTP
+.%U https://www.compuphase.com/tftp.htm
+.Re
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 .
+.Pp
+Edwin Groothuis <edwin@FreeBSD.org> выполнил крупную переработку кода
+.Xr tftpd 8
+и
+.Nm
+для поддержки RFC2348.
+.Sh ПРИМЕЧАНИЯ
+Поскольку в протоколе
+.Tn TFTP
+нет входа пользователя или проверки,
+удалённый сайт, вероятно, будет иметь какие-то
+ограничения доступа к файлам.
+Точные методы специфичны для каждого сайта и поэтому
+их трудно задокументировать здесь.
+.Pp
+Файлы размером более 33488896 октетов (65535 блоков) не могут быть переданы
+без поддержки клиентом и сервером опции blocksize TFTP (RFC2348)
+или нестандартной опции rollover TFTP.

@@ -1,0 +1,153 @@
+.\" Copyright (c) 2002 - 2007 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/appl/afsutil/afslog.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 4e66df11583fe6dec5360f6253505ea2f50337535d2f10cb6456c3ae7c5fd9e2
+.Dd 26 ноября 2002
+.Dt AFSLOG 1
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm afslog
+.Nd получение AFS-токенов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h | Fl Fl help
+.Op Fl Fl no-v4
+.Op Fl Fl no-v5
+.Op Fl u | Fl Fl unlog
+.Op Fl v | Fl Fl verbose
+.Op Fl Fl version
+.Oo Fl c Ar ячейка \*(Ba Xo
+.Fl Fl cell= Ns Ar ячейка
+.Xc
+.Oc
+.Oo Fl k Ar область \*(Ba Xo
+.Fl Fl realm= Ns Ar область
+.Xc
+.Oc
+.Oo Fl P Ar принципал \*(Ba Xo
+.Fl Fl principal= Ns Ar принципал
+.Xc
+.Oc
+.Bk -words
+.Oo Fl p Ar путь \*(Ba Xo
+.Fl Fl file= Ns Ar путь
+.Xc
+.Oc
+.Ek
+.Op Ar ячейка | путь ...
+.Sh ОПИСАНИЕ
+.Nm
+получает AFS-токены для ряда ячеек. Для каких ячеек получать токены
+может быть указано явным списком, как пути к файлам для получения токенов,
+или оставлено неопределённым, в этом случае
+.Nm
+будет использовать любую магию, которую решит
+.Xr krb_afslog 3 .
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl Fl no-v4
+Заставляет
+.Nm
+не пытаться использовать Kerberos 4.
+.It Fl Fl no-v5
+Заставляет
+.Nm
+не пытаться использовать Kerberos 5.
+.It Xo
+.Fl P Ar принципал ,
+.Fl Fl principal Ar принципал
+.Xc
+выбирает, какой принципал Kerberos 5 использовать.
+.It Fl Fl cache Ar кеш
+выбирает, какой кеш учётных данных Kerberos 5 использовать.
+.Fl Fl principal
+переопределяет эту опцию.
+.It Xo
+.Fl u ,
+.Fl Fl unlog
+.Xc
+Уничтожить токены вместо получения новых. Если указано, все
+остальные опции игнорируются (кроме
+.Fl Fl help
+и
+.Fl Fl version ) .
+.It Xo
+.Fl v ,
+.Fl Fl verbose
+.Xc
+Добавляет более подробный вывод о происходящем.
+.It Xo
+.Fl c Ar ячейка ,
+.Fl Fl cell= Ns Ar ячейка
+.Xc
+Указывает одну или несколько имён ячеек для получения токенов.
+.It Xo
+.Fl k Ar область ,
+.Fl Fl realm= Ns Ar область
+.Xc
+Это область Kerberos, в которой находятся серверы AFS; обычно это
+не следует указывать.
+.It Xo
+.Fl p Ar путь ,
+.Fl Fl file= Ns Ar путь
+.Xc
+Указывает один или несколько путей к файлам, для которых должны быть
+получены токены.
+.El
+.Pp
+Вместо использования
+.Fl c
+и
+.Fl p ,
+вы также можете передать список ячеек и путей к файлам после любых других
+опций. Эти аргументы считаются файлами, если они являются либо строками
+.Do . Dc
+или
+.Dq .. ,
+либо содержат слэш, либо если существует файл с таким именем.
+.Sh ПРИМЕРЫ
+Предполагая, что в текущем каталоге нет файла с именем
+.Dq openafs.org ,
+и что
+.Pa /afs/openafs.org
+указывает на эту ячейку, следующие команды должны быть идентичны:
+.Bd -literal -offset indent
+$ afslog -c openafs.org
+$ afslog openafs.org
+$ afslog /afs/openafs.org/some/file
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr krb_afslog 3

@@ -1,0 +1,90 @@
+.\" Copyright (c) 2009 Gabor Kovesdan <gabor@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form
+.\" from IEEE Std 1003.1, 2004 Edition, Standard for Information Technology --
+.\" Portable Operating System Interface (POSIX), The Open Group Base
+.\" Specifications Issue 6, Copyright (C) 2001-2004 by the Institute of
+.\" Electrical and Electronics Engineers, Inc and The Open Group.  In the
+.\" event of any discrepancy between this version and the original IEEE and
+.\" The Open Group Standard, the original IEEE and The Open Group Standard is
+.\" the referee document.  The original Standard can be obtained at
+.\"     http://www.opengroup.org/standards/unix.
+.\"
+.\" FRDP path ./usr.bin/mkcsmapper/mkcsmapper.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 132a7c5ab73571cfa1eee5e2df14c10334cca8feabc62bfbaff90ea558d0b656
+.Dd 9 июля 2016
+.Dt MKCSMAPPER 1
+.Os
+.Sh ИМЯ
+.Nm mkcsmapper
+.Nd создает хэшированные данные преобразования для
+.Xr iconv 3
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl m | Fl p
+.Op Fl o Ar outfile
+.Op Ar infile
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+генерирует двоичные данные преобразования из текстовых таблиц преобразования
+для библиотеки
+.Xr iconv 3 .
+Данные преобразования состоят из двух компонентов:
+Отображение преобразования между конкретными кодировками символов.
+Сводный файл, который определяет возможные пары исходной и целевой кодировок
+или набор отображений для использования в составной кодировке.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width XoXoutfileXX
+.It Fl d
+Включает режим отладки.
+.It Fl m
+Генерировать данные отображения из
+.Ar infile .
+.It Fl o Ar outfile
+Поместить сгенерированные двоичные данные в
+.Ar outfile .
+.It Fl p
+Генерировать сводные данные из
+.Ar outfile .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std mkcsmapper
+.Sh СМ. ТАКЖЕ
+.Xr iconv 1 ,
+.Xr mkesdb 1 ,
+.Xr iconv 3
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Nx 2.0 ,
+и была включена в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Gabor Kovesdan Aq Mt gabor@FreeBSD.org .

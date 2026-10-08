@@ -1,0 +1,49 @@
+.\" Copyright (c) 2012 Ed Schouten <ed@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./tools/tools/fixwhite/fixwhite.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 bbce68df307b6dd0ba23197397660380f18958fae65ae806cff11a7458fce0dd
+.Dd 6 февраля 2012
+.Dt FIXWHITE 1
+.Os
+.Sh ИМЯ
+.Nm fixwhite
+.Nd удаление лишних пробелов из текстовых файлов
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+удаляет лишние пробелы из текста, переданного на стандартный ввод,
+и выводит результат на стандартный вывод.
+.Pp
+Она удаляет начальные и конечные пустые строки из ввода, а также
+конечные пробельные символы из каждой строки текста.
+Несколько последовательных пустых строк объединяются в одну.
+Если пробелы в начале предложения составляют в точности кратное восьми количество пробелов,
+они заменяются табуляциями.
+Также пробелы, предшествующие табуляциям, будут объединены в символ табуляции.
+.Sh АВТОРЫ
+.An Ed Schouten Aq Mt ed@FreeBSD.org
