@@ -1,0 +1,180 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/drawer.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 53132dca98d5797ff17b887ecb59175cfb8b9eccb6913e84dcaebc3c261fe184
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt DRAWER.LUA 8
+.Os
+.Sh ИМЯ
+.Nm drawer.lua
+.Nd модуль отрисовки меню и экрана загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность для отрисовки и управления меню, логотипом и брендом
+на экране.
+.Pp
+Перед использованием функциональности, предоставляемой
+.Nm ,
+её необходимо подключить с помощью оператора, подобного следующему:
+.Pp
+.Ss ОПРЕДЕЛЕНИЯ БРЕНДА
+Определения бренда описывают
+.Dq бренд ,
+традиционно отрисовываемый над меню.
+Точное положение можно контролировать с помощью
+.Xr loader.conf 5
+переменных
+.Va loader_brand_x
+и
+.Va loader_brand_y .
+Для определения бренда можно задать следующие ключи:
+.Bl -tag -width "graphic" -offset indent
+.It Ic graphic
+Таблица строк, содержащая строки текста, которые должны быть отрисованы на экране.
+.El
+.Ss ОПРЕДЕЛЕНИЯ ЛОГОТИПА
+Определения логотипа описывают
+.Dq логотип ,
+традиционно располагаемый справа от меню.
+Точное положение можно контролировать с помощью
+.Xr loader.conf 5
+переменных
+.Va loader_logo_x
+и
+.Va loader_logo_y .
+Для определения логотипа можно задать следующие ключи:
+.Bl -tag -width "requires_color" -offset indent
+.It Ic requires_color
+Булево значение, указывающее, требует ли это определение логотипа цвет.
+Если оно выбрано для отрисовки и требует цвет при загрузке с отключённым цветом,
+.Nm
+выберет использование логотипа по умолчанию
+.Dq orbbw
+вместо выбранного логотипа.
+.It Ic graphic
+Таблица строк, содержащая строки текста, которые должны быть отрисованы на экране.
+.It Ic shift
+Таблица, описывающая сдвиг по
+.Va x
+и
+.Va y ,
+который следует применить ко всем элементам, если этот логотип выбран.
+Обычно это используется для сдвига меню и бренда, если выбран пустой или минимальный
+логотип.
+.El
+.Ss ПОЛЬЗОВАТЕЛЬСКИЕ БРЕНДЫ И ЛОГОТИПЫ
+Система брендов и логотипов спроектирована так, чтобы бренды и логотипы было легко
+подключать.
+Когда встречается нераспознанный
+.Ev loader_brand
+или
+.Ev loader_logo ,
+.Nm
+попытается подключить
+.Pa brand-${loader_brand}.lua
+или
+.Pa logo-${loader_logo}.lua
+соответственно.
+Ожидается, что эти файлы вызовут
+.Fn drawer.addBrand
+или
+.Fn drawer.addLogo
+для добавления запрошенного определения бренда или логотипа.
+.Nm
+попытается выполнить ещё один поиск запрошенного бренда или логотипа, прежде чем перейти
+к одному из следующих:
+.Bl -tag -width "drawer.default_color_logodef" -offset indent
+.It Ic drawer.default_brand
+Бренд по умолчанию, который будет использоваться, если запрошенный бренд не удаётся найти.
+.It Ic drawer.default_color_logodef
+Определение логотипа по умолчанию, которое будет использоваться, если запрошено недопустимое определение логотипа и
+.Xr loader 8
+настроен на разрешение вывода цвета.
+.It Ic drawer.default_bw_logodef
+Определение логотипа по умолчанию, которое будет использоваться, если либо было запрошено недопустимое определение логотипа,
+либо было запрошено определение логотипа, требующее цвета, а
+.Xr loader 8
+настроен на отсутствие вывода цвета.
+.El
+.Ss СТИЛИ РАМОК
+.Nm
+содержит определения для различных стилей рамок, которые могут быть нарисованы вокруг
+меню.
+Стили рамок определяют символы, отрисовываемые для горизонтальных линий, вертикальных линий
+и каждого из четырёх угловых стилей.
+Для стиля рамки можно задать следующие ключи:
+.Bl -tag -width "bottom_right" -offset indent
+.It
+horizontal
+.It
+vertical
+.It
+top_left
+.It
+bottom_left
+.It
+top_right
+.It
+bottom_right
+.El
+В настоящее время стили рамок определены в таблице
+.Ic drawer.frame_styles
+индексируемой по имени, используемому для
+.Ev loader_menu_frame .
+В настоящее время API для косвенного управления этой таблицей не существует.
+.Ss Экспортируемые функции
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width hook.registerType -offset indent
+.It Fn drawer.addBrand name def
+Добавляет определение бренда из
+.Fa def
+в таблицу известных определений бренда, индексируемую по
+.Fa name .
+.It Fn drawer.addLogo name def
+Добавляет определение логотипа из
+.Fa def
+в таблицу известных определений логотипа, индексируемую по
+.Fa name .
+.It Fn drawer.drawscreen menudef
+Отрисовывает логотип, бренд, рамку меню и текущее меню, как описано в
+.Fa menudef ,
+отформатированное в соответствии с
+.Xr menu.lua 8 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr menu.lua 8
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально был написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Последующая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

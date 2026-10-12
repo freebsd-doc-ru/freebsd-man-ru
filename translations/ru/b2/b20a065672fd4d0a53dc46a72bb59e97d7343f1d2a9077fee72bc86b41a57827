@@ -1,0 +1,122 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\"  Copyright (c) 2010 Gordon Tetlow
+.\"  All rights reserved.
+.\"
+.\"  Redistribution and use in source and binary forms, with or without
+.\"  modification, are permitted provided that the following conditions
+.\"  are met:
+.\"  1. Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\"  2. Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\"
+.\"  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\"  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\"  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\"  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\"  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\"  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\"  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\"  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\"  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\"  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\"  SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/man/manpath.1
+.\" FRDP githash 07d29f9c177e731e4497bedf5fde09176c90b444
+.\" FRDP hash256 b20a065672fd4d0a53dc46a72bb59e97d7343f1d2a9077fee72bc86b41a57827
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 11, 2017
+.Dt MANPATH 1
+.Os
+.Sh ИМЯ
+.Nm manpath
+.Nd отображает путь поиска страниц руководства
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Ldq
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+определяет путь поиска страниц руководства пользователя из
+переменной
+.Ev PATH
+пользователя
+и локальных файлов конфигурации.
+Этот результат выводится на стандартный вывод.
+.Bl -tag -width Ds
+.It Fl L
+Выводит список локалей страниц руководства вместо пути к страницам руководства.
+.It Fl d
+Выводит дополнительную отладочную информацию.
+.It Fl q
+Подавляет предупреждающие сообщения.
+.El
+.Sh ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Утилита
+.Nm
+строит путь к страницам руководства из двух источников:
+.Bl -enum -compact
+.It
+Из каждого компонента переменной
+.Ev PATH
+пользователя для первого из:
+.Bl -dash -compact
+.It
+.Pa pathname/man
+.It
+.Pa pathname/MAN
+.It
+Если pathname заканчивается на /bin:
+.Pa pathname/../share/man
+и
+.Pa pathname/../man
+.El
+.It
+Файлы конфигурации, перечисленные в разделе
+.Sx ФАЙЛЫ
+для записей
+.Va MANPATH .
+.El
+Информация из этих источников затем объединяется.
+.Pp
+Если флаг
+.Fl L
+установлен, утилита
+.Nm
+будет искать в файлах конфигурации, перечисленных в разделе
+.Sx ФАЙЛЫ ,
+записи
+.Va MANLOCALE .
+.Sh ОКРУЖЕНИЕ
+Следующие переменные окружения влияют на выполнение
+.Nm :
+.Bl -tag -width Ds
+.It Ev MANLOCALES
+Если задана с флагом
+.Fl L ,
+заставляет утилиту вывести предупреждение и значение, переопределяя любую
+другую конфигурацию, найденную в системе.
+.It Ev MANPATH
+Если задана, заставляет утилиту вывести предупреждение и значение, переопределяя
+любую другую конфигурацию, найденную в системе.
+.It Ev PATH
+Влияет на путь к страницам руководства, как описано в
+.Sx ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/man.conf
+Системный файл конфигурации.
+.It Pa /usr/local/etc/man.d/*.conf
+Локальные файлы конфигурации.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr man 1 ,
+.Xr whatis 1 ,
+.Xr man.conf 5

@@ -1,0 +1,60 @@
+.\" FRDP path libexec/phttpget/phttpget.8
+.\" FRDP githash 9b30b96c1fa4ee0dfc540878fbb3247bf92d19eb
+.\" FRDP hash256 562e4cd944a2a8db7b504fed09bb3cc29b51f787c342ae4cef4cf4bbd55ea524
+.Dd January 3, 2015
+.Dt PHTTPGET 8
+.Os
+.Sh ИМЯ
+.Nm phttpget
+.Nd загрузка нескольких файлов через конвейерный HTTP
+.Sh СИНТАКСИС
+.Nm
+.Ar сервер
+.Ar файл ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой минималистичный HTTP-клиент с конвейеризацией,
+который используется для получения нескольких
+.Ar файл Ns ов
+с одного
+.Ar сервера ,
+и сохраняет загруженные файлы в текущем рабочем каталоге,
+используя последнюю часть их пути загрузки в качестве имён файлов.
+.Pp
+Она может значительно повысить производительность, когда необходимо
+загрузить большое количество небольших файлов.
+.Pp
+Инструмент
+.Xr freebsd-update 8
+использует
+.Nm
+для загрузки двоичных файлов исправлений.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width HTTP_PROXY_AUTH
+.It Ev HTTP_PROXY
+URL прокси-сервера, используемого для HTTP-запросов.
+.It Ev HTTP_PROXY_AUTH
+Параметры авторизации для HTTP-прокси.
+.It Ev HTTP_USER_AGENT
+Строка User-Agent, используемая для HTTP-запросов.
+По умолчанию используется
+.Dq phttpget/0.1 .
+.It Ev HTTP_TIMEOUT
+Тайм-аут HTTP-запроса в секундах.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fetch 1 ,
+.Xr freebsd-update 8
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Colin Percival Aq Mt cperciva@FreeBSD.org
+изначально для использования с
+.Xr portsnap 8
+(сейчас удалена) и использовалась в
+.Xr freebsd-update 8 .
+Эта страница руководства была написана
+.An Xin LI Aq Mt delphij@FreeBSD.org .

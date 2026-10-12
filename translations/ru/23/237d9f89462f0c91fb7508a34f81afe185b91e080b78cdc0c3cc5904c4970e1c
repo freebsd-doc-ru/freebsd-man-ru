@@ -1,0 +1,76 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/password.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 237d9f89462f0c91fb7508a34f81afe185b91e080b78cdc0c3cc5904c4970e1c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt PASSWORD.LUA 8
+.Os
+.Sh ИМЯ
+.Nm password.lua
+.Nd модуль пароля загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность для запроса и проверки паролей.
+.Pp
+Перед использованием функциональности, предоставляемой
+.Nm ,
+его необходимо включить с помощью инструкции, подобной следующей:
+.Pp
+.Pp
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Fn password.read prompt_length
+Считывает пароль после приглашения.
+.Fa prompt_length
+требуется, чтобы индикатор мог правильно отображаться, пока пользователь вводит текст.
+.It Fn password.check
+Управляет основными проверками пароля, выполняемыми загрузчиком.
+Функция
+.Fn password.check
+проверит
+.Ev bootlock_password ,
+.Ev geom_eli_passphrase_prompt
+и
+.Ev password
+и запросит у пользователя пароли по необходимости.
+Если
+.Ev password
+установлен, последовательность автозагрузки начнётся, как только пользователю будет предложено ввести пароль.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr screen.lua 8
+.Sh АВТОРЫ
+Файл
+.Nm
+был первоначально написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Дальнейшая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

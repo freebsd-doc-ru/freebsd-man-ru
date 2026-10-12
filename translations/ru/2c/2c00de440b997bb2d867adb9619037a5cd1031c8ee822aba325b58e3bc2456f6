@@ -1,0 +1,200 @@
+.\" Copyright (c) 1980, 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/umount/umount.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 2c00de440b997bb2d867adb9619037a5cd1031c8ee822aba325b58e3bc2456f6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 16, 2024
+.Dt UMOUNT 8
+.Os
+.Sh ИМЯ
+.Nm umount
+.Nd размонтирование файловых систем
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dfNnv
+.Ar специальное_устройство ... | узел ... | fsid ...
+.Nm
+.Fl a | A
+.Op Fl F Ar fstab
+.Op Fl fnv
+.Op Fl h Ar хост
+.Op Fl t Ar тип
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+вызывает системный вызов
+.Xr unmount 2
+чтобы удалить файловую систему из дерева файловых систем.
+Файловая система может быть указана своим
+.Ar специальным
+устройством или удалённым узлом
+.Pq Ar удалённый_хост Ns Cm \& : Ns Ar путь ,
+путём к точке монтирования
+.Ar узел
+или идентификатором файловой системы
+.Ar fsid
+, как сообщается командой
+.Dq mount -v
+при запуске от имени root.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a
+Все файловые системы, описанные в
+.Xr fstab 5
+, размонтируются.
+.It Fl A
+Все файловые системы, смонтированные в данный момент, размонтируются,
+кроме смонтированных в
+.Pa /
+или
+.Pa /dev .
+.It Fl d
+Если файловая система смонтирована на устройстве
+.Xr md 4
+(диск в памяти), отсоедините её после
+.Xr unmount 2 .
+.It Fl F Ar fstab
+Указывает файл
+.Pa fstab
+для использования.
+.It Fl f
+Файловая система принудительно размонтируется.
+Активные специальные устройства продолжают работать,
+но все остальные файлы возвращают ошибки при попытке дальнейшего доступа.
+Корневую файловую систему нельзя принудительно размонтировать.
+Для NFS принудительное размонтирование может занять до 1 минуты или больше,
+чтобы завершиться при неотвечающем сервере, и в этом случае может отбросить
+данные, ещё не записанные на сервер.
+Если процесс, такой как
+.Nm
+без флага
+.Fl f
+завис на точке монтирования
+.Tn NFS
+, используйте вместо него флаг
+.Fl N
+.
+Кроме того, принудительное размонтирование монтирования NFSv3, когда
+.Xr rpc.lockd 8
+запущен, небезопасно и может привести к сбою.
+.It Fl h Ar хост
+Будут размонтированы только файловые системы, смонтированные с указанного хоста.
+Эта опция подразумевает опцию
+.Fl A
+и, если не указано иное с помощью опции
+.Fl t
+, будет размонтировать только
+.Tn NFS
+файловые системы.
+.It Fl N
+Выполнить принудительное размонтирование точки монтирования
+.Tn NFS
+без проверки пути монтирования.
+Эта опция может быть использована только с путём к точке монтирования
+.Ar узел
+, и путь должен быть указан точно таким, каким он был во время монтирования.
+Эта опция полезна, когда процесс завис в ожидании неотвечающего
+.Tn NFS
+сервера, удерживая блокировку vnode на vnode, на который выполнено монтирование, так что
+.Nm
+с флагом
+.Fl f
+не может завершиться.
+Использование этой опции может привести к потере обновлений файлов, которые не были
+сброшены на
+.Tn NFS
+сервер.
+.It Fl n
+Если не используется
+.Fl f
+, то
+.Nm
+не будет размонтировать активную файловую систему.
+Однако он выполнит сброс.
+Этот флаг отключает такое поведение, предотвращая сброс,
+если открыт какой-либо файл.
+.It Fl t Ar тип
+Используется, чтобы указать, что действия должны выполняться только над
+файловыми системами указанного типа.
+Можно указать более одного типа в списке, разделённом запятыми.
+Список типов файловых систем может быть снабжён префиксом
+.Dq no
+, чтобы указать типы файловых систем, для которых действие
+.Em не
+должно выполняться.
+Например, команда
+.Nm
+:
+.Bd -literal -offset indent
+umount -a -t nfs,nullfs
+.Ed
+.Pp
+размонтирует все файловые системы типа
+.Tn NFS
+и
+.Tn NULLFS
+, перечисленные в файле
+.Xr fstab 5
+.
+.It Fl v
+Подробный режим; дополнительная информация выводится по мере размонтирования каждой
+файловой системы.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width Ds
+.It Ev PATH_FSTAB
+Если переменная окружения
+.Ev PATH_FSTAB
+установлена, все операции выполняются с указанным файлом.
+.Ev PATH_FSTAB
+не будет учитываться, если окружение процесса или адресное пространство памяти
+считается
+.Dq испорченным .
+(См.
+.Xr issetugid 2
+для получения дополнительной информации.)
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/fstab -compact
+.It Pa /etc/fstab
+таблица файловых систем
+.El
+.Sh СМ. ТАКЖЕ
+.Xr unmount 2 ,
+.Xr fstab 5 ,
+.Xr autounmountd 8 ,
+.Xr mdconfig 8 ,
+.Xr mount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v1 .

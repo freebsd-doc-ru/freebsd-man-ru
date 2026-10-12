@@ -1,0 +1,575 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1999 Daniel C. Sobral
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/man/loader_4th.8
+.\" FRDP githash a37825313f624121c6f07bc03f9cf655c300885b
+.\" FRDP hash256 52395fc91c5aa17bfade61b33c5fd1c1cfca34efd60078f6fa38411afa9d44bf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 29, 2021
+.Dt LOADER_4TH 8
+.Os
+.Sh ИМЯ
+.Nm loader_4th
+.Nd завершающая стадия начальной загрузки ядра
+.Sh ОПИСАНИЕ
+Программа, называемая
+.Nm ,
+является завершающей стадией
+.Fx Ns 's
+процесса начальной загрузки ядра.
+На архитектурах IA32 (i386) это
+.Pa BTX
+клиент.
+Он статически скомпонован с
+.Xr libsa 3
+и обычно находится в каталоге
+.Pa /boot .
+.Pp
+Он предоставляет язык сценариев, который можно использовать для
+автоматизации задач, предварительной настройки или помощи в процедурах
+восстановления.
+Этот язык сценариев условно разделён на
+два основных компонента.
+Меньший — это набор команд.
+Основной движущей силой этих команд является удобство для пользователя.
+Больший компонент — это
+совместимый с
+.Tn ANS
+Forth интерпретатор Forth на основе FICL, написанный
+.An John Sadler .
+.Pp
+Во время инициализации
+.Nm
+выполняет поиск консоли и устанавливает переменную
+.Va console
+или устанавливает её в последовательную консоль
+.Pq Dq Li comconsole ,
+если предыдущая стадия загрузки использовала её.
+Если выбрано несколько консолей, они будут перечислены через пробелы.
+Затем выполняется поиск устройств, устанавливаются
+.Va currdev
+и
+.Va loaddev ,
+а
+.Va LINES
+устанавливается в 24.
+Далее инициализируется
+.Tn FICL ,
+встроенные слова добавляются в его словарь, и
+.Pa /boot/boot.4th
+обрабатывается, если существует.
+Во время чтения этого файла переключение дисков невозможно.
+Внутренний интерпретатор, который
+.Nm
+будет использовать с
+.Tn FICL ,
+затем устанавливается в
+.Ic interpret ,
+что является
+.Tn FICL Ns 's
+значением по умолчанию.
+После этого
+.Pa /boot/loader.rc
+обрабатывается, если доступен.
+Эти файлы обрабатываются через команду
+.Ic include ,
+которая считывает их все в память перед обработкой,
+делая возможным изменение диска.
+.Pp
+На этом этапе, если
+.Ic autoboot
+ещё не выполнялся, и если
+.Va autoboot_delay
+не установлено в
+.Dq Li NO
+(без учёта регистра), будет выполнена попытка
+.Ic autoboot .
+Если система проходит эту точку, устанавливается
+.Va prompt
+и
+.Nm
+переходит в интерактивный режим.
+Обратите внимание, что исторически, даже когда
+.Va autoboot_delay
+установлено в
+.Dq Li 0 ,
+пользователь может прервать процесс autoboot, нажав какую-либо клавишу
+на консоли во время загрузки ядра и модулей.
+В некоторых
+случаях такое поведение может быть нежелательным; чтобы предотвратить его, установите
+.Va autoboot_delay
+в
+.Dq Li -1 ,
+в этом случае
+.Nm
+перейдёт в интерактивный режим только если
+.Ic autoboot
+не удался.
+.Sh ВСТРОЕННЫЕ КОМАНДЫ
+В
+.Nm
+встроенные команды принимают параметры из командной строки.
+В настоящее время
+единственный способ вызвать их из сценария — использовать
+.Pa evaluate
+для строки.
+При возникновении ошибки будет сгенерировано исключение,
+которое можно перехватить с помощью
+слов обработки исключений Forth
+.Tn ANS .
+Если оно не перехвачено, будет отображено сообщение об ошибке,
+а состояние интерпретатора сброшено: стек очищен и восстановлен
+режим интерпретации.
+Команды описаны в разделе
+.Dq ВСТРОЕННЫЕ КОМАНДЫ
+.Xr loader_simp 8 .
+.Ss ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+Переменные окружения, общие для всех интерпретаторов, описаны в разделе
+.Dq ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+.Xr loader_simp 8 .
+.Ss ВСТРОЕННЫЙ СИНТАКСИЧЕСКИЙ АНАЛИЗАТОР
+При выполнении встроенной команды остаток строки принимается
+ею в качестве аргументов и обрабатывается специальным анализатором,
+который не используется для обычных команд Forth.
+.Pp
+Этот специальный анализатор применяет следующие правила к разбираемому тексту:
+.Bl -enum
+.It
+Все символы обратной косой черты предварительно обрабатываются.
+.Bl -bullet
+.It
+\eb , \ef , \er , \en и \et обрабатываются как в C.
+.It
+\es преобразуется в пробел.
+.It
+\ev преобразуется в
+.Tn ASCII
+11.
+.It
+\ez просто пропускается.
+Полезно для таких случаев, как
+.Dq \e0xf\ez\e0xf .
+.It
+\e0xN и \e0xNN заменяются на шестнадцатеричное N или NN.
+.It
+\eNNN заменяется на восьмеричный
+.Tn ASCII
+символ NNN.
+.It
+получает особую обработку на шаге 2, описанном ниже.
+.It
+\e\e заменяется на один \e .
+.It
+Во всех остальных случаях обратная косая черта просто удаляется.
+.El
+.It
+Любая строка между неэкранированными одинарными или двойными кавычками будет
+рассматриваться как одно слово для целей остальных шагов.
+.It
+Заменять любые
+.Li $VARIABLE
+или
+.Li ${VARIABLE}
+на значение переменной окружения
+.Va VARIABLE .
+.It
+Аргументы, разделённые пробелами, передаются вызываемой встроенной команде.
+Пробелы также можно экранировать с помощью \e\e .
+.El
+.Pp
+Существует исключение из этого правила разбора, описанное в
+.Sx ВСТРОЕННЫЕ КОМАНДЫ И FORTH .
+.Ss ВСТРОЕННЫЕ КОМАНДЫ И FORTH
+Все встроенные слова являются state-smart, немедленными словами.
+Если они интерпретируются, они ведут себя точно так, как описано выше.
+Если же они компилируются,
+они извлекают свои аргументы из стека, а не из командной строки.
+.Pp
+При компиляции встроенные слова ожидают найти во время выполнения
+следующие параметры в стеке:
+.D1 Ar addrN lenN ... addr2 len2 addr1 len1 N
+где
+.Ar addrX lenX
+— строки, которые составят командную строку, которая будет разобрана
+на аргументы встроенной команды.
+Внутренне эти строки объединяются от 1 до N,
+с пробелом между каждой.
+.Pp
+Если аргументы не передаются, 0
+.Em обязательно
+должен быть передан, даже если встроенная команда не принимает аргументов.
+.Pp
+Хотя такое поведение имеет преимущества, у него есть и компромиссы.
+Если исполняющий токен встроенной команды получен (через
+.Ic '
+или
+.Ic ['] ) ,
+а затем передан в
+.Ic catch
+или
+.Ic execute ,
+поведение встроенной команды будет зависеть от состояния системы
+.Bf Em
+на момент обработки
+.Ic catch
+или
+.Ic execute !
+.Ef
+Это особенно раздражает программы, которые хотят или должны
+обрабатывать исключения.
+В этом случае рекомендуется использовать прокси.
+Например:
+.Dl : (boot) boot ;
+.Sh FICL
+.Tn FICL
+— это интерпретатор Forth, написанный на C, в виде библиотеки
+виртуальной машины Forth, которая может вызываться из функций C и наоборот.
+.Pp
+В
+.Nm
+каждая строка, прочитанная в интерактивном режиме, затем передаётся в
+.Tn FICL ,
+который может вызвать
+.Nm
+обратно для выполнения встроенных слов.
+Встроенная команда
+.Ic include
+также передаёт данные в
+.Tn FICL ,
+по одной строке за раз.
+.Pp
+Слова, доступные
+.Tn FICL ,
+можно разделить на четыре группы.
+Стандартные слова Forth
+.Tn ANS ,
+дополнительные слова
+.Tn FICL ,
+дополнительные слова
+.Fx
+и встроенные команды;
+последние уже были описаны.
+Стандартные слова Forth
+.Tn ANS
+перечислены в разделе
+.Sx СТАНДАРТЫ .
+Слова, попадающие в две другие группы, описаны в
+следующих подразделах.
+.Ss ДОПОЛНИТЕЛЬНЫЕ СЛОВА FICL
+.Bl -tag -width wid-set-super
+.It Ic .env
+.It Ic .ver
+.It Ic -roll
+.It Ic 2constant
+.It Ic >name
+.It Ic body>
+.It Ic compare
+Это
+.Ic compare
+из набора слов STRING.
+.It Ic compile-only
+.It Ic endif
+.It Ic forget-wid
+.It Ic parse-word
+.It Ic sliteral
+Это
+.Ic sliteral
+из набора слов STRING.
+.It Ic wid-set-super
+.It Ic w@
+.It Ic w!
+.It Ic x.
+.It Ic empty
+.It Ic cell-
+.It Ic -rot
+.El
+.Ss ДОПОЛНИТЕЛЬНЫЕ СЛОВА FREEBSD
+.Bl -tag -width XXXXXXXX
+.It Ic \&$ Pq --
+Вычисляет остаток входного буфера, предварительно напечатав его.
+.It Ic \&% Pq --
+Вычисляет остаток входного буфера под защитой исключений
+.Ic catch .
+.It Ic .#
+Работает аналогично, но без вывода завершающего пробела.
+.It Ic fclose Pq Ar fd --
+Закрывает файл.
+.It Ic fkey Pq Ar fd -- char
+Читает один символ из файла.
+.It Ic fload Pq Ar fd --
+Обрабатывает файл
+.Em fd .
+.It Ic fopen Pq Ar addr len mode Li -- Ar fd
+Открывает файл.
+Возвращает файловый дескриптор или \-1 в случае неудачи.
+Параметр
+.Ar mode
+определяет, открывается ли файл для чтения, записи или и того, и другого.
+Константы
+.Dv O_RDONLY , O_WRONLY ,
+и
+.Dv O_RDWR
+определены в
+.Pa /boot/support.4th ,
+обозначая доступ только для чтения, только для записи и для чтения и записи соответственно.
+.It Xo
+.Ic fread
+.Pq Ar fd addr len -- len'
+.Xc
+Пытается прочитать
+.Em len
+байт из файла
+.Em fd
+в буфер
+.Em addr .
+Возвращает фактическое число прочитанных байт или -1 в случае ошибки или конца
+файла.
+.It Ic heap? Pq -- Ar cells
+Возвращает оставшееся пространство в куче словаря в ячейках.
+Это не связано с кучей, используемой словами динамического выделения памяти.
+.It Ic inb Pq Ar port -- char
+Читает байт из порта.
+.It Ic key Pq -- Ar char
+Читает один символ с консоли.
+.It Ic key? Pq -- Ar flag
+Возвращает
+.Ic true
+если с консоли доступен для чтения символ.
+.It Ic ms Pq Ar u --
+Ожидает
+.Em u
+микросекунд.
+.It Ic outb Pq Ar port char --
+Записывает байт в порт.
+.It Ic seconds Pq -- Ar u
+Возвращает количество секунд с полуночи.
+.It Ic tib> Pq -- Ar addr len
+Возвращает остаток входного буфера в виде строки в стеке.
+.It Ic trace! Pq Ar flag --
+Активирует или деактивирует трассировку.
+Не работает с
+.Ic catch .
+.El
+.Ss ЗАПРОСЫ ОКРУЖЕНИЯ, ОПРЕДЕЛЁННЫЕ FREEBSD
+.Bl -tag -width Ds
+.It arch-i386
+.Ic TRUE
+если архитектура — IA32.
+.It FreeBSD_version
+версия
+.Fx
+на момент компиляции.
+.It loader_version
+версия
+.Nm .
+.El
+.Sh БЕЗОПАСНОСТЬ
+Доступ к командной строке
+.Nm
+предоставляет несколько способов скомпрометировать безопасность системы,
+включая, помимо прочего:
+.Pp
+.Bl -bullet
+.It
+Загрузка со съёмного носителя путём установки переменных
+.Va currdev
+или
+.Va loaddev
+.It
+Выполнение произвольного двоичного файла путём установки переменных
+.Va init_path
+или
+.Va init_script
+.It
+Переопределение ACPI DSDT для внедрения произвольного кода в подсистему ACPI
+.El
+.Pp
+Можно предотвратить несанкционированный доступ
+к командной строке
+.Nm
+путём установки
+.Va password ,
+или установки
+.Va autoboot_delay
+в -1.
+Подробности см. в
+.Xr loader.conf 5 .
+Чтобы это было эффективно, следует также настроить прошивку
+(BIOS или UEFI), чтобы предотвратить загрузку с несанкционированных устройств.
+.Sh MD
+Диск в памяти (MD) можно использовать, когда
+.Nm
+был скомпилирован с
+.Va MD_IMAGE_SIZE .
+Размер диска в памяти определяется
+.Va MD_IMAGE_SIZE .
+Если MD доступен, файловая система может быть встроена в
+.Nm
+с помощью
+.Pa /sys/tools/embed_mfs.sh .
+Затем MD будет обнаружен и установлен как
+.Va currdev
+во время инициализации.
+.Pp
+В настоящее время MD поддерживается только в
+.Xr loader.efi 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/examples/bootforth/ -compact
+.It Pa /boot/loader
+Сам
+.Nm .
+.It Pa /boot/boot.4th
+Дополнительная инициализация
+.Tn FICL .
+.It Pa /boot/defaults/loader.conf
+.It Pa /boot/loader.4th
+Дополнительные слова, подобные встроенным.
+.It Pa /boot/loader.conf
+.It Pa /boot/loader.conf.local
+Файлы конфигурации
+.Nm ,
+как описано в
+.Xr loader.conf 5 .
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Nm .
+.It Pa /boot/loader.help
+Загружается командой
+.Ic help .
+Содержит справочные сообщения.
+.It Pa /boot/support.4th
+Слова обработки
+.Pa loader.conf .
+.It Pa /usr/share/examples/bootforth/
+Различные примеры.
+.El
+.Sh ПРИМЕРЫ
+Загрузка в однопользовательском режиме:
+.Pp
+.Dl boot -s
+.Pp
+Загрузить ядро, экран заставки, а затем автоматически загрузиться через пять секунд.
+Обратите внимание, что ядро должно быть загружено до попытки любой другой
+команды
+.Ic load .
+.Bd -literal -offset indent
+load kernel
+load splash_bmp
+load -t splash_image_data /boot/chuckrulez.bmp
+autoboot 5
+.Ed
+.Pp
+Установить номер диска корневого устройства в 2, а затем загрузиться.
+Это может потребоваться в системе с двумя IDE-дисками,
+где второй IDE-диск подключён как ada2 вместо ada1.
+.Bd -literal -offset indent
+set root_disk_unit=2
+boot /boot/kernel/kernel
+.Ed
+.Pp
+Установить устройство по умолчанию, используемое для загрузки ядра из файловой системы ZFS:
+.Bd -literal -offset indent
+set currdev=zfs:tank/ROOT/knowngood:
+.Ed
+.Pp
+.Sh ОШИБКИ
+Следующие значения выбрасываются
+.Nm :
+.Bl -tag -width XXXXX -offset indent
+.It 100
+Любой тип ошибки при обработке встроенной команды.
+.It -1
+Выполнено
+.Ic Abort .
+.It -2
+выполнено.
+.It -56
+Выполнено
+.Ic Quit .
+.It -256
+Закончился интерпретируемый текст.
+.It -257
+Требуется больше текста для успешного завершения — будет завершено при следующем запуске.
+.It -258
+Выполнено
+.Ic Bye .
+.It -259
+Неуказанная ошибка.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr libsa 3 ,
+.Xr loader.conf 5 ,
+.Xr tuning 7 ,
+.Xr boot 8 ,
+.Xr btxld 8
+.Sh СТАНДАРТЫ
+Для целей соответствия ANS Forth, loader является
+.Bf Em
+ANS Forth System with Environmental Restrictions, Providing
+.Ef
+.Bf Li
+.No .( ,
+.No :noname ,
+.No ?do ,
+parse, pick, roll, refill, to, value, \e, false, true,
+.No <> ,
+.No 0<> ,
+compile\&, , erase, nip, tuck
+.Ef
+.Em и
+.Li marker
+.Bf Em
+из набора слов Core Extensions, предоставляя набор слов Exception Extensions,
+набор слов Locals Extensions, набор слов Memory-Allocation Extensions,
+предоставляя
+.Ef
+.Bf Li
+\&.s,
+bye, forget, see, words,
+\&[if],
+\&[else]
+.Ef
+.Em и
+.Li [then]
+.Bf Em
+из набора слов расширения Programming-Tools, предоставляя
+набор слов расширения Search-Order.
+.Ef
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Fx 3.1 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Michael Smith Aq Mt msmith@FreeBSD.org .
+.Pp
+.Tn FICL
+был написан
+.An John Sadler Aq Mt john_sadler@alum.mit.edu .

@@ -1,0 +1,208 @@
+.\" $OpenBSD: dhclient.8,v 1.3 2004/04/09 18:30:15 jmc Exp $
+.\"
+.\" Copyright (c) 1997 The Internet Software Consortium.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of The Internet Software Consortium nor the names
+.\"    of its contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INTERNET SOFTWARE CONSORTIUM AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE INTERNET SOFTWARE CONSORTIUM OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" This software has been written for the Internet Software Consortium
+.\" by Ted Lemon <mellon@fugue.com> in cooperation with Vixie
+.\" Enterprises.  To learn more about the Internet Software Consortium,
+.\" see ``http://www.isc.org/isc''.  To learn more about Vixie
+.\" Enterprises, see ``http://www.vix.com''.
+.\"
+.\" FRDP path sbin/dhclient/dhclient.8
+.\" FRDP githash 84fce4b67adc1ed1882d9371eb5d92dbbc79766d
+.\" FRDP hash256 268a2bfe2abbe81b5c50d5fca96f77088582213d7e9cdca81f903900b3616428
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 1, 2024
+.Dt DHCLIENT 8
+.Os
+.Sh ИМЯ
+.Nm dhclient
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bdqu
+.Op Fl c Ar файл
+.Op Fl l Ar файл
+.Op Fl p Ar файл
+.Ar интерфейс
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет средство для настройки сетевых интерфейсов с использованием DHCP, BOOTP,
+или, если эти протоколы не работают, путём статического назначения адреса.
+.Pp
+Имя сетевого интерфейса, который
+.Nm
+должна попытаться
+настроить, должно быть указано в командной строке.
+.Pp
+Опции таковы:
+.Bl -tag -width Ds
+.It Fl b
+Заставляет
+.Nm
+немедленно перейти в фоновый режим.
+.It Fl c Ar файл
+Задаёт альтернативное расположение,
+.Ar файл ,
+для файла конфигурации.
+.It Fl d
+Заставляет
+.Nm
+всегда работать как процесс переднего плана.
+По умолчанию
+.Nm
+работает на переднем плане, пока не настроит интерфейс, а затем
+снова возвращается к работе в фоновом режиме.
+.It Fl l Ar файл
+Задаёт альтернативное расположение,
+.Ar файл ,
+для файла аренд.
+.It Fl n
+Заставляет
+.Nm
+не ждать разрешения ARP.
+.It Fl p Ar файл
+Задаёт альтернативное расположение для файла PID.
+По умолчанию используется
+.Pa /var/run/dhclient/dhclient. Ns Ar interface Ns Pa .pid .
+.It Fl q
+Заставляет
+.Nm
+выводить меньше сообщений при запуске.
+.It Fl u
+Заставляет
+.Nm
+отклонять аренды с неизвестными опциями.
+По умолчанию такие предложения аренды принимаются.
+.El
+.Pp
+Протокол DHCP позволяет узлу связаться с центральным сервером, который
+хранит список IP-адресов, которые могут быть назначены в одной или нескольких
+подсетях.
+Клиент DHCP может запросить адрес из этого пула, а
+затем использовать его временно для связи в сети.
+Протокол DHCP также предоставляет механизм, с помощью которого клиент может узнать
+важные сведения о сети, к которой он подключён, такие как
+расположение маршрутизатора по умолчанию, расположение сервера имён и
+так далее.
+.Pp
+При запуске
+.Nm
+читает
+.Pa /etc/dhclient.conf
+для получения инструкций по конфигурации.
+Затем она получает список всех
+сетевых интерфейсов, настроенных в текущей системе.
+Затем она пытается настроить каждый интерфейс по DHCP.
+.Pp
+Чтобы отслеживать аренды между перезагрузками системы и перезапусками сервера,
+.Nm
+хранит список назначенных ей аренд в файле
+.Pa /var/db/dhclient.leases. Ns Ar IFNAME .
+.Ar IFNAME
+обозначает сетевой интерфейс клиента DHCP
+(например,
+.Li em0 ) ,
+по одному для каждого интерфейса.
+При запуске, после чтения файла
+.Xr dhclient.conf 5 ,
+.Nm
+читает файл аренд, чтобы обновить свою память о том, какие аренды ей были
+назначены.
+.Pp
+Старые аренды сохраняются на случай, если DHCP-сервер недоступен, когда
+.Nm
+запускается впервые (обычно во время начальной загрузки системы).
+В этом случае старые аренды из файла
+.Pa dhclient.leases. Ns Ar IFNAME ,
+срок которых ещё не истёк, проверяются, и если они признаны
+действительными, они используются, пока либо не истекут, либо DHCP-сервер
+не станет доступен.
+.Pp
+Мобильный узел, которому иногда может потребоваться доступ к сети, в которой нет
+DHCP-сервера, может быть заранее снабжён арендой для фиксированного
+адреса в этой сети.
+Когда все попытки связаться с DHCP-сервером окажутся неудачными,
+.Nm
+попытается проверить статическую аренду, и если это
+удастся, он будет использовать эту аренду до перезапуска.
+.Pp
+Мобильный узел также может попасть в некоторые сети, в которых DHCP
+недоступен, но доступен BOOTP.
+В этом случае может быть полезно
+договориться с сетевым администратором о записи в базе данных BOOTP,
+чтобы узел мог быстро загрузиться в этой сети, а не
+перебирать список старых аренд.
+.Sh ПРИМЕЧАНИЯ
+В вашем ядре должен быть настроен Berkeley Packet Filter (BPF).
+Утилита
+.Nm
+требует как минимум одно
+.Pa /dev/bpf*
+устройство для каждого широковещательного сетевого интерфейса, подключённого к вашей системе.
+См.
+.Xr bpf 4
+для получения дополнительной информации.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/dhclient.conf
+файл конфигурации клиента DHCP
+.It Pa /var/db/dhclient.leases. Ns Ar IFNAME
+база данных полученных аренд
+.El
+.Sh СМ. ТАКЖЕ
+.Xr dhclient.conf 5 ,
+.Xr dhclient.leases 5 ,
+.Xr dhclient-script 8
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Ted Lemon Aq Mt mellon@fugue.com
+и
+.An Elliot Poger Aq Mt elliot@poger.com .
+.Pp
+Текущая реализация была переработана
+.An Henning Brauer Aq Mt henning@openbsd.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+использует
+.Xr capsicum 4
+для изоляции основного процесса.
+Если требуемая поддержка ядра недоступна, основной процесс
+попытается вместо этого работать в песочнице
+.Xr chroot 2 .
+Это не удастся, если процесс находится в клетке или
+.Va kern.chroot_allow_open_directories
+sysctl установлен в 0.

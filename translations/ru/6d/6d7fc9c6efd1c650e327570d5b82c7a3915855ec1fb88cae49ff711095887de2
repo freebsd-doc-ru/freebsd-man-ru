@@ -1,0 +1,118 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2001 Jonathan Lemon <jlemon@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/conscontrol/conscontrol.8
+.\" FRDP githash 07d29f9c177e731e4497bedf5fde09176c90b444
+.\" FRDP hash256 6d7fc9c6efd1c650e327570d5b82c7a3915855ec1fb88cae49ff711095887de2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 7, 2024
+.Dt CONSCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm conscontrol
+.Nd управление физическими устройствами видеоконсоли системы
+.Sh СИНТАКСИС
+.Nm
+.Op Cm list
+.Nm
+.Cm mute on | off
+.Nm
+.Cm add | delete
+.Ar консоль
+.Nm
+.Cm set | unset Ar консоль
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для просмотра и изменения физических устройств, которые
+обеспечивают работу виртуальных консольных устройств.
+Если аргументы не указаны
+(или указана только команда
+.Cm list ) ,
+выводятся текущие настройки консоли.
+.Pp
+Существует два типа логических консолей: высокоуровневая консоль, которая
+представлена
+.Pa /dev/console ,
+и низкоуровневая консоль.
+Низкоуровневая консоль используется для поддержки
+.Xr printf 9
+ядра и отладчика
+.Xr ddb 4 ,
+тогда как высокоуровневая консоль используется пользовательскими программами, такими как
+.Xr syslogd 8 .
+Поддержка нескольких устройств реализована только для низкоуровневой консоли;
+высокоуровневая консоль назначается первому устройству в списке консолей.
+.Pp
+Поддержка нескольких консолей может быть включена передачей ядру
+.Fl D
+флага из загрузчика или с помощью
+.Nm
+для изменения списка консольных устройств после загрузки системы.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Cm add | delete Ar консоль
+Добавить или удалить физическое устройство из логической консоли.
+Устройство должно поддерживать низкоуровневые операции консоли.
+Добавление устройства поместит его в начало списка консольных
+устройств; первое устройство используется для высокоуровневой консоли.
+.Pp
+Аргумент
+.Ar консоль
+— это имя консольного устройства в
+.Pa /dev ;
+имя каталога можно опустить.
+.It Cm mute on | off
+Изменить состояние отключения вывода консоли.
+Весь вывод консоли подавляется, когда режим отключения вывода консоли
+установлен в
+.Cm on .
+.It Cm set | unset Ar консоль
+Установить или снять виртуальную консоль.
+Если она не установлена, вывод системы, например
+.Xr printf 9
+ядра,
+всегда направляется на реальную главную консоль.
+Если установлена, он направляется на другую.
+Это интерфейс к tty ioctl
+.Dv TIOCCONS .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr syscons 4 ,
+.Xr tty 4 ,
+.Xr vt 4 ,
+.Xr boot 8 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An Jonathan Lemon

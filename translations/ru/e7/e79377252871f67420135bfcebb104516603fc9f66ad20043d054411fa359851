@@ -1,0 +1,265 @@
+.\" Copyright (c) 2000-2002 Solar Designer.
+.\" All rights reserved.
+.\" Copyright (c) 2001 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_passwdqc/pam_passwdqc.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 e79377252871f67420135bfcebb104516603fc9f66ad20043d054411fa359851
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 15, 2002
+.Dt PAM_PASSWDQC 8
+.Os
+.Sh ИМЯ
+.Nm pam_passwdqc
+.Nd Модуль PAM для контроля качества паролей
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_passwdqc
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Модуль
+.Nm
+представляет собой простой модуль проверки надёжности паролей для
+PAM.
+Помимо проверки обычных паролей, он поддерживает
+парольные фразы и может генерировать случайные пароли.
+.Pp
+Модуль
+.Nm
+обеспечивает функциональность только для одной категории PAM:
+смена пароля.
+В терминах параметра
+.Ar тип-модуля
+это возможность
+.Dq Li password .
+.Pp
+Сервисная функция
+.Fn pam_chauthtok
+запросит у пользователя новый пароль и проверит, что
+он соответствует определённым минимальным требованиям.
+Если выбранный пароль неудовлетворителен, сервисная функция возвращает
+.Dv PAM_AUTHTOK_ERR .
+.Pp
+Модулю аутентификации можно передать следующие параметры:
+.Bl -tag -width indent
+.It Xo
+.Sm off
+.Cm min No = Ar N0 , N1 , N2 , N3 , N4
+.Sm on
+.Xc
+.Sm off
+.Pq Cm min No = Cm disabled , No 24 , 12 , 8 , 7
+.Sm on
+Минимально допустимые длины паролей для разных типов
+паролей/парольных фраз.
+Ключевое слово
+.Cm disabled
+можно использовать, чтобы
+запретить пароли заданного типа независимо от их длины.
+Каждое последующее число должно быть не больше предыдущего.
+.Pp
+.Ar N0
+используется для паролей, состоящих только из символов одного класса
+символов.
+Классы символов: цифры, строчные буквы, прописные буквы и другие
+символы.
+Есть также специальный класс для
+.No non- Ns Tn ASCII
+символов, которые не удалось
+классифицировать, но предполагается, что они не являются цифрами.
+.Pp
+.Ar N1
+используется для паролей, состоящих из символов двух классов
+символов, которые не соответствуют требованиям для парольной фразы.
+.Pp
+.Ar N2
+используется для парольных фраз.
+Парольная фраза должна состоять из достаточного количества слов (см.
+опцию
+.Cm passphrase
+ниже).
+.Pp
+.Ar N3
+и
+.Ar N4
+используются для паролей, состоящих из символов соответственно трёх
+и четырёх классов символов.
+.Pp
+При подсчёте количества классов символов прописные буквы,
+используемые в качестве первого символа, и цифры, используемые в
+качестве последнего символа пароля, не учитываются.
+.Pp
+Помимо достаточной длины, пароли должны содержать достаточно
+разных символов для классов символов и минимальной длины, по которым
+они проверялись.
+.It Cm max Ns = Ns Ar N
+.Pq Cm max Ns = Ns 40
+Максимально допустимая длина пароля.
+Это можно использовать, чтобы не позволить пользователям задавать пароли,
+которые могут быть слишком длинными для некоторых системных служб.
+Значение 8 обрабатывается особым образом: если
+.Cm max
+установлено в 8, пароли длиннее 8 символов не будут отклонены,
+но будут усечены до 8 символов для проверок надёжности, и
+пользователь будет предупреждён.
+Это для совместимости с традиционными хешами паролей DES,
+которые усекают пароль до 8 символов.
+.Pp
+Важно, чтобы вы установили
+.Cm max Ns = Ns 8
+если вы используете традиционные
+хеши, иначе некоторые слабые пароли пройдут проверки.
+.It Cm passphrase Ns = Ns Ar N
+.Pq Cm passphrase Ns = Ns 3
+Количество слов, необходимых для парольной фразы, или 0, чтобы отключить
+поддержку парольных фраз.
+.It Cm match Ns = Ns Ar N
+.Pq Cm match Ns = Ns 4
+Длина общей подстроки, необходимая для вывода, что пароль по крайней мере
+частично основан на информации, найденной в строке символов,
+или 0, чтобы отключить поиск подстроки.
+Заметьте, что пароль не будет отклонён, как только найдена слабая подстрока;
+вместо этого он будет подвергнут обычным требованиям надёжности
+с удалённой слабой подстрокой.
+.Pp
+Поиск подстроки нечувствителен к регистру и может обнаруживать и
+удалять общую подстроку, написанную задом наперёд.
+.It Xo
+.Sm off
+.Cm similar No = Cm permit | deny
+.Sm on
+.Xc
+.Pq Cm similar Ns = Ns Cm deny
+Разрешается ли новому паролю быть похожим на старый.
+Пароли считаются похожими, когда есть достаточно
+длинная общая подстрока и новый пароль с удалённой подстрокой
+оказался бы слабым.
+.It Xo
+.Sm off
+.Cm random No = Ar N Op , Cm only
+.Sm on
+.Xc
+.Pq Cm random Ns = Ns 42
+Размер случайно генерируемых паролей в битах, или 0, чтобы отключить эту
+функцию.
+Пароли, содержащие предложенную случайно генерируемую строку, будут
+разрешены независимо от других возможных ограничений.
+.Pp
+Модификатор
+.Cm only
+можно использовать, чтобы запретить пароли, выбираемые пользователем.
+.It Xo
+.Sm off
+.Cm enforce No = Cm none | users | everyone
+.Sm on
+.Xc
+.Pq Cm enforce Ns = Ns Cm everyone
+Модуль можно настроить так, чтобы он только предупреждал о слабых паролях, но не
+требовал на самом деле стойкие пароли.
+Настройка
+.Cm users
+будет требовать стойкие пароли только для пользователей, не являющихся root.
+.It Cm non-unix
+Обычно
+.Nm
+использует
+.Xr getpwnam 3
+для получения персональной информации о входе пользователя и использует её во время
+проверок надёжности пароля.
+Это поведение можно отключить с помощью опции
+.Cm non-unix .
+.It Cm retry Ns = Ns Ar N
+.Pq Cm retry Ns = Ns 3
+Количество раз, которое модуль запросит новый пароль, если пользователь
+не сможет предоставить достаточно стойкий пароль и ввести его дважды с первого
+раза.
+.It Cm ask_oldauthtok Ns Op = Ns Cm update
+Также запрашивать старый пароль.
+Обычно
+.Nm
+оставляет эту задачу последующим модулям.
+Без аргумента опция
+.Cm ask_oldauthtok
+заставит
+.Nm
+запросить старый пароль на этапе предварительной проверки.
+Если опция
+.Cm ask_oldauthtok
+указана с аргументом
+.Cm update ,
+.Nm
+сделает это на этапе обновления.
+.It Cm check_oldauthtok
+Это указывает
+.Nm
+проверить старый пароль перед выдачей приглашения для нового пароля.
+Обычно эта задача оставляется последующим модулям.
+.Pp
+Основное применение этой опции — когда также указана
+.Cm ask_oldauthtok Ns = Ns Cm update
+в этом случае ни один другой модуль не получает возможности запросить
+и проверить пароль.
+Конечно, это будет работать только с паролями
+.Ux .
+.It Cm use_first_pass , use_authtok
+Использовать новый пароль, полученный модулями, расположенными перед
+.Nm .
+Это отключает взаимодействие с пользователем внутри
+.Nm .
+Единственное различие между
+.Cm use_first_pass
+и
+.Cm use_authtok
+в том, что первый несовместим с
+.Cm ask_oldauthtok .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getpwnam 3 ,
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+был написан
+.An Solar Designer Aq Mt solar@openwall.com .
+Эта страница руководства, основанная на документации автора, была написана
+для проекта
+.Fx
+компанией
+ThinkSec AS и NAI Labs, подразделением Security Research Division компании Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

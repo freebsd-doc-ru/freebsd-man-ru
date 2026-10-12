@@ -1,0 +1,77 @@
+.\" Copyright (c) 2018 Rick Macklem
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pnfsdskill/pnfsdskill.8
+.\" FRDP githash c801836ff43deea3c86935abcad1069bfcd3989c
+.\" FRDP hash256 db5afe3346cdd71283c6ad38a98ced1cf84b662005aa24064ee7b0ea6c40ef17
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 9, 2018
+.Dt PNFSDSKILL 8
+.Os
+.Sh ИМЯ
+.Nm pnfsdskill
+.Nd
+отключает сервер хранения данных pNFS (DS)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f
+.Ar каталог-монтирования-DS
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+отключает один DS, когда включено зеркалирование.
+Если один из зеркалируемых DS неисправен, системный администратор
+может использовать эту команду на сервере метаданных (MDS), чтобы отключить использование этого зеркала.
+Эту команду необходимо использовать на MDS, и
+.Ar каталог-монтирования-DS
+должен быть точным именем пути, использованным при монтировании DS на MDS.
+Обычно эта команда завершится ошибкой, если для DS нет доступного допустимого зеркала.
+.Pp
+Доступна следующая опция:
+.Bl -tag -width Ds
+.It Fl f
+Эта опция принудительно отключает DS, даже если для DS нет доступного допустимого зеркала.
+Её следует использовать только для того, чтобы позволить потокам
+.Xr nfsd 8
+завершиться.
+.El
+.Pp
+Если эта команда завершается с ошибкой
+.Dq Устройство не сконфигурировано
+(ENXIO), вероятно, это означает, что DS уже был отключён из-за ошибки, либо обнаруженной
+MDS, либо сообщённой MDS клиентом.
+.Pp
+Служба pNFS должна продолжать работать нормально, пока количество
+работоспособных DS не меньше уровня зеркалирования.
+.Sh СМ. ТАКЖЕ
+.Xr nfsv4 4 ,
+.Xr pnfs 4 ,
+.Xr nfsd 8 ,
+.Xr pnfsdscopymr 8 ,
+.Xr pnfsdsfile 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 12.0 .

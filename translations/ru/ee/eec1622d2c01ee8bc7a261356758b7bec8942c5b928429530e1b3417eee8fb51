@@ -1,0 +1,115 @@
+.\" Copyright (c) 2008 George V. Neville-Neil
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/ether_reflect/ether_reflect.1
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 eec1622d2c01ee8bc7a261356758b7bec8942c5b928429530e1b3417eee8fb51
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 23, 2008
+.Dt ETHER_REFLECT 1
+.Os
+.Sh ИМЯ
+.Nm ether_reflect
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar Ethernet-адрес
+.Op Fl e Ar тип Ethernet
+.Op Fl i Ar интерфейс
+.Op Fl t Ar таймаут
+.Op Fl p
+.Op Fl d
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+реализует простой отражатель пакетов Ethernet, используя
+библиотеку
+.Xr pcap 3
+и
+.Xr bpf 4 ,
+Berkeley Packet Filter.
+Программа полезна в первую очередь для проверки низкоуровневого
+времени кругового обхода пакетов через интерфейс Ethernet и/или
+коммутатор.
+Сетевые протоколы, такие как IP, и сетевой стек в целом никогда
+не задействуются, выполняется только драйвер устройства, реализующий
+конкретный интерфейс.
+Поскольку команда
+.Nm
+использует устройство
+.Xr bpf 4 ,
+для выполнения этой программы пользователь должен иметь права root.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a Ar адрес
+Вместо того чтобы менять местами Ethernet-адреса назначения и
+источника, указывать другой Ethernet-адрес назначения для каждого
+полученного пакета.
+.It Fl e Ar тип Ethernet
+Использовать тип Ethernet, отличный от значения по умолчанию 0x8822,
+которое является типом Ethernet IEEE для тестирования драйвера.
+.It Fl i Ar интерфейс
+Сетевой интерфейс, который можно найти с помощью ifconfig(1).
+.It Fl t Ar таймаут
+Время ожидания пакета в миллисекундах.
+Меньшие значения уменьшают задержку ценой увеличения нагрузки на CPU.
+.It Fl p
+Перевести устройство в неразборчивый режим (promiscuous mode) перед тестированием.
+Обычно это не требуется.
+.It Fl d
+Отладочный вывод.
+Выводить различные небольшие фрагменты отладочной информации.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён пример типичного использования
+команды
+.Nm
+:
+.Pp
+.Pp
+Отражать все тестовые пакеты с типом Ethernet 0x8822,
+наблюдаемые на интерфейсе em0.
+Таймаут равен 1 миллисекунде.
+.Pp
+.Pp
+Перезаписывать адрес назначения в каждом пакете на 00:00:00:aa:bb:cc
+перед отражением пакета.
+.Sh СМ. ТАКЖЕ
+.Xr tcpdump 1 ,
+.Xr pcap 3 ,
+.Xr bpf 4 ,
+.Xr ifconfig 8
+.Sh ИСТОРИЯ
+Программа
+.Nm
+впервые появилась в
+.Fx 8.0 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An George V. Neville-Neil Aq Mt gnn@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+О них следует сообщать автору или на
+.Aq Mt net@FreeBSD.org .

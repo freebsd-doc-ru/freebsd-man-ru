@@ -1,0 +1,90 @@
+.\"-
+.\" Copyright (c) 2021 Hans Petter Selasky <hselasky@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/beep/beep.1
+.\" FRDP githash 55d98b024f25403f60efe04f90a391014b6bc388
+.\" FRDP hash256 847c315d0b350759b068b12b39c99de7386d796fee78355a7689ff2e95229d29
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 19, 2025
+.Dt BEEP 1
+.Os
+.Sh ИМЯ
+.Nm beep
+.Nd воспроизводит звуковой сигнал
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Bh
+.Op Fl D Ar длительность_мс
+.Op Fl F Ar частота_гц
+.Op Fl d Ar устройство_oss
+.Op Fl g Ar усиление
+.Op Fl r Ar частота_дискретизации_гц
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для воспроизведения звукового сигнала на звуковой карте.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds -offset indent
+.It Fl B
+Запускает утилиту
+.Nm
+в фоновом режиме.
+.It Fl D Ar длительность_мс
+Задаёт длительность звукового сигнала в миллисекундах,
+от 50\~мс до 2000\~мс включительно.
+По умолчанию 150\~мс.
+.It Fl F Ar частота_гц
+Задаёт центральную частоту звукового сигнала в Гц.
+По умолчанию 440\~Гц.
+.It Fl d Ar устройство_oss
+Задаёт используемое устройство OSS.
+По умолчанию
+.Pa /dev/dsp .
+.It Fl g Ar усиление
+Задаёт усиление формы сигнала, от 0 до 100 включительно.
+По умолчанию 75.
+.It Fl h
+Показать краткую справку по параметрам.
+.It Fl r Ar частота_дискретизации_гц
+Задаёт частоту дискретизации звуковой карты в Гц,
+от 8000\~Гц до 48000\~Гц включительно.
+По умолчанию 48000\~Гц.
+.El
+.Sh ПРИМЕРЫ
+Воспроизвести звуковой сигнал по умолчанию на
+.Pa /dev/dsp :
+.Bl -tag -width Ds -offset indent
+.It $ beep
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mixer 3 ,
+.Xr sound 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 14.0 .
+.Sh АВТОРЫ
+.An Hans Petter Selasky Aq Mt hselasky@FreeBSD.org

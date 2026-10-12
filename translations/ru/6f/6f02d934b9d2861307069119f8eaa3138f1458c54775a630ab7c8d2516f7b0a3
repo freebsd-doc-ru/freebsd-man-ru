@@ -1,0 +1,90 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/autofs/autounmountd.8
+.\" FRDP githash 7839534a5a7b0d97131512888d6baa8ba5c20e56
+.\" FRDP hash256 6f02d934b9d2861307069119f8eaa3138f1458c54775a630ab7c8d2516f7b0a3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 13, 2014
+.Dt AUTOUNMOUNTD 8
+.Os
+.Sh ИМЯ
+.Nm autounmountd
+.Nd демон размонтирования автоматически смонтированных файловых систем
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl r Ar время
+.Op Fl t Ar время
+.Op Fl v
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отвечает за размонтирование файловых систем, смонтированных
+.Xr automountd 8 .
+При запуске
+.Nm
+получает список файловых систем, для которых установлена опция монтирования
+.Li automounted .
+Список обновляется каждый раз при монтировании или размонтировании файловой системы.
+По истечении заданного времени
+.Nm
+пытается размонтировать файловую систему, при необходимости повторяя попытку через некоторое время.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width Ds
+.It Fl d
+Режим отладки: повысить подробность вывода и не переходить в фоновый режим.
+.It Fl r
+Количество секунд ожидания перед попыткой размонтировать истёкшую файловую систему после неудачной предыдущей попытки, возможно, из-за занятости файловой системы.
+Значение по умолчанию — 600, или десять минут.
+.It Fl t
+Количество секунд ожидания перед попыткой размонтировать файловую систему.
+Значение по умолчанию — 600, или десять минут.
+.It Fl v
+Повысить подробность вывода.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr auto_master 5 ,
+.Xr autofs 5 ,
+.Xr automount 8 ,
+.Xr automountd 8
+.Sh ИСТОРИЯ
+Демон
+.Nm
+появился в
+.Fx 10.1 .
+.Sh АВТОРЫ
+.Nm
+был разработан
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

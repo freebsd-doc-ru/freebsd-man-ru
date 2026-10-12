@@ -1,0 +1,228 @@
+.\" $Id: makewhatis.8,v 1.7 2022/03/16 23:26:14 schwarze Exp $
+.\"
+.\" Copyright (c) 2011, 2012 Kristaps Dzonsons <kristaps@bsd.lv>
+.\" Copyright (c) 2011, 2012, 2014, 2017 Ingo Schwarze <schwarze@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path contrib/mandoc/makewhatis.8
+.\" FRDP githash c1c95add8c80843ba15d784f95c361d795b1f593
+.\" FRDP hash256 46139e7b0b949dcba9b0db63a65f2bd07f2b4a9ef3f78a42870e3945256c1d89
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: March 16 2022 $
+.Dt MAKEWHATIS 8
+.Os
+.Sh ИМЯ
+.Nm makewhatis
+.Nd индексирует руководства UNIX
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aDnpQ
+.Op Fl T Cm utf8
+.Op Fl C Ar файл
+.Nm
+.Op Fl aDnpQ
+.Op Fl T Cm utf8
+.Ar каталог ...
+.Nm
+.Op Fl DnpQ
+.Op Fl T Cm utf8
+.Fl d Ar каталог
+.Op Ar
+.Nm
+.Op Fl Dnp
+.Op Fl T Cm utf8
+.Fl u Ar каталог
+.Op Ar
+.Nm
+.Op Fl DQ
+.Fl t Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+извлекает ключевые слова из
+.Ux
+руководств и индексирует их в базе данных для быстрого поиска с помощью
+.Xr apropos 1 ,
+.Xr whatis 1
+и
+.Xr man 1 .
+.Pp
+По умолчанию
+.Nm
+создаёт базу данных в каждом
+.Ar каталог
+используя файлы
+.Sm off
+.Sy man Ar раздел Li /
+.Op Ar архитектура Li /
+.Ar заголовок . раздел
+.Sm on
+и
+.Sm off
+.Sy cat Ar раздел Li /
+.Op Ar архитектура Li /
+.Ar заголовок . Sy 0
+.Sm on
+в этом каталоге.
+Существующие базы данных заменяются.
+Если каталог не содержит страниц руководства, база данных в этом
+каталоге не создаётся.
+Если
+.Ar каталог
+не указан,
+.Nm
+использует пути по умолчанию, заданные в
+.Xr man.conf 5 .
+.Pp
+Аргументы следующие:
+.Bl -tag -width Ds
+.It Fl a
+Использовать все каталоги и файлы, найденные ниже
+.Ar каталог ... .
+.It Fl C Ar файл
+Указать альтернативный конфигурационный
+.Ar файл
+в формате
+.Xr man.conf 5 .
+.It Fl D
+Показывать все файлы, добавленные в индекс или удалённые из него.
+При втором
+.Fl D ,
+также показывать все ключевые слова, добавленные для каждого файла.
+.It Fl d Ar каталог
+Объединить (удалить и повторно добавить)
+.Ar
+в базу данных в
+.Ar каталог .
+.It Fl n
+Не создавать и не изменять базы данных; только сканировать и разбирать,
+а также выводить имена и описания страниц руководства в стандартный вывод.
+.It Fl p
+Выводить предупреждения о возможных проблемах со страницами руководства
+в стандартный поток ошибок.
+.It Fl Q
+Быстро создавать базы данных уменьшенного размера,
+читая только разделы ИМЯ руководств.
+Полученные базы данных обычно будут содержать только имена и описания.
+.It Fl T Cm utf8
+Использовать кодировку UTF-8 вместо ASCII для строк, хранящихся в базах данных.
+.It Fl t Ar
+Проверить указанные
+.Ar файлы
+на возможные проблемы.
+Подразумевает
+.Fl a ,
+.Fl n
+и
+.Fl p .
+Все диагностические сообщения выводятся в стандартный вывод;
+стандартный поток ошибок не используется.
+.It Fl u Ar каталог
+Удалить
+.Ar
+из базы данных в
+.Ar каталог .
+Если из-за этого база данных станет пустой, также удалить файл базы данных.
+.El
+.Pp
+Если при разборе возникают фатальные ошибки разбора, проблемный файл
+выводится в stderr, исключается из индекса, и разбор продолжается
+со следующего входного файла.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width MANPATH
+.It Ev MANPATH
+Разделённый двоеточиями список каталогов, в которых создавать базы данных.
+Игнорируется, если указан аргумент
+.Ar каталог
+или параметр
+.Fl t .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa mandoc.db
+База данных страниц руководства относительно каталога файла.
+Этот файл переносим между архитектурами и системами, пока
+иерархия страниц руководства, которую он индексирует, не изменяется.
+.It Pa /etc/man.conf
+Файл конфигурации по умолчанию для
+.Xr man 1 .
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с одним из следующих значений:
+.Pp
+.Bl -tag -width Ds -compact
+.It 0
+Ошибок не возникло.
+.It 5
+Указаны недопустимые аргументы командной строки.
+Входные файлы не читались.
+.It 6
+Произошла ошибка операционной системы, например исчерпание памяти или
+ошибка доступа к входным файлам.
+Такие ошибки заставляют
+.Nm
+немедленно завершиться, возможно, в середине разбора или форматирования файла.
+Выходные базы данных повреждены, и их следует удалить.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr man 1 ,
+.Xr whatis 1 ,
+.Xr man.conf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 2 .
+Она была переписана на
+.Xr perl 1
+для
+.Ox 2.7
+и на C для
+.Ox 5.6 .
+.Pp
+Аргумент
+.Ar каталог
+впервые появился в
+.Nx 1.0 ;
+параметры
+.Fl dpt
+в
+.Ox 2.7 ;
+параметр
+.Fl u
+в
+.Ox 3.4 ;
+и параметры
+.Fl aCDnQT
+в
+.Ox 5.6 .
+.Sh АВТОРЫ
+.An -nosplit
+.An Bill Joy
+написал оригинальную
+.Bx
+.Nm
+в феврале 1979 года,
+.An Marc Espie
+начал версию на Perl в 2000 году,
+а текущая версия
+.Nm
+была написана
+.An Kristaps Dzonsons Aq Mt kristaps@bsd.lv
+и
+.An Ingo Schwarze Aq Mt schwarze@openbsd.org .

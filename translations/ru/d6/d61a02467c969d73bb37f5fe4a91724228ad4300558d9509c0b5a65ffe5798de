@@ -1,0 +1,211 @@
+.\" Copyright (c) 2008 Isilon Inc http://www.isilon.com/
+.\" Authors: Doug Rabson <dfr@rabson.org>
+.\" Developed with Red Inc: Alfred Perlstein <alfred@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Modified from gssd.8 for rpc.tlsclntd.8 by Rick Macklem.
+.\" FRDP path usr.sbin/rpc.tlsclntd/rpc.tlsclntd.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 d61a02467c969d73bb37f5fe4a91724228ad4300558d9509c0b5a65ffe5798de
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 23, 2022
+.Dt RPC.TLSCLNTD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.tlsclntd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 2
+.Op Fl C Ar available_ciphers
+.Op Fl D Ar certdir
+.Op Fl d
+.Op Fl l Ar CAfile
+.Op Fl m
+.Op Fl p Ar CApath
+.Op Fl r Ar CRLfile
+.Op Fl v
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+обеспечивает поддержку клиентской стороны реализации Sun RPC в ядре через TLS.
+Этот демон должен быть запущен, чтобы RPC в ядре мог установить TLS-соединение
+с сервером для монтирования NFS через TLS.
+Этот демон требует, чтобы ядро было собрано с
+.Dq options KERNEL_TLS
+и работало на архитектуре, такой как
+.Dq amd64 ,
+поддерживающей direct map (не i386), с включённым
+.Xr ktls 4 .
+.Pp
+Если указан любой из параметров
+.Fl l
+или
+.Fl p ,
+демон потребует, чтобы сертификат сервера проходил проверку
+и содержал полное доменное имя (FQDN).
+Это FQDN должно совпадать
+с обратным DNS-именем для IP-адреса, который
+сервер использует для TCP-соединения.
+FQDN может находиться
+либо в поле DNS subjectAltName, либо в поле CN
+subjectName сертификата и
+не может содержать подстановочный знак
+.Dq * .
+.Pp
+Если демону отправить сигнал SIGHUP, он перезагрузит
+.Dq CRLfile
+и завершит все существующие соединения, которые во время TLS-рукопожатия
+предъявили отозванные сертификаты.
+Если параметр
+.Fl r
+не был указан, сигнал SIGHUP будет игнорироваться.
+.Pp
+Демон будет регистрировать неудачные проверки сертификатов через
+.Xr syslogd 8
+с использованием LOG_INFO | LOG_DAEMON, когда указан параметр
+.Fl l
+или
+.Fl p .
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl 2 , Fl Fl usetls1_2
+Указывает использование TLS версии 1.2.
+По умолчанию клиент будет
+использовать TLS версии 1.3, как требуется RFC.
+Однако ранние
+.Fx
+.Pq 13.0 и 13.1
+серверы требуют
+этот параметр, так как они поддерживают только TLS версии 1.2.
+.It Fl C Ar available_ciphers , Fl Fl ciphers= Ns Ar available_ciphers
+Указывает, какие шифры доступны во время TLS-рукопожатия.
+Если этот параметр указан,
+будет вызвана
+.Dq SSL_CTX_set_ciphersuites()
+с аргументом
+.Dq available_ciphers .
+Если этот параметр не указан, шифр будет выбран
+.Xr ssl 7 ,
+что должно подходить для большинства случаев.
+Формат доступных шифров — это простой список, разделённый
+.So
+:
+.Sc
+в порядке предпочтения.
+Команда
+.Dq openssl ciphers -s -tls1_3
+выводит список доступных шифров.
+.It Fl D Ar certdir , Fl Fl certdir= Ns Ar certdir
+Использовать
+.Dq certdir
+вместо /etc/rpc.tlsclntd для параметра
+.Fl m .
+.It Fl d , Fl Fl debuglevel
+Запуск в режиме отладки.
+В этом режиме
+.Nm
+не будет выполнять fork при запуске.
+.It Fl l Ar CAfile , Fl Fl verifylocs= Ns Ar CAfile
+Этот параметр указывает имя пути к CAfile, в котором хранится информация
+для проверки сертификата сервера.
+Это имя пути используется в
+.Dq SSL_CTX_load_verify_locations(ctx,CAfile,NULL)
+и
+.Dq SSL_CTX_set0_CA_list(ctx,SSL_load_client_CA_file(CAfile))
+вызовах библиотеки openssl.
+Обратите внимание, что это имя пути к файлу и не предполагается, что он
+находится в
+.Dq certdir .
+.It Fl m , Fl Fl mutualverf
+Включает поддержку взаимной аутентификации.
+Сертификат и связанный с ним ключ должны находиться в /etc/rpc.tlsclntd
+(или в каталоге, указанном параметром
+.Fl D )
+на случай, если сервер запросит сертификат узла.
+Первый сертификат должен находиться в файле с именем
+.Dq cert.pem
+а связанный ключ — в файле с именем
+.Dq certkey.pem .
+Параметр
+.Fl tlscertname
+команды
+.Xr mount_nfs 8
+можно использовать для переопределения сертификата по умолчанию для данного
+монтирования NFS, при этом файлы используют альтернативное именование, указанное параметром.
+Если файл
+.Dq certkey.pem
+защищён парольной фразой, этот демон запросит парольную фразу при запуске.
+Ключи для альтернативных сертификатов не могут иметь парольных фраз.
+.It Fl p Ar CApath , Fl Fl verifydir= Ns Ar CApath
+Этот параметр аналогичен параметру
+.Fl l ,
+но указывает путь к каталогу с сертификатами CA.
+При использовании этого параметра
+.Dq SSL_CTX_set0_CA_list(ctx,SSL_load_client_CA_file())
+не вызывается, поэтому список имён CA не передаётся
+серверу во время TLS-рукопожатия.
+Документация openssl указывает, что этот вызов требуется редко.
+.It Fl r Ar CRLfile , Fl Fl crl= Ns Ar CRLfile
+Этот параметр указывает файл списка отзыва сертификатов (CRL),
+который должен быть загружен в хранилище сертификатов проверки и
+проверяться при проверке сертификата сервера.
+Этот параметр не имеет смысла, если не указан
+.Fl l
+или
+.Fl p .
+.It Fl v , Fl Fl verbose
+Запуск в подробном режиме.
+В этом режиме
+.Nm
+будет записывать сообщения о работе в syslog с использованием LOG_INFO | LOG_DAEMON или в
+stderr, если также указан параметр
+.Fl d .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr openssl 1 ,
+.Xr ktls 4 ,
+.Xr ssl 7 ,
+.Xr mount_nfs 8 ,
+.Xr rpc.tlsservd 8 ,
+.Xr syslogd 8
+.Sh СТАНДАРТЫ
+Реализация основана на спецификации в
+.Rs
+.Re
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 13.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Этот демон нельзя безопасно остановить и перезапустить, если есть
+активные соединения RPC-over-TLS.
+Это сделает соединения KERNEL_TLS осиротевшими, так что они
+больше не смогут успешно выполнять upcalls, поскольку
+структуры
+.Dq SSL *
+в пространстве пользователя были потеряны.

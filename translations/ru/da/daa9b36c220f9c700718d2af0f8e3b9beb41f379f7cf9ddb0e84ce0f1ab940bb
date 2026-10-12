@@ -1,0 +1,95 @@
+.\" $OpenBSD: ssh-keysign.8,v 1.18 2024/06/17 08:30:29 djm Exp $
+.\"
+.\" Copyright (c) 2002 Markus Friedl.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path crypto/openssh/ssh-keysign.8
+.\" FRDP githash 0fdf8fae8b569bf9fff3b5171e669dcd7cf9c79e
+.\" FRDP hash256 daa9b36c220f9c700718d2af0f8e3b9beb41f379f7cf9ddb0e84ce0f1ab940bb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: June 17 2024 $
+.Dt SSH-KEYSIGN 8
+.Os
+.Sh ИМЯ
+.Nm ssh-keysign
+.Nd Вспомогательная программа OpenSSH для аутентификации на основе хоста
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+.Nm
+используется
+.Xr ssh 1
+для доступа к локальным ключам хоста и генерации цифровой подписи,
+требуемой при аутентификации на основе хоста.
+.Pp
+.Nm
+по умолчанию отключена и может быть включена только в
+глобальном файле конфигурации клиента
+.Pa /etc/ssh/ssh_config
+путём установки
+.Cm EnableSSHKeysign
+в
+.Dq yes .
+.Pp
+.Nm
+не предназначена для вызова пользователем, а из
+.Xr ssh 1 .
+См.
+.Xr ssh 1
+и
+.Xr sshd 8
+для получения дополнительной информации об аутентификации на основе хоста.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds -compact
+.It Pa /etc/ssh/ssh_config
+Определяет, включена ли
+.Nm .
+.Pp
+.It Pa /etc/ssh/ssh_host_ecdsa_key
+.It Pa /etc/ssh/ssh_host_ed25519_key
+.It Pa /etc/ssh/ssh_host_rsa_key
+Эти файлы содержат закрытые части ключей хоста, используемые для
+генерации цифровой подписи.
+Они должны принадлежать root, быть доступными для чтения только root и не
+быть доступными другим.
+Поскольку они доступны для чтения только root,
+.Nm
+должна быть set-uid root, если используется аутентификация на основе хоста.
+.Pp
+.It Pa /etc/ssh/ssh_host_ecdsa_key-cert.pub
+.It Pa /etc/ssh/ssh_host_ed25519_key-cert.pub
+.It Pa /etc/ssh/ssh_host_rsa_key-cert.pub
+Если эти файлы существуют, предполагается, что они содержат информацию об
+открытых сертификатах, соответствующую приведённым выше закрытым ключам.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ssh 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr sshd 8
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Ox 3.2 .
+.Sh АВТОРЫ
+.An Markus Friedl Aq Mt markus@openbsd.org

@@ -1,0 +1,93 @@
+.\" Copyright (c) 2001,2003 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_echo/pam_echo.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 7ea3efe33aaaba19890e59c7ebb151f06ed0c5773ada2c6d0727e76da616d0be
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 6, 2003
+.Dt PAM_ECHO 8
+.Os
+.Sh ИМЯ
+.Nm pam_echo
+.Nd Модуль PAM echo
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_echo
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Сервисный модуль echo для PAM отображает свои аргументы пользователю,
+разделяя их пробелами, используя текущую функцию диалога.
+.Pp
+Если символ
+.Cm %
+встречается где-либо в аргументах
+.Nm ,
+то предполагается, что он вводит одну из следующих
+escape-последовательностей:
+.Bl -tag -width 4n
+.It Cm %H
+Имя хоста, на котором выполняется клиент
+.Pq Dv PAM_RHOST .
+.It Cm %s
+Текущее имя службы
+.Pq Dv PAM_SERVICE .
+.It Cm %t
+Имя управляющего терминала
+.Pq Dv PAM_TTY .
+.It Cm \&%U
+Имя пользователя заявителя
+.Pq Dv PAM_RUSER .
+.It Cm %u
+Имя пользователя целевой учётной записи
+.Pq Dv PAM_USER .
+.El
+.Pp
+Любая другая двухсимвольная последовательность, начинающаяся с
+.Cm %
+раскрывается в символ, следующий за символом
+.Cm % .
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта справочная страница были разработаны для проекта
+.Fx
+компанией ThinkSec AS и NAI Labs, отдела Security Research Division компании Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

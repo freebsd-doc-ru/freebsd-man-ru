@@ -1,0 +1,54 @@
+.\" Copyright (c) 1998-2001 Proofpoint, Inc. and its suppliers.
+.\"	 All rights reserved.
+.\" Copyright (c) 1983, 1997 Eric P. Allman.  All rights reserved.
+.\" Copyright (c) 1985, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" By using this file, you agree to the terms and conditions set
+.\" forth in the LICENSE file which can be found at the top level of
+.\" the sendmail distribution.
+.\"
+.\"
+.\"     $Id: newaliases.1,v 8.20 2013-11-22 20:51:56 ca Exp $
+.\"
+.\" FRDP path contrib/sendmail/src/newaliases.1
+.\" FRDP githash e9f7c3de111b9dda23e1763e030688d78a71d8ff
+.\" FRDP hash256 59e9e2cc41de375910cc543f1de859f7cc2c1890453818c6d058c7c30f94072b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.SH ИМЯ
+newaliases
+\- перестроить базу данных для файла псевдонимов sendmail
+.SH СИНТАКСИС
+.B newaliases
+.SH ОПИСАНИЕ
+.B Newaliases
+перестраивает базу данных с произвольным доступом для файла почтовых псевдонимов
+/etc/mail/aliases.  Её необходимо запускать каждый раз при изменении этого файла,
+чтобы изменения вступили в силу.
+.PP
+.B Newaliases
+идентична команде ``sendmail -bi''.
+.PP
+Утилита
+.B newaliases
+завершается с кодом 0 при успехе и >0 при возникновении ошибки.
+.PP
+Примечание:
+.B не
+используйте
+.B makemap
+для создания базы данных псевдонимов, потому что
+.B newaliases
+помещает в базу данных специальный маркер, который требуется
+.B sendmail.
+.SH ФАЙЛЫ
+.TP 2i
+/etc/mail/aliases
+Файл почтовых псевдонимов
+.SH СМ. ТАКЖЕ
+aliases(5), sendmail(8)
+.SH ИСТОРИЯ
+Команда
+.B newaliases
+появилась в 4.0BSD.

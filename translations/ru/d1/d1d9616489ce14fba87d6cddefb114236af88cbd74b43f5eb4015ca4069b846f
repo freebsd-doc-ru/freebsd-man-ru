@@ -1,0 +1,105 @@
+.\" Copyright (c) 2003 Networks Associates Technology, Inc.
+.\" Copyright (c) 2004-2011 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_group/pam_group.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 d1d9616489ce14fba87d6cddefb114236af88cbd74b43f5eb4015ca4069b846f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 19, 2014
+.Dt PAM_GROUP 8
+.Os
+.Sh ИМЯ
+.Nm pam_group
+.Nd Групповой модуль PAM
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_group
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Модуль службы групп для PAM принимает или отклоняет пользователей на основе
+их членства в определённой группе из файла.
+.Nm pam_group
+предоставляет функциональность для двух категорий PAM: аутентификация и
+управление учётными записями.
+С точки зрения параметра тип-модуля, это возможности ``auth'' и
+``account''.
+.Pp
+Модулю
+.Nm
+можно передать следующие опции:
+.Bl -tag -width ".Cm group Ns = Ns Ar имя-группы"
+.It Cm deny
+Инвертирует смысл проверки, т. е. отклоняет заявителя тогда и только
+тогда, когда он или она является членом указанной группы.
+Это может быть полезно для исключения определённых групп пользователей из
+определённых служб.
+.It Cm fail_safe
+Если указанная группа не существует или не имеет членов, действовать так,
+как будто она существует, а заявитель является её членом.
+.It Cm group Ns = Ns Ar имя-группы
+Указывает имя проверяемой группы.
+По умолчанию —
+.Dq Li wheel .
+.It Cm luser
+Принимать или отклонять на основе членства целевого пользователя в группе.
+.It Cm root_only
+Полностью пропускать этот модуль, если целевая учётная запись не является
+учётной записью суперпользователя.
+.It Cm ruser
+Принимать или отклонять на основе членства заявителя в группе.
+Это значение по умолчанию.
+.El
+.Pp
+Обратите внимание, что опции
+.Cm luser
+и
+.Cm ruser
+взаимоисключающие, и что
+.Nm
+завершится с ошибкой, если указаны оба.
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и данная страница руководства были разработаны для проекта
+.Fx
+компаниями
+ThinkSec AS и NAI Labs, Отделом исследований безопасности компании Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

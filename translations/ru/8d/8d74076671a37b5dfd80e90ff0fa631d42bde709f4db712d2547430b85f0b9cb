@@ -1,0 +1,313 @@
+.\" Copyright (c) 2003 Hidetoshi Shimokawa
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\"
+.\" FRDP path usr.sbin/dconschat/dconschat.8
+.\" FRDP githash 9fd66e40cac02691d36386cf275d23367e34fc43
+.\" FRDP hash256 8d74076671a37b5dfd80e90ff0fa631d42bde709f4db712d2547430b85f0b9cb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 29, 2022
+.Dt DCONSCHAT 8
+.Os
+.Sh ИМЯ
+.Nm dconschat
+.Nd пользовательский интерфейс к
+.Xr dcons 4
+.Sh СИНТАКСИС
+.Nm
+.Op Fl brvwRT1
+.Op Fl e Ar escape-символ
+.Op Fl h Ar Гц
+.Op Fl C Ar порт_консоли
+.Op Fl G Ar порт_gdb
+.Op Fl M Ar core
+.Op Fl N Ar система
+.Nm
+.Op Fl brvwR1
+.Op Fl h Ar Гц
+.Op Fl C Ar порт_консоли
+.Op Fl G Ar порт_gdb
+.Op Fl a Ar адрес
+.Op Fl u Ar номер_шины
+.Fl t Ar целевой_EUI64
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для предоставления пользователям способа доступа к
+.Xr dcons 4
+(примитивное консольное устройство) в локальной или удалённой системе.
+Утилита
+.Nm
+взаимодействует с
+.Xr dcons 4
+с помощью
+.Xr kvm 3
+или
+.Xr firewire 4 ,
+а с пользователем — через TTY или TCP/IP.
+Для доступа к удалённому
+.Xr dcons 4
+с использованием
+.Xr firewire 4
+необходимо указать целевой адрес EUI64 с помощью опции
+.Fl t .
+Для доступа через FireWire на целевой машине должен быть включён физический DMA.
+.Pp
+Утилита
+.Nm
+и драйвер
+.Xr dcons 4
+взаимодействуют через 2 порта: один для консольного порта, другой — для удалённого порта
+.Xr gdb 1 Pq Pa ports/devel/gdb .
+Пользователи должны осуществлять доступ к
+.Nm
+через TTY,
+.Xr telnet 1
+и
+.Xr gdb 1 Pq Pa ports/devel/gdb .
+Можно указать прослушиваемые порты для консольного порта и порта
+.Xr gdb 1 Pq Pa ports/devel/gdb
+соответственно с помощью опций
+.Fl C
+и
+.Fl G .
+Номер порта 0 имеет особое значение: вместо TCP/IP используется текущий TTY (stdin/stdout).
+Отрицательный номер порта отключает порт.
+По аналогии с устройством
+.Xr pty 4
+.Xr dcons 4
+действует как подчинённое устройство, а
+.Nm
+— как ведущее устройство с
+.Nm telnetd .
+.Pp
+Вводимые символы обычно передаются напрямую в
+.Xr dcons 4 .
+Символ экранирования (по умолчанию
+.Ql ~
+), появляющийся первым символом строки, является сигналом экранирования; распознаются следующие:
+.Bl -tag -width indent
+.It Ic ~.
+Разорвать соединение и выйти.
+.It Ic ~^G
+Вызвать kgdb на терминале, на котором запущен dconschat.
+.It Ic ~^R
+Сбросить целевую систему по FireWire, если адрес сброса зарегистрирован в Configuration ROM.
+.It Ic ~^Z
+Приостановить процесс dconschat.
+.El
+.Pp
+Поддерживаются следующие опции.
+.Bl -tag -width indent
+.It Fl b
+Преобразовывать Ctrl-C в ALT_BREAK (CR +
+.Ql ~
++ Ctrl-B) на порту
+.Xr gdb 1 Pq Pa ports/devel/gdb .
+.It Fl r
+Воспроизводить старый буфер при подключении.
+.It Fl v
+Подробный отладочный вывод.
+Несколько опций
+.Fl v
+увеличивают подробность.
+.It Fl w
+Прослушивать wildcard-адрес вместо localhost.
+.It Fl R
+Только для чтения.
+Ничего не записывать в буфер
+.Xr dcons 4 .
+.It Fl T
+Включить специальное обходное решение для протокола TELNET, чтобы удалять ненужные последовательности байтов.
+Его следует задавать при доступе к
+.Nm
+с помощью
+.Xr telnet 1 .
+.It Fl 1
+Однократный режим.
+Прочитать доступный буфер и выйти.
+Подразумевает опцию
+.Fl r .
+.It Fl e Ar escape-символ
+Указать символ экранирования.
+По умолчанию '~'.
+.It Fl h Ar Гц
+Указать частоту опроса.
+Значение по умолчанию — 100.
+.It Fl C Ar порт_консоли
+Указать порт консоли.
+Значение по умолчанию — 0 (stdin/stdout).
+.It Fl G Ar порт_gdb
+Указать порт
+.Xr gdb 1 Pq Pa ports/devel/gdb .
+Значение по умолчанию — \-1 (отключено).
+.It Fl M Ar core
+Указать файл core.
+.It Fl N Ar система
+Указать системный файл, например
+.Pa /boot/kernel/kernel .
+.It Fl t Ar целевой_EUI64
+Указать 64-битный расширенный уникальный идентификатор целевой системы
+и использовать FireWire для доступа к удалённому
+.Xr dcons 4 .
+.It Fl a Ar адрес
+Указать физический адрес ввода-вывода буфера
+.Xr dcons 4 .
+Подробности см. в
+.Xr dcons 4 .
+Если эта опция не указана,
+.Nm
+пытается получить адрес из Configuration ROM на целевой системе.
+Предполагается, что на целевой системе включён
+.Xr dcons_crom 4 ,
+чтобы опустить эту опцию.
+.It Fl u Ar номер_шины
+Указать номер шины FireWire.
+По умолчанию — 0.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent -compact
+.It Pa /dev/fwmem0.0
+.It Pa /dev/mem
+.It Pa /dev/kmem
+.El
+.Sh ПРИМЕРЫ
+Чтобы использовать
+.Nm
+с FireWire для удалённого
+.Xr dcons 4 ,
+необходимо указать EUI64 целевой системы.
+EUI64 можно получить, запустив
+.Xr fwcontrol 8
+без опций.
+Первый EUI64 принадлежит хосту, на котором запущен
+.Xr fwcontrol 8 ,
+остальные на шине следуют за ним.
+.Bd -literal -offset indent
+# fwcontrol
+2 devices (info_len=2)
+node           EUI64          status
+   1  77-66-55-44-33-22-11-00      0
+   0  00-11-22-33-44-55-66-77      1
+.Ed
+.Pp
+EUI64 не изменяется, если не сменить оборудование, как Ethernet-адрес.
+.Pp
+Теперь можно запустить
+.Nm .
+.Bd -literal -offset indent
+# dconschat -br -G 12345 -t 00-11-22-33-44-55-66-77
+.Ed
+.Pp
+Вы получите вывод консоли целевой системы и приглашение входа, если на
+.Xr dcons 4
+запущен
+.Xr getty 8 .
+Можно перейти в DDB с помощью ALT_BREAK (CR +
+.Ql ~
++ Ctrl-B),
+если в ядре целевой системы включены
+.Dv DDB
+и
+.Dv ALT_BREAK_TO_DEBUGGER .
+Чтобы завершить сеанс, введите CR +
+.Ql ~
++
+.Ql \&.
+на консольном порту.
+.Pp
+Использование порта
+.Xr gdb 1 Pq Pa ports/devel/gdb
+почти совпадает с удалённым
+.Xr gdb 1 Pq Pa ports/devel/gdb
+по последовательной линии, за исключением
+использования TCP/IP вместо
+.Pa /dev/cu* .
+См. раздел
+и
+.Xr gdb 4
+для подробностей.
+.Bd -literal -offset indent
+% gdb -k kernel.debug
+(kgdb) target remote :12345
+.Ed
+.Pp
+После подключения
+.Xr gdb 1 Pq Pa ports/devel/gdb
+и указания опции
+.Fl b
+для
+.Nm ,
+ввод Ctrl-C в
+.Xr gdb 1 Pq Pa ports/devel/gdb
+вызывает переход в отладчик.
+.Pp
+Следующая команда получает журнал консоли из аварийного дампа:
+.Bd -literal -offset indent
+# dconschat -1 -M vmcore.0 -N kernel.0
+.Ed
+.Pp
+Если вы хотите получить доступ к консоли с помощью
+.Xr telnet 1 ,
+попробуйте следующее:
+.Bd -literal -offset indent
+# dconschat -rTC 5555 &
+# telnet localhost 5555
+.Ed
+.Pp
+Возможно, вы захотите вести журнал вывода консоли нескольких машин.
+.Nm conserver-com
+из коллекции Ports может помочь.
+Вставьте следующие строки в
+.Pa conserver.cf :
+.Bd -literal -offset indent
+console local {
+	master localhost;
+	type exec;
+	exec /usr/sbin/dconschat -rh 25;
+}
+console remote {
+	master localhost;
+	type exec;
+	exec /usr/sbin/dconschat -rh 25 -t 00-11-22-33-44-55-66-77;
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr gdb 1 Pq Pa ports/devel/gdb ,
+.Xr telnet 1 ,
+.Xr kvm 3 ,
+.Xr dcons 4 ,
+.Xr dcons_crom 4 ,
+.Xr ddb 4 ,
+.Xr firewire 4 ,
+.Xr fwohci 4 ,
+.Xr gdb 4 ,
+.Xr eui64 5 ,
+.Xr fwcontrol 8
+.Sh АВТОРЫ
+.An Hidetoshi Shimokawa Aq Mt simokawa@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эта утилита
+.Ud

@@ -1,0 +1,108 @@
+.\"
+.\" Copyright (c) 2024 Netflix, Inc.
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path stand/lua/gfx.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 70268b6b2a36937f3ff7f68737067a8d7d1bf0a6be6c04ed69eb8f82d343949d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt GFX.LUA 8
+.Os
+.Sh ИМЯ
+.Nm gfx.lua
+.Nd графический модуль загрузчика
+.Sh ОПИСАНИЕ
+Встроенные Lua-привязки, относящиеся к графике, для
+.Fx
+загрузчиков, использующих интерпретатор Lua, доступны через таблицу
+.Ic gfx .
+.Ss Экспортируемые функции
+Следующие функции экспортируются в таблице
+.Nm loader .
+.Bl -tag -width term_putimage
+.It Fn fb_bezier x0 y0 x1 y1 x2 y2 width
+Нарисовать кривую Безье через точки
+.Pq Va x0 , Va y0 ,
+.Pq Va x1 , Va y1 ,
+и
+.Pq Va x2 , Va y2
+шириной
+.Va width .
+Единицы измерения — пиксели; начало координат —
+.Pq 0 , 0 .
+.It Fn fb_drawrect x0 y0 x1 y1 fill
+Заполнить прямоугольник пикселем
+.Va fill
+с углами
+.Pq Va x0 , Va y0
+и
+.Pq Va x1 , Va y1 .
+Единицы измерения — пиксели; начало координат —
+.Pq 0 , 0 .
+.It Fn fb_line x0 y0 x1 y1 width
+Нарисовать линию из
+.Pq Va x0 , Va y0
+в
+.Pq Va x1 , Va y1
+шириной
+.Va width .
+Единицы измерения — пиксели; начало координат —
+.Pq 0 , 0 .
+.It Fn fb_putimage name x0 y0 x1 y1 f
+Загрузить PNG-файл
+.Va name
+и разместить его в прямоугольнике
+с углами
+.Pq Va x0 , Va y0
+и
+.Pq Va x1 , Va y1
+и заполнить пикселем
+.Va f .
+Единицы измерения — пиксели; начало координат —
+.Pq 0 , 0 .
+.It Fn fb_set_pixel x y
+Устанавливает пиксель в
+.Pq Va x , Va y .
+Единицы измерения — пиксели; начало координат —
+.Pq 0 , 0 .
+.It Fn term_drawrect x0 y0 x1 y1
+Нарисовать контур прямоугольника с углами в текстовых координатах
+.Pq Va x0 , Va y0
+и
+.Pq Va x1 , Va y1 .
+Единицы измерения — символьные ячейки; начало координат —
+.Pq 1 , 1 .
+.It Fn term_putimage name x0 y0 x1 y1 f
+Загрузить PNG-файл
+.Va name
+и разместить его в прямоугольнике
+с углами в текстовых координатах
+.Pq Va x0 , Va y0
+и
+.Pq Va x1 , Va y1
+и заполнить пикселем
+.Va f .
+Единицы измерения — символьные ячейки; начало координат —
+.Pq 1 , 1 .
+.El
+.Pp
+Эта таблица необязательна, и её следует использовать только если она не nil и если
+.Fn core.isFramebufferConsole
+истинно.
+.Ss Совместимость
+Все описанные выше интерфейсы также доступны через таблицу
+.Ic loader
+по крайней мере до FreeBSD 15.0.
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr core.lua 8 ,
+.Xr loader 8 ,
+.Xr loader.lua 8
+.Sh АВТОРЫ
+Страница руководства
+.Nm
+была написана
+.An Warner Losh Aq Mt imp@FreeBSD.org .

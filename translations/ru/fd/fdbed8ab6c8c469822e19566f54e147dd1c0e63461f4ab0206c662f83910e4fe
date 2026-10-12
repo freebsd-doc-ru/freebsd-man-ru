@@ -1,0 +1,91 @@
+.\" Copyright (c) 2003 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc. under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_chroot/pam_chroot.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 fdbed8ab6c8c469822e19566f54e147dd1c0e63461f4ab0206c662f83910e4fe
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 10, 2003
+.Dt PAM_CHROOT 8
+.Os
+.Sh ИМЯ
+.Nm pam_chroot
+.Nd Модуль PAM chroot
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_chroot
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Служебный модуль chroot для PAM помещает пользователей либо в предопределённый каталог, либо в каталог, производный от их домашнего каталога.
+Если домашний каталог пользователя, указанный в структуре
+.Vt passwd
+, возвращаемой
+.Xr getpwnam 3
+, содержит строку
+.Dq Li /./ ,
+часть имени каталога слева от этой строки используется как каталог chroot, а часть справа будет текущим рабочим каталогом внутри дерева chroot.
+В противном случае используются каталоги, указанные в параметрах
+.Cm dir
+и
+.Cm cwd
+(см. ниже).
+.Bl -tag -width Ds
+.It Cm also_root
+Не освобождать пользователя с идентификатором 0 от требования chroot.
+.It Cm always
+Сообщать об ошибке, если каталог chroot не удалось вывести из домашнего каталога пользователя и параметр
+.Cm dir
+не указан.
+.It Cm cwd Ns = Ns Ar каталог
+Указывает каталог, в который следует перейти с помощью
+.Xr chdir 2
+после успешного вызова
+.Xr chroot 2 .
+.It Cm dir Ns = Ns Ar каталог
+Указывает каталог chroot, который нужно использовать, если его не удалось вывести из домашнего каталога пользователя.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были разработаны для проекта
+.Fx
+компанией
+ThinkSec AS и NAI Labs, отделом исследований безопасности Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

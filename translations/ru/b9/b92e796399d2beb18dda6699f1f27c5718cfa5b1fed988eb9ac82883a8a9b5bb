@@ -1,0 +1,134 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/color.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 b92e796399d2beb18dda6699f1f27c5718cfa5b1fed988eb9ac82883a8a9b5bb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt COLOR.LUA 8
+.Os
+.Sh ИМЯ
+.Nm color.lua
+.Nd модуль цветов загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность для работы с цветами.
+.Pp
+Перед использованием функциональности, предоставляемой
+.Nm ,
+её необходимо подключить с помощью инструкции, подобной следующей:
+.Pp
+.Pp
+Следующие цветовые константы экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Ic color.BLACK
+.It Ic color.RED
+.It Ic color.GREEN
+.It Ic color.YELLOW
+.It Ic color.BLUE
+.It Ic color.MAGENTA
+.It Ic color.CYAN
+.It Ic color.WHITE
+.El
+.Pp
+Следующие константы атрибутов экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Ic color.DEFAULT
+.It Ic color.BRIGHT
+.It Ic color.DIM
+.El
+.Pp
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Fn color.isEnabled
+Возвращает True, если
+.Xr loader 8
+настроен так, чтобы не разрешать цвет, и False в противном случае.
+Проверяет переменную
+.Ev loader_color
+в
+.Xr loader.conf 5
+, а также
+.Fn core.isSerialBoot .
+.It Fn color.escapefg color_value
+Возвращает escape-последовательность, которая кодирует
+.Fa color_value
+как цвет переднего плана.
+.Fn color.escapefg
+возвращает пустую строку, если цвет отключён.
+.It Fn color.resetfg
+Возвращает escape-последовательность для цвета переднего плана по умолчанию.
+.Fn color.resetfg
+возвращает пустую строку, если цвет отключён.
+.It Fn color.escapebg color_value
+Возвращает escape-последовательность, которая кодирует
+.Fa color_value
+как цвет фона.
+.Fn color.escapebg
+возвращает пустую строку, если цвет отключён.
+.It Fn color.resetbg
+Возвращает escape-последовательность для цвета фона по умолчанию.
+.Fn color.resetbg
+возвращает пустую строку, если цвет отключён.
+.It Fn color.escape fg_color bg_color attribute
+Возвращает escape-последовательность, которая кодирует
+.Fa fg_color
+как цвет переднего плана,
+.Fa bg_color
+как цвет фона и
+.Fa attribute
+применённым.
+.Fn color.escape
+возвращает пустую строку, если цвет отключён.
+.It Fn color.default
+Возвращает escape-последовательность для цветовой схемы по умолчанию: белым по чёрному без применения атрибутов.
+.Fn color.default
+возвращает пустую строку, если цвет отключён.
+.It Fn color.highlight str
+Возвращает
+.Fa str
+с атрибутом
+.Ic color.BRIGHT
+, применённым перед ней и сброшенным после неё.
+.Fn color.highlight
+возвращает
+.Fa str
+, если цвет отключён.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr screen.lua 8
+.Sh АВТОРЫ
+Файл
+.Nm
+был изначально написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Последующая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

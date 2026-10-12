@@ -1,0 +1,97 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" All rights reserved.
+.\" Copyright (c) 2002 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_ftpusers/pam_ftpusers.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 8a9eacb7e1f11c0afa4bdf9554a230bec7549a64c3db9283ba4990db928ff073
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 17, 2002
+.Dt PAM_FTPUSERS 8
+.Os
+.Sh ИМЯ
+.Nm pam_ftpusers
+.Nd PAM-модуль ftpusers
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_ftpusers
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+.Pa ftpusers
+— сервисный модуль для PAM,
+.Nm
+предоставляет функциональность только для одной категории PAM:
+управление учётными записями.
+В терминах параметра
+.Ar тип-модуля
+это функция
+.Dq Li account .
+.Ss Модуль управления учётными записями ftpusers
+.Pa ftpusers
+— компонент управления учётными записями
+.Pq Fn pam_sm_acct_mgmt ,
+завершается успешно тогда и только тогда, когда пользователь указан в
+.Pa /etc/ftpusers .
+.Pp
+Следующие параметры могут быть переданы модулю аутентификации:
+.Bl -tag -width indent
+.It Cm debug
+.Xr syslog 3
+отладочная информация на уровне
+.Dv LOG_DEBUG .
+.It Cm no_warn
+подавляет предупреждающие сообщения пользователю.
+Эти сообщения содержат причины, по которым попытка аутентификации пользователя
+была отклонена.
+.It Cm disallow
+меняет семантику на противоположную;
+.Nm
+завершается успешно тогда и только тогда, когда пользователь не указан в
+.Pa /etc/ftpusers .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr ftpusers 5 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были разработаны для проекта
+.Fx
+компанией ThinkSec AS и NAI Labs, подразделением Security Research Division компании Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

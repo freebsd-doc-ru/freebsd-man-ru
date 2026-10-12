@@ -1,0 +1,471 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2011-2016 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/sysrc/sysrc.8
+.\" FRDP githash 3f0dd7724658126dcfde488a994cf7698353a82c
+.\" FRDP hash256 1c0d7a87b2528c9106a8795a3dd4d0b2806d8b2588f735d764658fc442ca0840
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 3, 2022
+.Dt SYSRC 8
+.Os
+.Sh ИМЯ
+.Nm sysrc
+.Nd безопасно редактирует системные rc-файлы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cdDeEFhinNqvx
+.Op Fl s Ar имя
+.Op Fl f Ar файл
+.Op Fl j Ar клетка | Fl R Ar каталог
+.Ar имя Ns Op Ns Oo +|- Oc Ns = Ns Ar значение
+.Ar ...
+.Nm
+.Op Fl cdDeEFhinNqvx
+.Op Fl s Ar имя
+.Op Fl f Ar файл
+.Op Fl j Ar клетка | Fl R Ar каталог
+.Fl a | A
+.Nm
+.Op Fl E
+.Op Fl s Ar имя
+.Op Fl f Ar файл
+.Fl l
+.Nm
+.Op Fl eEqv
+.Fl L
+.Op Ar имя ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+извлекает переменные
+.Xr rc.conf 5
+из набора системных rc-файлов и позволяет процессам с
+соответствующими привилегиями изменять значения безопасным и эффективным
+образом.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent+
+.It Fl a
+Вывести список всех переменных конфигурации, отличных от значений по умолчанию.
+.It Fl A
+Вывести список всех переменных конфигурации
+.Pq включая значения по умолчанию .
+.It Fl c
+Только проверка.
+При запросе возвращать успех, если все запрошенные переменные установлены
+.Pq даже если NULL ,
+иначе возвращать статус ошибки.
+При присваивании возвращать успех, если изменения не требуются, иначе — ошибку.
+Если включён подробный режим
+.Pq см. Dq Fl v
+выводит сообщение о том, установлены ли переменные и/или требуются ли изменения.
+.It Fl d
+Вывести описание заданной переменной.
+.It Fl D
+Показать только значения по умолчанию (это то же самое, что установить RC_CONFS в NULL или
+передать `-f' с NULL-аргументом файла).
+.It Fl e
+Выводить результаты запроса в синтаксисе, совместимом с
+.Xr sh 1
+.Pq например, Ql var=value .
+Игнорируется, если указан либо
+.Ql Fl n
+либо
+.Ql Fl F .
+.It Fl E
+Если указан
+.Sq Fl l
+или
+.Sq Fl L
+для вывода списка файлов конфигурации, выводить только существующие.
+При изменении параметра предпочитать изменение существующих файлов.
+.It Fl f Ar файл
+Работать с указанным файлом (файлами) вместо файлов, полученных чтением
+записи
+.Sq rc_conf_files
+в файле
+.Ev RC_DEFAULTS
+.
+Этот параметр можно указывать несколько раз для дополнительных файлов.
+.It Fl F
+Показывать только последний файл
+.Xr rc.conf 5
+в котором находится каждая директива.
+.It Fl h
+Вывести краткое сообщение об использовании в stderr и выйти.
+.It Fl -help
+Вывести полное сообщение об использовании в stderr и выйти.
+.It Fl i
+Игнорировать неизвестные переменные.
+.It Fl j Ar клетка
+.Ar jid
+или имя
+.Ar клетки
+для работы внутри
+.Pq переопределяет So Fl R Ar каталог Sc ; требует Xr jexec 8 .
+.It Fl l
+Вывести список файлов конфигурации, используемых при запуске, в stdout и выйти.
+.It Fl L
+Вывести все файлы конфигурации, включая записи rc.conf.d, в stdout и выйти.
+Можно комбинировать с
+.Sq Fl v
+или
+.Sq Fl e
+для показа имён служб.
+.Nm
+завершается успешно, если все указанные службы установлены, иначе — неуспешно.
+.It Fl n
+Показывать только значения переменных, не их имена.
+.It Fl N
+Показывать только имена переменных, не их значения.
+.It Fl q
+Тихий режим.
+Отключить подробный вывод и скрыть некоторые ошибки.
+При комбинировании с
+.Sq Fl L
+и одним или несколькими
+.Ar имя
+аргументами, выдавать только статус выхода и не выводить ничего.
+.It Fl R Ar каталог
+Работать в корневом каталоге
+.Sq Ar каталог
+вместо
+.Sq / .
+.It Fl s Ar имя
+Если существует скрипт
+.Li rc.d
+с именем
+.Ar имя
+.Po
+в
+.Dq /etc/rc.d
+или
+.Li local_startup
+каталогах
+.Pc ,
+обрабатывать его записи
+.Dq rc.conf.d
+как возможные переопределения
+.Sq rc_conf_files .
+См.
+.Xr rc.subr 8
+для дополнительной информации о
+.Dq rc.conf.d .
+Можно комбинировать с
+.Sq Fl l
+для вывода списка файлов конфигурации, используемых службой при запуске.
+.It Fl v
+Подробный режим.
+Выводить путь к конкретному файлу
+.Xr rc.conf 5
+в котором была найдена директива.
+.It Fl -version
+Вывести информацию о версии в stdout и выйти.
+.It Fl x
+Удалить переменную(ые) из указанного файла(ов).
+.El
+.Pp
+Эта утилита имеет синтаксис, похожий на
+.Xr sysctl 8 .
+Она использует те же параметры `-e' и `-n'
+.Pq описанные выше
+и также имеет такой же синтаксис
+.Ql name[=value]
+для выполнения запросов/присваиваний.
+Кроме того
+.Pq но в отличие от Xr sysctl 8 ,
+поддерживается
+.Ql name+=value
+для добавления элементов к значениям
+.Pq см. ДОБАВЛЕНИЕ ЗНАЧЕНИЙ
+и
+.Ql name-=value
+поддерживается для удаления элементов из значений
+.Pq см. УДАЛЕНИЕ ЗНАЧЕНИЙ .
+.Pp
+Однако, в то время как
+.Xr sysctl 8
+служит для запроса/изменения MIB в текущем ядре,
+.Nm
+работает со значениями в системных файлах конфигурации
+.Xr rc.conf 5 .
+.Pp
+Список системных файлов конфигурации задаётся в файле
+.Ql /etc/defaults/rc.conf
+в переменной
+.Ql rc_conf_files ,
+которая по умолчанию содержит разделённый пробелами список путей.
+На всех
+.Fx
+Каждый
+путь загружается по порядку при запуске.
+Таким же образом
+.Nm
+загружает файлы конфигурации перед возвратом значения заданной
+переменной.
+.Pp
+Если указано имя переменной,
+.Nm
+вернёт значение переменной.
+Если переменная не встречается ни в одном
+из настроенных
+.Ql rc_conf_files ,
+выводится ошибка и возвращается статус ошибки.
+.Pp
+При изменении значений заданной переменной неважно, присутствует ли переменная
+в каком-либо из
+.Ql rc_conf_files
+или нет.
+Если переменная не встречается ни в одном из файлов, она добавляется в
+конец первого пути в переменной
+.Ql rc_conf_files .
+В противном случае
+.Nm
+заменит только последнее вхождение в последнем файле, содержащем
+переменную.
+Это позволяет значению вступить в силу при следующей загрузке без сильного
+изменения этих важных файлов (при этом принимаются меры, чтобы файл не
+разросся слишком сильно, если
+.Nm
+вызывается повторно).
+.Sh ДОБАВЛЕНИЕ ЗНАЧЕНИЙ
+При использовании синтаксиса
+.Ql key+=value
+для добавления элементов к существующим значениям,
+первый символ значения принимается за разделитель элементов.
+Например, в следующем операторе:
+.Bl -item -offset indent
+.It
+.Nm
+.El
+.Pp
+первый символ — пробел, сообщающий
+.Nm
+что существующие значения следует считать разделёнными пробельными символами.
+Если
+.Ql gif0
+не найден в существующем значении для
+.Va cloned_interfaces ,
+он добавляется
+.Pq с разделителем только если существующее значение не NULL .
+.Pp
+Для удобства, если первый символ — буквенно-цифровой
+.Pq буквы A-Z, a-z или цифры 0-9 ,
+точка
+.Pq Li \&. ,
+или косая черта
+.Pq Li / ,
+.Nm
+использует настройку по умолчанию — пробельные символы в качестве разделителя.
+Например, вышеприведённый и нижеприведённый операторы эквивалентны, так как
+.Dq gif0
+начинается с буквенно-цифрового символа
+.Pq буквы Li g :
+.Bl -item -offset indent
+.It
+.Nm
+cloned_interfaces+=gif0
+.El
+.Pp
+Возьмём следующую последовательность для примера:
+.Bl -item -offset indent
+.It
+.Nm
+cloned_interfaces= # начать с NULL
+.It
+.Nm
+cloned_interfaces+=gif0
+.Dl # NULL -> `gif0' Pq NB: без предшествующего разделителя
+.It
+.Nm
+cloned_interfaces+=gif0 # без изменений
+.It
+.Nm
+.Dl # `gif0' -> `gif0 tun0' Pq NB: без дублирования
+.El
+.Pp
+.Nm
+предотвращает добавление одного и того же значения, если оно уже там.
+.Sh УДАЛЕНИЕ ЗНАЧЕНИЙ
+При использовании синтаксиса
+.Ql key-=value
+для удаления элементов из существующих значений,
+первый символ значения принимается за разделитель элементов.
+Например, в следующем операторе:
+.Pp
+.Pp
+первый символ — пробел, сообщающий
+.Nm
+что существующие значения следует считать разделёнными пробельными символами.
+Если
+.Ql gif0
+найден в существующем значении для
+.Va cloned_interfaces ,
+он удаляется
+.Pq лишние разделители удаляются .
+.Pp
+Для удобства, если первый символ — буквенно-цифровой
+.Pq буквы A-Z, a-z или цифры 0-9 ,
+точка
+.Pq Li \&. ,
+или косая черта
+.Pq Li / ,
+.Nm
+использует настройку по умолчанию — пробельные символы в качестве разделителя.
+Например, вышеприведённый и нижеприведённый операторы эквивалентны, так как
+.Dq gif0
+начинается с буквенно-цифрового символа
+.Pq буквы Li g :
+.Bl -item -offset indent
+.It
+.Nm
+cloned_interfaces-=gif0
+.El
+.Pp
+Возьмём следующую последовательность для примера:
+.Bl -item -offset indent
+.It
+.Nm
+.It
+.Nm
+foo-=bar # `bar baz' -> `baz'
+.It
+.Nm
+foo-=baz # `baz' -> NULL
+.El
+.Pp
+.Nm
+удаляет все вхождения всех предоставленных элементов
+и сворачивает лишние разделители между элементами.
+.Sh ОКРУЖЕНИЕ
+.Nm
+использует следующие переменные окружения:
+.Bl -tag -width indent
+.It Ev RC_CONFS
+Переопределить значение по умолчанию
+.Ql rc_conf_files
+.Pq даже если установлено в NULL .
+.It Ev RC_DEFAULTS
+Расположение файла
+.Ql /etc/defaults/rc.conf
+.
+.El
+.Sh ЗАВИСИМОСТИ
+.Nm
+требует следующие стандартные команды:
+.Pp
+.Xr awk 1 ,
+.Xr cat 1 ,
+.Xr chmod 1 ,
+.Xr env 1 ,
+.Xr grep 1 ,
+.Xr mktemp 1 ,
+.Xr mv 1 ,
+.Xr rm 1 ,
+.Xr sh 1 ,
+.Xr stat 1 ,
+.Xr tail 1 ,
+.Xr chown 8 ,
+.Xr chroot 8 ,
+.Xr jls 8 ,
+и
+.Xr jexec 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/defaults/rc.conf
+.It Pa /etc/rc.conf
+.It Pa /etc/rc.conf.local
+.It Pa /etc/rc.conf.d/name
+.It Pa /etc/rc.conf.d/name/*
+.It Pa /usr/local/etc/rc.conf.d/name
+.It Pa /usr/local/etc/rc.conf.d/name/*
+.El
+.Sh ПРИМЕРЫ
+.Ss Работа с файлами rc.conf
+Запросить значение
+.Cm sshd_enable ,
+обычно YES или NO:
+.Dl sysrc sshd_enable
+.Pp
+Вернуть IP-адрес маршрутизатора по умолчанию
+.Pq если настроен :
+.Dl sysrc defaultrouter
+.Ss Работа с другими файлами
+Вернуть значение настройки MAILTO, если она настроена, из
+.Xr crontab 5 :
+.Dl sysrc -f /etc/crontab MAILTO
+.Pp
+Добавить
+.Dq gif0
+в $cloned_interfaces
+.Pq см. Sx ДОБАВЛЕНИЕ ЗНАЧЕНИЙ :
+.Dl sysrc cloned_interfaces+=gif0
+.Pp
+Удалить
+.Dq gif0
+из $cloned_interfaces
+.Pq см. Sx УДАЛЕНИЕ ЗНАЧЕНИЙ :
+.Dl sysrc cloned_interfaces-=gif0
+.Ss Встроенное раскрытие параметров оболочки
+Вернуть $hostname до, но не включая, первой
+.Ql \&. :
+.Dl sysrc 'hostname%%.*'
+.Pp
+Вернуть первое слово из $network_interfaces:
+.Dl sysrc 'network_interfaces%%[$IFS]*'
+.Pp
+Вернуть последнее слово из $ntpdate_flags
+.Pq адрес сервера времени :
+.Dl sysrc 'ntpdate_flags##*[$IFS]'
+.Pp
+Вернуть $usbd_flags или
+.Dq default
+если не установлено или NULL:
+.Pp
+Вернуть
+.Dq alternate
+если $cloned_interfaces установлено:
+.Sh СМ. ТАКЖЕ
+.Xr rc.conf 5 ,
+.Xr jail 8 ,
+.Xr jexec 8 ,
+.Xr jls 8 ,
+.Xr rc 8 ,
+.Xr rc.subr 8 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 9.2 .
+.Sh АВТОРЫ
+.An Devin Teske Aq Mt dteske@FreeBSD.org
+.Sh БЛАГОДАРНОСТИ
+Brandon Gooch, Enji Cooper, Julian Elischer, Pawel Jakub Dawidek,
+Cyrille Lefevre, Ross West, Stefan Esser, Marco Steinbach, Jilles Tjoelker,
+Allan Jude, и Lars Engels за предложения, помощь и тестирование.

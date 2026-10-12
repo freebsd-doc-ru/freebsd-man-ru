@@ -1,0 +1,267 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1999 Daniel C. Sobral
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/man/loader_lua.8
+.\" FRDP githash a37825313f624121c6f07bc03f9cf655c300885b
+.\" FRDP hash256 19cb6bf79c793e935171cd9b2d7051f28a692538ffe98bc4450b9fbc031154b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 29, 2021
+.Dt LOADER_LUA 8
+.Os
+.Sh ИМЯ
+.Nm loader_lua
+.Nd завершающая стадия начальной загрузки ядра
+.Sh ОПИСАНИЕ
+Программа, называемая
+.Nm ,
+является завершающей стадией
+.Fx Ns 's
+процесса начальной загрузки ядра.
+На архитектурах IA32 (i386) она является клиентом
+.Pa BTX .
+Она статически скомпонована с
+.Xr libsa 3
+и обычно находится в каталоге
+.Pa /boot .
+.Pp
+Она предоставляет язык сценариев, который можно использовать для
+автоматизации задач, предварительной настройки или помощи в процедурах
+восстановления.
+Этот язык сценариев грубо разделён на
+два основных компонента.
+Меньший — это набор команд.
+Основная движущая сила этих команд — удобство для пользователя.
+Больший компонент — интерпретатор Lua.
+.Pp
+Во время инициализации
+.Nm
+опрашивает консоль и устанавливает переменную
+.Va console ,
+или, если предыдущая стадия загрузки использовала последовательную консоль, устанавливает её в
+.Pq Dq Li comconsole .
+Если выбрано несколько консолей, они перечисляются через пробелы.
+Затем опрашиваются устройства,
+устанавливаются
+.Va currdev
+и
+.Va loaddev ,
+а
+.Va LINES
+устанавливается в 24.
+Далее инициализируется Lua, и обрабатывается
+.Pa /boot/lua/loader.lua ,
+если он существует.
+После этого обрабатывается
+.Pa /boot/loader.conf ,
+если он доступен.
+.Pp
+В этот момент, если
+.Ic autoboot
+ещё не предпринималась и если
+.Va autoboot_delay
+не установлено в
+.Dq Li NO
+(без учёта регистра), то предпринимается попытка
+.Ic autoboot .
+Если система проходит эту точку,
+устанавливается
+.Va prompt
+и
+.Nm
+входит в интерактивный режим.
+Обратите внимание, что исторически, даже когда
+.Va autoboot_delay
+установлено в
+.Dq Li 0 ,
+пользователь может прервать процесс автоматической загрузки, нажав клавишу
+на консоли во время загрузки ядра и модулей.
+Чтобы предотвратить это, установите
+.Va autoboot_delay
+в
+.Dq Li -1 .
+В этом случае
+.Nm
+входит в интерактивный режим только если
+.Ic autoboot
+завершилась неудачно.
+.Sh ВСТРОЕННЫЕ КОМАНДЫ
+В
+.Nm
+встроенные команды принимают параметры из командной строки.
+В настоящее время
+единственный способ вызвать их из сценария — использовать
+.Pa evaluate
+для строки.
+Если возникает ошибка, генерируется исключение,
+которое можно перехватить с помощью обработки исключений Lua.
+Если исключение не перехвачено, отображается сообщение об ошибке и
+состояние интерпретатора сбрасывается, очищая стек и восстанавливая
+режим интерпретации.
+.Pp
+Команды описаны в разделе
+.Dq ВСТРОЕННЫЕ КОМАНДЫ
+руководства
+.Xr loader_simp 8 .
+.Ss ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+Переменные окружения, общие для всех интерпретаторов, описаны в разделе
+.Dq ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+руководства
+.Xr loader_simp 8 .
+.Ss ВСТРОЕННЫЙ ПАРСЕР
+Когда выполняется встроенная команда, остальная часть строки принимается
+как аргументы, и она обрабатывается специальным парсером, который
+не используется для обычных команд Lua.
+.Sh БЕЗОПАСНОСТЬ
+Доступ к командной строке
+.Nm
+предоставляет несколько способов нарушения безопасности системы,
+включая, помимо прочего:
+.Pp
+.Bl -bullet
+.It
+Загрузка со съёмного носителя путём установки переменных
+.Va currdev
+или
+.Va loaddev
+.It
+Выполнение произвольного двоичного файла путём установки переменных
+.Va init_path
+или
+.Va init_script
+.It
+Переопределение ACPI DSDT для внедрения произвольного кода в подсистему ACPI
+.El
+.Pp
+Можно предотвратить несанкционированный доступ
+к командной строке
+.Nm ,
+установив
+.Va password ,
+или задав
+.Va autoboot_delay
+в -1.
+Подробности см. в
+.Xr loader.conf 5 .
+Чтобы это было эффективно, следует также настроить прошивку
+(BIOS или UEFI), чтобы предотвратить загрузку с несанкционированных устройств.
+.Sh MD
+Диск в памяти (MD) можно использовать, когда
+.Nm
+был скомпилирован с
+.Va MD_IMAGE_SIZE .
+Размер диска в памяти определяется
+.Va MD_IMAGE_SIZE .
+Если MD доступен, файловая система может быть встроена в
+.Nm
+с помощью
+.Pa /sys/tools/embed_mfs.sh .
+Затем MD обнаруживается и устанавливается в
+.Va currdev
+во время инициализации.
+.Pp
+В настоящее время MD поддерживается только в
+.Xr loader.efi 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/examples/bootforth/ -compact
+.It Pa /boot/loader
+сам
+.Nm .
+.It Pa /boot/defaults/loader.conf
+.It Pa /boot/lua/loader.lua
+Инициализация загрузчика
+.It Pa /boot/loader.conf
+.It Pa /boot/loader.conf.local
+конфигурационные файлы
+.Nm ,
+как описано в
+.Xr loader.conf 5 .
+.El
+.Sh ПРИМЕРЫ
+Загрузка в однопользовательском режиме:
+.Pp
+.Dl boot -s
+.Pp
+Загрузить ядро, заставку, а затем выполнить автоматическую загрузку через пять секунд.
+Обратите внимание, что ядро должно быть загружено до попытки выполнения любой другой
+команды
+.Ic load .
+.Bd -literal -offset indent
+load kernel
+load splash_bmp
+load -t splash_image_data /boot/chuckrulez.bmp
+autoboot 5
+.Ed
+.Pp
+Установить номер диска корневого устройства в 2, а затем загрузиться.
+Это может потребоваться в системе с двумя IDE-дисками,
+где второй IDE-диск жёстко подключён как ada2, а не ada1.
+.Bd -literal -offset indent
+set root_disk_unit=2
+boot /boot/kernel/kernel
+.Ed
+.Pp
+Установить устройство по умолчанию, используемое для загрузки ядра из файловой системы ZFS:
+.Bd -literal -offset indent
+set currdev=zfs:tank/ROOT/knowngood:
+.Ed
+.Pp
+.Sh ОШИБКИ
+Следующие значения выбрасываются
+.Nm :
+.Bl -tag -width XXXXX -offset indent
+.It 100
+Любая ошибка при обработке встроенной команды.
+.It -1
+Выполнена команда
+.Ic Abort .
+.It -2
+Выполнено.
+.It -56
+Выполнена команда
+.Ic Quit .
+.It -256
+Закончился текст для интерпретации.
+.It -257
+Требуется больше текста для успешного выполнения -- завершится при следующем запуске.
+.It -258
+Выполнена команда
+.Ic Bye .
+.It -259
+Неопределённая ошибка.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr libsa 3 ,
+.Xr loader.conf 5 ,
+.Xr tuning 7 ,
+.Xr boot 8 ,
+.Xr btxld 8
+.Sh ИСТОРИЯ
+Впервые
+.Nm
+появился в
+.Fx 12.0 .

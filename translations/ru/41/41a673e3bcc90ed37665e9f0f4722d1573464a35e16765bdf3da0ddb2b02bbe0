@@ -1,0 +1,98 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" All rights reserved.
+.\" Copyright (c) 2001 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_self/pam_self.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 41a673e3bcc90ed37665e9f0f4722d1573464a35e16765bdf3da0ddb2b02bbe0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 5, 2001
+.Dt PAM_SELF 8
+.Os
+.Sh ИМЯ
+.Nm pam_self
+.Nd PAM-модуль Self
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_self
+.Op Ar опции
+.Sh ОПИСАНИЕ
+Модуль службы аутентификации Self для PAM,
+.Nm
+обеспечивает функциональность только для одной категории PAM:
+аутентификации.
+В терминах параметра
+.Ar тип-модуля
+это
+.Dq Li auth
+функция.
+.Ss Модуль аутентификации Self
+Компонент аутентификации Self
+.Pq Fn pam_sm_authenticate ,
+возвращает успех тогда и только тогда, когда идентификатор целевого пользователя совпадает
+с текущим реальным идентификатором пользователя.
+Если текущий реальный идентификатор пользователя равен нулю, аутентификация завершится неудачно,
+если опция
+.Cm allow_root
+не была указана.
+.Pp
+Аутентификационному модулю можно передать следующие опции:
+.Bl -tag -width Ds
+.It Cm debug
+выводить отладочную информацию
+.Xr syslog 3
+на уровне
+.Dv LOG_DEBUG
+.It Cm no_warn
+подавлять предупреждающие сообщения пользователю.
+Эти сообщения включают причины, по которым попытка аутентификации пользователя
+была отклонена.
+.It Cm allow_root
+не завершать автоматически неудачно, если текущий реальный идентификатор пользователя равен 0.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getuid 2 ,
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были разработаны для проекта
+.Fx
+компанией ThinkSec AS и NAI Labs, отделом исследований безопасности Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

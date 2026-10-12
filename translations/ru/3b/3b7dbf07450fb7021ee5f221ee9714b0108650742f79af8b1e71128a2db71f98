@@ -1,0 +1,185 @@
+.\"-
+.\" Copyright (c) 2016 Allan Jude
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path cddl/usr.sbin/zfsd/zfsd.8
+.\" FRDP githash c801836ff43deea3c86935abcad1069bfcd3989c
+.\" FRDP hash256 3b7dbf07450fb7021ee5f221ee9714b0108650742f79af8b1e71128a2db71f98
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 20, 2024
+.Dt ZFSD 8
+.Os
+.Sh ИМЯ
+.Nm zfsd
+.Nd демон управления сбоями ZFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Sh ОПИСАНИЕ
+.Nm
+пытается устранить сбои ZFS, которые ядро не может устранить самостоятельно.
+Он прослушивает события
+.Xr devctl 4
+, с помощью которых ядро уведомляет пользовательское пространство о таких событиях, как ошибки ввода-вывода и удаление дисков.
+.Nm
+пытается устранить эти сбои путём активации или деактивации горячих резервов и перевода отключённых vdev в состояние online.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Запуск на переднем плане вместо перехода в режим демона.
+.El
+.Pp
+Системные администраторы никогда не взаимодействуют с
+.Nm
+напрямую.
+Вместо этого они управляют его поведением косвенно через конфигурацию zpool.
+Есть два способа повлиять на
+.Nm :
+назначение горячих резервов и установка свойств пула.
+В настоящее время только свойство
+.Em autoreplace
+оказывает какое-либо действие.
+См.
+.Xr zpool 8
+для подробностей.
+.Pp
+.Nm
+будет пытаться устранить следующие типы сбоев:
+.Bl -tag -width a
+.It удаление устройства
+Когда листовой vdev исчезает,
+.Nm
+активирует любой доступный горячий резерв.
+.It появление устройства
+Когда появляется новое устройство GEOM,
+.Nm
+пытается прочитать его метку ZFS, если она есть.
+Если она совпадает с ранее удалённым vdev в активном пуле,
+.Nm
+переведёт его в состояние online.
+После завершения resilvering любой активный горячий резерв автоматически отсоединится.
+.Pp
+Если у нового устройства нет метки ZFS, но его физический путь совпадает с
+физическим путём ранее удалённого vdev в активном пуле, и в этом
+пуле установлено свойство autoreplace, то
+.Nm
+заменит отсутствующий vdev только что появившимся устройством.
+После завершения resilvering любой активный горячий резерв автоматически отсоединится.
+.It события деградации или сбоя vdev
+Если vdev переходит в состояние degraded или faulted,
+.Nm
+активирует любой доступный горячий резерв.
+.It ошибки ввода-вывода
+По умолчанию, если листовой vdev генерирует более 50 ошибок ввода-вывода за 60 секунд,
+.Nm
+помечает этот vdev как
+.Em FAULTED .
+ZFS больше не будет отправлять на него никакие операции ввода-вывода.
+.Nm
+активирует горячий резерв, если он доступен. Эти значения по умолчанию можно изменить,
+установив свойства vdev
+.Em io_n
+и/или
+.Em io_t .
+См.
+.Xr vdevprops 7
+для подробностей.
+.It задержки ввода-вывода
+По умолчанию, если листовой vdev генерирует более 8 задержанных событий ввода-вывода за 60
+секунд,
+.Nm
+помечает этот vdev как
+.Em FAULTED .
+ZFS больше не будет отправлять на него никакие операции ввода-вывода.
+.Nm
+активирует горячий резерв, если он доступен. Эти значения по умолчанию можно изменить,
+установив свойства vdev
+.Em slow_io_n
+и/или
+.Em slow_io_t .
+См.
+.Xr vdevprops 7
+для подробностей.
+.It ошибки контрольной суммы
+По умолчанию, если листовой vdev генерирует более 50 ошибок контрольной суммы за 60
+секунд,
+.Nm
+помечает этот vdev как
+.Em DEGRADED .
+ZFS всё ещё будет его использовать, но zfsd также активирует горячий резерв, если он
+доступен. Эти значения по умолчанию можно изменить, установив свойства vdev
+.Em checksum_n
+и/или
+.Em checksum_t .
+См.
+.Xr vdevprops 7
+для подробностей.
+.It добавление резерва
+Если системный администратор добавляет горячий резерв в пул, который уже деградирован,
+.Nm
+активирует этот резерв.
+.It завершение resilvering
+.Nm
+отсоединит любой горячий резерв, как только постоянная замена завершит resilvering.
+.It изменение физического пути
+Если физический путь существующего диска изменяется,
+.Nm
+попытается заменить любой отсутствующий диск с тем же физическим путём,
+если в его пуле установлено свойство autoreplace.
+.El
+.Pp
+.Nm
+будет записывать важные события и свои действия в syslog с категорией
+.Em daemon
+и идентификатором
+.Op zfsd .
+.Sh ФАЙЛЫ
+.Bl -tag -width a -compact
+.It Pa /var/db/zfsd/cases
+Когда
+.Nm
+завершает работу, он сериализует здесь все нерешённые case-файлы,
+а затем считывает их обратно при следующем запуске.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr devctl 4 ,
+.Xr vdevprops 7 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.Nm
+изначально был написан
+.An Justin Gibbs Aq Mt gibbs@FreeBSD.org
+и
+.An Alan Somers Aq Mt asomers@FreeBSD.org
+.Sh ЗАДАЧИ
+В будущем
+.Nm
+должен быть способен возобновить пул, который был приостановлен из-за
+удаления устройств, если вернулось достаточно отсутствующих устройств.

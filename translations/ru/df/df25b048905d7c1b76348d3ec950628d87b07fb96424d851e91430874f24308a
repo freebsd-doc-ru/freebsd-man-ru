@@ -1,0 +1,121 @@
+.\" Copyright (c) 2008 Nokia Corporation
+.\" All rights reserved.
+.\"
+.\" This software was developed by Attilio Rao for the IPSO project under
+.\" contract to Nokia Corporation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" This software is provided by the authors ``as is'' and
+.\" any express or implied warranties, including, but not limited to, the
+.\" implied warranties of merchantability and fitness for a particular purpose
+.\" are disclaimed.  in no event shall the authors be liable
+.\" for any direct, indirect, incidental, special, exemplary, or consequential
+.\" damages (including, but not limited to, procurement of substitute goods
+.\" or services; loss of use, data, or profits; or business interruption)
+.\" however caused and on any theory of liability, whether in contract, strict
+.\" liability, or tort (including negligence or otherwise) arising in any way
+.\" out of the use of this software, even if advised of the possibility of
+.\" such damage.
+.\"
+.\" FRDP path usr.sbin/pmcannotate/pmcannotate.8
+.\" FRDP githash de11299323e0a647ae2164f74ca966862e7c4dd8
+.\" FRDP hash256 df25b048905d7c1b76348d3ec950628d87b07fb96424d851e91430874f24308a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 14, 2025
+.Dt PMCANNOTATE 8
+.Os
+.Sh ИМЯ
+.Nm pmcannotate
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a
+.Op Fl h
+.Op Fl k Ar путь
+.Op Fl l Ar уровень
+.Op Fl m Ar режим
+.Ar pmcout.out binaryobj
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может создавать как исходные тексты C, так и исходные тексты программы на ассемблере
+с построчным профилированием.
+Информация профилирования извлекается из необработанного вывода
+.Xr pmcstat 8 ,
+а операции программы — с помощью инструмента
+.Xr objdump 1 .
+.Pp
+При вызове
+.Nm
+необработанный вывод передаётся через аргумент
+.Ar pmcout.out ,
+а программа — через аргумент
+.Ar binaryobj .
+.Pp
+Поскольку
+.Nm
+для работы полагается на
+.Xr objdump 1
+и
+.Xr pmcstat 8 ,
+она завершится ошибкой, если один из них недоступен.
+.Sh ОПЦИИ
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl a
+Показывает профилирование программы, встроенное только в код на ассемблере.
+Информация C, связанная с исходными текстами на C, не выводится.
+.It Fl h
+Выводит информацию об использовании инструмента.
+.It Fl l Ar уровень
+Изменяет нижнюю границу (в процентах) для трассируемых функций,
+которые будут выведены в отчёте.
+Значение по умолчанию — 0.5%.
+.It Fl k Ar каталог_ядра
+Устанавливает путь к каталогу ядра в значение аргумента
+.Ar каталог_ядра .
+Этот каталог указывает, где
+.Nm
+должен искать ядро и его модули.
+По умолчанию —
+.Pa /boot/kernel .
+.It Fl m Ar режим
+Формат, используемый при аннотировании строк исходного текста или ассемблера.
+Один из:
+.Bl -tag -width indent
+.It Cm block
+Показывает процент совпадающих выборок относительно выборок,
+попавших в текущий блок.
+.It Cm global
+Показывает процент совпадающих выборок относительно всех выборок.
+.It Cm raw
+Показывает необработанное количество совпадающих выборок.
+.El
+.El
+.Sh ОГРАНИЧЕНИЯ
+Поскольку
+.Nm
+полагается на утилиту
+.Xr objdump 1
+для извлечения кода C, программа должна быть скомпилирована с
+отладочными опциями.
+Иногда, в частности при высоких уровнях оптимизации, утилита
+.Xr objdump 1
+встраивает код встроенных функций непосредственно в вызывающие функции,
+из-за чего вывод становится трудночитаемым.
+Версия для x86 сообщает о выборке из pmcstat, собираемой по следующей
+инструкции относительно прерванной.
+Это означает, что выборки могут быть отнесены к строке ниже интересующей.
+.Sh СМ. ТАКЖЕ
+.Xr objdump 1 ,
+.Xr pmcstat 8
+.Sh АВТОРЫ
+.An Attilio Rao Aq Mt attilio@FreeBSD.org

@@ -1,0 +1,168 @@
+.\" Copyright (c) 2016 Michio Honda.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/valectl/valectl.8
+.\" FRDP githash a2f53837f0a8934cfcf7ba3c1fdfc93f217d3703
+.\" FRDP hash256 9a4dd0c30d2ebc03b45f7343679eac205e357df2e33f935c62a80e54f76f6831
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 30, 2024
+.Dt VALECTL 8
+.Os
+.Sh ИМЯ
+.Nm valectl
+.Nd управление сетевыми коммутаторами VALE, предоставляемыми netmap
+.Sh СИНТАКСИС
+.Bk -words
+.Nm
+.Op Fl g Ar valeSSS:PPP
+.Op Fl a Ar valeSSS:interface
+.Op Fl h Ar valeSSS:interface
+.Op Fl d Ar valeSSS:interface
+.Op Fl n Ar interface
+.Op Fl r Ar interface
+.Op Fl l Ar valeSSS:PPP
+.Op Fl l
+.Op Fl p Ar valeSSS:PPP
+.Op Fl P Ar valeSSS:PPP
+.Op Fl C Ar spec
+.Op Fl m Ar memid
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+управляет сетевыми коммутаторами
+.Xr vale 4
+и инспектирует их, например, подключает и отключает интерфейсы, создаёт
+и удаляет постоянные порты VALE или выводит список существующих коммутаторов
+и их портов.
+В дальнейшем
+.Ar valeSSS
+— это имя коммутатора VALE, а
+.Ar valeSSS:PPP
+— имя порта VALE коммутатора
+.Ar valeSSS .
+.Pp
+При запуске без параметров выводит список всех существующих портов коммутатора
+вместе с их внутренним номером моста и номером порта.
+.Bl -tag -width Ds
+.It Fl g Ar valeSSS:PPP
+Выводит количество колец приёма
+.Ar valeSSS:PPP .
+.It Fl a Ar valeSSS:interface
+Подключает
+.Ar interface
+(который должен быть существующим сетевым интерфейсом) к
+.Ar valeSSS
+и отключает его от стека хоста.
+.It Fl h Ar valeSSS:interface
+Подключает
+.Ar interface
+(который должен быть существующим сетевым интерфейсом) к
+.Ar valeSSS
+, сохраняя его подключённым к стеку хоста.
+Точнее, пакеты, приходящие из стека хоста и направленные к интерфейсу, будут
+проходить через коммутатор, где они всё ещё могут достичь интерфейса, если
+правила коммутатора это позволяют.
+И наоборот, пакеты, приходящие от интерфейса, будут проходить через коммутатор
+и, если это уместно, достигнут стека хоста.
+.It Fl d Ar valeSSS:interface
+Отключает
+.Ar interface
+от
+.Ar valeSSS .
+.It Fl n Ar interface
+Создаёт новый постоянный порт VALE с именем
+.Ar interface .
+Имя должно отличаться от любого другого сетевого интерфейса, уже
+присутствующего в системе.
+.It Fl r Ar interface
+Удаляет постоянный порт VALE с именем
+.Ar interface .
+.It Fl l Ar valeSSS:PPP
+Показывает внутренний номер моста и номер порта для указанного порта
+коммутатора.
+.It Fl p Ar valeSSS:PPP
+Включает режим опроса для
+.Ar valeSSS:PPP .
+В режиме опроса создаётся выделенный поток ядра для обработки пакетов,
+полученных от
+.Ar valeSSS:PPP ,
+и отправки их в коммутатор.
+Поток ядра выполняет активное ожидание на порту коммутатора, вместо того
+чтобы полагаться на прерывания или уведомления.
+Режим опроса можно использовать только на физических сетевых картах,
+подключённых к коммутатору VALE.
+.It Fl P Ar valeSSS:PPP
+Отключает режим опроса для
+.Ar valeSSS:PPP .
+.It Fl C Ar x | Ar x,y | Ar x,y,z | Ar x,y,z,w
+При использовании вместе с
+.Fl n
+задаёт количество колец и слотов передачи и приёма.
+Полный формат с четырьмя числами задаёт, в порядке следования, количество
+слотов передачи, количество слотов приёма, количество колец передачи и
+количество колец приёма.
+Форма с тремя числами использует
+.Ar z
+как для количества колец передачи, так и для количества колец приёма.
+Формы с менее чем двумя числами используют значения по умолчанию для
+количества колец.
+Форма с двумя числами задаёт количество слотов передачи и приёма.
+Форма только с одним числом использует
+.Ar x
+как для количества слотов передачи, так и для количества слотов приёма.
+.Pp
+При использовании вместе с
+.Fl p
+используются только первые три формы.
+Первое число может быть либо 0, либо 1.
+Если 0, то все кольца интерфейса будут опрашиваться одним потоком,
+работающим на ядре с идентификатором, заданным вторым числом (третье число,
+если оно присутствует, должно быть 1).
+Если первое число равно 1, то кольцо, идентифицируемое вторым числом, будет
+опрашиваться ядром с тем же идентификатором.
+Если задано третье число, то это повторяется для соответствующего числа
+последовательных колец и ядер.
+.It Fl m Ar memid
+Используется вместе с
+.Fl n
+и задаёт идентификатор области памяти netmap, который следует использовать
+вместе с только что созданным постоянным портом VALE.
+Эти порты по умолчанию используют приватную область памяти.
+С помощью этого параметра вы можете разрешить им совместно использовать
+память с другими портами.
+Передайте 1 как
+.Ar memid ,
+чтобы использовать глобальную область памяти, уже совместно используемую
+всеми аппаратными портами netmap.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr netmap 4 ,
+.Xr vale 4
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Michio Honda
+в NetApp.

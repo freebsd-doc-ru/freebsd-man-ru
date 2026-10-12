@@ -1,0 +1,146 @@
+.\" FreeBSD version Copyright (c) 1996
+.\"	Mike Pritchard <mpp@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Adapted from share/man/man8/man8.hp300/crash.8
+.\"
+.\" Copyright (c) 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man8/crash.8
+.\" FRDP githash c9868af774ec24bcf6914fc971378e9723eb44ab
+.\" FRDP hash256 df049993c01f99ff0fe4d3b68d13d35c33872d7a206a99c2d1b0fa2d8ab47d50
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2025
+.Dt CRASH 8
+.Os
+.Sh ИМЯ
+.Nm crash
+.Nd Сбои системы FreeBSD
+.Sh ОПИСАНИЕ
+В этом разделе немного рассказывается о системных сбоях
+и (очень кратко) о том, как анализировать аварийные дампы.
+.Pp
+Когда система аварийно завершает работу по собственной инициативе, она выводит сообщение вида
+.Bl -diag -offset indent
+.El
+.Pp
+на консоль, и, если дампы включены (см.
+.Xr dumpon 8 ) ,
+создаёт дамп на периферийном устройстве массового хранения,
+а затем запускает процедуру автоматической перезагрузки, как
+описано в
+.Xr reboot 8 .
+Если только не будет обнаружена какая-либо неожиданная несогласованность в состоянии
+файловых систем из-за отказа аппаратного или программного обеспечения, система
+затем возобновит многопользовательскую работу.
+.Pp
+В системе имеется большое число внутренних проверок целостности; если одна
+из них не проходит, система выдаёт панику с очень коротким сообщением, указывающим,
+какая именно проверка не прошла.
+Во многих случаях это будет имя процедуры, обнаружившей
+ошибку, или описание несогласованности из двух слов.
+Для полного понимания большинства сообщений о панике требуется изучение
+исходного кода системы.
+.Pp
+Наиболее распространённая причина системных сбоев — отказ аппаратного обеспечения, который
+может проявляться по-разному.
+Ниже приведены сообщения, которые
+наиболее вероятны, с некоторыми подсказками о причинах.
+Во всех случаях не указывается возможность того, что сообщение было вызвано
+аппаратной или программной ошибкой каким-либо неожиданным образом.
+.Pp
+.Bl -diag -compact
+.It Не удалось смонтировать <device>: ошибка <err>
+Системе не удалось смонтировать настроенную корневую файловую систему.
+Либо корневая файловая система повреждена,
+либо система пытается использовать в качестве корневой файловой системы неверное устройство.
+.Pp
+Это не сообщение о панике; после него появляется интерактивное
+.Sy mountroot>
+приглашение, где оператор может вывести список обнаруженных устройств и файловых систем
+и выбрать альтернативную корневую файловую систему для монтирования.
+В качестве альтернативы систему можно загрузить с носителя восстановления, чтобы исправить
+ситуацию.
+Установочный носитель системы предоставляет рабочую среду, подходящую
+для этой задачи.
+.Pp
+Это не сообщение о панике, поскольку перезагрузки, вероятно, будут бесполезны.
+Ближе к концу процедуры начальной загрузки система не смогла найти
+и выполнить процесс инициализации,
+.Xr init 8 .
+Корневая файловая система неверна или повреждена, либо режим
+или тип
+.Pa /sbin/init
+запрещает выполнение или полностью отсутствует.
+.Pp
+Эти сообщения о панике относятся к тем, которые могут возникать
+при обнаружении несогласованностей файловой системы.
+Проблема обычно является результатом неспособности восстановить повреждённые файловые системы
+после сбоя, отказов аппаратного обеспечения или другого состояния, которое в норме
+не должно возникать.
+Проверка файловой системы обычно исправляет проблему.
+.Pp
+Процесс инициализации системы завершился с указанным
+номером сигнала и кодом выхода.
+Это плохая новость, так как после этого ни один новый пользователь не сможет войти в систему.
+Перезагрузка — единственное исправление, поэтому
+система просто делает это сразу.
+.El
+.Pp
+На этом список типов паники, которые вы, вероятно, увидите, завершён.
+.Pp
+Если система настроена на создание аварийных дампов (см.
+.Xr dumpon 8 ) ,
+то при сбое она запишет (или, по крайней мере, попытается записать)
+образ памяти в конец устройства дампа,
+обычно совпадающего с основной областью
+подкачки.
+После перезагрузки системы программа
+.Xr savecore 8
+запускается и сохраняет копию этого образа памяти и текущей
+системы в указанном каталоге для последующего изучения.
+Подробности см. в
+.Xr savecore 8 .
+.Pp
+Чтобы проанализировать дамп, следует начать с запуска
+.Xr kgdb 1 Pq Pa ports/devel/gdb
+для образа загруженной системы и дампа ядра.
+Если образ ядра является результатом паники,
+выводится сообщение о панике.
+Для получения более подробной информации обратитесь к главе об отладке ядра в
+.Pq Pa https://www.freebsd.org/doc/en/books/developers-handbook/ .
+.Sh СМ. ТАКЖЕ
+.Xr kgdb 1 Pq Pa ports/devel/gdb ,
+.Xr dumpon 8 ,
+.Xr reboot 8 ,
+.Xr savecore 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 2.2 .

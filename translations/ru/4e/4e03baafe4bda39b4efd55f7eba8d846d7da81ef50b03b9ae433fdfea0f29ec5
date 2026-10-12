@@ -1,0 +1,97 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/tee/tee.1
+.\" FRDP githash 1b3748977f28c70e0b161fb476bf4e075bcc5940
+.\" FRDP hash256 4e03baafe4bda39b4efd55f7eba8d846d7da81ef50b03b9ae433fdfea0f29ec5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 25, 2024
+.Dt TEE 1
+.Os
+.Sh ИМЯ
+.Nm tee
+.Nd дублирует стандартный ввод
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ai
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует стандартный ввод в стандартный вывод,
+создавая копию в ноль или более файлов.
+Вывод не буферизуется.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Дописывать вывод в файлы, а не
+перезаписывать их.
+.It Fl i
+Игнорировать сигнал
+.Dv SIGINT .
+.El
+.Pp
+Доступны следующие операнды:
+.Bl -tag -width indent
+.It Ar file
+Путь к выходному
+.Ar file .
+.El
+.Pp
+Утилита
+.Nm
+выполняет действие по умолчанию для всех сигналов,
+за исключением случая, когда задан параметр
+.Fl i .
+.Pp
+Эта реализация утилиты
+.Nm
+также может писать в сокеты
+.Xr unix 4 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Отправить выведенное сообщение как в стандартный вывод, так и в файл
+.Pa greetings.txt :
+.Bd -literal -offset indent
+Hello
+.Ed
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+совместима с
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.At v7 .

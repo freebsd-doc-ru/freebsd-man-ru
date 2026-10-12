@@ -1,0 +1,318 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" "
+.\" FRDP path usr.sbin/lpr/lpr/lpr.1
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 543f7d41076794dce96b07dffe97f09575c5c0f547e753396e647cd8eebeb38c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 1993
+.Dt LPR 1
+.Os
+.Sh ИМЯ
+.Nm lpr
+.Nd автономная печать
+.Sh СИНТАКСИС
+.Nm
+.Op Fl P Ns Ar принтер
+.Op Fl \&# Ns Ar число
+.Op Fl C Ar класс
+.Op Fl J Ar задание
+.Op Fl L Ar локаль
+.Op Fl T Ar заголовок
+.Op Fl U Ar пользователь
+.Op Fl Z Ar параметры-демона
+.Op Fl i Ar число_колонок
+.Op Fl 1234 Ar шрифт
+.Op Fl w Ar число
+.Op Fl cdfghlnmprstv
+.Op Ar имя ...
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕНИИ
+Это средство запланировано к удалению до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+использует демон спулинга для печати указанных файлов, когда
+появятся возможности.
+Если имена не указаны, предполагается стандартный ввод.
+.Pp
+Следующие однобуквенные параметры используются, чтобы уведомить спулер
+построчного принтера о том, что файлы не являются стандартными текстовыми файлами.
+Демон спулинга будет
+использовать соответствующие фильтры для печати данных.
+Заметьте, что не все спулеры реализуют фильтры для всех типов данных,
+и некоторые сайты могут использовать эти типы для других целей, чем
+описанные здесь.
+.Bl -tag -width indent
+.It Fl d
+Предполагается, что файлы содержат данные в формате
+.Tn DVI
+из системы вёрстки
+.Tn TeX .
+.It Fl f
+Использовать фильтр, который интерпретирует первый символ каждой строки как
+стандартный
+.Tn FORTRAN
+символ управления кареткой.
+.It Fl l
+Использовать фильтр, который позволяет печатать управляющие символы и подавляет
+разрывы страниц.
+.It Fl p
+Использовать
+.Xr pr 1
+для форматирования файлов.
+.El
+.Pp
+Следующие параметры являются историческими и напрямую не поддерживаются
+никаким программным обеспечением, включённым в
+.Fx .
+.Bl -tag -width indent
+.It Fl c
+Предполагается, что файлы содержат данные, созданные
+.Xr cifplot 1 .
+.It Fl g
+Предполагается, что файлы содержат стандартные данные графиков, созданные
+.Ux
+.Xr plot 3
+подпрограммами.
+.It Fl n
+Предполагается, что файлы содержат данные от
+.Em ditroff
+(независимый от устройства troff).
+.It Fl t
+Предполагается, что файлы содержат
+.Tn C/A/T
+команды фотонаборного автомата из древних версий
+.Ux
+.Xr troff 1 Pq Pa ports/textproc/groff .
+.It Fl v
+Предполагается, что файлы содержат растровое изображение для устройств типа
+Benson Variant.
+.El
+.Pp
+Эти параметры относятся к обработке
+задания печати:
+.Bl -tag -width indent
+.It Fl P
+Принудительно выводить на определённый принтер.
+Обычно
+используется принтер по умолчанию (зависит от сайта) или значение
+переменной окружения
+.Ev PRINTER .
+.It Fl h
+Подавить печать разделительной страницы.
+.It Fl m
+Отправить почту по завершении.
+.It Fl r
+Удалить файл по завершении спулинга или по завершении
+печати (с параметром
+.Fl s ).
+.It Fl s
+Использовать символические ссылки.
+Обычно файлы копируются в каталог спулинга.
+Параметр
+.Fl s
+будет использовать
+.Xr symlink 2
+для связывания файлов данных вместо попытки их копирования, чтобы можно было печатать большие файлы.
+Это означает, что файлы не следует
+изменять или удалять до тех пор, пока они не будут напечатаны.
+.El
+.Pp
+Остальные параметры относятся к копиям, отображению страниц и заголовкам:
+.Bl -tag -width indent
+.It Fl \&# Ns Ar число
+Величина
+.Ar число
+— это количество копий, желаемых для каждого указанного файла.
+Например,
+.Bd -literal -offset indent
+lpr \-#3 foo.c bar.c more.c
+.Ed
+приведёт к 3 копиям файла foo.c, затем 3 копиям
+файла bar.c и т.д.
+С другой стороны,
+.Bd -literal -offset indent
+cat foo.c bar.c more.c \&| lpr \-#3
+.Ed
+.Pp
+даст три копии объединения файлов.
+Часто
+сайт отключает эту возможность, чтобы поощрить использование копировального аппарата
+вместо этого.
+.It Xo
+.Fl Ns Op Cm 1234
+.Ar шрифт
+.Xc
+Указывает
+.Ar шрифт
+для монтирования на позиции шрифта
+.Ar i .
+Демон
+создаст файл
+.Li .railmag
+ссылающийся на
+путь к шрифту.
+.It Fl C Ar класс
+Классификация задания
+для использования на разделительной странице.
+Например,
+.Bd -literal -offset indent
+lpr \-C EECS foo.c
+.Ed
+.Pp
+приводит к замене системного имени (имени, возвращаемого
+.Xr hostname 1 )
+на разделительной странице на
+.Tn EECS ,
+и файл foo.c будет напечатан.
+.It Fl J Ar задание
+Имя задания для печати на разделительной странице.
+Обычно используется имя первого файла.
+.It Fl L Ar локаль
+Использовать
+.Ar локаль
+указанную в качестве аргумента, вместо найденной в окружении.
+(Действует только когда фильтрация через
+.Xr pr 1
+запрошена с использованием параметра
+.Fl p .)
+.It Fl T Ar заголовок
+Имя заголовка для
+.Xr pr 1 ,
+вместо имени файла.
+.It Fl U Ar пользователь
+Имя пользователя для печати на разделительной странице,
+также для целей учёта.
+Этот параметр учитывается, только если реальный идентификатор пользователя — daemon
+(или указанный в файле printcap вместо daemon),
+и предназначен для случаев, когда фильтры печати хотят повторно поставить задания в очередь.
+.It Fl Z Ar параметры-демона
+Некоторые спулеры, такие как
+.Tn LPRng ,
+принимают дополнительные параметры для каждого задания с помощью
+.Ql Z
+управляющей строки.
+Когда
+.Fl Z
+указан и
+.Fl p
+.Pq Xr pr 1
+не запрошен, указанные
+.Ar параметры-демона
+будут переданы удалённому
+.Tn LPRng
+спулеру.
+.It Fl i Ar число_колонок
+Вывод имеет отступ в
+.Pq Ar число_колонок .
+.It Fl w Ar число
+Использует
+.Ar число
+как ширину страницы для
+.Xr pr 1 .
+.El
+.Sh ОКРУЖЕНИЕ
+Если существует следующая переменная окружения, она используется
+.Nm :
+.Bl -tag -width PRINTER
+.It Ev PRINTER
+Указывает альтернативный принтер по умолчанию.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/spool/output/*/tf* -compact
+.It Pa /etc/passwd
+Персональная идентификация.
+.It Pa /etc/printcap
+База данных возможностей принтера.
+.It Pa /usr/sbin/lpd
+Демоны построчного принтера.
+.It Pa /var/spool/output/*
+Каталоги, используемые для спулинга.
+.It Pa /var/spool/output/*/cf*
+Управляющие файлы демона.
+.It Pa /var/spool/output/*/df*
+.It Pa /var/spool/output/*/tf*
+.El
+.Sh ДИАГНОСТИКА
+Если вы попытаетесь спулировать слишком большой файл, он будет усечён.
+Утилита
+.Nm
+будет возражать против печати двоичных файлов.
+Если пользователь, отличный от root, печатает файл, а спулинг отключён,
+.Nm
+выведет соответствующее сообщение и не поместит задания в очередь.
+Если соединение с
+.Xr lpd 8
+на локальной машине не может быть установлено,
+.Nm
+скажет, что демон не может быть запущен.
+Диагностика может быть напечатана в файле журнала демона
+относительно отсутствующих файлов спулинга с помощью
+.Xr lpd 8 .
+.Sh СМ. ТАКЖЕ
+.Xr lpq 1 ,
+.Xr lprm 1 ,
+.Xr pr 1 ,
+.Xr symlink 2 ,
+.Xr printcap 5 ,
+.Xr lpc 8 ,
+.Xr lpd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Шрифты для
+.Xr troff 1 Pq Pa ports/textproc/groff
+и
+.Tn TeX
+находятся на хосте вместе с принтером.
+В настоящее время невозможно
+использовать локальные библиотеки шрифтов.
+.Pp
+Строка управляющего файла
+.Ql Z
+используется для двух разных целей; для
+стандартного
+.Fx
+.Xr lpd 8 ,
+она указывает локаль, которая будет передана
+.Xr pr 1 .
+Для
+.Tn LPRng
+.Xr lpd 8 ,
+она указывает дополнительные параметры, которые будут интерпретированы входными и выходными фильтрами спулера.
+При отправке заданий через
+.Nm ,
+.Fl p
+.Fl L Ar локаль
+используется в первом контексте, а
+.Fl Z Ar параметры-демона
+используется во втором.

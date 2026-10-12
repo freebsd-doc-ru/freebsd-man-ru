@@ -1,0 +1,165 @@
+.\" Copyright (c) 2001,2003 Networks Associates Technology, Inc.
+.\" Copyright (c) 2017-2019 Dag-Erling Smørgrav
+.\" Copyright (c) 2018 Thomas Munro
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_exec/pam_exec.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 b5c6b94d0097012802a7eb327357dab7ced03b167c8e3bd741b71041ae31daf7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 24, 2019
+.Dt PAM_EXEC 8
+.Os
+.Sh ИМЯ
+.Nm pam_exec
+.Nd Модуль PAM exec
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_exec
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Служебный модуль exec для PAM выполняет программу, заданную своим первым аргументом, если параметры не указаны, а остальные аргументы передаёт ей как аргументы командной строки.
+Если параметры указаны, программа и её аргументы следуют после последнего параметра или
+.Cm --
+если имя программы совпадает с именем параметра.
+.Pp
+Перед программой и её аргументами можно передать следующие параметры:
+.Bl -tag -width indent
+.It Cm capture_stderr
+Захватывать текст, выводимый программой в поток стандартных ошибок, и передавать его в функцию диалога как сообщения об ошибках.
+Буферизация текста не выполняется, поэтому результаты могут различаться.
+.It Cm capture_stdout
+Захватывать текст, выводимый программой в поток стандартного вывода, и передавать его в функцию диалога как информационные сообщения.
+Буферизация текста не выполняется, поэтому результаты могут различаться.
+.It Cm debug
+Игнорируется по соображениям совместимости.
+.It Cm no_warn
+Игнорируется по соображениям совместимости.
+.It Cm return_prog_exit_status
+Использовать статус выхода программы в качестве кода возврата функции pam_sm_*.
+Он должен быть допустимым возвращаемым значением для этой функции.
+.It Cm expose_authtok
+Записать маркер аутентификации в стандартный поток ввода программы, после чего записать символ NUL.
+Игнорируется для
+.Fn pam_sm_setcred .
+.It Cm use_first_pass
+Если
+.Cm expose_authtok
+был указан, не запрашивать маркер аутентификации, если он ещё не доступен.
+.It Cm --
+Прекратить разбор параметров;
+далее следуют программа и её аргументы.
+.El
+.Pp
+Окружение дочернего процесса устанавливается в текущий список окружения PAM,
+возвращаемый
+.Xr pam_getenvlist 3 .
+Кроме того, следующие элементы PAM экспортируются как переменные
+окружения:
+.Ev PAM_RHOST ,
+.Ev PAM_RUSER ,
+.Ev PAM_SERVICE ,
+.Ev PAM_SM_FUNC ,
+.Ev PAM_TTY
+и
+.Ev PAM_USER .
+.Pp
+Переменная
+.Ev PAM_SM_FUNC
+содержит имя вызываемой функции служебного модуля PAM.
+Она может быть:
+.Bl -dash -offset indent -compact
+.It
+pam_sm_acct_mgmt
+.It
+pam_sm_authenticate
+.It
+pam_sm_chauthtok
+.It
+pam_sm_close_session
+.It
+pam_sm_open_session
+.It
+pam_sm_setcred
+.El
+.Pp
+Если
+.Cm return_prog_exit_status
+не задан (по умолчанию), функция
+.Ev PAM_SM_FUNC
+возвращает
+.Er PAM_SUCCESS ,
+если статус выхода программы равен 0,
+.Er PAM_PERM_DENIED
+в противном случае.
+.Pp
+Если
+.Cm return_prog_exit_status
+задан, используется статус выхода программы.
+Он должен быть
+.Er PAM_SUCCESS
+или одним из кодов ошибок, допустимых для вызывающей
+.Ev PAM_SM_FUNC
+функции.
+Допустимые коды описаны на страницах руководства каждой функции.
+Если статус выхода не является допустимым кодом возврата,
+возвращается
+.Er PAM_SERVICE_ERR .
+Числовое значение каждого допустимого кода доступно как переменная
+окружения
+(например,\&
+.Ev PAM_SUCESS ,
+.Ev PAM_USER_UNKNOWN ,
+и т.д.).
+Это полезно, например, в shell-скриптах.
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam_get_item 3 ,
+.Xr pam_sm_acct_mgmt 3 ,
+.Xr pam_sm_authenticate 3 ,
+.Xr pam_sm_chauthtok 3 ,
+.Xr pam_sm_close_session 3 ,
+.Xr pam_sm_open_session 3 ,
+.Xr pam_sm_setcred 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были разработаны для проекта
+.Fx
+компаниями ThinkSec AS и NAI Labs, подразделением Security Research Division компании Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

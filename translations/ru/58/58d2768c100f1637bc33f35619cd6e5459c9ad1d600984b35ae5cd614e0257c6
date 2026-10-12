@@ -1,0 +1,100 @@
+.\" Copyright (c) 2003 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_guest/pam_guest.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 58d2768c100f1637bc33f35619cd6e5459c9ad1d600984b35ae5cd614e0257c6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2003
+.Dt PAM_GUEST 8
+.Os
+.Sh ИМЯ
+.Nm pam_guest
+.Nd Гостевой модуль PAM
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_guest
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Гостевой модуль службы PAM позволяет выполнять гостевой вход.
+В случае успеха модуль
+.Nm
+устанавливает значение переменной окружения PAM
+.Ev GUEST
+равным имени входа.
+Приложение может с помощью
+.Xr pam_getenv 3
+проверить эту переменную, чтобы отличать гостевые входы от обычных входов.
+.Pp
+Модулю
+.Nm
+можно передать следующие параметры:
+.Bl -tag -width ".Cm pass_is_user"
+.It Cm guests Ns = Ns Ar список
+Разделённый запятыми список имён гостевых учётных записей.
+По умолчанию используется
+.Dq Li guest .
+Типичным значением для
+.Xr ftpd 8
+будет
+.Dq Li anonymous,ftp .
+.It Cm nopass
+Пропускает запрос пароля, если целевая учётная запись входит в список
+гостевых учётных записей.
+.It Cm pass_as_ruser
+Пароль, введённый пользователем, экспортируется как элемент
+.Dv PAM_RUSER .
+Это полезно для таких приложений, как
+.Xr ftpd 8 ,
+где гостевым пользователям рекомендуется использовать свой адрес
+электронной почты в качестве пароля.
+.It Cm pass_is_user
+Требует, чтобы гостевой пользователь ввёл имя гостевой учётной записи в качестве пароля.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam_get_item 3 ,
+.Xr pam_getenv 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были разработаны для проекта
+.Fx
+компанией
+ThinkSec AS и NAI Labs, отделом исследований безопасности Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

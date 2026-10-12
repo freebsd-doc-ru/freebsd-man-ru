@@ -1,0 +1,96 @@
+.\"	$NetBSD: asa.1,v 1.11 2002/02/08 01:36:18 ross Exp $
+.\"
+.\" Copyright (c) 1993 Winning Strategies, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed by Winning Strategies, Inc.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/asa/asa.1
+.\" FRDP githash 58d9d2f8daef8f646372efd6e87a7d4f5e05656b
+.\" FRDP hash256 c72e850cad5e0de39d471473d820477639adfffc97e573cb29a59ecc76b367fb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 9, 2002
+.Dt ASA 1
+.Os
+.Sh ИМЯ
+.Nm asa
+.Nd интерпретировать управляющие символы каретки
+.Sh СИНТАКСИС
+.Nm
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+последовательно читает файлы, отображая управляющие символы каретки
+.Tn FORTRAN
+в управляющие последовательности построчного принтера
+и записывает их в стандартный вывод.
+.Pp
+Первый символ каждой строки интерпретируется как управляющий символ
+каретки.
+Следующие символы интерпретируются следующим образом:
+.Bl -tag -width "Aq space"
+.It Aq space
+Вывести остаток строки без изменений.
+.It 0
+Вывести символ
+.Aq newline
+перед печатью остатка строки.
+.It 1
+Вывести символ
+.Aq formfeed
+перед печатью остатка строки.
+.It \&+
+Завершающий символ
+.Aq newline
+предыдущей строки заменяется на
+.Aq carriage-return
+перед печатью остатка строки.
+.El
+.Pp
+Строки, начинающиеся с символов, отличных от перечисленных выше,
+обрабатываются так, как если бы они начинались с
+.Aq space .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы просмотреть файл, содержащий вывод программы
+.Tn FORTRAN:
+.Pp
+.Pp
+Чтобы отформатировать вывод программы
+.Tn FORTRAN
+и перенаправить его на построчный принтер:
+.Pp
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh АВТОРЫ
+.An J.T. Conklin ,
+Winning Strategies, Inc.

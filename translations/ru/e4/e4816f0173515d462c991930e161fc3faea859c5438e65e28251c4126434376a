@@ -1,0 +1,328 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2005 Sam Leffler <sam@errno.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/wpa_cli/wpa_cli.8
+.\" FRDP githash 18a27dd64129f4b11ba458065bb5bb883f6b4c6e
+.\" FRDP hash256 e4816f0173515d462c991930e161fc3faea859c5438e65e28251c4126434376a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 21, 2024
+.Dt WPA_CLI 8
+.Os
+.Sh ИМЯ
+.Nm wpa_cli
+.Nd консольная утилита для аутентификации в WiFi с wpa_supplicant
+.Sh СИНТАКСИС
+.Nm wpa_cli
+.Op Fl p Ar путь_к_управляющим_сокетам
+.Op Fl i Ar имя_интерфейса
+.Op Fl hvB
+.Op Fl a Ar файл_действий
+.Op Fl P Ar файл_PID
+.Op Fl g Ar глобальный_интерфейс_управления
+.Op Fl G Ar интервал_ping
+.Ar команда ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является текстовой интерфейсной программой для взаимодействия с
+.Xr wpa_supplicant 8 .
+Она используется для запроса текущего состояния,
+изменения конфигурации,
+инициирования событий
+и
+запроса интерактивного ввода пользователя.
+.Pp
+Утилита
+.Nm
+может показывать
+текущее состояние аутентификации,
+выбранный режим безопасности, MIB-объекты dot11 и dot1x и т. д.
+Кроме того,
+.Nm
+может настраивать параметры машины состояний EAPOL
+и инициировать такие события, как повторная ассоциация
+и выход/вход IEEE 802.1X.
+.Pp
+Утилита
+.Nm
+предоставляет интерфейс для передачи информации аутентификации,
+такой как имя пользователя и пароль, когда она не указана в
+файле конфигурации
+.Xr wpa_supplicant.conf 5 .
+Это можно использовать, например, для реализации
+одноразовых паролей или аутентификации с помощью карты универсального токена,
+где аутентификация основана на
+запросе-ответе, использующем внешнее устройство для генерации
+ответа.
+.Pp
+Утилита
+.Nm
+поддерживает два режима: интерактивный и командной строки.
+Оба режима используют один и тот же набор команд, а главное различие
+состоит в том, что интерактивный режим предоставляет доступ к незапрашиваемым сообщениям
+(сообщениям событий, запросам имени пользователя/пароля).
+.Pp
+Интерактивный режим запускается, когда
+.Nm
+выполняется без параметров в командной строке.
+Затем команды вводятся с управляющего терминала в ответ на
+приглашение
+.Nm .
+В режиме командной строки те же команды
+вводятся как аргументы командной строки.
+.Pp
+Интерфейс управления
+.Xr wpa_supplicant 8
+можно настроить так, чтобы разрешить доступ пользователю без прав root, используя
+параметр
+.Va ctrl_interface_group
+в
+файле конфигурации
+.Xr wpa_supplicant.conf 5 .
+Это позволяет запускать
+.Nm
+под обычной учётной записью пользователя.
+.Sh ПАРАМЕТРЫ АУТЕНТИФИКАЦИИ
+Когда
+.Xr wpa_supplicant 8
+требуются параметры аутентификации, такие как имя пользователя и пароль,
+отсутствующие в файле конфигурации, он отправляет
+сообщение-запрос всем подключённым интерфейсным программам, например,
+.Nm
+в интерактивном режиме.
+Утилита
+.Nm
+показывает эти запросы с префиксом
+.Dq Li CTRL-REQ- Ns Ao Ar тип Ac Ns Li - Ns Ao Ar id Ac : Ns Aq Ar текст
+, где
+.Aq Ar тип
+— это
+.Li IDENTITY , PASSWORD
+или
+.Li OTP
+(одноразовый пароль),
+.Aq Ar id
+— уникальный идентификатор текущей сети,
+.Aq Ar текст
+— описание запроса.
+В случае запроса
+.Li OTP
+(одноразовый пароль)
+он включает запрос от сервера аутентификации.
+.Pp
+Пользователь должен предоставить
+.Xr wpa_supplicant 8
+необходимые параметры в ответ на эти запросы.
+.Pp
+Например,
+.Bd -literal -offset indent
+CTRL-REQ-PASSWORD-1:Требуется пароль для SSID foobar
+> password 1 mysecretpassword
+
+Пример запроса для аутентификации по схеме запрос-ответ с картой универсального токена:
+
+CTRL-REQ-OTP-2:Требуется запрос 1235663 для SSID foobar
+> otp 2 9876
+.Ed
+.Sh ПАРАМЕТРЫ
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl p Ar путь
+Путь к управляющим сокетам.
+Он должен совпадать с
+.Ic ctrl_interface
+в
+.Xr wpa_supplicant.conf 5 .
+Путь по умолчанию:
+.Pa /var/run/wpa_supplicant .
+.It Fl i Ar имя_интерфейса
+Интерфейс для настройки.
+По умолчанию используется первый интерфейс, найденный по пути к сокетам.
+.It Fl h
+Показать справку.
+.It Fl v
+Показать информацию о версии.
+.It Fl B
+Запустить демон в фоновом режиме.
+.It Fl a Ar файл_действий
+Запустить в режиме демона, выполняя файл действий на основе событий от
+.Xr wpa_supplicant 8 .
+.It Fl P Ar файл_PID
+Расположение файла PID.
+.It Fl g Ar глобальный_интерфейс_управления
+Использовать глобальный интерфейс управления для
+.Xr wpa_supplicant 8
+вместо стандартных доменных сокетов Unix.
+.It Fl G Ar интервал_ping
+Ждать
+.Dq интервал_ping
+секунд перед отправкой каждого ping-запроса
+.Xr wpa_supplicant 8 .
+См. команду
+.Ic ping .
+.It команда
+См. доступные команды в следующем разделе.
+.El
+.Sh КОМАНДЫ
+Эти команды можно подавать в командной строке
+или в приглашении при работе в интерактивном режиме.
+.Bl -tag -width indent
+.It Ic status
+Сообщить текущее состояние WPA/EAPOL/EAP для текущего интерфейса.
+.It Ic ifname
+Показать текущее имя интерфейса.
+Интерфейс по умолчанию — первый интерфейс, найденный по пути к сокетам.
+.It Ic ping
+Отправить ping-запрос утилите
+.Xr wpa_supplicant 8 .
+Эту команду можно использовать для проверки состояния
+демона
+.Xr wpa_supplicant 8 .
+.It Ic mib
+Сообщить переменные MIB (dot1x, dot11) для текущего интерфейса.
+.It Ic help
+Показать справку по использованию.
+.It Ic interface Op Ar имя_интерфейса
+Показать доступные интерфейсы и/или задать текущий интерфейс,
+когда доступно несколько интерфейсов.
+.It Ic level Ar уровень_отладки
+Изменить уровень отладки в
+.Xr wpa_supplicant 8 .
+Большие числа генерируют больше сообщений.
+.It Ic license
+Показать полную лицензию для
+.Nm .
+.It Ic logoff
+Перевести машину состояний IEEE 802.1X EAPOL в состояние
+.Dq logoff .
+.It Ic logon
+Перевести машину состояний IEEE 802.1X EAPOL в состояние
+.Dq logon .
+.It Ic set Op Ar настройки
+Задать переменные.
+Если аргументы не указаны, отображаются известные переменные и их значения.
+.It Ic pmksa
+Показать содержимое кэша PMKSA.
+.It Ic reassociate
+Принудительно выполнить повторную ассоциацию с текущей точкой доступа.
+.It Ic reconfigure
+Заставить
+.Xr wpa_supplicant 8
+перечитать свой файл конфигурации.
+.It Ic preauthenticate Ar BSSID
+Принудительно выполнить предварительную аутентификацию указанного
+.Ar BSSID .
+.It Ic identity Ar идентификатор_сети идентификатор
+Настроить идентификатор для SSID.
+.It Ic password Ar идентификатор_сети пароль
+Настроить пароль для SSID.
+.It Ic new_password Ar идентификатор_сети пароль
+Изменить пароль для SSID.
+.It Ic PIN Ar идентификатор_сети PIN
+Настроить PIN для SSID.
+.It Ic passphrase Ar идентификатор_сети парольная_фраза
+Настроить парольную фразу закрытого ключа для SSID.
+.It Ic bssid Ar идентификатор_сети BSSID
+Задать предпочитаемый BSSID для SSID
+.It Ic blacklist Op Ar BSSID | clear
+Добавить BSSID в чёрный список.
+При вызове без дополнительных аргументов отобразить чёрный список.
+Указание
+.Ar clear
+заставляет
+.Nm
+очистить чёрный список.
+.It Ic list_networks
+Показать список настроенных сетей.
+.It Ic select_network Ar идентификатор_сети
+Выбрать сеть и отключить остальные.
+.It Ic enable_network Ar идентификатор_сети
+Включить сеть.
+.It Ic disable_network Ar идентификатор_сети
+Отключить сеть.
+.It Ic add_network
+Добавить сеть.
+.It Ic remove_network Ar идентификатор_сети
+Удалить сеть.
+.It Ic set_network Op Ar идентификатор_сети переменная значение
+Задать переменные сети.
+Показывает список переменных при запуске без аргументов.
+.It Ic get_network Ar идентификатор_сети переменная
+Получить переменные сети.
+.It Ic disconnect
+Отключиться и ждать команды reassociate/reconnect перед подключением.
+.It Ic reconnect
+Аналогично
+.Ic reassociate ,
+но действует только если уже отключено.
+.It Ic scan
+Запросить новое сканирование BSS.
+.It Ic scan_results
+Получить последние результаты сканирования BSS.
+Эту команду можно вызвать после запуска сканирования BSS с помощью
+.Ic scan .
+.It Ic bss Op Ar idx | bssid
+Получить подробный результат сканирования BSS для сети, идентифицированной по
+.Dq bssid
+или
+.Dq idx .
+.It Ic otp Ar идентификатор_сети пароль
+Настроить одноразовый пароль для SSID.
+.It Ic terminate
+Заставить
+.Xr wpa_supplicant 8
+завершиться.
+.It Ic interface_add Ar имя_интерфейса Op Ar имя_конфигурации драйвер интерфейс_управления параметр_драйвера имя_моста
+Добавить новый интерфейс с заданными параметрами.
+.It Ic interface_remove Ar имя_интерфейса
+Удалить интерфейс.
+.It Ic interface_list
+Показать доступные интерфейсы.
+.It Ic quit
+Выйти из
+.Nm .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr wpa_supplicant.conf 5 ,
+.Xr wpa_supplicant 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Jouni Malinen Aq Mt j@w1.fi .
+Эта страница руководства основана на файлах
+.Pa README
+и
+.Pa wpa_cli.c ,
+входящих в дистрибутив
+.Nm wpa_supplicant .

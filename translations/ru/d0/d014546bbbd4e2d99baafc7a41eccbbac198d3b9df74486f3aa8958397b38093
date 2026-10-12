@@ -1,0 +1,245 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/config.lua.8
+.\" FRDP githash 6f14b6025a6f6475522697362aaf6c84514b85bf
+.\" FRDP hash256 d014546bbbd4e2d99baafc7a41eccbbac198d3b9df74486f3aa8958397b38093
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt CONFIG.LUA 8
+.Os
+.Sh ИМЯ
+.Nm config.lua
+.Nd модуль конфигурации загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность конфигурации и загрузки модулей.
+.Pp
+Прежде чем подключаться к функциональности, предоставляемой
+.Nm ,
+или использовать её, его необходимо включить с помощью инструкции, подобной следующей:
+.Pp
+.Ss Экспортируемые функции
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width indent
+.It Fn config.getCarouselIndex id
+Возвращает текущий выбранный индекс в элементе меню карусели, описываемом
+.Ev id .
+См. определение
+.Xr menu.lua 8
+для более подробного объяснения каруселей.
+.It Fn config.setCarouselIndex id idx
+Устанавливает выбранный индекс для элемента меню карусели, описываемого
+.Ev id ,
+в
+.Ev idx .
+При необходимости будет выполнен поиск, чтобы определить, какому значению
+.Ev idx
+фактически соответствует.
+.It Fn config.readConf file loaded_files
+Обрабатывает
+.Pa file
+как файл конфигурации
+.Po например, как
+.Pa loader.conf
+.Pc
+и затем обрабатывает файлы, перечисленные в переменной
+.Ev loader_conf_files .
+Кроме того, вызов readConf верхнего уровня обработает файлы, перечисленные в переменных
+.Ev loader_conf_dirs
+и
+.Ev local_loader_conf_files
+.Po см.
+.Xr loader.conf 5
+.Pc .
+Вызывающий может при необходимости передать таблицу в качестве аргумента
+.Ev loaded_files ,
+в которой имена файлов используются как ключи, а любое значение, отличное от nil,
+указывает, что файл, названный ключом, уже был загружен и
+не должен загружаться снова.
+.It Fn config.processFile name silent
+Обрабатывает и разбирает
+.Ev name
+как файл конфигурации.
+Возвращает true, если
+.Ev name
+существует и разбирается без ошибок, и false в противном случае.
+Если
+.Ev silent
+имеет значение true,
+.Fn config.processFile
+не будет считать неудачное чтение файла ошибкой.
+.It Fn config.parse text
+Разбирает
+.Ev text
+как файл конфигурации.
+Это используется внутренне в
+.Fn config.processFile
+для разбора содержимого файла конфигурации.
+Возвращает true, если разбор завершается без ошибок, и false, если произошла ошибка.
+Если встречается ошибка, также выводится сообщение на консоль.
+.It Fn config.loadKernel other_kernel
+Пытается загрузить
+.Ev other_kernel
+как ядро.
+Если
+.Ev other_kernel
+не установлена,
+.Fn config.loadKernel
+попытается загрузить
+.Dq kernel .
+В противном случае он попытается загрузить
+.Dq kernel
+сначала из
+.Pa /boot/{other_kernel} ,
+затем из
+.Pa {other_kernel} .
+.Pp
+Последний путь пробуется в случае, если был указан абсолютный путь к используемому ядру.
+.Ev module_path
+дополняется каталогом, в котором было найдено ядро, если любой из этих
+путей приводит к загруженному ядру.
+.Pp
+Если ни по одному из этих путей не было загружено ядро,
+.Fn config.loadKernel
+попытается загрузить ядро с именем
+.Dq {other_kernel}
+из
+.Ev module_path
+вместо попытки загрузить ядро с именем
+.Dq kernel .
+.Pp
+Возвращает true, если ядро было загружено, и false, если ни одно ядро не было загружено.
+.It Fn config.selectKernel kernel
+Устанавливает
+.Ev kernel
+в ядро, которое будет загружено при вызове либо
+.Ic autoboot ,
+либо
+.Ic boot .
+Обычно вызывается системой меню при переключении карусели выбора ядра.
+.It Fn config.load file reload
+Загружает
+.Ev file
+как файл конфигурации.
+Если
+.Ev file
+не указан,
+.Pa /boot/defaults/loader.conf
+используется.
+.Fn config.load
+затем молча попытается обработать любые файлы, указанные в
+.Ev loader_conf_files
+после того как
+.Ev file
+был обработан.
+Конфигурация
+.Xr nextboot 8
+также будет проверена в рамках
+.Fn config.load .
+Перед возвратом будут выполнены все хуки
+.Dq config.loaded ,
+если
+.Ev reload
+не имеет значения true.
+.It Fn config.reload file
+Перезагружает
+.Ev file
+как файл конфигурации.
+.Fn config.reload
+восстановит окружение до состояния, которое было перед загрузкой последней конфигурации,
+затем вызовет
+.Fn config.load file .
+Перед возвратом будут выполнены все хуки
+.Dq config.reloaded .
+.It Fn config.loadelf
+Загружает все ELF-объекты, выбранное ядро, а также любые модули, настроенные на
+предварительную загрузку в
+.Xr loader.conf 5 .
+Это будет вызываться перехваченными Lua командами
+.Ic autoboot
+и
+.Ic boot .
+.It Fn config.enableModule modname
+Помечает модуль с именем
+.Fa modname
+для загрузки во время
+.Fn config.loadelf .
+Если модуль ранее был в чёрном списке, ему будет принудительно разрешено
+загружаться.
+.It Fn config.disableModule modname
+Помечает модуль с именем
+.Fa modname
+как не подлежащий загрузке во время
+.Fn config.loadelf .
+.It Fn config.isModuleEnabled modname
+Проверяет, будет ли модуль с именем
+.Fa modname
+загружен во время
+.Fn config.loadelf .
+Проверяет как то, что модуль помечен для загрузки, так и то, что он либо
+принудительно разрешён, либо не находится в чёрном списке.
+.It Fn config.getModuleInfo
+Возвращает таблицу, содержащую таблицы
+.Dq modules
+и
+.Dq blacklist ,
+описывающие модули, о которых модуль config был уведомлён через
+.Xr loader.conf 5 ,
+а также представление
+.Ar module_blacklist .
+.El
+.Ss Определённые хуки
+Следующие хуки определены в
+.Nm :
+.Bl -tag -width indent
+.It Fn config.buildenv env
+.It Fn config.loaded
+.It Fn config.reloaded
+.It Fn kernel.loaded
+.It Fn modules.loaded
+.El
+.Pp
+Заметьте, что хук
+.Fn config.buildenv
+вызывается только когда необходимо построить окружение для выполнения
+конфигурационного файла Lua, указанного в
+.Ev loader_conf_files .
+Он будет вызываться для каждого встреченного файла конфигурации.
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr menu.lua 8 ,
+.Xr nextboot 8
+.Sh АВТОРЫ
+Файл
+.Nm
+был первоначально написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Последующая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

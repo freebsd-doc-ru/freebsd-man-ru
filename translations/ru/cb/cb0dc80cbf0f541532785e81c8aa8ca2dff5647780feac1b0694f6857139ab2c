@@ -1,0 +1,159 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/cli.lua.8
+.\" FRDP githash de36d0dbaeaf05e9bf949fdf22b560c34b2c0d74
+.\" FRDP hash256 cb0dc80cbf0f541532785e81c8aa8ca2dff5647780feac1b0694f6857139ab2c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt CLI.LUA 8
+.Os
+.Sh ИМЯ
+.Nm cli.lua
+.Nd модуль интерпретатора командной строки загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит основную функциональность, необходимую для добавления новых команд CLI, которые могут
+выполняться в приглашении загрузчика.
+.Pp
+Прежде чем подключаться к функциональности, предоставляемой
+.Nm ,
+его необходимо включить с помощью оператора, подобного следующему:
+.Pp
+.Ss Добавление новых команд
+Новые команды загрузчика могут быть созданы путём добавления функций в объект, возвращаемый
+при подключении модуля
+.Nm
+.
+.Pp
+Например:
+.Pp
+.Bd -literal -offset indent -compact
+
+cli.foo = function(...)
+	-- Преобразовать аргументы в имя команды и остальную часть argv.
+	-- Эти аргументы помещаются непосредственно в стек
+	-- загрузчиком, затем передаются в cli_execute.  cli_execute
+	-- далее передаёт их вызванной функции, где
+	-- они появляются как varargs, которые необходимо разделить
+	-- на соответствующие компоненты.
+	local _, argv = cli.arguments(...)
+
+	for k, v in ipairs(argv) do
+	end
+	-- Выполнить команду загрузчика напрямую.  Это не будет
+	-- отправлено обратно в Lua, поэтому допустимо иметь
+	-- функцию с точно таким же именем в loader.  Lua будет
+	-- иметь первую возможность обработать любые команды, выполняемые
+	-- в приглашении загрузчика.
+end
+.Ed
+.Pp
+Эта функция может быть вызвана пользователем в приглашении загрузчика простым вводом
+.Ic foo .
+Аргументы могут передаваться ей как обычно, разделённые пробелами.
+.Ss Команды по умолчанию
+Модуль
+.Nm
+предоставляет следующие команды по умолчанию:
+.Bl -bullet
+.It
+.Ic autoboot
+.It
+.Ic boot
+.It
+.Ic boot-conf
+.It
+.Ic reload-conf
+.It
+.Ic disable-device
+.It
+.Ic disable-module
+.It
+.Ic enable-module
+.It
+.Ic toggle-module
+.It
+.Ic show-module-options
+.El
+.Pp
+Для
+.Ic autoboot ,
+.Ic boot ,
+и
+.Ic boot-conf ,
+модуль
+.Xr core.lua 8
+загрузит все модули ELF по мере необходимости перед выполнением эквивалентных
+встроенных команд загрузчика.
+Все аргументы этих команд, не относящиеся к ядру, передаются в том же порядке команде
+загрузчика.
+.Pp
+Команда
+.Ic reload-conf
+перезагрузит конфигурацию с диска.
+Это полезно, если вы вручную изменили currdev и хотите легко
+перезагрузить конфигурацию с нового устройства.
+.Pp
+Команды
+.Ic enable-module ,
+.Ic disable-module ,
+и
+.Ic toggle-module
+управляют списком модулей, загружаемых вместе с ядром.
+Модули, внесённые в чёрный список, считаются отключёнными командой
+.Ic toggle-module .
+Эти команды при необходимости отменяют любые такие ограничения.
+Команда
+.Ic show-module-options
+выведет список модулей, о которых стало известно загрузчику, и
+любые применимые параметры с использованием постраничного вывода.
+.Pp
+Команда
+.Ic disable-device
+устанавливает переменную окружения, которая отключает аргумент устройства.
+.Ss Экспортируемые функции
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width cli.arguments -offset indent
+.It Fn cli.arguments ...
+Принимает varargs, переданные в стек от
+.Xr loader 8
+к
+.Ic cli_execute ,
+и разделяет их на два возвращаемых значения: имя команды, традиционно argv[0],
+и остальную часть argv.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr core.lua 8 ,
+.Xr loader 8
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально написал
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

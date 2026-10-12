@@ -1,0 +1,285 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/bintrans/bintrans.1
+.\" FRDP githash 491db92a1751ae3546cee4e73f43d7146cc9dc9d
+.\" FRDP hash256 f6592a358a3ac962673b1d5bf80000ec0386bf876f464b3fc3a19779d3e9eb8d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 8, 2025
+.Dt BINTRANS 1
+.Os
+.Sh ИМЯ
+.Nm bintrans ,
+.Nm uuencode ,
+.Nm uudecode ,
+.Nm b64encode ,
+.Nm b64decode ,
+.Nm base64
+.Nd кодирование / декодирование двоичного файла
+.Sh СИНТАКСИС
+.Nm
+.Op алгоритм
+.Op ...
+.Nm uuencode
+.Op Fl m
+.Op Fl r
+.Op Fl o Ar выходной_файл
+.Op Ar файл
+.Ar имя
+.Nm uudecode
+.Op Fl cimprs
+.Op Ar
+.Nm uudecode
+.Op Fl i
+.Fl o Ar выходной_файл
+.Nm b64encode
+.Op Fl r
+.Op Fl w Ar столбец
+.Op Fl o Ar выходной_файл
+.Op Ar файл
+.Ar имя
+.Nm b64decode
+.Op Fl cimprs
+.Op Ar
+.Nm b64decode
+.Op Fl i
+.Fl o Ar выходной_файл
+.Op Ar файл
+.Nm base64
+.Op Fl d
+.Op Fl w Ar столбец
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилиты
+.Nm uuencode
+и
+.Nm uudecode
+используются для передачи двоичных файлов по средам передачи,
+которые не поддерживают ничего, кроме простых данных
+.Tn ASCII .
+Утилита
+.Nm b64encode
+является синонимом
+.Nm uuencode
+с указанным флагом
+.Fl m .
+Утилита
+.Nm b64decode
+является синонимом
+.Nm uudecode
+с указанным флагом
+.Fl m .
+.Pp
+Утилита
+.Nm base64
+работает как декодер base64, когда ей передан флаг
+.Fl -decode
+.Po или
+.Fl d
+.Pc
+, а в противном случае — как кодировщик base64.
+Как декодер она принимает только неформатированный ввод base64,
+а как кодировщик не создаёт обрамляющие строки.
+.Nm base64
+читает стандартный ввод или
+.Ar файл
+, если он указан, и записывает в стандартный вывод.
+Опции
+.Fl -wrap
+.Po или
+.Fl w
+.Pc
+и
+.Fl -ignore-garbage
+.Po или
+.Fl i
+.Pc
+принимаются для совместимости с GNU base64,
+но последняя не реализована и молча игнорируется.
+.Pp
+Утилита
+.Nm uuencode
+читает
+.Ar файл
+(или по умолчанию стандартный ввод) и записывает закодированную версию
+в стандартный вывод или
+.Ar выходной_файл
+, если он был указан.
+Кодирование использует только печатные символы
+.Tn ASCII
+и включает режим файла и операнд
+.Ar имя
+для использования
+.Nm uudecode .
+.Pp
+Утилита
+.Nm uudecode
+преобразует
+.Em uuencoded
+файлы (или по умолчанию стандартный ввод) в исходную форму.
+Полученный файл называется либо
+.Ar имя
+, либо (в зависимости от опций, переданных
+.Nm uudecode )
+.Ar выходной_файл
+, и будет иметь режим исходного файла, за исключением того, что биты setuid
+и выполнения не сохраняются.
+Утилита
+.Nm uudecode
+игнорирует любые ведущие и завершающие строки.
+.Pp
+Для
+.Nm uuencode
+доступны следующие опции:
+.Bl -tag -width indent
+.It Fl m
+Использовать метод кодирования Base64 вместо традиционного
+алгоритма
+.Nm uuencode .
+.It Fl r
+Создавать неформатированный вывод, исключая начальные и конечные
+обрамляющие строки.
+.It Fl o Ar выходной_файл
+Выводить в
+.Ar выходной_файл
+вместо стандартного вывода.
+.El
+.Pp
+Для
+.Nm uudecode
+доступны следующие опции:
+.Bl -tag -width indent
+.It Fl c
+Декодировать более одного файла, закодированного uuencode, из
+.Ar файла
+, если возможно.
+.It Fl i
+Не перезаписывать файлы.
+.It Fl m
+При использовании с флагом
+.Fl r
+декодировать ввод Base64 вместо традиционного ввода
+.Nm uuencode .
+Без
+.Fl r
+не оказывает действия.
+.It Fl o Ar выходной_файл
+Выводить в
+.Ar выходной_файл
+вместо любого имени пути, содержащегося во входных данных.
+.It Fl p
+Декодировать
+.Ar файл
+и записывать вывод в стандартный вывод.
+.It Fl r
+Декодировать неформатированный (или повреждённый) ввод, в котором
+отсутствуют начальная и, возможно, конечная обрамляющие строки.
+Предполагается, что ввод использует традиционную кодировку
+.Nm uuencode ,
+но если используется флаг
+.Fl m
+или утилита вызвана как
+.Nm b64decode ,
+то предполагается, что ввод имеет формат Base64.
+.It Fl s
+Не урезать имя пути вывода до базового имени файла.
+По умолчанию
+.Nm uudecode
+удаляет любой префикс, заканчивающийся последней косой чертой '/',
+по соображениям безопасности.
+.El
+.Pp
+Кроме того,
+.Nm b64encode
+принимает следующую опцию:
+.Bl -tag -width indent
+.It Fl w Ar столбец
+Переносить закодированный вывод после
+.Ar столбца .
+.El
+.Pp
+.Nm
+— это универсальная утилита, которая может запускать
+любой из вышеупомянутых кодировщиков и декодировщиков.
+Она также может запускать алгоритмы, недоступные
+через отдельную программу:
+.Pp
+.Nm qp
+— это преобразователь quoted-printable
+и принимает следующие опции:
+.Bl -tag -width indent
+.It Fl d
+Декодировать.
+.It Fl o Ar выходной_файл
+Выводить в
+.Ar выходной_файл
+вместо стандартного вывода.
+.It Fl r
+Кодировать/декодировать в варианте, специфичном для RFC2047.
+.El
+.Sh ПРИМЕРЫ
+В следующем примере упаковывается дерево исходного кода, сжимается,
+кодируется в uuencode и отправляется по почте пользователю в другой системе.
+Когда
+.Nm uudecode
+запускается в целевой системе, будет создан файл ``src_tree.tar.Z'',
+который затем можно распаковать и извлечь в исходное дерево.
+.Pp
+.Bd -literal -offset indent -compact
+tar cf \- src_tree \&| compress \&|
+uuencode src_tree.tar.Z \&| mail user@example.com
+.Ed
+.Pp
+В следующем примере все файлы uuencoded из вашего почтового ящика
+распаковываются в текущий рабочий каталог.
+.Pp
+.Bd -literal -offset indent -compact
+uudecode -c < $MAIL
+.Ed
+.Pp
+В следующем примере извлекается сжатый архив tar из вашего почтового ящика
+.Pp
+.Bd -literal -offset indent -compact
+uudecode -o /dev/stdout < $MAIL | zcat | tar xfv -
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr basename 1 ,
+.Xr compress 1 ,
+.Xr mail 1 ,
+.Xr uucp 1 Pq Pa ports/net/freebsd-uucp ,
+.Xr uuencode 5
+.Sh ИСТОРИЯ
+Утилиты
+.Nm uudecode
+и
+.Nm uuencode
+появились в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Файлы, закодированные с использованием традиционного алгоритма,
+увеличиваются на 35% (3 байта становятся 4 плюс управляющая информация).

@@ -1,0 +1,157 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" Copyright (c) 2001-2003 Networks Associates Technology, Inc.
+.\" Copyright (c) 2004-2011 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by ThinkSec AS and
+.\" NAI Labs, the Security Research Division of Network Associates, Inc.
+.\" under DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"), as part of the
+.\" DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_ssh/pam_ssh.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 0bc1fdf3754f827deb985a61e85322b1eb94b662d9eff9ba509f98c1b22fd85b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 7, 2011
+.Dt PAM_SSH 8
+.Os
+.Sh ИМЯ
+.Nm pam_ssh
+.Nd аутентификация и управление сеансами с использованием закрытых ключей SSH
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_ssh
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Модуль службы аутентификации
+SSH
+для PAM,
+.Nm
+предоставляет функциональность для двух категорий PAM:
+аутентификации
+и управления сеансами.
+В терминах параметра
+.Ar тип-модуля
+они являются возможностями
+.Dq Li auth
+и
+.Dq Li session .
+.Ss Модуль аутентификации SSH
+Компонент аутентификации
+SSH
+предоставляет функцию для проверки подлинности пользователя
+.Pq Fn pam_sm_authenticate ,
+запрашивая у пользователя парольную фразу и проверяя, что с её помощью можно
+расшифровать SSH-ключ целевого пользователя.
+.Pp
+Следующие параметры могут быть переданы модулю аутентификации:
+.Bl -tag -width Ds
+.It Cm use_first_pass
+Если модуль аутентификации
+не первый в стеке,
+и предыдущий модуль
+получил пароль пользователя,
+этот пароль используется
+для аутентификации пользователя.
+Если это не удаётся,
+модуль аутентификации возвращает ошибку,
+не запрашивая пароль у пользователя.
+Этот параметр не действует,
+если модуль аутентификации
+первый в стеке,
+или если ни один из предыдущих модулей
+не получил пароль пользователя.
+.It Cm try_first_pass
+Этот параметр похож на параметр
+.Cm use_first_pass ,
+за исключением того, что если ранее полученный пароль не подходит,
+у пользователя запрашивается другой пароль.
+.It Cm nullok
+Обычно ключи без парольной фразы игнорируются для целей
+аутентификации.
+Если этот параметр установлен, ключи без парольной фразы будут
+учитываться, что позволит пользователю войти с пустым паролем.
+.El
+.Ss Модуль управления сеансами SSH
+Компонент управления сеансами
+SSH
+предоставляет функции для инициирования
+.Pq Fn pam_sm_open_session
+и завершения
+.Pq Fn pam_sm_close_session
+сеансов.
+Функция
+.Fn pam_sm_open_session
+запускает агент SSH,
+передавая ему любые закрытые ключи, которые она расшифровала
+во время фазы аутентификации,
+и устанавливает переменные окружения,
+которые указывает агент.
+Функция
+.Fn pam_sm_close_session
+завершает ранее запущенный агент SSH,
+отправляя ему
+.Dv SIGTERM .
+.Pp
+Следующие параметры могут быть переданы модулю управления сеансами:
+.Bl -tag -width Ds
+.It Cm want_agent
+Запускать агент, даже если во время фазы аутентификации
+не было расшифровано ни одного ключа.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa
+.It Pa $HOME/.ssh/id_rsa
+ключ SSH2 RSA
+.It Pa $HOME/.ssh/id_dsa
+ключ SSH2 DSA
+.It Pa $HOME/.ssh/id_ecdsa
+ключ SSH2 ECDSA
+.It Pa $HOME/.ssh/id_ed25519
+ключ SSH2 Ed25519
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ssh-agent 1 ,
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+изначально был написан
+.An -nosplit
+.An Andrew J. Korty Aq Mt ajk@iu.edu .
+Текущая реализация была разработана для проекта
+.Fx
+компаниями ThinkSec AS и NAI Labs, Security Research Division of Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.
+Эта страница руководства была написана
+.An Mark R V Murray Aq Mt markm@FreeBSD.org .

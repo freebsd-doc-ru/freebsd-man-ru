@@ -1,0 +1,150 @@
+.\"-
+.\" Copyright (c) 1992, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 1999 Andrzej Bialecki <abial@FreeBSD.org>
+.\" All rights reserved.
+.\" Copyright (c) 2018 The University of Oslo
+.\" All rights reserved.
+.\"
+.\" This code is derived from software donated to Berkeley by
+.\" Jan-Simon Pendry.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_radius/pam_radius.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 2cbff43bb4980daef61e9cb7754fe0bd25205d67452bc85c187991d673de5cb1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 16, 2018
+.Dt PAM_RADIUS 8
+.Os
+.Sh ИМЯ
+.Nm pam_radius
+.Nd Модуль PAM для аутентификации по RADIUS
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_radius
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Модуль
+.Nm
+предоставляет службы аутентификации на основе
+протокола RADIUS (Remote Authentication Dial In User Service)
+для инфраструктуры PAM (Pluggable Authentication Module).
+.Pp
+Модуль
+.Nm
+принимает следующие необязательные параметры:
+.Bl -tag -width Fl
+.It Cm use_first_pass
+заставляет
+.Nm
+использовать ранее введённый пароль вместо запроса нового.
+Если пароль не был введён, аутентификация завершается неудачей.
+.It Cm try_first_pass
+заставляет
+.Nm
+использовать ранее введённый пароль, если он доступен.
+Если пароль не был введён,
+.Nm
+запрашивает его как обычно.
+.It Cm echo_pass
+приводит к тому, что эхо остаётся включённым, если
+.Nm
+запрашивает пароль.
+.It Cm conf Ns = Ns Ar путь
+задаёт нестандартное расположение файла конфигурации клиента RADIUS
+(обычно расположенного в
+.Pa /etc/radius.conf ) .
+.It Cm nas_id Ns = Ns Ar идентификатор
+задаёт идентификатор NAS, который нужно отправлять вместо имени узла.
+.It Cm nas_ipaddr Ns Op No = Ns Ar адрес
+задаёт IP-адрес NAS, который нужно отправлять.
+Если параметр присутствует, но значение не указано, будет использоваться
+IP-адрес, соответствующий текущему имени узла.
+.It Cm template_user Ns = Ns Ar имя-пользователя
+задаёт пользователя, чья запись
+.Xr passwd 5
+будет использоваться как шаблон для создания окружения сеанса,
+если указанное имя пользователя отсутствует в локальной базе данных паролей.
+Пользователь будет аутентифицирован с указанными именем пользователя и паролем, но его
+учётные данные в системе будут представлены как данные для
+.Ar имя-пользователя ,
+то есть его класс входа, домашний каталог, ограничения ресурсов и т.\& д. будут установлены такими же,
+как определённые для
+.Ar имя-пользователя .
+.Pp
+Если этот параметр опущен и в системных базах данных нет имени пользователя,
+совпадающего с указанным (как определено вызовом
+.Xr getpwnam 3 ) ,
+аутентификация завершится неудачей.
+.It Cm no_reply_message
+подавляет вывод содержимого любых атрибутов
+.Cm Reply-Message ,
+обнаруженных в ответах
+.Cm Access-Accept
+и
+.Cm Access-Reject .
+Обычно они передаются пользователю либо как информационные сообщения, либо
+как сообщения об ошибках, в зависимости от того, был ли запрос доступа принят
+или отклонён.
+.It Cm no_warn
+подавляет предупреждающие сообщения пользователю.
+Эти сообщения включают причины, по которым попытка аутентификации пользователя
+была отклонена.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/radius.conf -compact
+.It Pa /etc/radius.conf
+Стандартный файл конфигурации клиента RADIUS для
+.Nm
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr passwd 5 ,
+.Xr radius.conf 5
+.Sh ИСТОРИЯ
+Модуль
+.Nm
+впервые появился в
+.Fx 3.1 .
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 3.3 .
+.Sh АВТОРЫ
+.An -nosplit
+Страница руководства
+.Nm
+была написана
+.An Andrzej Bialecki Aq Mt abial@FreeBSD.org .
+.Pp
+Модуль
+.Nm
+был написан
+.An John D. Polstra Aq Mt jdp@FreeBSD.org .

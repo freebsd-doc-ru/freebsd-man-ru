@@ -1,0 +1,146 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/lpr/lprm/lprm.1
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 915bacbe5cb95787bff3e687842c4ac3e522ef06e0e244a872b85b17d83e3a8d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 1993
+.Dt LPRM 1
+.Os
+.Sh ИМЯ
+.Nm lprm
+.Nd удаление заданий из очереди спулинга построчного принтера
+.Sh СИНТАКСИС
+.Nm
+.Op Fl P Ns Ar принтер
+.Op Fl
+.Op задание # ...\&
+.Op Ar пользователь ...\&
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕНИИ
+Это средство запланировано к удалению до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+удаляет задание или задания из очереди спулинга принтера.
+Поскольку каталог спулинга защищён от пользователей, использование
+.Nm
+обычно является единственным способом, с помощью которого пользователь может удалить задание.
+Владелец задания определяется по имени входа пользователя
+и имени узла на машине, где была вызвана команда
+.Xr lpr 1 .
+.Pp
+Параметры и аргументы:
+.Bl -tag -width indent
+.It Fl P Ns Ar принтер
+Указывает очередь, связанную с конкретным
+.Ar принтер
+(иначе используется принтер по умолчанию).
+.It Fl
+Если указан одиночный
+.Sq Fl ,
+.Nm
+удалит все задания, которыми владеет пользователь.
+Если суперпользователь использует этот флаг, очередь спулинга будет
+полностью очищена.
+.It Ar пользователь
+Заставляет
+.Nm
+попытаться удалить все задания в очереди, принадлежащие этому пользователю
+(или пользователям).
+Эта форма вызова
+.Nm
+полезна только суперпользователю.
+.It Ar задание\ \&#
+Пользователь может удалить отдельное задание из очереди, указав номер этого задания.
+Этот номер можно получить из программы
+.Xr lpq 1 ,
+например:
+.Bd -literal -offset indent
+\&% lpq \-l
+
+1st:ken				[job #013ucbarpa]
+	(standard input)	100 bytes
+% lprm 13
+.Ed
+.El
+.Pp
+Если не заданы ни аргументы, ни параметры,
+.Nm
+удалит текущее активное задание, если им владеет пользователь, вызвавший
+.Nm .
+.Pp
+Утилита
+.Nm
+сообщает имена всех удаляемых файлов и молчит, если
+в очереди нет заданий, соответствующих списку запроса.
+.Pp
+Утилита
+.Nm
+при необходимости завершит активный демон перед удалением
+любых файлов спулинга.
+Если демон завершён, новый
+автоматически перезапускается по завершении удаления файлов.
+.Sh ОКРУЖЕНИЕ
+Если существует следующая переменная окружения, она используется
+.Nm .
+.Bl -tag -width PRINTER
+.It Ev PRINTER
+Если переменная окружения
+.Ev PRINTER
+существует,
+и принтер не был указан с параметром
+.Fl P ,
+принтер по умолчанию берётся из
+.Ev PRINTER .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/spool/*/lock/ -compact
+.It Pa /etc/printcap
+Файл характеристик принтера.
+.It Pa /var/spool/*
+Каталоги спулинга.
+.It Pa /var/spool/*/lock
+Файл блокировки, используемый для получения PID текущего
+демона и номера текущего активного задания.
+.El
+.Sh ДИАГНОСТИКА
+владеет.
+.Sh СМ. ТАКЖЕ
+.Xr lpq 1 ,
+.Xr lpr 1 ,
+.Xr lpd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку при обновлении файла блокировки возможны состояния гонки,
+текущее активное задание может быть определено неверно.

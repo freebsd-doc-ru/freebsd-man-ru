@@ -1,0 +1,104 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/screen.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 0a5c161ab6eba1f71892df01b624f5268d5ee1952fe03a409dfcec60c27539e1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt SCREEN.LUA 8
+.Os
+.Sh ИМЯ
+.Nm screen.lua
+.Nd модуль управления экраном загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность для управления экраном.
+Сюда входят такие возможности, как очистка экрана, перемещение курсора и
+установка цветов переднего плана/фона с использованием последовательностей, предоставляемых
+.Xr color.lua 8 .
+.Pp
+Перед использованием функциональности, предоставляемой
+.Nm ,
+его необходимо подключить с помощью инструкции, подобной следующей:
+.Pp
+.Pp
+Следующие переменные экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Ic screen.default_x
+x-компонента позиции курсора по умолчанию.
+.It Ic screen.default_y
+y-компонента позиции курсора по умолчанию.
+.El
+.Pp
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width Ds
+.It Fn screen.clear
+Очищает экран.
+.Fn screen.clear
+ничего не делает, если обнаружена загрузка через последовательный порт.
+.It Fn screen.setcursor x y
+Устанавливает позицию курсора в
+.Fa x ,
+.Fa y .
+.Fn screen.setcursor
+ничего не делает, если обнаружена загрузка через последовательный порт.
+.It Fn screen.setforeground color_value
+Устанавливает цвет переднего плана в
+.Fa color_value ,
+который должен быть константой, определённой в
+.Xr color.lua 8 .
+.Fn screen.setforeground
+ничего не делает, если цвет отключён.
+.It Fn screen.setbackground color_value
+Устанавливает цвет фона в
+.Fa color_value ,
+который должен быть константой, определённой в
+.Xr color.lua 8 .
+.Fn screen.setbackground
+ничего не делает, если цвет отключён.
+.It Fn screen.defcolor
+Устанавливает цветовую схему по умолчанию, как определено в
+.Fn color.default .
+.Fn screen.defcolor
+ничего не делает, если цвет отключён.
+.It Fn screen.defcursor
+Устанавливает позицию курсора по умолчанию в значения, определённые
+.Ic screen.default_x ,
+.Ic screen.default_y .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr color.lua 8
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально был написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Дальнейшая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

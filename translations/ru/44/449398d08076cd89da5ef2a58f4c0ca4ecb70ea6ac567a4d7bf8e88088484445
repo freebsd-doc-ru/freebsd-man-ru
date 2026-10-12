@@ -1,0 +1,282 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/menu.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 449398d08076cd89da5ef2a58f4c0ca4ecb70ea6ac567a4d7bf8e88088484445
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt MENU.LUA 8
+.Os
+.Sh ИМЯ
+.Nm menu.lua
+.Nd модуль динамического меню загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит основную функциональность, необходимую для построения динамической системы меню.
+Он также содержит определения для встроенных меню, некоторые из которых
+зависят от переменных окружения
+.Xr loader 8 .
+.Pp
+Прежде чем использовать функциональность, предоставляемую
+.Nm ,
+его необходимо подключить с помощью такого оператора:
+.Pp
+.Ss ОПРЕДЕЛЕНИЯ МЕНЮ
+Меню представлены в
+.Nm
+как таблица.
+Эта таблица
+.Sy должна
+содержать ключ
+.Va entries .
+.Pp
+Если значение ключа
+.Va entries
+само является таблицей, то каждое значение в этой таблице определяет один элемент в
+этом меню.
+См.
+.Sx ОПРЕДЕЛЕНИЯ ЭЛЕМЕНТОВ МЕНЮ
+для структуры каждого элемента.
+.Pp
+.Va entries
+также может быть функцией.
+Эта функция должна возвращать таблицу, каждое значение которой определяет один элемент
+в этом меню.
+См.
+.Sx ОПРЕДЕЛЕНИЯ ЭЛЕМЕНТОВ МЕНЮ .
+.Ss ОПРЕДЕЛЕНИЯ ЭЛЕМЕНТОВ МЕНЮ
+Следующие ключи могут быть определены для элемента меню:
+.Bl -tag -width disable-module_module -offset indent
+.It Ic entry_type
+Тип этого элемента меню.
+См.
+.Sx ТИПЫ ЭЛЕМЕНТОВ МЕНЮ .
+.It Ic carousel_id
+Уникальный строковый идентификатор для этой карусели.
+Карусель — это элемент меню, который циклически перебирает выбор элементов.
+Используется для хранения текущей настройки карусели.
+.It Ic visible
+Лямбда, возвращающая
+.Dv true ,
+если этот элемент меню должен быть видимым, и
+.Dv false ,
+если он не должен быть видимым.
+.It Ic items
+Таблица (или лямбда, возвращающая таблицу) возможных вариантов для этой
+карусели.
+.It Ic name
+Строка (или лямбда, возвращающая строку), содержащая текущее имя этого
+элемента.
+.It Ic func
+Функция, выполняемая при выборе этого элемента.
+Все типы, кроме
+.Ic core.MENU_SEPARATOR ,
+могут иметь
+.Ic func .
+.It Ic submenu
+Определение подменю, которое нужно отрисовать при выборе этого элемента.
+.It Ic alias
+Таблица чувствительных к регистру псевдонимов для этого элемента меню.
+Все элементы меню, которые можно выбрать, могут иметь любое количество
+.Ic alias
+записей.
+.El
+.Pp
+.Ic entry_type
+— единственный обязательный ключ для каждого типа элемента.
+.Ic name
+требуется для всех типов элементов, кроме
+.Ic core.MENU_SEPARATOR .
+.Ss ТИПЫ ЭЛЕМЕНТОВ МЕНЮ
+Константы типов элементов меню определены в
+.Xr core.lua 8 .
+Доступны следующие типы:
+.Bl -tag -width core.MENU_CAROUSEL_ENTRY -offset indent
+.It Ic core.MENU_RETURN
+Возврат в родительское меню.
+Если текущее меню является меню по умолчанию,
+.Nm
+выйдет из меню и начнёт последовательность автозагрузки (если применимо).
+Этот тип элемента меню может выполнять
+.Ic func
+при выборе и имеет
+.Ic name .
+.It Ic core.MENU_ENTRY
+Обычный элемент меню, который выполняет
+.Ic func
+при выборе и имеет
+.Ic name .
+.It Ic core.MENU_SEPARATOR
+Элемент меню, служащий разделителем.
+Он может иметь
+.Ic name .
+.It Ic core.MENU_SUBMENU
+Элемент меню, который открывает
+.Ic submenu
+при выборе.
+Он может иметь
+.Ic name .
+.It Ic core.MENU_CAROUSEL_ENTRY
+Элемент меню, который циклически перебирает
+.Ic items
+как карусель.
+.Ic func
+выполняется при выборе, и обратному вызову передаются индекс выбора, имя
+текущего выбора и таблица выборов.
+.El
+.Ss ЭКСПОРТИРУЕМЫЕ МЕНЮ
+Следующие меню экспортируются
+.Nm :
+.Bl -tag -width menu.boot_environments -offset indent
+.It Ic menu.default
+Меню по умолчанию для отрисовки.
+По умолчанию установлено в
+.Ic menu.welcome .
+.It Ic menu.welcome
+Приветственное меню.
+Содержит параметры загрузки в однопользовательском и многопользовательском режимах, а также элементы для доступа к другим
+меню.
+.It Ic menu.boot_options
+.It Ic menu.boot_environments
+Это меню отображается, только если система загружена с раздела ZFS и при загрузке было обнаружено более
+одной загрузочной среды.
+.El
+.Sh ПРИМЕРЫ
+Чтобы заменить меню загрузки по умолчанию на простое меню загрузки:
+.Pp
+.Bd -literal -offset indent -compact
+
+menu.default = {
+	entries = {
+		{
+			entry_type = core.MENU_ENTRY,
+			func = core.boot,
+		},
+		{
+			entry_type = core.MENU_CAROUSEL_ENTRY,
+			name = function(_, choice, _)
+			end,
+			func = function(_, _, _)
+			end,
+		},
+	},
+}
+.Ed
+.Pp
+Чтобы добавить ещё один вариант в приветственное меню:
+.Pp
+.Bd -literal -offset indent -compact
+
+local my_entry = {
+	entry_type = core.MENU_ENTRY,
+	func = core.boot,
+},
+
+local stock_entries = menu.welcome.entries
+function menu.welcome.entries()
+	local ents = stock_entries()
+	ents[#ents + 1] = my_entry
+	return ents
+end
+.Ed
+.Pp
+Чтобы создать подменю производителя или другой вариант меню производителя,
+переопределите
+.Ic menu.welcome.all_entires.vendor
+следующим образом:
+.Pp
+.Bd -literal -offset indent -compact
+
+-- Заполните элементами, специфичными для производителя
+local vendor_options = {
+	entries = {
+	...
+	},
+}
+
+local welcome_entries = menu.welcome.all_entries
+welcome_entries.vendor = {
+        entry_type = core.MENU_SUBMENU,
+        submenu = vendor_options,
+	visible = function()
+		return true
+	end,
+}
+.Ed
+В приведённом выше примере
+.Ic vendor_options
+— это локальная переменная, определяющая подменю производителя.
+.Pp
+Чтобы добавить дополнительный вариант, измените массив
+.Ic menu.boot_options.entries .
+Следующий пример иллюстрирует эту концепцию:
+.Pp
+.Bd -literal -offset indent -compact
+-- Это глупый пример, который перебирает local_option через значения
+-- от 0 до 4.  local_option всё ещё нужно будет использовать где-то ещё.
+local local_option = 0
+
+-- `entries` меню может быть либо таблицей, либо функцией.  В этом
+-- примере мы дополняем меню, у которого просто есть статическая таблица, но если
+-- мы хотели бы быть более устойчивыми, то нам нужно было бы вместо этого проверить тип
+-- `stock_options` здесь, чтобы определить наш следующий шаг.
+--
+-- Если `entries` — это таблица, то штатная система меню не будет её менять,
+-- так что мы можем просто добавить наш вариант меню, как показано ниже.
+--
+-- Если `entries` — это функция, то нам нужно было бы предоставить новую функцию,
+-- заменяющую `entries`, которая делает core.deepCopyTable() результата и добавляет
+-- нижеприведённый элемент в него.  Глубокое копирование необходимо, чтобы избежать дублирования нашего
+-- нового элемента меню и позволить меню изменять его поведение по своему усмотрению.
+local stock_options = menu.boot_options.entries
+stock_options[#stock_options + 1] = {
+	entry_type = core.MENU_ENTRY,
+	name = function()
+		return color.highlight('L') ..
+	end,
+	func = function()
+		local_option = (local_option + 1) % 5
+	end,
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr core.lua 8 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Файл
+.Nm
+впервые появился в
+.Fx 12.0 .
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально был написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Последующая работа и эта страница руководства были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

@@ -1,0 +1,98 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/lpr/pac/pac.8
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 aed44107d314aeefc42546ff92deb1d401cfd277e612ac217fc9231e4aadeb45
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 1993
+.Dt PAC 8
+.Os
+.Sh ИМЯ
+.Nm pac
+.Nd учётная информация принтера/плоттера
+.Sh СИНТАКСИС
+.Nm
+.Op Fl P Ns Ar принтер
+.Op Fl c
+.Op Fl m
+.Op Fl p Ns Ar цена
+.Op Fl s
+.Op Fl r
+.Op Ar имена ...
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕНИИ
+Этот механизм запланирован к удалению до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает файлы учёта принтера/плоттера, суммируя количество страниц (обычный случай) или футов (для растровых устройств) бумаги, израсходованной каждым пользователем, и выводит, сколько каждый пользователь израсходовал в страницах или футах и долларах.
+.Pp
+Доступные параметры и операнды:
+.Bl -tag -width PPprinter
+.It Fl P Ns Ar принтер
+Учёт ведётся для указанного принтера.
+Обычно учёт ведётся для принтера по умолчанию (зависит от площадки) или используется значение переменной окружения
+.Ev PRINTER .
+.It Fl c
+Сортировать вывод по стоимости; обычно вывод сортируется по алфавиту по имени.
+.It Fl m
+Игнорировать имя хоста в файле учёта.
+Это позволяет пользователю на нескольких машинах сгруппировать все свои расходы на печать вместе.
+.It Fl p Ns Ar цена
+Значение
+.Ar цена
+используется как стоимость в долларах вместо значения по умолчанию 0,02 или цены, указанной в
+.Pa /etc/printcap .
+.It Fl r
+Изменить порядок сортировки на обратный.
+.It Fl s
+Информация об учёте суммируется в сводном файле учёта; такое суммирование необходимо, поскольку в загруженной системе файл учёта может вырастать на несколько строк в день.
+.It Ar имена
+Статистика выводится только для пользователя(ей)
+.Ar имя ;
+обычно статистика выводится для каждого пользователя, израсходовавшего бумагу.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/account/?_sum -compact
+.It Pa /var/account/?acct
+необработанные файлы учёта
+.It Pa /var/account/?_sum
+сводные файлы учёта
+.It Pa /etc/printcap
+база данных возможностей принтера
+.El
+.Sh СМ. ТАКЖЕ
+.Xr printcap 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Соотношение между вычисленной ценой и реальностью пока неизвестно.
