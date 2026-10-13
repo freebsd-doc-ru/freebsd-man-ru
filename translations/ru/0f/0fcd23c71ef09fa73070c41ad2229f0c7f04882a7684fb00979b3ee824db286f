@@ -182,7 +182,7 @@
 .Xr loader 8 ,
 .Xr sysctl 8
 .Sh АВТОРЫ
-Страница руководства
+Страница Справочника
 .Nm
 была написана
 .An Warner Losh Aq Mt imp@FreeBSD.org .

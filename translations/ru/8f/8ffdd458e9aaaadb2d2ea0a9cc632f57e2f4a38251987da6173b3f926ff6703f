@@ -89,7 +89,7 @@ man enigma | enigma > encrypted
 Enter key: (XXX \(em key not echoed)
 .Ed
 .Pp
-Это создаст зашифрованную форму этой страницы руководства и сохранит её в
+Это создаст зашифрованную форму этой страницы Справочника и сохранит её в
 файле
 .Pa encrypted .
 .Bd -literal -offset indent

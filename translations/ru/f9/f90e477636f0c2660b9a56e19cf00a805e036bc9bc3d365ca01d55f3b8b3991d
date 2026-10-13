@@ -137,10 +137,10 @@ brandelf -t GNU файл
 .%O http://www.sco.com/developer/devspecs/
 .Re
 .Sh ИСТОРИЯ
-Страница руководства
+Страница Справочника
 .Nm
 впервые появилась в
 .Fx 2.2 .
 .Sh АВТОРЫ
-Эту страницу руководства написал
+Эту страницу Справочника написал
 .An John-Mark Gurney Aq Mt jmg@FreeBSD.org .
