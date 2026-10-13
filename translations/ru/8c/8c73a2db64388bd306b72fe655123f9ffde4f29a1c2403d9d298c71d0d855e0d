@@ -1,0 +1,196 @@
+.\" Copyright (c) 1997
+.\" 	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the author nor the names of any co-contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"   without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR THE VOICES IN HIS HEAD
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+.\" THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ypserv/ypinit.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8c73a2db64388bd306b72fe655123f9ffde4f29a1c2403d9d298c71d0d855e0d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 18, 2015
+.Dt YPINIT 8
+.Os
+.Sh ИМЯ
+.Nm ypinit
+.Nd создание и установка баз данных NIS
+.Sh СИНТАКСИС
+.Nm
+.Fl m
+.Op Ar имя_домена
+.Nm
+.Fl s
+.Ar главный_сервер
+.Op Ar имя_домена
+.Nm
+.Fl u
+.Op Ar имя_домена
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это сценарий, который настраивает базы данных на главном или подчиненном сервере
+сетевой информационной службы
+(NIS).
+.Pp
+На главном сервере
+.Nm
+создает каталог
+.Pa /var/yp/$DOMAINNAME,
+файл
+.Pa /var/yp/ypservers
+и вызывает
+.Pa /var/yp/Makefile
+для создания и заполнения начального набора карт NIS.
+Карты создаются из локальных исходных файлов с помощью утилиты
+.Xr yp_mkdb 8 .
+Утилита запросит у пользователя список серверов,
+поддерживающих указанный домен; этот список используется для заполнения
+карты ypservers.
+.Pp
+На подчиненном сервере
+.Nm
+создает
+.Pa /var/yp/$DOMAINNAME,
+заполняет его копиями карт NIS с главного сервера.
+Карты
+получаются с главного сервера с помощью утилиты
+.Xr ypxfr 8 .
+Утилита
+.Nm
+получает список карт для передачи одним из двух способов: если
+система настроена как клиент NIS и привязана к главному
+серверу,
+.Nm
+может использовать утилиту
+.Xr ypwhich 1
+для получения списка карт, экспортируемых главным сервером.
+Если система не настроена как клиент главного сервера NIS,
+.Nm
+использует жестко закодированный список карт, некоторые из которых могут фактически
+как присутствовать, так и отсутствовать на главном сервере.
+Системный администратор может отредактировать
+.Nm
+сценарий и
+изменить список карт при необходимости.
+В противном случае отдельные карты можно
+перенести вручную с главного сервера с помощью
+.Xr ypxfr 8 .
+.Sh ОПЦИИ
+Утилита
+.Nm
+поддерживает следующие опции:
+.Bl -tag -width indent
+.It Fl m Op Ar имя_домена
+Настроить главный сервер.
+По умолчанию
+.Nm
+настраивает сервер для
+системного домена по умолчанию.
+Пользователь может переопределить это значение по умолчанию, явно указав
+.Ar имя_домена.
+Карты создаются с нуля с использованием локальных файлов в качестве шаблонов с помощью
+утилиты
+.Xr yp_mkdb 8 .
+.It Fl s Ar главный_сервер Op Ar имя_домена
+Настроить подчиненный сервер, используя
+.Ar имя_главного_сервера
+в качестве главного.
+Карты копируются с
+.Ar главный_сервер
+на подчиненный сервер с помощью
+.Xr ypxfr 8 .
+По умолчанию
+.Nm
+настраивает сервер для
+системного домена по умолчанию.
+Пользователь может переопределить это значение по умолчанию, явно указав
+.Ar имя_домена.
+.It Fl u Op Ar имя_домена
+Обновить карту ypservers на главном сервере.
+Когда в домен добавляется новый подчиненный
+сервер, его имя хоста должно быть добавлено в
+карту ypservers, чтобы
+.Xr yppush 8
+мог распространять обновления с главного сервера на все подчиненные серверы.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/yp/master.passwd -compact
+.It Pa /etc/bootparams
+Исходный файл bootparams
+.It Pa /etc/ethers
+Исходный файл данных ethers
+.It Pa /etc/eui64
+Исходный файл данных EUI64
+.It Pa /etc/group
+Исходный файл групп
+.It Pa /etc/hosts
+Исходный файл имен хостов/IP-адресов
+.It Pa /etc/netid
+Исходный файл netid RPC
+.It Pa /etc/networks
+Исходный файл сетей
+.It Pa /etc/protocols
+Исходный файл протоколов
+.It Pa /etc/publickey
+Исходный файл открытого/секретного ключа RPC
+.It Pa /etc/services
+Исходный файл данных служб
+.It Pa /etc/shells
+Исходный файл оболочек
+.It Pa /var/yp/master.passwd
+Исходный файл базы данных passwd
+.It Pa /var/yp/netgroup
+Исходный файл данных netgroup
+.It Pa /var/yp/ypservers
+Исходный файл ypservers (создаваемый
+.Nm )
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mknetid 8 ,
+.Xr revnetgroup 8 ,
+.Xr yp 8 ,
+.Xr yp_mkdb 8 ,
+.Xr yppush 8 ,
+.Xr ypserv 8 ,
+.Xr ypxfr 8
+.Sh ИСТОРИЯ
+Эта версия
+.Nm
+основана на сценарии
+.Nm
+в
+.Ox .
+Впервые появилась в
+.Fx 3.0.
+.Sh АВТОРЫ
+.An -nosplit
+Оригинальный сценарий был написан
+.An Mats O Jansson Aq Mt moj@stacken.kth.se .
+Он был модифицирован для
+.Fx
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu .

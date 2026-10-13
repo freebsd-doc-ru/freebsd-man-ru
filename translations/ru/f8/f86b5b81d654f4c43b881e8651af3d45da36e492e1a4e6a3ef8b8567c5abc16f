@@ -1,0 +1,182 @@
+.\" Copyright (c) 2005 Nate Lawson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/powerd/powerd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f86b5b81d654f4c43b881e8651af3d45da36e492e1a4e6a3ef8b8567c5abc16f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 25, 2023
+.Dt POWERD 8
+.Os
+.Sh ИМЯ
+.Nm powerd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar режим
+.Op Fl b Ar режим
+.Op Fl i Ar процент
+.Op Fl M Ar частота
+.Op Fl m Ar частота
+.Op Fl N
+.Op Fl n Ar режим
+.Op Fl P Ar pid-файл
+.Op Fl p Ar интервал
+.Op Fl r Ar процент
+.Op Fl s Ar источник
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отслеживает состояние системы и соответствующим образом устанавливает
+различные параметры управления питанием.
+Она предлагает режимы энергосбережения, которые можно
+индивидуально выбирать для работы от сети переменного тока или батарей.
+.Bl -tag -width ".Cm hiadaptive" -compact
+.It Cm maximum
+Выбирает наивысшие значения производительности.
+Может быть сокращён как
+.Cm max .
+.It Cm minimum
+Выбирает самые низкие значения производительности для максимальной
+экономии энергии.
+Может быть сокращён как
+.Cm min .
+.It Cm adaptive
+Пытается найти баланс, снижая производительность, когда система
+кажется простаивающей, и повышая её, когда система занята.
+Обеспечивает хороший баланс между небольшим снижением
+производительности и значительно большей экономией энергии.
+Может быть сокращён как
+.Cm adp .
+.It Cm hiadaptive
+Как режим
+.Cm adaptive ,
+но настроен для систем, где производительность и интерактивность
+важнее энергопотребления.
+Он быстрее повышает частоту, менее агрессивно снижает частоту и
+дольше поддерживает полную частоту.
+Может быть сокращён как
+.Cm hadp .
+.El
+.Pp
+Режим по умолчанию —
+.Cm adaptive
+при питании от батареи и
+.Cm hiadaptive
+в остальных случаях.
+.Pp
+.Nm
+распознаёт следующие параметры времени выполнения:
+.Bl -tag -width ".Fl s Ar источник" -compact
+.It Fl a Ar режим
+Выбирает
+.Ar режим
+для использования при питании от сети.
+.It Fl b Ar режим
+Выбирает
+.Ar режим
+для использования при питании от батареи.
+.It Fl i Ar процент
+Задаёт уровень загрузки ЦП в процентах, при котором адаптивный
+режим должен начать снижать производительность для экономии энергии.
+По умолчанию 50% или ниже.
+.It Fl M Ar частота
+Задаёт максимальную частоту, до которой можно повышать.
+.It Fl m Ar частота
+Задаёт минимальную частоту, до которой можно понижать.
+.It Fl N
+т. е. не повышать частоту ЦП, если ЦП только занят
+.It Fl n Ar режим
+Выбирает
+.Ar режим
+для обычного использования, когда состояние линии сети неизвестно.
+.It Fl P Ar pid-файл
+Задаёт альтернативный файл, в котором должен храниться идентификатор
+процесса.
+.It Fl p Ar интервал
+Задаёт другой интервал опроса (в миллисекундах) для состояния линии сети
+и уровней простоя системы.
+По умолчанию 250 мс.
+.It Fl r Ar процент
+Задаёт уровень загрузки ЦП в процентах, при котором адаптивный
+режим должен считать ЦП работающим и повышать производительность.
+По умолчанию 75% или выше.
+.It Fl s Ar источник
+Задаёт метод обновления состояния линии сети; по умолчанию он выбирается
+автоматически.
+Набор допустимых методов:
+.Cm sysctl , devd
+и
+.Cm apm
+(только i386).
+.It Fl v
+Подробный режим.
+Сообщения об изменениях питания будут выводиться в stdout, и
+.Nm
+будет работать на переднем плане.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/run/powerd.pid" -compact
+.It Pa /var/run/powerd.pid
+Файл PID по умолчанию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr apm 4 ,
+.Xr cpufreq 4 ,
+.Xr rc.conf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+.An -nosplit
+.An Colin Percival
+сначала написал
+.Nm estctrl ,
+утилиту, на которой основана
+.Nm .
+.An Nate Lawson
+затем обновил её для
+.Xr cpufreq 4 ,
+добавил возможности и написал эту страницу Справочника.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+также должна отключать питание простаивающих дисков и других компонентов,
+помимо ЦП.
+.Pp
+Если
+.Nm
+используется с
+.Pa /etc/rc.d/power_profile ,
+они могут переопределять друг друга.
+.Pp
+Утилита
+.Nm
+вероятно, должна использовать интерфейс
+.Xr devctl 4
+вместо опроса состояния линии сети.

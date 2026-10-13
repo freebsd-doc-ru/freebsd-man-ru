@@ -1,0 +1,129 @@
+.\" Copyright (c) 1999
+.\"	Andrzej Bialecki <abial@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Copyright (c) 1992, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software donated to Berkeley by
+.\" Jan-Simon Pendry.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_tacplus/pam_tacplus.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 199ae05da8e1f635e564a558a012189b7a747673f95e72bdcae50a265de6f5be
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 17, 2023
+.Dt PAM_TACPLUS 8
+.Os
+.Sh ИМЯ
+.Nm pam_tacplus
+.Nd Модуль PAM для аутентификации по TACACS+
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_tacplus
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Модуль
+.Nm
+предоставляет службы аутентификации на основе
+протокола TACACS+
+для фреймворка PAM (Pluggable Authentication Module).
+.Pp
+Модуль
+.Nm
+принимает следующие необязательные параметры:
+.Bl -tag -width "template_user=username"
+.It Cm use_first_pass
+указывает
+.Nm
+использовать ранее введённый пароль вместо запроса нового.
+Если пароль не был введён, аутентификация завершается неудачно.
+.It Cm try_first_pass
+указывает
+.Nm
+использовать ранее введённый пароль, если он доступен.
+Если пароль не был введён,
+.Nm
+запрашивает его как обычно.
+.It Cm echo_pass
+оставляет эхо включённым, если
+.Nm
+запрашивает пароль.
+.It Cm conf Ns = Ns Ar путь
+указывает нестандартное расположение файла конфигурации клиента TACACS+
+(обычно находится в
+.Pa /etc/tacplus.conf ) .
+.It Cm template_user Ns = Ns Ar имя-пользователя
+указывает пользователя, чья запись в
+.Xr passwd 5
+будет использована как шаблон для создания окружения сеанса,
+если указанное имя пользователя не существует в локальной базе паролей.
+Пользователь
+будет аутентифицирован с указанными именем пользователя и паролем, но его
+учётные данные в системе будут представлены как для
+.Ar имя-пользователя ,
+т.е. его класс входа, домашний каталог, ограничения ресурсов и т.д.\& будут установлены в значения,
+определённые для
+.Ar имя-пользователя .
+.Pp
+Если этот параметр опущен, и в системных базах данных нет имени пользователя,
+совпадающего с указанным (как определено вызовом
+.Xr getpwnam 3 ) ,
+аутентификация завершится неудачно.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/tacplus.conf -compact
+.It Pa /etc/tacplus.conf
+Стандартный файл конфигурации клиента TACACS+ для
+.Nm
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr passwd 5 ,
+.Xr tacplus.conf 5 ,
+.Xr nss_tacplus 8
+.Sh ИСТОРИЯ
+Модуль
+.Nm
+впервые появился в
+.Fx 3.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Страница Справочника
+.Nm
+была написана
+.An Andrzej Bialecki Aq Mt abial@FreeBSD.org
+и адаптирована для TACACS+ из RADIUS
+.An Mark R V Murray Aq Mt markm@FreeBSD.org .
+.Pp
+Модуль
+.Nm
+был написан
+.An John D. Polstra Aq Mt jdp@FreeBSD.org .

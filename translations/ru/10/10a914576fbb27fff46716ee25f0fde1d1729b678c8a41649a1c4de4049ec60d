@@ -1,0 +1,114 @@
+.\" Copyright (c) 2000 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/lib/krb5/kerberos.8
+.\" FRDP githash 80ba60f64394fab3cda10d5921af896ed1c57c5f
+.\" FRDP hash256 10a914576fbb27fff46716ee25f0fde1d1729b678c8a41649a1c4de4049ec60d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 15, 2021
+.Dt KERBEROS 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kerberos
+.Nd введение в систему Kerberos
+.Sh ОПИСАНИЕ
+Kerberos — это система сетевой аутентификации. Её цель —
+безопасно аутентифицировать пользователей и службы в небезопасной
+сетевой среде.
+.Pp
+Это достигается с помощью сервера Kerberos, выступающего в роли доверенной третьей стороны,
+который ведёт базу данных с секретными ключами для всех пользователей и служб
+(в совокупности называемых
+.Em принципалами ) .
+.Pp
+Каждый принципал принадлежит ровно одной
+.Em области ,
+которая является административным доменом в Kerberos. Область обычно
+соответствует организации, и область обычно следует
+образовывать от доменного имени этой организации. Область обслуживается одним
+или несколькими серверами Kerberos.
+.Pp
+Процесс аутентификации включает обмен
+.Sq билетами
+и
+.Sq аутентификаторами ,
+которые вместе доказывают идентичность принципала.
+.Pp
+Когда вы входите в систему Kerberos, либо через обычный
+системный вход, либо с помощью программы
+.Xr kinit 1 ,
+вы получаете
+.Em билет для получения билетов ,
+который позволяет вам получать новые билеты для других служб, таких как
+.Ic telnet
+или
+.Ic ftp ,
+без ввода пароля.
+.Pp
+Для получения дополнительной информации о том, как работает Kerberos, см. руководство на
+.Lk https://kerberos.org/software/tutorial.html
+или неформальный
+.Dq диалог
+на
+.Lk https://web.mit.edu/kerberos/dialogue.html .
+.Pp
+Инструкции по настройке см. в Справочнике Heimdal Texinfo.
+.Sh СМ. ТАКЖЕ
+.Xr ftp 1 ,
+.Xr kdestroy 1 ,
+.Xr kinit 1 ,
+.Xr klist 1 ,
+.Xr kpasswd 1 ,
+.Xr telnet 1
+.Sh ИСТОРИЯ
+Система аутентификации Kerberos была разработана в конце 1980-х годов
+как часть проекта Athena в Массачусетском технологическом институте.
+Версии с первой по третью так и не вышли за пределы MIT, но
+версия 4 была (и остаётся) довольно популярной, особенно в академическом
+сообществе, но также используется в коммерческих продуктах, таких как файловая система AFS.
+.Pp
+Проблемы версии 4 состоят в том, что она имеет много ограничений,
+код был написан не слишком хорошо (поскольку разрабатывался в течение длительного
+времени), и у неё есть ряд известных проблем безопасности. Чтобы решить многие
+из этих вопросов, началась работа над версией пять, что привело к IETF RFC
+1510 в 1993 году. IETF RFC 1510 был объявлен устаревшим в 2005 году с IETF RFC 4120,
+также известным как разъяснения Kerberos. С появлением IETF RFC
+4120 началась работа по добавлению расширяемости и интернационализации
+(расширения Kerberos), и новый RFC, как мы надеемся, появится
+скоро.
+.Pp
+Эта страница Справочника является частью
+.Nm Heimdal
+дистрибутива Kerberos 5, который разрабатывается в Королевском
+технологическом институте в Стокгольме, Швеция, примерно с 1997 года.

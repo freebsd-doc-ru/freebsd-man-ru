@@ -1,0 +1,112 @@
+.\" Copyright (c) 2004-2009 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/bin/audit/audit.8
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 247a99a396afdc0158940543052fad044759e8ec5fa9879bd385ce1a6ee987c5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2015
+.Dt AUDIT 8
+.Os
+.Sh ИМЯ
+.Nm audit
+.Nd утилита управления аудитом
+.Sh СИНТАКСИС
+.Nm
+.Fl e | i | n | s | t
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+управляет состоянием системы аудита.
+Требуется один из следующих флагов в качестве аргумента
+.Nm :
+.Bl -tag -width indent
+.It Fl e
+Заставляет систему аудита немедленно удалить файлы журнала аудита,
+удовлетворяющие критериям истечения срока, указанным в файле управления
+аудитом, без выполнения ротации журнала.
+.It Fl i
+Инициализирует и запускает аудит.
+Эта опция в настоящее время предназначена только для Mac OS X
+и требует,
+чтобы
+.Xr auditd 8
+был настроен для запуска под управлением
+.Xr launchd 8 .
+.It Fl n
+Заставляет систему аудита закрыть существующий файл журнала аудита и
+выполнить ротацию в новый файл журнала в расположении, указанном в файле
+управления аудитом.
+Кроме того, будут удалены файлы журнала аудита, удовлетворяющие критериям
+истечения срока, указанным в файле управления аудитом.
+.It Fl s
+Указывает, что система аудита должна [повторно] синхронизировать свою
+конфигурацию из файла управления аудитом.
+Будет создан новый файл журнала.
+.It Fl t
+Указывает, что система аудита должна завершить работу.
+Файлы журнала закрываются
+и переименовываются, чтобы указать время завершения работы.
+.El
+.Sh ПРИМЕЧАНИЯ
+Демон
+.Xr auditd 8
+уже должен быть запущен.
+При необходимости его можно настроить на запуск
+по требованию с помощью
+.Xr launchd 8
+(только Mac OS X).
+Для успешной работы утилита
+.Nm
+требует привилегий администратора аудита.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/security/audit_control
+Файл политики аудита, используемый для настройки системы аудита.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr audit 4 ,
+.Xr audit_control 5 ,
+.Xr auditd 8 ,
+.Xr launchd 8 (Mac OS X)
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением
+безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением
+исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+К числу дополнительных авторов относятся
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока
+событий аудита были определены Sun Microsystems.

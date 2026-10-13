@@ -1,0 +1,191 @@
+.\" Copyright (c) 2015 EMC / Isilon Storage Division
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/ioat/ioatcontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5d4f0688ca748ab754ef53a173ea37f8add1f374de8fd88c1f169a6d28b15e95
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 27, 2016
+.Dt IOATCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm ioatcontrol
+.Nd Инструмент пространства пользователя для тестирования
+.Xr ioat 4
+.Sh СИНТАКСИС
+.Nm
+.Op Fl c Ar период
+.Op Fl E
+.Op Fl e
+.Op Fl f
+.Op Fl m
+.Op Fl V
+.Op Fl x
+.Op Fl X
+.Op Fl z
+.Ar номер_канала
+.Ar количество_транзакций
+.Ar [ размер_буфера
+.Ar [ длина_цепочки
+.Ar [ длительность ] ] ]
+.Nm
+.Fl r
+.Op Fl c Ar период
+.Op Fl v
+.Op Fl V
+.Op Fl w
+.Op Fl z
+.Ar номер_канала
+.Ar адрес
+.Ar [ размер_буфера ]
+.Sh ОПИСАНИЕ
+.Nm
+позволяет выдать некоторое количество тестовых операций драйверу
+.Xr ioat 4
+на конкретном аппаратном канале.
+Аргументы следующие:
+.Bl -tag -width Ds
+.It Fl c Ar период
+Настроить период объединения прерываний канала в микросекундах
+(по умолчанию 0).
+.It Fl E
+Тестировать непрерывное копирование 8k.
+.It Fl e
+Тестировать несмежное копирование 8k.
+.It Fl f
+Тестировать блочное заполнение (по умолчанию,
+.Nm
+тестирует копирование)
+.It Fl m
+Тестировать memcpy вместо DMA.
+.It Fl V
+Проверять точность копирований/заполнений
+.It Fl x
+Тестировать DMA CRC.
+.It Fl X
+Тестировать DMA-копирование с CRC.
+.It Fl z
+Обнулять статистику устройства перед запуском теста.
+.El
+.Pp
+В качестве альтернативы можно использовать
+.Nm
+.Fl r
+для выдачи DMA в конкретный
+.Ar адрес
+или из него.
+.Bl -tag -width Ds
+.It Fl c Ar период
+Как выше.
+.It Fl v
+.Ar адрес
+является виртуальным адресом ядра (по умолчанию
+.Ar адрес
+предполагается физическим адресом)
+.It Fl V
+Проверять точность копирований/заполнений
+.It Fl w
+Записывать в указанный
+.Ar адрес
+(по умолчанию
+.Nm
+.Fl r
+читает)
+.It Fl z
+Как выше.
+.El
+.Pp
+.Nm
+работает в одном из двух режимов; если передан аргумент
+.Ar длительность ,
+.Nm
+пытается оценить скорость копирования в байтах в секунду, запуская
+.Ar количество_транзакций
+повторно в цикле.
+Если
+.Ar длительность
+не передан,
+.Nm
+выполняет
+.Ar количество_транзакций
+только один раз и выводит общее число скопированных байтов, а также информацию об ошибках.
+.Pp
+Аргумент
+.Ar размер_буфера
+определяет размер буферов, используемых для каждого вызова
+.Fn ioat_copy .
+По умолчанию 256 KB.
+В необработанном режиме по умолчанию 4 KB.
+.Pp
+Аргумент
+.Ar длина_цепочки
+определяет количество копирований, объединяемых в одну DMA-транзакцию.
+По умолчанию 1.
+.Pp
+Аргумент
+.Ar длительность
+задаёт приблизительное ограничение времени для теста в миллисекундах.
+.Pp
+Тест выделит два блока памяти для каждого компонента каждой
+цепочки транзакций.
+Он инициализирует их определёнными шаблонами данных.
+Во время теста он отправляет DMA-запросы для копирования между парами буферов.
+Если был указан флаг
+.Fl V ,
+он сравнит содержимое в функции обратного вызова при ошибке копирования.
+.Sh ФАЙЛЫ
+.Pa /dev/ioat_test
+.Pp
+Интерфейс между
+.Nm
+и
+.Xr ioat 4 .
+.Xr ioat 4
+предоставляет его с помощью
+.Cd hw.ioat.enable_ioat_test=1 .
+.Sh ДИАГНОСТИКА
+Канал ожидания
+.Va test_submit
+указывает, что тестовый код поставил в очередь все запрошенные транзакции и
+ожидает завершения одной из них от аппаратуры IOAT, прежде чем выдать следующую операцию.
+.Sh СМ. ТАКЖЕ
+.Xr ioat 4
+.Sh ИСТОРИЯ
+Драйвер
+.Xr ioat 4
+впервые появился в
+.Fx 11.0 .
+.Sh АВТОРЫ
+Драйвер
+.Xr ioat 4
+и инструмент
+.Nm
+были разработаны
+.An \&Jim Harris Aq Mt jimharris@FreeBSD.org ,
+.An \&Carl Delsey Aq Mt carl.r.delsey@intel.com ,
+и
+.An \&Conrad Meyer Aq Mt cem@FreeBSD.org .
+Эта страница Справочника была написана
+.An \&Conrad Meyer Aq Mt cem@FreeBSD.org .

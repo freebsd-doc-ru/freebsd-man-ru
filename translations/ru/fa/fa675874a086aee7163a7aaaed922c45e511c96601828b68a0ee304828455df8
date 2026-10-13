@@ -1,0 +1,91 @@
+.\"-
+.\" Copyright (c) 2023 Klara, Inc.
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path lib/nss_tacplus/nss_tacplus.8
+.\" FRDP githash 246aec9a3ce305272f35e6416910024f602a03c1
+.\" FRDP hash256 fa675874a086aee7163a7aaaed922c45e511c96601828b68a0ee304828455df8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 13, 2023
+.Dt NSS_TACPLUS 8
+.Os
+.Sh ИМЯ
+.Nm nss_tacplus
+.Nd модуль nsswitch для TACACS+
+.Sh СИНТАКСИС
+.Ic passwd : files tacplus
+.Sh ОПИСАНИЕ
+Модуль
+.Nm
+— это загружаемый модуль NSS, который предоставляет минимальную
+службу идентификации с использованием бэкенда TACACS+.
+.Pp
+Из-за ограничений протокола TACACS+ функциональность,
+предоставляемая модулем
+.Nm ,
+очень ограничена: он может найти пользователя по имени, но не по uid,
+и не может перечислять пользователей.
+.Pp
+Чтобы найти пользователя, модуль
+.Nm
+отправляет запрос авторизации с методом аутентификации
+.Dv TAC_PLUS_AUTHEN_METH_NOT_SET ,
+типом аутентификации
+.Dv TAC_PLUS_AUTHEN_TYPE_NOT_SET ,
+и службой аутентификации
+.Dv TAC_PLUS_AUTHEN_SVC_LOGIN ,
+для службы
+.Dq shell .
+Если статус ответа — либо
+.Dv TAC_PLUS_AUTHOR_STATUS_PASS_ADD ,
+либо
+.Dv TAC_PLUS_AUTHOR_STATUS_PASS_REPL ,
+пользователь считается существующим, и модуль
+.Nm
+заполняет для него
+.Vt struct passwd .
+.Pp
+Следующие атрибуты, если они включены в ответ от сервера TACACS+,
+используются для формирования ответа:
+.Bl -tag -width GECOS
+.It Va UID
+Числовой идентификатор пользователя.
+Должен быть между 0 и
+.Dv UID_MAX .
+По умолчанию 65534.
+.It Va GID
+Числовой идентификатор первичной группы.
+Должен быть между 0 и
+.Dv GID_MAX .
+По умолчанию 65534.
+.It Va CLASS
+Класс входа.
+Остается пустым, если не указан.
+.It Va GECOS
+Отображаемое имя.
+Если не указано, вместо него используется имя пользователя.
+.It Va HOME
+Домашний каталог.
+По умолчанию
+.Pa / .
+.It Va SHELL
+Оболочка.
+По умолчанию
+.Pa /bin/sh .
+.El
+.Pp
+Регистр игнорируется при сопоставлении имен атрибутов.
+Если атрибут указан несколько раз, используется последнее значение.
+.Sh СМ. ТАКЖЕ
+.Xr libtacplus 3 ,
+.Xr tacplus.conf 5 ,
+.Xr pam_tacplus 8
+.Sh ИСТОРИЯ
+.An -nosplit
+Модуль
+.Nm
+и эта страница Справочника были написаны
+.An Dag-Erling Smørgrav Aq Mt des@FreeBSD.org
+для Klara Systems.

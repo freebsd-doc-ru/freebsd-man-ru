@@ -1,0 +1,122 @@
+.\" Copyright (c) 2016 Konrad Witaszczyk <def@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/decryptcore/decryptcore.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 2d1c1c5e2d8472c13ed0fd6fbbed286748588681383c58aa8610dadddcc400a0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 29, 2018
+.Dt DECRYPTCORE 8
+.Os
+.Sh ИМЯ
+.Nm decryptcore
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fLv
+.Fl p Ar privatekeyfile
+.Fl k Ar keyfile
+.Fl e Ar encryptedcore
+.Fl c Ar core
+.Nm
+.Op Fl fLv
+.Op Fl d Ar crashdir
+.Fl p Ar privatekeyfile
+.Fl n Ar dumpnr
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сначала расшифровывает
+.Ar keyfile
+с помощью
+.Ar privatekeyfile
+, а затем использует полученный ключ для расшифровки
+.Ar encryptedcore
+, сохранённого
+.Xr savecore 8 .
+Результат сохраняется в
+.Ar core .
+.Pp
+В качестве альтернативы пользователь может расшифровать дамп памяти с номером
+.Ar dumpnr
+из каталога
+.Ar crashdir .
+В этом случае используется ключ дампа из файла
+.Pa key.#
+, а результат сохраняется в файле
+.Pa vmcore.#
+, где
+.Dq #
+соответствует
+.Ar dumpnr .
+.Pp
+По умолчанию
+.Nm
+не перезаписывает старый дамп памяти, так как пользователь может захотеть сохранить дамп
+где-то ещё на будущее.
+Это поведение можно изменить с помощью флага
+.Fl f .
+.Pp
+Утилиту
+.Nm
+можно запустить со следующими аргументами командной строки:
+.Bl -tag -width ".Fl p Ar privatekeyfile"
+.It Fl f
+Удалить расшифрованный дамп памяти, если он уже существует.
+.It Fl L
+Записывать сообщения журнала в
+.Xr syslogd 8 .
+.It Fl v
+Выводить или записывать в журнал подробную/отладочную информацию.
+Эту опцию можно указывать несколько раз для повышения уровня
+подробности.
+.It Fl p Ar privatekeyfile
+Указать расположение файла закрытого ключа, который будет использоваться для расшифровки файла
+ключа дампа.
+.It Fl k Ar keyfile
+Указать расположение файла ключа дампа.
+.It Fl e Ar encryptedcore
+Указать расположение зашифрованного дампа.
+.It Fl c Ar core
+Указать расположение результирующего расшифрованного дампа памяти.
+.It Fl d Ar crashdir
+Указать альтернативный каталог аварийных дампов.
+Каталог аварийных дампов по умолчанию —
+.Pa /var/crash .
+.It Fl n Ar dumpnr
+Указать номер дампа памяти, который нужно расшифровать.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr kgdb 1 Pq Pa ports/devel/gdb ,
+.Xr capsicum 4 ,
+.Xr dumpon 8 ,
+.Xr savecore 8 ,
+.Xr syslogd 8
+.Sh АВТОРЫ
+Утилита
+.Nm
+была реализована
+.An Konrad Witaszczyk Aq Mt def@FreeBSD.org .

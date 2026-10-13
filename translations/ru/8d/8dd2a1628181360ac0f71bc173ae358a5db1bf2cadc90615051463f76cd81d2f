@@ -1,0 +1,358 @@
+.\" Copyright (c) 2002, 2004 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by Chris
+.\" Costello at Safeport Network Services and NAI Labs, the Security
+.\" Research Division of Network Associates, Inc. under DARPA/SPAWAR
+.\" contract N66001-01-C-8035 ("CBOSS"), as part of the DARPA CHATS
+.\" research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ugidfw/ugidfw.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8dd2a1628181360ac0f71bc173ae358a5db1bf2cadc90615051463f76cd81d2f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 24, 2004
+.Dt UGIDFW 8
+.Os
+.Sh ИМЯ
+.Nm ugidfw
+.Sh СИНТАКСИС
+.Nm
+.Cm add
+.Cm subject
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm jailid Ad jailid
+.Oc
+.Cm object
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm filesys Ad path
+.Oc
+.Oo
+.Op Cm \&!
+.Cm suid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm sgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm uid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm type Ar ardbclsp
+.Oc
+.Cm mode
+.Ar arswxn
+.Nm
+.Cm list
+.Nm
+.Cm set
+.Ar rulenum
+.Cm subject
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm jailid Ad jailid
+.Oc
+.Cm object
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm filesys Ad path
+.Oc
+.Oo
+.Op Cm \&!
+.Cm suid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm sgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm uid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm type Ar ardbclsp
+.Oc
+.Cm mode
+.Ar arswxn
+.Nm
+.Cm remove
+.Ar rulenum
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет
+.Xr ipfw 8 Ns -подобный
+интерфейс для управления доступом к объектам файловой системы по UID и GID,
+поддерживаемый политикой
+.Xr mac_bsdextended 4
+.Xr mac 9 .
+.Pp
+Аргументы следующие:
+.Bl -tag -width indent -offset indent
+.It Xo
+.Cm add
+.Cm subject
+.Ar ...
+.Cm object
+.Ar ...
+.Cm mode
+.Ar arswxn
+.Xc
+Добавить новое правило, автоматически выбрав номер правила.
+См. описание
+.Cm set
+для информации о синтаксисе.
+.It Cm list
+Выводит список всех текущих правил
+.Nm
+в системе.
+.It Xo
+.Cm set Ar rulenum
+.Cm subject
+.Ar ...
+.Cm object
+.Ar ...
+.Cm mode
+.Ar arswxn
+.Xc
+Добавить новое правило или изменить существующее правило.
+Аргументы следующие:
+.It Ar rulenum
+Номер правила.
+Записи с меньшим номером правила
+применяются первыми;
+размещение наиболее часто совпадающих правил в начале списка
+(т.е. с меньшими номерами)
+даст небольшое повышение производительности.
+.It Xo
+.Cm subject
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm jailid Ad jailid
+.Oc
+.Xc
+Субъекты, выполняющие операцию, должны соответствовать всем заданным условиям.
+Начальное
+.Cm not
+означает, что субъект не должен соответствовать остальной части спецификации.
+Условие может иметь префикс
+.Cm \&!
+чтобы указать, что конкретное условие не должно соответствовать субъекту.
+Субъект может быть обязан иметь определённый
+.Ar uid
+и/или
+.Ar gid .
+Можно указать диапазон uid/gid, разделённый двоеточием.
+Субъект может быть обязан находиться в определённой клетке с
+.Ar jailid .
+.It Xo
+.Cm object
+.Op Cm not
+.Oo
+.Op Cm \&!
+.Cm uid Ar uid | minuid:maxuid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid Ar gid | mingid:maxgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm filesys Ad path
+.Oc
+.Oo
+.Op Cm \&!
+.Cm suid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm sgid
+.Oc
+.Oo
+.Op Cm \&!
+.Cm uid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm gid_of_subject
+.Oc
+.Oo
+.Op Cm \&!
+.Cm type Ar ardbclsp
+.Oc
+.Xc
+Правило будет применяться только к объектам, соответствующим всем указанным условиям.
+Начальное
+.Cm not
+означает, что объект не должен соответствовать всем остальным условиям.
+Условие может иметь префикс
+.Cm \&!
+чтобы указать, что конкретное условие не должно соответствовать объекту.
+Объекты могут быть обязаны принадлежать пользователю и/или группе, указанным через
+.Ar uid
+и/или
+.Ar gid .
+Можно указать диапазон uid/gid, разделённый двоеточием.
+Объект может быть обязан находиться в определённой файловой системе, если
+указать файловую систему с помощью
+.Cm filesys .
+Заметьте,
+если файловая система размонтирована и смонтирована заново,
+то правило может потребоваться применить повторно, чтобы гарантировать использование правильного
+идентификатора файловой системы.
+Объект может быть обязан иметь установленные биты
+.Cm suid
+или
+.Cm sgid .
+Владелец объекта может быть обязан совпадать с
+.Cm uid_of_subject
+или
+.Cm gid_of_subject
+выполняющего операцию.
+Тип объекта можно ограничить подмножеством
+следующих типов.
+.Pp
+.Bl -tag -width indent -offset indent
+.It Cm a
+любой тип файла
+.It Cm r
+обычный файл
+.It Cm d
+каталог
+.It Cm b
+блочное специальное устройство
+.It Cm c
+символьное специальное устройство
+.It Cm l
+символическая ссылка
+.It Cm s
+сокет домена UNIX
+.It Cm p
+именованный канал (FIFO)
+.El
+.It Cm mode Ar arswxn
+Подобно
+.Xr chmod 1 ,
+каждый символ представляет режим доступа.
+Если правило применяется,
+указанные права доступа принудительно применяются
+к объекту.
+Когда в правиле указан символ,
+правило разрешает операцию.
+Наоборот, если он не включён, операция
+будет запрещена.
+Определения каждого символа следующие:
+.Pp
+.Bl -tag -width indent -offset indent
+.It Cm a
+административные операции
+.It Cm r
+доступ на чтение
+.It Cm s
+доступ к атрибутам файла
+.It Cm w
+доступ на запись
+.It Cm x
+доступ на выполнение
+.It Cm n
+нет
+.El
+.It Cm remove Ar rulenum
+Отключить и удалить правило с указанным номером правила.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mac_bsdextended 4 ,
+.Xr mac 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+Это программное обеспечение было передано
+.Fx
+проекту компанией NAI Labs, отделом исследований безопасности Network Associates
+Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

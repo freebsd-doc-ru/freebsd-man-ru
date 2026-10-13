@@ -1,0 +1,129 @@
+.\" Copyright (c) 2000 - 2004 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kdc/hprop.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 b1caa19f941aa7a5b9c4ef3046af519e1731ff94c808c192826b30b6d0a54267
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December  8, 2004
+.Dt HPROP 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm hprop
+.Nd распространяет базу данных KDC
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Oo Fl m Ar файл \*(Ba Xo
+.Fl Fl master-key= Ns Pa файл
+.Xc
+.Oc
+.Oo Fl d Ar файл \*(Ba Xo
+.Fl Fl database= Ns Pa файл
+.Xc
+.Oc
+.Op Fl Fl source= Ns Ar heimdal|mit-dump
+.Oo Fl r Ar строка \*(Ba Xo
+.Fl Fl v4-realm= Ns Ar строка
+.Xc
+.Oc
+.Oo Fl c Ar ячейка \*(Ba Xo
+.Fl Fl cell= Ns Ar ячейка
+.Xc
+.Oc
+.Oo Fl k Ar keytab \*(Ba Xo
+.Fl Fl keytab= Ns Ar keytab
+.Xc
+.Oc
+.Oo Fl R Ar строка \*(Ba Xo
+.Fl Fl v5-realm= Ns Ar строка
+.Xc
+.Oc
+.Op Fl D | Fl Fl decrypt
+.Op Fl E | Fl Fl encrypt
+.Op Fl n | Fl Fl stdout
+.Op Fl v | Fl Fl verbose
+.Op Fl Fl version
+.Op Fl h | Fl Fl help
+.Op Ar хост Ns Op : Ns Ar порт
+.Ar ...
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+берёт базу данных принципалов в указанном формате и преобразует её в поток записей базы данных Heimdal. Этот поток можно либо записать в стандартный вывод, либо (что более типично) распространить на сервер
+.Xr hpropd 8
+, работающий на другой машине.
+.Pp
+Если выполняется распространение, он подключается ко всем
+.Ar хостам
+, указанным в командной строке, открывая TCP-соединение на порт 754
+(служба hprop), и отправляет базу данных в зашифрованном виде.
+.Pp
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl m Ar файл , Fl Fl master-key= Ns Pa файл
+Где найти главный ключ для шифрования или расшифрования ключей.
+.It Fl d Ar файл , Fl Fl database= Ns Pa файл
+База данных, которую нужно распространить.
+.It Fl Fl source= Ns Ar heimdal|mit-dump|krb4-dump|kaserver
+Указывает тип исходной базы данных. Возможные варианты:
+.Pp
+.Bl -tag -width mit-dump -compact -offset indent
+.It heimdal
+база данных Heimdal
+.It mit-dump
+файл дампа MIT Kerberos 5
+.El
+.It Fl k Ar keytab , Fl Fl keytab= Ns Ar keytab
+Файл keytab, используемый для получения ключа, который будет использоваться для аутентификации на демоне(ах) распространения. Ключ
+.Pa hprop/hostname
+берётся из этого keytab. По умолчанию ключ берётся из базы данных KDC.
+.It Fl R Ar строка , Fl Fl v5-realm= Ns Ar строка
+Переопределение локальной области.
+.It Fl D , Fl Fl decrypt
+Ключи шифрования в базе данных могут быть либо в открытом виде, либо зашифрованы главным ключом. Этот параметр передаёт базу данных с незашифрованными ключами.
+.It Fl E , Fl Fl encrypt
+Этот параметр передаёт базу данных с зашифрованными ключами.
+.It Fl n , Fl Fl stdout
+Выгружает базу данных в стандартный вывод в формате, который можно передать hpropd.
+.El
+.Sh ПРИМЕРЫ
+Следующая команда распространит базу данных на другую машину (на которой должен быть запущен
+.Xr hpropd 8
+) :
+.Bd -literal -offset indent
+$ hprop slave-1 slave-2
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr hpropd 8

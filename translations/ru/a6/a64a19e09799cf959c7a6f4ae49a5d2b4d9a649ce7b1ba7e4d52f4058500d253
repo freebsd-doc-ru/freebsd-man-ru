@@ -1,0 +1,113 @@
+.\" Copyright (c) 2019 Dirk Engling
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bluetooth/bluetooth-config/bluetooth-config.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a64a19e09799cf959c7a6f4ae49a5d2b4d9a649ce7b1ba7e4d52f4058500d253
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 7, 2019
+.Dt BLUETOOTH-CONFIG 8
+.Os
+.Sh ИМЯ
+.Nm bluetooth-config
+.Nd сценарий для управления файлами конфигурации подсистемы Bluetooth
+.Sh СИНТАКСИС
+.Nm
+.Ar scan
+.Op Fl d Ar устройство
+.Op Fl n Ar узел
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой интерактивный сценарий, предоставляющий интерфейс к сложной подсистеме демонов Bluetooth.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent+
+.It Fl d
+Поиск по конкретному адресу устройства Bluetooth.
+.It Fl n
+Ограничить поиск конкретным хост-контроллером.
+Подсказка: выведите список всех узлов netgraph с помощью
+.Ql /usr/sbin/ngctl list .
+.El
+.Pp
+.Nm
+поможет найти и настроить контроллеры Bluetooth, выполнить поиск находящихся рядом устройств Bluetooth в режиме сопряжения, определить их имена, разрешить сопоставление с понятными именами в
+.Pa /etc/bluetooth/hosts ,
+запросить PIN-код сопряжения, настроить
+.Xr hcsecd 8
+для безопасного сопряжения с новыми устройствами и, если устройство предоставляет конечные точки HID, такие как мыши или клавиатуры, настроить и перезапустить
+.Xr bthidd 8 .
+.Pp
+.Nm
+может запустить любой интерфейс и демон, необходимые для работы, и, если узел указан в командной строке, сделает это автоматически для этого интерфейса.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/bluetooth/hosts
+.It Pa sysrc -n bthidd_config
+.It Pa sysrc -n hcsecd_config
+.El
+.Sh ПРИМЕРЫ
+.Nm
+scan -n ubt0 -a 00:26:bb:7a:58:95
+.Bd -ragged -offset indent
+Это просканирует контроллер Bluetooth ubt0hci на наличие устройства Bluetooth с адресом
+00:26:bb:7a:58:95, настроит ubt0 при необходимости и откроет интерактивный диалог для сопряжения
+нового устройства.
+Поскольку в этом примере сопрягается мышь,
+.Nm
+будет взаимодействовать с
+.Xr bthidd 8 ,
+включит его при необходимости и затем запишет дескриптор HID в его конфигурацию.
+.Ed
+.Pp
+.Nm
+scan
+.Bd -ragged -offset indent
+Это просканирует все контроллеры Bluetooth в системе на наличие устройств Bluetooth, по ходу предлагая
+запустить контроллеры или демоны.
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr bthost 1 ,
+.Xr bthidcontrol 8 ,
+.Xr bthidd 8 ,
+.Xr hccontrol 8 ,
+.Xr hcsecd 8 ,
+.Xr sdpcontrol 8 ,
+.Xr sysrc 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 12.1 .
+.Sh АВТОРЫ
+.An Dirk Engling Aq Mt erdgeist@erdgeist.org
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+.Nm
+не может разобрать записи в
+.Xr hcsecd 8
+файле конфигурации и поэтому попросит пользователя вручную изменить существующие записи PIN-кодов сопряжения.
+.Sh БЛАГОДАРНОСТИ
+Lars Engels и Warren Block за предложения, помощь и тестирование.

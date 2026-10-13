@@ -1,0 +1,135 @@
+.\"-
+.\" Copyright (c) 2013 SRI International
+.\" All rights reserved.
+.\"
+.\" This software was developed by SRI International and the University of
+.\" Cambridge Computer Laboratory under DARPA/AFRL contract (FA8750-10-C-0237)
+.\" ("CTSRD"), as part of the DARPA CRASH research programme.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path tools/tools/makeroot/makeroot.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f502e887a318b952fd43426f7f0d78e9e780736c8ce0da992cf9635975325559
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2013
+.Dt MAKEROOT 8
+.Os
+.Sh ИМЯ
+.Nm makeroot
+.Nd Инструмент для создания образов корневой файловой системы по дереву, содержащему манифест
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl B Ar порядок-байтов
+.Op Fl e Ar дополнительный-манифест
+.Op Fl f Ar список-файлов
+.Op Fl k Ar каталог-ключей Op Fl K Ar пользователь
+.Op Fl l Ar метка
+.Op Fl p Ar master.passwd Op Fl g Ar group
+.Op Fl s Ar размер
+.Ar файл-образ
+.Ar корневой-каталог
+.Sh ОПИСАНИЕ
+Сценарий
+.Nm
+создаёт образ файловой системы UFS в
+.Ar файл-образ .
+По умолчанию,
+все объекты файловой системы, перечисленные в
+.Pa METALOG
+файле, содержащемся в
+.Ar корневой-каталог
+каталоге, будут помещены в корень образа UFS
+.Ar файл-образ .
+.Pp
+Образы можно настраивать с помощью ряда различных флагов:
+.Bl -tag -width indent
+.It Fl B Ar порядок-байтов
+Установить порядок байтов образа в
+.Ar порядок-байтов .
+Этот аргумент передаётся напрямую в
+.Xr makefs 8 .
+.It Fl d
+Включить отладочный вывод.
+.It Fl e Ar манифест
+Дополнительные файлы, перечисленные в файле
+.Ar манифест
+формата
+.Xr nmtree 8 ,
+добавляются в образ файловой системы.
+Если тег contents= не указан или тег contents= относительный, то
+файлы ищутся относительно базового имени полного пути
+манифеста.
+Если тег contents= указан и является абсолютным путём, то файл
+будет взят из этого пути.
+.It Fl f Ar список-файлов
+Ограничить набор объектов файловой системы, включаемых из
+.Ar корневой-каталог ,
+теми, которые перечислены (по одному в строке) в
+.Ar список-файлов ,
+плюс любые необходимые каталоги.
+.It Fl k Ar каталог-ключей Op Fl K Ar пользователь
+Создать файл .ssh/authorized_keys из набора файлов открытых ключей,
+хранящихся в
+.Ar каталог-ключей ,
+и установить его в домашний каталог
+.Ar пользователь .
+Если аргумент
+.Fl K
+не указан, то файлы будут установлены в каталог пользователя root.
+.It Fl l Ar метка
+Установить метку тома файловой системы.
+.It Fl p Ar master.passwd Op Fl g Ar group
+Установить альтернативный
+.Ar master.passwd
+файл и, возможно, альтернативный
+.Ar group
+файл.
+.It Fl s Ar размер
+Установить размер образа в
+.Ar размер .
+Аргумент
+.Fl s
+передаётся напрямую в
+.Xr makefs 8 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width METALOG -compact
+.It Pa METALOG
+.Xr mtree 5
+манифест формата 2.0 прав доступа и владения для файлов в корневом
+каталоге.
+Этот файл создаётся installworld, distribution и installkernel.
+.El
+.Sh ПРИМЕРЫ
+.Dl $ makeroot.sh -k keys -K ctsrd -p extras/etc/master.passwd -g extras/etc/group -e extras/mdroot.mtree -e demo/demo.mtree -e extras/ctsrd.mtree -s 26112k -f demo.files cheribsd-demo.img /path/to/dist
+.Sh СМ. ТАКЖЕ
+.Xr mtree 5 ,
+.Xr makefs 8 ,
+.Xr nmtree 8
+.Sh АВТОРЫ
+Это программное обеспечение и эта страница Справочника были разработаны SRI International
+и Компьютерной лабораторией Кембриджского университета по контракту DARPA/AFRL
+.Pq FA8750-10-C-0237
+.Pq Do CTSRD Dc ,
+в рамках исследовательской программы DARPA CRASH.

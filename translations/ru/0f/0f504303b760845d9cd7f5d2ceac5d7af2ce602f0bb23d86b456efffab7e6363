@@ -1,0 +1,444 @@
+.\"	$NetBSD: ftpd.8,v 1.7 1995/04/11 02:44:53 cgd Exp $
+.\"
+.\" Copyright (c) 1985, 1988, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)ftpd.8	8.2 (Berkeley) 4/19/94
+.\"
+.\" FRDP path crypto/heimdal/appl/ftp/ftpd/ftpd.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 0f504303b760845d9cd7f5d2ceac5d7af2ce602f0bb23d86b456efffab7e6363
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 19, 2003
+.Dt FTPD 8
+.Os BSD 4.2
+.Sh ИМЯ
+.Nm ftpd
+.Nd сервер протокола передачи файлов Интернет
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar authmode
+.Op Fl dilvU
+.Op Fl g Ar umask
+.Op Fl p Ar port
+.Op Fl T Ar maxtimeout
+.Op Fl t Ar timeout
+.Op Fl Fl gss-bindings
+.Op Fl I | Fl Fl no-insecure-oob
+.Op Fl u Ar default umask
+.Op Fl B | Fl Fl builtin-ls
+.Op Fl Fl good-chars= Ns Ar string
+.Sh ОПИСАНИЕ
+.Nm Ftpd
+является
+серверным процессом протокола передачи файлов Интернет.  Сервер использует
+.Tn TCP
+протокол
+и прослушивает порт, указанный в спецификации службы
+.Dq ftp
+; см.
+.Xr services 5 .
+.Pp
+Доступные параметры:
+.Bl -tag -width Ds
+.It Fl a
+Выбрать уровень требуемой аутентификации.  Вход с Kerberos нельзя
+отключить. По умолчанию разрешён только вход с Kerberos.  Другие
+возможности можно включить, передав в качестве аргумента
+.Fl a
+строку разделённых запятыми флагов.
+Распознаются следующие флаги:
+.Bl -tag -width plain
+.It Ar plain
+Разрешить вход с паролем в открытом виде. Пароль может быть
+одноразовым паролем (OTP) или обычным паролем.
+.It Ar otp
+То же, что и
+.Ar plain ,
+но разрешён только OTP.
+.It Ar ftp
+Разрешить анонимный вход.
+.El
+.Pp
+Для обратной совместимости существуют следующие комбинированные режимы:
+.Bl -tag -width plain
+.It Ar none
+То же, что и
+.Ar plain,ftp .
+.It Ar safe
+То же, что и
+.Ar ftp .
+.It Ar user
+Игнорируется.
+.El
+.It Fl d
+Отладочная информация записывается в syslog с использованием LOG_FTP.
+.It Fl g
+Анонимные пользователи получат umask, равный
+.Ar umask .
+.It Fl Fl gss-bindings
+требовать от партнёра использования привязок GSS-API (то есть убедиться, что IP-адреса совпадают).
+.It Fl i
+Открыть сокет и ждать соединения. В основном используется для
+отладки, когда ftpd запускается не через inetd.
+.It Fl l
+Каждый успешный и неудачный
+.Xr ftp 1
+сеанс регистрируется в syslog с категорией LOG_FTP.
+Если этот параметр указан дважды, также регистрируются операции
+извлечения (get), сохранения (put), добавления, удаления, создания
+каталога, удаления каталога и переименования, а также их
+аргументы-имена файлов.
+.It Fl p
+Использовать
+.Ar port
+(имя или номер службы) вместо заданного по умолчанию
+.Ar ftp/tcp .
+.It Fl T
+Клиент также может запросить другой период тайм-аута;
+максимально допустимый период можно задать равным
+.Ar timeout
+секунд с помощью параметра
+.Fl T .
+Ограничение по умолчанию — 2 часа.
+.It Fl t
+Период тайм-аута неактивности устанавливается равным
+.Ar timeout
+секунд (по умолчанию — 15 минут).
+.It Fl u
+Установить начальную umask отличной от значения по умолчанию 027.
+.It Fl U
+В предыдущих версиях
+.Nm ftpd ,
+когда клиент в пассивном режиме запрашивал подключение для передачи данных к серверу,
+сервер использовал порты данных в диапазоне 1024..4999.  Теперь по умолчанию,
+если система поддерживает параметр сокета IP_PORTRANGE, сервер будет
+использовать порты данных в диапазоне 49152..65535.  Указание этого параметра
+возвращает старое поведение.
+.It Fl v
+Подробный режим.
+.It Xo
+.Fl B ,
+.Fl Fl builtin-ls
+.Xc
+использовать встроенную ls для перечисления файлов
+.It Xo
+.Fl Fl good-chars= Ns Ar string
+.Xc
+разрешённые символы в именах файлов для анонимной загрузки
+.It Xo
+.Fl I
+.Fl Fl no-insecure-oob
+.Xc
+не разрешать небезопасный внеполосный режим.
+Клиенты Heimdal ftp до 0.6.3 не поддерживают безопасный oob, поэтому включение
+этого параметра приводит к тому, что они перестают работать.
+.El
+.Pp
+Файл
+.Pa /etc/nologin
+можно использовать для отключения доступа по ftp.
+Если файл существует,
+.Nm
+отображает его и завершает работу.
+Если файл
+.Pa /etc/ftpwelcome
+существует,
+.Nm
+выводит его перед выдачей
+.Dq ready
+сообщения.
+Если файл
+.Pa /etc/motd
+существует,
+.Nm
+выводит его после успешного входа.
+.Pp
+В настоящее время ftp-сервер поддерживает следующие ftp-запросы.
+Регистр запросов игнорируется.
+.Pp
+Следующие команды определены в RFC2228.
+.Bl -column Request -offset indent
+.El
+.Pp
+Следующие нестандартные или
+.Tn UNIX
+специфичные команды поддерживаются
+запросом
+SITE.
+.Pp
+.Bl -column Request -offset indent
+.It UMASK Ta изменить umask, (например,
+.It IDLE Ta установить таймер простоя, (например,
+.It CHMOD Ta изменить режим файла (например,
+.It FIND Ta быстро найти конкретный файл с помощью GNU
+.Xr locate 1 .
+.It HELP Ta выдать справочную информацию.
+.El
+.Pp
+Понимаются следующие команды site, связанные с Kerberos.
+.Bl -column Request -offset indent
+.It KAUTH Ta получить удалённые билеты.
+.It KLIST Ta показать удалённые билеты
+.El
+.Pp
+Остальные ftp-запросы, указанные в Internet RFC 959,
+распознаются, но не реализованы.
+MDTM и SIZE не указаны в RFC 959, но появятся в
+следующем обновлённом RFC по FTP.
+.Pp
+ftp-сервер прервёт активную передачу файла только при получении
+ABOR,
+как описано в Internet RFC 959.
+Если во время передачи данных получена команда
+STAT,
+которой предшествовали Telnet IP
+и Synch, будет возвращён статус передачи.
+.Pp
+.Nm Ftpd
+интерпретирует имена файлов в соответствии с
+.Dq globbing
+соглашениями, используемыми
+.Xr csh 1 .
+Это позволяет пользователям использовать метасимволы
+.Dq Li \&*?[]{}~ .
+.Pp
+.Nm Ftpd
+аутентифицирует пользователей в соответствии со следующими правилами.
+.Pp
+.Bl -enum -offset indent
+.It
+Если используется аутентификация Kerberos, пользователь должен предъявить действительные билеты,
+и principal должен иметь право входа как удалённый пользователь.
+.It
+Имя входа должно присутствовать в базе данных паролей и не иметь пустого
+пароля (если используется Kerberos, поле пароля не проверяется).  В
+этом случае клиент должен предоставить пароль до выполнения любых файловых
+операций.  Если у пользователя есть ключ OTP, ответ на успешную команду USER будет включать запрос OTP. Клиент
+может ответить командой PASS, указав либо стандартный пароль,
+либо одноразовый пароль OTP. Сервер будет
+автоматически определять, какой тип пароля ему передан, и
+пытаться аутентифицировать соответствующим образом. См.
+.Xr otp 1
+для получения дополнительной информации об аутентификации OTP.
+.It
+Имя входа не должно присутствовать в файле
+.Pa /etc/ftpusers .
+.It
+Пользователь должен иметь стандартную оболочку, возвращаемую
+.Xr getusershell 3 .
+.It
+Если имя пользователя присутствует в файле
+.Pa /etc/ftpchroot ,
+корень сеанса будет изменён на каталог входа пользователя с помощью
+.Xr chroot 2
+как для учётной записи
+.Dq anonymous
+или
+.Dq ftp
+(см. следующий пункт).  Однако пользователь всё равно должен предоставить пароль.
+Эта возможность предназначена как компромисс между полностью анонимной учётной записью
+и полностью привилегированной учётной записью.  Учётную запись также следует настроить как для
+анонимной учётной записи.
+.It
+Если имя пользователя —
+.Dq anonymous
+или
+.Dq ftp ,
+в файле паролей должна присутствовать анонимная ftp-учётная запись (пользователь
+.Dq ftp ) .
+В этом случае пользователю разрешён
+вход с указанием любого пароля (по соглашению в качестве пароля
+следует использовать адрес электронной почты пользователя).
+.El
+.Pp
+В последнем случае
+.Nm ftpd
+принимает специальные меры для ограничения прав доступа клиента.
+Сервер выполняет
+.Xr chroot 2
+в домашний каталог пользователя
+.Dq ftp .
+Чтобы не нарушить безопасность системы, рекомендуется
+тщательно строить поддерево
+.Dq ftp ;
+рассмотрите следующие рекомендации
+для анонимного ftp.
+.Pp
+В общем, все файлы должны принадлежать
+.Dq root ,
+и не иметь прав на запись (644 или 755 в зависимости от типа
+файла). Никакие файлы не должны принадлежать или быть доступными для записи пользователю
+.Dq ftp
+(возможно, за исключением
+.Pa ~ftp/incoming ,
+как указано ниже).
+.Bl -tag -width ~ftp/incoming -compact
+.It Pa ~ftp
+Домашний каталог
+.Dq ftp
+должен принадлежать root.
+.It Pa ~ftp/bin
+Каталог для внешних программ (таких как
+.Xr ls 1 ) .
+Эти программы должны быть либо статически скомпонованы, либо необходимо настроить
+окружение для динамического связывания при работе в chroot.
+Эти программы будут использоваться, если присутствуют:
+.Bl -tag -width compress
+.It ls
+Используется при перечислении файлов.
+.It compress
+При извлечении имени файла, оканчивающегося на
+.Pa .Z ,
+если этот файл отсутствует,
+.Nm
+попытается найти имя файла без
+.Pa .Z
+и сжать его на лету.
+.It gzip
+То же, что и compress, только для файлов, оканчивающихся на
+.Pa .gz .
+.It gtar
+Позволяет извлекать целые каталоги как файлы, оканчивающиеся на
+.Pa .tar .
+Также может комбинироваться со сжатием. Необходимо использовать GNU Tar (или другой,
+поддерживающий флаги
+.Fl z
+и
+.Fl Z ).
+.It locate
+Включает ``быстрый поиск'' с помощью команды
+.Ic SITE FIND .
+Также необходимо создать файл
+.Pa locatedb
+в
+.Pa ~ftp/etc .
+.El
+.It Pa ~ftp/etc
+Если вы поместите сюда копии файлов
+.Xr passwd 5
+и
+.Xr group 5 ,
+ls сможет выдавать имена владельцев вместо номеров. Не забудьте удалить все пароли из этих файлов.
+.Pp
+Файл
+.Pa motd ,
+если он присутствует, будет выведен после успешного входа.
+.It Pa ~ftp/dev
+Поместите сюда копию
+.Xr /dev/null 7 .
+.It Pa ~ftp/pub
+Традиционное место для размещения всего, что вы хотите сделать общедоступным.
+.El
+.Pp
+Если вы хотите, чтобы гости могли загружать файлы, создайте
+.Pa ~ftp/incoming
+каталог, принадлежащий
+.Dq root
+и группе
+.Dq ftp
+с режимом 730 (убедитесь, что
+.Dq ftp
+является членом группы
+.Dq ftp ) .
+К анонимным пользователям применяются следующие ограничения:
+.Bl -bullet
+.It
+Создаваемые каталоги будут иметь режим 700.
+.It
+Загруженные файлы будут создаваться с umask 777, если это не изменено
+с помощью параметра
+.Fl g .
+.It
+Эти команды недоступны:
+.Ic DELE , RMD , RNTO , RNFR ,
+.Ic SITE UMASK ,
+и
+.Ic SITE CHMOD .
+.It
+Имена файлов должны начинаться с буквенно-цифрового символа и состоять из
+буквенно-цифровых символов или любого из следующих:
+.Li \&+
+(плюс),
+.Li \&-
+(минус),
+.Li \&=
+(равно),
+.Li \&_
+(подчёркивание),
+.Li \&.
+(точка) и
+.Li \&,
+(запятая).
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/ftpwelcome -compact
+.It Pa /etc/ftpusers
+Список доступа для пользователей.
+.It Pa /etc/ftpchroot
+Список обычных пользователей, которых следует поместить в chroot.
+.It Pa /etc/ftpwelcome
+Приветственное сообщение.
+.It Pa /etc/motd
+Приветственное сообщение после входа.
+.It Pa /etc/nologin
+Отображается, доступ запрещается.
+.It Pa ~/.klogin
+Доступ для входа через Kerberos.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ftp 1 ,
+.Xr otp 1 ,
+.Xr getusershell 3 ,
+.Xr ftpusers 5 ,
+.Xr syslogd 8
+.Sh СТАНДАРТЫ
+.Bl -tag -width "RFC 2228"
+.It Cm RFC 959
+СПЕЦИФИКАЦИЯ ПРОТОКОЛА FTP
+.It Cm RFC 1938
+Спецификация OTP
+.It Cm RFC 2228
+Расширения безопасности FTP.
+.El
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Сервер должен работать от имени суперпользователя
+для создания сокетов с привилегированными номерами портов.  Он поддерживает
+эффективный идентификатор пользователя вошедшего пользователя, возвращаясь к
+суперпользователю только при привязке адресов к сокетам.  Возможные
+бреши в безопасности были тщательно
+изучены, но, возможно, не полностью.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .

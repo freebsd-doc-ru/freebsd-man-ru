@@ -1,0 +1,91 @@
+.\"-
+.\" Copyright (c) 2006 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/bin/auditfilterd/auditfilterd.8
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 8b5f1f438f9ff1fd4bd6e42ddc6970eef0ac0b493f2783c1e78bf30600c0730a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 3, 2006
+.Dt AUDITFILTERD 8
+.Os
+.Sh ИМЯ
+.Nm auditfilterd
+.Nd демон фильтрации аудита
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl c Ar файл_конфигурации
+.Op Fl p Ar файл_канала
+.Op Fl t Ar файл_журнала
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+является расширяемым демоном мониторинга событий аудита, позволяющим подключаемым
+модулям отслеживать события аудита из активного источника аудита.
+Он настраивается с помощью файла конфигурации audit_filter.
+Источником может быть канал или файл.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl c Ar файл_конфигурации
+Укажите альтернативный файл конфигурации.
+.It Fl d
+Запускает демон в режиме отладки \[em] он не будет демонизирован.
+.It Fl p Ar файл_канала
+Укажите канал в качестве альтернативного источника записей событий аудита.
+По умолчанию используется
+.Pa /dev/auditpipe .
+.It Fl t Ar файл_журнала
+Укажите файл в качестве альтернативного источника записей событий аудита.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/security/audit_filterd
+Файл конфигурации по умолчанию для
+.Nm .
+.It Pa /dev/auditpipe
+Источник записей аудита по умолчанию для
+.Nm .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr audit 8 ,
+.Xr auditd 8
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана компанией McAfee Research, подразделением по
+безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+Демон
+.Nm
+и API фильтрации аудита были созданы
+.An Robert Watson .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Nm
+является экспериментальным, и на него не следует полагаться в промышленной
+эксплуатации.
+API и службы, которые он предлагает, могут и будут изменяться в будущих
+выпусках OpenBSM.

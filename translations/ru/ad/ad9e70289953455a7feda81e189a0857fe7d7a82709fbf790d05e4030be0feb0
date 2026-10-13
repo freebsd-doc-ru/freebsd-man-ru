@@ -1,0 +1,133 @@
+.\" Copyright (c) 2006 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: bthidd.8,v 1.1 2006/09/07 21:36:55 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/bthidd/bthidd.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 ad9e70289953455a7feda81e189a0857fe7d7a82709fbf790d05e4030be0feb0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 30, 2018
+.Dt BTHIDD 8
+.Os
+.Sh ИМЯ
+.Nm bthidd
+.Nd демон Bluetooth HID
+.Sh СИНТАКСИС
+.Nm
+.Fl h
+.Nm
+.Op Fl a Ar BD_ADDR
+.Op Fl c Ar file
+.Op Fl H Ar file
+.Op Fl p Ar file
+.Op Fl t Ar val
+.Op Fl u
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+обрабатывает удалённые устройства Bluetooth HID.
+.Pp
+Имеются следующие параметры:
+.Bl -tag -width indent
+.It Fl a Ar BD_ADDR
+Указывает локальный адрес для прослушивания.
+По умолчанию сервер будет прослушивать адрес
+.Dv ANY .
+Адрес можно задать как BD_ADDR или имя.
+Если указано имя, демон
+.Nm
+попытается разрешить имя с помощью
+.Xr bt_gethostbyname 3 .
+.It Fl c Ar file
+Указывает путь к файлу конфигурации.
+Путь по умолчанию:
+.Pa /etc/bluetooth/bthidd.conf .
+.It Fl d
+Не отсоединяться от управляющего терминала, то есть работать на переднем плане.
+.It Fl H Ar file
+Указывает путь к файлу известных HID-устройств.
+Путь по умолчанию:
+.Pa /var/db/bthidd.hids .
+.It Fl h
+Выводит сообщение об использовании и завершает работу.
+.It Fl p Ar file
+Указывает путь к PID-файлу.
+Путь по умолчанию:
+.Pa /var/run/bthidd.pid .
+.It Fl t Ar val
+Задаёт интервал повторного сканирования клиентов в секундах.
+Демон
+.Nm
+будет периодически сканировать недавно сконфигурированные устройства Bluetooth HID или
+отключённые
+.Dq пассивные
+устройства Bluetooth HID и попытается установить исходящее соединение.
+Интервал повторного сканирования по умолчанию — 10 секунд.
+.It Fl u
+Включает поддержку протокола устройства ввода событий.
+Требует, чтобы драйверы evdev и uinput были загружены с помощью
+.Xr kldload 8
+или вкомпилированы в ядро.
+.El
+.Sh ИЗВЕСТНЫЕ ОГРАНИЧЕНИЯ
+Демон
+.Nm
+в настоящее время не обрабатывает автоматическое повторение клавиш и события двойного щелчка мыши.
+Эти события прекрасно работают под
+.Xr X 7 Pq Pa ports/x11/xorg-docs ,
+но не в текстовой консоли.
+.Pp
+Эта страница Справочника требует доработки.
+Также нужна страница Справочника, документирующая формат файла конфигурации
+.Pa /etc/bluetooth/bthidd.conf .
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/bluetooth/bthidd.conf
+.It Pa /var/db/bthidd.hids
+.It Pa /var/run/bthidd.pid
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kbdmux 4 ,
+.Xr vkbd 4 ,
+.Xr bthidcontrol 8
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Любое устройство Bluetooth HID, которое имеет
+.Dv HUP_KEYBOARD
+или
+.Dv HUP_CONSUMER
+записи в своём дескрипторе, считается
+.Dq клавиатурой .
+Для каждого устройства Bluetooth HID, считающегося
+.Dq клавиатурой ,
+демон
+.Nm
+будет использовать отдельный экземпляр интерфейса виртуальной клавиатуры
+.Xr vkbd 4 .
+Поэтому драйвер
+.Xr kbdmux 4
+должен использоваться для правильного мультиплексирования ввода с нескольких клавиатур.

@@ -1,0 +1,171 @@
+.\"
+.\" Copyright (c) 2001 Peter Pentchev
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/kldconfig/kldconfig.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 ff6631d7bfd66ba81069a75c618c0a224fc0cc14f0ecd0052bc376480ac897fa
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 29, 2020
+.Dt KLDCONFIG 8
+.Os
+.Sh ИМЯ
+.Nm kldconfig
+.Nd отображает или изменяет путь поиска модулей ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dfimnUv
+.Op Fl S Ar sysctlname
+.Op Ar путь ...
+.Nm
+.Fl r
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает или изменяет путь поиска, используемый ядром при загрузке модулей
+с помощью утилиты
+.Xr kldload 8
+или системного вызова
+.Xr kldload 2 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Удаляет указанные пути из пути поиска модулей.
+.It Fl f
+Не завершать с ошибкой, если путь, указанный для добавления, уже присутствует в пути
+поиска, или если путь, указанный для удаления, отсутствует в пути поиска.
+Это может быть полезно в сценариях запуска/остановки для добавления пути к
+файловой системе, которая ещё не смонтирована, или в сценариях завершения работы для
+безусловного удаления пути, который мог быть добавлен во время запуска.
+.It Fl i
+Добавляет указанные пути в начало пути поиска, а не в конец.
+Этот параметр можно использовать только при добавлении путей.
+.It Fl m
+Вместо замены пути поиска модулей набором указанных путей
+.Dq объединить
+новые элементы.
+.It Fl n
+Не изменять фактически путь поиска модулей.
+.It Fl r
+Отображает текущий путь поиска.
+Этот параметр нельзя использовать, если также указаны какие-либо пути.
+.It Fl S Ar sysctlname
+Указывает имя sysctl, которое нужно использовать вместо значения по умолчанию
+.Va kern.module_path .
+.It Fl U
+.Dq Сделать уникальным
+текущий путь поиска — если какой-либо из каталогов повторяется один
+или несколько раз, остаётся только первое вхождение.
+Этот параметр подразумевает
+.Fl m .
+.It Fl v
+Подробный вывод: отображать новый путь поиска модулей.
+Если путь был изменён, и
+.Fl v
+указан более одного раза, также отображается старый путь.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /boot/kernel , /boot/modules , /modules
+Путь поиска модулей по умолчанию, используемый ядром.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Показать путь поиска модулей
+.Bd -literal -offset indent
+$ kldconfig -r
+/boot/kernel;/boot/modules;/boot/dtb;/boot/dtb/overlays
+.Ed
+.Pp
+Попробовать удалить каталог
+.Pa /boot
+из пути поиска.
+Команда завершится с ошибкой:
+.Bd -literal -offset indent
+$ kldconfig -d /boot
+kldconfig: not in module search path: /boot
+$ echo $?
+1
+.Ed
+.Pp
+То же, что выше, но с принудительным выполнением операции.
+На этот раз команда завершится успешно:
+.Bd -literal -offset indent
+$ kldconfig -d -f /boot
+$ echo $?
+0
+.Ed
+.Pp
+Добавить каталог
+.Pa /boot
+в начало пути поиска и отобразить дополнительный подробный вывод:
+.Bd -literal -offset indent
+$ kldconfig -i -m -vv /boot
+/boot/kernel;/boot/modules -> /boot;/boot/kernel;/boot/modules
+.Ed
+.Pp
+Без
+.Fl m
+флаг
+.Fl i
+перезапишет содержимое списка пути поиска:
+.Bd -literal -offset indent
+$ kldconfig -i -vv /boot
+/boot;/boot/kernel;/boot/modules;/boot/dtb;/boot/dtb/overlays -> /boot
+.Ed
+.Pp
+То же, что выше, но с использованием
+.Fl n
+для имитации операции без её фактического выполнения:
+.Bd -literal -offset indent
+$ kldconfig -i -n -vv /boot
+/boot;/boot/kernel;/boot/modules;/boot/dtb;/boot/dtb/overlays -> /boot
+.Ed
+.Pp
+Добавить каталоги в путь поиска, удаляя дубликаты.
+Обратите внимание на необходимость
+.Fl f
+для принудительного выполнения операции, если какой-либо из каталогов уже находится в
+пути поиска.
+Каталог
+.Pa /boot/kernel
+будет добавлен один раз:
+.Bd -literal -offset indent
+$ kldconfig -f -U /boot/kernel /boot/kernel /boot/modules /boot/dtb /boot/dtb/overlays
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kldload 2 ,
+.Xr kldload 8 ,
+.Xr kldxref 8 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 4.4 .
+.Sh АВТОРЫ
+.An Peter Pentchev Aq Mt roam@FreeBSD.org

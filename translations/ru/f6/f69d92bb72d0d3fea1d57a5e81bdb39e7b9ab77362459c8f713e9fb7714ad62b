@@ -1,0 +1,201 @@
+.\" Copyright (c) 2006, 2008 Stanislav Sedov <stas@FreeBSD.org>.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/cpucontrol/cpucontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f69d92bb72d0d3fea1d57a5e81bdb39e7b9ab77362459c8f713e9fb7714ad62b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 5, 2018
+.Dt CPUCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm cpucontrol
+.Nd утилита управления устройством
+.Xr cpuctl 4
+.Sh СИНТАКСИС
+.Bk
+.Nm
+.Op Fl v
+.Fl m Ar msr
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl v
+.Fl m Ar msr Ns = Ns Ar значение
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl v
+.Fl m Ar msr Ns &= Ns Ar маска
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl v
+.Fl m Ar msr Ns |= Ns Ar маска
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl v
+.Fl i Ar уровень
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl v
+.Fl i Ar уровень,тип_уровня
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Op Fl vn
+.Op Fl d Ar каталог_данных
+.Fl u
+.Ar устройство
+.Ek
+.Bk
+.Nm
+.Fl e
+.Ar устройство
+.Ek
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для чтения и записи произвольных машинно-зависимых
+регистров CPU через специальное устройство
+.Xr cpuctl 4 .
+Она также может использоваться для применения обновлений прошивки CPU.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d Ar каталог_данных
+Пути к каталогам, в которых следует искать образы микрокода.
+Этот параметр можно указывать несколько раз.
+Пути добавляются в порядке появления параметров в командной строке;
+стандартные каталоги добавляются после путей, указанных пользователем.
+.It Fl n
+Не искать образы микрокода в стандартных каталогах.
+В настоящее время стандартным каталогом для поиска файлов обновления
+микрокода является
+.Pa /usr/local/share/cpucontrol .
+.It Fl m Ar msr
+Показать значение указанного MSR.
+Номер регистра MSR должен быть задан шестнадцатеричным числом.
+Сначала выводится старшее слово, затем младшее слово.
+.It Fl m Ar msr Ns = Ns Ar значение
+Записать
+.Ar значение
+в указанный регистр MSR.
+Аргумент
+.Ar значение
+может быть дополнен оператором ~.
+В этом случае в регистр будет записано инвертированное значение аргумента.
+.It Fl m Ar msr Ns &= Ns Ar маска
+Записать в регистр MSR результат побитовой операции И между
+.Ar маска
+и текущим значением MSR.
+Аргумент
+.Ar маска
+может быть дополнен оператором ~.
+В этом случае будет использовано инвертированное значение маски.
+.It Fl m Ar msr Ns |= Ns Ar маска
+Записать в регистр MSR результат побитовой операции ИЛИ между
+.Ar маска
+и текущим значением MSR.
+Аргумент
+.Ar маска
+может быть дополнен оператором ~.
+В этом случае будет использовано инвертированное значение маски.
+.It Fl i Ar уровень
+Получить информацию CPUID.
+Уровень должен быть задан шестнадцатеричным числом.
+.It Fl i Ar уровень,тип_уровня
+Получить информацию CPUID.
+Уровень и тип уровня должны быть заданы шестнадцатеричными числами.
+.It Fl u
+Применить обновления прошивки CPU.
+Утилита
+.Nm
+пройдёт по настроенным каталогам данных и применит все обновления
+прошивки, доступные для этого CPU.
+.It Fl e
+Перепроверить флаги ядра, указывающие на имеющиеся возможности CPU.
+Эта команда обычно выполняется после применения обновления прошивки,
+которое изменяет информацию, сообщаемую инструкцией
+.Dv CPUID .
+.Pp
+.Bf -symbolic
+Выполняйте команду
+.Fl e
+только после того, как обновление микрокода было применено ко всем CPU в
+системе.
+Ядро работает некорректно, если возможности процессоров не идентичны.
+.Ef
+.It Fl v
+Увеличить уровень подробности вывода.
+.It Fl h
+Показать справочное сообщение.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Команда
+.Pp
+.Pp
+прочитает содержимое TSC MSR из CPU 0.
+.Pp
+Чтобы установить значение регистра TSC MSR CPU 0 в 0x1, выполните
+.Pp
+.Pp
+Следующая команда очистит второй бит регистра TSC:
+.Pp
+.Pp
+Следующая команда установит четвёртый и второй биты регистра TSC:
+.Pp
+.Pp
+Команда
+.Pp
+.Pp
+получит уровень CPUID 0x1 из CPU 1.
+.Pp
+Чтобы выполнить обновления прошивки на CPU 0 из образов, расположенных в
+.Pa /usr/local/share/cpuctl
+используйте следующую команду:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr cpuctl 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.2 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Stanislav Sedov Aq Mt stas@FreeBSD.org .

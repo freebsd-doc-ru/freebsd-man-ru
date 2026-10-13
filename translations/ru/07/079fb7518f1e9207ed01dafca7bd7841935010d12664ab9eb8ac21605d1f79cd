@@ -1,0 +1,177 @@
+.\" Copyright (c) 2003 Tim Kientzle <kientzle@acm.org>
+.\" Copyright (c) 2003 Simon L. Nielsen <simon@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man8/rescue.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 079fb7518f1e9207ed01dafca7bd7841935010d12664ab9eb8ac21605d1f79cd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 30, 2022
+.Dt RESCUE 8
+.Os
+.Sh ИМЯ
+.Nm rescue
+.Nd утилиты восстановления в
+.Pa /rescue
+.Sh ОПИСАНИЕ
+.Pa /rescue
+содержит набор распространённых утилит, предназначенных для использования
+при восстановлении сильно повреждённой системы.
+С переходом к динамически связанному корню, начиная с
+.Fx 5.2 ,
+существует реальная возможность, что стандартные инструменты в
+.Pa /bin
+и
+.Pa /sbin
+могут стать неработоспособными из-за неудачного обновления или ошибки диска.
+Инструменты в
+.Pa /rescue
+статически связаны и поэтому должны быть более устойчивы к
+повреждениям.
+Однако, будучи статически связанными, инструменты в
+.Pa /rescue
+также менее функциональны, чем стандартные утилиты.
+В частности, они не могут в полной мере использовать локаль,
+.Xr pam 3 ,
+и библиотеки nsswitch.
+.Pp
+Если ваша система не загружается и показывает приглашение, подобное:
+.Pp
+.Pp
+первое, что стоит попробовать запустить, — это стандартная оболочка,
+.Pa /bin/sh .
+Если это не сработает, попробуйте запустить
+.Pa /rescue/sh ,
+которая является
+.Nm
+оболочкой.
+Чтобы восстановить систему, корневой раздел сначала необходимо перемонтировать
+в режим чтения-записи.
+Это можно сделать с помощью следующей команды
+.Xr mount 8 :
+.Pp
+.Pp
+Следующий шаг — тщательно проверить содержимое
+.Pa /bin , /sbin ,
+и
+.Pa /usr/lib ,
+возможно, смонтировав
+.Fx
+rescue или
+CD-ROM и скопировав файлы оттуда.
+Как только можно будет успешно запустить
+.Pa /bin/sh , /bin/ls ,
+и другие стандартные утилиты, попробуйте перезагрузиться обратно в стандартную
+систему.
+.Pp
+Инструменты
+.Pa /rescue
+скомпилированы с использованием
+.Xr crunchgen 1 ,
+что делает их значительно более компактными, чем стандартные
+утилиты.
+Чтобы собрать систему
+.Fx ,
+где пространство критично,
+.Pa /rescue
+можно использовать в качестве замены стандартных каталогов
+.Pa /bin
+и
+.Pa /sbin
+; просто измените
+.Pa /bin
+и
+.Pa /sbin
+так, чтобы они были символическими ссылками, указывающими на
+.Pa /rescue .
+Поскольку
+.Pa /rescue
+статически связан, в такой среде также должно быть возможно обойтись без большей части
+.Pa /usr/lib .
+.Pp
+В отличие от своего предшественника
+.Pa /stand ,
+.Pa /rescue
+обновляется во время обычных обновлений исходного кода и двоичных файлов
+.Fx .
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /rescue" -compact
+.It Pa /rescue
+Корень
+.Nm
+иерархии.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr crunchgen 1 ,
+.Xr crash 8
+.Sh ИСТОРИЯ
+Утилиты
+.Nm
+впервые появились в
+.Fx 5.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Система
+.Nm
+была написана
+.An Tim Kientzle Aq Mt kientzle@FreeBSD.org ,
+на основе идей, взятых из
+.Nx .
+Эта страница Справочника была написана
+.An Simon L. Nielsen Aq Mt simon@FreeBSD.org ,
+на основе текста
+.An Tim Kientzle Aq Mt kientzle@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Большинство инструментов
+.Nm
+работают даже в довольно повреждённой системе.
+Самым вопиющим исключением является
+версия
+.Nm
+программы
+.Xr vi 1 ,
+которая в настоящее время требует, чтобы
+.Pa /usr
+был смонтирован, чтобы она могла получить доступ к
+.Xr termcap 5
+файлам.
+Надеемся, что отказоустойчивая
+.Xr termcap 3
+запись в конечном итоге будет добавлена в библиотеку
+.Xr ncurses 3 ,
+чтобы
+.Pa /rescue/vi
+можно было использовать даже в системе, где
+.Pa /usr
+не может быть немедленно смонтирован.
+Тем временем
+версию
+.Nm
+редактора
+.Xr ed 1
+можно использовать из
+.Pa /rescue/ed ,
+если вам нужно редактировать файлы, но вы не можете смонтировать
+.Pa /usr .

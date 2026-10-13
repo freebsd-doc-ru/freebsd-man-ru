@@ -1,0 +1,108 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibfindnodesusing.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 bd341f5b2cff7973b0b6ef3372c2e6c49067db62b134a8846ffabf54739706cf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBFINDNODESUSING \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ПОИСК СПИСКА КОНЕЧНЫХ УЗЛОВ, КОТОРЫЕ МАРШРУТИЗИРУЮТСЯ ЧЕРЕЗ УКАЗАННЫЙ КОММУТАТОР И ПОРТ
+.SS СИНТАКСИС
+.sp
+ibfindnodesusing.pl [параметры] <switch_guid|switch_name> <порт>
+.SS ОПИСАНИЕ
+.sp
+ibfindnodesusing.pl использует ibroute и определяет текущие узлы, которые маршрутизируются
+через оба направления указанного соединения.  Соединение задаётся одним
+концом порта коммутатора; скрипт автоматически находит удалённый конец.
+.SS ПАРАМЕТРЫ
+.INDENT 0.0
+.TP
+.B \fB\-h\fP
+показать справку
+.TP
+.B \fB\-R\fP
+Пересчитать информацию ibnetdiscover, т. е. не использовать кэшированную
+информацию.  Этот параметр работает медленнее, но его следует использовать, если диагностические
+инструменты не использовались некоторое время или если есть другие причины
+считать, что фабрика изменилась.
+.UNINDENT
+.sp
+\fB\-C <ca_name>\fP    использовать указанный ca_name.
+.sp
+\fB\-P <ca_port>\fP    использовать указанный ca_port.
+.SS ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для задания некоторых общих параметров для всех
+инструментов.  Подробности см. в поставляемом файле конфигурации.
+.
+.SS ФОРМАТ ФАЙЛА КАРТЫ ИМЁН УЗЛОВ
+.sp
+Карта имён узлов используется для задания удобных для пользователя имён узлов в
+выводе.  Для выполнения поиска используются GUID.
+.sp
+Эта функциональность предоставляется пакетом opensm\-libs.  См. \fBopensm(8)\fP
+о расположении файла для вашей установки.
+.sp
+\fBОбобщённо:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# комментарий
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBПример:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# IB1
+# Линейные карты
+
+# Spine-коммутаторы
+
+# GUID   Имя узла
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Ira Weiny
+< \fI\%ira.weiny@intel.com\fP >
+.UNINDENT
+.

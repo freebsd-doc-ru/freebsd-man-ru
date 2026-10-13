@@ -1,0 +1,141 @@
+.\" Copyright (c) 1995
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/revnetgroup/revnetgroup.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d0647ad0e7476b3bb40f82c5456d5e8aa18285cadb6a756b63706a061b852a7d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 24, 1995
+.Dt REVNETGROUP 8
+.Os
+.Sh ИМЯ
+.Nm revnetgroup
+.Sh СИНТАКСИС
+.Nm
+.Fl u | h
+.Op Fl f Ar файл_netgroup
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+обрабатывает содержимое файла в формате
+.Xr netgroup 5
+в так называемую форму
+.Pa reverse netgroup .
+То есть, если исходный файл показывает членство в netgroup в терминах того, какие члены находятся в определённой группе, то формат reverse netgroup указывает, какие группы связаны с определённым членом.
+Эта информация используется для создания
+.Pa netgroup.byuser
+и
+.Pa netgroup.byhost
+.Tn NIS
+карт.
+Эти обратные карты netgroup используются для ускорения поиска в netgroup, особенно для библиотечной функции
+.Fn innetgr .
+Например, стандартный файл
+.Pa /etc/netgroup
+может содержать netgroup и список её членов.
+Здесь
+netgroup считается
+.Em ключом ,
+а имена членов —
+.Em данными .
+Напротив, обратная база данных
+.Pa netgroup.byuser
+перечисляет каждого уникального члена как ключ, а netgroup, к которым принадлежат члены, становятся данными.
+Создаются отдельные базы данных для хранения информации о пользователях и хостах; это позволяет выполнять поиск в netgroup по имени пользователя и по имени хоста, используя независимые пространства ключей.
+Создавая эти обратные базы данных netgroup (и соответствующие
+.Tn NIS
+карты) заранее, библиотечные функции
+.Xr getnetgrent 3
+избавляются от необходимости вычислять зависимости самостоятельно на лету.
+Это важно в сетях с большим числом пользователей и хостов, поскольку обработка очень больших баз данных netgroup может занимать значительное время.
+Утилита
+.Nm
+выводит свои результаты в стандартный вывод.
+Обычно она вызывается только из
+.Pa /var/yp/Makefile
+при перестройке
+.Tn NIS
+карт netgroup.
+.Sh ОПЦИИ
+Утилита
+.Nm
+поддерживает следующие опции:
+.Bl -tag -width indent
+.It Fl u
+Создаёт вывод
+.Pa netgroup.byuser
+; обрабатывается только информация об именах пользователей в исходном файле netgroup.
+.It Fl h
+Создаёт вывод
+.Pa netgroup.byhost
+; обрабатывается только информация об именах хостов в исходном файле netgroup.
+(Обратите внимание, что должен быть указан хотя бы один из флагов
+.Fl u
+или
+.Fl h
+\&.)
+.It Op Fl f Ar файл_netgroup
+Утилита
+.Nm
+использует
+.Pa /etc/netgroup
+в качестве входного файла по умолчанию.
+Флаг
+.Fl f
+позволяет пользователю указать альтернативный входной файл.
+Указание ``-''
+в качестве входного файла заставляет
+.Nm
+читать из стандартного ввода.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/yp/Makefile -compact
+.It Pa /var/yp/Makefile
+Makefile, который вызывает
+.Nm yp_mkdb
+и
+.Nm
+для создания
+.Tn NIS
+баз данных.
+.It Pa /etc/netgroup
+файл базы данных netgroup по умолчанию.
+Этот файл чаще всего встречается только на
+.Tn NIS
+главном сервере.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getnetgrent 3 ,
+.Xr netgroup 5 ,
+.Xr yp 8 ,
+.Xr yp_mkdb 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu

@@ -1,0 +1,96 @@
+.\"-
+.\" Copyright (c) 2002 Chad David
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/ktrdump/ktrdump.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 168bd03dc170c4e19d5c1de72597aba32cac78569c4f1c6e20bc8059d9cdb0f2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 22, 2018
+.Dt KTRDUMP 8
+.Os
+.Sh ИМЯ
+.Nm ktrdump
+.Nd вывести буфер трассировки ktr ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cflqrtH
+.Op Fl i Ar ktrfile
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl o Ar outfile
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для вывода содержимого буфера трассировки ktr ядра.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl c
+Выводить номер CPU, с которого была записана каждая запись.
+.It Fl l
+Периодически опрашивать буфер трассировки ktr ядра, выводя все новые события после каждого опроса.
+.It Fl f
+Выводить файл и номер строки, из которых была записана каждая запись.
+.It Fl q
+Тихий режим; не выводить заголовок столбцов.
+.It Fl r
+Выводить относительные отметки времени вместо абсолютных.
+.It Fl t
+Выводить отметку времени для каждой записи.
+.It Fl H
+Выводить идентификатор потока для каждой записи.
+.It Fl i Ar ktrfile
+Файл, содержащий сохранённые события трассировки ktr; для получения дополнительной информации см. страницу Справочника
+.Xr ktr 4 .
+.It Fl N Ar system
+Образ ядра, из которого следует разрешать символы.
+По умолчанию используется значение, возвращаемое
+.Xr getbootfile 3 .
+.It Fl M Ar core
+Файл core или образ памяти, из которого следует читать.
+По умолчанию
+.Pa /dev/mem .
+.It Fl o Ar outfile
+Файл, в который следует записывать вывод.
+По умолчанию используется стандартный вывод.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ktr 4 ,
+.Xr ktr 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была реализована
+.An Jake Burkholder Aq Mt jake@FreeBSD.org .
+.Pp
+Эта страница Справочника была написана
+.An Chad David Aq Mt davidc@FreeBSD.org .

@@ -1,0 +1,88 @@
+.\"	$OpenBSD: ypldap.8,v 1.10 2015/07/27 17:28:40 sobrado Exp $
+.\"
+.\" Copyright (c) 2008 Pierre-Yves Ritschard <pyr@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path usr.sbin/ypldap/ypldap.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 adbf5901c7457680487788463962b523e5439b6d681779e56d1a736c00225e30
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: June 8 2016 $
+.Dt YPLDAP 8
+.Os
+.Sh ИМЯ
+.Nm ypldap
+.Nd Сервер карт YP с бэкендом LDAP
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dnv
+.Op Fl D Ar макрос Ns = Ns Ar значение
+.Op Fl f Ar файл
+.Sh ОПИСАНИЕ
+.Nm
+— демон, предоставляющий карты YP с использованием LDAP в качестве бэкенда.
+RFC 2307 или аналогичные LDAP-схемы могут быть привязаны к различным картам YP.
+.Nm
+имеет ту же роль, что и
+.Xr ypserv 8 ,
+и эти два демона взаимоисключающи.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl D Ar макрос Ns = Ns Ar значение
+Определяет
+.Ar макрос
+со значением
+.Ar значение
+в командной строке.
+Переопределяет определение
+.Ar макрос
+в файле конфигурации.
+.It Fl d
+Не переходить в режим демона.
+Если указан этот параметр,
+.Nm
+будет работать на переднем плане и записывать журнал в
+.Em stderr .
+.It Fl f Ar файл
+Указать альтернативный файл конфигурации.
+.It Fl n
+Режим проверки конфигурации.
+Только проверяет файл конфигурации на корректность.
+.It Fl v
+Выводить более подробную информацию.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/ypldap.conf
+Файл конфигурации
+.Nm
+по умолчанию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ypldap.conf 5 ,
+.Xr ypbind 8
+.Sh ИСТОРИЯ
+Программа
+.Nm
+впервые появилась в
+.Ox 4.4 ,
+а затем в
+.Fx 11.0 .
+.Sh АВТОРЫ
+Программа
+.Nm
+была написана
+.An Pierre-Yves Ritschard .

@@ -1,0 +1,166 @@
+.\"
+.\" Copyright (c) 2007-2009 Bruce Simpson.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mtest/mtest.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 fea5ee6f1971fd2f24f815b9a42f153d196a831827c07e4c275d10e3c8cfffba
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 29, 2009
+.Dt MTEST 8
+.Os
+.Sh ИМЯ
+.Nm mtest
+.Nd тестирование операций с многоадресными сокетами
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+—
+небольшая программа для тестирования операций с многоадресными сокетами.
+.Pp
+Она принимает следующие команды в интерактивном режиме или из файла сценария
+(полезно для автоматизированного тестирования):
+.Pp
+.Bl -tag -width Ds
+.It Ic a Ar имя_интерфейса Ar mac-адрес
+Присоединиться к групповому адресу канального уровня
+.Ar mac-адрес
+на интерфейсе
+.Ar имя_интерфейса .
+Групповой адрес должен быть в формате IEEE 802 MAC,
+разделённый символами двоеточия (':') .
+.It Ic d Ar имя_интерфейса Ar mac-адрес
+Покинуть групповой адрес канального уровня
+.Ar mac-адрес
+на интерфейсе
+.Ar имя_интерфейса .
+.It Ic m Ar имя_интерфейса Ar 1/0
+Установить или сбросить режим ALLMULTI на интерфейсе
+.Ar имя_интерфейса .
+Эта возможность устарела и теперь является пустой операцией.
+.It Ic p Ar имя_интерфейса Ar 1/0
+Установить или сбросить неразборчивый режим на интерфейсе
+.Ar имя_интерфейса .
+.Pp
+.It Ic j Ar адрес_многоадресной_передачи Ar имя_интерфейса Op Ar адрес_источника
+Присоединиться к адресу многоадресной передачи
+.Ar адрес_многоадресной_передачи
+на интерфейсе с именем
+.Ar имя_интерфейса .
+.Pp
+Если указан необязательный источник
+.Ar адрес_источника ,
+будет выполнено присоединение к конкретному источнику;
+если
+.Nm
+уже присоединён к адресу многоадресной передачи, источник
+будет добавлен в его список фильтров.
+.Pp
+.It Ic l Ar адрес_многоадресной_передачи Ar имя_интерфейса Op Ar адрес_источника
+Покинуть адрес многоадресной передачи
+.Ar адрес_многоадресной_передачи
+на интерфейсе с адресом
+.Ar имя_интерфейса .
+Если указан источник
+.Ar адрес_источника ,
+будет покинут только этот источник.
+.It Ic i Ar адрес_многоадресной_передачи Ar имя_интерфейса Ar n Ar адрес_источника ...
+Установить для сокета, участвующего в
+.Ar адрес_многоадресной_передачи
+на интерфейсе
+.Ar имя_интерфейса ,
+режим фильтра включения и добавить
+.Ar n
+источников, начиная с
+.Ar адрес_источника ,
+в список фильтра включения.
+.It Ic e Ar адрес_многоадресной_передачи Ar имя_интерфейса Ar n Ar адрес_источника ...
+Установить для сокета, участвующего в
+.Ar адрес_многоадресной_передачи
+на интерфейсе
+.Ar имя_интерфейса ,
+режим фильтра исключения и добавить
+.Ar n
+источников, начиная с
+.Ar адрес_источника ,
+в список фильтра исключения.
+.It Ic t Ar адрес_многоадресной_передачи Ar имя_интерфейса Ar адрес_источника
+Установить для сокета, участвующего в
+.Ar адрес_многоадресной_передачи
+на интерфейсе
+.Ar имя_интерфейса ,
+блокировку трафика от источника
+.Ar адрес_источника .
+.It Ic b Ar адрес_многоадресной_передачи Ar имя_интерфейса Ar адрес_источника
+Установить для сокета, участвующего в
+.Ar адрес_многоадресной_передачи
+на интерфейсе
+.Ar имя_интерфейса ,
+разрешение трафика от источника
+.Ar адрес_источника .
+.Pp
+.It Ic g Ar адрес_многоадресной_передачи Ar имя_интерфейса Ar n
+Вывести
+.Ar n
+записей фильтра источников для
+.Ar адрес_многоадресной_передачи
+на интерфейсе
+.Ar имя_интерфейса .
+.Pp
+.It Ic f Ar имя_файла
+Читать команды из файла
+.Ar имя_файла .
+.It Ic s Ar n
+Приостановиться на
+.Ar n
+секунд.
+.It Ic ?\&
+Вывести список допустимых команд.
+.It Ic q
+Выйти из программы.
+.El
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Для каждой команды, реализуемой
+.Nm ,
+семейство адресов каждого аргумента должно совпадать; например, нельзя
+смешивать членство в многоадресных группах IPv4 с IPv6.
+.Pp
+Для поддержки IPv6 все команды теперь принимают имя интерфейса,
+а не адрес интерфейса.
+Для IPv4 программа выполняет
+поиск основного IP-адреса по имени интерфейса.
+Это может не сработать, если основной IP-адрес не назначен.
+.Sh СМ. ТАКЖЕ
+.Rs
+.%A D. Thaler
+.%A B. Fenner
+.%A B. Quinn
+.%O RFC 3678
+.Re
+.Sh АВТОРЫ
+.An -split

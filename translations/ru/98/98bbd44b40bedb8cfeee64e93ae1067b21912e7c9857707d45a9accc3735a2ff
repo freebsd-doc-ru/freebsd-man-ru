@@ -1,0 +1,166 @@
+.\"-
+.\" Copyright (c) 2007-2008 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/ddb/ddb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 98bbd44b40bedb8cfeee64e93ae1067b21912e7c9857707d45a9accc3735a2ff
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 24, 2008
+.Dt DDB 8
+.Os
+.Sh ИМЯ
+.Nm ddb
+.Sh СИНТАКСИС
+.Nm
+.Cm capture
+.Op Fl M дамп
+.Op Fl N система
+.Cm print
+.Nm
+.Cm capture
+.Op Fl M дамп
+.Op Fl N система
+.Cm status
+.Nm
+.Cm script
+.Ar имя_сценария
+.Nm
+.Cm script
+.Ar имя_сценария Ns = Ns Ar сценарий
+.Nm
+.Cm scripts
+.Nm
+.Cm unscript
+.Ar имя_сценария
+.Nm
+.Ar путь
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+настраивает некоторые аспекты отладчика ядра
+.Xr ddb 4
+из пространства пользователя, которые не настраиваются во время компиляции или
+легко через
+.Xr sysctl 8
+записи MIB.
+.Pp
+Чтобы упростить настройку, команды можно поместить в файл, который обрабатывается с помощью
+.Nm
+как показано в последней строке СИНТАКСИСА.
+Необходимо использовать абсолютный
+.Ar путь .
+Файл будет прочитан строка за строкой и передан как аргументы утилите
+.Nm .
+Пробельные символы в начале строк игнорируются, как и строки, в которых
+первый непробельный символ —
+.Ql # .
+.Sh ЗАХВАТ ВЫВОДА
+Утилита
+.Nm
+может использоваться для извлечения содержимого
+.Xr ddb 4
+буфера захвата вывода текущего работающего ядра или из аварийного дампа
+ядра на диске.
+Следующие команды отладчика доступны из командной строки:
+.Bl -tag -width indent
+.It Xo
+.Cm capture
+.Op Fl M Ar дамп
+.Op Fl N Ar система
+.Cm print
+.Xc
+Вывести текущее содержимое
+.Xr ddb 4
+буфера захвата вывода.
+.It Xo
+.Cm capture
+.Op Fl M Ar дамп
+.Op Fl N Ar система
+.Cm status
+.Xc
+Вывести текущее состояние
+.Xr ddb 4
+буфера захвата вывода.
+.El
+.Sh СЦЕНАРИИ
+Утилита
+.Nm
+может использоваться для настройки аспектов
+.Xr ddb 4
+сценариев из пространства пользователя; поддержка сценариев подробнее описана в
+.Xr ddb 4 .
+Каждая из команд отладчика доступна из командной строки:
+.Bl -tag -width indent
+.It Cm script Ar имя_сценария
+Вывести сценарий с именем
+.Ar имя_сценария .
+.It Cm script Ar имя_сценария Ns = Ns Ar сценарий
+Определить сценарий с именем
+.Ar имя_сценария .
+Поскольку многие сценарии содержат символы, интерпретируемые оболочкой особым образом,
+рекомендуется заключить
+.Ar сценарий
+в кавычки.
+.It Cm scripts
+Вывести список текущих определённых сценариев.
+.It Cm unscript Ar имя_сценария
+Удалить сценарий с именем
+.Ar имя_сценария .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Следующий пример определяет сценарий, который будет выполнен при входе в отладчик
+ядра в результате сигнала прерывания:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Следующий пример удалит сценарий:
+.Pp
+.Pp
+Дополнительные примеры см. в Справочниках
+.Xr ddb 4
+и
+.Xr textdump 4 .
+.Sh СМ. ТАКЖЕ
+.Xr ddb 4 ,
+.Xr mac_ddb 4 ,
+.Xr textdump 4 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.1 .
+.Sh АВТОРЫ
+.An Robert N M Watson
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+В идеале
+.Nm
+не должна существовать, так как все соответствующие аспекты
+.Xr ddb 4
+могли бы настраиваться напрямую через
+.Xr sysctl 8 .

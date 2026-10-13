@@ -1,0 +1,208 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibportstate.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 ea99eac54adeae7083fcbc5e659e0a41ad10aaa9db07a54d4470635587313184
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBPORTSTATE \- управление состоянием порта (физическим) и скоростью канала порта InfiniBand
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH СИНТАКСИС
+.sp
+ibportstate [опции] <dest dr_path|lid|guid> <portnum> [<op>]
+.SH ОПИСАНИЕ
+.sp
+ibportstate позволяет запрашивать состояние порта и физическое состояние порта IB-порта (а также проверять ширину и скорость канала относительно парного порта, когда запрашиваемый порт является портом коммутатора), либо отключать, включать или сбрасывать порт коммутатора. Он также позволяет настраивать разрешённые скорость/ширину канала на любом IB-порту.
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB<op>\fP
+.INDENT 7.0
+.TP
+.B Поддерживаемые операции: enable, disable, reset, speed, espeed, fdr10, width, query,
+on, off, down, arm, active, vls, mtu, lid, smlid, lmc,
+mkey, mkeylease, mkeyprot
+(По умолчанию — query)
+.UNINDENT
+.sp
+\fBenable, disable и reset\fP разрешены только на портах коммутатора (ошибка выдаётся, если попытаться применить их к портам CA или маршрутизатора)
+.sp
+\fBoff\fP переводит состояние порта в disable.
+.sp
+\fBon\fP переводит состояние порта в enable (только когда текущее состояние — disable).
+.sp
+\fBspeed и width\fP разрешены на любом порту
+.sp
+значения \fBspeed\fP — это допустимые значения для PortInfo:LinkSpeedEnabled (ошибка выдаётся, если PortInfo:LinkSpeedSupported не поддерживает эту настройку)
+.sp
+\fBespeed\fP разрешён на любом порту, поддерживающем расширенные скорости канала
+.sp
+\fBfdr10\fP разрешён на любом порту, поддерживающем fdr10 (ошибка выдаётся, если маска возможностей порта указывает, что расширенные скорости канала не поддерживаются, или если PortInfo:LinkSpeedExtSupported не поддерживает эту настройку)
+.sp
+значения \fBwidth\fP — это допустимые значения для PortInfo:LinkWidthEnabled (ошибка выдаётся, если PortInfo:LinkWidthSupported не поддерживает эту настройку) (ПРИМЕЧАНИЕ: изменения скорости и ширины не вступают в силу, пока порт не пройдёт повторное согласование канала)
+.sp
+\fBquery\fP также проверяет характеристики порта (ширину канала, скорость, espeed и fdr10) на основе парного порта. Эта проверка выполняется, когда запрашиваемый порт является портом коммутатора, поскольку она полагается на комбинированную маршрутизацию (начальный маршрут LID с направленной маршрутизацией к парному порту), которая может выполняться только на коммутаторе. Эта функция проверки парного порта у операции query требует, чтобы маршрутизация LID работала в подсети.
+.sp
+\fBmkey, mkeylease и mkeyprot\fP разрешены только на CA, маршрутизаторах или порту 0 коммутатора (ошибка генерируется при попытке применить их к внешним портам коммутатора). Шестнадцатеричные и восьмеричные mkey можно задать, добавив к ключу \(aq0x\(aq или \(aq0\(aq соответственно. Если для mkey указано нечисловое значение (например, \(aqx\(aq), ibportstate запросит значение.
+.UNINDENT
+.SS Флаги адресации
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес — это LID
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес — это GUID порта
+.
+.sp
+\fB\-D, \-\-Direct\fP     Указанный адрес — это направленный маршрут
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Примеры:
+
+   (Обратите внимание: второе число в указанном пути должно соответствовать используемому порту. Это можно задать с помощью флага выбора порта \(aq\-P\(aq или порта, найденного в процессе автоматического выбора.)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-s, \-\-sm_port <smlid>\fP     использовать \(aqsmlid\(aq в качестве целевого lid для запросов SA.
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны, порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физический канал поднят).
+.UNINDENT
+.sp
+Если указано имя порта и/или CA, библиотека libibumad пытается выполнить запрос пользователя и завершится ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт из первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги конфигурации
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрашиваемых mads.
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq), будет запрошено значение.
+.UNINDENT
+.SS Флаги отладки
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и приёма (тайм-ауты и другие)
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \fB\-K, \-\-show_keys\fP
+показывать ключи безопасности (mkey, smkey и т. д.), связанные с запросом.
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности вывода приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SH ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Глобальный файл конфигурации предоставляется для задания некоторых общих параметров для всех инструментов. Подробности см. в прилагаемом файле конфигурации.
+.SH ПРИМЕРЫ
+.INDENT 0.0
+.TP
+.B ::
+ibportstate 3 1 disable                  # по lid
+ibportstate \-G 0x2C9000100D051 1 enable  # по guid
+ibportstate \-D 0 1                       # (query) по направленному маршруту
+ibportstate 3 1 reset                    # по lid
+ibportstate 3 1 speed 1                  # по lid
+ibportstate 3 1 width 1                  # по lid
+ibportstate \-D 0 1 lid 0x1234 arm        # по направленному маршруту
+.UNINDENT
+.SH АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%hal.rosenstock@gmail.com\fP >
+.UNINDENT
+.

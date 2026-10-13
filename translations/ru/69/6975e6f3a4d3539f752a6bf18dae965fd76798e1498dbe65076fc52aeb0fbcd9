@@ -1,0 +1,67 @@
+.\" Copyright (c) 2006 Henrik Brix Andersen <henrik@brixandersen.dk>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/wpa_passphrase/wpa_passphrase.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 6975e6f3a4d3539f752a6bf18dae965fd76798e1498dbe65076fc52aeb0fbcd9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 17, 2007
+.Dt WPA_PASSPHRASE 8
+.Os
+.Sh ИМЯ
+.Nm wpa_passphrase
+.Sh СИНТАКСИС
+.Nm
+.Aq Ar ssid
+.Op Ar "парольная фраза"
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой небольшую программу для генерации 256-битного
+предварительно распределённого ключа WPA из ASCII-парольной фразы и
+заданного SSID. Вывод форматируется для включения в
+.Xr wpa_supplicant.conf 5 .
+.Pp
+Если
+.Nm
+вызывается только с SSID в качестве аргумента, она запрашивает
+парольную фразу со стандартного ввода.
+.Sh СМ. ТАКЖЕ
+.Xr wpa_supplicant.conf 5 ,
+.Xr wpa_supplicant 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.3 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Jouni Malinen Aq Mt j@w1.fi .
+.Pp
+Эта страница Справочника была написана
+.An Henrik Brix Andersen Aq Mt henrik@brixandersen.dk .

@@ -1,0 +1,135 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ctld/ctld.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4d471b71e5beac46282cf4f5f3922850e479cfbf51a8a8066ddda1104749e2e8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 31, 2020
+.Dt CTLD 8
+.Os
+.Sh ИМЯ
+.Nm ctld
+.Nd Демон CAM Target Layer / iSCSI-цели
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl f Ar файл-конфигурации
+.Op Fl u
+.Nm
+.Fl t
+.Op Fl f Ar файл-конфигурации
+.Op Fl u
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отвечает за управление конфигурацией CAM Target Layer,
+приём входящих соединений iSCSI, выполнение аутентификации и
+передачу соединений ядерной части встроенной iSCSI-цели.
+.Pp
+При запуске демон
+.Nm
+разбирает файл конфигурации.
+Если он обнаруживает какие-либо ошибки,
+.Nm
+завершает работу.
+Затем он сравнивает конфигурацию со списком LUN в ядре,
+управляемых ранее запущенными экземплярами
+.Nm ,
+удаляет LUN, которых больше нет в файле конфигурации,
+и создаёт новые LUN при необходимости.
+После этого он ожидает входящие соединения iSCSI, выполняет
+аутентификацию и в случае успеха передаёт соединения ядерной части
+iSCSI-цели CTL,
+.Xr cfiscsi 4 ,
+которая обрабатывает их с этого момента.
+.Pp
+При получении сигнала SIGHUP
+.Nm
+перезагружает свою конфигурацию и применяет изменения в ядре.
+Изменения применяются так, чтобы избежать ненужных нарушений работы;
+например, удаление одного LUN не влияет на другие LUN.
+.Pp
+При корректном завершении демон
+.Nm
+удаляет LUN, которыми управлял, и принудительно отключает всех клиентов.
+В противном случае — например, при завершении с SIGKILL — LUN остаются
+настроенными, а клиенты остаются подключёнными.
+.Pp
+Для выполнения административных действий, применяемых к уже подключённым
+сеансам, таких как принудительное завершение, используйте
+.Xr ctladm 8 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl f Ar файл-конфигурации
+Задаёт имя файла конфигурации.
+По умолчанию используется
+.Pa /etc/ctl.conf .
+.It Fl d
+Режим отладки.
+Демон отправляет подробные отладочные сообщения в стандартный поток ошибок и не
+переходит в фоновый режим.
+Демон также не будет порождать новый процесс и завершится после обработки одного соединения.
+Этот параметр предназначен только для отладки цели.
+.It Fl t
+Проверить файл конфигурации на корректность и выйти.
+.It Fl u
+Использовать формат файла конфигурации UCL вместо традиционного формата, отличного от UCL.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/ctl.conf
+Файл конфигурации для
+.Nm .
+Формат файла и параметры конфигурации описаны в
+.Xr ctl.conf 5 .
+.It Pa /var/run/ctld.pid
+Местоположение PID-файла
+.Nm
+по умолчанию.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и >0 при возникновении ошибки.
+.Sh СМ. ТАКЖЕ
+.Xr cfiscsi 4 ,
+.Xr ctl 4 ,
+.Xr ctl.conf 5 ,
+.Xr ctladm 8 ,
+.Xr ctlstat 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+.Nm
+был разработан
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

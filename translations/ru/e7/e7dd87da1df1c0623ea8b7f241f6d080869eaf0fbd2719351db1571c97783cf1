@@ -1,0 +1,121 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" All rights reserved.
+.\" Copyright (c) 2001 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_login_access/pam_login_access.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e7dd87da1df1c0623ea8b7f241f6d080869eaf0fbd2719351db1571c97783cf1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 30, 2020
+.Dt PAM_LOGIN_ACCESS 8
+.Os
+.Sh ИМЯ
+.Nm pam_login_access
+.Nd модуль PAM login.access
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_login_access
+.Op Ar опции
+.Sh ОПИСАНИЕ
+Сервисный модуль
+.Pa login.access
+для PAM,
+.Nm
+предоставляет функциональность только для одной категории PAM:
+управление учетными записями.
+В терминах параметра
+.Ar тип-модуля
+это
+.Dq Li account
+возможность.
+.Ss Модуль управления учетными записями login.access
+Компонент управления учетными записями
+.Pa login.access
+.Pq Fn pam_sm_acct_mgmt ,
+возвращает успех тогда и только тогда, когда пользователю разрешено входить в систему на
+указанном tty (в случае локального входа) или с указанного
+удаленного узла (в случае удаленного входа), в соответствии с
+ограничениями, перечисленными в
+.Xr login.access 5 .
+.Bl -tag -width "accessfile=pathname"
+.It Cm accessfile Ns = Ns Ar путь
+указывает нестандартное расположение файла конфигурации
+.Pa login.access
+(обычно находится в
+.Pa /etc/login.access ) .
+.It Cm nodefgroup
+заставляет токены, не заключенные в скобки, соответствовать только пользователям, требуя указания групп
+в скобках.
+Без
+.Cm nodefgroup
+имена пользователей и групп перемешаны, причем записи пользователей имеют приоритет
+над записями групп.
+Это не имеет обратной совместимости с устаревшими
+.Pa login.access
+файлами конфигурации.
+Однако это уменьшает путаницу между пользователями и
+группами с одинаковыми именами.
+.It Cm fieldsep Ns = Ns Ar разделители
+Может быть указано более одного разделителя.
+.It Cm listsep Ns = Ns Ar разделители
+изменяет разделитель полей по умолчанию с пробела (''), табуляции (\\t) и
+запятой (,).
+Может быть указано более одного разделителя.
+Например, listsep=;
+заменит значение по умолчанию на точку с запятой (;).
+Этот параметр может быть полезен при указании имен групп Active Directory, которые
+обычно содержат пробелы.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr syslog 3 ,
+.Xr login.access 5 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Схема контроля доступа
+.Xr login.access 5
+была разработана и реализована
+.An Wietse Venema .
+.Pp
+Модуль
+.Nm
+и эта страница Справочника были разработаны для проекта
+.Fx
+компанией
+ThinkSec AS и NAI Labs, отделом исследований безопасности Network
+Associates, Inc.\& по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

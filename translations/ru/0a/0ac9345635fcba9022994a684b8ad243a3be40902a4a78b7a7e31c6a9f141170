@@ -1,0 +1,90 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2022 NetApp, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/boottrace/boottrace.8
+.\" FRDP githash 4d846d260e2b9a3d4d0a701462568268cbfe7a5b
+.\" FRDP hash256 0ac9345635fcba9022994a684b8ad243a3be40902a4a78b7a7e31c6a9f141170
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 18, 2022
+.Dt BOOTTRACE 8
+.Os
+.Sh ИМЯ
+.Nm boottrace
+.Nd трассировка выполнения команды с
+.Xr boottrace 4
+.Sh СИНТАКСИС
+.Nm
+.Ar утилита Op Ar аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет указанную
+.Ar утилита ,
+создавая две
+.Xr boottrace 4
+записи трассировки до и после её выполнения.
+.Sh ОКРУЖЕНИЕ
+Переменная окружения
+.Ev PATH
+используется для поиска запрошенной
+.Ar утилита ,
+если имя не содержит символов
+.Ql /
+.
+.Sh СТАТУС ВЫХОДА
+Если
+.Ar утилита
+была успешно выполнена, возвращается её статус выхода.
+.Pp
+Если
+.Ar утилита
+была найдена, но не может быть выполнена, возвращается статус выхода 126.
+Если
+.Ar утилита
+не найдена, возвращается статус выхода 127.
+.Sh ПРИМЕРЫ
+Выполните утилиту
+.Xr dumpon 8
+,
+регистрируя записи трассировки:
+.Bd -literal -offset indent
+$ boottrace dumpon -z /dev/gpt/swap0
+.Ed
+.Pp
+Это появится в выводе узла
+.Va kern.boottrace.log
+.Xr sysctl 8
+:
+.Bd -literal
+CPU      msecs    delta process     event                PID CPUtime IBlks OBlks
+  0   63918567        0 kernel      sysinit 0x2100001      0    0.00     0     0
+[...]
+  0   64076940   120605 boottrace   dumpon start        1602    0.00     0     0
+  0   64076942        2 boottrace   dumpon done         1602    0.00     0     0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr boottrace 4 ,
+.Xr rc.subr 8

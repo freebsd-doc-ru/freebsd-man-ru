@@ -1,0 +1,73 @@
+.\" Copyright (c) 2009 Rick Macklem, University of Guelph
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nfsdumpstate/nfsdumpstate.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 fa2b097e46158bd44a0ca487059cb98387e03e395aac3bb180cb67c2c76580fe
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 25, 2009
+.Dt NFSDUMPSTATE 8
+.Os
+.Sh ИМЯ
+.Nm nfsdumpstate
+.Nd отображение состояния открытий/блокировок .Tn NFSv4
+.Sh СИНТАКСИС
+.Nm nfsdumpstate
+.Op Fl o
+.Op Fl l Ar имя_файла
+.Sh ОПИСАНИЕ
+.Nm
+отображает состояние открытий/блокировок для
+.Tn NFSv4
+клиента и сервера в экспериментальной подсистеме NFS.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl o
+Отображает сводку клиентов для NFSv4. В каждой строке указан клиент, при этом ClientID является последним полем строки.
+.Pp
+Ниже перечислены отображаемые значения флагов клиента:
+.Bl -tag -compact -offset 2n -width MMMM
+.It NC
+Требуется подтверждение
+.It CB
+Обратные вызовы включены
+.It GSS
+Используется RPCSEC_GSS
+.It REV
+Административно отозван с помощью nfsrevoke(8)
+.El
+.It Fl l Ar имя_файла
+Отображает список всех открытий и блокировок NFSv4 для файла, указанного в
+.Ar имя_файла .
+ClientID является последним полем каждой строки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr nfsv4 4 ,
+.Xr nfsrevoke 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была представлена вместе с экспериментальной подсистемой NFSv4 в 2009 году.

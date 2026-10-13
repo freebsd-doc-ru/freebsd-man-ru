@@ -1,0 +1,203 @@
+.\" Copyright 1995, 1996, 1997
+.\"     Guy Helmer, Ames, Iowa 50014.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY GUY HELMER ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL GUY HELMER BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/adduser/rmuser.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 7576f043b18db638061a9990bf197455caee13b14fd7c1cf299a5c8515dd65f1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 10, 2002
+.Dt RMUSER 8
+.Os
+.Sh ИМЯ
+.Nm rmuser
+.Nd удаление пользователей из системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl yv
+.Op Fl f Ar файл
+.Op Ar имя_пользователя ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+удаляет одного или нескольких пользователей, указанных в командной строке
+или в файле.
+При удалении пользователя из системы эта утилита:
+.Bl -enum
+.It
+Удаляет запись пользователя в
+.Xr crontab 1
+(если таковая имеется).
+.It
+Удаляет все задания
+.Xr at 1 ,
+принадлежащие пользователю.
+.It
+Посылает сигнал
+.Dv SIGKILL
+всем процессам, принадлежащим пользователю.
+.It
+Удаляет пользователя из локального файла паролей системы.
+.It
+Удаляет домашний каталог пользователя (если он принадлежит пользователю),
+включая обработку символических ссылок в пути к фактическому домашнему
+каталогу.
+.It
+Удаляет файлы входящей почты и почты демона POP, принадлежащие
+пользователю, из
+.Pa /var/mail .
+.It
+Удаляет все файлы, принадлежащие пользователю, из
+.Pa /tmp , /var/tmp ,
+и
+.Pa /var/tmp/vi.recover .
+.It
+Удаляет имя пользователя из всех групп, в которые он входит, в
+.Pa /etc/group .
+(Если группа становится пустой и имя группы совпадает с именем пользователя,
+группа удаляется; это дополняет
+.Xr adduser 8 Ns 's
+уникальные группы для каждого пользователя.)
+.It
+Удаляет все очереди сообщений, сегменты разделяемой памяти и
+семафоры, принадлежащие пользователю.
+.El
+.Pp
+Утилита
+.Nm
+отказывается удалять пользователей, UID которых равен 0 (обычно root),
+поскольку некоторые действия (а именно завершение всех процессов пользователя
+и, возможно, удаление домашнего каталога пользователя) могут повредить
+работающей системе.
+Если необходимо удалить пользователя с UID 0, см.
+.Xr vipw 8
+для получения информации о непосредственном редактировании файла паролей.
+.Pp
+Если
+.Nm
+был вызван без параметра
+.Fl y ,
+он покажет запись выбранного пользователя в файле паролей и запросит
+подтверждение удаления пользователя.
+Затем он запросит подтверждение удаления домашнего каталога пользователя.
+Если ответ утвердительный, домашний каталог и все файлы и подкаталоги в нём
+будут удалены только в том случае, если они принадлежат пользователю.
+См.
+.Xr pw 8
+для более подробной информации.
+.Pp
+Во время работы
+.Nm
+информирует пользователя о текущих действиях.
+Если возникают ошибки, они выводятся в стандартный поток ошибок, и если
+.Nm
+может продолжить работу, он продолжит.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl f Ar файл
+Утилита
+.Nm
+получит список удаляемых пользователей из
+.Ar файла ,
+который будет содержать по одному пользователю в строке.
+Всё, что следует за символом решётки
+.Pq Ql # ,
+включая сам символ решётки, считается комментарием и не будет
+обрабатываться.
+Если файл принадлежит кому-либо, кроме пользователя с
+UID 0, или доступен для записи кому-либо, кроме владельца,
+.Nm
+откажется продолжать.
+.It Fl y
+Неявно отвечать
+.Dq Li да
+на все запросы.
+Сейчас это включает запросы о том, удалять ли указанного пользователя
+и удалять ли домашний каталог.
+Этот параметр требует, чтобы либо использовался параметр
+.Fl f ,
+либо в командной строке были указаны одно или несколько имён пользователей.
+.It Fl v
+Включить подробный режим.
+Обычно вывод включает одну строку на каждого удалённого пользователя;
+однако с этим параметром
+.Nm
+будет гораздо подробнее описывать выполняемые шаги.
+.It Ar имя_пользователя
+Определяет одного или нескольких удаляемых пользователей; если не указан,
+.Nm
+интерактивно запрашивает одного или нескольких пользователей для удаления.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/master.passwd -compact
+.It Pa /etc/master.passwd
+.It Pa /etc/passwd
+.It Pa /etc/group
+.It Pa /etc/spwd.db
+.It Pa /etc/pwd.db
+.El
+.Sh СМ. ТАКЖЕ
+.Xr at 1 ,
+.Xr chpass 1 ,
+.Xr crontab 1 ,
+.Xr finger 1 ,
+.Xr passwd 1 ,
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr adduser 8 ,
+.Xr pw 8 ,
+.Xr pwd_mkdb 8 ,
+.Xr vipw 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 2.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+не выполняет исчерпывающий поиск по файловой системе всех файлов,
+принадлежащих удаляемому пользователю, и не удаляет их; делать это в системе
+любого размера недопустимо медленно и требует интенсивного ввода-вывода.
+Она также не может удалить символические ссылки, созданные пользователем в
+.Pa /tmp
+или
+.Pa /var/tmp ,
+так как символические ссылки в файловых системах
+.Bx 4.4
+не содержат информации о том, кто их создал.
+Кроме того, в
+.Pa /var/mail
+могут быть созданы другие файлы, помимо
+.Pa /var/mail/ Ns Ar имя_пользователя
+и
+.Pa /var/mail/.pop. Ns Ar имя_пользователя ,
+которые не принадлежат удаляемому пользователю, но должны быть удалены.
+.Pp
+Утилита
+.Nm
+ничего не знает о YP/NIS и работает только с локальным файлом паролей.

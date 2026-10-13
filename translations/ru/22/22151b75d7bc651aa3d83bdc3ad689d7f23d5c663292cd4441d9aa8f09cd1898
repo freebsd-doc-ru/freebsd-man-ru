@@ -1,0 +1,137 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/vipw/vipw.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 22151b75d7bc651aa3d83bdc3ad689d7f23d5c663292cd4441d9aa8f09cd1898
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 12, 2022
+.Dt VIPW 8
+.Os
+.Sh ИМЯ
+.Nm vipw
+.Nd редактирование файла паролей
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d Ar каталог
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+редактирует файл паролей, установив соответствующие блокировки,
+и выполняет всю необходимую обработку после разблокировки файла паролей.
+Если файл паролей уже заблокирован для редактирования другим пользователем,
+.Nm
+попросит вас
+попробовать позже.
+Редактором по умолчанию для
+.Nm
+является
+.Xr vi 1 .
+.Pp
+При запуске без параметров
+.Nm
+будет работать с файлами паролей в
+.Pa /etc .
+.Pp
+Параметр
+.Fl d
+позволяет указать альтернативный
+.Ar каталог
+для работы.
+.Pp
+Утилита
+.Nm
+выполняет ряд проверок согласованности записей паролей
+и не позволит установить файл паролей, содержащий
+.Dq искажённую
+запись.
+Если
+.Nm
+отклонит новый файл паролей, пользователю будет предложено повторно войти
+в сеанс редактирования.
+.Pp
+После проверки информации
+.Nm
+использует
+.Xr pwd_mkdb 8
+для обновления базы данных пользователей.
+Это выполняется в фоновом режиме и
+на очень больших системах может занять несколько минут.
+Пока это обновление
+не завершено, файл паролей недоступен для других обновлений,
+а новая информация недоступна программам.
+.Sh ОКРУЖЕНИЕ
+Если существует следующая переменная окружения, её будет использовать
+.Nm :
+.Bl -tag -width PW_SCAN_BIG_IDS
+.It Ev EDITOR
+Указанный в строке
+.Ev EDITOR
+редактор будет вызван вместо редактора по умолчанию
+.Xr vi 1 .
+Это можно использовать, чтобы позволить сценарию неинтерактивно изменять
+файл паролей.
+.It Ev PW_SCAN_BIG_IDS
+См.
+.Xr pwd_mkdb 8 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/master.passwd -compact
+.It Pa /etc/master.passwd
+Текущий файл паролей.
+.It Pa /etc/passwd
+Устаревший файл паролей.
+.It Pa /etc/ptmp
+Файл блокировки паролей.
+.It Pa /etc/pwd.db
+Небезопасный файл базы данных паролей.
+.It Pa /etc/spwd.db
+Защищённый файл базы данных паролей.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chpass 1 ,
+.Xr passwd 1 ,
+.Xr passwd 5 ,
+.Xr adduser 8 ,
+.Xr pw 8 ,
+.Xr pwd_mkdb 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Механизм проверки изменений файла паролей требует, чтобы время модификации
+файла паролей изменялось.
+Это означает, что в конфигурации по умолчанию, где временные метки
+файловой системы не вычисляются с точностью до долей секунды,
+.Ev EDITOR
+должен работать не менее одной секунды.
+Неинтерактивные сценарии редактора должны вызывать
+.Xr sleep 1
+или эквивалент, чтобы гарантировать это.

@@ -1,0 +1,111 @@
+.\" Copyright (c) 2005 Sam Leffler <sam@errno.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/hostapd_cli/hostapd_cli.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 945efddaf5468163500fe410c54d78ec9c9e86081ab6de900cfbb5835ea18a7b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 16, 2005
+.Dt HOSTAPD_CLI 8
+.Os
+.Sh ИМЯ
+.Nm hostapd_cli
+.Nd программа с текстовым интерфейсом для взаимодействия с
+.Xr hostapd 8
+.Sh СИНТАКСИС
+.Nm
+.Op Ar команды
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой программу с текстовым интерфейсом для взаимодействия с
+.Xr hostapd 8 .
+Она используется для запроса текущего состояния.
+.Pp
+Утилита
+.Nm
+может показывать
+текущее состояние аутентификации,
+MIB dot11 и dot1x и т.д.
+.Pp
+Утилита
+.Nm
+поддерживает два режима: интерактивный и командной строки.
+Оба режима используют один и тот же набор команд.
+.Pp
+Интерактивный режим запускается, когда
+.Nm
+выполняется без каких-либо параметров в командной строке.
+Затем команды вводятся с управляющего терминала в
+ответ на приглашение
+.Nm .
+В режиме командной строки те же команды
+вводятся как аргументы командной строки.
+.Sh КОМАНДЫ
+Следующие команды могут быть поданы в командной строке
+или в приглашении при работе в интерактивном режиме.
+.Bl -tag -width indent
+.It Ic mib
+Показать переменные MIB (dot1x, dot11) для текущего интерфейса.
+.It Ic sta Ar addr
+Показать переменные MIB для связанной станции с MAC-адресом
+.Ar addr .
+.It Ic all_sta
+Показать переменные MIB для всех связанных станций.
+.It Ic help
+Показать справку по использованию.
+.It Ic interface Op Ar ifname
+Показать доступные интерфейсы и/или установить текущий интерфейс,
+когда доступно несколько.
+.It Ic level Ar debug_level
+Изменить уровень отладки в
+.Xr hostapd 8 .
+Большие числа генерируют больше сообщений.
+.It Ic license
+Показать полную
+лицензию для
+.Nm .
+.It Ic quit
+Выйти из
+.Nm .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hostapd.conf 5 ,
+.Xr hostapd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Jouni Malinen Aq Mt j@w1.fi .
+Эта страница Справочника взята из
+.Pa README
+файла, включённого в
+.Nm hostapd
+дистрибутив.

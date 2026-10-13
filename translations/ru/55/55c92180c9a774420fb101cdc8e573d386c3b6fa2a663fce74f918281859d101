@@ -1,0 +1,120 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/dumpfs/dumpfs.8
+.\" FRDP githash 51e16cb8fc536913f490ac6bc9c17e92ebd0411b
+.\" FRDP hash256 55c92180c9a774420fb101cdc8e573d386c3b6fa2a663fce74f918281859d101
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 2, 2021
+.Dt DUMPFS 8
+.Os
+.Sh ИМЯ
+.Nm dumpfs
+.Nd вывод информации о файловой системе UFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f
+.Op Fl l
+.Op Fl m
+.Op Fl s
+.Ar файловая_система | устройство
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит информацию о суперблоке UFS и группах цилиндров
+для указанной файловой системы или специального устройства,
+если не указан флаг
+.Fl f ,
+.Fl l ,
+.Fl m
+или
+.Fl s .
+Вывод очень длинный и подробный.
+Эта
+команда в основном полезна для выяснения определённой информации
+о файловой системе, такой как размер блока файловой системы и
+минимальный процент свободного пространства.
+.Pp
+Если указан
+.Fl f ,
+выводится отсортированный список всех свободных фрагментов и
+диапазонов свободных фрагментов, как они представлены в списках
+свободных блоков групп цилиндров.
+Если флаг указан дважды, смежные свободные фрагменты не объединяются
+в диапазоны, а выводятся в виде простого списка.
+Номера фрагментов можно преобразовать в необработанные байтовые смещения,
+умножив на размер фрагмента, что может быть полезно при восстановлении
+удалённых данных.
+.Pp
+Если указан
+.Fl l ,
+выводится путевое имя контейнера файловой системы, полученное из
+его уникального идентификатора.
+.Pp
+Если указан
+.Fl m ,
+выводится команда
+.Xr newfs 8 ,
+которую можно использовать для создания новой файловой системы
+с эквивалентными параметрами.
+Обратите внимание, что
+параметры
+.Xr newfs 8
+.Fl E ,
+.Fl R ,
+.Fl S
+и
+.Fl T
+не обрабатываются, а
+.Fl p
+в этом случае бесполезен, поэтому опускается.
+Параметры
+.Xr newfs 8
+.Fl n
+и
+.Fl r
+не проверяются и не выводятся, хотя должны бы.
+Флаг
+.Fl r
+нужен, если файловая система использует
+.Xr gjournal 8 .
+.Pp
+Если указан
+.Fl s ,
+выводится только информация о суперблоке.
+.Sh СМ. ТАКЖЕ
+.Xr fs 5 ,
+.Xr fsck 8 ,
+.Xr gpart 8 ,
+.Xr newfs 8 ,
+.Xr tunefs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .

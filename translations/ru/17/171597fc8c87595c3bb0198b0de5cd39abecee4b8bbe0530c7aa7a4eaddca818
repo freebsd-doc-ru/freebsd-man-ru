@@ -1,0 +1,281 @@
+.\"	$OpenBSD: dhclient-script.8,v 1.2 2004/04/09 18:30:15 jmc Exp $
+.\"
+.\" Copyright (c) 1997 The Internet Software Consortium.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of The Internet Software Consortium nor the names
+.\"    of its contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INTERNET SOFTWARE CONSORTIUM AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE INTERNET SOFTWARE CONSORTIUM OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" This software has been written for the Internet Software Consortium
+.\" by Ted Lemon <mellon@fugue.com> in cooperation with Vixie
+.\" Enterprises.  To learn more about the Internet Software Consortium,
+.\" see ``http://www.isc.org/isc''.  To learn more about Vixie
+.\" Enterprises, see ``http://www.vix.com''.
+.\"
+.\" FRDP path sbin/dhclient/dhclient-script.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 171597fc8c87595c3bb0198b0de5cd39abecee4b8bbe0530c7aa7a4eaddca818
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 6, 2010
+.Dt DHCLIENT-SCRIPT 8
+.Os
+.Sh ИМЯ
+.Nm dhclient-script
+.Nd Сценарий настройки сети клиента DHCP
+.Sh ОПИСАНИЕ
+Сценарий настройки сети клиента DHCP вызывается время от времени
+.Xr dhclient 8 .
+Этот сценарий используется клиентом DHCP для задания начальной
+конфигурации каждого интерфейса перед запросом адреса, для проверки адреса после
+того, как он был предложен, и для задания окончательной конфигурации интерфейса после
+получения аренды.
+Если аренда не получена, сценарий используется для проверки предопределённых аренд, если
+они есть, а также вызывается один раз, если не удаётся определить допустимую аренду.
+.Pp
+В общем случае настройки, специфичные для конкретного компьютера, следует выполнять
+в файле
+.Pa /etc/dhclient.conf .
+.Sh РАБОТА
+Когда
+.Xr dhclient 8
+требуется вызвать сценарий настройки клиента, он устанавливает ряд
+переменных окружения и запускает
+.Nm .
+Во всех случаях
+.Va $reason
+присваивается имя причины, по которой был вызван сценарий.
+В настоящее время определены следующие причины:
+.Li MEDIUM , PREINIT , ARPCHECK , ARPSEND , BOUND , RENEW , REBIND , REBOOT ,
+.Li EXPIRE , FAIL
+и
+.Li TIMEOUT .
+.Bl -tag -width "XXXXXXXX"
+.It Li MEDIUM
+Клиент DHCP запрашивает установку типа среды интерфейса.
+Имя интерфейса передаётся в
+.Va $interface ,
+а тип среды передаётся в
+.Va $medium .
+.It Li PREINIT
+Клиент DHCP запрашивает настройку интерфейса, необходимую для отправки пакетов до получения фактического адреса.
+Это означает настройку интерфейса с IP-адресом 0.0.0.0
+и широковещательным адресом 255.255.255.255.
+Имя интерфейса передаётся в
+.Va $interface ,
+а тип среды — в
+.Va $medium .
+.Pp
+Если в
+.Xr dhclient.conf 5
+объявлен IP-псевдоним,
+его адрес будет передан в
+.Va $alias_ip_address ,
+и этот IP-псевдоним следует удалить с интерфейса
+вместе со всеми маршрутами к нему.
+.It Li ARPSEND
+Клиент DHCP запрашивает проверку адреса, который был ему предложен,
+на предмет использования кем-то другим, путём отправки ARP-запроса
+для этого адреса.
+Неясно, как это реализовать, поэтому примеров пока нет.
+Проверяемый IP-адрес передаётся в
+.Va $new_ip_address ,
+а имя интерфейса передаётся в
+.Va $interface .
+.It Li ARPCHECK
+Клиент DHCP хочет узнать, получен ли ответ на ARP-запрос, отправленный
+с помощью
+.Li ARPSEND .
+Если ответ получен, сценарий должен завершиться с ненулевым статусом,
+указывая, что предложенный адрес уже был запрошен и должен быть отклонён.
+Переменные
+.Va $new_ip_address
+и
+.Va $interface
+устанавливаются так же, как при
+.Li ARPSEND .
+.It Li BOUND
+Клиент DHCP выполнил начальную привязку к новому адресу.
+Новый IP-адрес передаётся в
+.Va $new_ip_address ,
+а имя интерфейса передаётся в
+.Va $interface .
+Тип среды передаётся в
+.Va $medium .
+Любые параметры, полученные от сервера, передаются с использованием имени параметра,
+описанного в
+.Xr dhcp-options 5 ,
+за исключением того, что дефисы
+.Pq Ql -
+заменяются подчёркиваниями
+.Pq Ql _
+для получения допустимых переменных оболочки, а имена переменных начинаются с
+.Dq Li new_ .
+Так, например, новая маска подсети будет передана в
+.Va $new_subnet_mask .
+.Pp
+После завершения привязки, вероятно, потребуется настроить множество сетевых параметров.
+Необходимо создать новый
+.Pa /etc/resolv.conf ,
+используя значения
+.Va $new_domain_name
+и
+.Va $new_domain_name_servers
+(в котором может быть перечислено несколько серверов, разделённых пробелами).
+Маршрут по умолчанию следует задать с помощью
+.Va $new_routers ,
+а статические маршруты, возможно, потребуется настроить с помощью
+.Va $new_static_routes .
+.Pp
+Если объявлен IP-псевдоним, его необходимо настроить здесь.
+IP-адрес псевдонима будет записан как
+.Va $alias_ip_address ,
+а другие параметры DHCP, заданные для псевдонима (например, маска подсети),
+будут переданы в переменных с именами, описанными ранее, но начинающимися с
+.Dq Li $alias_
+вместо
+.Dq Li $new_ .
+Следует позаботиться о том, чтобы IP-адрес псевдонима не использовался, если он совпадает
+с привязанным IP-адресом
+.Pq Va $new_ip_address ,
+поскольку другие параметры псевдонима в этом случае могут быть неверными.
+.It Li RENEW
+Когда привязка была обновлена, сценарий вызывается так же, как при
+.Li BOUND ,
+за исключением того, что в дополнение ко всем переменным, начинающимся с
+.Dq Li $new_ ,
+имеется другой набор переменных, начинающихся с
+.Dq Li $old_ .
+Постоянные настройки, которые могли измениться, необходимо удалить — например,
+если настраивается локальный маршрут к привязанному адресу, старый локальный
+маршрут следует удалить.
+Если маршрут по умолчанию изменился, старый маршрут по умолчанию следует удалить.
+Если статические маршруты изменились, старые следует удалить.
+В противном случае обработку можно выполнить так же, как при
+.Li BOUND .
+.It Li REBIND
+Клиент DHCP выполнил повторную привязку к новому серверу DHCP.
+Это можно обработать так же, как при
+.Li RENEW ,
+за исключением того, что если IP-адрес изменился,
+таблицу ARP следует очистить.
+.It Li REBOOT
+Клиент DHCP успешно повторно получил свой старый адрес после перезагрузки.
+Это можно обработать так же, как при
+.Li BOUND .
+.It Li EXPIRE
+Клиенту DHCP не удалось продлить свою аренду или получить новую,
+и срок аренды истёк.
+Необходимо освободить IP-адрес, а все связанные параметры следует
+удалить, как при
+.Li RENEW
+и
+.Li REBIND .
+.It Li FAIL
+Клиент DHCP не смог связаться ни с одним сервером DHCP, и ни одна
+из проверенных аренд не оказалась допустимой.
+Параметры из последней проверенной аренды следует деактивировать.
+Это можно обработать так же, как
+.Li EXPIRE .
+.It Li TIMEOUT
+Клиент DHCP не смог связаться ни с одним сервером DHCP.
+Однако была обнаружена старая аренда, и её параметры были
+переданы так же, как при
+.Li BOUND .
+Сценарий настройки клиента должен проверить эти параметры и,
+если у него есть основания считать их допустимыми, завершиться со значением ноль.
+В противном случае он должен завершиться с ненулевым значением.
+.El
+.Pp
+Перед выполнением действий в соответствии с
+.Va $reason ,
+.Nm
+проверит наличие
+.Pa /etc/dhclient-enter-hooks .
+Если он найден, он будет подключён
+.Pq см. Xr sh 1 .
+После выполнения действий в соответствии с
+.Va $reason ,
+.Nm
+проверит наличие
+.Pa /etc/dhclient-exit-hooks .
+Если он найден, он будет подключён
+.Pq см. Xr sh 1 .
+Эти сценарии-ловушки можно использовать для динамического изменения окружения в
+подходящие моменты во время переговоров DHCP.
+Например, если администратор хочет отключить IP-адреса псевдонимов на
+интерфейсе DHCP, он может добавить следующее в
+.Pa /etc/dhclient-enter-hooks :
+.Bd -literal -offset indent
+.Ed
+.Pp
+Обычный способ проверки аренды — настроить сеть так же, как при
+.Li REBIND
+(поскольку это может быть вызвано для проверки более одной аренды), а затем выполнить ping
+первого маршрутизатора, определённого в
+.Va $routers .
+Если получен ответ, аренда должна быть действительна для сети, к
+которой в данный момент подключён интерфейс.
+Было бы полнее попытаться выполнить ping всех маршрутизаторов, перечисленных в
+.Va $new_routers ,
+а также тех, что перечислены в
+.Va $new_static_routes ,
+но текущие сценарии этого не делают.
+.Sh СМ. ТАКЖЕ
+.Xr sh 1 ,
+.Xr dhclient.conf 5 ,
+.Xr dhclient.leases 5 ,
+.Xr dhclient 8 ,
+.Xr dhcpd 8 ,
+.Xr dhcrelay 8
+.Sh АВТОРЫ
+.An -nosplit
+Оригинальная версия
+.Nm
+была написана для Internet Software Consortium
+.An Ted Lemon Aq Mt mellon@fugue.com
+в сотрудничестве с Vixie Enterprises.
+.Pp
+Реализация
+.Ox
+для
+.Nm
+была написана
+.An Kenneth R. Westerback Aq Mt krw@openbsd.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если используется более одного интерфейса, нет очевидного способа
+избежать конфликтов между параметрами конфигурации, предоставляемыми серверами — например,
+стандартный
+.Nm
+перезаписывает
+.Pa /etc/resolv.conf .
+Если настраивается более одного интерфейса,
+.Pa /etc/resolv.conf
+будет повторно инициализироваться значениями, предоставленными одним сервером, а затем
+другим.
+Если предположить, что информация, предоставленная обоими серверами, допустима, это не должно
+вызывать реальных проблем, но может вводить в заблуждение.

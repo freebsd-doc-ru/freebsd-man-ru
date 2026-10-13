@@ -1,0 +1,128 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/renice/renice.8
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 2af8d157c3291906c00239d24e5a74d01ad029c8cb58976b676091e1e3338c8c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 27, 2020
+.Dt RENICE 8
+.Os
+.Sh ИМЯ
+.Nm renice
+.Nd изменение приоритета выполняющихся процессов
+.Sh СИНТАКСИС
+.Nm
+.Ar приоритет
+.Op Oo Fl gpu Oc Ar цель
+.Nm
+.Fl n Ar приращение
+.Op Oo Fl gpu Oc Ar цель
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет
+приоритет планирования одного или нескольких выполняющихся процессов.
+Следующие параметры
+.Ar цель
+интерпретируются как идентификаторы процессов (по умолчанию), идентификаторы групп процессов, идентификаторы пользователей или имена пользователей.
+Применение
+.Nm Ns 'ing
+к группе процессов приводит к тому, что всем процессам в группе процессов
+изменяется приоритет планирования.
+Применение
+.Nm Ns 'ing
+к пользователю приводит к тому, что всем процессам, принадлежащим пользователю,
+изменяется приоритет планирования.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl n
+Вместо изменения указанных процессов на заданный приоритет,
+интерпретировать следующий аргумент как приращение, применяемое к
+текущему приоритету каждого процесса.
+.It Fl g
+Интерпретировать параметры
+.Ar цель
+как идентификаторы групп процессов.
+.It Fl p
+Интерпретировать параметры
+.Ar цель
+как идентификаторы процессов (по умолчанию).
+.It Fl u
+Интерпретировать параметры
+.Ar цель
+как имена пользователей или идентификаторы пользователей.
+.El
+.Pp
+Пользователи, кроме суперпользователя, могут изменять приоритет только
+принадлежащих им процессов,
+и могут только монотонно увеличивать своё ``значение nice''
+в диапазоне от 0 до
+.Dv PRIO_MAX
+(20).
+(Это предотвращает обход административных предписаний.)
+Суперпользователь
+может изменять приоритет любого процесса
+и устанавливать приоритет в любое значение в диапазоне
+.Dv PRIO_MIN
+(\-20)
+до
+.Dv PRIO_MAX .
+Полезные приоритеты:
+20 (затронутые процессы будут выполняться только когда больше ничего
+в системе не хочет выполняться),
+0 (``базовый'' приоритет планирования),
+любое отрицательное значение (чтобы всё работало очень быстро).
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/passwd -compact
+.It Pa /etc/passwd
+для преобразования имен пользователей в идентификаторы пользователей
+.El
+.Sh ПРИМЕРЫ
+Изменить приоритет процессов с идентификаторами 987 и 32, а также
+всех процессов, принадлежащих пользователям daemon и root.
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr nice 1 ,
+.Xr rtprio 1 ,
+.Xr getpriority 2 ,
+.Xr setpriority 2
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Пользователи, не являющиеся суперпользователями, не могут повышать приоритеты планирования своих собственных процессов,
+даже если именно они изначально понизили эти приоритеты.

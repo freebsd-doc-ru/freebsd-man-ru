@@ -1,0 +1,155 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibswitches.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 db38f64f9c9ed32be6821b3d0b8251eabf1b08e941dea3fc2222eb32970089bf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBSWITCHES \- показать узлы коммутаторов InfiniBand в топологии
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de1 UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH СИНТАКСИС
+.sp
+ibswitches [опции] [<topology\-file>]
+.SH ОПИСАНИЕ
+.sp
+ibswitches — это скрипт, который либо обходит топологию подсети IB, либо использует уже сохранённый файл топологии и извлекает узлы коммутаторов.
+.SH ОПЦИИ
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрошенных MAD.
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq),
+то будет запрошено значение.
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны,
+порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физическая связь установлена).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и потерпит неудачу, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SH ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Глобальный файл конфигурации предоставляется для установки некоторых общих опций для всех
+инструментов.  Подробности см. в поставляемом файле конфигурации.
+.
+.SS ФОРМАТ ФАЙЛА СОПОСТАВЛЕНИЯ ИМЁН УЗЛОВ
+.sp
+Сопоставление имён узлов используется для указания удобных для пользователя имён узлов в
+выводе.  Для выполнения поиска используются GUID.
+.sp
+Эта функциональность предоставляется пакетом opensm\-libs.  См. \fBopensm(8)\fP
+для расположения файла в вашей установке.
+.sp
+\fBВ общем случае:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# комментарий
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBПример:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# IB1
+# Линейные платы
+
+# Спайны
+
+# GUID   Имя узла
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+ibnetdiscover(8)
+.SH ЗАВИСИМОСТИ
+.sp
+ibnetdiscover, формат ibnetdiscover
+.SH АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

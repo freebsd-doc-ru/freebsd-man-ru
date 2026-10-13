@@ -1,0 +1,216 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rmt/rmt.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 64075ecd02f86d2e3878d1ea846ca11052b3cedd79a5363dac835352587b0577
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 1, 1994
+.Dt RMT 8
+.Os
+.Sh ИМЯ
+.Nm rmt
+.Nd модуль протокола удалённой магнитной ленты
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется программами удалённого dump и restore
+при работе с устройством магнитной ленты через соединение
+межпроцессного взаимодействия.
+Обычно она запускается вызовом
+.Xr rcmd 3 .
+.Pp
+Утилита
+.Nm
+принимает запросы, относящиеся к работе с
+магнитными лентами, выполняет команды, а затем отвечает
+индикацией состояния.
+Все ответы представлены в
+.Tn ASCII
+и имеют одну из двух форм.
+Успешные команды имеют ответы вида:
+.Bd -ragged -offset indent
+.Sm off
+.Sy A Ar число No \en
+.Sm on
+.Ed
+.Pp
+.Ar Число
+— это представление десятичного числа в
+.Tn ASCII .
+Неуспешные команды получают ответ вида:
+.Bd -ragged -offset indent
+.Sm off
+.Xo Sy E Ar номер-ошибки
+.No \en Ar сообщение-об-ошибке
+.No \en
+.Xc
+.Sm on
+.Ed
+.Pp
+.Ar Номер-ошибки
+— это одно из возможных чисел ошибок, описанных в
+.Xr intro 2 ,
+а
+.Ar сообщение-об-ошибке
+— это соответствующая строка ошибки, выводимая
+при вызове
+.Xr perror 3 .
+Протокол состоит из следующих команд, которые посылаются, как указано:
+пробелы не ставятся между командой и её аргументами или между
+её аргументами, а
+.Ql \en
+означает, что должен быть передан символ новой строки:
+.Bl -tag -width Ds
+.Sm off
+.It Xo Sy \&O Ar устройство
+.No \en Ar режим No \en
+.Xc
+.Sm on
+Открыть указанное
+.Ar устройство
+с указанным
+.Ar режим .
+.Ar Устройство
+— это полный путь, а
+.Ar режим
+— это представление десятичного числа в
+.Tn ASCII ,
+подходящее для передачи в
+.Xr open 2 .
+Если устройство уже было открыто, оно
+закрывается перед выполнением нового открытия.
+.Sm off
+.It Xo Sy C Ar устройство No \en
+.Xc
+.Sm on
+Закрыть текущее открытое устройство.
+Указанное
+.Ar устройство
+игнорируется.
+.Sm off
+.It Xo Sy L
+.Ar whence No \en
+.Ar смещение No \en
+.Xc
+.Sm on
+Выполнить операцию
+.Xr lseek 2
+с использованием указанных параметров.
+Возвращаемое значение — это значение, возвращённое
+вызовом
+.Xr lseek 2 .
+.Sm off
+.It Sy W Ar количество No \en
+.Sm on
+Записать данные на открытое устройство.
+Утилита
+.Nm
+читает
+.Ar количество
+байт из соединения, прерывая работу при
+обнаружении преждевременного конца файла.
+Возвращаемое значение — это значение, возвращённое
+вызовом
+.Xr write 2 .
+.Sm off
+.It Sy R Ar количество No \en
+.Sm on
+Прочитать
+.Ar количество
+байт данных из открытого устройства.
+Если
+.Ar количество
+превышает размер буфера данных (10 килобайт), оно
+усекается до размера буфера данных.
+Утилита
+.Nm
+затем выполняет запрошенный
+.Xr read 2
+и отвечает
+.Sm off
+.Sy A Ar количество-прочитанного No \en
+.Sm on
+если чтение прошло
+успешно; в противном случае возвращается ошибка в
+стандартном формате.
+Если чтение
+прошло успешно, прочитанные данные затем отправляются.
+.Sm off
+.It Xo Sy I Ar операция
+.No \en Ar количество No \en
+.Xc
+.Sm on
+Выполнить команду
+.Dv MTIOCOP
+.Xr ioctl 2
+с использованием указанных параметров.
+Параметры интерпретируются как
+представления десятичных значений в
+.Tn ASCII
+для помещения в поля
+.Ar mt_op
+и
+.Ar mt_count
+структуры, используемой в вызове
+.Xr ioctl 2 .
+Возвращаемое значение — это
+параметр
+.Ar количество ,
+когда операция успешна.
+.It Sy S
+Вернуть состояние открытого устройства, как
+получено с помощью вызова
+.Dv MTIOCGET
+.Xr ioctl 2 .
+Если операция прошла успешно,
+посылается ``ack'' с размером
+буфера состояния, затем буфер состояния
+посылается (в двоичном виде).
+.El
+.Pp
+Любая другая команда заставляет
+.Nm
+завершиться.
+.Sh ДИАГНОСТИКА
+Все ответы имеют форму, описанную выше.
+.Sh СМ. ТАКЖЕ
+.Xr rcmd 3 ,
+.Xr mtio 4 ,
+.Xr rdump 8 ,
+.Xr rrestore 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Людей следует отговаривать от использования этого в качестве
+протокола удалённого доступа к файлам.

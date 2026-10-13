@@ -1,0 +1,128 @@
+.\" Copyright (c) 2003, 2004 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by Chris Costello
+.\" at Safeport Network Services and Network Associates Labs, the
+.\" Security Research Division of Network Associates, Inc. under
+.\" DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"), as part of the
+.\" DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/setfmac/setfsmac.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 b25969b8885ca5b1a46ae5ee6c245664b2f5081ab644c7923bd0ca0889ada677
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 17, 2004
+.Dt SETFSMAC 8
+.Os
+.Sh ИМЯ
+.Nm setfsmac
+.Nd установка метки MAC для иерархии файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ehqvx
+.Oo Fl f Ar specfile Oc ...
+.Oo Fl s Ar specfile Oc ...
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+принимает список файлов спецификаций в качестве входных данных и устанавливает
+метки MAC для указанных иерархий файловой системы.
+Указанные имена путей будут посещены в порядке, заданном в командной строке,
+а каждое дерево будет обойдено в порядке прямого обхода.
+(Обычно использовать относительные пути вместо абсолютных не очень полезно.)
+Несколько записей, соответствующих одному файлу, будут объединены и применены
+в одной транзакции.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl e
+Считать ошибками любые встреченные файловые системы, не поддерживающие
+маркировку MAC, вместо выдачи предупреждения и пропуска их.
+.It Fl f Ar specfile
+Применить спецификации из
+.Ar specfile
+к указанным путям.
+.Bf -emphasis
+ПРИМЕЧАНИЕ: Применяется только первая запись для каждого файла;
+все остальные не учитываются и молча отбрасываются.
+.Ef
+Можно указать несколько аргументов
+.Fl f ,
+чтобы включить несколько файлов спецификаций.
+.It Fl h
+Когда встречается символьная ссылка, изменять метку самой ссылки, а не файла,
+на который указывает ссылка.
+.It Fl q
+Не выводить несмертельные предупреждения во время выполнения.
+.It Fl s Ar specfile
+Применить спецификации из
+.Ar specfile ,
+но предполагать, что формат спецификаций совместим с форматом
+.Ar specfile
+в SELinux.
+.Bf -emphasis
+ПРИМЕЧАНИЕ: Применяется только первая запись для каждого файла;
+все остальные не учитываются и молча отбрасываются.
+.Ef
+Префикс
+.Dq Li sebsd/
+будет автоматически добавлен в начало меток в
+.Ar specfile .
+Метки, совпадающие с
+.Dq Li <<none>> ,
+явно не будут перемаркированы.
+Это позволяет SEBSD повторно использовать существующие файлы спецификаций
+политики SELinux.
+.It Fl v
+Повысить уровень подробности.
+.It Fl x
+Не выполнять рекурсию в новые файловые системы при их обходе.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /usr/share/security/lomac-policy.contexts
+Пример файла спецификаций, содержащего записи политики LOMAC.
+.El
+.Sh ПРИМЕРЫ
+См.
+.Sx ФАЙЛЫ .
+.Sh СМ. ТАКЖЕ
+.Xr mac 3 ,
+.Xr mac_set_file 3 ,
+.Xr mac_set_link 3 ,
+.Xr mac 4 ,
+.Xr re_format 7 ,
+.Xr getfmac 8 ,
+.Xr setfmac 8 ,
+.Xr mac 9
+.Sh АВТОРЫ
+Это программное обеспечение было передано проекту
+.Fx
+компанией Network Associates Labs,
+отделом исследований безопасности Network Associates Inc.
+по контракту DARPA/SPAWAR N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.

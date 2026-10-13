@@ -1,0 +1,82 @@
+.\"	$OpenBSD: yppoll.8,v 1.10 2014/09/08 01:27:56 schwarze Exp $
+.\"	$NetBSD: yppoll.8,v 1.3 1996/02/28 01:23:12 thorpej Exp $
+.\"
+.\" Copyright (c) 1996 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Jason R. Thorpe.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/yppoll/yppoll.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 0dc1930aea544d62713d5245c2af7847b5e77f558122f6d90d363f32ac0a75ca
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 3, 2015
+.Dt YPPOLL 8
+.Os
+.Sh ИМЯ
+.Nm yppoll
+.Nd запросить версию карты NIS у сервера NIS
+.Sh СИНТАКСИС
+.Nm yppoll
+.Op Fl d Ar домен
+.Op Fl h Ar хост
+.Ar имя_карты
+.Sh ОПИСАНИЕ
+.Nm
+запрашивает у процесса сервера NIS порядковый номер, а также какой хост является главным
+сервером для карты
+.Ar имя_карты .
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl d Ar домен
+Использовать домен NIS
+.Ar домен
+вместо домена по умолчанию, возвращаемого
+.Xr domainname 1 .
+.It Fl h Ar хост
+Запросить у процесса сервера NIS, запущенного на
+.Ar хост ,
+информацию о карте
+.Ar имя_карты .
+Если
+.Ar хост
+не указан, опрашиваемый сервер — это сервер по умолчанию, возвращаемый
+.Xr ypwhich 1 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr domainname 1 ,
+.Xr ypcat 1 ,
+.Xr ypmatch 1 ,
+.Xr ypwhich 1 ,
+.Xr yp 8 ,
+.Xr ypbind 8 ,
+.Xr ypset 8
+.Sh АВТОРЫ
+.An -nosplit
+.An Theo de Raadt
+и
+.An John Brezak

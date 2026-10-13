@@ -1,0 +1,130 @@
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/appl/push/push.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 314485a324d8006db15c4ebba9f50503a1b2395fc287230e73e1e60725224b78
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 31, 1998
+.Dt PUSH 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm push
+.Nd получает почту через POP
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 5 | Fl Fl krb5
+.Op Fl v | Fl Fl verbose
+.Op Fl f | Fl Fl fork
+.Op Fl l | -leave
+.Op Fl Fl from
+.Op Fl c | -count
+.Op Fl Fl headers Ns = Ns Ar headers
+.Oo Fl p Ar port-spec  \*(Ba Xo
+.Fl Fl port Ns = Ns Ar port-spec
+.Xc
+.Oc
+.Ar po-box
+.Pa filename
+.Sh ОПИСАНИЕ
+.Nm
+извлекает почту из абонентского почтового ящика
+.Ar po-box ,
+и сохраняет почту в формате mbox в
+.Pa filename .
+Аргумент
+.Ar po-box
+может иметь любой из следующих форматов:
+.Bl -hang -compact -offset indent
+.It Ql hostname:username
+.It Ql po:hostname:username
+.It Ql username@hostname
+.It Ql po:username@hostname
+.It Ql hostname
+.It Ql po:username
+.El
+.Pp
+Если имя пользователя не указано,
+.Nm
+предполагает, что оно совпадает с именем на локальной машине;
+.Ar hostname
+по умолчанию принимает значение переменной окружения
+.Ev MAILHOST .
+.Pp
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Xo
+.Fl 5 ,
+.Fl Fl krb5
+.Xc
+использовать Kerberos 5 (если программа собрана с поддержкой Kerberos 5)
+.It Xo
+.Fl f ,
+.Fl Fl fork
+.Xc
+создать ответвление процесса перед началом удаления сообщений
+.It Xo
+.Fl l ,
+.Fl Fl leave
+.Xc
+не удалять полученную почту
+.It Xo
+.Fl Fl from
+.Xc
+вести себя как from.
+.It Xo
+.Fl c ,
+.Fl Fl count
+.Xc
+сначала вывести, сколько имеется сообщений и байтов.
+.It Xo
+.Fl Fl headers Ns = Ns Ar headers
+.Xc
+список заголовков, разделённых запятыми, которые должны быть выведены.
+.It Xo
+.Fl p Ar port-spec ,
+.Fl Fl port Ns = Ns Ar port-spec
+.Xc
+использовать этот порт вместо стандартного
+.Ql kpop
+или
+.Ql 1109 .
+.El
+.Pp
+По умолчанию сначала выполняется попытка аутентификации Kerberos 5, а затем, если она не удалась, Kerberos 4.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width Ds
+.It Ev MAILHOST
+указывает на почтовый сервер, если не указано другое имя хоста.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent
+$ push cornfield:roosta ~/.emacs-mail-crash-box
+.Ed
+.Pp
+пытается получить почту для пользователя
+.Ar roosta
+с почтового сервера
+.Dq cornfield ,
+и сохраняет почту в
+.Pa ~/.emacs-mail-crash-box
+(вы ведь используете Gnus, не так ли?)
+.Bd -literal -offset indent
+$ push --from -5 havregryn
+.Ed
+.Pp
+пытается получить строки
+.Sy From:
+для текущего пользователя на почтовом сервере
+.Dq havregryn
+с использованием Kerberos 5.
+.Sh СМ. ТАКЖЕ
+.Xr from 1 ,
+.Xr pfrom 1 ,
+.Xr movemail 8 ,
+.Xr popper 8
+.Sh ИСТОРИЯ
+.Nm
+был написан в ожидании, пока
+.Nm movemail
+закончит получать почту.

@@ -1,0 +1,76 @@
+.\" $OpenBSD: ssh-sk-helper.8,v 1.4 2022/04/29 03:24:30 djm Exp $
+.\"
+.\" Copyright (c) 2010 Markus Friedl.  All rights reserved.
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path crypto/openssh/ssh-sk-helper.8
+.\" FRDP githash 38a52bd3b5cac3da6f7f6eef3dd050e6aa08ebb3
+.\" FRDP hash256 8f2bd8a60120f2fc140f68da58c368393ad2b25ff70b48580fe99a80fab2301a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: April 29 2022 $
+.Dt SSH-SK-HELPER 8
+.Os
+.Sh ИМЯ
+.Nm ssh-sk-helper
+.Nd Вспомогательная программа OpenSSH для поддержки аутентификаторов FIDO
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Sh ОПИСАНИЕ
+.Nm
+используется программами
+.Xr ssh 1 ,
+.Xr ssh-agent 1
+и
+.Xr ssh-keygen 1
+для доступа к ключам, предоставляемым аутентификатором FIDO.
+.Pp
+.Nm
+не предназначен для непосредственного вызова пользователем.
+.Pp
+Поддерживается одна опция:
+.Bl -tag -width Ds
+.It Fl v
+Подробный режим.
+Заставляет
+.Nm
+выводить отладочные сообщения о ходе работы.
+Это помогает при отладке проблем.
+Несколько опций
+.Fl v
+повышают уровень подробности.
+Максимум — 3.
+.Pp
+Обратите внимание, что
+.Xr ssh 1 ,
+.Xr ssh-agent 1
+и
+.Xr ssh-keygen 1
+будут автоматически передавать флаг
+.Fl v
+команде
+.Nm
+при их собственном запуске в режиме отладки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ssh 1 ,
+.Xr ssh-agent 1 ,
+.Xr ssh-keygen 1
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Ox 6.7 .
+.Sh АВТОРЫ
+.An Damien Miller Aq Mt djm@openbsd.org

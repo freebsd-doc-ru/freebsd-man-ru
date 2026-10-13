@@ -1,0 +1,94 @@
+.\" Copyright (c) 1997, 2000 - 2003 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kdc/hpropd.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 5d1057ed8a0f59d418656802a12ef7eae14e77f3ac6ac1ae7ed8f5d21eb62fd0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 27, 1997
+.Dt HPROPD 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm hpropd
+.Nd принимает распространяемую базу данных
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Oo Fl d Ar file \*(Ba Xo
+.Fl Fl database= Ns Ar file
+.Xc
+.Oc
+.Op Fl n | Fl Fl stdin
+.Op Fl Fl print
+.Op Fl i | Fl Fl no-inetd
+.Oo Fl k Ar keytab \*(Ba Xo
+.Fl Fl keytab= Ns Ar keytab
+.Xc
+.Oc
+.Op Fl 4 | Fl Fl v4dump
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+принимает базу данных, отправленную
+.Nm hprop ,
+и записывает её как локальную базу данных.
+.Pp
+По умолчанию
+.Nm
+ожидает запуска из
+.Nm inetd ,
+если stdin является сокетом, и в противном случае ожидает получения
+дампа базы данных через stdin.
+Если база данных передаётся по сети, она аутентифицируется и
+шифруется.
+Принимаются только соединения, прошедшие аутентификацию с принципалом
+.Nm kadmin Ns / Ns Nm hprop .
+.Pp
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl d Ar file , Fl Fl database= Ns Ar file
+база данных
+.It Fl n , Fl Fl stdin
+читать из stdin
+.It Fl Fl print
+вывести дамп в stdout
+.It Fl i , Fl Fl no-inetd
+не запускаться из inetd
+.It Fl k Ar keytab , Fl Fl keytab= Ns Ar keytab
+keytab, используемый для аутентификации
+.It Fl 4 , Fl Fl v4dump
+создать базу данных типа v4
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hprop 8

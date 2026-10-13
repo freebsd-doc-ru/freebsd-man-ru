@@ -1,0 +1,126 @@
+.\"
+.\" Copyright (c) 1994 Simon J. Gerraty
+.\" Copyright (c) 1994 Christopher G. Demetriou
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ac/ac.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 9a754f150f64808283569992eff72bf16c67b3796b10da59ff6b81fc25abfce7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 14, 2020
+.Dt AC 8
+.Os
+.Sh ИМЯ
+.Nm ac
+.Nd учёт времени подключения
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dp
+.Op Fl t Ar tty
+.Op Fl w Ar wtmp
+.Op Ar пользователи ...
+.Sh ОПИСАНИЕ
+Если файл
+.Pa /var/log/utx.log
+существует, то
+.Xr login 1
+и
+.Xr init 8
+соответственно записывают в него сведения о времени входа и выхода
+отдельных пользователей.
+Утилита
+.Nm
+анализирует эти записи и выводит в стандартный вывод накопленное время
+подключения (в часах) для всех входов.
+.Pp
+Параметры следующие:
+.Bl -tag -width indentXXX
+.It Fl d
+Показывать время подключения блоками по 24 часа.
+.It Fl p
+Выводить итоги по отдельным пользователям.
+.It Fl t Ar tty
+Выполнять учёт входов только на определённых tty.
+Спецификация
+.Ar tty
+может начинаться с '!', чтобы указать не этот
+.Ar tty ,
+и заканчиваться '*', чтобы указать все терминалы с похожими именами.
+Можно указать несколько флагов
+.Fl t .
+.It Fl w Ar wtmp
+Читать данные о времени подключения из
+.Ar wtmp
+вместо файла по умолчанию
+.Pa /var/log/utx.log .
+.It Ar пользователи ...
+Выводить итоги только для указанных пользователей.
+.El
+.Pp
+Если аргументы не указаны,
+.Nm
+выводит суммарное время подключения для всех учётных записей,
+сеансы входа которых записаны в
+.Pa utx.log .
+.Pp
+Файл
+.Pa utx.log
+по умолчанию будет неограниченно расти, если его не усекать.
+Обычно его усекают ежедневные сценарии, запускаемые
+.Xr cron 8 ,
+которые переименовывают и выполняют ротацию файлов
+.Pa utx.log ,
+сохраняя недельный запас данных.
+Учёт входов и времени подключения не выполняется, если
+.Pa /var/log/utx.log
+не существует.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/log/utx.log -compact
+.It Pa /var/log/utx.log
+файл учёта времени подключения
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Разрешить тарифицировать время, записанное в
+.Pa modems ,
+по другому тарифу, чем в
+.Pa other :
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr login 1 ,
+.Xr getutxent 3 ,
+.Xr init 8 ,
+.Xr sa 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v5 .
+Эта версия
+.Nm
+была написана для
+.Nx 0.9a
+на основе спецификации, предоставленной страницами Справочника различных систем.

@@ -1,0 +1,198 @@
+.\" Copyright (c) 1983, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Robert Elz at The University of Melbourne.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/quotacheck/quotacheck.8
+.\" FRDP githash 51e16cb8fc536913f490ac6bc9c17e92ebd0411b
+.\" FRDP hash256 f518d373923b58e3406593e61aa064e8e65ce3592c7006f3bcf431efca9f3a91
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 25, 2007
+.Dt QUOTACHECK 8
+.Os
+.Sh ИМЯ
+.Nm quotacheck
+.Nd проверка согласованности квот файловой системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl guv
+.Op Fl c Ar 32 | 64
+.Op Fl l Ar maxrun
+.Fl a
+.Nm
+.Op Fl guv
+.Op Fl c Ar 32 | 64
+.Ar файловая система ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+исследует каждую файловую систему,
+строит таблицу текущего использования диска
+и сравнивает эту таблицу с той, что записана
+в файле дисковых квот для файловой системы.
+Если обнаружены какие-либо несоответствия, обновляются как
+файл квот, так и текущая системная копия
+неверных квот (последнее происходит только
+если проверяется активная файловая система).
+По умолчанию проверяются как пользовательские, так и групповые квоты.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Если указан вместо любых имён файловых систем,
+.Nm
+проверит все файловые системы, указанные в
+.Pa /etc/fstab
+как доступные для чтения-записи с дисковыми квотами.
+По умолчанию проверяются только типы квот, перечисленные в
+.Pa /etc/fstab.
+.It Fl c Ar 32 | 64
+Перед выполнением проверок
+.Nm
+преобразует файл квот к указанному размеру слова.
+Размер преобразования 64 задаётся для запроса преобразования в
+новый 64-битный формат файла квот.
+Размер преобразования 32 задаётся для запроса обратного преобразования в
+старый 32-битный формат файла квот.
+Исходный файл квот остаётся неизменным и перемещается в сторону с добавлением к его имени
+подчёркивания, размера его формата и расширения
+.Pa .orig .
+Таким образом, исходный 32-битный
+.Pa quota.user
+файл квот, преобразованный в 64-битный формат файла квот, будет переименован в
+.Pa quota.user_32.orig .
+.It Fl g
+Проверяются только групповые квоты, перечисленные в
+.Pa /etc/fstab.
+.It Fl l Ar maxrun
+Задаёт максимальное число одновременных файловых систем,
+проверяемых параллельно.
+Если этот параметр опущен или если
+.Ar maxrun
+равен нулю, параллельные проходы выполняются в соответствии с
+.Xr fsck 8 .
+Этот параметр устарел, и параллельные проходы всегда выполняются
+в соответствии с
+.Xr fsck 8 .
+.It Fl u
+Проверяются только пользовательские квоты, перечисленные в
+.Pa /etc/fstab.
+.It Fl v
+Сообщать о расхождениях между
+вычисленными и записанными дисковыми квотами, а также другие дополнительные диагностические сообщения.
+.El
+.Pp
+Указание одновременно
+.Fl g
+и
+.Fl u
+эквивалентно значению по умолчанию.
+Параллельные проходы выполняются для требуемых файловых систем
+с использованием номеров проходов в
+.Pa /etc/fstab
+точно так же, как в
+.Xr fsck 8 .
+.Pp
+Обычно
+.Nm
+работает без вывода сообщений.
+.Pp
+Утилита
+.Nm
+ожидает, что каждая проверяемая файловая система имеет
+файлы квот с именами
+.Pa quota.user
+и
+.Pa quota.group
+которые расположены в корне связанной файловой системы.
+Эти значения по умолчанию можно переопределить в
+.Pa /etc/fstab .
+Если файл отсутствует,
+.Nm
+создаст его.
+Эти файлы следует редактировать с помощью
+.Xr edquota 8 .
+.Pp
+Утилита
+.Nm
+обычно запускается во время загрузки из файла
+.Pa /etc/rc .
+Процедура запуска rc управляется в
+.Pa /etc/rc.conf
+переменной
+.Ar check_quotas .
+Обратите внимание, что для включения этой функциональности в
+.Pa /etc/rc
+также необходимо включить процедуры запуска квот
+с помощью переменной
+.Ar enable_quotas
+в
+.Pa /etc/rc.conf .
+Ядро также должно быть собрано с
+.Pp
+Утилита
+.Nm
+обращается к необработанному устройству при вычислении фактического
+использования диска каждым пользователем.
+Таким образом, проверяемые файловые системы
+должны находиться в состоянии покоя, пока
+.Nm
+работает.
+.Sh ФАЙЛЫ
+.Bl -tag -width quota.group -compact
+.It Pa quota.user
+в корне файловой системы с пользовательскими квотами
+.It Pa quota.group
+в корне файловой системы с групповыми квотами
+.It Pa /etc/fstab
+файловые системы по умолчанию
+.El
+.Sh СМ. ТАКЖЕ
+.Xr quota 1 ,
+.Xr quotactl 2 ,
+.Xr fstab 5 ,
+.Xr rc.conf 5 ,
+.Xr edquota 8 ,
+.Xr fsck 8 ,
+.Xr quotaon 8 ,
+.Xr repquota 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Система квот будет игнорировать UID или GID, которые оказались бы отрицательными
+при интерпретации как знаковое значение.
+Обычно такие типы идентификаторов могут появляться в файловой системе из NFS-монтирований
+или архивных файлов из других операционных систем.
+Чрезвычайно большие UID или GID заставят
+.Nm
+работать неоправданно долго и также создадут чрезвычайно
+большие файлы данных квот.

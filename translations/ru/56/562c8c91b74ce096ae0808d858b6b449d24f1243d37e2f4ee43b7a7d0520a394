@@ -1,0 +1,257 @@
+.\"-
+.\" Copyright (c) 2009 Edward Tomasz Napierala
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR THE VOICES IN HIS HEAD BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/rctl/rctl.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 562c8c91b74ce096ae0808d858b6b449d24f1243d37e2f4ee43b7a7d0520a394
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 26, 2018
+.Dt RCTL 8
+.Os
+.Sh NAME
+.Nm rctl
+.Nd отображение и обновление базы данных ограничений ресурсов
+.Sh SYNOPSIS
+.Nm
+.Op Fl h
+.Op Fl n
+.Op Ar фильтр Ar ...
+.Nm
+.Fl a
+.Ar правило Ar ...
+.Nm
+.Fl l
+.Op Fl h
+.Op Fl n
+.Ar фильтр Ar ...
+.Nm
+.Fl r
+.Ar фильтр Ar ...
+.Nm
+.Fl u
+.Op Fl h
+.Ar фильтр Ar ...
+.Sh DESCRIPTION
+При вызове без параметров команда
+.Nm
+записывает текущие определённые правила RCTL в стандартный вывод.
+.Pp
+Если указан аргумент
+.Ar фильтр ,
+отображаются только правила, соответствующие фильтру.
+Параметры:
+.Bl -tag -width indent
+.It Fl a Ar правило
+Добавить
+.Ar правило
+в базу данных RCTL.
+.It Fl l Ar фильтр
+Показать правила, применимые к процессу, определённому
+.Ar фильтр .
+Обратите внимание, что это отличается от показа правил при вызове без
+параметров: отображаются не только правила с субъектом, равным субъекту
+процесса, но и правила для пользователя, клетки и класса входа, применимые
+к процессу.
+.It Fl r Ar фильтр
+Удалить правила, соответствующие
+.Ar фильтр ,
+из базы данных RCTL.
+.It Fl u Ar фильтр
+Показать использование ресурсов для субъекта
+.Po
+.Sy process ,
+.Sy user ,
+.Sy loginclass
+или
+.Sy jail
+.Pc
+соответствующего
+.Ar фильтр .
+.It Fl h
+Использовать суффиксы единиц: байт, килобайт, мегабайт,
+гигабайт, терабайт и петабайт.
+.It Fl n
+Показывать ID пользователей численно, а не преобразовывать их в имя пользователя.
+.El
+.Pp
+Изменение правил влияет на все текущие и будущие процессы, соответствующие
+правилу.
+.Sh СИНТАКСИС ПРАВИЛ
+Синтаксис правила: subject:subject-id:resource:action=amount/per.
+.Pp
+.Bl -tag -width indent
+.It subject
+определяет вид сущности, к которой применяется правило.
+Это может быть
+.Sy process ,
+.Sy user ,
+.Sy loginclass
+или
+.Sy jail .
+.It subject-id
+идентифицирует
+.Em subject .
+Это может быть ID процесса, имя пользователя, числовой ID пользователя, имя класса входа из
+.Xr login.conf 5 ,
+или имя клетки.
+.It resource
+идентифицирует ресурс, которым управляет правило.
+См. раздел
+.Sx РЕСУРСЫ
+ниже.
+.It action
+определяет, что произойдёт, когда процесс превысит разрешённый
+.Em amount .
+См. раздел
+.Sx ДЕЙСТВИЯ
+ниже.
+.It amount
+определяет, сколько ресурса процесс может использовать до того, как
+сработает определённое
+.Em action .
+Ресурсы, ограничивающие байты, могут использовать префиксы из
+.Xr expand_number 3 .
+.It per
+определяет, для какой сущности учитывается
+.Em amount .
+до 100MB виртуальной памяти.
+всеми процессами этого пользователя не превысит 100MB.
+виртуальная память, выделенная всеми процессами всех пользователей, принадлежащих этому классу входа,
+не превысит 100MB.
+.El
+.Pp
+Корректное правило содержит все эти поля, кроме
+.Em per ,
+которое по умолчанию
+принимает значение
+.Em subject .
+.Pp
+Фильтр — это правило, в котором одно или несколько полей, кроме
+.Em per ,
+оставлены пустыми.
+Фильтр, соответствующий всем определённым правилам для ресурса
+.Sy maxproc ,
+будет
+.Sh СУБЪЕКТЫ
+.Bl -column -offset indent "loginclass" "описание"
+.It Sy process Ta числовой ID процесса
+.It Sy user Ta имя пользователя или числовой ID пользователя
+.It Sy loginclass Ta класс входа из
+.Xr login.conf 5
+.It Sy jail Ta имя клетки
+.El
+.Sh РЕСУРСЫ
+.Bl -tag -width indent
+.El
+.Sh ДЕЙСТВИЯ
+.Bl -column -offset indent "sig*" "описание"
+.It Sy deny Ta запретить выделение; не поддерживается для
+.Sy cputime ,
+.Sy wallclock ,
+.Sy readbps ,
+.Sy writebps ,
+.Sy readiops ,
+и
+.Sy writeiops
+.Xr devd 8
+используя
+.Sy system
+.Sy subsystem
+.Sy type
+.It sig*	например
+.Sy sigterm ;
+отправить сигнал процессу-нарушителю.
+См.
+.Xr signal 3
+для списка поддерживаемых сигналов
+.Sy readbps ,
+.Sy writebps ,
+.Sy readiops ,
+и
+.Sy writeiops .
+.El
+.Pp
+Не все действия поддерживаются для всех ресурсов.
+Попытка добавить правило с действием, не поддерживаемым данным ресурсом, приведёт
+к ошибке.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Dl Nm Fl a Ar user:joe:vmemoryuse:deny=1g
+.Pp
+Удалить все правила RCTL:
+.Dl Nm Fl r Ar \&:
+.Pp
+.Dl Nm Fl hu Ar jail:www
+.Pp
+Показать все правила, применимые к процессу с PID 512:
+.Dl Nm Fl l Ar process:512
+.Pp
+Показать все правила:
+.Dl Nm
+.Pp
+.Dl Nm Ar user:joe
+.Pp
+Показать все правила, соответствующие классам входа:
+.Dl Nm Ar loginclass:
+.Sh СМ. ТАКЖЕ
+.Xr cpuset 1 ,
+.Xr rctl 4 ,
+.Xr rctl.conf 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Команда
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при поддержке FreeBSD Foundation.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ограничение
+.Sy memoryuse
+может привести к отказу машины из-за трэшинга.
+.Pp
+Счётчики
+.Sy readiops
+и
+.Sy writeiops
+являются лишь приблизительными.
+Как и
+.Sy readbps
+и
+.Sy writebps ,
+они вычисляются на уровне файловой системы, где трудно
+или даже невозможно наблюдать фактические операции с дисковыми устройствами.
+.Pp
+Ресурсы
+.Sy writebps
+и
+.Sy writeiops
+обычно учитывают записи в кэш файловой системы,
+а не на фактические устройства.

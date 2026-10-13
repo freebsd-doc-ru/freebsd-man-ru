@@ -1,0 +1,155 @@
+.\" Copyright (c) 1995, 1996
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the author nor the names of contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rpc.ypxfrd/rpc.ypxfrd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 520e0821f3d8a3979f10aa4bc1c7f8d6b133223cb6f4e357245b443b2d1818e7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 1996
+.Dt RPC.YPXFRD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.ypxfrd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl p Ar path
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для ускорения распространения очень больших карт NIS
+от ведущего сервера NIS к ведомым серверам NIS.
+Обычный метод передачи
+карт включает несколько шагов:
+.Bl -bullet -offset indent
+.It
+Ведущий сервер вызывает
+.Xr yppush 8 ,
+чтобы сообщить ведомым серверам о необходимости начать передачу.
+.It
+Ведомые серверы вызывают
+.Xr ypxfr 8 ,
+который читает всё содержимое карты с ведущего сервера
+с помощью функции yp_all().
+.It
+Затем программа
+.Xr ypxfr 8
+создаёт новый файл базы данных карты, используя
+метод хеширования библиотеки
+.Xr db 3
+для хранения данных, получаемых от сервера.
+.It
+Когда все данные получены,
+.Xr ypxfr 8
+перемещает новый файл на место и отправляет
+.Xr ypserv 8
+на локальной машине YPPROC_CLEAR, чтобы уведомить его об обновлении
+дескрипторов базы данных.
+.El
+.Pp
+Этот процесс может занимать несколько минут, когда задействованы очень большие
+карты.
+Например, база данных passwd с несколькими десятками
+тысяч записей может занимать несколько мегабайт дискового пространства,
+и библиотечному пакету
+.Xr db 3
+может потребоваться много времени, чтобы отсортировать и сохранить все записи
+в хеш-базе данных.
+Учтите также, что существует два набора файлов
+карт:
+.Pa master.passwd.by{name,uid}
+и
+.Pa passwd.by{name,uid} .
+.Pp
+Утилита
+.Nm
+ускоряет процесс передачи, позволяя ведомым серверам NIS
+просто копировать файлы карт ведущего сервера, вместо того чтобы создавать свои
+собственные с нуля.
+Проще говоря,
+.Nm
+реализует основанный на RPC протокол передачи файлов.
+Передача даже
+многомегабайтного файла таким способом занимает всего несколько секунд по сравнению
+с несколькими минутами, которые потребовались бы даже достаточно быстрому ведомому серверу
+для создания новой карты с нуля.
+.Pp
+Утилита
+.Nm
+использует тот же механизм ограничения доступа, что и
+.Xr ypserv 8 .
+Это означает, что ведомым серверам будет разрешена передача
+файлов, только если правила в базе данных
+.Pa securenets
+это позволяют (см.
+.Xr ypserv 8
+для получения дополнительной информации о
+.Pa securenets ) .
+Кроме того, только ведомым серверам, использующим зарезервированные
+порты, будет разрешено передавать карты
+.Pa master.passwd .
+.Sh ОПЦИИ
+Доступна следующая опция:
+.Bl -tag -width indent
+.It Fl p Ar path
+Эта опция позволяет переопределить путь по умолчанию к
+местоположению баз данных карт NIS.
+Заданный при компиляции путь по умолчанию —
+.Pa /var/yp .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa -compact
+.It Pa /var/yp/[domainname]/[maps]
+Карты NIS для конкретного домена NIS.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr yp 8 ,
+.Xr yppush 8 ,
+.Xr ypserv 8 ,
+.Xr ypxfr 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Протокол
+.Fx
+.Nm ypxfrd
+не совместим с используемым в SunOS.
+Это прискорбно,
+но неизбежно: протокол Sun не является свободно доступным, и даже если бы он
+был, он, вероятно, не был бы полезен, поскольку реализация SunOS NIS v2
+использует оригинальный пакет ndbm для своих баз данных карт, тогда как
+реализация
+.Fx
+использует Berkeley DB.
+Эти два пакета используют совершенно разные
+форматы файлов.
+Кроме того, ndbm чувствителен к порядку байтов и не очень
+умён в этом отношении, что означает, что база данных ndbm, созданная в системе
+с big endian, не может быть прочитана в системе с little endian.

@@ -1,0 +1,231 @@
+.\" Copyright (c) 2010 The FreeBSD Foundation
+.\"
+.\" This software was developed by Pawel Jakub Dawidek under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/hastctl/hastctl.8
+.\" FRDP githash 5c2bc3db201a4fe8d7911cf816bea104d5dc2138
+.\" FRDP hash256 8a12442fdf6a796c7d7c6366bd08afa907cc7ba03601a5298a552b67e12a075f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 8, 2016
+.Dt HASTCTL 8
+.Os
+.Sh ИМЯ
+.Nm hastctl
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl d
+.Op Fl c Ar config
+.Op Fl e Ar extentsize
+.Op Fl k Ar keepdirty
+.Op Fl m Ar mediasize
+.Ar name ...
+.Nm
+.Cm role
+.Op Fl d
+.Op Fl c Ar config
+.Aq init | primary | secondary
+.Ar all | name ...
+.Nm
+.Cm list
+.Op Fl d
+.Op Fl c Ar config
+.Op Ar all | name ...
+.Nm
+.Cm status
+.Op Fl d
+.Op Fl c Ar config
+.Op Ar all | name ...
+.Nm
+.Cm dump
+.Op Fl d
+.Op Fl c Ar config
+.Op Ar all | name ...
+.Sh ОПИСАНИЕ
+.Nm
+— утилита, используемая для управления поведением
+.Xr hastd 8
+демона.
+.Pp
+Эта утилита должна использоваться программным обеспечением высокой доступности (HA), таким как
+.Nm heartbeat
+или
+.Nm ucarp
+для настройки роли ресурсов HAST при смене режима primary на secondary или наоборот.
+Учтите, что если на провайдере HAST существует файловая система, такая как UFS, и первичный узел выходит из строя, файловая система должна быть проверена на несогласованность с помощью
+.Xr fsck 8
+утилиты после переключения вторичного узла в роль primary.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm create
+Инициализировать локальный провайдер, настроенный для указанного ресурса.
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl e Ar extentsize
+Размер экстента.
+Экстент — это блок, используемый для синхронизации.
+.Xr hastd 8
+ведёт карту грязных экстентов, а экстент — это наименьшая область, которую
+можно пометить как грязную.
+Если любая часть экстента изменена, весь экстент будет синхронизирован
+при подключении узлов.
+Если размер экстента слишком мал, будет слишком много дисковых операций,
+связанных с обновлением карты грязных экстентов, что снизит производительность
+данного ресурса.
+Если размер экстента слишком велик, синхронизация даже при коротком
+сбое может занять много времени, увеличивая риск потери актуального
+узла до завершения процесса синхронизации.
+Размер экстента по умолчанию —
+.Va 2MB .
+.It Fl k Ar keepdirty
+Максимальное количество грязных экстентов, которые постоянно остаются
+грязными.
+Наиболее недавно использованные экстенты остаются грязными, чтобы уменьшить
+количество обновлений метаданных.
+Число наиболее недавно использованных экстентов, которые будут оставаться
+грязными, по умолчанию —
+.Va 64 .
+.It Fl m Ar mediasize
+Размер меньшего провайдера, используемого как нижележащее хранилище на обоих
+узлах.
+Этот параметр можно опустить, если провайдеры узлов имеют одинаковый размер
+с обеих сторон.
+.El
+.Pp
+Если после размера указан суффикс k, M, G или T, он интерпретируется
+соответственно как килобайт, мегабайт, гигабайт или терабайт.
+.It Cm role
+Изменить роль указанного ресурса.
+Роль может быть одной из:
+.Bl -tag -width indent
+.It Cm init
+Ресурс отключён.
+.It Cm primary
+Локальный
+.Xr hastd 8
+демон будет действовать как первичный узел для указанного ресурса.
+Система, на которой роль ресурса установлена в primary, может использовать
+.Pa /dev/hast/<name>
+GEOM-провайдер.
+.It Cm secondary
+Локальный
+.Xr hastd 8
+демон будет действовать как вторичный узел для указанного ресурса — он будет
+ждать соединения от первичного узла и обрабатывать запросы ввода-вывода,
+полученные от него.
+GEOM-провайдер
+.Pa /dev/hast/<name>
+не будет создан на вторичном узле.
+.El
+.It Cm list
+Показывать подробное состояние настроенных ресурсов.
+.It Cm status
+Показывать краткое (и более удобное для машинного разбора) состояние
+настроенных ресурсов.
+.It Cm dump
+Выгрузить метаданные, хранящиеся на локальном компоненте для настроенных
+ресурсов.
+.El
+.Pp
+Кроме того, после каждой подкоманды могут следовать следующие параметры:
+.Bl -tag -width indent
+.It Fl c Ar config
+Указать альтернативное расположение файла конфигурации.
+Расположение по умолчанию —
+.Pa /etc/hast.conf .
+.It Fl d
+Выводить отладочную информацию.
+Этот параметр можно указывать несколько раз для повышения уровня
+подробности.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/hast.conf
+Файл конфигурации для
+.Nm
+и
+.Xr hastd 8 .
+.It Pa /var/run/hastctl
+Управляющий сокет, используемый
+.Nm
+для связи с
+.Xr hastd 8
+демоном.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе или одному из значений, описанных в
+.Xr sysexits 3
+при ошибке.
+.Sh ПРИМЕРЫ
+Инициализировать провайдер HAST, создать на нём файловую систему и смонтировать её.
+.Bd -literal -offset indent
+nodeB# hastctl create shared
+nodeB# hastd
+nodeB# hastctl role secondary shared
+
+nodeA# hastctl create shared
+nodeA# hastd
+nodeA# hastctl role primary shared
+nodeA# newfs -U /dev/hast/shared
+nodeA# mount -o noatime /dev/hast/shared /shared
+nodeA# application_start
+.Ed
+.Pp
+Переключить роли для
+.Nm shared
+ресурса HAST.
+.Bd -literal -offset indent
+nodeA# application_stop
+nodeA# umount -f /shared
+nodeA# hastctl role secondary shared
+
+nodeB# hastctl role primary shared
+nodeB# fsck -t ufs /dev/hast/shared
+nodeB# mount -o noatime /dev/hast/shared /shared
+nodeB# application_start
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr sysexits 3 ,
+.Xr geom 4 ,
+.Xr hast.conf 5 ,
+.Xr fsck 8 ,
+.Xr ggatec 8 ,
+.Xr ggatel 8 ,
+.Xr hastd 8 ,
+.Xr mount 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+.Nm
+— утилита, появившаяся в
+.Fx 8.1 .
+.Sh АВТОРЫ
+.Nm
+была разработана
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

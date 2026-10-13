@@ -1,0 +1,231 @@
+.\"	$OpenBSD: pflogd.8,v 1.37 2008/10/22 08:16:49 henning Exp $
+.\"
+.\" Copyright (c) 2001 Can Erkin Acar.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" $FreeBSD$
+.\"
+.\" FRDP path contrib/pf/pflogd/pflogd.8
+.\" FRDP githash 2bda75506d9596e367637208846ba605a938a0db
+.\" FRDP hash256 479abaff86b5a2b75c5d08d6a872d5233bd097bb456b566907c15187e701559f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 11, 2018
+.Dt PFLOGD 8
+.Os
+.Sh ИМЯ
+.Nm pflogd
+.Nd демон протоколирования пакетного фильтра
+.Sh СИНТАКСИС
+.Nm pflogd
+.Bk -words
+.Op Fl \&Dx
+.Op Fl d Ar задержка
+.Op Fl f Ar имя_файла
+.Op Fl i Ar интерфейс
+.Op Fl s Ar snaplen
+.Op Ar выражение
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+— фоновый демон, который читает пакеты, протоколируемые
+.Xr pf 4
+в интерфейс
+.Xr pflog 4 ,
+обычно
+.Pa pflog0 ,
+и записывает пакеты в файл журнала (обычно
+.Pa /var/log/pflog )
+в двоичном формате
+.Xr tcpdump 1 .
+Эти журналы можно просмотреть позже с помощью параметра
+.Fl r
+команды
+.Xr tcpdump 1 ,
+желательно в автономном режиме на случай ошибок в коде разбора пакетов
+.Xr tcpdump 1 .
+.Pp
+.Nm
+закрывает и затем снова открывает файл журнала при получении
+.Dv SIGHUP ,
+позволяя
+.Xr newsyslog 8
+автоматически ротировать файлы журналов.
+.Dv SIGALRM
+заставляет
+.Nm
+сбрасывать текущие буферы файла журнала на диск, делая доступными самые
+последние журналы.
+Буферы также сбрасываются с интервалом
+.Ar задержка
+секунд.
+.Pp
+Если файл журнала содержит данные после перезапуска или
+.Dv SIGHUP ,
+новые журналы добавляются в конец существующего файла.
+Если существующий файл журнала был создан с другим snaplen,
+.Nm
+временно использует старый snaplen, чтобы сохранить согласованность
+файла журнала.
+.Pp
+.Nm
+старается сохранить целостность файла журнала при ошибках ввода-вывода.
+Кроме того, целостность существующего файла журнала проверяется перед
+добавлением.
+Если файл журнала повреждён или возникла ошибка ввода-вывода, файл журнала
+перемещается в сторону и создаётся новый.
+Если новый файл не может быть создан, протоколирование приостанавливается до
+получения
+.Dv SIGHUP
+или
+.Dv SIGALRM .
+.Pp
+.Nm
+также записывает статистику pcap для интерфейса
+.Xr pflog 4
+в syslog при получении
+.Dv SIGUSR1 .
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl D
+Режим отладки.
+.Nm
+не отсоединяется от управляющего терминала.
+.It Fl d Ar задержка
+Время в секундах между автоматическими сбросами файла.
+Может быть задано значением от 5 до 3600 секунд.
+Если не указано, по умолчанию 60 секунд.
+.It Fl f Ar имя_файла
+Имя выходного файла журнала.
+По умолчанию
+.Pa /var/log/pflog .
+.It Fl i Ar интерфейс
+Указывает используемый интерфейс
+.Xr pflog 4 .
+По умолчанию
+.Nm
+будет использовать
+.Ar pflog0 .
+.It Fl p Ar pidfile
+Записывает файл, содержащий идентификатор процесса программы, в
+.Pa /var/run .
+Имя файла имеет вид
+.Ao Ar pidfile Ac Ns .pid .
+По умолчанию
+.Ar pflogd .
+.It Fl s Ar snaplen
+Анализировать не более первых
+.Ar snaplen
+байт данных из каждого пакета вместо значения по умолчанию 116.
+Значение по умолчанию 116 достаточно для заголовков IP, ICMP, TCP и UDP, но может
+усечь информацию о протоколе для других протоколов.
+Другие анализаторы файлов могут требовать большего snaplen.
+.It Fl x
+Проверить целостность существующего файла журнала и завершиться.
+.It Ar выражение
+Выбирает, какие пакеты будут выгружены, используя стандартный язык
+.Xr tcpdump 1 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/run/pflogd.pid -compact
+.It Pa /var/run/pflogd.pid
+Идентификатор процесса текущего экземпляра
+.Nm .
+.It Pa /var/log/pflog
+Файл журнала по умолчанию.
+.El
+.Sh ПРИМЕРЫ
+Записывать в журнал определённые TCP-пакеты в другой файл журнала с большим snaplen
+(полезно с правилом log-all для выгрузки полных сеансов):
+.Bd -literal -offset indent
+# pflogd -s 1600 -f suspicious.log port 80 and host evilhost
+.Ed
+.Pp
+Записывать из другого интерфейса
+.Xr pflog 4 ,
+исключая определённые пакеты:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Показать бинарные журналы:
+.Bd -literal -offset indent
+# tcpdump -n -e -ttt -r /var/log/pflog
+.Ed
+.Pp
+Показывать журналы в реальном времени (это не мешает
+работе
+.Nm ) :
+.Bd -literal -offset indent
+# tcpdump -n -e -ttt -i pflog0
+.Ed
+.Pp
+Tcpdump был расширен, чтобы иметь возможность фильтровать по структуре pfloghdr,
+определённой в
+.Aq Ar net/if_pflog.h .
+Tcpdump может ограничить вывод
+пакетами, записанными на указанном интерфейсе, с определённым номером правила, причиной,
+направлением, семейством IP или действием.
+.Pp
+.Bl -tag -width "ifname kue0" -compact
+.It ip
+Семейство адресов равно IPv4.
+.It ip6
+Семейство адресов равно IPv6.
+.It ifname kue0
+.It on kue0
+.It ruleset authpf
+.It rulenum 10
+Номер правила равен 10.
+.It reason match
+Причина равна match.
+.It action pass
+Действие равно pass.
+.It inbound
+Направление было inbound.
+.It outbound
+Направление было outbound.
+.El
+.Pp
+Показывать в реальном времени журналы входящих пакетов, которые были заблокированы на
+интерфейсе wi0:
+.Bd -literal -offset indent
+# tcpdump -n -e -ttt -i pflog0 inbound and action block and on wi0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr pcap 3 ,
+.Xr pf 4 ,
+.Xr pflog 4 ,
+.Xr pf.conf 5 ,
+.Xr newsyslog 8 ,
+.Xr tcpdump 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Ox 3.0 .
+.Sh АВТОРЫ
+.Nm
+был написан
+.An Can Erkin Acar Aq canacar@openbsd.org .

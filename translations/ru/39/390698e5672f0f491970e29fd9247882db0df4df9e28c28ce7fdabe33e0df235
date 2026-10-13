@@ -1,0 +1,118 @@
+.\" Copyright (c) 2019 Gleb Smirnoff <glebius@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/pfilctl/pfilctl.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 390698e5672f0f491970e29fd9247882db0df4df9e28c28ce7fdabe33e0df235
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 28, 2019
+.Dt PFILCTL 8
+.Os
+.Sh ИМЯ
+.Nm pfilctl
+.Nd утилита управления pfil(9)
+.Sh СИНТАКСИС
+.Nm
+.Cm heads
+.Nm
+.Cm hooks
+.Nm
+.Cm link
+.Aq Fl i | Fl o
+.Op Fl a
+.Ar hook Ar head
+.Nm
+.Cm unlink
+.Aq Fl i | Fl o
+.Ar hook Ar head
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для просмотра и изменения конфигурации
+.Xr pfil 9
+точек фильтрации пакетов и фильтров на них.
+.Sh КОМАНДЫ
+.Bl -tag -width Ds
+.It Cm heads
+Вывести список доступных точек фильтрации пакетов.
+.It Cm hooks
+Вывести список доступных фильтров пакетов.
+.It Xo
+.Cm link
+.Aq Fl i | Fl o
+.Op Fl a
+.Ar hook Ar head
+.Xc
+Связать
+.Ar hook
+с
+.Ar head .
+С флагом
+.Fl i
+фильтр будет подключён как входной, а с
+.Fl o
+— как выходной.
+Требуется хотя бы один из
+.Fl i
+или
+.Fl o .
+По умолчанию
+.Nm
+будет вставлять фильтр перед другими фильтрами, если они есть:
+новый фильтр будет как можно ближе к сети, так что на входе
+он будет первым фильтром, а на выходе — последним.
+Добавление флага
+.Fl a
+переключает на добавление нового фильтра в конец вместо вставки в начало.
+.It Xo
+.Cm unlink
+.Aq Fl i | Fl o
+.Ar hook Ar head
+.Xc
+Отсоединить
+.Ar hook
+от
+.Ar head .
+Требуется хотя бы один из
+.Fl i
+или
+.Fl o .
+С флагом
+.Fl i
+фильтр будет удалён из списка входных фильтров,
+а с
+.Fl o
+— из списка выходных.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ipfilter 4 ,
+.Xr ipfw 4 ,
+.Xr pf 4 ,
+.Xr pfil 9
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Gleb Smirnoff Aq Mt glebius@FreeBSD.org .

@@ -1,0 +1,152 @@
+.\" Copyright (c) 1990, 1991, 1993 The Regents of the University of
+.\" California. All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution.  Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.\" FRDP path usr.sbin/rarpd/rarpd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 1acb340491d4725c57648ad17e1d274c378d357c53a17455112d8585971620d9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 9, 2012
+.Dt RARPD 8
+.Os
+.Sh ИМЯ
+.Nm rarpd
+.Nd демон обратного ARP
+.Sh СИНТАКСИС
+.Nm
+.Fl a
+.Op Fl dfsv
+.Op Fl t Ar каталог
+.Op Fl P Ar pidfile
+.Nm
+.Op Fl dfsv
+.Op Fl t Ar каталог
+.Op Fl P Ar pidfile
+.Ar интерфейс
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+обслуживает запросы обратного ARP на Ethernet, подключенном к
+.Ar интерфейс .
+Получив запрос,
+.Nm
+сопоставляет целевой аппаратный адрес с IP-адресом по его имени, которое
+должно присутствовать в обеих базах данных
+.Xr ethers 5
+и
+.Xr hosts 5 .
+Если хост отсутствует хотя бы в одной из этих баз данных, преобразование невозможно,
+и ответ не будет отправлен.
+.Pp
+По умолчанию запрос обрабатывается, только если на сервере
+(т. е. на хосте, на котором запущен
+.Nm )
+существует файл
+.Pa /tftpboot/\fIipaddr\fP* ,
+где
+.Em ipaddr
+— целевой IP-адрес в шестнадцатеричном виде.
+Например, на IP-адрес 204.216.27.18 будет отправлен ответ, если существует
+любой из файлов
+.Pa /tftpboot/CCD81B12 ,
+.Pa /tftpboot/CCD81B12.SUN3
+или
+.Pa /tftpboot/CCD81B12-boot .
+Это требование можно отменить с помощью флага
+.Fl s
+(см. ниже).
+.Pp
+В обычном режиме работы
+.Nm
+создает свою копию и работает в фоновом режиме.
+Аномалии и ошибки сообщаются через
+.Xr syslog 3 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Прослушивать все сети Ethernet, подключенные к системе.
+Если
+.Fl a
+опущен, необходимо указать интерфейс.
+.It Fl d
+Если также указан
+.Fl f ,
+.Nm
+записывает сообщения в
+.Em stdout
+и
+.Em stderr
+вместо протоколирования через
+.Xr syslog 3 .
+.It Fl f
+Работать на переднем плане.
+.It Fl P
+Указать путь файла PID.
+Если не указан,
+.Pa /var/run/rarpd.pid
+или
+.Pa /var/run/rarpd.ifname.pid
+будет использоваться в зависимости от флага
+.Fl a
+или указанного имени интерфейса.
+.It Fl s
+Выдавать ответ на любой запрос RARP, для которого существует сопоставление
+Ethernet-адреса с IP-адресом; не зависеть от наличия
+.Pa /tftpboot/\fIipaddr\fP* .
+.It Fl t
+Указать альтернативный корневой каталог tftp вместо
+.Pa /tftpboot ,
+аналогично параметру
+.Fl s
+в
+.Xr tftpd 8 .
+Это позволяет
+.Nm
+выборочно отвечать на запросы RARP, но использовать альтернативный каталог
+для проверки IP.
+.It Fl v
+Включить подробное протоколирование syslog.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/ethers -compact
+.It Pa /etc/ethers
+.It Pa /etc/hosts
+.It Pa /tftpboot
+.It Pa /var/run/rarpd.pid
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bpf 4
+.Rs
+.Re
+.Sh АВТОРЫ
+.An -nosplit
+.An Craig Leres Aq Mt leres@ee.lbl.gov
+и
+.An Steven McCanne Aq Mt mccanne@ee.lbl.gov .
+Лоуренсовская Берклиевская лаборатория, Калифорнийский университет, Беркли, Калифорния.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+может зависеть от DNS при разрешении имени, обнаруженного в
+.Pa /etc/ethers .
+Если это имя отсутствует в DNS, но присутствует в
+.Pa /etc/hosts ,
+поиск в DNS может вызвать задержку ответа RARP, поэтому в этой ситуации
+рекомендуется настроить
+.Xr nsswitch.conf 5
+так, чтобы сначала читался
+.Pa /etc/hosts .

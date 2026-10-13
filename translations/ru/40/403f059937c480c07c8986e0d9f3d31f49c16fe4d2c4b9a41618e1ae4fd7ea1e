@@ -1,0 +1,105 @@
+.\" Copyright (c) 2014 The FreeBSD Foundation.
+.\"
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/vtfontcvt/vtfontcvt.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 403f059937c480c07c8986e0d9f3d31f49c16fe4d2c4b9a41618e1ae4fd7ea1e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 19, 2022
+.Dt VTFONTCVT 8
+.Os
+.Sh ИМЯ
+.Nm vtfontcvt
+.Sh СИНТАКСИС
+.Nm
+.Op Fl nv
+.Op Fl f Ar формат
+.Op Fl h Ar высота
+.Op Fl w Ar ширина
+.Fl o Ar выходной_файл
+.Ar обычный_шрифт
+.Op Ar жирный_шрифт
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает исходные файлы шрифтов в формате BDF или Unifont HEX и
+выводит файл в одном из доступных выходных форматов.
+.Pp
+Файлы формата HEX
+.Po Ar обычный_шрифт
+и
+.Ar жирный_шрифт Pc
+должны иметь расширение
+.Pa .hex .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl f Ar формат
+Задаёт выходной формат.
+Доступные форматы:
+.Bl -tag -width indent
+.It Cm compressed-source
+Исходный код C с данными шрифта, сжатыми с помощью метода сжатия LZ4.
+.It Cm font
+Двоичный файл шрифта
+.Pq по умолчанию .
+.It Cm source
+Исходный код C.
+.El
+.Pp
+Вывод в виде исходного кода C предназначен для встраивания шрифта в двоичный
+файл программы.
+.Pp
+Двоичный файл шрифта предназначен для использования
+.Xr vt 4 .
+.It Fl h Ar высота
+Задаёт высоту шрифта.
+По умолчанию 16.
+Высота шрифта устанавливается автоматически для файлов BDF и для файлов HEX,
+которые содержат
+.D1 # Height: Ar высота
+комментарий перед любыми данными шрифта.
+.It Fl n
+Не применять выходную фильтрацию при выводе исходного кода C.
+.It Fl o Ar выходной_файл
+Задаёт имя выходного файла.
+.It Fl v
+Показывать подробную статистику о преобразованном шрифте.
+.It Fl w Ar ширина
+Задаёт ширину шрифта.
+По умолчанию 8.
+Ширина шрифта устанавливается автоматически для файлов BDF и для файлов HEX,
+которые содержат
+.D1 # Width: Ar ширина
+комментарий перед любыми данными шрифта.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr vidcontrol 1 ,
+.Xr vt 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 10.1 .

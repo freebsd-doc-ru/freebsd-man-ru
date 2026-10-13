@@ -1,0 +1,64 @@
+.\" Copyright (c) 1998-2000 Proofpoint, Inc. and its suppliers.
+.\"	 All rights reserved.
+.\" Copyright (c) 1983, 1990
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" By using this file, you agree to the terms and conditions set
+.\" forth in the LICENSE file which can be found at the top level of
+.\" the sendmail distribution.
+.\"
+.\"
+.\"	$Id: rmail.8,v 8.5 2013-11-22 20:51:53 ca Exp $
+.\"
+.\" FRDP path contrib/sendmail/rmail/rmail.8
+.\" FRDP githash 2fb4f839f3fc72ce2bab12f9ba4760f97f73e97f
+.\" FRDP hash256 dd5d0f22197d3870ebe689f946ac4999f89982a95b4f76ef7a21a3f027ab036f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.SH ИМЯ
+rmail
+\- обработка удалённой почты, полученной через uucp
+.SH СИНТАКСИС
+.B rmail
+.RB [ \-D
+.IR domain ]
+.RB [ \-T ]
+.I
+user ...
+.SH ОПИСАНИЕ
+.B Rmail
+интерпретирует входящую почту, полученную через
+uucp(1),
+сворачивая строки ``From'' в форме, создаваемой
+mail.local(8),
+в одну строку вида ``return-path!sender'',
+и передаёт обработанную почту в
+sendmail(8).
+.PP
+.B Rmail
+явно предназначена для использования с
+uucp
+и
+sendmail.
+.SS Флаги
+.TP
+.B \-D
+Использовать указанный
+.I domain
+вместо домена по умолчанию ``UUCP''.
+.TP
+.B \-T
+Включить отладку.
+.SH СМ. ТАКЖЕ
+uucp(1),
+mail.local(8),
+sendmail(8)
+.SH ИСТОРИЯ
+Программа
+.B rmail
+появилась в
+4.2BSD.
+.SH ИЗВЕСТНЫЕ ОШИБКИ
+.B Rmail
+не должен находиться в
+/bin.

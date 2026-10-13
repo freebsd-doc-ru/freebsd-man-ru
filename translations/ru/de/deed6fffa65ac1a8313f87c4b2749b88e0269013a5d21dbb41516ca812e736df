@@ -1,0 +1,207 @@
+.\" Copyright (c) 1995, 1996
+.\"	Bill Paul <wpaul@ctr.columbia.edu>. All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/yp_mkdb/yp_mkdb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 deed6fffa65ac1a8313f87c4b2749b88e0269013a5d21dbb41516ca812e736df
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 12, 1996
+.Dt YP_MKDB 8
+.Os
+.Sh ИМЯ
+.Nm yp_mkdb
+.Sh СИНТАКСИС
+.Nm
+.Fl c
+.Nm
+.Fl u Ar dbname
+.Nm
+.Op Fl c
+.Op Fl b
+.Op Fl s
+.Op Fl f
+.Op Fl i Ar inputfile
+.Op Fl o Ar outputfile
+.Op Fl d Ar domainname
+.Op Fl m Ar mastername
+.Ar inputfile
+.Ar dbname
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт базы данных в стиле
+.Xr db 3
+для использования с
+.Fx Ns 's
+NIS-сервером.
+Утилита
+.Nm
+читает данные из
+.Ar inputfile
+и записывает их в
+.Ar dbname
+в формате
+.Xr db 3
+(используя метод хеш-таблицы).
+Входные данные должны быть в формате 'key data', то есть
+два поля данных
+.Tn ASCII ,
+разделённых пробельными символами.
+Первое поле
+считается ключом, а всё остальное считается
+данными.
+Эти базы данных обычно хранятся в
+.Pa /var/yp/[domainname] ,
+где
+.Ar domainname
+— это имя обслуживаемого домена NIS.
+Утилита
+.Nm
+обычно вызывается из
+.Pa /var/yp/Makefile .
+Утилита
+.Nm
+также может использоваться для выгрузки файла базы данных NIS, чтобы можно было изучить его содержимое.
+По соображениям безопасности все базы данных, которые
+.Nm
+создаёт, доступны для чтения и записи только владельцу (и обычно владельцем является root).
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl c
+Заставляет
+.Nm
+отправить запрос YPPROC_CLEAR к
+.Xr ypserv 8
+на локальном хосте.
+Этот сигнал предписывает серверу закрыть все открытые
+дескрипторы баз данных и сбросить кэш базы данных.
+Если используется отдельно,
+этот флаг сигнализирует серверу и больше ничего не делает.
+Если используется как часть
+команды создания базы данных,
+.Nm
+отправит сигнал только после того, как новая база данных будет успешно
+создана.
+.It Fl b
+Заставляет
+.Nm
+добавить в базу данных специальную запись с ключом
+.Em YP_INTERDOMAIN
+и пустым полем данных.
+Если этот ключ присутствует в карте, он немного изменяет
+поведение процедуры 'match' в
+.Xr ypserv 8 .
+Если запрос на сопоставление терпит неудачу (потому что сервер не смог найти
+запись, соответствующую предоставленному ключу), и
+ключ
+.Em YP_INTERDOMAIN
+существует в запрашиваемой карте,
+.Xr ypserv 8
+попытается снова сопоставить запись с помощью DNS-запроса.
+Обратите внимание, что это
+особое поведение применяется только к картам
+.Em hosts .
+Использование флага
+.Fl b
+для других карт не даёт эффекта.
+.It Fl s
+Этот флаг используется для добавления в базу данных специальной записи с ключом
+.Em YP_SECURE
+и пустым полем данных.
+Если этот ключ присутствует в карте,
+.Xr ypserv 8
+будет отказывать в доступе к карте любому клиенту, который не использует
+зарезервированный порт для своего запроса.
+Это используется в основном для карт
+.Em master.passwd ,
+доступ к которым должен быть ограничен только привилегированным доступом.
+.It Fl f
+Этот флаг используется для включения фильтрации строк во входном исходном файле,
+которые начинаются с символов ``+'' или ``-''.
+Эти символы
+имеют особое значение для карт
+.Pa group ,
+.Pa passwd
+и
+.Pa master.passwd
+и поэтому не должны допускаться в них в качестве первого
+символа ключа или элемента данных.
+Если используется флаг
+.Fl f ,
+.Nm
+отклонит любую строку исходного файла, которая начинается с символа ``+'' или ``-'',
+и выдаст предупреждающее сообщение с отображением строки, которая
+была отброшена.
+.It Fl u Ar dbname
+Выгрузить (или 'развернуть') базу данных NIS.
+Этот параметр можно использовать для
+просмотра содержимого существующей базы данных NIS.
+.It Fl i Ar inputfile
+При создании карты NIS закодировать
+.Ar inputfile
+как специальную запись в базе данных с ключом
+.Em YP_INPUT_FILE .
+.It Fl o Ar outputfile
+При создании карты NIS закодировать
+.Ar outputfile
+как специальную запись в базе данных с ключом
+.Em YP_OUTPUT_FILE .
+.It Fl d Ar domainname
+При создании карты NIS закодировать
+.Ar domainname
+как специальную запись в базе данных с ключом
+.Em YP_DOMAIN_NAME .
+.It Fl m Ar mastername
+При создании карты NIS закодировать
+.Ar mastername
+как специальную запись в базе данных с ключом
+.Em YP_MASTER_NAME .
+Эта запись в базе данных часто используется различными утилитами NIS
+для определения имени главного сервера NIS для домена.
+По умолчанию
+.Nm
+предполагает, что локальный хост является главным сервером NIS; параметр
+.Fl m
+используется для переопределения этого значения по умолчанию.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/yp/Makefile -compact
+.It Pa /var/yp/Makefile
+Makefile, который вызывает
+.Nm
+для сборки баз данных NIS
+.El
+.Sh СМ. ТАКЖЕ
+.Xr db 3 ,
+.Xr ypserv 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu

@@ -1,0 +1,237 @@
+.\" Copyright (c) 2010 The FreeBSD Foundation
+.\"
+.\" This software was developed by Pawel Jakub Dawidek under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/hastd/hastd.8
+.\" FRDP githash 5c2bc3db201a4fe8d7911cf816bea104d5dc2138
+.\" FRDP hash256 4360e98117bc7b43170083805c144a3b50a97e79d860ff0607b61db2022d1a50
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 21, 2019
+.Dt HASTD 8
+.Os
+.Sh ИМЯ
+.Nm hastd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dFh
+.Op Fl c Ar config
+.Op Fl P Ar pidfile
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отвечает за управление высокодоступными провайдерами GEOM.
+.Pp
+.Nm
+позволяет прозрачно хранить данные на двух физически разделённых машинах,
+соединённых по сети TCP/IP.
+Только одна машина (узел кластера) может активно использовать хранилище,
+предоставляемое
+.Nm .
+Эта машина называется основной.
+Демон
+.Nm
+работает на уровне блоков, что делает его прозрачным для файловых
+систем и приложений.
+.Pp
+Существует один главный демон
+.Nm
+, который запускает новый рабочий процесс, как только роль для данного
+ресурса изменяется на основную, или как только роль для данного
+ресурса изменяется на вторичную и удалённый (основной) узел успешно
+подключится к нему.
+Каждый рабочий процесс получает новый заголовок процесса (см.
+.Xr setproctitle 3 ) ,
+который описывает его роль и ресурс, которым он управляет.
+Точный формат:
+.Bd -literal -offset indent
+hastd: <имя ресурса> (<роль>)
+.Ed
+.Pp
+Если (и только если)
+.Nm
+работает в основной роли для данного ресурса, создаётся соответствующее
+.Pa /dev/hast/<name>
+дископодобное устройство (провайдер GEOM).
+Файловые системы и приложения могут использовать этот провайдер для отправки
+ему запросов ввода-вывода.
+Каждая операция записи, удаления и сброса
+.Dv ( BIO_WRITE , BIO_DELETE , BIO_FLUSH )
+отправляется локальному компоненту и реплицируется на удалённый (вторичный) узел,
+если он доступен.
+Операции чтения
+.Dv ( BIO_READ )
+обрабатываются локально, если не возникает ошибка ввода-вывода или локальная версия данных
+ещё не актуальна (идёт синхронизация).
+.Pp
+Демон
+.Nm
+использует класс GEOM Gate для получения запросов ввода-вывода от
+инфраструктуры GEOM, работающей в ядре.
+Модуль
+.Nm geom_gate.ko
+загружается автоматически, если ядро не было скомпилировано со
+следующей опцией:
+.Bd -ragged -offset indent
+.Ed
+.Pp
+Соединение между двумя
+.Nm
+демонами всегда инициируется от того, который работает как основной, к тому,
+который работает как вторичный.
+Когда основной
+.Nm
+не может подключиться или соединение обрывается, он будет пытаться
+восстановить соединение каждые несколько секунд.
+Как только соединение установлено, основной
+.Nm
+синхронизирует с вторичным
+.Nm
+каждый экстент, который был изменён во время отсутствия соединения.
+.Pp
+Возможно, что в случае обрыва соединения между узлами
+основная роль
+.Nm
+для данного ресурса будет настроена на обоих узлах.
+Это, в свою очередь, приводит к несовместимым изменениям данных.
+Такое состояние называется split-brain и не может быть автоматически
+разрешено демоном
+.Nm
+, так как это скорее всего приведёт к повреждению данных или потере
+важных изменений.
+Хотя это не может быть исправлено самим
+.Nm
+, оно будет обнаружено, и дальнейшее соединение между независимо
+изменёнными узлами будет невозможно.
+После того как администратор вручную разрешит эту ситуацию, ресурс
+на одном из узлов можно инициализировать (удалив локальные данные), что
+снова сделает возможным соединение с удалённым узлом.
+Подключение только что инициализированного компонента запустит полную
+синхронизацию ресурса.
+.Pp
+Демон
+.Nm
+никогда не выбирает свою роль автоматически.
+Роль должна быть настроена с помощью
+.Xr hastctl 8
+управляющей утилиты дополнительным программным обеспечением, таким как
+.Nm ucarp
+или
+.Nm heartbeat
+, которое может надёжно управлять разделением ролей и переключать вторичный узел на
+основную роль в случае отказа основного.
+.Pp
+Демон
+.Nm
+можно запустить со следующими аргументами командной строки:
+.Bl -tag -width ".Fl c Ar config"
+.It Fl c Ar config
+Указать альтернативное расположение файла конфигурации.
+Расположение по умолчанию:
+.Pa /etc/hast.conf .
+.It Fl d
+Выводить или записывать в журнал отладочную информацию.
+Эту опцию можно указать несколько раз, чтобы повысить уровень подробности.
+.It Fl F
+Запустить демон
+.Nm
+на переднем плане.
+По умолчанию
+.Nm
+запускается в фоновом режиме.
+.It Fl h
+Вывести сообщение об использовании
+.Nm
+.
+.It Fl P Ar pidfile
+Указать альтернативное расположение файла, в котором будет храниться PID главного процесса.
+Расположение по умолчанию:
+.Pa /var/run/hastd.pid .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /etc/hast.conf"
+.It Pa /etc/hast.conf
+Файл конфигурации для
+.Nm
+и
+.Xr hastctl 8 .
+.It Pa /var/run/hastctl
+Управляющий сокет, используемый управляющей утилитой
+.Xr hastctl 8
+для связи с
+.Nm .
+.It Pa /var/run/hastd.pid
+Расположение по умолчанию для
+.Nm
+PID-файла.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе или одному из значений, описанных в
+.Xr sysexits 3
+, при ошибке.
+.Sh ПРИМЕРЫ
+Запустите
+.Nm
+на обоих узлах.
+Установите для ресурса
+.Nm shared
+роль основного на
+.Nm nodeA
+и роль вторичного на
+.Nm nodeB .
+Создайте файловую систему на провайдере
+.Pa /dev/hast/shared
+и смонтируйте её.
+.Bd -literal -offset indent
+nodeB# hastd
+nodeB# hastctl role secondary shared
+
+nodeA# hastd
+nodeA# hastctl role primary shared
+nodeA# newfs -U /dev/hast/shared
+nodeA# mount -o noatime /dev/hast/shared /shared
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr sysexits 3 ,
+.Xr geom 4 ,
+.Xr hast.conf 5 ,
+.Xr ggatec 8 ,
+.Xr ggated 8 ,
+.Xr ggatel 8 ,
+.Xr hastctl 8 ,
+.Xr mount 8 ,
+.Xr newfs 8 ,
+.Xr g_bio 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 8.1 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была разработана
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

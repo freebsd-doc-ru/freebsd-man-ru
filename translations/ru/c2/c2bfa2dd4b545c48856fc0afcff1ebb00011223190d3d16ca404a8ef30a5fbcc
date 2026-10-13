@@ -1,0 +1,82 @@
+.\"
+.\" Copyright (c) 2017 Netflix, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/efidp/efidp.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c2bfa2dd4b545c48856fc0afcff1ebb00011223190d3d16ca404a8ef30a5fbcc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 1, 2017
+.Dt EFIDP 8
+.Os
+.Sh ИМЯ
+.Nm efidp
+.Nd Работа с путями устройств UEFI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fp
+.Op Fl -parse
+.Op Fl -format
+.Sh ОПИСАНИЕ
+Эта программа преобразует
+.Dq Unified Extensible Firmware Interface
+.Pq UEFI
+пути устройств, как определено в стандарте UEFI, в двоичную форму и обратно.
+Двоичная и текстовая формы определены в главе 9 спецификации UEFI.
+.Pp
+.Bl -tag -width 20m
+.It Fl f Fl -format
+Форматирует двоичный путь устройства UEFI в его каноническую текстовую форму UTF-8.
+Двоичный путь устройства не может быть длиннее 65536 байт.
+Текстовая форма должна помещаться в 65536 байт.
+Можно указать несколько двоичных путей устройств.
+.It Fl p Fl -parse
+Разбирает спецификацию пути устройства UEFI в UTF-8 и выводит двоичную
+форму пути устройства.
+Разбирается только один путь устройства, даже если во входных данных
+присутствует несколько.
+Ведущие пробельные символы игнорируются.
+Полученный двоичный путь устройства не может быть длиннее 65536 байт.
+Можно указать несколько строк.
+Каждая из них будет преобразована.
+.It Fl e Fl --to-efi
+Преобразует путь к файлу Unix в путь устройства EFI.
+Выводом является текстовое представление пути устройства EFI.
+.It Fl u Fl --to-unix
+Преобразует путь устройства EFI в путь к файлу Unix.
+Вводом является текстовое представление пути устройства EFI.
+.El
+.Sh СМ. ТАКЖЕ
+В приложении A спецификации UEFI приведён формат GUID.
+Все GUID
+.Dq глобально уникальные идентификаторы
+имеют формат, описанный в RFC 4122.
+.Pp
+Спецификация Unified Extensible Firmware Interface доступна на
+.Pa www.uefi.org .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.1 .

@@ -1,0 +1,184 @@
+.\"-
+.\" Copyright (c) 2003 Nate Lawson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/acpi/iasl/iasl.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f7aba9d5ca18a5720e22aea73114004bbd1cf58267abe9f29eb824cd614e4111
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2008
+.Dt IASL 8
+.Os
+.Sh ИМЯ
+.Nm iasl
+.Nd компилятор/декомпилятор ACPI от Intel
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 2cefghl
+.Op Fl b Ar тип
+.Op Fl d Ar файл
+.Op Fl dc Ar файл
+.Op Fl hc
+.Op Fl hr
+.Op Fl i Ar тип
+.Op Fl ln
+.Op Fl ls
+.Op Fl oa
+.Op Fl of
+.Op Fl oi
+.Op Fl on
+.Op Fl ot
+.Op Fl p Ar префикс
+.Op Fl s Ar тип
+.Op Fl t Ar тип
+.Op Fl vi
+.Op Fl vo
+.Op Fl vr
+.Op Fl vs
+.Op Fl x Ar уровень
+.Op Fl w Ar уровень
+.Ar входной_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является компилятором/декомпилятором для языка ACPI Source Language (ASL)
+и языка ACPI Machine Language (AML).
+Основные возможности
+.Nm
+включают:
+.Bl -bullet -offset indent
+.It
+Полная поддержка спецификации ACPI 3.0b, включая элементы грамматики ASL
+и операторы.
+.It
+Расширенная проверка синтаксических и семантических ошибок компилятора,
+особенно в области управляющих методов.
+Это уменьшает количество ошибок,
+которые не обнаруживаются до тех пор, пока код AML фактически не будет
+интерпретирован (т.е. проверка ошибок во время компиляции уменьшает
+количество ошибок во время выполнения).
+.It
+Несколько типов выходных файлов, включая форматированные файлы листинга
+с перемешанным исходным кодом, несколько типов файлов AML и сообщения
+об ошибках.
+.El
+.Sh ОПЦИИ
+.Bl -tag -width indent
+.It Fl 2
+Генерировать ASL-код, совместимый с ACPI 2.0.
+.It Fl b Sm Cm p | t | b Sm
+Создать файл отладки/трассировки компилятора
+.Pq Pa *.txt .
+Типы: разбор/дерево/оба.
+.It Fl c
+Только разбор, без генерации выходных данных.
+.It Fl d Ar файл
+Дизассемблировать AML в файл исходного кода ASL
+.Pq Pa *.dsl .
+.It Fl dc Ar файл
+Дизассемблировать AML и сразу скомпилировать его.
+(Получить DSDT из текущей системы, если входной файл не указан.)
+.It Fl e
+Генерировать
+.Fn External
+операторы для неразрешённых символов.
+.It Fl f
+Игнорировать ошибки, принудительно создавать выходной файл(ы) AML.
+.It Fl g
+Получить таблицы ACPI и записать в файлы
+.Pq Pa *.dat .
+.It Fl h
+Дополнительная справка и параметры отладки компилятора.
+.It Fl hc
+Показать операторы, допустимые в константных выражениях.
+.It Fl hr
+Показать зарезервированные имена методов ACPI.
+.It Fl i Sm Cm a | c Sm
+Создать включаемый файл ассемблера или C
+.Pa ( *.inc
+или
+.Pa *.h ) .
+.It Fl l
+Создать смешанный файл листинга (исходный код ASL и AML)
+.Pq Pa *.lst .
+.It Fl ln
+Создать файл пространства имён
+.Pq Pa *.nsp .
+.It Fl ls
+Создать объединённый файл исходного кода (с раскрытыми включениями)
+.Pq Pa *.src .
+.It Fl oa
+Отключить все оптимизации (режим совместимости).
+.It Fl of
+Отключить свёртку констант.
+.It Fl oi
+Отключить оптимизацию целых чисел до Zero/One/Ones.
+.It Fl on
+Отключить оптимизацию строк именованных ссылок.
+.It Fl ot
+Показывать время компиляции.
+.It Fl p Ar префикс
+Указать префикс имени файла для всех выходных файлов (включая
+.Pa .aml ) .
+.It Fl s Sm Cm a | c Sm
+Создать AML в файле исходного кода ассемблера или C
+.Pa ( *.asm
+или
+.Pa *.c ) .
+.It Fl t Ar a|c
+Создать AML в виде шестнадцатеричной таблицы ассемблера или C
+.Pq Pa *.hex .
+.It Fl vi
+Менее подробные ошибки и предупреждения для использования с IDE.
+.It Fl vo
+Включить комментарии об оптимизации.
+.It Fl vr
+Отключить замечания.
+.It Fl vs
+Отключить вывод стартового сообщения.
+.It Fl x Ar уровень
+Установить уровень отладки для вывода трассировки.
+.It Fl w Ar уровень
+Установить уровень предупреждений.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr acpidump 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+поставляется с Intel ACPI-CA.
+Впервые появилась в
+.Fx 5.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Intel .
+Эта страница Справочника была написана
+.An Nate Lawson .

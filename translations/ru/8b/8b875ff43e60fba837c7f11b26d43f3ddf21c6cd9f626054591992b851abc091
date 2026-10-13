@@ -1,0 +1,146 @@
+.\"-
+.\" Copyright (c) 2000, 2001 Robert N. M. Watson
+.\" Copyright (c) 2002 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by Poul-Henning
+.\" Kamp and Network Associates Laboratories, the Security Research Division
+.\" of Network Associates, Inc. under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/extattr/rmextattr.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8b875ff43e60fba837c7f11b26d43f3ddf21c6cd9f626054591992b851abc091
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 27, 2016
+.Dt RMEXTATTR 8
+.Os
+.Sh ИМЯ
+.Nm getextattr ,
+.Nm lsextattr ,
+.Nm rmextattr ,
+.Nm setextattr
+.Nd управление расширенными атрибутами
+.Sh СИНТАКСИС
+.Nm getextattr
+.Op Fl fhqsx
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Ar имя_файла ...
+.Nm lsextattr
+.Op Fl fhq
+.Ar пространство_имён_атрибутов
+.Ar имя_файла ...
+.Nm rmextattr
+.Op Fl fhq
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Ar имя_файла ...
+.Nm setextattr
+.Op Fl fhnq
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Ar значение_атрибута
+.Ar имя_файла ...
+.Nm setextattr
+.Fl i
+.Op Fl fhnq
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Ar имя_файла ...
+.Sh ОПИСАНИЕ
+Эти
+утилиты
+— пользовательские инструменты для управления именованными расширенными
+атрибутами файлов и каталогов.
+Аргумент
+.Ar пространство_имён_атрибутов
+должен задавать пространство имён извлекаемого атрибута: допустимыми
+значениями являются
+.Cm user
+и
+.Cm system .
+Аргумент
+.Ar имя_атрибута
+должен быть именем атрибута,
+.Ar имя_файла
+— именем целевого файла или каталога,
+.Ar значение_атрибута
+— строкой, сохраняемой в атрибуте.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl f
+(Принудительно.)
+Игнорировать ошибки для отдельных имён файлов и продолжать обработку
+остальных аргументов.
+.It Fl h
+(Не следовать.)
+Если файл является символической ссылкой, выполнять операцию над самой
+ссылкой, а не над файлом, на который она указывает.
+.It Fl i
+(Из stdin.)
+Читать данные атрибута из stdin, а не из аргумента.
+.It Fl n
+.Dv ( NUL Ns
+-терминировать.)
+.Dv NUL Ns
+-терминировать содержимое экстента, записываемое на диск.
+.It Fl q
+(Тихий режим.)
+Не выводить путевое имя и подавлять сообщения об ошибках.
+При указании дважды выводить только значение атрибута без завершающего
+перевода строки.
+.It Fl s
+(Строковое представление.)
+Экранировать непечатаемые символы и заключать вывод в кавычки.
+.It Fl x
+(Шестнадцатеричный.)
+Выводить результат в шестнадцатеричном виде.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+setextattr system md5 `md5 -q /boot/kernel/kernel` /boot/kernel/kernel
+md5 -q /boot/kernel/kernel | setextattr -i system md5 /boot/kernel/kernel
+getextattr system md5 /boot/kernel/kernel
+getextattr -qq system md5 /boot/kernel/kernel | od -x
+lsextattr system /boot/kernel/kernel
+rmextattr system md5 /boot/kernel/kernel
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr extattr 2 ,
+.Xr extattr 3 ,
+.Xr extattrctl 8 ,
+.Xr extattr 9
+.Sh ИСТОРИЯ
+Поддержка расширенных атрибутов была разработана в рамках проекта
+.Tn TrustedBSD
+и появилась в
+.Fx 5.0 .
+Она была разработана для поддержки расширений безопасности, требующих
+дополнительных меток, связанных с каждым файлом или каталогом.
+.Sh АВТОРЫ
+.An Robert N M Watson
+.An Poul-Henning Kamp

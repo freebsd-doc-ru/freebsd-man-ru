@@ -1,0 +1,94 @@
+.\" Copyright (c) 2016 Luigi Rizzo, Universita` di Pisa
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/netmap/bridge.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f1620f63bf485d8a6a8db329f914ddcef469c6e58a85fe74dee170d96696e296
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 21, 2020
+.Dt BRIDGE 8
+.Os
+.Sh ИМЯ
+.Nm bridge
+.Nd клиент netmap для объединения двух портов netmap
+.Sh СИНТАКСИС
+.Bk -words
+.Nm
+.Op Fl i Ar порт
+.Op Fl b Ar размер_пакета
+.Op Fl w Ar ожидание_связи
+.Op Fl v
+.Op Fl c
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+— это простое приложение netmap, которое объединяет пакеты между двумя портами netmap.
+Если два порта netmap используют одну и ту же область памяти netmap,
+.Nm
+пересылает пакеты без копирования полезной нагрузки пакетов (режим zero-copy), если это явно не запрещено флагом
+.Fl c .
+.Pp
+При объединении двух физических портов необходимо, чтобы оба NIC находились в
+режиме promiscuous, иначе одноадресный трафик, направленный другим хостам, будет
+отброшен аппаратным обеспечением, и объединение не будет работать.
+.Pp
+При объединении аппаратных колец физического порта с соответствующими
+кольцами хоста необходимо отключить offloads, потому что netmap не
+подготавливает кольца NIC с информацией об offload.
+Пример:
+.Bd -literal -offset indent
+ifconfig em0 -rxcsum -txcsum -tso4 -tso6 -lro
+.Ed
+.Pp
+Доступные опции:
+.Bl -tag -width Ds
+.It Fl i Ar порт
+Имя порта netmap.
+Его можно указать до двух раз, чтобы идентифицировать порты, которые должны быть объединены.
+Можно использовать любой тип порта netmap (физический интерфейс, коммутатор VALE, pipe, порт мониторинга...).
+Если опция указана только один раз, то она должна быть для физического интерфейса, и в этом случае
+.Nm
+объединит порт и стек хоста.
+.It Fl b Ar размер_пакета
+Максимальное количество пакетов для отправки за одну операцию.
+.It Fl w Ar ожидание_связи
+указывает количество секунд ожидания перед передачей.
+По умолчанию 2; может быть полезно при работе с физическими портами, чтобы завершить согласование канала перед началом передачи.
+.It Fl v
+Включить подробный режим.
+.It Fl c
+Отключить режим zero-copy.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr netmap 4 ,
+.Xr lb 8 ,
+.Xr pkt-gen 8
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Luigi Rizzo
+и
+.An Matteo Landi
+в Universita` di Pisa, Италия.

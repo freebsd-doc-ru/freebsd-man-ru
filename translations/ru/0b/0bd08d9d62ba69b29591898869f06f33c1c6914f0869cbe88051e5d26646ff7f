@@ -1,0 +1,140 @@
+.\" Copyright (c) 1995, 1996
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/mknetid/mknetid.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 0bd08d9d62ba69b29591898869f06f33c1c6914f0869cbe88051e5d26646ff7f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 23, 1996
+.Dt MKNETID 8
+.Os
+.Sh ИМЯ
+.Nm mknetid
+.Sh СИНТАКСИС
+.Nm
+.Op Fl q
+.Op Fl g Ar файл_групп
+.Op Fl p Ar файл_паролей
+.Op Fl h Ar файл_хостов
+.Op Fl n Ar файл_netid
+.Op Fl d Ar домен
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+обрабатывает содержимое файлов
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr hosts 5
+и
+.Xr netid 5
+в формат, используемый для генерации карты
+.Pa netid.byname
+.Tn NIS .
+Эта карта используется для хранения информации об учётных данных как для пользователей,
+так и для хостов в формате, не зависящем от операционной системы.
+.Pp
+Утилита
+.Nm
+проверяет повторяющиеся вхождения netid и отфильтровывает их.
+.Pp
+Утилита
+.Nm
+выводит свои результаты на стандартный вывод.
+Обычно она вызывается
+только из
+.Pa /var/yp/Makefile
+при перестроении карт
+.Tn NIS .
+.Sh ОПЦИИ
+Утилита
+.Nm
+поддерживает следующие опции:
+.Bl -tag -width indent
+.It Fl q
+Обычно
+.Nm
+выводит предупреждающее сообщение, когда встречает повторяющийся netid.
+Этот флаг включает 'тихий' режим, позволяя подавить предупреждения.
+Другие сообщения об ошибках всё ещё могут генерироваться.
+.It Fl g Ar файл_групп
+Укажите расположение файла информации о группах.
+Заданное при компиляции значение по умолчанию —
+.Pa /etc/group .
+.It Fl p Ar файл_паролей
+Укажите расположение файла информации о паролях.
+Заданное при компиляции значение по умолчанию —
+.Pa /etc/passwd .
+.It Fl h Ar файл_хостов
+Укажите расположение файла базы данных хостов.
+Заданное при компиляции значение по умолчанию —
+.Pa /etc/hosts .
+.It Fl n Ar файл_netid
+Укажите расположение файла информации netid.
+Заданное при компиляции значение по умолчанию —
+.Pa /etc/netid .
+Обратите внимание, что ошибка не генерируется, если база данных netid не найдена.
+База данных netid, вероятно, отсутствует на большинстве систем до тех пор, пока поддержка
+.Tn Secure RPC
+не будет добавлена в
+.Fx .
+.It Fl d Ar домен
+По умолчанию утилита
+.Nm
+использует системное доменное имя при генерации записей netid.
+Если системное доменное имя не задано, домен должен быть указан в командной строке с флагом
+.Fl d .
+Если доменное имя задано, флаг
+.Fl d
+может использоваться для его переопределения.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/yp/Makefile -compact
+.It Pa /var/yp/Makefile
+Makefile, который вызывает
+.Nm yp_mkdb
+и
+.Nm
+для построения баз данных
+.Tn NIS
+.It Pa /etc/group
+файл базы данных групп по умолчанию
+.It Pa /etc/passwd
+файл базы данных паролей по умолчанию
+.It Pa /etc/hosts
+файл базы данных хостов по умолчанию
+.It Pa /etc/netid
+файл базы данных netid по умолчанию
+.El
+.Sh СМ. ТАКЖЕ
+.Xr yp 8 ,
+.Xr yp_mkdb 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu

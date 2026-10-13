@@ -1,0 +1,83 @@
+.\"
+.\" Copyright (c) 1997 Doug Rabson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/kldunload/kldunload.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4a2d5497e7ff81ab6bc9f2e07d20164d294f048d1635af8b2bd693e7d08fbc16
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 27, 2006
+.Dt KLDUNLOAD 8
+.Os
+.Sh ИМЯ
+.Nm kldunload
+.Nd выгрузить файл из ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fv
+.Fl i Ar id ...
+.Nm
+.Op Fl fv
+.Op Fl n
+.Ar name ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выгружает файл, который был ранее загружен с помощью
+.Xr kldload 8 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительная выгрузка.
+Это игнорирует ошибки, возвращаемые модулем в ответ на
+.Dv MOD_QUIESCE ,
+и подразумевает,
+что модуль должен быть выгружен, даже если он в данный момент используется.
+Пользователям остаётся справляться самостоятельно, как они смогут.
+.It Fl v
+Выводить более подробную информацию.
+.It Fl i Ar id
+Выгрузить файл с указанным идентификатором.
+.It Fl n Ar name
+Выгрузить файл с указанным именем.
+.It Ar name
+Выгрузить файл с указанным именем.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr kldunload 2 ,
+.Xr kldload 8 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 3.0 ,
+заменив интерфейс
+.Nm lkm .
+.Sh АВТОРЫ
+.An Doug Rabson Aq Mt dfr@FreeBSD.org

@@ -1,0 +1,119 @@
+.\" Copyright (c) 1997 Todd C. Miller <Todd.Miller@courtesan.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgment:
+.\"	This product includes software developed by Todd C. Miller.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+.\" AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+.\" THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+.\" EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+.\" PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+.\" OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+.\" ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\"	$OpenBSD: fsirand.8,v 1.6 1997/02/23 03:58:26 millert Exp $
+.\"
+.\" FRDP path sbin/fsirand/fsirand.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 a31a77f45b74a550d6535572b03da16fa41e1cf9893b7cde89e37a3148a9179a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 25, 1997
+.Dt FSIRAND 8
+.Os
+.Sh ИМЯ
+.Nm fsirand
+.Nd рандомизировать номера генерации inode
+.Sh СИНТАКСИС
+.Nm
+.Op Fl b
+.Op Fl f
+.Op Fl p
+.Ar special
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+устанавливает случайные номера генерации для всех inode каждой
+файловой системы, указанной в командной строке с помощью
+.Ar special .
+Это повышает безопасность файловых систем, экспортируемых через NFS,
+затрудняя ``угадывание'' дескрипторов файлов.
+.Pp
+.Em Примечание :
+.Xr newfs 8
+теперь выполняет эквивалент
+.Nm
+сам, так что больше не нужно
+запускать
+.Nm
+вручную для новой файловой системы.
+Она используется только для
+повторной рандомизации или отчёта о существующей файловой системе.
+.Pp
+Утилита
+.Nm
+должна использоваться только на размонтированной файловой системе,
+проверенной с помощью
+.Xr fsck 8
+или на файловой системе, смонтированной только для чтения.
+Утилита
+.Nm
+может использоваться на корневой файловой системе в однопользовательском режиме,
+но после этого систему следует перезагрузить с помощью ``reboot -n''.
+.Sh ОПЦИИ
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl b
+Использовать размер блока по умолчанию (обычно 512 байт) вместо
+значения, полученного из disklabel.
+.It Fl f
+Принудительно запустить
+.Nm
+даже если файловая система на
+.Ar special
+не помечена как чистая.
+.It Fl p
+Вывести текущие номера генерации для всех inode вместо
+генерации новых.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fs 5 ,
+.Xr fsck 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в SunOS 3.x.
+.Pp
+Эта версия
+.Nm
+впервые появилась в
+.Ox 2.1 .
+.Pp
+Версия для
+.Fx
+впервые появилась в
+.Fx 2.2.5 .
+.Sh АВТОРЫ
+.An Todd C. Miller Aq Mt Todd.Miller@courtesan.com
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Поскольку
+.Nm
+выделяет достаточно памяти, чтобы вместить все inode в
+заданной группе цилиндров, она может использовать большой объём
+памяти для больших дисков с небольшим числом групп цилиндров.

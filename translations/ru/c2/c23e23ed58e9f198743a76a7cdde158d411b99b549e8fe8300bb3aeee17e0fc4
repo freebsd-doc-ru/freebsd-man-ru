@@ -1,0 +1,75 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibcacheedit.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 c23e23ed58e9f198743a76a7cdde158d411b99b549e8fe8300bb3aeee17e0fc4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBCACHEEDIT \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH РЕДАКТИРОВАНИЕ КЭША IBNETDISCOVER
+.SS СИНТАКСИС
+.sp
+ibcacheedit [options] <orig.cache> <new.cache>
+.SS ОПИСАНИЕ
+.sp
+ibcacheedit позволяет пользователям редактировать кэш ibnetdiscover, созданный с помощью опции
+\fB\-\-cache\fP в \fBibnetdiscover(8)\fP.
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-\-switchguid BEFOREGUID:AFTERGUID\fP
+Укажите switchguid, который следует изменить.  GUID до и после
+должны быть разделены двоеточием.  На коммутаторах port guid идентичны
+switch guid, поэтому port guid также будут скорректированы на коммутаторах.
+.TP
+.B \fB\-\-caguid BEFOREGUID:AFTERGUID\fP
+Укажите caguid, который следует изменить.  GUID до и после
+должны быть разделены двоеточием.
+.TP
+.B \fB\-\-sysimgguid BEFOREGUID:AFTERGUID\fP
+Укажите sysimgguid, который следует изменить.  GUID до и после
+должны быть разделены двоеточием.
+.TP
+.B \fB\-\-portguid NODEGUID:BEFOREGUID:AFTERGUID\fP
+Укажите portguid, который следует изменить.  Сначала следует указать nodeguid порта
+(например, switchguid или caguid), затем двоеточие, port guid до, ещё одно двоеточие,
+затем port guid после.  На коммутаторах port guid идентичны switch guid, поэтому switch
+guid также будет скорректирован на коммутаторах.
+.UNINDENT
+.SS Флаги отладки
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS АВТОРЫ
+.INDENT 0.0
+.TP
+.B Albert Chu
+< \fI\%chu11@llnl.gov\fP >
+.UNINDENT
+.

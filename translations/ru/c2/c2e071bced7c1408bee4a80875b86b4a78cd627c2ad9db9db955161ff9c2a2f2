@@ -1,0 +1,113 @@
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/memcontrol/memcontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c2e071bced7c1408bee4a80875b86b4a78cd627c2ad9db9db955161ff9c2a2f2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 15, 2002
+.Dt MEMCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm memcontrol
+.Sh СИНТАКСИС
+.Nm
+.Cm list
+.Op Fl a
+.Nm
+.Cm set
+.Fl b Ar база
+.Fl l Ar длина
+.Fl o Ar владелец
+.Ar атрибут
+.Nm
+.Cm clear
+.Fl o Ar владелец
+.Nm
+.Cm clear
+.Fl b Ar база
+.Fl l Ar длина
+.Sh ОПИСАНИЕ
+В ряде поддерживаемых системных архитектур поведение кэша процессора
+можно запрограммировать так, чтобы оно отличалось в зависимости от
+записываемой области.
+.Pp
+Утилита
+.Nm
+предоставляет интерфейс к этой возможности, позволяя изменять
+поведение кэша процессора для диапазонов физической памяти системы.
+.Pp
+Обычно эти диапазоны выровнены по степени двойки и имеют размер,
+равный степени двойки, однако конкретные правила, определяющие их
+размещение, различаются в разных архитектурах.
+Утилита
+.Nm
+не пытается обеспечивать соблюдение этих правил, однако система
+отклонит любую попытку задать недопустимую комбинацию.
+.Bl -tag -width indent
+.It Cm list
+Вывести список слотов диапазонов.
+.Bl -tag -width indent
+.It Fl a
+Вывести все слоты диапазонов, даже неактивные.
+.El
+.It Cm set
+Задать атрибуты диапазона памяти.
+.Bl -tag -width indent
+.It Fl b Ar база
+Базовый адрес диапазона памяти.
+.It Fl l Ar длина
+Длина диапазона памяти в байтах, степень двойки.
+.It Fl o Ar владелец
+Текстовый идентификатор для этой настройки (не более 7 символов).
+.It Ar атрибут
+Атрибуты, применяемые к этому диапазону; комбинации
+.Cm force , uncacheable , write-combine , write-through , write-back ,
+и
+.Cm write-protect .
+.El
+.It Cm clear
+Очистить атрибуты диапазона памяти.
+Диапазоны можно очистить по владельцу или по комбинации
+база/длина.
+.Pp
+To clear based on ownership:
+.Bl -tag -width indent
+.It Fl o Ar владелец
+Все диапазоны с этим владельцем будут очищены.
+.El
+.Pp
+To clear based on the base/length combination:
+.Bl -tag -width indent
+.It Fl b Ar база
+Базовый адрес диапазона памяти.
+.It Fl l Ar длина
+Длина диапазона памяти в байтах, степень двойки.
+.El
+.Pp
+База и длина должны точно соответствовать существующему диапазону.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mem 4

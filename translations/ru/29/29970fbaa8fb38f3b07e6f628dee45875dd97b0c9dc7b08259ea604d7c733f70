@@ -1,0 +1,181 @@
+.\" Copyright (c) 1991, 1993, 1995
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/yppush/yppush.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 29970fbaa8fb38f3b07e6f628dee45875dd97b0c9dc7b08259ea604d7c733f70
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 5, 1995
+.Dt YPPUSH 8
+.Os
+.Sh ИМЯ
+.Nm yppush
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d Ar домен
+.Op Fl t Ar таймаут
+.Op Fl j Ar #параллельных заданий
+.Op Fl h Ar хост
+.Op Fl p Ar путь
+.Op Fl v
+.Ar имя_карты
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+распространяет обновлённые базы данных NIS (или
+.Pa карты )
+с главного сервера NIS на подчинённые серверы NIS в пределах
+домена NIS.
+Обычно она запускается только на главном сервере NIS с помощью
+.Pa /var/yp/Makefile
+всякий раз, когда обновляется любая из карт NIS.
+Заметьте, что
+.Pa /var/yp/Makefile
+по умолчанию не вызывает
+.Nm
+: запись
+.Dq Li NOPUSH=True
+в Makefile должна быть сначала закомментирована
+(конфигурация
+.Fx
+по умолчанию предполагает небольшую сеть только
+с одним сервером NIS; в такой конфигурации
+.Nm
+не нужен).
+.Pp
+По умолчанию
+.Nm
+определяет имена подчинённых серверов для домена, выполняя поиск в
+.Pa ypservers
+карте.
+Целевой хост (или список хостов) также можно вручную
+указать в командной строке.
+Получив полный список подчинённых серверов, она отправляет запрос на 'передачу карты'
+каждому подчинённому серверу, который, в свою очередь, читает копию карты с
+главного сервера NIS, используя
+.Xr ypxfr 8 .
+Каждый запрос включает имя карты, которую нужно скопировать,
+и некоторую специальную информацию, необходимую
+.Xr ypxfr 8
+для успешного 'обратного вызова' к
+.Nm
+и выполнения передачи.
+Любые сообщения об ошибках, которые
+.Nm
+получает от
+.Xr ypxfr 8
+через обратный вызов, будут напечатаны в stderr.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d Ar домен
+Указать конкретный домен.
+Домен NIS
+локальной системы используется по умолчанию.
+Если доменное имя локального
+хоста не задано, доменное имя необходимо указать с помощью этого флага.
+.It Fl t Ar таймаут
+Указать значение таймаута в секундах.
+Этот таймаут
+управляет тем, как долго
+.Nm
+будет ждать ответа от подчинённого сервера, прежде чем отправить
+запрос на передачу карты следующему подчинённому серверу в списке.
+.It Fl j Ar #параллельных заданий
+Утилита
+.Nm
+обычно выполняет передачи последовательно, то есть она
+отправляет запрос на передачу карты одному подчинённому серверу, а затем ждёт
+ответа от него, прежде чем перейти к следующему подчинённому серверу.
+В средах
+с большим числом подчинённых серверов эффективнее инициировать несколько передач карт
+одновременно, чтобы передачи могли выполняться параллельно.
+Флаг
+.Fl j
+используется для указания желаемого числа параллельных заданий:
+.Nm
+немедленно инициирует указанное число передач и
+будет ожидать ответов.
+Если указанное число параллельных заданий
+меньше числа подчинённых серверов,
+.Nm
+инициирует только указанное число заданий, а затем ждёт
+завершения некоторых из них, прежде чем запускать новые.
+.Pp
+Отметим, что
+.Nm
+обрабатывает обратные вызовы асинхронно, то есть она собирает
+и отображает информацию обратного вызова, полученную от
+.Xr ypxfr 8
+как только она поступит, даже если она поступит до того, как все
+запросы на передачу карт были отправлены.
+.It Fl h Ar хост
+Может использоваться для передачи карты на указанную пользователем машину или
+группу машин вместо списка серверов, содержащегося в
+.Pa ypservers
+карте.
+Список хостов можно указать, используя несколько
+экземпляров
+.Fl h
+флага.
+.It Fl p Ar путь
+По умолчанию
+.Nm
+ожидает, что все локальные карты NIS хранятся в
+.Pa /var/yp .
+Флаг
+.Fl p
+можно использовать для указания альтернативного пути в случае, если
+системный администратор решит хранить карты NIS в другом месте.
+.It Fl v
+Подробный режим: он заставляет
+.Nm
+печатать отладочные сообщения во время работы.
+Двукратное указание этого флага
+делает
+.Nm
+ещё более подробным.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa -compact
+.It Pa /var/yp/[domainname]/ypservers
+карта ypservers NIS, содержащая имена всех серверов в
+определённом домене NIS
+.El
+.Sh СМ. ТАКЖЕ
+.Xr yp 8 ,
+.Xr ypserv 8 ,
+.Xr ypxfr 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Механизм передачи карт NIS в NIS v1 отличается
+от механизма в NIS версии 2.
+Эта версия
+.Nm
+поддерживает передачу карт только в системы NIS v2.

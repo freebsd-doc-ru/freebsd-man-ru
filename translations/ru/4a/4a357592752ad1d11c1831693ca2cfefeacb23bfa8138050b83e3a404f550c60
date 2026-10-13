@@ -1,0 +1,67 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibstatus.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 4a357592752ad1d11c1831693ca2cfefeacb23bfa8138050b83e3a404f550c60
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBSTATUS \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС БАЗОВОГО СОСТОЯНИЯ УСТРОЙСТВ INFINIBAND
+.SS СИНТАКСИС
+.sp
+ibstatus [\-h] [devname[:port]]...
+.SS ОПИСАНИЕ
+.sp
+ibstatus — это скрипт, который отображает базовую информацию, полученную от локального драйвера IB. Вывод включает LID, SMLID, состояние порта, активную ширину канала и физическое состояние порта.
+.SS ПАРАМЕТРЫ
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.INDENT 0.0
+.TP
+.B \fBdevname\fP
+имя устройства InfiniBand
+.TP
+.B \fBportnum\fP
+номер порта устройства InfiniBand
+.UNINDENT
+.SS ПРИМЕРЫ
+.INDENT 0.0
+.TP
+.B ::
+ibstatus                    # отобразить состояние всех портов IB
+ibstatus mthca1             # состояние портов mthca1
+ibstatus mthca1:1 mthca0:2  # показать состояние указанных портов
+.UNINDENT
+.SS СМ. ТАКЖЕ
+.sp
+\fBibstat (8)\fP
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT

@@ -1,0 +1,368 @@
+.\"
+.\" Copyright (c) 2008-2014, Simon Schubert <2@0x2c.org>.
+.\" Copyright (c) 2008
+.\"	The DragonFly Project.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. Neither the name of The DragonFly Project nor the names of its
+.\"    contributors may be used to endorse or promote products derived
+.\"    from this software without specific, prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+.\" AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/dma/dma.8
+.\" FRDP githash fbe95b885f3431b1d8003545b32e8ffa88f2d16b
+.\" FRDP hash256 820345fd83d46d435bcf1e32f10c9fb479ef7217fa42b79b627dea84869802da
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2017
+.Dt DMA 8
+.Os
+.Sh ИМЯ
+.Nm dma
+.Nd Почтовый агент DragonFly
+.Sh СИНТАКСИС
+.Nm
+.Op Fl DiOt
+.Op Fl A Ns Ar mode
+.Op Fl b Ns Ar mode
+.Op Fl f Ar отправитель
+.Op Fl L Ar тег
+.Op Fl o Ns Ar option
+.Op Fl r Ar отправитель
+.Op Fl q Ns Op Ar аргумент
+.Op Ar получатель ...
+.Sh ОПИСАНИЕ
+.Nm
+— небольшой агент передачи почты (MTA), предназначенный для домашнего и офисного использования.
+Он принимает почту от локально установленных агентов пользователя почты (MUA) и
+доставляет её либо локально, либо на удалённый адрес.
+Удалённая доставка включает несколько возможностей, таких как поддержка TLS/SSL и
+аутентификация SMTP.
+.Pp
+.Nm
+не предназначен для замены настоящих больших MTA, таких как
+.Xr sendmail 8
+или
+.Xr postfix 1 .
+Следовательно,
+.Nm
+не прослушивает порт 25 для входящих соединений.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl A Ns Ar mode
+.Fl \&Ac
+действует как опция совместимости для sendmail.
+.It Fl b Ns Ar mode
+.Bl -tag -width indent
+.It Fl bp
+Перечислить все письма, находящиеся в данный момент в почтовой очереди.
+.It Fl bq
+Поставить письмо в очередь, но не пытаться его доставить.
+См. также настройку
+.Sq DEFER
+в файле конфигурации ниже.
+.El
+.Pp
+Все остальные
+.Ar mode Ns
+s игнорируются.
+.It Fl D
+Не запускать в фоновом режиме.
+Полезно для отладки.
+.It Fl f Ar отправитель
+Установить адрес отправителя (envelope-from) в
+.Ar отправитель .
+Это переопределяет значение переменной окружения
+.Ev EMAIL ,
+но переопределяется настройкой
+.Sq MASQUERADE
+в файле конфигурации.
+.It Fl i
+Игнорировать точки, стоящие отдельно на строках, во входящих сообщениях.
+Это следует включать, если вы читаете данные из файла.
+.It Fl L Ar тег
+Установить идентификатор, используемый в сообщениях syslog, в указанный
+.Ar тег .
+Это опция совместимости для sendmail.
+.It Fl O
+Это опция совместимости для sendmail.
+.It Fl o Ns Ar option
+Указание
+.Fl oi
+синонимично
+.Fl i .
+Все остальные параметры игнорируются.
+.It Fl q Ns Op Ar аргумент
+Обработать сохранённые сообщения в очереди.
+Аргумент необязателен и игнорируется.
+.It Fl r Ar отправитель
+То же, что и
+.Fl f .
+.It Fl t
+Извлекать адреса получателей из заголовка сообщения.
+.Nm
+будет разбирать заголовки
+.Li To: ,
+.Li Cc: ,
+и
+.Li Bcc: .
+Заголовок
+.Li Bcc:
+будет удалён независимо от того, указан
+.Fl t
+или нет.
+.El
+.Sh КОНФИГУРАЦИЯ
+.Nm
+можно настроить с помощью двух файлов конфигурации:
+.Pp
+.Bl -bullet -compact
+.It
+auth.conf
+.It
+dma.conf
+.El
+.Pp
+По умолчанию эти два файла хранятся в
+.Pa /etc/dma .
+.Sh ФОРМАТ ФАЙЛА
+Каждый файл содержит параметры вида
+.Sq имя значение .
+Строки, содержащие логические значения, устанавливаются в
+.Sq NO ,
+если строка закомментирована, и в
+.Sq YES ,
+если строка раскомментирована.
+Пустые строки или строки, начинающиеся с
+.Sq # ,
+игнорируются.
+Имена параметров и их значения чувствительны к регистру.
+.Sh ПАРАМЕТРЫ
+.Ss auth.conf
+Аутентификацию SMTP можно настроить в
+.Pa auth.conf .
+Каждая строка имеет формат
+.Dq Li user|smarthost:password .
+.Ss dma.conf
+Большая часть поведения
+.Nm
+может быть настроена в
+.Pa dma.conf .
+.Bl -tag -width 4n
+.It Ic SMARTHOST Xo
+(строка, по умолчанию=пусто)
+.Xc
+Если вы хотите отправлять исходящие письма через смарт-хост, установите эту переменную в
+адрес вашего смарт-хоста.
+.It Ic PORT Xo
+(числовой, по умолчанию=25)
+.Xc
+Использовать этот порт для доставки удалённых писем.
+Полезно только вместе с настройкой
+.Sq SMARTHOST ,
+потому что
+.Nm
+будет доставлять все письма на этот порт, независимо от того, задан смарт-хост
+или нет.
+.It Ic ALIASES Xo
+(строка, по умолчанию=/etc/aliases)
+.Xc
+Путь к локальному файлу aliases.
+Просто оставьте значение по умолчанию.
+Файл aliases имеет формат
+.Dl nam: dest1 dest2 ...
+В этом случае письма для
+.Li nam
+будут вместо этого доставлены
+.Li dest1
+и
+.Li dest2 ,
+которые, в свою очередь, могут быть записями в
+.Pa /etc/aliases .
+Специальное имя
+.Ql *
+можно использовать для создания универсального alias, который используется, если не найдено другого
+подходящего alias.
+Используйте универсальный alias только если вы не хотите, чтобы какая-либо локальная почта
+доставлялась.
+.It Ic SPOOLDIR Xo
+(строка, по умолчанию=/var/spool/dma)
+.Xc
+Путь к каталогу spool
+.Nm Ap s .
+Просто оставьте значение по умолчанию.
+.It Ic AUTHPATH Xo
+(строка, по умолчанию=не задано)
+.Xc
+Путь к файлу
+.Sq auth.conf .
+.It Ic SECURETRANSFER Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте, если хотите передачу, защищённую TLS/SSL.
+.It Ic STARTTLS Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте, если хотите использовать STARTTLS.
+Полезно только вместе с
+.Sq SECURETRANSFER .
+.It Ic FINGERPRINT Xo
+(строка, по умолчанию=пусто)
+.Xc
+Закрепить сертификат сервера, указав его отпечаток SHA256.
+Имеет смысл только при использовании смарт-хоста.
+.It Ic OPPORTUNISTIC_TLS Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте, если хотите разрешить сбою согласования STARTTLS.
+Наиболее полезно, когда
+.Nm
+используется без смарт-хоста, доставляя удалённые сообщения напрямую
+внешним почтовым обменникам; в режиме оппортунистического TLS соединение будет
+зашифровано, если удалённый сервер поддерживает STARTTLS, но доставка в незашифрованном виде
+всё равно будет выполнена, если согласование не удастся.
+Полезно только вместе с
+.Sq SECURETRANSFER
+и
+.Sq STARTTLS .
+.It Ic CERTFILE Xo
+(строка, по умолчанию=пусто)
+.Xc
+Путь к вашему файлу сертификата SSL.
+.It Ic SECURE Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте эту запись и измените её на
+.Sq INSECURE ,
+чтобы использовать вход в SMTP открытым текстом через незащищённое соединение.
+Вам нужно вручную переименовать эту переменную, чтобы предотвратить случайную отправку
+вашего пароля через незащищённое соединение.
+.It Ic DEFER Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте, если вы хотите, чтобы
+.Nm
+откладывал вашу почту.
+Вам придётся вручную очистить очередь почты с помощью
+параметра .Fl q .
+Этот параметр удобен, если вы находитесь за коммутируемой линией.
+.It Ic FULLBOUNCE Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Раскомментируйте, если хотите, чтобы сообщение о недоставке включало полное исходное
+сообщение, а не только заголовки.
+.It Ic MAILNAME Xo
+(строка, по умолчанию=пусто)
+.Xc
+Имя хоста в Интернете, которое
+.Nm
+использует для идентификации хоста.
+Если не задано или пусто, используется результат
+.Xr gethostname 3 .
+Если
+.Sq MAILNAME
+является абсолютным путём к файлу, первая строка этого файла будет использоваться
+как имя хоста.
+.It Ic MASQUERADE Xo
+(строка, по умолчанию=пусто)
+.Xc
+Маскировать адреса envelope-from этим адресом/именем хоста.
+Используйте эту настройку, если письма не принимаются почтовыми серверами назначения
+из-за недопустимого домена отправителя.
+Эта настройка переопределяет
+флаг .Fl f
+и переменную окружения
+.Ev EMAIL .
+.Pp
+Если
+.Sq MASQUERADE
+не содержит знака
+.Li @ ,
+строка интерпретируется как имя хоста.
+Например, установка
+.Sq MASQUERADE
+в
+.Ql john@
+на хосте
+.Ql hamlet
+будет отправлять все письма как
+.Ql john@hamlet ;
+установка её в
+.Ql percolator
+будет отправлять все письма как
+.Sm off
+.Ql Va username @percolator .
+.Sm on
+.It Ic NULLCLIENT Xo
+(логическое, по умолчанию=закомментировано)
+.Xc
+Обходить aliases и локальную доставку и вместо этого пересылать все письма
+определённому
+.Sq SMARTHOST .
+.Sq NULLCLIENT
+требует, чтобы
+.Sq SMARTHOST
+был задан.
+.El
+.Ss Переменные окружения
+Поведение
+.Nm
+может зависеть от некоторых переменных окружения.
+.Bl -tag -width 4n
+.It Ev EMAIL Xo
+.Xc
+Используется для установки адреса отправителя (envelope-from).
+Используйте простой адрес в форме
+.Li user@example.com .
+Это значение будет переопределено, когда используется настройка
+.Sq MASQUERADE
+в файле конфигурации или флаг
+.Fl f .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mailaddr 7 ,
+.Xr mailwrapper 8 ,
+.Xr sendmail 8
+.Rs
+.%O RFC 821
+.Re
+.Rs
+.%O RFC 2554
+.Re
+.Rs
+.%O RFC 2487
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Dx 1.11 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Matthias Schmidt Aq Mt matthias@dragonflybsd.org
+и
+.An Simon Schubert Aq Mt 2@0x2c.org .

@@ -1,0 +1,88 @@
+.\"
+.\" Copyright (c) 1994 Jason R. Thorpe
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Jason Thorpe.
+.\" 4. Neither the name of the author nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ypset/ypset.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 6b6f6d466d5a4929616ddfa658582fddead46a6a6c73589ed52dad0764e13c0d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 3, 2015
+.Dt YPSET 8
+.Os
+.Sh ИМЯ
+.Nm ypset
+.Nd указывает .Xr ypbind 8 , какой процесс сервера NIS использовать
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h Ar хост
+.Op Fl d Ar домен
+.Ar сервер
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сообщает процессу
+.Xr ypbind 8
+на текущей машине, с каким процессом сервера NIS взаимодействовать.
+Если
+.Ar сервер
+недоступен или на нём не запущен процесс сервера NIS, он не будет обнаружен, пока
+процесс клиента NIS не попытается обратиться к карте NIS; в этот момент
+.Xr ypbind 8
+проверяет привязку и предпринимает соответствующие действия.
+.Pp
+Утилита
+.Nm
+наиболее полезна для привязки клиента NIS, который находится не в той же
+широковещательной сети, что и ближайший сервер NIS, но также может
+использоваться для отладки конфигурации NIS локальной сети, тестирования
+конкретных клиентских программ NIS или привязки к определённому серверу,
+когда в локальной сети есть много серверов, предоставляющих карты NIS.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl d Ar домен
+Использовать домен NIS
+.Ar домен
+вместо домена по умолчанию, возвращаемого
+.Xr domainname 1 .
+.It Fl h Ar хост
+Установить привязку NIS на
+.Ar хост
+вместо локальной машины.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr domainname 1 ,
+.Xr ypcat 1 ,
+.Xr ypmatch 1 ,
+.Xr yp 8 ,
+.Xr ypbind 8
+.Sh АВТОРЫ
+.An Theo De Raadt

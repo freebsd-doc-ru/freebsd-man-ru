@@ -1,0 +1,110 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibstat.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 a7b0d775ffdbd09ce482b6f02026ca85a2511fa935986361bc45d1893789eb43
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBSTAT \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС БАЗОВОГО СОСТОЯНИЯ УСТРОЙСТВ(А) INFINIBAND
+.SS СИНТАКСИС
+.sp
+ibstat [options] <ca_name> [portnum]
+.SS ОПИСАНИЕ
+.sp
+ibstat — это бинарный файл, который отображает базовую информацию, получаемую от локального
+драйвера IB. Вывод включает LID, SMLID, состояние порта, активную ширину канала и физическое
+состояние порта.
+.sp
+Он аналогичен утилите ibstatus, но реализован как бинарный файл, а не как сценарий. Он имеет
+параметры для вывода списка CA и/или портов и отображает больше информации, чем ibstatus.
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-l, \-\-list_of_cas\fP
+вывести список всех устройств IB
+.TP
+.B \fB\-s, \-\-short\fP
+краткий вывод
+.TP
+.B \fB\-p, \-\-port_list\fP
+показать список портов
+.TP
+.B \fBca_name\fP
+имя устройства InfiniBand
+.TP
+.B \fBportnum\fP
+номер порта устройства InfiniBand
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень детализации приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SS ПРИМЕРЫ
+.INDENT 0.0
+.TP
+.B ::
+ibstat            # отобразить состояние всех портов на всех устройствах IB
+ibstat \-l         # вывести список всех устройств IB
+ibstat \-p         # показать GUID портов
+ibstat mthca0 2   # показать состояние порта 2 устройства \(aqmthca0\(aq
+.UNINDENT
+.SS СМ. ТАКЖЕ
+.sp
+ibstatus (8)
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

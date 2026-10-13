@@ -1,0 +1,180 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibccconfig.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 db7924da770ad3116932d6f2be557a239d5d06dc993182051dd80f1f9380887d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBCCCONFIG \- настройка параметров управления перегрузкой
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH СИНТАКСИС
+.sp
+ibccconfig [common_options] [\-c cckey] [\-\-dgid gid] <op> <lid|guid> [port]
+.SH ОПИСАНИЕ
+.sp
+\fBibccconfig\fP
+поддерживает настройку параметров управления перегрузкой на коммутаторах
+и HCA.
+.sp
+\fBВНИМАНИЕ \-\- Вы должны понимать, что делаете, прежде чем использовать этот инструмент.
+Неправильное использование этого инструмента может привести к нарушению работы фабрики.\fP
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B Текущие поддерживаемые операции и их параметры:
+CongestionKeyInfo (CK) <lid|guid> <cckey> <cckeyprotectbit> <cckeyleaseperiod> <cckeyviolations>
+SwitchCongestionSetting (SS) <lid|guid> <controlmap> <victimmask> <creditmask> <threshold> <packetsize> <csthreshold> <csreturndelay> <markingrate>
+SwitchPortCongestionSetting (SP) <lid|guid> <portnum> <valid> <control_type> <threshold> <packet_size> <cong_parm_marking_rate>
+CACongestionSetting (CS) <lid|guid> <port_control> <control_map> <ccti_timer> <ccti_increase> <trigger_threshold> <ccti_min>
+CongestionControlTable (CT) <lid|guid> <cctilimit> <index> <cctentry> <cctentry> ...
+.UNINDENT
+.sp
+\fB\-\-cckey, \-c, <cckey>\fP
+Укажите ключ управления перегрузкой (CC). Если не указан, используется ключ 0.
+.sp
+\fB\-\-dgid <dgid>\fP
+GID назначения: использовать, когда в пакетах требуется GRH (формат IPv6)
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и получения (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности вывода приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги адресации
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес — это GUID порта
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес — это LID
+.
+.sp
+\fB\-s, \-\-sm_port <smlid>\fP     использовать \(aqsmlid\(aq в качестве целевого LID для запросов SA.
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если не указано устройство или порт IB,
+выбирается порт для использования по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физическая связь установлена).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и потерпит неудачу, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт из первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги конфигурации
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq),
+то будет запрошено значение.
+.UNINDENT
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SH ПРИМЕРЫ
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibccconfig SwitchCongestionSetting 2 0x1F 0x1FFFFFFFFF 0x0 0xF 8 0 0:0 1  # Настроить параметры управления перегрузкой коммутатора
+ibccconfig CACongestionSetting 1 0 0x3 150 1 0 0                          # Настроить параметры управления перегрузкой CA для SL 0 и SL 1
+ibccconfig CACongestionSetting 1 0 0x4 200 1 0 0                          # Настроить параметры управления перегрузкой CA для SL 2
+ibccconfig CongestionControlTable 1 63 0 0:0 0:1 ...                      # Настроить первый блок таблицы управления перегрузкой
+ibccconfig CongestionControlTable 1 127 0 0:64 0:65 ...                   # Настроить второй блок таблицы управления перегрузкой
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для задания некоторых общих параметров для всех
+инструментов.  Подробности см. в поставляемом файле конфигурации.
+.SH АВТОР
+.INDENT 0.0
+.TP
+.B Albert Chu
+< \fI\%chu11@llnl.gov\fP >
+.UNINDENT
+.

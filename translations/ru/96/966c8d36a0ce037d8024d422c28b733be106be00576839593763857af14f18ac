@@ -1,0 +1,144 @@
+.\" Copyright (c) 2004 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: sdpd.8,v 1.1 2004/01/13 19:31:54 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/sdpd/sdpd.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 966c8d36a0ce037d8024d422c28b733be106be00576839593763857af14f18ac
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 13, 2004
+.Dt SDPD 8
+.Os
+.Sh ИМЯ
+.Nm sdpd
+.Nd Демон протокола обнаружения служб Bluetooth
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dh
+.Op Fl c Ar путь
+.Op Fl g Ar группа
+.Op Fl u Ar пользователь
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отслеживает зарегистрированные на узле службы Bluetooth
+и отвечает на запросы обнаружения служб от удалённых устройств Bluetooth.
+.Pp
+Чтобы воспользоваться какой-либо службой, удалённое устройство Bluetooth
+должно отправить запрос Service Search и Service Attribute или Service Search
+Attribute через соединение Bluetooth L2CAP на SDP PSM (0x0001).
+Демон
+.Nm
+попытается найти соответствующую запись службы в своей базе данных служб
+и отправит соответствующий ответ.
+Затем удалённое устройство обработает ответ, извлечёт всю необходимую
+информацию и установит отдельное соединение для использования службы.
+.Pp
+Приложения Bluetooth, работающие на узле, регистрируют службы у
+локального
+.Nm
+демона.
+Такие операции, как регистрация службы, удаление службы и изменение службы,
+выполняются через управляющий сокет.
+Можно запросить всё содержимое
+.Nm
+базы данных служб с помощью
+.Xr sdpcontrol 8
+путём выполнения команды
+.Cm browse
+на управляющем сокете.
+.Pp
+Параметры командной строки следующие:
+.Bl -tag -width indent
+.It Fl d
+Не отсоединяться от управляющего терминала.
+.It Fl c Ar путь
+Указать путь к управляющему сокету.
+Путь по умолчанию —
+.Pa /var/run/sdp .
+.It Fl g Ar группа
+Указывает группу, в которой
+.Nm
+должен работать после инициализации.
+Указанное значение может быть либо именем группы, либо числовым
+идентификатором группы.
+Это работает, только если
+.Nm
+был запущен от имени root.
+Имя группы по умолчанию —
+.Dq Li nobody .
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl u Ar пользователь
+Указывает пользователя, от имени которого
+.Nm
+должен работать после инициализации.
+Указанное значение может быть либо именем пользователя, либо числовым
+идентификатором пользователя.
+Это работает, только если
+.Nm
+был запущен от имени root.
+Имя пользователя по умолчанию —
+.Dq Li nobody .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /var/run/sdp
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sdp 3 ,
+.Xr sdpcontrol 8
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Демон
+.Nm
+будет прослушивать входящие соединения L2CAP на wildcard-адресе BD_ADDR.
+.Pp
+Если к одному узлу подключено несколько устройств Bluetooth, можно указать,
+какие службы должны быть
+.Dq привязаны
+к какому устройству Bluetooth.
+Такое назначение должно выполняться во время регистрации службы.
+.Pp
+Запросы на регистрацию, удаление или изменение службы можно делать только
+через управляющий сокет.
+Демон
+.Nm
+проверит учётные данные партнёра и примет запрос, только если приложение
+имеет тот же действующий идентификатор пользователя, что и у пользователя
+.Dq Li root .
+.Pp
+Демон
+.Nm
+не проверяет дублирующиеся записи служб.
+Он выполняет только минимальную проверку данных службы, отправленных в
+запросе Service Register.
+Предполагается, что приложение должно получить все необходимые ресурсы,
+такие как каналы RFCOMM и т. п., до регистрации службы.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Скорее всего.
+Пожалуйста, сообщите, если обнаружите.

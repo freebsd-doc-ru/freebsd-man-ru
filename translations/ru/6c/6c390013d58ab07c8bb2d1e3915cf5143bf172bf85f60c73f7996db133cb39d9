@@ -1,0 +1,110 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/comsat/comsat.8
+.\" FRDP githash 43581d7b6617959e4452094d9330ef020034a6c9
+.\" FRDP hash256 6c390013d58ab07c8bb2d1e3915cf5143bf172bf85f60c73f7996db133cb39d9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 21, 2010
+.Dt COMSAT 8
+.Os
+.Sh ИМЯ
+.Nm comsat
+.Nd сервер biff
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это серверный процесс, который принимает отчёты о поступившей почте
+и уведомляет пользователей, если они запросили эту службу.
+Утилита
+.Nm
+принимает сообщения на порт датаграмм, связанный с
+.Dq biff
+спецификацией службы
+(см.
+.Xr services 5
+и
+.Xr inetd 8 ) .
+Однострочные сообщения имеют следующий вид:
+.Pp
+.D1 Ar пользователь Ns @ Ns Ar почтовый\ ящик Ns - Ns Ar смещение Ns Op : Ns Ar имя_почтового_ящика
+.Pp
+Если указанный
+.Ar пользователь
+вошёл в систему, а соответствующий терминал имеет включённый бит выполнения для владельца (с помощью
+.Dq Nm biff Cm y ) ,
+то
+.Ar смещение
+используется как смещение поиска в соответствующем файле почтового ящика, и
+первые 7 строк или 560 символов сообщения выводятся
+на терминал пользователя.
+Строки, которые выглядят как часть
+заголовка сообщения, кроме строк
+.Dq Li From ,
+.Dq Li \&To ,
+.Dq Li Date
+или
+.Dq Li Subject ,
+не включаются в отображаемое сообщение.
+.Pp
+Если указанный
+.Ar пользователь
+вошёл в систему, а соответствующий терминал имеет включённый бит выполнения для группы (с помощью
+.Dq Nm biff Cm b ) ,
+на терминал пользователя выводятся два символа звонка
+.Tn ( ASCII
+\\007) .
+.Pp
+Если
+.Ar имя_почтового_ящика
+опущено, предполагается стандартный почтовый ящик.
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/run/utx.active" -compact
+.It Pa /var/run/utx.active
+чтобы узнать, кто вошёл в систему и на каких терминалах
+.It Pa /var/mail/user
+стандартный почтовый ящик
+.El
+.Sh СМ. ТАКЖЕ
+.Xr biff 1 ,
+.Xr inetd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Фильтрация заголовков сообщений склонна к ошибкам.
+Плотность представляемой информации близка к теоретическому минимуму.
+.Pp
+Пользователи должны получать уведомления о почте, которая приходит на другие
+машины, а не на ту, в которую они в данный момент вошли.
+.Pp
+Уведомление должно появляться в отдельном окне, чтобы не портить экран.

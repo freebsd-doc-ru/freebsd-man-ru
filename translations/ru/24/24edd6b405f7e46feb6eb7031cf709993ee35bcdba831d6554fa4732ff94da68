@@ -1,0 +1,119 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/iscsid/iscsid.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 24edd6b405f7e46feb6eb7031cf709993ee35bcdba831d6554fa4732ff94da68
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 28, 2017
+.Dt ISCSID 8
+.Os
+.Sh ИМЯ
+.Nm iscsid
+.Nd демон инициатора iSCSI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl P Ar файл_PID
+.Op Fl d
+.Op Fl l Ar уровень_отладки
+.Op Fl m Ar макс_процессов
+.Op Fl t Ar секунды
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+является компонентом инициатора iSCSI в пространстве пользователя,
+отвечающим за выполнение фазы входа (Login Phase)
+iSCSI-соединений и обнаружение SendTargets.
+.Pp
+При запуске демон
+.Nm
+открывает файл устройства инициатора iSCSI и ожидает запросов
+от компонента ядра,
+.Xr iscsi 4 .
+.Nm
+не использует никаких файлов конфигурации.
+Вся необходимая информация передаётся ядром.
+.Pp
+Когда демон
+.Nm
+не запущен, уже установленные соединения iSCSI продолжают
+работать.
+Однако установление новых соединений или восстановление существующих в случае
+ошибки соединения невозможно.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl P Ar файл_PID
+Задаёт альтернативное расположение файла, в котором будет храниться PID главного процесса.
+Расположение по умолчанию —
+.Pa /var/run/iscsid.pid .
+.It Fl d
+Режим отладки.
+Демон отправляет подробные отладочные сообщения в стандартный поток ошибок и не
+переходит в фоновый режим.
+Демон также не будет порождать дочерний процесс и завершится после обработки одного соединения.
+Этот параметр предназначен только для отладки инициатора.
+.It Fl l Ar уровень_отладки
+Задаёт уровень отладки.
+По умолчанию 0.
+.It Fl m Ar макс_процессов
+Задаёт ограничение на количество одновременно выполняемых дочерних процессов, обрабатывающих
+соединения.
+По умолчанию 30.
+Установка значения 0 отключает ограничение.
+.It Fl t Ar секунды
+Задаёт тайм-аут для сеанса входа, после которого соединение
+будет принудительно завершено.
+По умолчанию 60.
+Установка значения 0 отключает тайм-аут.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /dev/iscsi
+Файл устройства инициатора iSCSI.
+.It Pa /var/run/iscsid.pid
+Расположение по умолчанию PID-файла
+.Nm .
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе, и >0 при возникновении ошибки.
+.Sh СМ. ТАКЖЕ
+.Xr iscsi 4 ,
+.Xr iscsictl 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

@@ -1,0 +1,212 @@
+.\"-
+.\" Copyright (c) 1999-2001 Brian Somers <brian@Awfulhak.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/pppoed/pppoed.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 0e249d8cecfb3526352f7564d3ad534f32dc59cc0942c0201418a046691b2c1b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 8, 1999
+.Dt PPPOED 8
+.Os
+.Sh ИМЯ
+.Nm pppoed
+.Nd обрабатывает входящие соединения PPP over Ethernet
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Fd\&
+.Op Fl P Ar pidfile
+.Op Fl a Ar имя
+.Op Fl e Ar exec | Fl l Ar метка
+.Op Fl n Ar ngdebug
+.Op Fl p Ar поставщик
+.Ar интерфейс
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+прослушивает заданный
+.Ar интерфейс
+на предмет пакетов запроса услуги PPP over Ethernet (PPPoE) и обрабатывает их,
+согласуя сеанс, а затем вызывая программу
+.Xr ppp 8 .
+Согласование реализуется узлом netgraph
+.Dq pppoe .
+См.
+.Xr ng_pppoe 4
+для подробностей.
+.Pp
+Утилита
+.Nm
+будет предлагать услуги только клиентам, запрашивающим услуги у заданного
+.Ar поставщик ,
+который считается пустым именем, если не указан.
+Если задано имя поставщика
+.Dq *
+, любым PPPoE-запросам будет предложена услуга.
+.Pp
+Указанное
+.Ar имя
+будет использоваться как имя концентратора доступа при установлении соединения.
+Если
+.Ar имя
+не задано, используется текущее базовое имя узла.
+.Pp
+После получения запроса (PADI) от узла netgraph PPPoE,
+.Nm
+выполняет
+.Xr fork 2 Ns \&,
+порождая дочерний процесс, и возвращается к обслуживанию дальнейших запросов.
+Дочерний процесс предлагает услугу
+(используя
+.Ar имя )
+и ожидает индикацию
+.Dv SUCCESS
+от узла PPPoE.
+При получении индикации
+.Dv SUCCESS
+.Nm
+выполнит
+.Pp
+.D1 Ic exec Pa /usr/sbin/ppp Fl direct Ar метка
+.Pp
+как подпроцесс оболочки.
+Если
+.Ar метка
+не указана, она по умолчанию принимает значение
+.Ar поставщик .
+Можно указать другую команду с помощью аргумента
+.Ar exec .
+Это обязательно, если
+.Ar поставщик
+и
+.Ar метка
+не заданы.
+При запуске дочерний процесс будет иметь стандартный ввод и стандартный вывод,
+подключённые к одному и тому же сокету данных
+.Xr netgraph 4
+(см.
+.Xr ng_socket 4 ).
+.Pp
+Переменные окружения
+.Ev HISMACADDR
+и
+.Ev ACNAME
+становятся доступны дочернему процессу и устанавливаются соответственно в MAC-адрес
+партнёра и имя AC.
+.Pp
+При запуске
+.Nm
+присоединит узел netgraph
+.Dq pppoe
+к соответствующему узлу
+.Dq ether ,
+используя
+.Dq Ar интерфейс Ns \&:
+в качестве имени узла, а затем подключит этот узел
+.Dq pppoe
+к локальному узлу
+.Dq socket .
+Если параметр
+.Fl F
+не задан,
+.Nm
+перейдёт в фоновый режим и отсоединится от управляющего терминала.
+Если параметр
+.Fl F
+задан,
+.Nm
+остаётся на переднем плане.
+.Pp
+Если задан параметр
+.Fl d
+, предоставляется дополнительная диагностика (см. раздел
+.Sx ДИАГНОСТИКА
+ниже).
+Если задан параметр
+.Fl n
+, вызывается
+.Fn NgSetDebug
+с аргументом
+.Ar ngdebug .
+.Pp
+Если задан
+.Ar pidfile
+,
+.Nm
+при запуске запишет свой идентификатор процесса в этот файл.
+.Sh ДИАГНОСТИКА
+После создания необходимых узлов
+.Xr netgraph 4
+, как описано выше,
+.Nm
+использует
+.Xr syslogd 8
+для регистрации всех входящих соединений.
+Если задан параметр
+.Fl d
+,
+.Nm
+будет сообщать о создании дочерним процессом нового сокета netgraph,
+предложении услуги и вызове программы
+.Xr ppp 8 .
+Если задан параметр
+.Fl n
+, диагностические сообщения netgraph также перенаправляются в
+.Xr syslogd 8 .
+.Pp
+Иногда полезно добавить следующее в
+.Pa /etc/syslog.conf :
+.Bd -literal -offset indent
+!pppoed
+*.*				/var/log/pppoed.log
+.Ed
+.Pp
+а следующее — в
+.Pa /etc/newsyslog.conf :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr NgSetDebug 3 ,
+.Xr netgraph 4 ,
+.Xr ng_ether 4 ,
+.Xr ng_pppoe 4 ,
+.Xr ng_socket 4 ,
+.Xr syslog.conf 5 ,
+.Xr ppp 8 ,
+.Xr syslogd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была написана
+.An Brian Somers Aq Mt brian@Awfulhak.org
+и впервые появилась в
+.Fx 3.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если другой узел netgraph использует заданный интерфейс,
+.Nm
+не сможет запуститься.
+Это потому, что
+.Xr netgraph 4
+в настоящее время не допускает объединение узлов в цепочку.
+В будущем это может измениться.

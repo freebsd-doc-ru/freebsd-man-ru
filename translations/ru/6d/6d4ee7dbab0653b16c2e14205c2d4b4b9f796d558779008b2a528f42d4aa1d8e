@@ -1,0 +1,204 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/vendstat.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 6d4ee7dbab0653b16c2e14205c2d4b4b9f796d558779008b2a528f42d4aa1d8e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+VENDSTAT \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС ВЕНДОР-СПЕЦИФИЧНЫХ ФУНКЦИЙ INFINIBAND
+.SS СИНТАКСИС
+.sp
+vendstat [параметры] <lid|guid>
+.SS ОПИСАНИЕ
+.sp
+vendstat использует MAD-сообщения, специфичные для производителя, для
+доступа за пределы спецификации IB к функциональности, специфичной для
+производителя. В настоящее время поддерживаются Mellanox
+InfiniSwitch\-III (IS3) и InfiniSwitch\-IV (IS4).
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-N\fP
+показать общую информацию IS3 или IS4.
+.TP
+.B \fB\-w\fP
+показать счетчики ожидания передачи порта IS3.
+.TP
+.B \fB\-i\fP
+показать информацию о группах счетчиков IS4.
+.TP
+.B \fB\-c <num,num>\fP
+настроить группы счетчиков IS4.
+.sp
+Настройте группы счетчиков 0 и 1 IS4. Такая конфигурация не
+сохраняется после перезагрузки IS4.  Первое число — для группы счетчиков 0,
+второе — для группы счетчиков 1.
+.sp
+Значения конфигурации счетчиков группы 0:
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ::
+.INDENT 7.0
+.INDENT 3.5
+0 \- PortXmitDataSL0\-7
+1 \- PortXmitDataSL8\-15
+2 \- PortRcvDataSL0\-7
+.UNINDENT
+.UNINDENT
+.sp
+Значения конфигурации счетчиков группы 1:
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ::
+1 \- PortXmitDataSL8\-15
+2 \- PortRcvDataSL0\-7
+8 \- PortRcvDataSL8\-15
+.TP
+.B \fB\-R, \-\-Read <addr,mask>\fP
+прочитать запись пространства конфигурации по адресу addr
+.TP
+.B \fB\-W, \-\-Write <addr,val,mask>\fP
+записать запись пространства конфигурации по адресу addr
+.TP
+.B \fB\-\-dgid <gid>\fP
+GID назначения: использовать, когда в пакетах требуется GRH (формат IPv6)
+.UNINDENT
+.SS Флаги адресации
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес — это GUID порта
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес — это LID
+.
+.sp
+\fB\-s, \-\-sm_port <smlid>\fP     использовать \(aqsmlid\(aq как целевой LID для запросов SA.
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если не указано устройство
+или порт IB, выбирает порт для использования по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физическая связь установлена).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершится ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и приема (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности сообщений приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрошенных mads.
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SS ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставлен глобальный файл конфигурации для установки некоторых общих
+параметров всех инструментов.  Подробности см. в поставляемом файле конфигурации.
+.SS ПРИМЕРЫ
+.INDENT 0.0
+.TP
+.B ::
+vendstat \-N 6           # прочитать общую информацию IS3 или IS4
+vendstat \-w 6           # прочитать счетчики ожидания передачи порта IS3
+vendstat \-i 6 12        # прочитать информацию о группах счетчиков порта 12 IS4
+vendstat \-c 0,1 6 12    # настроить группы счетчиков порта 12 IS4 для PortXmitDataSL
+vendstat \-c 2,8 6 12    # настроить группы счетчиков порта 12 IS4 для PortRcvDataSL
+.UNINDENT
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%hal.rosenstock@gmail.com\fP >
+.UNINDENT
+.

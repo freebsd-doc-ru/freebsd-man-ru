@@ -1,0 +1,149 @@
+.\" Copyright (c) 2017 Rick Macklem
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pnfsdsfile/pnfsdsfile.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 98f096c9b5a70913f9f1eab1dfe0c27948f2c0fdf0f18e33d965d0af6003f7e4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 30, 2018
+.Dt PNFSDSFILE 8
+.Os
+.Sh ИМЯ
+.Nm pnfsdsfile
+.Nd отображает
+местоположение(я) файла хранения данных pNFS и/или изменяет
+расширенный атрибут
+.Dq pnfsd.dsfile
+для них
+.Sh СИНТАКСИС
+.Nm
+.Op Fl qz
+.Op Fl s Ar dshostname
+.Op Fl c Ar old-dshostname,new-dshostname
+.Op Fl m Ar mirror_level
+.Op Fl r Ar dshostname
+.Ar mdsfile
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+отображает местоположение(я) файла хранения данных для службы pNFS и/или
+изменяет
+расширенный атрибут
+.Dq pnfsd.dsfile
+у
+.Ar mdsfile .
+Служба pNFS хранит файл хранения данных для каждого обычного файла на
+сервере метаданных (MDS) на одном или нескольких серверах данных (DS).
+Если включено зеркалирование, файл хранения данных будет более чем на одном из DS.
+Если параметры команды не указаны, эта команда отображает местоположение(я)
+файла хранения данных для файла MDS
+.Ar mdsfile .
+Её необходимо использовать на MDS, и
+.Ar mdsfile
+должен быть файлом в экспортированной локальной файловой системе, а не точкой монтирования NFSv4.1.
+Эта информация хранится в
+расширенном атрибуте
+.Dq pnfsd.dsfile
+для этого
+.Ar mdsfile .
+Параметры командной строки позволяют изменить информацию в
+расширенном атрибуте
+.Dq pnfsd.dsfile .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl q
+Этот параметр подавляет вывод местоположения(й) файла DS.
+.It Fl z
+Этот параметр указывает, что поле дескриптора файла расширенного атрибута pnfsd.dsfile
+должно быть заполнено всеми нулевыми битами.
+Это заставляет pNFS MDS выполнить Lookup RPC к DS, чтобы получить дескриптор файла
+для его обновления.
+Обычно это необходимо только после восстановления файла DS
+из резервной копии, что приводит к изменению дескриптора файла.
+.It Fl s Ar dshostname
+Этот параметр можно использовать вместе с
+.Fl z
+так, чтобы обнуление дескриптора файла выполнялось только если сервер DS
+является тем, который указан этим параметром.
+.It Fl c Ar old-dshostname,new-dshostname
+Этот параметр позволяет системному администратору заменить IP-адрес хоста для DS в
+расширенном атрибуте pnfsd.dsfile.
+Старое имя хоста должно разрешаться в IP-адрес, уже находящийся в расширенном атрибуте pnfsd.dsfile,
+иначе замена не будет выполнена.
+Если old-dshostname совпадает, то IP-адрес заменяется первым адресом AF_INET
+или AF_INET6, который
+.Xr getaddrinfo 3
+возвращает для new-dshostname.
+Следует избегать изменения IP-адреса хоста сервера DS, но этот параметр
+позволяет изменить его, если изменение неизбежно.
+.It Fl m Ar mirror_level
+Этот параметр добавляет записи в расширенные атрибуты с IP-адресом,
+установленным в 0.0.0.0, чтобы довести количество записей до
+.Dq mirror_level .
+Он может использоваться системным администратором для подготовки файла к зеркалированию
+с помощью команды
+.Xr pnfsdscopymr
+с параметром
+.Fl r .
+.It Fl r Ar dshostname
+Этот параметр устанавливает IP-адрес записи расширенного атрибута для
+.Ar dshostname
+в 0.0.0.0, чтобы она больше не использовалась.
+.Pp
+Это предназначено для использования, когда включено зеркалирование и
+.Ar dshostname
+DS отключён, чтобы его можно было снова включить после восстановления.
+Это необходимо сделать для всех файлов в экспортированном дереве MDS, где
+данные могут быть неактуальны на восстановленном DS при его повторном включении.
+После повторного включения команда
+.Xr pnfsdscopymr 1
+с параметром
+.Dq -r
+будет использоваться для копирования данных файла на этот восстановленный DS и затем обновления
+расширенного атрибута для его использования.
+.Pp
+Типичное использование этого — вместе с
+.Xr find 1
+для всех обычных файлов в экспортированном дереве MDS.
+.sp
+Например, если отключённый DS — nfsv4-data3:
+.br
+# cd <top-level-exported-directory-on-MDS>
+.br
+# find . -type f -exec pnfsdsfile -q -r nfsv4-data3 {} \\;
+.El
+.Sh СМ. ТАКЖЕ
+.Xr find 1 ,
+.Xr getaddrinfo 3 ,
+.Xr nfsv4 4 ,
+.Xr pnfs 4 ,
+.Xr nfsd 8 ,
+.Xr pnfsdscopymr 8 ,
+.Xr pnfsdskill 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 12.0 .

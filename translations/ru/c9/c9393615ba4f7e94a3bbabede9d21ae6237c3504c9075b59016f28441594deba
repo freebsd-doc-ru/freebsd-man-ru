@@ -1,0 +1,67 @@
+.\" Copyright (c) 2009 Rick Macklem, University of Guelph
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nfsrevoke/nfsrevoke.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c9393615ba4f7e94a3bbabede9d21ae6237c3504c9075b59016f28441594deba
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 25, 2009
+.Dt NFSREVOKE 8
+.Os
+.Sh ИМЯ
+.Nm nfsrevoke
+.Nd отозвать доступ клиента
+.Tn NFS
+V4
+.Sh СИНТАКСИС
+.Nm nfsrevoke
+.Ar ClientId
+.Sh ОПИСАНИЕ
+.Nm
+Эта команда используется системным администратором для отзыва доступа клиента
+к серверу NFS версии 4. Всё состояние Open/Lock, удерживаемое клиентом, будет
+освобождено.
+После отзыва клиент больше не сможет использовать состояние на сервере,
+пока не выполнит новую последовательность операций SetClientID/SetClientIDConfirm.
+ЭТО СЛЕДУЕТ ДЕЛАТЬ ТОЛЬКО В КРАЙНЕМ СЛУЧАЕ, когда клиенты удерживают состояние,
+которое должно быть освобождено на сервере.
+.Pp
+Аргумент
+.Ar ClientId
+— это шестнадцатеричная строка, которая является последним полем
+в выводе команды
+.Xr nfsdumpstate 8
+для параметров
+.Fl o
+и
+.Fl l
+\&.
+.Sh СМ. ТАКЖЕ
+.Xr nfsv4 4 ,
+.Xr nfsdumpstate 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+была введена как часть экспериментальной подсистемы сервера NFS.

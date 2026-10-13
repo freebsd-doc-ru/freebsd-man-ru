@@ -1,0 +1,72 @@
+.\"
+.\" Copyright (c) 2009, 2010 Marc Balmer <marc@msys.ch>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path usr.sbin/wake/wake.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 292e0932792db4d922c7f2fa2d3779779b2494b47344301b888c3c919da0bd97
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 27, 2009
+.Dt WAKE 8
+.Os
+.Sh ИМЯ
+.Nm wake
+.Nd отправка кадров Wake on LAN узлам локальной сети Ethernet
+.Sh СИНТАКСИС
+.Nm
+.Op Ar интерфейс
+.Ar lladdr
+.Op Ar lladdr ...
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+используется для отправки кадров Wake on LAN (WoL) по локальной
+сети Ethernet одному или нескольким узлам с использованием их адресов
+канального уровня (аппаратных).
+Функциональность WoL обычно включается в BIOS машины
+и может использоваться для включения машин с удалённой системы без
+физического доступа к ним.
+.Pp
+.Ar интерфейс
+— это Ethernet-интерфейс локальной машины, используемый для отправки
+кадров Wake on LAN через него.
+Если доступно только одно Ethernet-устройство, которое включено и работает, то
+аргумент
+.Ar интерфейс
+можно опустить.
+.Ar lladdr
+— это адрес канального уровня удалённой машины.
+Его можно указать как фактический аппаратный адрес
+(шесть шестнадцатеричных чисел, разделённых двоеточиями)
+или как запись имени узла в
+.Pa /etc/ethers .
+.Nm
+принимает несколько
+.Ar lladdr
+адресов.
+Адреса канального уровня можно определить и установить с помощью
+.Xr ifconfig 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width "/etc/ethers"
+.It Pa /etc/ethers
+База данных имён узлов Ethernet.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ethers 5 ,
+.Xr ifconfig 8
+.Sh АВТОРЫ
+.Nm
+был написан
+.An Marc Balmer Aq Mt marc@msys.ch .

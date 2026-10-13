@@ -1,0 +1,202 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/dump_fts.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 30b52c7310383ab4e78794a03dfa7dbe5ca712f6bd21ac5ef9c6771ad0ea6440
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+DUMP_FTS \- вывод таблиц пересылки InfiniBand
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH СИНТАКСИС
+.sp
+dump_fts [options] [<startlid> [<endlid>]]
+.SH ОПИСАНИЕ
+.sp
+dump_fts аналогична ibroute, но выводит таблицы для каждого коммутатора, найденного при
+сканировании подсети с помощью ibnetdiscover.
+.sp
+Формат файла дампа совместим с загрузкой в OpenSM с использованием
+синтаксиса \-R file \-U /path/to/dump\-file.
+.SH ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-a, \-\-all\fP
+показывать все LID в диапазоне, даже недействительные записи
+.TP
+.B \fB\-n, \-\-no_dests\fP
+не пытаться разрешать назначения
+.TP
+.B \fB\-M, \-\-Multicast\fP
+показывать таблицы многоадресной пересылки
+В этом случае параметры диапазона задают диапазон mlid.
+.UNINDENT
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны,
+порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, находящийся в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, находящийся в состоянии UP (физическое соединение установлено).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершится ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и приёма (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показывать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности сообщений приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показывать сведения о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрашиваемых MAD.
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq),
+будет запрошено значение.
+.UNINDENT
+.
+.sp
+\fB\-\-node\-name\-map <node\-name\-map>\fP Указать карту имён узлов.
+.INDENT 0.0
+.INDENT 3.5
+Этот файл сопоставляет GUID с более удобными для пользователя именами.  См. раздел ФАЙЛЫ.
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SH ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для задания некоторых общих параметров для всех
+инструментов.  Подробности см. в поставляемом файле конфигурации.
+.
+.SS ФОРМАТ ФАЙЛА КАРТЫ ИМЁН УЗЛОВ
+.sp
+Карта имён узлов используется для указания удобных для пользователя имён узлов в
+выводе.  Для поиска используются GUID.
+.sp
+Эта функциональность предоставляется пакетом opensm-libs.  См. \fBopensm(8)\fP
+для расположения файла в вашей установке.
+.sp
+\fBВ общем случае:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# комментарий
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBПример:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# IB1
+# Линейные карты
+
+# Магистральные коммутаторы
+
+# GUID   Имя узла
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+\fBdump_lfts(8), dump_mfts(8), ibroute(8), ibswitches(8), opensm(8)\fP
+.SH АВТОРЫ
+.INDENT 0.0
+.TP
+.B Ira Weiny
+< \fI\%ira.weiny@intel.com\fP >
+.UNINDENT
+.

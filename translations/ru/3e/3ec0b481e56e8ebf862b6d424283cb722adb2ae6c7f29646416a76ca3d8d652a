@@ -1,0 +1,340 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/saquery.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 3ec0b481e56e8ebf862b6d424283cb722adb2ae6c7f29646416a76ca3d8d652a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+SAQUERY \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС АТРИБУТОВ АДМИНИСТРИРОВАНИЯ ПОДСЕТИ INFINIBAND
+.SS СИНТАКСИС
+.sp
+saquery [options] [<name> | <lid> | <guid>]
+.SS ОПИСАНИЕ
+.sp
+saquery выполняет выбранный SA-запрос. По умолчанию запрашиваются записи узлов.
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-p\fP
+получить информацию о PathRecord
+.TP
+.B \fB\-N\fP
+получить информацию о NodeRecord
+.TP
+.B \fB\-D, \-\-list\fP
+получить NodeDescriptions только для CA
+.TP
+.B \fB\-S\fP
+получить информацию о ServiceRecord
+.TP
+.B \fB\-I\fP
+получить информацию о InformInfoRecord (подписка)
+.TP
+.B \fB\-L\fP
+вернуть LID-ы для указанного имени
+.TP
+.B \fB\-l\fP
+вернуть уникальный LID для указанного имени
+.TP
+.B \fB\-G\fP
+вернуть GUID-ы для указанного имени
+.TP
+.B \fB\-O\fP
+вернуть имя для указанного LID
+.TP
+.B \fB\-U\fP
+вернуть имя для указанного GUID
+.TP
+.B \fB\-c\fP
+получить информацию о class port SA
+.TP
+.B \fB\-s\fP
+вернуть PortInfoRecords с включённым битом маски возможностей isSM или isSMdisabled
+.TP
+.B \fB\-g\fP
+получить информацию о группе многоадресной рассылки
+.TP
+.B \fB\-m\fP
+получить информацию об участниках многоадресной рассылки.  Если группа указана, ограничить вывод указанной группой и печатать по одной строке, содержащей только GUID и описание узла для каждой записи. Пример: saquery \-m 0xc000
+.TP
+.B \fB\-x\fP
+получить информацию о LinkRecord
+.TP
+.B \fB\-\-src\-to\-dst <src:dst>\fP
+получить PathRecord для <src:dst>,
+где src и dst — либо имена узлов, либо LIDs
+.TP
+.B \fB\-\-sgid\-to\-dgid <sgid:dgid>\fP
+получить PathRecord от \fBsgid\fP к \fBdgid\fP,
+где оба GID представлены в формате IPv6, приемлемом для \fBinet_pton (3)\fP
+.TP
+.B \fB\-\-smkey <val>\fP
+запросы.  Если указано нечисловое значение (например, \(aqx\(aq), saquery
+запросит значение.
+По умолчанию (если не указано здесь или в
+/etc/infiniband-diags/ibdiag.conf) используется SM_Key == 0 (или
+.TP
+.B \fB\-\-sa-dgid <gid>\fP
+Установить GID назначения (в формате IPv6) SA в GRH запроса.
+Можно использовать либо фактический GID SM, либо общеизвестный GID SA (0::2), чтобы включить его в GRH SA-запросов.
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \fB\-K, \-\-show_keys\fP
+показать ключи безопасности (mkey, smkey и т. д.), связанные с запросом.
+.UNINDENT
+.sp
+\fB\-\-slid <lid>\fP Исходный LID (PathRecord)
+.sp
+\fB\-\-dlid <lid>\fP LID назначения (PathRecord)
+.sp
+\fB\-\-mlid <lid>\fP LID многоадресной рассылки (MCMemberRecord)
+.sp
+\fB\-\-sgid <gid>\fP Исходный GID (формат IPv6) (PathRecord)
+.sp
+\fB\-\-dgid <gid>\fP GID назначения (формат IPv6) (PathRecord)
+.sp
+\fB\-\-gid <gid>\fP GID порта (MCMemberRecord)
+.sp
+\fB\-\-mgid <gid>\fP GID многоадресной рассылки (MCMemberRecord)
+.sp
+\fB\-\-reversible\fP Обратимый путь (PathRecord)
+.sp
+\fB\-\-numb_path\fP Количество путей (PathRecord)
+.INDENT 0.0
+.TP
+.B \fB\-\-pkey\fP P_Key (PathRecord, MCMemberRecord). Если нечисловое значение (например, \(aqx\(aq)
+указано, saquery запросит значение
+.UNINDENT
+.sp
+\fB\-\-qos_class\fP Класс QoS (PathRecord)
+.sp
+\fB\-\-sl\fP Уровень обслуживания (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-mtu\fP MTU и селектор (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-rate\fP Скорость и селектор (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-pkt_lifetime\fP Время жизни пакета и селектор (PathRecord, MCMemberRecord)
+.INDENT 0.0
+.TP
+.B \fB\-\-qkey\fP Q_Key (MCMemberRecord). Если указано нечисловое значение (например, \(aqx\(aq)
+saquery запросит значение
+.UNINDENT
+.sp
+\fB\-\-tclass\fP Класс трафика (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-flow_label\fP Метка потока (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-hop_limit\fP Предел переходов (PathRecord, MCMemberRecord)
+.sp
+\fB\-\-scope\fP Область (MCMemberRecord)
+.sp
+\fB\-\-join_state\fP Состояние присоединения (MCMemberRecord)
+.sp
+\fB\-\-proxy_join\fP Прокси-присоединение (MCMemberRecord)
+.sp
+\fB\-\-service_id\fP ServiceID (PathRecord)
+.sp
+Поддерживаемые имена запросов (и псевдонимы):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ClassPortInfo (CPI)
+NodeRecord (NR) [lid]
+PortInfoRecord (PIR) [[lid]/[port]/[options]]
+SL2VLTableRecord (SL2VL) [[lid]/[in_port]/[out_port]]
+PKeyTableRecord (PKTR) [[lid]/[port]/[block]]
+VLArbitrationTableRecord (VLAR) [[lid]/[port]/[block]]
+InformInfoRecord (IIR)
+LinkRecord (LR) [[from_lid]/[from_port]] [[to_lid]/[to_port]]
+ServiceRecord (SR)
+PathRecord (PR)
+MCMemberRecord (MCMR)
+LFTRecord (LFTR) [[lid]/[block]]
+MFTRecord (MFTR) [[mlid]/[position]/[block]]
+GUIDInfoRecord (GIR) [[lid]/[block]]
+SwitchInfoRecord (SWIR) [lid]
+SMInfoRecord (SMIR) [lid]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанное ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны,
+порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, находящийся в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт в состоянии UP (физическое соединение установлено).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершится ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт из первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и приёма (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрошенных MAD.
+.
+.INDENT 0.0
+.TP
+.B \fB\-\-outstanding_smps, \-o <val>\fP
+Указать количество незавершённых SMP\(aqs, которые должны быть отправлены во время сканирования
+.sp
+По умолчанию: 2
+.UNINDENT
+.
+.sp
+\fB\-\-node\-name\-map <node\-name\-map>\fP Указать карту имён узлов.
+.INDENT 0.0
+.INDENT 3.5
+Этот файл сопоставляет GUID более удобным для пользователя именам.  См. раздел ФАЙЛЫ.
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SS ОБЩИЕ ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для установки некоторых общих параметров для всех
+инструментов.  Подробности см. в прилагаемом файле конфигурации.
+.
+.SS ФОРМАТ ФАЙЛА КАРТЫ ИМЁН УЗЛОВ
+.sp
+Карта имён узлов используется для указания удобных для пользователя имён узлов в
+выводе.  Для поиска используются GUID.
+.sp
+Эта возможность предоставляется пакетом opensm\-libs.  Расположение файла для вашей установки см. в \fBopensm(8)\fP.
+.sp
+\fBОбобщённо:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# комментарий
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBПример:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# IB1
+# Линейные карты
+
+# Магистральные коммутаторы
+
+# GUID   Имя узла
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS ЗАВИСИМОСТИ
+.sp
+OpenSM (или другой запущенный SM/SA), libosmcomp, libibumad, libibmad
+.SS АВТОРЫ
+.INDENT 0.0
+.TP
+.B Ira Weiny
+< \fI\%ira.weiny@intel.com\fP >
+.TP
+.B Hal Rosenstock
+< \fI\%halr@mellanox.com\fP >
+.UNINDENT
+.

@@ -1,0 +1,307 @@
+.\" Copyright (c) 1995
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Bill Paul OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/ypxfr/ypxfr.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 6f7951261961f6d093ee09ed001770f0a2065f7ebe46aafbef234beedc618990
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 5, 1995
+.Dt YPXFR 8
+.Os
+.Sh ИМЯ
+.Nm ypxfr
+.Sh СИНТАКСИС
+.Nm /usr/libexec/ypxfr
+.Op Fl f
+.Op Fl c
+.Op Fl d Ar целевой домен
+.Op Fl h Ar исходный хост
+.Op Fl s Ar исходный домен
+.Op Fl p Ar путь
+.Op Fl C Ar taskid program-number ipaddr port
+.Ar имя_карты
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует базу данных
+.Tn NIS
+(или
+.Pa map )
+с одного
+.Tn NIS
+сервера на другой, используя
+.Tn NIS
+службы.
+В
+.Fx ,
+.Nm
+обычно вызывается
+.Xr ypserv 8 ,
+когда получает запрос на передачу карты от
+.Xr yppush 8 .
+Утилита
+.Nm
+используется в основном в средах, где несколько
+.Tn NIS
+серверов используются в одном домене.
+Один сервер, мастер
+.Tn NIS
+, поддерживает
+канонические копии всех
+.Tn NIS
+карт, а все остальные серверы,
+ведомые
+.Tn NIS
+, копируют новые версии карт с мастера всякий раз,
+когда вносятся какие-либо обновления (т.е. когда пользователь обновляет свой пароль через
+.Xr yppasswd 1 ) .
+.Pp
+При запуске
+.Nm
+создаёт временный файл базы данных в
+.Pa /var/yp/[domainname] ,
+и заполняет его содержимым
+.Ar имя_карты
+, полученным от указанного
+.Ar исходного хоста .
+Когда вся карта будет передана,
+.Nm
+удаляет оригинальную копию
+.Ar имя_карты
+и перемещает временную копию на её место.
+Когда передача
+завершена,
+.Nm
+попытается отправить запрос 'очистить текущую карту' локальному
+.Xr ypserv 8
+процессу, чтобы очистить любые возможные ссылки, которые у него ещё могут оставаться на
+устаревшую карту.
+.Pp
+Обратите внимание, что все файлы, создаваемые
+.Nm
+, доступны для чтения и записи только владельцу из соображений безопасности.
+Поскольку
+.Tn NIS
+карты и каталог, в котором они находятся, обычно принадлежат
+root, это предотвращает несанкционированные изменения
+непривилегированными пользователями.
+.Pp
+Для поддержания согласованности между всеми
+.Tn NIS
+серверами,
+.Nm
+можно периодически запускать в задании
+.Xr cron 8 .
+Карты, которые изменяются редко,
+нужно обновлять только раз в день (желательно поздно ночью, когда
+загрузка системы минимальна), тогда как карты, подверженные частым изменениям
+(такие как
+.Pa passwd.byname
+и
+.Pa passwd.byuid ),
+следует обновлять, возможно, раз в час.
+Использование
+.Xr cron 8
+для автоматического
+обновления
+.Tn NIS
+карт не является строго обязательным, поскольку все обновления должны
+распространяться с помощью
+.Xr yppush 8
+при запуске
+.Pa /var/yp/Makefile
+на
+.Tn NIS
+мастер-сервере, однако это хорошая практика
+в больших сетях, где возможные сбои могут привести к
+.Tn NIS
+рассинхронизации серверов друг с другом.
+.Pp
+Когда
+.Nm
+вызывается без управляющего терминала, например,\& изнутри
+.Xr ypserv 8 ,
+он записывает весь свой вывод в журнал с помощью
+.Xr syslog 3
+средства.
+.Sh ПРИМЕЧАНИЯ
+Версия
+.Fx
+утилиты
+.Nm
+поддерживает специальный протокол передачи карт, который работает
+совместно с
+.Fx
+сервером
+.Xr rpc.ypxfrd 8 .
+Этот протокол позволяет передавать необработанные файлы базы данных карт с
+мастер-сервера
+.Tn NIS
+и может быть во много раз быстрее стандартного
+метода передачи, особенно для очень больших
+.Tn NIS
+карт.
+Утилита
+.Nm
+проверит, зарегистрирован ли
+.Xr rpc.ypxfrd 8
+сервер на
+.Tn NIS
+мастер-сервере, и попытается использовать
+его, если он присутствует.
+Если его нет, она вернётся к стандартному
+методу передачи, копируя содержимое карты из
+.Xr ypserv 8
+и создавая вместо этого новые карты.
+.Pp
+Обратите внимание, что хотя
+.Fx
+протокол ypxfrd концептуально похож
+на протокол SunOS ypxfrd,
+.Fx
+протокол не совместим с
+протоколом Sun, поэтому он не будет работать с сервером ypxfrd от Sun.
+.Fx
+ведомые системы всё ещё могут передавать карты с любого
+.No не- Ns Fx
+.Tn NIS
+сервера,
+однако они смогут воспользоваться преимуществами более быстрого протокола,
+только если мастер-сервер также работает под управлением
+.Fx .
+.Sh ОПЦИИ
+Поддерживаются следующие параметры и флаги
+.Nm :
+.Bl -tag -width indent
+.It Fl f
+Принудительно передать карту.
+Обычно
+.Nm
+не передаёт карту, если определяет, что
+.Tn NIS
+копия мастера
+не новее, чем существующая копия уже на локальном хосте: флаг
+.Fl f
+заставляет выполнить передачу независимо от того, версия какого сервера более свежая.
+.It Fl c
+Не отправлять запрос 'очистить текущую карту' процессу
+.Xr ypserv 8 ,
+работающему на локальном хосте.
+Этот флаг обычно используется при
+вызове
+.Nm
+вручную на машине, на которой ещё не запущен
+.Xr ypserv 8 .
+Без этого флага невозможность связаться с локальным
+.Tn NIS
+сервером приведёт к тому, что
+.Nm
+прервёт передачу.
+.It Fl d Ar целевой домен
+Указать целевой домен, отличный от текущего
+.Tn NIS
+домена.
+.It Fl h Ar исходный хост
+Указать имя хоста, с которого копировать
+.Tn NIS
+карты.
+Этот параметр
+используется, чтобы гарантировать, что
+.Nm
+копирует карты только с
+.Tn NIS
+мастер-сервера.
+.It Fl s Ar исходный домен
+Указать домен, из которого передавать карту, в случае если
+передача выполняется между двумя разными
+.Tn NIS
+доменами.
+.It Fl p Ar путь
+Указать каталог верхнего уровня, содержащий
+.Tn NIS
+карты.
+По
+умолчанию этот путь —
+.Pa /var/yp .
+Флаг
+.Fl p
+позволяет указать альтернативный путь, если вы хотите
+хранить ваши
+.Tn NIS
+карты в другой части файловой системы.
+Сервер
+.Tn NIS ,
+.Xr ypserv 8 ,
+передаёт этот флаг
+.Nm
+, если ему также было указано использовать альтернативный путь.
+.It Fl C Ar taskid program-number ipaddr port
+Эти параметры используются только когда
+.Nm
+вызывается
+.Xr ypserv 8
+в ответ на запрос передачи карты, инициированный
+.Xr yppush 8 .
+В этом случае
+.Nm
+должен выполнить 'обратный вызов' процессу
+.Xr yppush 8
+и взаимодействовать с ним, поэтому
+.Xr yppush 8
+передаёт ему IP-адрес
+.Ar ipaddr ,
+номер порта
+.Ar port ,
+зарегистрированный номер программы
+.Ar program-number
+и идентификатор транзакции
+.Ar taskid
+, которые он может использовать для связи с ожидающим
+.Xr yppush 8
+процессом на мастер-сервере.
+.It Ar имя_карты
+Имя карты для передачи.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa -compact
+.It Pa /var/yp/[domainname]/[maps]
+Карты
+.Tn NIS
+для конкретного
+.Tn NIS
+домена.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr yp 8 ,
+.Xr yppush 8 ,
+.Xr ypserv 8
+.Sh АВТОРЫ
+.An Bill Paul Aq Mt wpaul@ctr.columbia.edu
