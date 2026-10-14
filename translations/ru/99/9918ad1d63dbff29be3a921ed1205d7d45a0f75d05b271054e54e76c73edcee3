@@ -1,0 +1,108 @@
+.\"
+.\" Copyright (c) 2017 Netflix, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/devmatch/devmatch.8
+.\" FRDP githash 7a71b350237e0b1804abc160b804a204dc409cf2
+.\" FRDP hash256 9918ad1d63dbff29be3a921ed1205d7d45a0f75d05b271054e54e76c73edcee3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 13, 2023
+.Dt DEVMATCH 8
+.Os
+.Sh ИМЯ
+.Nm devmatch
+.Nd выводит информацию о неприсоединённых устройствах
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a | -all
+.Op Fl d | -dump
+.Op Oo Fl h | -hints Oc Ar файл
+.Op Oo Fl p | -nomatch Oc Ar событие
+.Op Fl q | -quiet
+.Op Fl u | -unbound
+.Op Fl v | -verbose
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+без аргументов выводит все модули ядра, которые она нашла для всех
+неприсоединённых, включённых устройств в системе.
+.Bl -tag -width 20m
+.It Fl a Fl -all
+Включать все устройства, а не только неприсоединённые.
+.It Fl d Fl -dump
+Создавать удобочитаемый дамп файла
+.Pa linker.hints .
+.It Fl h Fl -hints Ar файл
+Использовать указанный
+.Ar файл
+вместо файла
+.Pa linker.hints
+, угаданного из текущего пути загрузки модулей.
+.It Fl p Fl -nomatch Ar событие
+Разбирать и использовать стандартное событие NOMATCH от
+.Xr devd 8
+для сопоставления вместо поиска по дереву устройств.
+.It Fl q Fl -quiet
+Подавлять некоторые сообщения об ошибках и просто возвращать ненулевой код выхода.
+Это помогает избежать бесконечного списка предупреждений во время загрузки, если
+подсказки недоступны.
+.It Fl u Fl -unbound
+Попытаться вывести список тех драйверов с информацией PNP, чьи таблицы драйверов
+с этой информацией PNP не могут быть найдены.
+.It Fl v Fl -verbose
+Выводить более подробные сообщения.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rc.conf 5 ,
+.Xr devinfo 8 ,
+.Xr MODULE_PNP_INFO 9
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 12.0 .
+.Sh АВТОРЫ
+.An Warner Losh Aq Mt imp@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ядро содержит подсказки, но мы исключаем его из списка модулей,
+предлагаемых для несовпавших устройств.
+Мы исключаем его при предложении драйверов, но включаем при поиске
+несвязанных устройств или создании полного дампа
+.Pa linker.hints .
+Это может запутать.
+.Pp
+Некоторые модули являются жёсткими ссылками в
+.Pa /boot/kernel
+и будут показаны дважды.
+.Pp
+Атрибуты строки PNP вычисляются один раз на каждую запись PNP на этой
+шине, а не один раз всего.
+.Pp
+Термин PNP перегружен в
+.Fx .
+Он означает, в общем, идентифицирующие данные, которые шина предоставляет об
+устройстве.
+Хотя это включает старые идентификаторы ISA PNP, он также включает
+логический эквивалент в USB, PCI и других.
+.Pp
+Многие драйверы в настоящее время не имеют надлежащего оформления таблиц PNP и нуждаются в
+обновлении.

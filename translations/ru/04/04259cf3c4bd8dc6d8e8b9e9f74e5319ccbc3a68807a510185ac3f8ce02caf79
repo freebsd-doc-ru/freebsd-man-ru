@@ -1,0 +1,229 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-destroy.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 04259cf3c4bd8dc6d8e8b9e9f74e5319ccbc3a68807a510185ac3f8ce02caf79
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 5, 2025
+.Dt ZFS-DESTROY 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-destroy
+.Nd уничтожить набор данных ZFS, снимки или закладку
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm destroy
+.Op Fl Rfnprv
+.Ar файловая система Ns | Ns Ar том
+.Nm zfs
+.Cm destroy
+.Op Fl Rdnprv
+.Ar файловая система Ns | Ns Ar том Ns @ Ns Ar снимок Ns
+.Oo % Ns Ar снимок Ns Oo , Ns Ar снимок Ns Oo % Ns Ar снимок Oc Oc Oc Ns …
+.Nm zfs
+.Cm destroy
+.Ar файловая система Ns | Ns Ar том Ns # Ns Ar закладка
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width "zfs destroy [-Rfnprv] filesystem|volume"
+.It Xo
+.Nm zfs
+.Cm destroy
+.Op Fl Rfnprv
+.Ar файловая система Ns | Ns Ar том
+.Xc
+Уничтожает заданный набор данных.
+По умолчанию команда отменяет общий доступ к любым файловым системам, которые в данный момент являются общими,
+отмонтирует любые файловые системы, которые в данный момент смонтированы, и отказывается уничтожать
+набор данных, у которого есть активные зависимые
+.Pq дочерние наборы данных или клоны .
+.It Fl R
+Рекурсивно уничтожить все зависимые наборы данных, включая клонированные файловые системы за пределами
+целевой иерархии.
+.It Fl f
+Принудительно отмонтировать файловые системы.
+Эта опция не действует на не файловые системы или отмонтированные файловые системы.
+.It Fl n
+Выполнить пробное
+.Pq Qq без операции
+удаление.
+Никакие данные не будут удалены.
+Это полезно в сочетании с
+.Fl v
+или
+.Fl p
+флагами, чтобы определить, какие данные будут удалены.
+.It Fl p
+Выводить машиночитаемую подробную информацию об удалённых данных.
+.It Fl r
+Рекурсивно уничтожить все дочерние наборы данных.
+.It Fl v
+Выводить подробную информацию об удалённых данных.
+.El
+.Pp
+Следует проявлять особую осторожность при применении
+.Fl r
+или
+.Fl R
+опций, так как они могут уничтожить большие части пула и вызвать неожиданное
+поведение для используемых смонтированных файловых систем.
+.Bl -tag -width "zfs destroy [-Rdnprv] filesystem|volume@snap[%snap[,snap[%snap]]]…"
+.It Xo
+.Nm zfs
+.Cm destroy
+.Op Fl Rdnprv
+.Ar файловая система Ns | Ns Ar том Ns @ Ns Ar снимок Ns
+.Oo % Ns Ar снимок Ns Oo , Ns Ar снимок Ns Oo % Ns Ar снимок Oc Oc Oc Ns …
+.Xc
+Пытается уничтожить заданный снимок (снимки).
+Это не удастся, если существуют какие-либо клоны снимка или если снимок удерживается.
+В этом случае по умолчанию
+.Nm zfs Cm destroy
+не будет иметь эффекта и завершится с ошибкой.
+Если
+.Fl d
+опция применена, команда вместо этого пометит заданный снимок для
+автоматического уничтожения, как только он станет подходящим.
+Пока снимок помечен для уничтожения, он остаётся видимым, и пользователь может
+создавать из него новые клоны и устанавливать на него новые удержания.
+.Pp
+Свойства снимка, доступные только для чтения,
+.Sy defer_destroy
+и
+.Sy userrefs
+используются
+.Nm zfs Cm destroy
+для определения пригодности и статуса пометки.
+.Pp
+Включающий диапазон снимков можно задать, разделив первый и
+последний снимки знаком процента.
+Первый и/или последний снимки могут быть оставлены пустыми, и в этом случае
+подразумевается самый старый или самый новый снимок файловой системы.
+.Pp
+Несколько снимков
+.Pq или диапазонов снимков
+одной и той же файловой системы или тома можно указать в разделённом запятыми списке
+снимков.
+Только короткое имя снимка
+.Po часть после
+.Sy @
+.Pc
+следует указывать при использовании диапазона или списка, разделённого запятыми, для идентификации
+нескольких снимков.
+.It Fl R
+Рекурсивно уничтожить все клоны этих снимков, включая клоны,
+снимки и дочерние наборы данных.
+Если указан этот флаг,
+.Fl d
+флаг не будет иметь эффекта.
+.It Fl d
+Вместо возврата ошибки, если заданный снимок не подходит для немедленного
+уничтожения, пометить его для отложенного автоматического уничтожения, как только он станет
+подходящим.
+.It Fl n
+Выполнить пробное
+.Pq Qq без операции
+удаление.
+Никакие данные не будут удалены.
+Это полезно в сочетании с
+.Fl p
+или
+.Fl v
+флагами, чтобы определить, какие данные будут удалены.
+.It Fl p
+Выводить машиночитаемую подробную информацию об удалённых данных.
+.It Fl r
+Уничтожить
+.Pq или пометить для отложенного удаления
+все снимки с этим именем в дочерних файловых системах.
+.It Fl v
+Выводить подробную информацию об удалённых данных.
+.El
+.Pp
+Следует проявлять особую осторожность при применении
+.Fl r
+или
+.Fl R
+опций, так как они могут уничтожить большие части пула и вызвать неожиданное
+поведение для используемых смонтированных файловых систем.
+.Bl -tag -width "zfs destroy filesystem|volume#bookmark"
+.It Xo
+.Nm zfs
+.Cm destroy
+.Ar файловая система Ns | Ns Ar том Ns # Ns Ar закладка
+.Xc
+Заданная закладка уничтожается.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание и уничтожение нескольких снимков
+Следующая команда создаёт снимки с именем
+.Ar yesterday No в .Ar pool/home
+и все его дочерние файловые системы.
+Каждый снимок монтируется по требованию в
+.Pa .zfs/snapshot
+каталоге в корне своей файловой системы.
+Вторая команда уничтожает только что созданные снимки.
+.Dl # Nm zfs Cm snapshot Fl r Ar pool/home Ns @ Ns Ar yesterday
+.Dl # Nm zfs Cm destroy Fl r Ar pool/home Ns @ Ns Ar yesterday
+.
+.Ss Пример 2 : No Продвижение клона ZFS
+Следующие команды показывают, как протестировать изменения файловой системы, а
+затем заменить исходную файловую систему изменённой, используя клоны, продвижение
+клонов и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда старая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Ss Пример 3 : No Выполнение скользящего снимка
+Следующий пример показывает, как поддерживать историю снимков с
+согласованной схемой именования.
+Чтобы хранить снимки за неделю, пользователь уничтожает самый старый снимок,
+переименовывает остальные снимки, а затем создаёт новый снимок следующим образом:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm destroy Fl r Ar pool/users@7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@6daysago No @ Ns Ar 7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@5daysago No @ Ns Ar 6daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@4daysago No @ Ns Ar 5daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@3daysago No @ Ns Ar 4daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@2daysago No @ Ns Ar 3daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@yesterday No @ Ns Ar 2daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@today No @ Ns Ar yesterday
+.No # Nm zfs Cm snapshot Fl r Ar pool/users Ns @ Ns Ar today
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-create 8 ,
+.Xr zfs-hold 8 ,
+.Xr zfsprops 8

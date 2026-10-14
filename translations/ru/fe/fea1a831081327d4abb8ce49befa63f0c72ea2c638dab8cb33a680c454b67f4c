@@ -1,0 +1,76 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+.\"
+.\" Copyright (c) 2023 Baptiste Daroussin <bapt@nours.eu>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/genl/genl.1
+.\" FRDP githash 13d81ef632ec6ca5e6936ab77e8ac67a8c430033
+.\" FRDP hash256 fea1a831081327d4abb8ce49befa63f0c72ea2c638dab8cb33a680c454b67f4c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd Oct 5, 2024
+.Dt GENL 1
+.Os
+.Sh ИМЯ
+.Nm genl
+.Sh СИНТАКСИС
+.Nm
+.Pp
+.Nm Cm list
+.Pp
+.Nm Cm monitor Ao семейство Ac
+.Op группа многоадресной рассылки
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет пользователю доступ к протоколам generic netlink.
+.Pp
+Доступны следующие команды:
+.Bl -tag -width indent
+.It Cm list Po по умолчанию Pc
+Выводит список всех доступных протоколов generic netlink и представляет их подробности:
+.Bl -tag -width indent
+.It операции
+Идентификатор операции, если она есть, и связанные с ней возможности
+.It группы многоадресной рассылки
+Идентификатор доступной группы многоадресной рассылки, если она есть, и связанное с ней имя
+.El
+.It Cm monitor Ao семейство Ac Oo группа многоадресной рассылки Oc
+Подключиться к протоколу
+.Ar семейства
+и подписаться на
+.Ar группу многоадресной рассылки
+, затем вывести полученные сообщения в удобочитаемом формате, если протокол известен.
+На данный момент только
+.Qq nlctrl
+и
+.Qq nlsysevent
+известны.
+Если
+.Ar группа многоадресной рассылки
+не указана, то выполняется подписка на все группы.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr genetlink 4 ,
+.Xr netlink 4

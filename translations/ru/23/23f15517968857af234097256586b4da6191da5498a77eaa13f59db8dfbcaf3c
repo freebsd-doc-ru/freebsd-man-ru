@@ -1,0 +1,148 @@
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/nfsstat/nfsstat.1
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 23f15517968857af234097256586b4da6191da5498a77eaa13f59db8dfbcaf3c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt NFSSTAT 1
+.Os
+.Sh ИМЯ
+.Nm nfsstat
+.Nd показывает
+.Tn NFS
+статистику
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl cdEemqszW
+.Op Fl w Ar wait
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+отображает статистику, собираемую об активности
+.Tn NFS
+клиента и сервера.
+.Pp
+Для сервера NFSv4 эта статистика относится к операциям внутри составных
+RPC, а не к количеству RPC.
+Если вы хотите сравнить количество RPC между NFSv3 и NFSv4, вы должны использовать
+статистику на клиенте(ах).
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl c
+Отображать только статистику клиентской стороны.
+.It Fl d
+Отображать статистику для сервера NFS, похожую на ту, которую
+отображает
+.Xr iostat 8 .
+Это включает килобайты на передачу, передач в секунду и мегабайты в
+секунду для чтения, записи и всех операций.
+Оно также включает текущую глубину очереди, процент занятости и задержку
+для всех операций.
+Если
+.Fl W
+добавлен, количество commit в секунду, задержка commit, задержка чтения и задержка
+записи также добавляются в вывод.
+Показанный процент занятости иногда может превышать 100.
+Это связано со способом вычисления процентов занятости.
+Время занятости вычисляется путём сложения прошедшего времени между
+последним запуском или завершением операции
+и текущим временем.
+будет обновлено общим временем этой операции.
+Это означает, что разница во времени занятости между двумя
+интервалами измерения (часто 1 секунда)
+увеличится больше, чем интервал измерения.
+.It Fl e
+Сообщать дополнительную статистику, собираемую клиентом NFS и
+сервером для NFSv4.
+.It Fl E
+Похоже на
+.Fl e
+за исключением того, что статистика включает NFSv4.1 и NFSv4.2 и числа не
+обрезаются на одном миллиарде.
+Можно указать только один из
+.Fl e
+или
+.Fl E
+может быть указан.
+.It Fl M
+Устарел и игнорируется.
+.It Fl m
+Сообщать параметры монтирования для всех клиентских монтирований NFS.
+Эта опция переопределяет все остальные, и
+.Nm
+завершит работу после вывода отчёта.
+.It Fl N
+Устарел и игнорируется.
+.It Fl s
+Отображать только статистику серверной стороны.
+.It Fl W
+Использовать широкий формат с краткой сводкой по интервалам.
+Эта опция особенно
+полезна в сочетании с
+.Fl c ,
+.Fl d ,
+или
+.Fl s
+и задержкой по времени.
+.It Fl w Ar wait
+Отображать краткую сводку
+.Tn NFS
+активности как для клиента, так и для сервера с интервалом
+.Ar wait
+секунд.
+.It Fl z
+Сбрасывать статистику после её отображения.
+.It Fl q
+Не печатать заголовки.
+.It Fl -libxo
+Генерировать вывод через
+.Xr libxo 3
+в различных удобочитаемых для человека и машины форматах.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr netstat 1 ,
+.Xr ps 1 ,
+.Xr systat 1 ,
+.Xr sysctl 3 ,
+.Xr iostat 8 ,
+.Xr nfsdumpstate 8 ,
+.Xr pstat 8 ,
+.Xr vmstat 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Bx 4.4 .

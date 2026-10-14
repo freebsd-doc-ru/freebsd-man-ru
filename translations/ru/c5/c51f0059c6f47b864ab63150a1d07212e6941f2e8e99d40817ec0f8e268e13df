@@ -1,0 +1,722 @@
+.\"	$KAME: setkey.8,v 1.89 2003/09/07 22:17:41 itojun Exp $
+.\"
+.\" Copyright (C) 1995, 1996, 1997, 1998, and 1999 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/setkey/setkey.8
+.\" FRDP githash c67d8acca30e9f96f0a56f197003d0a4c663a060
+.\" FRDP hash256 c51f0059c6f47b864ab63150a1d07212e6941f2e8e99d40817ec0f8e268e13df
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 25, 2024
+.Dt SETKEY 8
+.Os
+.Sh ИМЯ
+.Nm setkey
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Fl c
+.Nm
+.Op Fl v
+.Fl f Ar имя_файла
+.Nm
+.Op Fl v
+.Fl e Ar сценарий
+.Nm
+.Op Fl Pgltv
+.Fl D
+.Nm
+.Op Fl Pv
+.Fl F
+.Nm
+.Op Fl h
+.Fl x
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+добавляет, обновляет, выводит или очищает записи
+базы данных ассоциаций безопасности (SAD),
+а также записи базы данных политик безопасности (SPD) в ядре.
+.Pp
+Утилита
+.Nm
+принимает последовательность операций со стандартного ввода
+(если вызвана с
+.Fl c ) ,
+из файла с именем
+.Ar имя_файла
+(если вызвана с
+.Fl f Ar имя_файла ) ,
+или из аргумента командной строки, следующего за опцией
+(если вызвана с
+.Fl e Ar сценарий ) .
+.Bl -tag -width indent
+.It Fl D
+Выводит записи SAD.
+Если указан
+.Fl P ,
+выводятся записи SPD.
+.It Fl F
+Очищает записи SAD.
+Если указан
+.Fl P ,
+записи SPD очищаются.
+.It Fl g
+Только записи SPD с глобальной областью действия выводятся с флагами
+.Fl D
+и
+.Fl P .
+.It Fl t
+Только записи SPD с областью ifnet выводятся с флагами
+.Fl D
+и
+.Fl P .
+Такие записи SPD связаны с соответствующим виртуальным туннельным интерфейсом
+.Xr if_ipsec 4 .
+.It Fl h
+Добавляет шестнадцатеричный дамп в режиме
+.Fl x .
+.It Fl l
+Бесконечно повторять с кратким выводом при
+.Fl D .
+.It Fl v
+Быть подробным.
+Программа будет выводить сообщения, которыми обмениваются через сокет
+.Dv PF_KEY ,
+включая сообщения, отправленные другими процессами ядру.
+.It Fl x
+Бесконечно повторять и выводить все сообщения, передаваемые в сокет
+.Dv PF_KEY .
+.Fl xx
+делает каждую временную метку неформатированной.
+.El
+.Ss Синтаксис конфигурации
+При указании
+.Fl c
+или
+.Fl f
+в командной строке
+.Nm
+принимает следующий синтаксис конфигурации.
+Строки, начинающиеся с символа решётки
+.Pq Ql #
+считаются строками комментариев.
+.Bl -tag -width indent
+.It Xo
+.Li add
+.Op Fl 46n
+.Ar src Ar dst Ar protocol Ar spi
+.Op Ar extensions
+.Ar algorithm ...
+.Li \&;
+.Xc
+Добавляет запись SAD.
+.Li add
+может завершиться ошибкой по многим причинам,
+включая несоответствие длины ключа указанному алгоритму.
+.It Xo
+.Li get
+.Op Fl 46n
+.Ar src Ar dst Ar protocol Ar spi
+.Li \&;
+.Xc
+Показывает запись SAD.
+.It Xo
+.Li delete
+.Op Fl 46n
+.Ar src Ar dst Ar protocol Ar spi
+.Li \&;
+.Xc
+Удаляет запись SAD.
+.It Xo
+.Li deleteall
+.Op Fl 46n
+.Ar src Ar dst Ar protocol
+.Li \&;
+.Xc
+Удаляет все записи SAD, соответствующие спецификации.
+.It Xo
+.Li flush
+.Op Ar protocol
+.Li \&;
+.Xc
+Очищает все записи SAD, соответствующие опциям.
+.Fl F
+в командной строке выполняет ту же функцию.
+.It Xo
+.Li dump
+.Op Ar protocol
+.Li \&;
+.Xc
+Выводит все записи SAD, соответствующие опциям.
+.Fl D
+в командной строке выполняет ту же функцию.
+.It Xo
+.Li spdadd
+.Op Fl 46n
+.Ar src_range Ar dst_range Ar upperspec Ar policy
+.Li \&;
+.Xc
+Добавляет запись SPD.
+.It Xo
+.Li spddelete
+.Op Fl 46n
+.Ar src_range Ar dst_range Ar upperspec Fl P Ar direction
+.Li \&;
+.Xc
+Удаляет запись SPD.
+.It Xo
+.Li spdflush
+.Li \&;
+.Xc
+Очищает все записи SPD.
+.Fl FP
+в командной строке выполняет ту же функцию.
+.It Xo
+.Li spddump
+.Li \&;
+.Xc
+Выводит все записи SPD.
+.Fl DP
+в командной строке выполняет ту же функцию.
+.El
+.Pp
+Мета-аргументы перечислены ниже:
+.Pp
+.Bl -tag -compact -width indent
+.It Ar src
+.It Ar dst
+Источник/назначение защищённого соединения задаётся как
+IPv4/v6-адрес.
+Утилита
+.Nm
+может преобразовать FQDN в числовые адреса.
+Если FQDN преобразуется в несколько адресов,
+.Nm
+установит в ядро несколько записей SAD/SPD,
+перебрав все возможные комбинации.
+.Fl 4 ,
+.Fl 6
+и
+.Fl n
+ограничивают преобразование адресов FQDN определённым образом.
+.Fl 4
+и
+.Fl 6
+ограничивают результаты только IPv4/v6-адресами соответственно.
+.Fl n
+отключает преобразование FQDN и требует, чтобы адреса были числовыми.
+.Pp
+.It Ar protocol
+.Ar protocol
+— один из следующих:
+.Bl -tag -width Fl -compact
+.It Li esp
+ESP на основе rfc2406
+.It Li esp-old
+ESP на основе rfc1827
+.It Li ah
+AH на основе rfc2402
+.It Li ah-old
+AH на основе rfc1826
+.It Li ipcomp
+IPComp
+.It Li tcp
+TCP-MD5 на основе rfc2385
+.El
+.Pp
+.It Ar spi
+Индекс параметра безопасности
+(SPI)
+для SAD и SPD.
+.Ar spi
+должен быть десятичным числом или шестнадцатеричным числом с
+.Ql 0x
+префиксом.
+Значения SPI от 0 до 255 зарезервированы IANA для будущего использования,
+и их нельзя использовать.
+.Pp
+.It Ar extensions
+может принимать некоторые из следующих:
+.Bl -tag -width natt_mtu -compact
+.It Fl m Ar mode
+Указывает используемый режим протокола безопасности.
+.Ar mode
+— один из следующих:
+.Li transport , tunnel
+или
+.Li any .
+Значение по умолчанию —
+.Li any .
+.It Fl r Ar size
+Указывает размер битовой карты в октетах для окна защиты от повторного воспроизведения.
+.Ar size
+— 32-битное беззнаковое целое, и его значение составляет одну восьмую
+размера окна защиты от повторного воспроизведения в пакетах.
+Если
+.Ar size
+равно нулю или не указано, проверка защиты от повторного воспроизведения не выполняется.
+.It Fl u Ar id
+Указывает идентификатор записи политики в SPD.
+См.
+.Ar policy .
+.It Fl f Ar pad_option
+определяет содержимое заполнения ESP.
+.Ar pad_option
+— один из следующих:
+.Bl -tag -width random-pad -compact
+.It Li zero-pad
+Все байты заполнения равны нулю.
+.It Li random-pad
+Устанавливается последовательность случайных значений.
+.It Li seq-pad
+Устанавливается последовательность последовательно возрастающих чисел, начиная с 1.
+.El
+.It Fl f Li nocyclic-seq
+Запрещает циклический номер последовательности.
+.It Fl lh Ar time
+.It Fl ls Ar time
+Указывает жёсткое/мягкое время жизни SA.
+.It Fl natt Ar oai \[lB] Ar sport \[rB] Ar oar \[lB] Ar dport \[rB]
+Вручную настраивает NAT-T для SA, указывая IP-адреса и порты инициатора
+.Ar oai
+и
+запрашивающей стороны
+.Ar oar .
+Обратите внимание, что символы
+.Sq \[lB]
+и
+.Sq \[rB]
+являются частью синтаксиса спецификации портов,
+а не обозначением необязательных компонентов.
+.It Fl natt_mtu Ar fragsize
+Настраивает размер фрагмента NAT-T.
+.It Fl esn
+Включает расширение Extended Sequence Number для этой SA.
+.It Fl hwif Ar ifname
+Запрашивает аппаратное ускорение (offload) только для указанного интерфейса
+.Ar ifname .
+По умолчанию ускорение применяется ко всем поддерживающим интерфейсам.
+.El
+.Pp
+.It Ar algorithm
+.Bl -tag -width Fl -compact
+.It Fl E Ar ealgo Ar key
+Указывает алгоритм шифрования или аутентифицированного шифрования с ассоциированными данными
+(AEAD)
+.Ar ealgo
+для ESP.
+.It Xo
+.Fl E Ar ealgo Ar key
+.Fl A Ar aalgo Ar key
+.Xc
+Указывает алгоритм шифрования
+.Ar ealgo ,
+а также алгоритм аутентификации полезной нагрузки
+.Ar aalgo ,
+для ESP.
+.It Fl A Ar aalgo Ar key
+Указывает алгоритм аутентификации для AH.
+.It Fl C Ar calgo Op Fl R
+Указывает алгоритм сжатия для IPComp.
+Если указан
+.Fl R ,
+значение поля
+.Ar spi
+будет использоваться как CPI IPComp
+(индекс параметра сжатия)
+в сети как есть.
+Если
+.Fl R
+не указан,
+ядро будет использовать общеизвестный CPI в сети, а
+.Ar spi
+будет использоваться только как индекс для внутреннего использования ядром.
+.El
+.Pp
+.Ar key
+должен быть строкой символов в двойных кавычках или последовательностью
+шестнадцатеричных цифр с префиксом
+.Ql 0x .
+.Pp
+Возможные значения для
+.Ar ealgo ,
+.Ar aalgo
+и
+.Ar calgo
+указаны в отдельном разделе.
+.Pp
+.It Ar src_range
+.It Ar dst_range
+Это селекторы защищённого соединения, задаваемые как
+IPv4/v6-адрес или диапазон IPv4/v6-адресов, и они могут сопровождаться
+спецификацией порта TCP/UDP.
+Это принимает следующую форму:
+.Bd -unfilled
+.Ar address
+.Ar address/prefixlen
+.Ar address[port]
+.Ar address/prefixlen[port]
+.Ed
+.Pp
+.Ar prefixlen
+и
+.Ar port
+должны быть десятичными числами.
+Квадратные скобки вокруг
+.Ar port
+необходимы и не являются метасимволами man-страницы.
+Для преобразования FQDN здесь также применяются правила, применимые к
+.Ar src
+и
+.Ar dst .
+.Pp
+.It Ar upperspec
+Протокол верхнего уровня, который будет использоваться.
+Вы можете использовать одно из слов в
+.Pa /etc/protocols
+как
+.Ar upperspec ,
+а также
+.Li icmp6 ,
+.Li ip4
+или
+.Li any .
+Слово
+.Li any
+означает
+.Dq any protocol .
+Номер протокола также может использоваться для указания
+.Ar upperspec .
+Тип и код, относящиеся к ICMPv6, также могут быть указаны как
+.Ar upperspec .
+Сначала указывается тип, затем запятая и соответствующий
+код.
+Спецификация должна быть размещена после
+.Li icmp6 .
+Ядро считает ноль подстановочным знаком, но
+не может отличить подстановочный знак от типа ICMPv6,
+равного нулю.
+Следующий пример показывает политику, в которой IPSec не требуется для
+входящих Neighbor Solicitation:
+.Pp
+.Pp
+ПРИМЕЧАНИЕ:
+.Ar upperspec
+на данный момент не работает в случае пересылки,
+так как требует дополнительной сборки на узле пересылки,
+что на данный момент не реализовано.
+Хотя в
+.Pa /etc/protocols
+есть много протоколов,
+протоколы, отличные от TCP, UDP и ICMP, могут не подходить для использования с IPsec.
+.Pp
+.It Ar policy
+.Ar policy
+выражается в одном из следующих трёх форматов:
+.Pp
+.Bl -tag -width 2n -compact
+.It Fl P Ar direction Li discard
+.It Fl P Ar direction Li none
+.It Xo Fl P Ar direction Li ipsec
+.Ar protocol/mode/src-dst/level Op ...
+.Xc
+.El
+.Pp
+.It Ar direction
+.Ar direction
+политики должен быть указан как один из:
+.Li out
+или
+.Li in .
+.It Ar policy level
+За направлением следует один из следующих уровней политики:
+.Li discard ,
+.Li none ,
+или
+.Li ipsec .
+.Bl -bullet
+.It
+Уровень политики
+.Li discard
+означает, что пакеты, соответствующие указанным индексам, будут
+отброшены.
+.It
+Уровень политики
+.Li none
+означает, что операции IPsec не будут выполняться над
+пакетом.
+.It
+Уровень политики
+.Li ipsec
+означает, что над пакетом будет выполнена операция IPsec.
+.El
+.Pp
+.It Ar protocol/mode/src-dst/level
+Выражение
+.Ar protocol/mode/src-dst/level
+задаёт правило обработки пакета.
+.Bl -bullet
+.It
+.Ar protocol
+указывается как
+.Li ah ,
+.Li esp
+или
+.Li ipcomp .
+.It
+.Ar mode
+— либо
+.Li transport
+или
+.Li tunnel .
+.El
+.Pp
+Если
+.Ar mode
+—
+.Li tunnel ,
+вы должны указать конечные адреса SA как
+.Ar src
+и
+.Ar dst
+с дефисом,
+.Sq - ,
+между адресами.
+.Pp
+Если
+.Ar mode
+—
+.Li transport ,
+оба
+.Ar src
+и
+.Ar dst
+можно опустить.
+.Pp
+.Ar level
+— один из следующих:
+.Li default , use , require
+или
+.Li unique .
+Если SA недоступна на каком-либо уровне, ядро запросит
+SA у демона обмена ключами.
+.Pp
+.Bl -bullet
+.It
+Значение
+.Li default
+указывает ядру использовать общесистемный протокол по умолчанию,
+например, из переменной sysctl
+.Li esp_trans_deflev ,
+когда ядро обрабатывает пакет.
+.It
+Значение
+.Li use
+означает, что ядро будет использовать SA, если она доступна,
+иначе ядро пропустит пакет как обычно.
+.It
+Значение
+.Li require
+означает, что SA требуется всякий раз, когда ядро отправляет пакет,
+соответствующий политике.
+.It
+Уровень
+.Li unique
+совпадает с
+.Li require ,
+но, кроме того, позволяет политике связываться с уникальной исходящей SA.
+.Pp
+Например, если вы укажете уровень политики
+.Li unique ,
+.Xr racoon 8 Pq Pa ports/security/ipsec-tools
+настроит SA для этой политики.
+Если вы настроите SA с помощью ручного ввода ключа для этой политики,
+вы можете указать десятичное число как идентификатор политики после
+.Li unique
+отделив его двоеточием
+.Ql :\&
+как в следующем примере:
+.Li unique:number .
+Чтобы связать эту политику с SA,
+.Li number
+должно быть между 1 и 32767,
+что соответствует
+.Ar extensions Fl u
+ручной конфигурации SA.
+.El
+.El
+.Pp
+Когда вы хотите использовать набор SA, вы можете определить несколько правил.
+Например, если за заголовком IP следовал заголовок AH, затем заголовок
+ESP, затем заголовок протокола верхнего уровня, правило будет таким:
+.Pp
+.Dl esp/transport//require ah/transport//require ;
+.Pp
+Порядок правил очень важен.
+.Pp
+Обратите внимание, что
+.Dq Li discard
+и
+.Dq Li none
+отсутствуют в синтаксисе, описанном в
+.Xr ipsec_set_policy 3 .
+Есть небольшие, но важные различия в синтаксисе.
+Подробности см. в
+.Xr ipsec_set_policy 3 .
+.Sh АЛГОРИТМЫ
+В следующих списках показаны поддерживаемые алгоритмы.
+.Ss Алгоритмы аутентификации
+Следующие алгоритмы аутентификации могут использоваться как
+.Ar aalgo
+в
+.Fl A Ar aalgo
+параметра
+.Ar protocol :
+.Bd -literal -offset indent
+алгоритм	длина ключа (биты)	комментарий
+hmac-sha1	160		ah/esp: rfc2404
+		160		ah-old/esp-old: 128-битный ICV (без документа)
+null		0 to 2048	для отладки
+hmac-sha2-256	256		ah/esp: 128-битный ICV (RFC4868)
+		256		ah-old/esp-old: 128-битный ICV (без документа)
+hmac-sha2-384	384		ah/esp: 192-битный ICV (RFC4868)
+		384		ah-old/esp-old: 128-битный ICV (без документа)
+hmac-sha2-512	512		ah/esp: 256-битный ICV (RFC4868)
+		512		ah-old/esp-old: 128-битный ICV (без документа)
+aes-xcbc-mac	128		ah/esp: 96-битный ICV (RFC3566)
+		128		ah-old/esp-old: 128-битный ICV (без документа)
+tcp-md5		8 to 640	tcp: rfc2385
+chacha20-poly1305	256	ah/esp: 128-битный ICV (RFC7634)
+.Ed
+.Ss Алгоритмы шифрования
+Следующие алгоритмы шифрования могут использоваться как
+.Ar ealgo
+в
+.Fl E Ar ealgo
+параметра
+.Ar protocol :
+.Bd -literal -offset indent
+алгоритм	длина ключа (биты)	комментарий
+null		0 to 2048	rfc2410
+aes-cbc		128/192/256	rfc3602
+aes-ctr		160/224/288	rfc3686
+aes-gcm-16	160/224/288	AEAD; rfc4106
+chacha20-poly1305	256	rfc7634
+.Ed
+.Pp
+Обратите внимание, что первые 128/192/256 бит ключа для
+.Li aes-ctr
+или
+.Li aes-gcm-16
+будут использоваться как ключ AES,
+а оставшиеся 32 бита будут использоваться как nonce.
+.Pp
+Алгоритмы шифрования AEAD, такие как
+.Li aes-gcm-16 ,
+включают аутентификацию и не должны использоваться вместе с
+отдельным алгоритмом аутентификации через
+.Fl A .
+.Ss Алгоритмы сжатия
+Следующие алгоритмы сжатия могут использоваться
+как
+.Ar calgo
+в
+.Fl C Ar calgo
+параметра
+.Ar protocol :
+.Bd -literal -offset indent
+алгоритм	комментарий
+deflate		rfc2394
+.Ed
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Добавьте ESP SA между двумя IPv6-адресами, используя
+алгоритм AEAD AES-GCM.
+.Bd -literal -offset indent
+add 3ffe:501:4819::1 3ffe:501:481d::1 esp 123457
+	-E aes-gcm-16 0x3ffe050148193ffe050148193ffe050148193ffe ;
+.Pp
+.Ed
+Добавьте SA аутентификации между двумя узлами, заданными через FQDN:
+.Bd -literal -offset indent
+add -6 myhost.example.com yourhost.example.com ah 123456
+.Pp
+.Ed
+Получите информацию SA, связанную с первым примером выше:
+.Bd -literal -offset indent
+get 3ffe:501:4819::1 3ffe:501:481d::1 ah 123456 ;
+.Pp
+.Ed
+Очистите все записи из базы данных:
+.Bd -literal -offset indent
+flush ;
+.Pp
+.Ed
+Выведите записи ESP из базы данных:
+.Bd -literal -offset indent
+dump esp ;
+.Pp
+.Ed
+Добавьте политику безопасности между двумя сетями, использующую ESP в туннельном режиме:
+.Bd -literal -offset indent
+spdadd 10.0.11.41/32[21] 10.0.11.33/32[any] any
+	-P out ipsec esp/tunnel/192.168.0.1-192.168.1.2/require ;
+.Pp
+.Ed
+Используйте TCP MD5 между двумя узлами, заданными числовыми адресами:
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ipsec_set_policy 3 ,
+.Xr if_ipsec 4 ,
+.Xr racoon 8 Pq Pa ports/security/ipsec-tools ,
+.Xr sysctl 8
+.Rs
+.%U https://www.kame.net/newsletter/19991007/
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в наборе протокольных стеков WIDE Hydrangea IPv6.
+Утилита была полностью переработана в июне 1998 года.
+Она впервые появилась в
+.Fx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+должна лучше сообщать о синтаксических ошибках и обрабатывать их.
+.Pp
+Для конфигурации шлюза IPsec,
+.Ar src_range
+и
+.Ar dst_range
+с номером порта TCP/UDP не работают, так как шлюз не собирает
+пакеты
+(не может проверить заголовки верхнего уровня).

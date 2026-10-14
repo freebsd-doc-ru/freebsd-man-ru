@@ -1,0 +1,121 @@
+.\" Copyright (C) 1994 Wolfgang Solfrank.
+.\" Copyright (C) 1994 TooLs GmbH.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by TooLs GmbH.
+.\" 4. The name of TooLs GmbH may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY TOOLS GMBH ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL TOOLS GMBH BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+.\" PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+.\" OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+.\" ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/quot/quot.8
+.\" FRDP githash 2f3adab9d512faec3e1891e505d1888db5d0240e
+.\" FRDP hash256 19d0d7da10701d57d2257183b2b175791b2feb41343a57f94470b6991eccb859
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 13, 2025
+.Dt QUOT 8
+.Os
+.Sh ИМЯ
+.Nm quot
+.Nd отображает дисковое пространство, занимаемое каждым пользователем
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cfknv
+.Op Fl a | Ar файловая_система ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для сбора статистики использования дискового пространства по пользователям из файловых систем
+.Xr ffs 7 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Включать статистику для всех смонтированных файловых систем.
+.It Fl c
+Отображать три столбца, содержащих количество блоков на файл,
+количество файлов в этой категории и суммарное количество
+блоков в файлах данного размера или меньше.
+Эта опция несовместима с опцией
+.Fl n .
+.It Fl f
+Для каждого пользователя отображать количество файлов и занимаемое пространство.
+Эта опция не действует при использовании вместе с опциями
+.Fl c
+или
+.Fl n .
+.It Fl k
+Принудительно выводить числа в килобайтах.
+По умолчанию все размеры выводятся в 512-байтовых блоках.
+.It Fl n
+При наличии списка inode (плюс некоторые необязательные данные в каждой строке)
+на стандартном вводе, для каждого файла выводить владельца (плюс
+остаток строки ввода).
+Строки, не начинающиеся с числа, игнорируются.
+Это традиционно используется
+в конвейере:
+.Bd -literal -offset indent
+ls -i | sed -e 's,^  *,,' | sort -k 1n | quot -n filesystem
+.Ed
+.Pp
+чтобы получить отчёт о файлах и их владельцах.
+Эта опция несовместима с опцией
+.Fl c .
+.It Fl v
+В дополнение к выводу по умолчанию отображать количество файлов,
+к которым не обращались в течение 30, 60 и 90 дней.
+Эта опция не действует при использовании вместе с опциями
+.Fl c
+или
+.Fl n .
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width BLOCKSIZE
+.It Ev BLOCKSIZE
+Если переменная окружения
+.Ev BLOCKSIZE
+установлена, и опция
+.Fl k
+не указана, количество блоков будет отображаться в единицах этого
+размера блока.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr df 1 ,
+.Xr quota 1 ,
+.Xr getmntinfo 3 ,
+.Xr fstab 5 ,
+.Xr ffs 7 ,
+.Xr mount 8
+.Sh ИСТОРИЯ
+Эта реализация
+.Nm
+создана
+.An Wolfgang Solfrank
+/ TooLs GmbH.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Xr ncheck
+(который был бы гораздо полезнее, чем
+.Nm ls Fl i
+в примере выше)
+не существует в
+.Fx .

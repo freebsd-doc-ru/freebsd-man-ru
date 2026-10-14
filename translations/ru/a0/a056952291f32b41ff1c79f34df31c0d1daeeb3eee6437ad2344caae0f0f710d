@@ -1,0 +1,149 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/mknod/mknod.8
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 a056952291f32b41ff1c79f34df31c0d1daeeb3eee6437ad2344caae0f0f710d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 3, 2016
+.Dt MKNOD 8
+.Os
+.Sh ИМЯ
+.Nm mknod
+.Nd создание специального файла
+.Sh СИНТАКСИС
+.Nm
+.Ar имя
+.Nm
+.Ar имя
+.Op Cm b | c
+.Ar major minor
+.Op Ar владелец : Ns Ar группа
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Утилита
+.Nm
+устарела в современных системах
+.Fx .
+.Ef
+.Pp
+Утилита
+.Nm
+создаёт специальные файлы устройств.
+Чтобы создать узлы вручную, аргументы:
+.Bl -tag -width indent
+.It Ar имя
+Имя устройства, например
+.Pa /dev/da0
+для диска SCSI или
+.Pa /dev/pts/0
+для псевдотерминалов.
+.It Cm b | c
+Тип устройства.
+Если
+устройство является устройством блочного типа, таким как ленточный или дисковый накопитель, которому требуются
+как обработанные, так и необработанные специальные файлы,
+то тип задаётся как
+.Cm b .
+Все остальные устройства являются устройствами символьного типа, например терминалы
+и псевдоустройства, и имеют тип
+.Cm c .
+.It Ar major
+Старший номер устройства — это целое число, которое сообщает ядру,
+какую точку входа драйвера устройства использовать.
+.It Ar minor
+Младший номер устройства сообщает ядру, какому подустройству
+соответствует узел на устройстве; например,
+подустройством может быть раздел файловой системы
+или линия tty.
+.It Ar владелец : Ns Ar группа
+Пара операндов
+.Ar владелец
+.Ar группа
+необязательна, однако, если указан один, то должны быть указаны оба.
+.Ar владелец
+может быть либо числовым идентификатором пользователя, либо именем пользователя.
+Если имя пользователя также является числовым идентификатором пользователя, операнд используется как
+имя пользователя.
+.Ar группа
+может быть либо числовым идентификатором группы, либо именем группы.
+Аналогично имени пользователя,
+если имя группы также является числовым идентификатором группы, операнд используется как
+имя группы.
+.El
+.Pp
+Старший и младший номера устройств можно задавать в любом формате, допустимом
+.Xr strtoul 3 ,
+так что ведущий
+.Ql 0x
+указывает на шестнадцатеричное число, а ведущий
+.Ql 0
+заставляет интерпретировать число как восьмеричное.
+.Pp
+Утилиту
+.Nm
+можно использовать для воссоздания удалённых узлов устройств в точке монтирования
+.Xr devfs 4 ,
+если вызвать её только с именем файла в качестве аргумента.
+Пример:
+.Pp
+.Pp
+где
+.Pa /dev/cd0
+— имя удалённого узла устройства.
+.Sh СОВМЕСТИМОСТЬ
+Функциональность,
+.Xr chown 8 Ns - Ns
+подобная, является специфичной для
+.Fx .
+.Pp
+Начиная с
+.Fx 4.0 ,
+блочные устройства устарели в пользу символьных
+устройств.
+Начиная с
+.Fx 5.0 ,
+узлы устройств управляются файловой системой устройств
+.Xr devfs 4 ,
+что делает утилиту
+.Nm
+излишней.
+Начиная с
+.Fx 6.0
+узлы устройств могут создаваться в обычных файловых системах, но такие
+узлы нельзя использовать для доступа к устройствам.
+.Sh СМ. ТАКЖЕ
+.Xr mkfifo 1 ,
+.Xr mknod 2 ,
+.Xr devfs 4 ,
+.Xr chown 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v4 .

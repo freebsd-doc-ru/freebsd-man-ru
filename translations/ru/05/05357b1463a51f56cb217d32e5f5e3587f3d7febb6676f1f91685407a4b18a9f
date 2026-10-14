@@ -1,0 +1,209 @@
+.\"
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/wc/wc.1
+.\" FRDP githash 4cb65fde79a2412558d10fdbf3427fc0e4536d80
+.\" FRDP hash256 05357b1463a51f56cb217d32e5f5e3587f3d7febb6676f1f91685407a4b18a9f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt WC 1
+.Os
+.Sh ИМЯ
+.Nm wc
+.Nd подсчёт слов, строк, символов и байтов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl c | Fl m
+.Op Fl Llw
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит количество строк, слов и байтов, содержащихся в каждом
+входном
+.Ar файле ,
+или стандартном вводе (если файл не указан) в стандартный вывод.
+Строка определяется как последовательность символов, ограниченная символом
+.Dq newline .
+Символы после последнего символа
+.Dq newline
+не будут включены
+в подсчёт строк.
+.Pp
+Слово определяется как последовательность символов, разделённая
+пробельными символами.
+Пробельные символы — это набор символов, для которых
+функция
+.Xr iswspace 3
+возвращает истину.
+Если указано более одного входного файла, строка с суммарными значениями
+для всех файлов выводится отдельной строкой после вывода для
+последнего файла.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl -libxo
+Генерировать вывод через
+.Xr libxo 3
+в одном из различных форматов, удобных для чтения человеком и машиной.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl L
+Записывает длину строки, содержащей больше всего байтов (по умолчанию) или символов
+(когда указан
+.Fl m )
+в стандартный вывод.
+Когда указано более одного аргумента
+.Ar файл ,
+самая длинная входная строка
+.Em всех
+файлов сообщается как значение последнего
+.Dq total .
+.It Fl c
+Количество байтов в каждом входном файле
+записывается в стандартный вывод.
+Это отменяет любое предыдущее использование параметра
+.Fl m .
+.It Fl l
+Количество строк в каждом входном файле
+записывается в стандартный вывод.
+.It Fl m
+Количество символов в каждом входном файле записывается в стандартный вывод.
+Если текущая локаль не поддерживает многобайтовые символы, это
+эквивалентно параметру
+.Fl c .
+Это отменяет любое предыдущее использование параметра
+.Fl c .
+.It Fl w
+Количество слов в каждом входном файле
+записывается в стандартный вывод.
+.El
+.Pp
+Когда указан параметр,
+.Nm
+сообщает только информацию, запрошенную этим параметром.
+Порядок вывода всегда имеет вид: строка, слово,
+байт и имя файла.
+Действие по умолчанию эквивалентно указанию параметров
+.Fl c , l
+и
+.Fl w .
+.Pp
+Если файлы не указаны, используется стандартный ввод и
+имя файла не отображается.
+Приглашение будет принимать ввод до получения EOF или
+.Bq ^D
+в большинстве окружений.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент
+.Cm status
+для
+.Xr stty 1 ),
+промежуточные данные будут записаны
+в стандартный поток ошибок в том же формате,
+что и стандартное сообщение о завершении.
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Подсчитать количество символов, слов и строк в каждом из файлов
+.Pa report1
+и
+.Pa report2 ,
+а также суммарные значения для обоих:
+.Pp
+.Pp
+Найти самую длинную строку в списке файлов:
+.Pp
+.Sh СОВМЕСТИМОСТЬ
+Исторически утилита
+.Nm
+описывалась как определяющая слово как
+.Do
+максимальную строку
+символов, ограниченную символами <space>, <tab> или <newline>
+.Dc .
+Однако реализация неправильно обрабатывала непечатаемые символы,
+так что
+считалась как 6 пробелов, в то время как
+.Dq Li foo^D^Ebar
+считалась как 8 символов.
+.Bx 4
+системы после
+.Bx 4.3
+изменили реализацию, чтобы она соответствовала
+документации.
+В этой реализации
+.Dq слово
+определяется через функцию
+.Xr iswspace 3 ,
+как требуется в
+.St -p1003.2 .
+.Pp
+Параметр
+.Fl L
+является нестандартным
+.Fx
+расширением, совместимым с параметром
+.Fl L
+утилиты GNU
+.Nm .
+.Sh СМ. ТАКЖЕ
+.Xr iswspace 3 ,
+.Xr libxo 3 ,
+.Xr xo_options 7
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

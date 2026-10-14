@@ -1,0 +1,121 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/unbound/doc/unbound.8
+.\" FRDP githash 1fb9c5ffe25fcba0857c4fdf6ed19ca5bf6bc858
+.\" FRDP hash256 e091d913cd6fb3c4524caec46feb7c428319ed30ac00e2ff738ed9a7bc33b8c9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+unbound \- Unbound DNS-валидирующий резолвер 1.26.1.
+.SH СИНТАКСИС
+.sp
+\fBunbound\fP [\fB\-hdpVv\fP] [\fB\-c <cfgfile>\fP]
+.SH ОПИСАНИЕ
+.sp
+\fBunbound\fP — кэширующий DNS-резолвер.
+.sp
+Он использует встроенный список авторитетных серверов имён для корневой зоны (\fB\&.\fP),
+так называемые root hints.
+При получении DNS-запроса он спросит корневые серверы имён об ответе и
+в почти всех случаях получит делегирование авторитетному серверу имён
+домена верхнего уровня (TLD).
+Затем он спросит этот сервер имён об ответе.
+Он будет рекурсивно продолжать, пока не найдёт ответ или ответ не будет доступен
+(NXDOMAIN).
+По причинам производительности и эффективности этот ответ кэшируется на определённое время
+(время жизни ответа, time\-to\-live, или TTL).
+Второй запрос для того же имени затем будет отвечен из кэша.
+Unbound также может выполнять валидацию DNSSEC.
+.sp
+Чтобы использовать локально запущенный Unbound для разрешения, вставьте:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+nameserver 127.0.0.1
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+в \fIresolv.conf(5)\fP\&.
+.sp
+Если также требуется авторитетный DNS с использованием \fI\%nsd(8)\fP,
+необходима тщательная настройка, поскольку авторитетные серверы имён и резолверы
+используют один и тот же номер порта (53).
+.sp
+Доступны следующие параметры:
+.INDENT 0.0
+.TP
+.B \-h
+Показать номер версии и справку по параметрам командной строки и выйти.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-c <cfgfile>
+Задать файл конфигурации с настройками для unbound, который нужно читать вместо
+файла в расположении по умолчанию, \fB/var/unbound/unbound.conf\fP\&.
+Синтаксис описан в \fI\%unbound.conf(5)\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d
+Флаг отладки: не уходить в фоновый режим, а оставаться привязанным к
+консоли.
+Этот флаг также задержит запись в файл журнала до момента
+создания потока, так что большинство ошибок конфигурации и настройки появятся в stderr.
+Если указан дважды или более, журналирование не переключается на файл журнала или на
+syslog, а сообщения журнала выводятся в stderr всё время.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-p
+Не использовать pidfile.
+Этот аргумент следует использовать только системам супервизии, которые могут гарантировать,
+что одновременно будет запущен только один экземпляр Unbound.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v
+Увеличить подробность.
+Если указан несколько раз, журналируется больше информации.
+Это в дополнение к подробности (если она есть) из файла конфигурации.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-V
+Показать номер версии и параметры сборки и выйти.
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+\fI\%unbound.conf(5)\fP,
+\fI\%unbound\-checkconf(8)\fP,
+\fI\%nsd(8)\fP\&.
+.SH АВТОР
+Разработчики Unbound упомянуты в файле CREDITS в дистрибутиве.
+.SH АВТОРСКИЕ ПРАВА
+1999-2026, NLnet Labs
+.

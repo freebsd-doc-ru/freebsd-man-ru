@@ -1,0 +1,275 @@
+.\"-
+.\" Copyright 2006, 2007 Colin Percival
+.\" All rights reserved
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted providing that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/freebsd-update/freebsd-update.8
+.\" FRDP githash 02fd9fa2952705ea0ed142061dd86aad7e01f8db
+.\" FRDP hash256 b8c203a864fb245b4376c52a4c61f8e8a7733008b97821eaf7f05d388ab735c7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 9, 2026
+.Dt FREEBSD-UPDATE 8
+.Os
+.Sh ИМЯ
+.Nm freebsd-update
+.Nd загрузка и установка бинарных обновлений для FreeBSD
+.Sh СИНТАКСИС
+.Nm
+.Op Fl F
+.Op Fl b Ar базовый каталог
+.Op Fl -currently-running Ar выпуск
+.Op Fl d Ar рабочий каталог
+.Op Fl f Ar файл конфигурации
+.Op Fl j Ar клетка
+.Op Fl k Ar КЛЮЧ
+.Op Fl -not-running-from-cron
+.Op Fl r Ar новый выпуск
+.Op Fl s Ar сервер
+.Op Fl t Ar адрес
+.Op Fl v Ar уровень
+.Ar команда ...
+.Sh ОПИСАНИЕ
+Инструмент
+.Nm
+используется для загрузки, установки и отката бинарных
+обновлений базовой системы
+.Fx .
+.Sh ДОСТУПНОСТЬ БИНАРНЫХ ОБНОВЛЕНИЙ
+Бинарные обновления доступны не для каждой
+.Fx
+версии и архитектуры.
+.Pp
+В общем, бинарные обновления доступны для версий ALPHA, BETA, RC и RELEASE
+.Fx ,
+например:
+.Bl -item -offset indent -compact
+.It
+.Fx 13.1-ALPHA3
+.It
+.Fx 13.1-BETA2
+.It
+.Fx 13.1-RC1
+.It
+.Fx 13.1-RELEASE
+.El
+Они недоступны для таких ветвей, как PRERELEASE, STABLE и CURRENT,
+например:
+.Bl -item -offset indent -compact
+.It
+.Fx 13.0-PRERELEASE
+.It
+.Fx 13.1-STABLE
+.It
+.Fx 14.0-CURRENT
+.El
+.Pp
+В частности,
+.Fx
+команда безопасности создаёт обновления только для выпусков, поставляемых в бинарной форме
+.Fx
+командой инженерии выпусков.
+.Sh ПАРАМЕТРЫ
+Поддерживаются следующие параметры:
+.Bl -tag -width "базовый каталог"
+.It Fl b Ar базовый каталог
+Работать с системой, смонтированной в
+.Ar базовый каталог .
+(по умолчанию:
+.Pa / ,
+или как указано в файле конфигурации.)
+.It Fl d Ar рабочий каталог
+Хранить рабочие файлы в
+.Ar рабочий каталог .
+(по умолчанию:
+.Pa /var/db/freebsd-update/ ,
+или как указано в файле конфигурации.)
+.It Fl f Ar файл конфигурации
+Читать параметры конфигурации из
+.Ar файл конфигурации .
+(по умолчанию:
+.Pa /etc/freebsd-update.conf )
+.It Fl F
+Принудительно продолжить
+.Nm Cm fetch
+в случае незавершённого обновления.
+.It Fl j Ar клетка
+Работать с указанной клеткой, заданной
+.Va jid
+или
+.Va name .
+(Версия установленного пользовательского окружения определяется, и
+параметр
+.Fl -currently-running
+больше не требуется.)
+.It Fl k Ar КЛЮЧ
+Доверять ключу RSA с SHA256
+.Ar КЛЮЧ .
+(по умолчанию: читать значение из файла конфигурации.)
+.It Fl r Ar новый выпуск
+Указать новый выпуск (например, 11.2-RELEASE), до которого
+.Nm
+должен обновиться
+.Pq Cm upgrade No — только для команды .
+.It Fl s Ar сервер
+Загружать файлы с указанного сервера или пула серверов.
+(по умолчанию: читать значение из файла конфигурации.)
+.It Fl t Ar адрес
+Отправлять вывод команды
+.Cm cron ,
+если он есть, по адресу
+.Ar адрес .
+(по умолчанию: root, или как указано в файле конфигурации.)
+.It Fl v Ar уровень
+Установить уровень подробности вывода.
+.Ar уровень
+должен быть одним из
+.Cm stats
+(показывать статистику прогресса при загрузке файлов; по умолчанию),
+.Cm nostats
+(подавлять статистику прогресса) или
+.Cm debug
+(показывать весь вывод внутренних утилит).
+.It Fl -not-running-from-cron
+Принудительно продолжить
+.Nm Cm fetch
+при отсутствии управляющего
+.Xr tty 4 .
+Это для использования автоматизированными скриптами и инструментами оркестрации.
+Пожалуйста, не запускайте
+.Nm Cm fetch
+из
+.Xr crontab 5
+или аналогичного места с этим флагом, см.:
+.Nm Cm cron
+.It Fl -currently-running Ar выпуск
+Не определять текущий запущенный выпуск; вместо этого предполагать, что система
+работает под указанным
+.Ar выпуск .
+Это, скорее всего, будет полезно при обновлении клеток.
+.El
+.Sh КОМАНДЫ
+.Cm команда
+может быть любой из следующих:
+.Bl -tag -width "showconfig"
+.It Cm fetch
+На основе текущей установленной системы и заданных параметров конфигурации загрузить
+все доступные бинарные обновления.
+.It Cm cron
+Подождать случайное время от 1 до 3600 секунд, затем загрузить обновления,
+как если бы использовалась команда
+.Cm fetch .
+Если обновления загружены, будет отправлено письмо (root или другой адрес,
+если указан с помощью
+.Fl t
+или в файле конфигурации).
+Как следует из названия, эта команда предназначена для запуска из
+.Xr cron 8 ;
+случайная задержка служит для минимизации вероятности того, что большое количество
+машин одновременно попытаются загрузить обновления.
+.It Cm upgrade
+Загрузить файлы, необходимые для обновления до нового выпуска.
+Перед использованием этой команды убедитесь, что вы прочитали анонс и примечания к выпуску
+для нового выпуска, на случай если для обновления требуются особые шаги.
+Обратите внимание, что эта команда может потребовать до 500 МБ места в
+.Ar рабочий каталог
+в зависимости от того, какие компоненты базовой системы
+.Fx
+установлены.
+.It Cm updatesready
+Проверить, есть ли загруженные обновления, готовые к установке.
+Возвращает код выхода 2, если нет обновлений для установки.
+.It Cm install
+Установить последние загруженные обновления или обновление версии.
+Возвращает код выхода 2, если нет обновлений для установки и команда
+.Cm fetch
+не была передана как более ранний аргумент в том же вызове.
+.It Cm rollback
+Удалить последние установленные обновления.
+.It Cm IDS
+.It Cm showconfig
+Показать параметры конфигурации после разбора файла конфигурации и параметров командной строки.
+.El
+.Sh СОВЕТЫ
+.Bl -bullet
+.It
+Если ваши часы настроены на местное время, добавление строки
+.Pp
+.Dl 0 3 * * * root /usr/sbin/freebsd-update cron
+.Pp
+в
+.Pa /etc/crontab
+будет проверять обновления каждую ночь.
+Если ваши часы настроены на UTC, выберите случайное время, отличное от 3 часов ночи, чтобы избежать
+чрезмерной неравномерной нагрузки на сервер(ы), размещающие обновления.
+.It
+Несмотря на своё название, система
+.Nm
+была изменена; ей нельзя доверять в правильной работе.
+Если вы намерены использовать эту команду для обнаружения вторжений, убедитесь,
+что вы загрузились с безопасного диска (например, CD).
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width "PAGER"
+.It Ev PAGER
+Программа постраничного просмотра, используемая для представления различных отчётов во время выполнения.
+.Po
+По умолчанию:
+.Dq Pa /usr/bin/less .
+.Pc
+.Pp
+.Ev PAGER
+можно установить в
+.Dq cat ,
+когда требуется неинтерактивная программа постраничного просмотра.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/db/freebsd-update/"
+.It Pa /etc/freebsd-update.conf
+Расположение по умолчанию файла конфигурации
+.Nm .
+.It Pa /var/db/freebsd-update/
+Расположение по умолчанию, где
+.Nm
+хранит временные файлы, загруженные обновления и файлы, необходимые для отката.
+Все файлы в
+.Pa /var/db/freebsd-update/
+могут быть удалены, если обновление не выполняется и откат не потребуется.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr freebsd-version 1 ,
+.Xr uname 1 ,
+.Xr freebsd-update.conf 5 ,
+.Xr nextboot 8
+.Sh АВТОРЫ
+.An Colin Percival Aq Mt cperciva@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+В ситуациях с уровнем патча — например, с 13.2-RELEASE-p1 до
+13.2-RELEASE-p2: если какое-либо предыдущее изменение файла в
+.Pa /etc/
+конфликтует с доступным обновлением, то
+.Nm
+не будет пытаться выполнить слияние.
+Вместо этого:
+.Nm
+выведет список затронутых локально изменённых файлов.

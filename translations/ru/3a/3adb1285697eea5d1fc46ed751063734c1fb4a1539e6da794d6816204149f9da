@@ -1,0 +1,227 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/id/id.1
+.\" FRDP githash e09104dfb76a36b65a64bd315bd1520941c4beed
+.\" FRDP hash256 3adb1285697eea5d1fc46ed751063734c1fb4a1539e6da794d6816204149f9da
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd 19 апреля 2026 г.
+.Dt ID 1
+.Os
+.Sh ИМЯ
+.Nm id
+.Nd вывод сведений о пользователе
+.Sh СИНТАКСИС
+.Nm
+.Op Ar пользователь
+.Nm
+.Fl A
+.Nm
+.Fl G Op Fl n
+.Op Ar пользователь
+.Nm
+.Fl M
+.Nm
+.Fl P
+.Op Ar пользователь
+.Nm
+.Fl c
+.Nm
+.Fl d
+.Op Ar пользователь
+.Nm
+.Fl g Op Fl nr
+.Op Ar пользователь
+.Nm
+.Fl p
+.Op Ar пользователь
+.Nm
+.Fl s
+.Op Ar пользователь
+.Nm
+.Fl u Op Fl nr
+.Op Ar пользователь
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит в стандартный вывод имена пользователя и групп и их числовые
+идентификаторы для вызывающего процесса.
+Если реальный и эффективный идентификаторы различаются, выводятся оба,
+иначе выводится только реальный идентификатор.
+.Pp
+Если указан
+.Ar пользователь
+(имя для входа или идентификатор пользователя),
+выводятся идентификаторы пользователя и групп этого пользователя.
+В этом случае предполагается, что реальный и эффективный идентификаторы совпадают.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl A
+Вывести идентификатор пользователя аудита процесса и другие свойства аудита
+процесса; требуется наличие привилегий.
+.It Fl G
+Вывести различные идентификаторы групп (эффективный, реальный и дополнительные)
+в виде чисел, разделённых пробельными символами, в произвольном порядке.
+.It Fl M
+Вывести метку MAC текущего процесса.
+.It Fl P
+Вывести идентификатор в формате записи файла паролей.
+.It Fl a
+Игнорируется для совместимости с другими
+реализациями
+.Nm .
+.It Fl c
+Вывести текущий класс входа.
+.It Fl d
+Вывести домашний каталог текущего или указанного пользователя.
+.It Fl g
+Вывести эффективный идентификатор группы в виде числа.
+.It Fl n
+Вывести имя пользователя или группы для параметров
+.Fl G ,
+.Fl g
+и
+.Fl u
+вместо числа.
+Если какой-либо из числовых идентификаторов не удаётся сопоставить с именем,
+число выводится как обычно.
+.It Fl p
+Сделать вывод удобочитаемым.
+Если имя пользователя, возвращаемое
+.Xr getlogin 2 ,
+отличается от имени для входа, на которое ссылается идентификатор пользователя,
+выводится имя, возвращённое
+.Xr getlogin 2 ,
+перед которым стоит ключевое слово
+.Dq login .
+Идентификатор пользователя в виде имени выводится с предшествующим ключевым
+словом
+.Dq uid .
+Если эффективный идентификатор пользователя отличается от реального,
+реальный идентификатор пользователя выводится в виде имени с предшествующим
+ключевым словом
+.Dq euid .
+Если эффективный идентификатор группы отличается от реального,
+реальный идентификатор группы выводится в виде имени с предшествующим
+ключевым словом
+.Dq rgid .
+Затем список групп, к которым принадлежит пользователь, выводится в виде имён
+с предшествующим ключевым словом
+.Dq groups .
+Каждое значение выводится на отдельной строке.
+.It Fl r
+Вывести реальный идентификатор для параметров
+.Fl g
+и
+.Fl u
+вместо эффективного.
+.It Fl s
+Вывести оболочку текущего или указанного пользователя.
+.It Fl u
+Вывести эффективный идентификатор пользователя в виде числа.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Показать сведения о пользователе
+.Ql bob
+в формате записи файла паролей:
+.Bd -literal -offset indent
+$ id -P bob
+bob:*:0:0::0:0:Robert:/bob:/usr/local/bin/bash
+.Ed
+.Pp
+Тот же вывод, что у
+.Xr groups 1 ,
+для пользователя root:
+.Bd -literal -offset indent
+$ id -Gn root
+wheel operator
+.Ed
+.Pp
+Показать удобочитаемые сведения о
+.Ql alice :
+.Bd -literal -offset indent
+$ id -p alice
+uid     alice
+groups  alice webcamd vboxusers
+.Ed
+.Pp
+Предположим, пользователь
+.Ql bob
+выполнил
+.Dq Nm su Fl l ,
+чтобы имитировать вход root; сравните результат следующих команд:
+.Bd -literal -offset indent
+# id -un
+root
+# who am i
+bob          pts/5        Dec  4 19:51
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr groups 1 ,
+.Xr who 1 ,
+.Xr groups 7
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+IEEE Std 1003.1-2024 (``POSIX.1'') .
+Параметры
+.Fl A ,
+.Fl M ,
+.Fl P ,
+.Fl c ,
+.Fl d ,
+.Fl p
+и
+.Fl s
+являются
+расширениями
+.Fx .
+.Sh ИСТОРИЯ
+Историческая
+команда
+.Xr groups 1
+эквивалентна
+.Dq Nm id Fl Gn Op Ar пользователь .
+.Pp
+Историческая
+команда
+.Xr whoami 1
+эквивалентна
+.Dq Nm id Fl un .
+.Pp
+Команда
+.Nm
+появилась в
+.Bx 4.4 .

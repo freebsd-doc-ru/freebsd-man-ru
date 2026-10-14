@@ -1,0 +1,51 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-destroy.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 3306d3758563e9920ccbecbc668997ac8897081431b70708b4bfc737a0f447c0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-DESTROY 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-destroy
+.Nd уничтожить пул хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm destroy
+.Op Fl f
+.Ar пул
+.
+.Sh ОПИСАНИЕ
+Уничтожает указанный пул, освобождая все устройства для другого использования.
+Эта команда пытается размонтировать все активные наборы данных перед уничтожением пула.
+.Bl -tag -width Ds
+.It Fl f
+Принудительно размонтировать все активные наборы данных.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Уничтожение пула хранения ZFS
+Следующая команда уничтожает пул
+.Ar tank
+и все содержащиеся в нём наборы данных:
+.Dl # Nm zpool Cm destroy Fl f Ar tank

@@ -1,0 +1,264 @@
+.\"	$NetBSD: rcorder.8,v 1.3 2000/07/17 14:16:22 mrg Exp $
+.\"
+.\" Copyright (c) 1998
+.\"	Perry E. Metzger.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgment:
+.\"	This product includes software developed for the NetBSD Project
+.\"	by Perry E. Metzger.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/rcorder/rcorder.8
+.\" FRDP githash 31f6889564a45a6793d0e26f3da3d3009648dd39
+.\" FRDP hash256 b997b201459153074d55df0ebc8f22f7c1f7c583f02408015a9a3cca4268bf9d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 10, 2023
+.Dt RCORDER 8
+.Os
+.Sh ИМЯ
+.Nm rcorder
+.Nd вывести порядок зависимостей взаимозависимых файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl gp
+.Op Fl k Ar сохраняемый_ключ
+.Op Fl s Ar пропускаемый_ключ
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для вывода порядка зависимостей набора
+взаимозависимых файлов.
+Обычно она используется для определения последовательности
+выполнения набора shell-скриптов, в которой некоторые файлы должны быть
+выполнены перед другими.
+.Pp
+Каждый файл, переданный
+.Nm ,
+должен быть аннотирован специальными строками (которые выглядят как комментарии для
+shell), которые указывают зависимости, которые файлы имеют от определённых
+точек в последовательности, известных как
+.Dq условия ,
+и которые указывают для каждого файла, какие
+.Dq условия
+могут быть заполнены этим файлом.
+.Pp
+Внутри каждого файла должен присутствовать блок, содержащий серию строк
+.Ql REQUIRE ,
+.Ql PROVIDE ,
+.Ql BEFORE
+и
+.Ql KEYWORD .
+Формат строк строгий.
+Каждая строка должна начинаться с одного
+.Ql # ,
+за которым следует один пробел, за которым следует
+.Ql PROVIDE\&: ,
+.Ql REQUIRE\&: ,
+.Ql BEFORE\&:
+или
+.Ql KEYWORD\&: .
+Никакие отклонения не допускаются.
+За каждой строкой зависимости затем следует серия условий,
+разделённых пробельными символами.
+Несколько строк
+.Ql PROVIDE ,
+.Ql REQUIRE ,
+.Ql BEFORE
+и
+.Ql KEYWORD
+могут присутствовать, но все такие строки должны идти подряд без
+каких-либо промежуточных строк, так как как только встречается строка, не следующая формату,
+разбор останавливается.
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl g
+Создать GraphViz (.dot) полного графа зависимостей вместо
+списка порядка вызовов в виде простого текста.
+.It Fl k Ar сохраняемый_ключ
+Добавить указанное ключевое слово в
+Если задана любая опция
+.Fl k ,
+перечисляются только те файлы, содержащие соответствующее ключевое слово.
+Эту опцию можно указывать несколько раз.
+.It Fl p
+Создать порядок, подходящий для параллельного запуска, размещая файлы, которые могут быть
+выполнены одновременно, в одной строке.
+.It Fl s Ar пропускаемый_ключ
+Добавить указанное ключевое слово в
+Если задана любая опция
+.Fl s ,
+файлы, содержащие соответствующее ключевое слово, не перечисляются.
+Эту опцию можно указывать несколько раз.
+.El
+.Pp
+Далее следует пример блока:
+.Bd -literal -offset indent
+# REQUIRE: networking syslog
+# REQUIRE: usr
+# PROVIDE: dns nscd
+.Ed
+.Pp
+Этот блок указывает, что файл, в котором он появляется, зависит от
+условий
+.Ql networking ,
+.Ql syslog
+и
+.Ql usr
+и предоставляет
+условия
+.Ql dns
+и
+.Ql nscd .
+.Pp
+Файл может содержать ноль строк
+.Ql PROVIDE ,
+в этом случае он не предоставляет никаких условий, и может содержать ноль строк
+.Ql REQUIRE ,
+в этом случае он не имеет зависимостей.
+В наборе аргументов, переданных
+.Nm ,
+должен быть хотя бы один файл без зависимостей,
+чтобы она могла найти начальное место в порядке зависимостей.
+.Sh КЛЮЧЕВЫЕ СЛОВА
+Используются несколько
+.Em ключевых слов :
+.Bl -tag -width "firstboot, nojail, nojailvnet, nostart"
+.It Sy firstboot , nojail , nojailvnet , nostart
+Используются
+.Xr rc 8 .
+.It Sy suspend , resume
+Используются
+.Nm /etc/rc.suspend
+и
+.Nm /etc/rc.resume
+(см.
+.Xr acpiconf 8 )
+.It Sy shutdown
+Используются
+.Xr rc.shutdown 8 .
+.El
+.Sh ПРИМЕРЫ
+Вывести порядок зависимостей служб из базовой системы и
+.Xr ports 7 :
+.Bd -literal -offset indent
+$ rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+.Ed
+.Pp
+Подсчитать количество служб в базовой системе, которые указывают
+ключевое слово
+.Sy nostart ,
+пропуская те, которые имеют
+.Sy firstboot
+и
+.Sy nojailvnet :
+.Bd -literal -offset indent
+$ rcorder -k nostart -s firstboot -s nojailvnet /etc/rc.d/*  | wc -l
+       3
+.Ed
+.Sh ДИАГНОСТИКА
+Утилита
+.Nm
+может вывести одно из следующих сообщений об ошибке и завершиться с ненулевым
+статусом, если при обработке списка файлов возникнет ошибка.
+.Bl -diag
+Ни один файл не имеет строки
+.Ql PROVIDE ,
+соответствующей условию, присутствующему в строке
+.Ql REQUIRE
+в другом файле.
+Набор файлов имеет циклическую зависимость, которая была обнаружена при
+обработке указанного условия.
+После этого сообщения следует визуализация цикла.
+Набор файлов имеет циклическую зависимость, которая была обнаружена при
+обработке указанного файла.
+Каждый узел, который был частью циклов циклической зависимости, сообщает общее количество
+таких обнаружений.
+Начинайте с файлов, имеющих наибольший счётчик, при борьбе со сломанными зависимостями.
+.El
+.Sh ДИАГНОСТИКА С GRAPHVIZ
+Прямая зависимость рисуется сплошной линией,
+зависимость
+.Ql BEFORE
+рисуется пунктирной линией.
+Каждый узел графа представляет элемент из строк
+.Ql PROVIDE .
+Если имеется более одного файла, предоставляющего элемент, показывается список имён файлов,
+сокращённых с помощью
+.Xr basename 3 .
+Сокращённые имена файлов также показываются, если
+элемент
+.Ql PROVIDE
+не совпадает с именем файла.
+.Pp
+Рёбра и узлы, где были обнаружены циклические зависимости, рисуются жирным красным.
+Если файл имеет элемент в
+.Ql REQUIRE
+или в
+.Ql BEFORE ,
+который не мог быть предоставлен,
+этот отсутствующий поставщик и требование также будут нарисованы жирным красным.
+.Sh СМ. ТАКЖЕ
+.Xr acpiconf 8 ,
+.Xr rc 8 ,
+.Xr rc.shutdown 8 ,
+.Xr service 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Nx 1.5 .
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Написана
+.An Perry E. Metzger Aq Mt perry@piermont.com
+и
+.An Matthew R. Green Aq Mt mrg@eterna.com.au .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ключевое слово
+.Ql REQUIRE
+вводит в заблуждение:
+Оно не описывает, какие демоны должны быть запущены до того, как скрипт
+будет запущен.
+Оно описывает, какие скрипты должны быть размещены перед ним в
+порядке зависимостей.
+Например,
+если ваш скрипт имеет
+.Ql REQUIRE
+на
+.Ql sshd ,
+это означает, что скрипт должен быть размещён после
+скрипта
+.Ql sshd
+в порядке зависимостей,
+но не обязательно, что он требует,
+чтобы
+.Nm sshd
+был запущен или включён.

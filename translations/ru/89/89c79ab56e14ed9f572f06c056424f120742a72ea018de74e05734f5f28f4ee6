@@ -1,0 +1,67 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-checkpoint.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 89c79ab56e14ed9f572f06c056424f120742a72ea018de74e05734f5f28f4ee6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-CHECKPOINT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-checkpoint
+.Nd создание контрольной точки текущего состояния пула хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm checkpoint
+.Op Fl d Op Fl w
+.Ar пул
+.
+.Sh ОПИСАНИЕ
+Создаёт контрольную точку текущего состояния
+.Ar пула
+, которое впоследствии можно восстановить с помощью
+.Nm zpool Cm import --rewind-to-checkpoint .
+Наличие контрольной точки в пуле запрещает выполнение следующих подкоманд
+.Nm zpool :
+.Cm remove , attach , detach , split , No и Cm reguid .
+Кроме того, это может нарушить границы резервирования, если в пуле не хватает свободного
+места.
+Команда
+.Nm zpool Cm status
+указывает на наличие контрольной точки или на ход удаления контрольной точки из пула.
+С помощью
+.Nm zpool Cm list
+можно проверить, сколько места контрольная точка отнимает у пула.
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl d , -discard
+Удаляет существующую контрольную точку из
+.Ar пула .
+.It Fl w , -wait
+Ожидает завершения удаления контрольной точки, прежде чем вернуть управление.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-snapshot 8 ,
+.Xr zpool-import 8 ,
+.Xr zpool-status 8

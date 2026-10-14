@@ -1,0 +1,457 @@
+.\"-
+.\" Copyright (c) 2000-2014 Dag-Erling Smørgrav
+.\" Copyright (c) 2013-2016 Michael Gmelin <freebsd@grem.de>
+.\" All rights reserved.
+.\" Portions Copyright (c) 1999 Massachusetts Institute of Technology; used
+.\" by permission.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/fetch/fetch.1
+.\" FRDP githash 3dddfe29248c47d1a80dc96a76a308ae910b2a24
+.\" FRDP hash256 631ea7523f4375c753ea1c516f6cbf59e3e7a91dc6c480b04a2a65d81d99ed29
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 27, 2026
+.Dt FETCH 1
+.Os
+.Sh ИМЯ
+.Nm fetch
+.Nd получить файл по универсальному указателю ресурса
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 146AadFlMmnPpqRrsUv
+.Op Fl B Ar байт
+.Op Fl -bind-address= Ns Ar хост
+.Op Fl -ca-cert= Ns Ar файл
+.Op Fl -ca-path= Ns Ar каталог
+.Op Fl -cert= Ns Ar файл
+.Op Fl -crl= Ns Ar файл
+.Op Fl i Ar файл
+.Op Fl -key= Ns Ar файл
+.Op Fl N Ar файл
+.Op Fl -no-passive
+.Op Fl -no-proxy= Ns Ar список
+.Op Fl -no-sslv3
+.Op Fl -no-tlsv1
+.Op Fl -no-verify-hostname
+.Op Fl -no-verify-peer
+.Op Fl o Ar файл
+.Op Fl -referer= Ns Ar URL
+.Op Fl S Ar байт
+.Op Fl T Ar секунды
+.Op Fl -user-agent= Ns Ar строка-агента
+.Op Fl w Ar секунды
+.Ar URL ...
+.Nm
+.Op Fl 146AadFlMmnPpqRrsUv
+.Op Fl B Ar байт
+.Op Fl -bind-address= Ns Ar хост
+.Op Fl -ca-cert= Ns Ar файл
+.Op Fl -ca-path= Ns Ar каталог
+.Op Fl -cert= Ns Ar файл
+.Op Fl -crl= Ns Ar файл
+.Op Fl i Ar файл
+.Op Fl -key= Ns Ar файл
+.Op Fl N Ar файл
+.Op Fl -no-passive
+.Op Fl -no-proxy= Ns Ar список
+.Op Fl -no-sslv3
+.Op Fl -no-tlsv1
+.Op Fl -no-verify-hostname
+.Op Fl -no-verify-peer
+.Op Fl o Ar файл
+.Op Fl -referer= Ns Ar URL
+.Op Fl S Ar байт
+.Op Fl T Ar секунды
+.Op Fl -user-agent= Ns Ar строка-агента
+.Op Fl w Ar секунды
+.Fl h Ar хост Fl f Ar файл Oo Fl c Ar каталог Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет интерфейс командной строки к библиотеке
+.Xr fetch 3 .
+Её назначение — получать файл(ы), на которые указывают URL(ы) в
+командной строке.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Fl
+.It Fl 1 , -one-file
+Остановиться и вернуть код выхода 0 после первого успешно полученного файла.
+.It Fl 4 , -ipv4-only
+Заставляет
+.Nm
+использовать только адреса IPv4.
+.It Fl 6 , -ipv6-only
+Заставляет
+.Nm
+использовать только адреса IPv6.
+.It Fl A , -no-redirect
+Не следовать автоматически ``временным'' (302) перенаправлениям.
+Некоторые неправильно работающие веб-сайты возвращают перенаправление вместо ошибки
+``не найдено'', когда запрошенный объект не существует.
+.It Fl a , -retry
+Автоматически повторять передачу при мягких сбоях.
+.It Fl B Ar байт , Fl -buffer-size= Ns Ar байт
+Указать размер буфера чтения в байтах.
+По умолчанию 16 384 байта.
+Попытки установить размер буфера меньше этого будут молча
+проигнорированы.
+Количество фактически выполненных чтений сообщается на уровне подробности
+два или выше (см.
+флаг
+.Fl v ) .
+.It Fl -bind-address= Ns Ar хост
+Указывает имя хоста или IP-адрес, к которому будут привязаны сокеты,
+используемые для исходящих соединений.
+.It Fl c Ar каталог
+Получаемый файл находится в каталоге
+.Ar каталог
+на удалённом хосте.
+Этот параметр устарел и предоставлен только для обратной совместимости.
+.It Fl -ca-cert= Ns Ar файл
+[SSL]
+Путь к набору сертификатов, содержащему доверенные сертификаты CA.
+В противном случае применяются настройки сертификата CA и пути OpenSSL по умолчанию.
+.It Fl -ca-path= Ns Ar каталог
+[SSL]
+В каталоге
+.Ar каталог
+содержатся хеши доверенных CA.
+.It Fl -cert= Ns Ar файл
+[SSL]
+.Ar файл
+— это клиентский сертификат/ключ в кодировке PEM, который будет использоваться
+при аутентификации по клиентскому сертификату.
+.It Fl -crl= Ns Ar файл
+[SSL]
+Указывает на файл
+.Ar файл
+списка отзыва сертификатов, который должен быть в формате PEM и может содержать сертификаты узлов, которые
+были отозваны.
+.It Fl d , -direct
+Использовать прямое соединение, даже если настроен прокси.
+.It Fl F , -force-restart
+В сочетании с флагом
+.Fl r
+принудительно перезапускает передачу, даже если локальный и удалённый файлы имеют
+разное время модификации.
+Подразумевает
+.Fl R .
+.It Fl f Ar файл
+Получаемый файл на удалённом хосте называется
+.Ar файл .
+Этот параметр устарел и предоставлен только для обратной совместимости.
+.It Fl h Ar хост
+Получаемый файл расположен на хосте
+.Ar хост .
+Этот параметр устарел и предоставлен только для обратной совместимости.
+.It Fl i Ar файл , Fl -if-modified-since= Ns Ar файл
+Режим If-Modified-Since: удалённый файл будет получен, только если он
+новее, чем
+.Ar файл
+на локальном хосте.
+(только HTTP)
+.It Fl -key= Ns Ar файл
+[SSL]
+.Ar файл
+— это клиентский ключ в кодировке PEM, который будет использоваться при
+аутентификации по клиентскому сертификату, если ключ и клиентский сертификат
+хранятся отдельно.
+.It Fl l , -symlink
+Если целевой объект — URL со схемой file, создать символическую ссылку на
+целевой объект, а не пытаться скопировать его.
+.It Fl M
+.It Fl m , -mirror
+Режим зеркалирования: если файл уже существует локально и имеет тот же размер
+и время модификации, что и удалённый файл, он не будет получен.
+Обратите внимание, что флаги
+.Fl m
+и
+.Fl r
+взаимоисключающие.
+.It Fl N Ar файл , Fl -netrc= Ns Ar файл
+Использовать
+.Ar файл
+вместо
+.Pa ~/.netrc
+для поиска имён пользователей и паролей для сайтов FTP.
+См.
+.Xr ftp 1
+для описания формата файла.
+Эта возможность экспериментальная.
+.It Fl n , -no-mtime
+Не сохранять время модификации переданного файла.
+.It Fl -no-passive
+Заставляет код FTP использовать активный режим.
+.It Fl -no-proxy= Ns Ar список
+Либо одна звёздочка, которая полностью отключает использование прокси,
+либо разделённый запятыми или пробелами список хостов, для которых
+прокси не должны использоваться.
+.It Fl -no-sslv3
+[SSL]
+Не разрешать SSL версии 3 при согласовании соединения.
+Этот параметр устарел и предоставлен только для обратной совместимости.
+SSLv3 отключён по умолчанию.
+Установите
+.Ev SSL_ALLOW_SSL3 ,
+чтобы изменить это поведение.
+.It Fl -no-tlsv1
+[SSL]
+Не разрешать TLS версии 1 при согласовании соединения.
+.It Fl -no-verify-hostname
+[SSL]
+Не проверять, соответствует ли имя хоста субъекту сертификата,
+представленного сервером.
+.It Fl -no-verify-peer
+[SSL]
+Не проверять сертификат узла на соответствие доверенным CA.
+.It Fl o Ar файл , Fl -output= Ns Ar файл
+Установить имя выходного файла в
+.Ar файл .
+По умолчанию из указанного URI извлекается ``путь'', и его базовое имя
+используется как имя выходного файла.
+Аргумент
+.Ar файл
+со значением
+.Sq Li \&-
+указывает, что результаты должны быть направлены в стандартный вывод.
+Если аргумент
+.Ar файл
+является каталогом, полученные файлы будут помещены в
+каталог, а имена будут выбраны, как при поведении по умолчанию.
+.It Fl P
+.It Fl p , -passive
+Использовать пассивный FTP.
+Эти флаги не имеют эффекта, поскольку пассивный FTP является режимом по
+умолчанию, но предоставлены для совместимости с более ранними версиями, где
+активный FTP был режимом по умолчанию.
+Чтобы принудительно включить активный режим, используйте флаг
+.Fl -no-passive
+или установите переменную окружения
+.Ev FTP_PASSIVE_MODE
+в
+.Ql NO .
+.It Fl -referer= Ns Ar URL
+Указывает URL источника перехода для HTTP-запросов.
+Если
+.Ar URL
+установлен в
+.Dq auto ,
+URL документа будет использоваться как URL источника перехода.
+.It Fl q , -quiet
+Тихий режим.
+.It Fl R , -keep-output
+Выходные файлы ценны, и их не следует удалять ни при каких
+обстоятельствах, даже если передача не удалась или была неполной.
+.It Fl r , -restart
+Перезапустить ранее прерванную передачу.
+Обратите внимание, что флаги
+.Fl m
+и
+.Fl r
+взаимоисключающие.
+.It Fl S Ar байт , Fl -require-size= Ns Ar байт
+Требовать, чтобы размер файла, сообщённый сервером, соответствовал указанному
+значению.
+Если это не так, выводится сообщение и файл не получается.
+Если сервер не поддерживает сообщение размеров файлов, этот параметр
+игнорируется и файл получается безоговорочно.
+.It Fl s , -print-size
+Вывести размер каждого запрошенного файла в байтах, не получая его.
+.It Fl T Ar секунды , Fl -timeout= Ns Ar секунды
+Установить сетевой тайм-аут в
+.Ar секунды .
+Переопределяет переменные окружения
+.Ev FTP_TIMEOUT
+для передач FTP или
+.Ev HTTP_TIMEOUT
+для передач HTTP, если они установлены.
+.It Fl U , -passive-portrange-default
+При использовании пассивного FTP выделять порт для соединения данных из
+нижнего (по умолчанию) диапазона портов.
+См.
+.Xr ip 4
+о том, как указать, какому диапазону портов это соответствует.
+.It Fl -user-agent= Ns Ar строка-агента
+Указывает строку User-Agent для HTTP-запросов.
+Это может быть полезно при работе с исходными HTTP-серверами или прокси-серверами,
+которые различают пользовательских агентов.
+.It Fl v , -verbose
+Увеличить уровень подробности.
+.It Fl w Ar секунды , Fl -retry-delay= Ns Ar секунды
+Когда указан флаг
+.Fl a ,
+ждать указанное число секунд между последовательными повторными попытками.
+.El
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см.
+.Cm status
+для
+.Xr stty 1 ) ,
+текущая статистика скорости передачи будет записана в
+стандартный поток ошибок, в том же формате, что и стандартное сообщение
+о завершении.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width HTTP_TIMEOUT
+.It Ev FTP_TIMEOUT
+Максимальное время в секундах, в течение которого следует ждать, прежде чем
+отказаться от зависшей передачи FTP.
+.It Ev HTTP_TIMEOUT
+Максимальное время в секундах, в течение которого следует ждать, прежде чем
+отказаться от зависшей передачи HTTP.
+.El
+.Pp
+См.
+.Xr fetch 3
+для описания дополнительных переменных окружения, включая
+.Ev FETCH_BIND_ADDRESS ,
+.Ev FTP_LOGIN ,
+.Ev FTP_PASSIVE_MODE ,
+.Ev FTP_PASSWORD ,
+.Ev FTP_PROXY ,
+.Ev ftp_proxy ,
+.Ev HTTP_ACCEPT ,
+.Ev HTTP_AUTH ,
+.Ev HTTP_PROXY ,
+.Ev http_proxy ,
+.Ev HTTP_PROXY_AUTH ,
+.Ev HTTP_REFERER ,
+.Ev HTTP_USER_AGENT ,
+.Ev NETRC ,
+.Ev NO_PROXY ,
+.Ev no_proxy ,
+.Ev SSL_CA_CERT_FILE ,
+.Ev SSL_CA_CERT_PATH ,
+.Ev SSL_CLIENT_CERT_FILE ,
+.Ev SSL_CLIENT_KEY_FILE ,
+.Ev SSL_CRL_FILE ,
+.Ev SSL_ALLOW_SSL3 ,
+.Ev SSL_NO_TLS1 ,
+.Ev SSL_NO_TLS1_1 ,
+.Ev SSL_NO_TLS1_2 ,
+.Ev SSL_NO_VERIFY_HOSTNAME
+и
+.Ev SSL_NO_VERIFY_PEER .
+.Sh СТАТУС ВЫХОДА
+Команда
+.Nm
+возвращает ноль при успехе или единицу при ошибке.
+Если в командной строке указано несколько URL,
+.Nm
+попытается получить каждый из них по очереди и вернёт
+ноль, только если все они были успешно получены.
+.Pp
+Если используется аргумент
+.Fl i
+и удалённый файл не новее указанного файла, команда всё равно вернёт
+успех, хотя файл не передаётся.
+.Sh ПРИМЕРЫ
+Без вывода сообщений попытаться получить URL, переданные как параметры.
+Первый завершится ошибкой.
+Если второй URL успешен, третий не будет испробован:
+.Bd -literal -offset indent
+$ fetch -1 -q https://www.freebsd.org/bad.html \e
+	ftp.freebsd.org/pub/FreeBSD/README.TXT \e
+	https://www.fake.url
+fetch: https://www.freebsd.org/bad.html: Not Found
+.Ed
+.Pp
+Выводить подробности при получении файла
+.Pa README.TXT :
+.Bd -literal -offset indent
+$ fetch -v ftp.freebsd.org/pub/FreeBSD/README.TXT
+resolving server address: ftp.freebsd.org:80
+requesting http://ftp.freebsd.org/pub/FreeBSD/README.TXT
+local size / mtime: 4259 / 1431015519
+remote size / mtime: 4259 / 1431015519
+README.TXT                                            4259  B   44 MBps    00s
+.Ed
+.Pp
+Тихо сохранить файл
+.Pa README.TXT
+как
+.Pa myreadme.txt
+и не удалять выходной файл ни при каких обстоятельствах:
+.Bd -literal -offset indent
+fetch -o myreadme.txt -q -R ftp.freebsd.org/pub/FreeBSD/README.TXT
+.Ed
+.Pp
+Вывести размер запрошенного файла и идентифицировать запрос с помощью
+настраиваемой строки пользовательского агента:
+.Bd -literal -offset indent
+$ fetch -s ftp.freebsd.org/pub/FreeBSD/README.TXT
+3513231
+.Ed
+.Pp
+Перезапустить передачу файла
+.Pa README.TXT
+и повторить передачу при мягких сбоях:
+.Bd -literal -offset indent
+$ fetch -a -r http://ftp.freebsd.org/pub/FreeBSD/README.TXT
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr fetch 3 ,
+.Xr phttpget 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 2.1.5 .
+Эта реализация впервые появилась в
+.Fx 4.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Оригинальная реализация
+.Nm
+была выполнена
+.An Jean-Marc Zucconi Aq Mt jmz@FreeBSD.org .
+Она была существенно переработана для
+.Fx 2.2
+.An Garrett Wollman Aq Mt wollman@FreeBSD.org ,
+а позднее полностью переписана для использования библиотеки
+.Xr fetch 3
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org
+и
+.An Michael Gmelin Aq Mt freebsd@grem.de .
+.Sh ПРИМЕЧАНИЯ
+Параметры
+.Fl b
+и
+.Fl t
+больше не поддерживаются и будут вызывать предупреждения.
+Они были обходными решениями для ошибок в других ОС, которые эта реализация
+не вызывает.
+.Pp
+Нельзя одновременно использовать параметры
+.Fl h ,
+.Fl c
+и
+.Fl f
+и указывать URL в командной строке.

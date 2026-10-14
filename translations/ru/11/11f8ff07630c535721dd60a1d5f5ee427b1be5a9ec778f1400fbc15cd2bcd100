@@ -1,0 +1,97 @@
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/uefisign/uefisign.8
+.\" FRDP githash d2859cd9e33c26dd792c113fbe16460bfde44035
+.\" FRDP hash256 11f8ff07630c535721dd60a1d5f5ee427b1be5a9ec778f1400fbc15cd2bcd100
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2015
+.Dt UEFISIGN 8
+.Os
+.Sh ИМЯ
+.Nm uefisign
+.Nd Утилита подписи UEFI Secure Boot
+.Sh СИНТАКСИС
+.Nm
+.Fl k Ar ключ
+.Fl c Ar сертификат
+.Fl o Ar выходной_файл
+.Op Fl v
+.Ar файл
+.Nm
+.Fl V
+.Op Fl v
+.Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+подписывает двоичные файлы PE с использованием схемы Authenticode, как
+требуется спецификацией UEFI Secure Boot.
+Кроме того, её можно использовать для просмотра и проверки существующих
+подписей.
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl V
+Определить, подписан ли файл.
+Обратите внимание, что это не проверяет корректность подписи;
+а только то, что файл содержит подпись.
+.It Fl k
+Имя файла, содержащего закрытый ключ, используемый для подписи двоичного файла.
+.It Fl c
+Имя файла, содержащего сертификат, используемый для подписи двоичного файла.
+.It Fl o
+Имя файла, в который следует записать подписанный двоичный файл.
+.It Fl v
+Подробный вывод.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успешном выполнении и с кодом >0 при возникновении
+ошибки.
+.Sh ПРИМЕРЫ
+Создайте самоподписанный сертификат и используйте его для подписи двоичного файла:
+.Dl /usr/share/examples/uefisign/uefikeys testcert
+.Dl uefisign -c testcert.pem -k testcert.key -o signed-binary binary
+.Pp
+Просмотр подписи:
+.Dl uefisign -Vv binary
+.Sh СМ. ТАКЖЕ
+.Xr openssl 1 ,
+.Xr loader 8 ,
+.Xr uefi 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.2 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

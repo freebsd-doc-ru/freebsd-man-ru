@@ -1,0 +1,140 @@
+.\" $NetBSD: blocklistctl.8,v 1.4 2025/02/07 01:35:38 kre Exp $
+.\"
+.\" Copyright (c) 2015 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Christos Zoulas.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/blocklist/bin/blacklistctl.8
+.\" FRDP githash eae98e28a0e17f625e29f9849a4dc655636d9164
+.\" FRDP hash256 7a03c0e875ad96c58c3536002ef5791f407c4603dcce2ae85c868998858944b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 27, 2025
+.Dt BLACKLISTCTL 8
+.Os
+.Sh ИМЯ
+.Nm blacklistctl
+.Nd отображает и изменяет состояние базы данных blacklistd
+.Sh СИНТАКСИС
+.Nm
+.Cm dump
+.Op Fl abdnrw
+.Op Fl D Ar dbname
+.Sh ОПИСАНИЕ
+.Nm
+— это программа, используемая для отображения и изменения состояния
+базы данных
+.Xr blacklistd 8 .
+Поддерживаются следующие подкоманды:
+.Ss dump
+Для подкоманды
+.Cm dump
+доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Показывать все записи базы данных; по умолчанию показываются только активные.
+Неактивные записи будут показаны со временем последнего доступа (или, при
+.Fl r ,
+оставшимся временем), равным
+.Ql never .
+.It Fl b
+Показывать только заблокированные записи.
+.It Fl D Ar dbname
+Указывает расположение используемого файла базы данных
+.Ic blacklistd .
+По умолчанию используется
+.Pa /var/db/blocklistd.db .
+.It Fl d
+Увеличить уровень отладки.
+.It Fl n
+Не отображать заголовок.
+.It Fl r
+Показывать оставшееся время блокировки вместо времени последней активности.
+.It Fl w
+Обычно ширины адресов достаточно для IPv4; флаг
+.Fl w
+делает вывод достаточно широким для адресов IPv6.
+.El
+.Pp
+Вывод подкоманды
+.Cm dump
+состоит из заголовка (если не был указан
+.Fl n )
+и одной строки для каждой записи в базе данных; каждая строка
+имеет следующие столбцы:
+.Bl -tag -width indent
+.It Ql address/ma:port
+Удалённый адрес, маска и номер локального порта клиентского соединения,
+связанного с записью базы данных.
+.It Ql id
+Столбец показывает идентификатор правила пакетного фильтра, связанного
+с записью базы данных, хотя для пакетных фильтров, которые не создают
+уникальный идентификатор для каждого правила, это может быть только слово
+.Ql OK .
+.It Ql nfail
+Число
+.Em сбоев ,
+зарегистрированных для клиента на указанном порту, а также число
+сбоев, разрешённых до блокировки (или, при
+.Fl a ,
+звёздочка
+.Aq * )
+.It So last access Sc | So remaining time Sc
+Время последней попытки доступа клиента, или, при
+.Fl r ,
+время, оставшееся до удаления правила, блокирующего клиента.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr blacklistd 8
+.Sh ПРИМЕЧАНИЯ
+Программа
+.Nm
+была переименована в
+.Xr blocklistctl 8 .
+.Pp
+Иногда сообщаемое число неудачных попыток может превышать число
+попыток, которое
+.Xr blacklistd 8
+настроен блокировать.
+Это может произойти либо потому, что правило было удалено вручную, либо
+потому, что было больше попыток в процессе выполнения, пока правило
+блокировки добавлялось.
+Такая ситуация нормальна; в этом случае
+.Xr blacklistd 8
+сначала попытается удалить существующее правило, а затем добавит его
+заново, чтобы убедиться, что активно только одно правило.
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Nx 7 .
+Поддержка
+.Fx
+для
+.Nm
+была реализована в
+.Fx 11 .
+.Sh АВТОРЫ
+.An Christos Zoulas

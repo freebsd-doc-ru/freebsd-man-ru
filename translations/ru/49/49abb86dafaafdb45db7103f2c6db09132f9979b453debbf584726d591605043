@@ -1,0 +1,115 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2021, Colm Buckley <colm@tuatha.org>
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-upgrade.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 49abb86dafaafdb45db7103f2c6db09132f9979b453debbf584726d591605043
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-UPGRADE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-upgrade
+.Nd управление версией и флагами возможностей пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm upgrade
+.Nm zpool
+.Cm upgrade
+.Fl v
+.Nm zpool
+.Cm upgrade
+.Op Fl V Ar версия
+.Fl a Ns | Ns Ar пул Ns …
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zpool
+.Cm upgrade
+.Xc
+Отображает пулы, в которых включены не все поддерживаемые возможности, и пулы,
+отформатированные с использованием устаревшего номера версии ZFS.
+Такие пулы можно продолжать использовать, но некоторые возможности могут быть
+недоступны.
+Используйте
+.Nm zpool Cm upgrade Fl a
+для включения всех возможностей во всех пулах (с учётом свойства
+.Fl o Sy compatibility
+).
+.It Xo
+.Nm zpool
+.Cm upgrade
+.Fl v
+.Xc
+Отображает устаревшие версии ZFS, поддерживаемые этой версией ZFS.
+См.
+.Xr zpool-features 7
+для описания возможностей, поддерживаемых этой версией ZFS.
+.It Xo
+.Nm zpool
+.Cm upgrade
+.Op Fl V Ar версия
+.Fl a Ns | Ns Ar пул Ns …
+.Xc
+Включает все поддерживаемые возможности для указанного пула.
+.Pp
+Если для пула заданы наборы возможностей совместимости с помощью свойства
+.Fl o Sy compatibility
+, будут включены только возможности, присутствующие во всех запрошенных
+наборах совместимости.
+Если это свойство установлено в
+.Ar legacy
+, обновление выполняться не будет.
+.Pp
+После этого пул станет недоступен в системах, которые не поддерживают
+флаги возможностей.
+См.
+.Xr zpool-features 7
+для получения сведений о совместимости с системами, которые поддерживают
+флаги возможностей, но не поддерживают все возможности, включённые в пуле.
+.Bl -tag -width Ds
+.It Fl a
+Включает все поддерживаемые возможности (из указанных наборов совместимости,
+если таковые имеются) во всех пулах.
+.It Fl V Ar версия
+Обновляет до указанной устаревшей версии.
+Если указана, на пуле не будет включено ни одной возможности.
+Эта опция может использоваться только для увеличения номера версии до последнего
+поддерживаемого устаревшего номера версии.
+.El
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1: Обновление всех пулов хранения ZFS до текущей версии
+Следующая команда обновляет все пулы хранения ZFS до текущей версии
+программного обеспечения:
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm upgrade Fl a
+В этой системе в настоящее время используется ZFS версии 2.
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-features 7 ,
+.Xr zpoolconcepts 7 ,
+.Xr zpoolprops 7 ,
+.Xr zpool-history 8

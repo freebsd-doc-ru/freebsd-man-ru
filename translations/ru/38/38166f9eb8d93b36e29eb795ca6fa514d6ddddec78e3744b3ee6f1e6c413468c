@@ -1,0 +1,14 @@
+.\" FRDP path sys/contrib/zstd/programs/zstdless.1
+.\" FRDP githash c0d9a07101a1e72769ee0619a583f63a078fb391
+.\" FRDP hash256 38166f9eb8d93b36e29eb795ca6fa514d6ddddec78e3744b3ee6f1e6c413468c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.
+\fBzstdless\fR \- просмотр сжатых с помощью zstandard файлов
+.
+\fBzstdless\fR [\fIфлаги\fR] [\fIфайл\fR \.\.\.]
+.
+\fBzstdless\fR запускает \fBless\fR(1) для файлов или стандартного ввода, если аргумент \fIфайл\fR не указан, после их распаковки с помощью \fBzstdcat\fR(1)\.
+.
+\fBzstd\fR(1)

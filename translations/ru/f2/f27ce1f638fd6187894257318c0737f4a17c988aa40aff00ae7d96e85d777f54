@@ -1,0 +1,132 @@
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man8/uefi.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 f27ce1f638fd6187894257318c0737f4a17c988aa40aff00ae7d96e85d777f54
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 31, 2023
+.Dt UEFI 8
+.Os
+.Sh ИМЯ
+.Nm UEFI
+.Nd Процедуры начальной загрузки Unified Extensible Firmware Interface
+.Sh ОПИСАНИЕ
+.Nm
+Unified Extensible Firmware Interface предоставляет службы времени загрузки и времени выполнения операционным системам.
+.Nm
+является заменой устаревшего BIOS в архитектурах ЦП i386 и amd64, а также используется в архитектурах arm, arm64 и riscv.
+.Pp
+Спецификация UEFI является преемником спецификации Extensible Firmware Interface (EFI).
+Термины UEFI и EFI часто используются как взаимозаменяемые.
+.Pp
+Процесс загрузки
+.Nm
+загружает код начальной загрузки системы, расположенный в системном разделе EFI (ESP).
+ESP — это раздел GPT или MBR с определённым идентификатором, содержащий файловую систему FAT, описанную в
+.Xr msdosfs 4 ,
+с заданной иерархией файлов.
+.Bl -column "GPT" "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+.It GPT Ta C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+.It MBR Ta 0xEF
+.El
+.Pp
+Процесс загрузки
+.Nm
+выполняется следующим образом:
+.Bl -enum -offset indent -compact
+.It
+Прошивка
+.Nm
+запускается при включении питания и ищет загрузчик ОС в системном разделе EFI.
+Путь к загрузчику может быть задан переменной среды EFI, управляемой
+.Xr efibootmgr 8 .
+Если путь не задан, используется значение по умолчанию для конкретной архитектуры.
+.Bl -column "Архитектура" "Путь по умолчанию"
+.It Sy Архитектура Ta Sy Путь по умолчанию
+.It amd64 Ta Pa /EFI/BOOT/BOOTX64.EFI
+.It arm Ta Pa /EFI/BOOT/BOOTARM.EFI
+.It arm64 Ta Pa /EFI/BOOT/BOOTAA64.EFI
+.It i386 Ta Pa /EFI/BOOT/BOOTIA32.EFI
+.It riscv Ta Pa /EFI/BOOT/BOOTRISCV64.EFI
+.El
+.It
+Конфигурация загрузки
+.Nm
+по умолчанию для
+.Fx
+устанавливает
+.Pa loader.efi
+в путь по умолчанию.
+.It
+.Pa loader.efi
+читает конфигурацию загрузки из
+.Pa /boot.config
+или
+.Pa /boot/config .
+.It
+.Pa loader.efi
+загружает и запускает ядро, как описано в
+.Xr loader.efi 8 .
+.El
+.Pp
+Системная консоль
+.Xr vt 4
+автоматически выбирается при загрузке через
+.Nm .
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/loader -compact
+.It Pa /boot/loader.efi
+Загрузчик конечного этапа
+.It Pa /boot/kernel/kernel
+Ядро по умолчанию
+.It Pa /boot/kernel.old/kernel
+Типичное нестандартное ядро (необязательно)
+.El
+.Sh СМ. ТАКЖЕ
+.Xr msdosfs 4 ,
+.Xr vt 4 ,
+.Xr boot.config 5 ,
+.Xr boot 8 ,
+.Xr efibootmgr 8 ,
+.Xr efidp 8 ,
+.Xr efivar 8 ,
+.Xr gpart 8 ,
+.Xr loader.efi 8 ,
+.Xr uefisign 8
+.Sh ИСТОРИЯ
+Поддержка загрузки EFI для архитектуры ia64 впервые появилась в
+.Fx 5.0 .
+Поддержка загрузки
+.Nm
+для amd64 впервые появилась в
+.Fx 10.1 ;
+для arm64 в
+.Fx 11.0 ;
+для armv7 в
+.Fx 12.0 ;
+и для riscv в
+.Fx 13.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Отсутствует поддержка 32-битной загрузки i386 через UEFI.

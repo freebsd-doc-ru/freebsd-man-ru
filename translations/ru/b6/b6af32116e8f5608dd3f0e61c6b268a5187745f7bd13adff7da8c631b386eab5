@@ -1,0 +1,307 @@
+.\" $NetBSD: blocklistd.8,v 1.8 2025/02/25 22:13:34 christos Exp $
+.\"
+.\" Copyright (c) 2015 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Christos Zoulas.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/blocklist/bin/blocklistd.8
+.\" FRDP githash 48e64ca13d4f36795ac718911b805e3e9a726f1b
+.\" FRDP hash256 b6af32116e8f5608dd3f0e61c6b268a5187745f7bd13adff7da8c631b386eab5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 25, 2025
+.Dt BLOCKLISTD 8
+.Os
+.Sh ИМЯ
+.Nm blocklistd
+.Nd блокировать и освобождать порты по требованию для предотвращения DoS-атак
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dfrv
+.Op Fl C Ar controlprog
+.Op Fl c Ar configfile
+.Op Fl D Ar dbfile
+.Op Fl P Ar sockpathsfile
+.Op Fl R Ar rulename
+.Op Fl s Ar sockpath
+.Op Fl t Ar timeout
+.Sh ОПИСАНИЕ
+.Nm
+— это демон, подобный
+.Xr syslogd 8 ,
+который прослушивает сокеты по путям, указанным в
+.Ar sockpathsfile ,
+для уведомлений от других демонов об успешных или неудачных попытках
+соединения.
+Если такой файл не указан, то он прослушивает только путь сокета,
+указанный в
+.Ar sockpath ,
+или, если он не указан, —
+.Pa /var/run/blocklistd.sock .
+Каждое уведомление содержит кортеж (действие, порт, протокол, адрес, владелец),
+который идентифицирует удалённое соединение и действие.
+Этот кортеж сверяется с записями из
+.Ar configfile
+с синтаксисом, описанным в
+.Xr blocklistd.conf 5 .
+Если запись совпадает, для этого кортежа создаётся запись состояния.
+Каждая запись содержит ограничение числа попыток и длительность.
+.Pp
+Если
+.Ar configfile
+является каталогом или существует каталог с тем же именем, что и
+.Ar configfile
+с добавленным
+.Qq .d ,
+каждый файл в этом каталоге будет прочитан как файл конфигурации.
+Если
+.Ar configfile
+существует как файл, он будет обработан до содержимого каталога
+.Ar configfile Ns .d ,
+если тот тоже существует.
+.Pp
+Способ, которым
+.Nm
+сопоставляет записи конфигурации, состоит в том, что клиентская сторона
+передаёт файловый дескриптор, связанный с соединением, которое клиент хочет
+заблокировать, а также передаёт учётные данные сокета.
+.Pp
+Файловый дескриптор используется для получения информации (адреса и порта)
+об удалённой стороне с помощью
+.Xr getpeername 2
+и о локальной стороне с помощью
+.Xr getsockname 2 .
+.Pp
+Изучая порт локальной стороны,
+.Nm
+может определить, .Dq владеет
+ли клиентская программа этим портом.
+Изучая необязательную часть адреса на локальной стороне, он может сопоставлять
+интерфейсы.
+Изучая удалённый адрес, он может сопоставлять конкретные правила разрешения или
+запрета.
+.Pp
+Наконец,
+.Nm
+может изучить учётные данные сокета, чтобы сопоставить пользователя в файле
+конфигурации.
+.Pp
+Хотя это хорошо работает для TCP-сокетов, на это нельзя полагаться для
+несвязанных UDP-сокетов.
+Это также менее осмысленно для соединений, использующих непривилегированные
+порты.
+С другой стороны, если мы получаем запрос, локальная конечная точка которого
+указывает на привилегированный UDP-порт, мы можем предположить, что клиент имел
+привилегии, чтобы получить этот порт.
+.Pp
+Как только запись сопоставлена,
+.Nm
+может выполнять различные действия.
+Если действие — .Dq add
+и достигнут предел числа попыток, то вызывается управляющий сценарий
+.Ar controlprog
+с аргументами:
+.Bd -literal -offset indent
+control add <rulename> <proto> <address> <mask> <port>
+.Ed
+.Pp
+и должен вызвать команду пакетного фильтра, чтобы заблокировать соединение,
+указанное аргументами.
+Аргумент
+.Ar rulename
+можно задать из командной строки (по умолчанию
+.Dv blocklistd ) .
+Сценарий может вывести числовой id в стандартный вывод как дескриптор для
+правила, который можно использовать позже для удаления этого соединения, но
+это не обязательно, так как вся информация для удаления правила сохраняется.
+.Pp
+Если действие — .Dq rem ,
+то тот же управляющий сценарий вызывается так:
+.Bd -literal -offset indent
+control rem <rulename> <proto> <address> <mask> <port> <id>
+.Ed
+.Pp
+где
+.Ar id
+— это число, возвращённое действием
+.Dq add .
+.Pp
+.Nm
+ведёт базу данных известных соединений в
+.Ar dbfile .
+При запуске он читает записи из этого файла и обновляет своё внутреннее
+состояние.
+.Pp
+.Nm
+проверяет список активных записей каждые
+.Ar timeout
+секунд (по умолчанию
+.Dv 15 )
+и при необходимости удаляет записи и правила блокировки с помощью управляющей
+программы.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl C Ar controlprog
+Использовать
+.Ar controlprog
+для связи с пакетным фильтром вместо значения по умолчанию, которое равно
+.Pa /usr/libexec/blocklistd-helper .
+Управляющей программе передаются следующие аргументы:
+.Bl -tag -width protocol
+.It action
+Действие для выполнения:
+.Dv add ,
+.Dv rem
+или
+.Dv flush ;
+чтобы добавить, удалить или сбросить правило межсетевого экрана.
+.It name
+Имя правила.
+.It protocol
+Необязательное имя протокола (может быть пустым):
+.Dv tcp ,
+.Dv tcp6 ,
+.Dv udp ,
+.Dv udp6 .
+.It address
+Числовой адрес IPv4 или IPv6, который нужно заблокировать или освободить.
+.It mask
+Числовая маска, применяемая к блокируемому или освобождаемому адресу.
+.It port
+Необязательный числовой порт для блокировки (может быть пустым).
+.It id
+Для пакетных фильтров, поддерживающих удаление правил по идентификатору правила,
+идентификатор правила, которое нужно удалить.
+Ожидается, что команда add вернёт строку идентификатора правила в стандартный
+вывод.
+.El
+.It Fl c Ar configuration
+Имя файла конфигурации для чтения.
+Значение по умолчанию, когда
+.Fl c
+не задан, —
+.Pa /etc/blocklistd.conf .
+.It Fl D Ar dbfile
+Файл Berkeley DB, в котором
+.Nm
+хранит своё состояние.
+По умолчанию —
+.Pa /var/db/blocklistd.db .
+.It Fl d
+Обычно
+.Nm
+отсоединяется от терминала, если не указан флаг
+.Fl d ,
+и в этом случае остаётся на переднем плане.
+.It Fl f
+Усечь базу данных состояний и очистить все правила с именем
+.Ar rulename ;
+они удаляются путём вызова управляющего сценария так:
+.Bd -literal -offset indent
+control flush <rulename>
+.Ed
+.It Fl P Ar sockpathsfile
+Файл, содержащий список путей, по одному в строке, для которых
+.Nm
+создаст сокеты для прослушивания.
+Это полезно для окружений chroot.
+.It Fl R Ar rulename
+Указать имя правила по умолчанию для правил пакетного фильтра, обычно
+.Dv blocklistd .
+.It Fl r
+Повторно прочитать правила межсетевого экрана из внутренней базы данных, затем
+удалить и добавить их заново.
+Это помогает для пакетных фильтров, которые не сохраняют состояние между
+перезагрузками.
+.It Fl s Ar sockpath
+Добавить
+.Ar sockpath
+в список Unix-сокетов, которые
+.Nm
+прослушивает.
+.It Fl t Ar timeout
+Интервал в секундах, с которым
+.Nm
+опрашивает файл состояний для обновления правил.
+.It Fl v
+Заставить
+.Nm
+выводить диагностические сообщения в
+.Dv stdout
+вместо
+.Xr syslogd 8 .
+.El
+.Sh ОБРАБОТКА СИГНАЛОВ
+.Nm
+обрабатывает следующие сигналы:
+.Bl -tag -width indent
+.It Dv HUP
+Получение этого сигнала заставляет
+.Nm
+перечитать файл конфигурации.
+.It Dv INT , Dv TERM & Dv QUIT
+Эти сигналы указывают
+.Nm
+завершиться упорядоченным образом.
+.It Dv USR1
+Этот сигнал указывает
+.Nm
+увеличить внутренний уровень отладки на 1.
+.It Dv USR2
+Этот сигнал указывает
+.Nm
+уменьшить внутренний уровень отладки на 1.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/libexec/blocklistd-helper -compact
+.It Pa /usr/libexec/blocklistd-helper
+Сценарий командной оболочки, вызываемый для взаимодействия с пакетным фильтром.
+.It Pa /etc/blocklistd.conf
+Файл конфигурации.
+.It Pa /var/db/blocklistd.db
+База данных текущих записей соединений.
+.It Pa /var/run/blocklistd.sock
+Сокет для получения уведомлений о соединениях.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr blocklistd.conf 5 ,
+.Xr blocklistctl 8 ,
+.Xr ipf 8 ,
+.Xr ipfw 8 ,
+.Xr pfctl 8 ,
+.Xr syslogd 8
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Nx 7 .
+.Fx
+поддержка
+.Nm
+была реализована в
+.Fx 11 .
+.Sh АВТОРЫ
+.An Christos Zoulas

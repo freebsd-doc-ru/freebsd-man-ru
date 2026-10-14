@@ -1,0 +1,115 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/autofs/automount.8
+.\" FRDP githash 7839534a5a7b0d97131512888d6baa8ba5c20e56
+.\" FRDP hash256 52c8ec2806368bf2f7b446bb8faa3dc0976f5dadd4308b4c677338dba1185cbc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 22, 2014
+.Dt AUTOMOUNT 8
+.Os
+.Sh ИМЯ
+.Nm automount
+.Nd обновление монтирований autofs
+.Sh СИНТАКСИС
+.Nm
+.Op Fl D Ar имя=значение
+.Op Fl L
+.Op Fl c
+.Op Fl f
+.Op Fl o Ar параметры
+.Op Fl v
+.Op Fl u
+.Sh ОПИСАНИЕ
+При вызове без параметров команда
+.Nm
+анализирует файл конфигурации
+.Xr auto_master 5
+и любые прямые карты, на которые он ссылается, и монтирует
+или размонтирует
+.Xr autofs 4
+файловые системы в соответствии с ними.
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl D
+Определить переменную.
+Это полезно только с
+.Fl L .
+.It Fl L
+Ничего не монтировать и не размонтировать.
+Вместо этого проанализировать
+.Xr auto_master 5
+и любые прямые карты, затем вывести их в стандартный вывод.
+При указании более одного раза все карты, включая косвенные,
+будут проанализированы и показаны.
+Это полезно при отладке проблем конфигурации.
+.It Fl c
+Сбросить кэши, отбрасывая возможно устаревшую информацию, полученную из карт
+и служб каталогов.
+.It Fl f
+Принудительно размонтировать; использовать вместе с
+.Fl u .
+.It Fl o
+Указать параметры монтирования, которые будут использоваться вместе с параметрами, указанными в картах.
+Это полезно только с
+.Fl L .
+.It Fl u
+Попытаться размонтировать файловые системы, смонтированные
+.Xr automountd 8 .
+.Xr autofs 4
+монтирования не размонтируются.
+Чтобы размонтировать все
+.Xr autofs 4
+монтирования, используйте
+.It Fl v
+Увеличить подробность вывода.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Размонтировать все файловые системы, смонтированные
+.Xr automountd 8 :
+.Dl Nm Fl u
+.Sh СМ. ТАКЖЕ
+.Xr autofs 4 ,
+.Xr auto_master 5 ,
+.Xr automountd 8 ,
+.Xr autounmountd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.1 .
+.Sh АВТОРЫ
+Команда
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

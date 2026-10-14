@@ -1,0 +1,161 @@
+.\" Copyright (c) 2005 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kcm/kcm.8
+.\" FRDP githash 53d908d6eb9dc5b40c2c0179eeb85e1d21e32577
+.\" FRDP hash256 7d03d71924715abc379e520ef1c909ce0976521065a54d4ac40814fddae38f04
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 29, 2005
+.Dt KCM 8
+.Os Heimdal
+.Sh ИМЯ
+.Nm kcm
+.Nd кэш учётных данных на основе процессов для билетов Kerberos.
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Fl cache-name= Ns Ar имя_кэша
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Oo Fl g Ar группа \*(Ba Xo
+.Fl Fl group= Ns Ar группа
+.Xc
+.Oc
+.Op Fl Fl max-request= Ns Ar размер
+.Op Fl Fl disallow-getting-krbtgt
+.Op Fl Fl detach
+.Op Fl h | Fl Fl help
+.Oo Fl k Ar принципал \*(Ba Xo
+.Fl Fl system-principal= Ns Ar принципал
+.Xc
+.Oc
+.Oo Fl l Ar время \*(Ba Xo
+.Fl Fl lifetime= Ns Ar время
+.Xc
+.Oc
+.Oo Fl m Ar режим \*(Ba Xo
+.Fl Fl mode= Ns Ar режим
+.Xc
+.Oc
+.Op Fl n | Fl Fl no-name-constraints
+.Oo Fl r Ar время \*(Ba Xo
+.Fl Fl renewable-life= Ns Ar время
+.Xc
+.Oc
+.Oo Fl s Ar путь \*(Ba Xo
+.Fl Fl socket-path= Ns Ar путь
+.Xc
+.Oc
+.Oo Xo
+.Fl Fl door-path= Ns Ar путь
+.Xc
+.Oc
+.Oo Fl S Ar принципал \*(Ba Xo
+.Fl Fl server= Ns Ar принципал
+.Xc
+.Oc
+.Oo Fl t Ar keytab \*(Ba Xo
+.Fl Fl keytab= Ns Ar keytab
+.Xc
+.Oc
+.Oo Fl u Ar пользователь \*(Ba Xo
+.Fl Fl user= Ns Ar пользователь
+.Xc
+.Oc
+.Op Fl v | Fl Fl version
+.Sh ОПИСАНИЕ
+.Nm
+— это кэш учётных данных на основе процессов.
+Чтобы использовать его, установите переменную окружения
+.Ev KRB5CCNAME
+в
+.Ql KCM: Ns Ar uid
+или добавьте блок
+.Bd -literal
+
+[libdefaults]
+        default_cc_name = KCM:%{uid}
+
+.Ed
+в файл конфигурации
+.Pa /etc/krb5.conf
+и убедитесь, что
+.Nm kcm
+запускается в системных файлах автозагрузки.
+.Pp
+.Nm
+— демон, который может хранить учётные данные для всех пользователей в системе.  Управление доступом осуществляется с помощью разрешений в стиле Unix.  Демон проверяет доступ для всех операций на основе uid и gid пользователя.  Билеты возобновляются до тех пор, пока это разрешено политикой KDC.
+.Pp
+.Nm
+также может хранить учётные данные SYSTEM, которые серверные процессы могут использовать для доступа к службам.  Одним из примеров использования может быть модуль nss_ldap, которому нужно быстро получить учётные данные и который не хочет возобновлять билет самостоятельно.
+.Pp
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl Fl cache-name= Ns Ar имя_кэша
+имя системного кэша
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+расположение файла конфигурации
+.It Fl g Ar группа , Fl Fl group= Ns Ar группа
+группа системного кэша
+.It Fl Fl max-request= Ns Ar размер
+максимальный размер kcm-запроса
+.It Fl Fl disallow-getting-krbtgt
+запретить извлечение любого krbtgt из демона
+.Nm kcm.
+.It Fl Fl detach
+отсоединиться от консоли
+.It Fl h , Fl Fl help
+.It Fl k Ar принципал , Fl Fl system-principal= Ns Ar принципал
+имя системного принципала
+.It Fl l Ar время , Fl Fl lifetime= Ns Ar время
+время жизни системных билетов
+.It Fl m Ar режим , Fl Fl mode= Ns Ar режим
+восьмеричный режим системного кэша
+.It Fl n , Fl Fl no-name-constraints
+отключить ограничения имени кэша учётных данных
+.It Fl r Ar время , Fl Fl renewable-life= Ns Ar время
+возобновляемое время жизни системных билетов
+.It Fl s Ar путь , Fl Fl socket-path= Ns Ar путь
+путь к доменному сокету kcm
+.It Fl Fl door-path= Ns Ar путь
+путь к сокету door kcm
+.It Fl S Ar принципал , Fl Fl server= Ns Ar принципал
+сервер, для которого получать системный билет
+.It Fl t Ar keytab , Fl Fl keytab= Ns Ar keytab
+имя системного keytab
+.It Fl u Ar пользователь , Fl Fl user= Ns Ar пользователь
+владелец системного кэша
+.It Fl v , Fl Fl version
+.El

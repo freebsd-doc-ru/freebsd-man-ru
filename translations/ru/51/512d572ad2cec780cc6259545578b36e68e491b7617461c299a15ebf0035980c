@@ -1,0 +1,63 @@
+.\" Copyright (c) May 1995 Wolfram Schneider <wosch@FreeBSD.org>. Berlin.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.sbin/spkrtest/spkrtest.8
+.\" FRDP githash 7cff9672de44824d7d59cb562f53992a055e49cc
+.\" FRDP hash256 512d572ad2cec780cc6259545578b36e68e491b7617461c299a15ebf0035980c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 11, 2023
+.Dt SPKRTEST 8
+.Os
+.Sh ИМЯ
+.Nm spkrtest
+.Nd тестовый сценарий для драйвера динамика
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это простой в использовании тестовый сценарий для драйвера динамика.
+.Pp
+.Nm
+требует драйвер
+.Xr spkr 4 .
+Чтобы загрузить драйвер как модуль при загрузке, добавьте следующую строку в
+.Xr loader.conf 5 :
+.Bd -literal -offset indent
+.Ed
+.Sh ФАЙЛЫ
+.Bl -tag -width /dev/speakerxx
+.It Pa /dev/speaker
+файл устройства динамика
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr bsddialog 1 ,
+.Xr spkr 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 1.0

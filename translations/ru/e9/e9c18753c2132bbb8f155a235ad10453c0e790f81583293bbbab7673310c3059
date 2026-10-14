@@ -1,0 +1,102 @@
+.\" Copyright (c) 2018 Rick Macklem
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pnfsdscopymr/pnfsdscopymr.8
+.\" FRDP githash dc8725726d0205c10b01c06717cb265ab7d239e5
+.\" FRDP hash256 e9c18753c2132bbb8f155a235ad10453c0e790f81583293bbbab7673310c3059
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 2018
+.Dt PNFSDSCOPYMR 8
+.Os
+.Sh ИМЯ
+.Nm pnfsdscopymr
+.Nd
+копирует или перемещает файл хранения данных для файла MDS на другой DS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl r Ar каталог-монтирования-DS
+.Op Fl m Ar каталог-монтирования-исходного-DS каталог-монтирования-целевого-DS
+.Ar файл-MDS
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+копирует файл хранения данных для файла MDS с одного DS на другой DS.
+Обычно она используется для восстановления файлов данных на исправленный DS, но также
+может использоваться для ручной миграции файла хранения данных с одного DS на другой.
+По умолчанию команда копирует файл хранения данных для
+.Dq файл-MDS
+на один из других DS, создавая его зеркало.
+Это может потребоваться, если файл был создан до того, как на службе pNFS было включено зеркалирование, и теперь его нужно зеркалировать.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl r Ar каталог-монтирования-DS
+Этот параметр указывает, что файл хранения данных должен быть создан на DS,
+который смонтирован в каталоге
+.Dq каталог-монтирования-DS .
+Копирование будет выполнено только в том случае, если в расширенном атрибуте
+pnfsd.dsfile есть запись с IP-адресом 0.0.0.0.
+См.
+.Xr pnfsdsfile 1 ,
+чтобы узнать, как это сделать.
+Обычно это делается для всех обычных файлов с помощью
+.Xr find 1 ,
+чтобы восстановить файлы
+хранения данных на исправленный DS.
+.It Fl m Ar каталог-монтирования-исходного-DS каталог-монтирования-целевого-DS
+Этот параметр указывает, что файл хранения данных должен быть перемещён с
+исходного DS, смонтированного в каталоге
+.Dq каталог-монтирования-исходного-DS ,
+на DS, смонтированный в каталоге
+.Dq каталог-монтирования-целевого-DS .
+В этом случае файл хранения данных будет удалён с исходного DS
+после завершения копирования.
+.El
+Если копирование/перемещение уже выполнено, команда просто завершится exit(0),
+так что её можно безопасно использовать для всех обычных файлов в экспортируемом дереве каталогов
+на MDS.
+.Pp
+Эту команду необходимо запускать на MDS, а типичное использование — в качестве
+аргумента для
+.Xr find 1
+для всех обычных файлов.
+.sp
+Например, если исправленный DS смонтирован в /data3, а файлы, ранее
+хранившиеся на исправленном DS, имели IP-адрес DS, установленный в 0.0.0.0:
+.br
+# cd <top-level-exported-directory-on-the-MDS>
+.br
+# find . -type f -exec pnfsdscopymr -r /data3 {} \\;
+.Sh СМ. ТАКЖЕ
+.Xr find 1 ,
+.Xr nfsv4 4 ,
+.Xr pnfs 4 ,
+.Xr nfsd 8 ,
+.Xr pnfsdsfile 8 ,
+.Xr pnfsdskill 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 12.0 .

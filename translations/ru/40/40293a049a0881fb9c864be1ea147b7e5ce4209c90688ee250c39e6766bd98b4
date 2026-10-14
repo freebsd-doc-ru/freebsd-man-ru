@@ -1,0 +1,108 @@
+.\"
+.\" Copyright (c) 2021-2022 Hans Petter Selasky <hselasky@freebsd.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"
+.\" FRDP path usr.sbin/virtual_oss/virtual_oss_cmd/virtual_oss_cmd.8
+.\" FRDP githash 9cab9fde5edad9b409dd2317a2aec7815e6d6bed
+.\" FRDP hash256 40293a049a0881fb9c864be1ea147b7e5ce4209c90688ee250c39e6766bd98b4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 12, 2025
+.Dt VIRTUAL_OSS_CMD 8
+.Os
+.Sh ИМЯ
+.Nm virtual_oss_cmd
+.Nd изменение параметров работающего
+.Xr virtual_oss 8
+экземпляра
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+.Nm
+передаёт дополнительные аргументы командной строки работающему
+.Xr virtual_oss 8
+экземпляру через его управляющее устройство.
+Поддерживаемые аргументы командной строки:
+.Bl -tag -width indent
+.It Fl E Ar xxx
+.It Fl F Ar xxx
+.It Fl G Ar xxx
+.It Fl L Ar xxx
+.It Fl M Ar xxx
+.It Fl O Ar xxx
+.It Fl P Ar xxx
+.It Fl R Ar xxx
+.It Fl a Ar xxx
+.It Fl b Ar xxx
+.It Fl c Ar xxx
+.It Fl d Ar xxx
+.It Fl e Ar xxx
+.It Fl f Ar xxx
+.It Fl l Ar xxx
+.It Fl m Ar xxx
+.It Fl p Ar xxx
+.It Fl s Ar xxx
+.It Fl w Ar xxx
+.El
+.Pp
+См.
+.Xr virtual_oss 8
+для подробного описания аргументов командной строки.
+.Sh ПРИМЕРЫ
+Чтобы изменить устройство записи:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl -R /dev/dsp4
+
+.Ed
+Чтобы изменить устройство воспроизведения:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl -P /dev/dsp4
+
+.Ed
+Чтобы включить запись:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl -E 1
+
+.Ed
+Чтобы отключить запись:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl -E 0
+
+.Ed
+Чтобы создать новое устройство DSP на лету:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl -b 16 -c 2 -d dsp.new
+
+.Ed
+Чтобы показать информацию о системе:
+.Bd -literal -offset indent
+virtual_oss_cmd /dev/vdsp.ctl
+
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr virtual_oss 8
+.Sh АВТОРЫ
+.Nm
+был написан
+.An Hans Petter Selasky hselasky@freebsd.org .

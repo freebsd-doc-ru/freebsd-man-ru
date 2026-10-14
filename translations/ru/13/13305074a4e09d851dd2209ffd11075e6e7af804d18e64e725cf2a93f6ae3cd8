@@ -1,0 +1,105 @@
+.\" Copyright (c) 2002 by Thomas Moestl <tmm@FreeBSD.org>.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+.\" USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ofwdump/ofwdump.8
+.\" FRDP githash bcde15f5f894ece1f507ae997d17d810efae9c76
+.\" FRDP hash256 13305074a4e09d851dd2209ffd11075e6e7af804d18e64e725cf2a93f6ae3cd8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 23, 2023
+.Dt OFWDUMP 8
+.Os
+.Sh ИМЯ
+.Nm ofwdump
+.Nd исследование дерева устройств Open Firmware
+.Sh СИНТАКСИС
+.Nm
+.Fl a
+.Op Fl p | P Ar свойство
+.Op Fl R | S
+.Nm
+.Op Fl p | P Ar свойство
+.Op Fl r
+.Op Fl R | S
+.Op Fl -
+.Ar узлы
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для исследования дерева устройств Open Firmware.
+В первой форме синтаксиса выводится полное дерево устройств; во
+второй форме будут исследованы только выбранные
+.Ar узлы .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width ".Fl P Ar свойство"
+.It Fl a
+Вывести полное дерево устройств.
+.It Fl p
+Вывести все доступные свойства.
+.It Fl P Ar свойство
+Выводить только свойства с указанным именем.
+.It Fl R
+Выводить свойства в
+.Dq raw
+формате, т. е. опустить все заголовки и отступы и просто записать
+значения свойств без изменений в стандартный вывод.
+Предполагается использовать с параметром
+.Fl P
+для извлечения значения одного свойства.
+.It Fl S
+Выводить свойства как строки; это аналогично параметру
+.Fl R
+за исключением того, что каждое свойство выводится только до первого
+.Dv NUL
+символа, и к каждому добавляется символ новой строки.
+.It Fl r
+Рекурсивно вывести все дочерние элементы указанных узлов.
+.El
+.Sh ПРИМЕРЫ
+Вывести полное дерево устройств:
+.Pp
+.Pp
+Вывести полное поддерево устройств узла
+.Dq Li /pci ,
+включая все доступные свойства:
+.Pp
+.Pp
+Вывести свойство
+.Dq Li compatible
+узла
+.Dq Li /pci
+как простую строку:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr openfirm 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Thomas Moestl Aq Mt tmm@FreeBSD.org .

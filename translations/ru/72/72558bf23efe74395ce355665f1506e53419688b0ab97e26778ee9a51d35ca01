@@ -1,0 +1,138 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-project.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 72558bf23efe74395ce355665f1506e53419688b0ab97e26778ee9a51d35ca01
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-PROJECT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-project
+.Nd управление проектами в файловой системе ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm project
+.Oo Fl d Ns | Ns Fl r Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.Nm zfs
+.Cm project
+.Fl C
+.Oo Fl kr Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.Nm zfs
+.Cm project
+.Fl c
+.Oo Fl 0 Ns Oc
+.Oo Fl d Ns | Ns Fl r Ns Oc
+.Op Fl p Ar id
+.Ar файл Ns | Ns Ar каталог Ns …
+.Nm zfs
+.Cm project
+.Op Fl p Ar id
+.Oo Fl rs Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm project
+.Oo Fl d Ns | Ns Fl r Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.Xc
+Вывести идентификатор проекта (ID) и флаг наследования для файлов и каталогов.
+.Bl -tag -width Ds
+.It Fl d
+Показать ID проекта каталога и флаг наследования, а не его дочерние элементы.
+.It Fl r
+Рекурсивно вывести подкаталоги.
+.El
+.It Xo
+.Nm zfs
+.Cm project
+.Fl C
+.Oo Fl kr Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.Xc
+Очистить флаг наследования проекта и/или ID для файлов и каталогов.
+.Bl -tag -width Ds
+.It Fl k
+Оставить ID проекта без изменений.
+Если не указано, ID проекта будет сброшен в ноль.
+.It Fl r
+Рекурсивно очистить флаги подкаталогов.
+.El
+.It Xo
+.Nm zfs
+.Cm project
+.Fl c
+.Oo Fl 0 Ns Oc
+.Oo Fl d Ns | Ns Fl r Ns Oc
+.Op Fl p Ar id
+.Ar файл Ns | Ns Ar каталог Ns …
+.Xc
+Проверить ID проекта и флаг наследования для файлов и каталогов:
+вывести записи без флага наследования проекта или с ID проектов, отличающимися
+от ID проекта целевого каталога либо от указанного с помощью
+.Fl p .
+.Bl -tag -width Ds
+.It Fl 0
+Разделять имена файлов байтом NUL вместо символа новой строки; не выводить
+диагностические сообщения.
+.It Fl d
+Проверить ID проекта каталога и флаг наследования, а не его дочерние элементы.
+.It Fl p Ar id
+Сравнить с
+.Ar id
+вместо ID проектов целевых файлов и каталогов.
+.It Fl r
+Рекурсивно проверить подкаталоги.
+.El
+.It Xo
+.Nm zfs
+.Cm project
+.Fl p Ar id
+.Oo Fl rs Ns Oc
+.Ar файл Ns | Ns Ar каталог Ns …
+.Xc
+Установить ID проекта и/или флаг наследования для файлов и каталогов.
+.Bl -tag -width Ds
+.It Fl p Ar id
+Установить ID проекта в заданное значение.
+.It Fl r
+Рекурсивно установить для подкаталогов.
+.It Fl s
+Установить флаг наследования проекта для заданных файлов и каталогов.
+Обычно используется для настройки квот дерева с помощью
+.Fl r .
+В этом случае ID проекта каталога
+будет установлен для всех его потомков, если он не указан явно с помощью
+.Fl p .
+.El
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-projectspace 8

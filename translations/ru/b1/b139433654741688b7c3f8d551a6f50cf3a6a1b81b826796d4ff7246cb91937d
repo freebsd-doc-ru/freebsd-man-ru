@@ -1,0 +1,89 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" resizewin
+.\"
+.\" Query terminal for size and inform the kernel
+.\"
+.\" Copyright 2015 EMC / Isilon Storage Division
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/resizewin/resizewin.1
+.\" FRDP githash 4a5d51e73e48b27d90b21ed26999b23208f603d8
+.\" FRDP hash256 b139433654741688b7c3f8d551a6f50cf3a6a1b81b826796d4ff7246cb91937d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 9, 2017
+.Dt RESIZEWIN 1
+.Os
+.Sh ИМЯ
+.Nm resizewin
+.Nd обновление размера терминала
+.Sh СИНТАКСИС
+.Nm
+.Op Fl z
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запрашивает у эмулятора терминала текущий размер окна и обновляет
+известный ядру размер, используя
+.Dv TIOCSWINSZ
+ioctl.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl z
+Ничего не делать, если текущий размер терминала в ядре не равен нулю.
+Это полезно при запуске из профиля пользователя (сценариев запуска оболочки):
+запрос размера окна необходим для последовательных линий, но не при
+входе по сети, так как такие протоколы, как TELNET или SSH, уже
+сами обрабатывают размер терминала.
+.El
+.Pp
+После изменения размера окна терминала запуск
+.Nm
+обновляет размер окна в ядре в соответствии с новым размером.
+.Pp
+.Nm
+функционально похож на
+.Xr resize 1 ,
+который является частью
+.Xr xterm 1 Pq Pa ports/x11/xterm
+дистрибутива.
+Однако
+.Nm
+работает только с терминалами, совместимыми с VT100/ANSI, и не выдаёт
+команды для установки переменных окружения.
+.Pp
+Предполагается, что терминал совместим с VT100/ANSI.
+Управляющие последовательности VT100/ANSI поддерживаются практически всеми
+современными терминалами, включая xterm, konsole, gnome-terminal, iTerm,
+Terminal.app и PuTTY.
+.Sh СМ. ТАКЖЕ
+.Xr stty 1 ,
+.Xr tty 4
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 11.0 .

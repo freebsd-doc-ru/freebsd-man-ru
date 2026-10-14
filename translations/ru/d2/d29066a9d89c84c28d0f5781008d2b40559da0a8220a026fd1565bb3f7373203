@@ -1,0 +1,176 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2024 Rick Parrish <unitrunker@unitrunker.net>.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/posixmqcontrol/posixmqcontrol.1
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 d29066a9d89c84c28d0f5781008d2b40559da0a8220a026fd1565bb3f7373203
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 19, 2024
+.Dt POSIXMQCONTROL 1
+.Os
+.Sh ИМЯ
+.Nm posixmqcontrol
+.Nd Управление очередями сообщений POSIX mqueuefs
+.Sh СИНТАКСИС
+.Nm
+.Ar create
+.Fl q Ar очередь
+.Fl s Ar размер
+.Fl d Ar глубина
+.Op Fl m Ar режим
+.Op Fl g Ar группа
+.Op Fl u Ar пользователь
+.Nm
+.Ar info
+.Fl q Ar очередь
+.Nm
+.Ar recv
+.Fl q Ar очередь
+.Nm
+.Ar rm
+.Fl q Ar очередь
+.Nm
+.Ar send
+.Fl q Ar очередь
+.Fl c Ar содержимое
+.Op Fl p Ar приоритет
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+позволяет отделить администрирование очередей сообщений POSIX от стека приложений.
+Определение и настройку атрибутов очереди можно выполнять, не затрагивая
+код приложения.
+Она позволяет создавать очереди, проверять метаданные очереди, изменять доступ групп и пользователей
+к очередям, выгружать содержимое очередей и отсоединять очереди.
+.Pp
+Отсоединение удаляет имя из системы и освобождает лежащую в основе память.
+.Pp
+Максимальный размер сообщения, максимальный размер очереди и текущий размер очереди
+отображаются подкомандой
+.Ic info
+.
+Этот вывод аналогичен запуску
+.Ic cat
+для очереди mqueuefs, смонтированной в точке монтирования.
+Эта утилита требует
+.Ic mqueuefs
+загруженный модуль ядра, но не требует
+.Ic mqueuefs
+быть смонтированным как файловая система.
+.Pp
+Предоставляются следующие подкоманды:
+.Bl -tag -width truncate
+.It Ic create
+Создать именованные очереди, если они ещё не существуют.
+Можно создать более одного имени очереди. Для создания всех очередей используются одинаковые максимальная глубина очереди и максимальный размер сообщения.
+Если очередь существует, то глубина и размер необязательны.
+.Pp
+Обязательные аргументы
+.Ar размер
+и
+.Ar глубина
+задают максимальный размер сообщения (байт на сообщение) и максимальный размер очереди (глубину или количество сообщений в очереди).
+Необязательный числовой аргумент
+.Ar режим
+задаёт начальный режим доступа.
+Если очередь существует, но не соответствует запрошенным размеру и глубине, эта утилита попытается пересоздать очередь, сначала отсоединив, а затем создав её.
+Это не удастся, если очередь не пуста или открыта другими процессами.
+.It Ic rm
+Отсоединить указанные очереди — по одной попытке на очередь.
+Неудача при отсоединении одной очереди не мешает этой подкоманде попытаться
+отсоединить остальные.
+.It Ic info
+Для каждой именованной очереди отобразить максимальный размер сообщения, максимальный размер очереди, текущую глубину очереди, идентификатор владельца-пользователя, идентификатор владельца-группы и биты прав доступа режима.
+.It Ic recv
+Ожидать сообщение из одной именованной очереди и вывести сообщение в
+стандартный вывод.
+.It Ic send
+Отправлять сообщения в одну или несколько именованных очередей.
+Если указано несколько сообщений и несколько очередей, утилита пытается
+отправить все сообщения во все очереди.
+Необязательный приоритет -p, если опущен, по умолчанию равен MQ_PRIO_MAX / 2 или среднему
+приоритету.
+.El
+.Sh ПРИМЕЧАНИЯ
+Изменение геометрии очереди (максимального размера сообщения и/или максимального числа
+сообщений) требует уничтожения и повторного создания очереди.
+В качестве меры безопасности
+подкоманда create отказывается уничтожать непустую очередь.
+Если вы используете подкоманду rm для уничтожения очереди, все сообщения в очереди теряются.
+Чтобы избежать простоя при изменении атрибутов очереди, рассмотрите создание новой
+очереди и настройте читающие приложения на вычитывание сообщений как из новой, так и из старой очередей.
+Выведите из эксплуатации старую очередь, как только все процессы-писатели будут обновлены для записи в новую
+очередь.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Bl -bullet
+.It
+EX_NOTAVAILABLE обычно означает, что модуль ядра mqueuefs не загружен.
+.It
+EX_USAGE сообщает об одном или нескольких неверных параметрах.
+.El
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Чтобы получить текущее сообщение из именованной очереди
+.Pa /1 ,
+используйте команду
+.It
+Чтобы создать очередь с именем
+.Pa /2
+с максимальным размером сообщения 100 и максимальной глубиной очереди 10,
+используйте команду
+.It
+Чтобы отправить сообщение в очередь с именем
+.Pa /3
+используйте команду
+.It
+Чтобы просмотреть атрибуты очереди с именем
+.Pa /4
+используйте команду
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mq_getattr 2 ,
+.Xr mq_open 2 ,
+.Xr mq_receive 2 ,
+.Xr mq_send 2 ,
+.Xr mq_setattr 2 ,
+.Xr mq_unlink 2 ,
+.Xr mqueuefs 4
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+mq_timedsend и mq_timedrecv не реализованы.
+info сообщает оценку наихудшего случая для QSIZE.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 14.1 .
+.Sh АВТОРЫ
+Команда
+.Nm
+и эта страница Справочника были написаны
+.An Rick Parrish Aq Mt unitrunker@unitrunker.net.

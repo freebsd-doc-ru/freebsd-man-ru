@@ -1,0 +1,97 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-upgrade.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 c7d882cfacbde22aa9fe4515d907f30611952c542bfec4eb9c54a7097b76f3a2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-UPGRADE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-upgrade
+.Nd управление версией файловых систем ZFS на диске
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm upgrade
+.Nm zfs
+.Cm upgrade
+.Fl v
+.Nm zfs
+.Cm upgrade
+.Op Fl r
+.Op Fl V Ar версия
+.Fl a Ns | Ns Ar файловая система
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width "zfs upgrade [-r] [-V version] {-a | filesystem}"
+.It Xo
+.Nm zfs
+.Cm upgrade
+.Xc
+Отображает список файловых систем, которые не являются самой последней версией.
+.It Xo
+.Nm zfs
+.Cm upgrade
+.Fl v
+.Xc
+Отображает список текущих поддерживаемых версий файловых систем.
+.It Xo
+.Nm zfs
+.Cm upgrade
+.Op Fl r
+.Op Fl V Ar версия
+.Fl a Ns | Ns Ar файловая система
+.Xc
+Обновляет файловые системы до новой версии на диске.
+После этого файловые системы больше не будут доступны в системах,
+работающих под управлением более старых версий ZFS.
+.Nm zfs Cm send
+потоки, созданные из новых снимков этих файловых систем, не могут быть доступны в
+системах, работающих под управлением более старых версий ZFS.
+.Pp
+В общем случае версия файловой системы не зависит от версии пула.
+См.
+.Xr zpool-features 7
+для получения информации о возможностях пулов хранения ZFS.
+.Pp
+В некоторых случаях версия файловой системы и версия пула взаимосвязаны, и
+версия пула должна быть обновлена до того, как можно будет обновить версию
+файловой системы.
+.It Fl V Ar версия
+Обновить до
+.Ar версии .
+Если не указано, обновить до самой последней версии.
+Эта
+опция может использоваться только для увеличения номера версии и только до самой
+последней версии, поддерживаемой этой версией ZFS.
+.It Fl a
+Обновить все файловые системы во всех импортированных пулах.
+.It Ar файловая система
+Обновить указанную файловую систему.
+.It Fl r
+Обновить указанную файловую систему и все дочерние файловые системы.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr zpool-upgrade 8

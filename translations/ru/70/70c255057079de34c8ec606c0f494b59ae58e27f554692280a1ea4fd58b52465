@@ -1,0 +1,184 @@
+.\"-
+.\" Copyright (c) 2011-2017 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openpam/bin/pamtest/pamtest.1
+.\" FRDP githash 45538173c120eadca115fd7e56c657905bf73771
+.\" FRDP hash256 70c255057079de34c8ec606c0f494b59ae58e27f554692280a1ea4fd58b52465
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 31, 2025
+.Dt PAMTEST 1
+.Os
+.Sh ИМЯ
+.Nm pamtest
+.Nd тестер политик PAM
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dkMPsv
+.Op Fl H Ar удалённый_хост
+.Op Fl h Ar хост
+.Op Fl T Ar таймаут
+.Op Fl t Ar tty
+.Op Fl U Ar удалённый_пользователь
+.Op Fl u Ar пользователь
+.Ar служба
+.Op Ar команда ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет простой способ тестирования модулей и политик PAM из
+командной строки.
+.Pp
+Утилита
+.Nm
+загружает политику PAM, указанную аргументом
+.Ar служба ,
+запускает транзакцию PAM, вызывая
+.Xr pam_start 3 ,
+затем выполняет примитивы, указанные остальными аргументами
+командной строки.
+Наконец, она завершает транзакцию, вызывая
+.Xr pam_end 3 .
+.Pp
+Команды:
+.Bl -tag -width 6n
+.It Cm authenticate , Cm auth
+Вызывает
+.Xr pam_authenticate 3 .
+.It Cm acct_mgmt , Cm account
+Вызывает
+.Xr pam_acct_mgmt 3 .
+.It Cm chauthtok , Cm change
+Вызывает
+.Xr pam_chauthtok 3
+с установленным флагом
+.Dv PAM_CHANGE_EXPIRED_AUTHTOK .
+.It Cm forcechauthtok , Cm forcechange
+Вызывает
+.Xr pam_chauthtok 3
+без установленных флагов.
+.It Cm setcred , Cm establish_cred
+Вызывает
+.Xr pam_setcred 3
+с установленным флагом
+.Dv PAM_ESTABLISH_CRED .
+.It Cm open_session , Cm open
+Вызывает
+.Xr pam_open_session 3 .
+.It Cm close_session , Cm close
+Вызывает
+.Xr pam_close_session 3 .
+.It Cm unsetcred , Cm delete_cred
+Вызывает
+.Xr pam_setcred 3
+с установленным флагом
+.Dv PAM_DELETE_CRED .
+.It Cm listenv , Cm env
+Вызывает
+.Xr pam_getenvlist 3
+и выводит содержимое возвращаемого списка.
+.El
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Fl
+.It Fl d
+Включает отладочные сообщения в библиотеке OpenPAM.
+Подробности см. в
+.Xr openpam_log 3 .
+.It Fl H Ar удалённый_хост
+Задаёт имя фиктивного удалённого хоста.
+По умолчанию используется имя локального хоста.
+.It Fl h Ar хост
+Задаёт имя локального хоста.
+По умолчанию используется результат вызова
+.Xr gethostname 3 .
+.It Fl k
+Продолжает работу, даже если одна из команд завершилась неудачно.
+.It Fl M
+Отключает проверки пути, владельца и прав доступа для файлов модулей.
+.It Fl P
+Отключает проверку имени службы, а также проверки пути, владельца и
+прав доступа для файлов политик.
+.It Fl s
+Устанавливает флаг
+.Dv PAM_SILENT
+при вызове примитивов
+.Xr pam_authenticate 3 ,
+.Xr pam_acct_mgmt 3 ,
+.Xr pam_chauthok 3 ,
+.Xr pam_setcred 3 ,
+.Xr pam_open_session 3
+и
+.Xr pam_close_session 3 .
+.It Fl T Ar таймаут
+Устанавливает таймаут диалога (в секундах) для
+.Xr openpam_ttyconv 3 .
+.It Fl t Ar tty
+Задаёт имя tty.
+По умолчанию используется результат вызова
+.Xr ttyname 3 .
+.It Fl U Ar удалённый_пользователь
+Задаёт имя заявителя (удалённого пользователя).
+.It Fl u Ar пользователь
+Задаёт имя субъекта (локального пользователя).
+.It Fl v
+Включает отладочные сообщения от самой утилиты
+.Nm .
+.El
+.Sh ПРИМЕРЫ
+Смоделировать типичную транзакцию PAM, используя политику
+.Dq system :
+.Bd -literal -offset indent
+pamtest -v system auth account change setcred open close unsetcred
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr openpam 3 ,
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Утилита
+.Nm
+и данная страница Справочника были написаны
+.An Dag-Erling Sm\(/orgrav Aq Mt des@des.dev .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+(пока) не поддерживает установку и получение отдельных элементов PAM
+или переменных окружения.
+.Pp
+Утилита
+.Nm
+не предоставляет пользователю полного контроля над флагами,
+передаваемыми в примитивы
+.Xr pam_authenticate 3 ,
+.Xr pam_acct_mgmt 3 ,
+.Xr pam_chauthok 3 ,
+.Xr pam_setcred 3 ,
+.Xr pam_open_session 3
+и
+.Xr pam_close_session 3 .

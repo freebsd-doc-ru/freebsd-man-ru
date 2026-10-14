@@ -1,0 +1,254 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/core.lua.8
+.\" FRDP githash c7ff706b31c22f10c2403869c46b443448da3e08
+.\" FRDP hash256 f4216ad3391da8bbceb34b770b1ccfc04dd829f3f8bf543084d785260d725595
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 4, 2026
+.Dt CORE.LUA 8
+.Os
+.Sh NAME
+.Nm core.lua
+.Nd основной модуль загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит базовую функциональность, для которой нет более подходящего модуля.
+.Pp
+Прежде чем подключаться к функциональности, предоставляемой
+.Nm ,
+или использовать её, модуль необходимо включить с помощью оператора, подобного следующему:
+.Pp
+.Ss КОНСТАНТЫ
+Следующие необработанные константы кодов клавиш определены в
+.Nm :
+.Bl -tag -width KEY_BACKSPACE -compact -offset indent
+.It Ic KEY_BACKSPACE
+Код клавиши Backspace.
+Обычно его следует проверять вместе с
+.Ic KEY_DELETE
+для обработки backspace.
+.It Ic KEY_ENTER
+Клавиша Enter или жёсткий возврат каретки.
+.It Ic KEY_DELETE
+Код клавиши Delete.
+Обычно его следует проверять вместе с
+.Ic KEY_BACKSPACE
+для обработки backspace.
+.El
+.Pp
+Следующие константы строк клавиш определены в
+.Nm :
+.Bl -tag -width KEYSTR_ESCAPE -compact -offset indent
+.It Ic KEYSTR_ESCAPE
+Клавиша Escape.
+.It Ic KEYSTR_CSI
+Последовательность ANSI CSI.
+.El
+.Pp
+Следующие константы типов пунктов меню определены в
+.Nm :
+.Bl -tag -width MENU_CAROUSEL_ENTRY -compact -offset indent
+.It Ic MENU_RETURN
+Возврат в родительское меню.
+.It Ic MENU_ENTRY
+Обычный пункт меню.
+.It Ic MENU_SEPARATOR
+Пункт меню, служащий разделителем.
+.It Ic MENU_SUBMENU
+Пункт меню, который при выборе открывает подменю.
+.It Ic MENU_CAROUSEL_ENTRY
+Пункт меню, который при выборе циклически перебирает элементы, как карусель.
+.El
+.Pp
+См.
+.Xr menu.lua 8
+для подробных описаний и использования констант
+.Ic MENU_* .
+.Ss Экспортируемые функции
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width core.setSingleUser -offset indent
+.It Fn core.setVerbose verbose
+Устанавливает или снимает
+.Ev boot_verbose .
+Если
+.Fa verbose
+опущен, переключает текущую настройку подробного вывода.
+.It Fn core.setSingleUser singleUser
+Устанавливает или снимает
+.Ev boot_single .
+Если
+.Fa singleUser
+опущен, переключает текущую настройку однопользовательского режима.
+.It Fn core.getACPI
+Возвращает true, если ACPI присутствует и явно не отключён с помощью
+.Ev hints.acpi.0.disabled .
+.It Fn core.hasACPI
+Проверяет, поддерживается ли ACPI.
+Для этого требуется, чтобы загрузчик опросил систему и установил
+.Ev acpi.rsdp
+раньше, до запуска интерпретатора.
+.It Fn core.setACPI acpi
+Устанавливает или снимает
+.Ev acpi_load ,
+.Ev hint.acpi.0.disabled
+и
+.Ev loader.acpi_disabled_by_user .
+Если
+.Fa acpi
+опущен, переключает текущую настройку ACPI.
+.It Fn core.setSafeMode safeMode
+Устанавливает настройку безопасного режима.
+Устанавливает или снимает
+.Ev kern.smp.disabled ,
+.Ev hw.ata.ata_dma ,
+.Ev hw.ata.atapi_dma ,
+.Ev kern.eventtimer.periodic
+и
+.Ev kern.geom.part.check_integrity .
+Если
+.Fa safeMode
+опущен, переключает текущую настройку безопасного режима.
+.It Fn core.clearCachedKernels
+Очищает кэш ядер, отображаемых в меню загрузки.
+Эта функция регистрируется как хук
+.Ev config.reloaded .
+Она используется для аннулирования списка ядер всякий раз, когда он мог измениться —
+из-за изменения среды загрузки или возможного изменения в
+.Ic kernel
+или
+.Ic kernels .
+.It Fn core.hasFeature featureName
+Проверяет, включено ли указанное
+.Fa featureName
+в текущем загрузчике.
+Это специально используется для определения возможностей загруженного двоичного файла загрузчика, чтобы при необходимости можно было разумно реализовать прослойки обратной совместимости.
+.It Fn core.kernelList
+Возвращает таблицу ядер для отображения в меню загрузки.
+Она объединяет
+.Ic kernel
+и
+.Ic kernels
+из
+.Xr loader.conf 5 .
+Если
+.Ic kernels_autodetect
+задан в
+.Xr loader.conf 5 ,
+ядра будут автоматически обнаружены из текущей системы.
+.It Fn core.bootenvDefault
+Возвращает среду загрузки по умолчанию или nil, если она не задана.
+.It Fn core.bootenvFilter func
+Устанавливает фильтр
+.Fa func
+в
+.Fn core.bootenvList .
+Если
+.Fa func
+возвращает true, среда загрузки сохраняется в списке.
+В противном случае среда загрузки скрывается.
+Старый фильтр, если он был, возвращается, чтобы вызывающий код мог создать фильтр поверх другого фильтра.
+.It Fn core.bootenvIter
+Возвращает итератор по списку известных сред загрузки.
+Возвращаемые имена сред загрузки не включают корень сред загрузки, который нужно будет добавить обратно из переменной окружения
+.Ev zfs_be_root .
+.It Fn core.bootenvList
+Возвращает таблицу сред загрузки или пустую таблицу.
+Они будут получены с использованием переменных
+.Ev bootenvs
+и
+.Ev bootenvs_count ,
+заданных
+.Xr loader 8 .
+.It Fn core.setDefaults
+Сбрасывает настройки ACPI, безопасного режима, однопользовательского режима и подробного вывода к системным значениям по умолчанию.
+.It Fn core.autoboot argstr
+Загружает ядро и указанные модули, затем вызывает команду
+.Ic autoboot
+.Xr loader 8
+с
+.Fa argstr
+как есть.
+.It Fn core.boot argstr
+Загружает ядро и указанные модули, затем вызывает команду
+.Ic boot
+.Xr loader 8
+с
+.Fa argstr
+как есть.
+.It Fn core.isSingleUserBoot
+Возвращает true, если
+.Ev boot_single
+установлен в yes.
+.It Fn core.isZFSBoot
+Возвращает true, если
+.Ev currdev
+указывает на набор данных
+.Xr zfs 8 .
+.It Fn core.isSerialBoot
+Возвращает true, если загрузка выполняется через последовательный порт.
+Проверяет
+.Ev console ,
+.Ev boot_serial
+и
+.Ev boot_multicons .
+.It Fn core.deepCopyTable tbl
+Рекурсивно глубоко копирует
+.Fa tbl
+и возвращает результат.
+.It Fn core.popFrontTable tbl
+Извлекает первый элемент из
+.Fa tbl
+и возвращает два значения: первый элемент и остаток таблицы.
+Если элементов нет, возвращает nil и nil.
+Если элемент один, возвращает первый элемент и пустую таблицу.
+Это не работает с действительно ассоциативными таблицами; требуются числовые индексы.
+.It Fn core.switchBE beName
+Переключается на запрошенный
+.Fa beName .
+Его можно задать либо как полный путь к набору данных загрузчика
+.Dq zfs:pool/ROOT/beName ,
+либо как один из
+.Dq pool/ROOT/beName
+или
+.Dq beName .
+.It Fn core.loaderTooOld
+Возвращает true, если загрузчик слишком старый.
+В частности, это означает, достаточно ли стар загрузчик, чтобы требовать одну или несколько обходных мер в текущих базовых модулях lua.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr menu.lua 8
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально был написан
+.An Pedro Souza Aq Mt pedrosouza@FreeBSD.org .
+Дальнейшая работа и эта страница Справочника были выполнены
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

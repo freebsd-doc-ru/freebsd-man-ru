@@ -1,0 +1,161 @@
+.\" Copyright (c) 1996-1999 Whistle Communications, Inc.
+.\" All rights reserved.
+.\"
+.\" Subject to the following obligations and disclaimer of warranty, use and
+.\" redistribution of this software, in source or object code forms, with or
+.\" without modifications are expressly permitted by Whistle Communications;
+.\" provided, however, that:
+.\" 1. Any and all reproductions of the source or object code must include the
+.\"    copyright notice above and the following disclaimer of warranties; and
+.\" 2. No rights are granted, in any manner or form, to use Whistle
+.\"    Communications, Inc. trademarks, including the mark "WHISTLE
+.\"    COMMUNICATIONS" on advertising, endorsements, or otherwise except as
+.\"    such appears in the above copyright notice or in the software.
+.\"
+.\" THIS SOFTWARE IS BEING PROVIDED BY WHISTLE COMMUNICATIONS "AS IS", AND
+.\" TO THE MAXIMUM EXTENT PERMITTED BY LAW, WHISTLE COMMUNICATIONS MAKES NO
+.\" REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, REGARDING THIS SOFTWARE,
+.\" INCLUDING WITHOUT LIMITATION, ANY AND ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+.\" WHISTLE COMMUNICATIONS DOES NOT WARRANT, GUARANTEE, OR MAKE ANY
+.\" REPRESENTATIONS REGARDING THE USE OF, OR THE RESULTS OF THE USE OF THIS
+.\" SOFTWARE IN TERMS OF ITS CORRECTNESS, ACCURACY, RELIABILITY OR OTHERWISE.
+.\" IN NO EVENT SHALL WHISTLE COMMUNICATIONS BE LIABLE FOR ANY DAMAGES
+.\" RESULTING FROM OR ARISING OUT OF ANY USE OF THIS SOFTWARE, INCLUDING
+.\" WITHOUT LIMITATION, ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+.\" PUNITIVE, OR CONSEQUENTIAL DAMAGES, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES, LOSS OF USE, DATA OR PROFITS, HOWEVER CAUSED AND UNDER ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF WHISTLE COMMUNICATIONS IS ADVISED OF THE POSSIBILITY
+.\" OF SUCH DAMAGE.
+.\" $Whistle: ngctl.8,v 1.6 1999/01/20 03:19:44 archie Exp $
+.\"
+.\" FRDP path usr.sbin/ngctl/ngctl.8
+.\" FRDP githash 9ed56cd8d6929e3ee733e1e61d2e0c6b81122983
+.\" FRDP hash256 d49c13daac861f6e45f05f40353f5ce460c666a36b9df8b98dc8182d7df7023b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 29, 2025
+.Dt NGCTL 8
+.Os
+.Sh ИМЯ
+.Nm ngctl
+.Nd утилита управления netgraph
+.Sh СИНТАКСИС
+.Nm
+.Op Fl j Ar клетка
+.Op Fl d
+.Op Fl f Ar имя_файла
+.Op Fl n Ar имя_узла
+.Op Ar команда Op Ns Ar аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт новый узел netgraph типа
+.Em socket ,
+который можно использовать для выдачи команд netgraph.
+Если флаг
+.Fl f
+не задан, на командной строке не указана
+команда, а стандартный ввод является tty,
+.Nm
+перейдёт в интерактивный режим.
+В противном случае
+.Nm
+выполнит указанные команды и немедленно завершится.
+.Pp
+Узлы можно создавать, удалять, соединять и т.д.
+Управляющие сообщения в формате
+.Tn ASCII
+можно отправлять любому узлу, если этот узел
+поддерживает преобразование двоичных/ASCII управляющих сообщений.
+.Pp
+В интерактивном режиме
+.Nm
+будет отображать все управляющие сообщения и пакеты данных, полученные узлом socket.
+В случае управляющих сообщений аргументы сообщения отображаются в
+.Tn ASCII
+формате, если исходный узел поддерживает преобразование.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl f Ar имя_файла
+Читать команды из указанного файла.
+Один дефис обозначает стандартный ввод.
+Пустые строки и строки, начинающиеся с
+.Dq #
+игнорируются.
+Обратите внимание, что при указании параметра
+.Fl j Ar клетка
+файл будет открыт до присоединения к клетке, а
+затем обработан внутри клетки.
+.It Fl j Ar клетка
+Выполнять действия внутри
+.Ar клетки .
+.Pp
+.Nm
+сначала присоединится к
+.Ar клетке
+(по идентификатору или имени клетки), прежде чем выполнять действия.
+.Pp
+Это позволяет создавать, изменять и уничтожать узлы netgraph в
+.Ar клетке ,
+даже если исполняемый файл
+.Nm
+недоступен в
+.Ar клетке .
+.It Fl n Ar имя_узла
+Назначить
+.Em имя_узла
+вновь созданному узлу netgraph.
+Имя по умолчанию —
+.Em ngctlXXX
+(где XXX — номер процесса (PID)).
+.It Fl d
+Повысить уровень подробности отладочных сообщений.
+.El
+.Sh КОМАНДЫ
+В настоящее время в
+.Nm
+поддерживаются следующие команды:
+.Pp
+.Bd -literal -offset indent -compact
+config     получить или задать конфигурацию узла по <path>
+connect    Соединяет hook <peerhook> узла по <relpath> с <hook>
+debug      Получить/задать уровень подробности отладки
+dot        Создать GraphViz (.dot) для всего netgraph.
+help       Показать сводку команд или получить подробную справку по конкретной команде
+list       Показать информацию обо всех узлах
+name       Назначить имя <name> узлу по <path>
+read       Читать и выполнять команды из файла
+show       Показать информацию об узле по <path>
+shutdown   Завершить работу узла по <path>
+status     Получить удобочитаемую информацию о состоянии узла по <path>
+types      Показать информацию обо всех установленных типах узлов
+quit       Выйти из программы
+.Ed
+.Pp
+Некоторые команды имеют псевдонимы, например,
+.Dq ls
+— то же самое, что
+.Dq list .
+Команда
+.Dq help
+отображает доступные
+команды, их использование и псевдонимы, а также краткое описание.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr netgraph 3 ,
+.Xr netgraph 4 ,
+.Xr nghook 8
+.Sh ИСТОРИЯ
+Система
+.Nm netgraph
+была разработана и впервые реализована в Whistle Communications, Inc.\& в
+версии
+.Fx 2.2 ,
+адаптированной для Whistle InterJet.
+.Sh АВТОРЫ
+.An Archie Cobbs Aq Mt archie@whistle.com

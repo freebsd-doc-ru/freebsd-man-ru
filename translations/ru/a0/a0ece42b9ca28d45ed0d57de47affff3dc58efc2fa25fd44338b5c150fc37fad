@@ -1,0 +1,96 @@
+.\" $OpenBSD: pflow.4,v 1.19 2014/03/29 11:26:03 florian Exp $
+.\"
+.\" Copyright (c) 2008 Henning Brauer <henning@openbsd.org>
+.\" Copyright (c) 2008 Joerg Goltermann <jg@osn.de>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path sbin/pflowctl/pflowctl.8
+.\" FRDP githash d21e322d563e0fd1f92c22205c2ced4bcd22dc23
+.\" FRDP hash256 a0ece42b9ca28d45ed0d57de47affff3dc58efc2fa25fd44338b5c150fc37fad
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: January 25 2024 $
+.Dt PFLOWCTL 8
+.Os
+.Sh ИМЯ
+.Nm pflowctl
+.Nd управление экспортом данных pflow
+.Sh СИНТАКСИС
+.Nm pflowctl
+.Bk -words
+.Op Fl v
+.Op Fl lc
+.Op Fl d Ar id
+.Op Fl s Ar id ...
+.Ek
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создает, настраивает и удаляет экспорт данных учета netflow с использованием подсистемы
+.Xr pflow 4 .
+.Pp
+Утилита
+.Nm
+предоставляет несколько команд.
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl v
+Выводить подробные сообщения.
+.It Fl c
+Создать новый экспортер
+.Xr pflow 4 .
+.It Fl d Ar id
+Удалить существующий экспортер
+.Xr pflow 4 .
+.Ar id
+может быть либо числовым, либо полным именем pflowX.
+.It Fl l
+Вывести список всех существующих экспортеров
+.Xr pflow 4 .
+.It Fl s Ar id ...
+Настроить существующий экспортер
+.Xr pflow 4 .
+При этом принимаются следующие ключевые слова:
+.Pp
+.Bl -tag -width xxxxxxxxxxxx -compact
+.It Cm src
+задать исходный IP-адрес (и, возможно, порт).
+.It Cm dst
+задать IP-адрес назначения (и, возможно, порт).
+.It Cm proto
+задать версию протокола.
+Допустимые значения: 5 и 10.
+.It Cm domain
+задать домен наблюдения.
+.El
+.Pp
+В одном вызове команды можно передать несколько ключевых слов.
+.Pp
+Например, следующая команда задает 10.0.0.1 как источник
+и 10.0.0.2:1234 как назначение:
+.Bd -literal -offset indent
+# pflowctl -s pflow0 src 10.0.0.1 dst 10.0.0.2:1234
+.Ed
+.El
+.Sh СМ. ТАКЖЕ
+.Xr netintro 4 ,
+.Xr pf 4 ,
+.Xr pflow 4 ,
+.Xr udp 4 ,
+.Xr pf.conf 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 15.0 .

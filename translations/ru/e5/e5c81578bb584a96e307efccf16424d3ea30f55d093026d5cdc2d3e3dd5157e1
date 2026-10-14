@@ -1,0 +1,90 @@
+.\" Copyright (c) 1998 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/chkgrp/chkgrp.8
+.\" FRDP githash e09104dfb76a36b65a64bd315bd1520941c4beed
+.\" FRDP hash256 e5c81578bb584a96e307efccf16424d3ea30f55d093026d5cdc2d3e3dd5157e1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt CHKGRP 8
+.Os
+.Sh ИМЯ
+.Nm chkgrp
+.Nd проверка синтаксиса файла групп
+.Sh СИНТАКСИС
+.Nm
+.Op Fl q
+.Op Ar файл_групп
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сканирует заданный файл или, если он не задан, общесистемный файл групп на наличие ошибок.
+В частности, она проверяет, что каждая непустая запись, не являющаяся комментарием, состоит из четырёх полей, разделённых двоеточиями, что ни одно из них не содержит пробельных символов, и что третье поле (идентификатор группы) является числом.
+Она также проверяет наличие недопустимых символов в именах групп и в членах групп.
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl q
+Этот параметр отключает вывод текста, когда формат файла групп корректен.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/group -compact
+.It Pa /etc/group
+файл базы данных групп
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+возвращает
+.Dv EX_DATAERR
+при обнаружении ошибок в файле групп,
+и
+.Dv EX_OK
+в противном случае.
+.Sh ДИАГНОСТИКА
+Для каждой найденной ошибки
+.Nm
+выведет сообщение об ошибке, содержащее имя сканируемого файла
+и номер строки, в которой была найдена ошибка.
+.Sh СМ. ТАКЖЕ
+.Xr getgrent 3 ,
+.Xr group 5 ,
+.Xr groups 7
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и данная страница Справочника были написаны
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .
+Дополнительная функциональность была добавлена
+.An Liam J. Foy Aq Mt liamfoy@dragonflybsd.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Следует проверять диапазон идентификатора группы.

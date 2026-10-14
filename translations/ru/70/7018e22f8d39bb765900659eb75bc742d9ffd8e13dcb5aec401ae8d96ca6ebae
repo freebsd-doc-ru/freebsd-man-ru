@@ -1,0 +1,224 @@
+.\" Copyright (c) 2009 Douglas Barton
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/service/service.8
+.\" FRDP githash 25fca243f2b7ca0c523aa1cf26aaea25035e68d2
+.\" FRDP hash256 7018e22f8d39bb765900659eb75bc742d9ffd8e13dcb5aec401ae8d96ca6ebae
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 2, 2025
+.Dt SERVICE 8
+.Os
+.Sh ИМЯ
+.Nm service
+.Sh СИНТАКСИС
+.Nm
+.Op Fl j Ar клетка
+.Fl e
+.Nm
+.Op Fl j Ar клетка
+.Op Fl q
+.Fl R
+.Nm
+.Op Fl j Ar клетка
+.Op Fl v
+.Fl l
+.Nm
+.Op Fl j Ar клетка
+.Op Fl v
+.Fl r
+.Nm
+.Op Fl j Ar клетка
+.Op Fl dqv
+.Op Fl E Ar var=value
+.Ar сценарий
+.Op Ar команда
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+— это простой интерфейс к системе rc.d.
+Её основное назначение — запускать и останавливать службы, предоставляемые
+сценариями rc.d.
+При использовании для этой цели она устанавливает такое же ограниченное
+окружение, которое используется во время загрузки
+.Po
+см.
+.Sx ОКРУЖЕНИЕ
+.Pc .
+Её также можно использовать для вывода списка
+сценариев по различным критериям.
+.Pp
+Набор допустимых значений для
+.Ar команда
+зависит от конкретного вызываемого сценария rc.d.
+Полный список стандартных команд, поддерживаемых большинством сценариев rc.d,
+см. в
+.Xr rc 8 .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width F1
+.It Fl d
+Включить отладку.
+.It Fl E Ar var=value
+Установить переменную окружения
+.Ar var
+в указанное
+.Ar value
+перед запуском сценария.
+Эту опцию можно использовать несколько раз.
+.It Fl e
+Вывести список включённых служб.
+Список проверяемых сценариев составляется с помощью
+.Xr rcorder 8
+так же, как это делается в
+.Xr rc 8 ,
+затем этот список сценариев проверяется на наличие присваивания
+.Qq rcvar .
+Если оно присутствует, сценарий проверяется на предмет того, включён ли он.
+.It Fl j Ar клетка
+Выполнить указанные действия в именованной клетке.
+Аргумент
+.Ar клетка
+может быть либо ID клетки, либо именем клетки.
+.It Fl l
+Вывести список всех файлов в
+.Pa /etc/rc.d
+и локальных каталогах автозагрузки.
+Как описано в
+.Xr rc.conf 5
+обычно это
+.Pa /usr/local/etc/rc.d .
+Будут перечислены все файлы, независимо от того, являются ли они фактическими
+сценариями rc.d.
+.It Fl q
+Работать тихо, перенаправляя вывод в
+.Pa /dev/null .
+.It Fl R
+Перезапустить все включённые локальные службы.
+.It Fl r
+Сгенерировать
+.Xr rcorder 8
+как в
+.Fl e
+выше, но вывести список всех файлов, а не только включённых.
+.It Fl v
+Выводить немного более подробную информацию.
+.El
+.Sh ОКРУЖЕНИЕ
+При использовании для запуска сценариев rc.d команда
+.Nm
+устанавливает
+.Ev HOME
+в
+.Pa /
+и
+.Ev PATH
+в
+.Pa /sbin:/bin:/usr/sbin:/usr/bin
+как они задаются в
+.Pa /etc/rc
+во время загрузки.
+Если используется опция
+.Fl E
+соответствующая переменная устанавливается соответствующим образом.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Вот несколько примеров наиболее распространённых команд управления службами.
+Полный список команд, доступных в большинстве сценариев rc.d, см. в
+.Xr rc 8 .
+.Pp
+Включить службу, затем запустить её:
+.Bd -literal -offset indent
+service sshd enable
+service sshd start
+.Ed
+.Pp
+Остановить службу, затем отключить её:
+.Bd -literal -offset indent
+service sshd stop
+service sshd disable
+.Ed
+.Pp
+Запустить службу, которая не включена:
+.Bd -literal -offset indent
+service sshd onestart
+.Ed
+.Pp
+Показать состояние службы:
+.Bd -literal -offset indent
+service named status
+.Ed
+.Pp
+Перезапустить службу, работающую в клетке:
+.Bd -literal -offset indent
+service -j dns named restart
+.Ed
+.Pp
+Запустить службу с заданной переменной окружения:
+.Bd -literal -offset indent
+service -E LC_ALL=C.UTF-8 named start
+.Ed
+.Pp
+Показать подробный список всех доступных служб:
+.Bd -literal -offset indent
+service -rv
+.Ed
+.Pp
+Следующая запись программируемого дополнения может использоваться в
+.Xr csh 1
+для имён и общих команд сценариев rc.d:
+.Bd -literal -offset indent
+complete service 'c/-/(e l r v)/' 'p/1/`service -l`/' \e
+		 'n/*/(start stop reload restart \e
+		 status rcvar onestart onestop)/'
+.Ed
+.Pp
+Следующая запись программируемого дополнения может использоваться в
+.Xr bash 1 Pq Pa ports/shells/bash
+для имён сценариев rc.d:
+.Bd -literal -offset indent
+_service () {
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=( $( compgen -W '$( service -l )' -- $cur ) )
+	return 0
+}
+complete -F _service service
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr bash 1 Pq Pa ports/shells/bash ,
+.Xr rc.conf 5 ,
+.Xr rc 8 ,
+.Xr rcorder 8 ,
+.Xr sysrc 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.3 .
+.Sh АВТОРЫ
+Эта
+страница Справочника была написана
+.An Douglas Barton Aq Mt dougb@FreeBSD.org .

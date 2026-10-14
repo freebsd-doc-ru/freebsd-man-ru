@@ -1,0 +1,126 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Mateusz Piotrowski <0mp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path share/man/man8/beinstall.8
+.\" FRDP githash b07689d1f2a268317bead0d785407b2f7dd7de78
+.\" FRDP hash256 80eada8d4948276a3d3dc72fc8e01baa44abc794f728049f403862853cfcd96f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 30, 2020
+.Dt BEINSTALL.SH 8
+.Os
+.Sh ИМЯ
+.Nm beinstall.sh
+.Sh СИНТАКСИС
+.Nm
+.Op Ar параметры Ar ...
+.Sh ОПИСАНИЕ
+.Nm
+устанавливает загрузочную среду, используя текущее
+.Fx
+дерево исходного кода.
+.Nm
+также автоматически выполняет
+.Pa /etc
+обновления
+(с помощью
+.Xr etcupdate 8 )
+и
+обновления пакетов с помощью
+.Xr pkg-upgrade 8
+автоматически в песочнице новой загрузочной среды.
+.Pp
+После успешного завершения система будет готова загрузиться в новую загрузочную среду.
+В случае ошибки целевая загрузочная среда будет уничтожена.
+Во всех случаях работающая система остаётся нетронутой,
+и перезагрузка в частично обновлённую систему
+(из-за ошибки установки или аппаратного сбоя) произойти не может.
+Кроме того, полный процесс установки требует
+только одной перезагрузки, поскольку выполняется
+в новой загрузочной среде.
+.Pp
+.Nm
+требует полностью собранного world и ядра.
+Он также требует
+.Xr pkg 8 ,
+который отсутствует в базовой системе и должен быть установлен вручную.
+.Pp
+.Ar параметры ,
+переданные
+.Nm ,
+являются флагами world и ядра, такими как
+.Ev KERNCONF ,
+как описано в
+.Xr build 7 .
+.Sh ОКРУЖЕНИЕ
+Пользовательские переменные.
+Задайте их в окружении при необходимости:
+.Bl -tag -width indent
+Утилита для управления загрузочными средами ZFS.
+Это может быть либо
+.Xr bectl 8
+из базовой системы, либо
+.Xr beadm 1
+из портов (sysutils/beadm).
+Средство обновления конфигурации:
+.Xr etcupdate 8
+поддерживается.
+Установите пустую строку, чтобы пропустить.
+Флаги для
+.Xr etcupdate 8 ,
+если используется.
+Если не пусто,
+.Dq Li pkg upgrade
+будет пропущена.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Sy src/ Ns Pa tools/build/beinstall.sh
+Место, где
+.Nm
+находится в дереве src.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr build 7 ,
+.Xr development 7 ,
+.Xr bectl 8 ,
+.Xr etcupdate 8 ,
+.Xr pkg 8
+.Sh ИСТОРИЯ
+.Nm
+вдохновлён и функционально похож на
+обновления в стиле Solaris/illumos.
+.Pp
+Страница Справочника
+.Nm
+впервые появилась в
+.Fx 12.0 .
+.Sh АВТОРЫ
+Сценарий
+.Nm
+был реализован
+.An Will Andrews Aq Mt will@FreeBSD.org .
+Эта страница Справочника была написана
+.An Mateusz Piotrowski Aq Mt 0mp@FreeBSD.org .

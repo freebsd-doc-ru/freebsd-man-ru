@@ -1,0 +1,367 @@
+.\" Copyright (c) 2000 - 2007 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kadmin/kadmin.8
+.\" FRDP githash 03da141d59ae1da4e66974c466e2cb26f296e6df
+.\" FRDP hash256 0d0f8ba2bf39679f666670ddbb7e366540cf585a146051867d2068c1bdfce33c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 5, 2025
+.Dt KADMIN 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kadmin
+.Nd Утилита администрирования Kerberos
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Op Fl p Ar строка \*(Ba Fl Fl principal= Ns Ar строка
+.Op Fl K Ar строка \*(Ba Fl Fl keytab= Ns Ar строка
+.Op Fl c Ar файл \*(Ba Fl Fl config-file= Ns Ar файл
+.Op Fl k Ar файл \*(Ba Fl Fl key-file= Ns Ar файл
+.Op Fl r Ar область \*(Ba Fl Fl realm= Ns Ar область
+.Op Fl a Ar хост \*(Ba Fl Fl admin-server= Ns Ar хост
+.Op Fl s Ar номер порта \*(Ba Fl Fl server-port= Ns Ar номер порта
+.Op Fl l | Fl Fl local
+.Op Fl h | Fl Fl help
+.Op Fl v | Fl Fl version
+.Op Ar команда
+.Ek
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+используется для внесения изменений в базу данных Kerberos: либо удалённо через
+.Xr kadmind 8
+демон, либо локально с опцией
+.Fl l .
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl p Ar строка , Fl Fl principal= Ns Ar строка
+принципал, от имени которого выполняется аутентификация
+.It Fl K Ar строка , Fl Fl keytab= Ns Ar строка
+keytab для принципала аутентификации
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+расположение файла конфигурации
+.It Fl k Ar файл , Fl Fl key-file= Ns Ar файл
+расположение файла главного ключа
+.It Fl r Ar область , Fl Fl realm= Ns Ar область
+используемая область
+.It Fl a Ar хост , Fl Fl admin-server= Ns Ar хост
+сервер, с которым нужно связаться
+.It Fl s Ar номер порта , Fl Fl server-port= Ns Ar номер порта
+используемый порт
+.It Fl l , Fl Fl local
+режим локального администрирования
+.El
+.Pp
+Если в командной строке не указана
+.Ar команда ,
+.Nm
+запросит команды для обработки. Некоторые команды, принимающие
+один или несколько принципалов в качестве аргумента
+.Ns ( Nm delete ,
+.Nm ext_keytab ,
+.Nm get ,
+.Nm modify ,
+и
+.Nm passwd )
+будут принимать подстановочный знак в стиле glob и выполнять
+операцию для всех соответствующих принципалов.
+.Pp
+Команды включают:
+.Pp
+.Nm add
+.Op Fl r | Fl Fl random-key
+.Op Fl Fl random-password
+.Op Fl p Ar строка \*(Ba Fl Fl password= Ns Ar строка
+.Op Fl Fl key= Ns Ar строка
+.Op Fl Fl max-ticket-life= Ns Ar время\ жизни
+.Op Fl Fl max-renewable-life= Ns Ar время\ жизни
+.Op Fl Fl attributes= Ns Ar атрибуты
+.Op Fl Fl expiration-time= Ns Ar время
+.Op Fl Fl pw-expiration-time= Ns Ar время
+.Ar принципал...
+.Bd -ragged -offset indent
+Добавляет нового принципала в базу данных. Опции, не переданные в
+командной строке, будут запрошены.
+.Ed
+.Pp
+.Nm add_enctype
+.Op Fl r | Fl Fl random-key
+.Ar принципал типы\ шифрования...
+.Pp
+.Bd -ragged -offset indent
+Добавляет новый тип шифрования принципалу; поддерживаются только
+случайные ключи.
+.Ed
+.Pp
+.Nm delete
+.Ar принципал...
+.Bd -ragged -offset indent
+Удаляет принципала.
+.Ed
+.Pp
+.Nm del_enctype
+.Ar принципал типы\ шифрования...
+.Bd -ragged -offset indent
+Удаляет некоторые типы шифрования у принципала; это может быть
+полезно, если известно, что служба, принадлежащая принципалу, не
+обрабатывает определённые типы шифрования.
+.Ed
+.Pp
+.Nm ext_keytab
+.Oo Fl k Ar строка \*(Ba Xo
+.Fl Fl keytab= Ns Ar строка
+.Xc
+.Oc
+.Ar принципал...
+.Bd -ragged -offset indent
+Создаёт keytab с ключами указанных принципалов.
+.Ed
+.Pp
+.Nm get
+.Op Fl l | Fl Fl long
+.Op Fl s | Fl Fl short
+.Op Fl t | Fl Fl terse
+.Op Fl o Ar строка | Fl Fl column-info= Ns Ar строка
+.Ar принципал...
+.Bd -ragged -offset indent
+Выводит список соответствующих принципалов; краткий формат выводит
+результат в виде таблицы, а длинный формат даёт более подробный
+вывод. Какие столбцы выводить, можно выбрать с помощью опции
+.Fl o .
+Аргумент — это разделённый запятыми список имён столбцов, к которым
+при необходимости добавляется знак равенства
+.Pq Sq =
+и заголовок столбца. Какие столбцы выводятся по умолчанию, немного
+различается для краткого и длинного формата.
+.Pp
+Формат сжатого вывода по умолчанию похож на
+.Fl s o Ar принципал= ,
+только выводятся имена совпавших принципалов.
+.Pp
+Возможные имена столбцов включают:
+.Li principal ,
+.Li princ_expire_time ,
+.Li pw_expiration ,
+.Li last_pwd_change ,
+.Li max_life ,
+.Li max_rlife ,
+.Li mod_time ,
+.Li mod_name ,
+.Li attributes ,
+.Li kvno ,
+.Li mkvno ,
+.Li last_success ,
+.Li last_failed ,
+.Li fail_auth_count ,
+.Li policy ,
+и
+.Li keytypes .
+.Ed
+.Pp
+.Nm modify
+.Oo Fl a Ar атрибуты \*(Ba Xo
+.Fl Fl attributes= Ns Ar атрибуты
+.Xc
+.Oc
+.Op Fl Fl max-ticket-life= Ns Ar время\ жизни
+.Op Fl Fl max-renewable-life= Ns Ar время\ жизни
+.Op Fl Fl expiration-time= Ns Ar время
+.Op Fl Fl pw-expiration-time= Ns Ar время
+.Op Fl Fl kvno= Ns Ar номер
+.Ar принципал...
+.Bd -ragged -offset indent
+Изменяет определённые атрибуты принципала. Если запустить без опций
+командной строки, будут запрошены значения. С опциями командной
+строки будут изменены только указанные.
+.Pp
+Возможные атрибуты:
+.Li new-princ ,
+.Li support-desmd5 ,
+.Li pwchange-service ,
+.Li disallow-svr ,
+.Li requires-pw-change ,
+.Li requires-hw-auth ,
+.Li requires-pre-auth ,
+.Li disallow-all-tix ,
+.Li disallow-dup-skey ,
+.Li disallow-proxiable ,
+.Li disallow-renewable ,
+.Li disallow-tgt-based ,
+.Li disallow-forwardable ,
+.Li disallow-postdated
+.Pp
+.Pp
+kadmin -l modify -a -disallow-proxiable user
+.Ed
+.Pp
+.Nm passwd
+.Op Fl r | Fl Fl random-key
+.Op Fl Fl random-password
+.Oo Fl p Ar строка \*(Ba Xo
+.Fl Fl password= Ns Ar строка
+.Xc
+.Oc
+.Op Fl Fl key= Ns Ar строка
+.Ar принципал...
+.Bd -ragged -offset indent
+Изменяет пароль существующего принципала.
+.Ed
+.Pp
+.Nm password-quality
+.Ar принципал
+.Ar пароль
+.Bd -ragged -offset indent
+Запускает функцию проверки качества пароля локально.
+Это можно выполнить на хосте, настроенном для запуска процесса kadmind,
+чтобы проверить правильность файла конфигурации.
+Проверка выполняется локально; если kadmin запущен в удалённом режиме,
+вызов RPC к серверу не выполняется.
+.Ed
+.Pp
+.Nm privileges
+.Bd -ragged -offset indent
+Перечисляет операции, которые вам разрешено выполнять. К ним относятся
+.Li add ,
+.Li add_enctype ,
+.Li change-password ,
+.Li delete ,
+.Li del_enctype ,
+.Li get ,
+.Li list ,
+и
+.Li modify .
+.Ed
+.Pp
+.Nm rename
+.Ar старое_имя новое_имя
+.Bd -ragged -offset indent
+Переименовывает принципала. Обычно это прозрачно, но поскольку ключи
+используют соль на основе имени принципала, они получат нестандартную
+соль, и клиенты, неспособные с этим справиться, будут давать сбой.
+Kerberos 4 страдает от этого.
+.Ed
+.Pp
+.Nm check
+.Op Ar область
+.Pp
+.Bd -ragged -offset indent
+Проверяет базу данных на наличие странных конфигураций важных
+принципалов. Если область не указана, используется область по умолчанию.
+.Ed
+.Pp
+При работе в локальном режиме также можно использовать следующие
+команды:
+.Pp
+.Nm dump
+.Op Fl d | Fl Fl decrypt
+.Op Fl f Ns Ar формат | Fl Fl format= Ns Ar формат
+.Op Ar файл_дампа
+.Bd -ragged -offset indent
+Записывает базу данных в виде
+.Dq машинно-читаемый\ текст
+в указанный файл или стандартный вывод. Если база данных
+зашифрована, дамп также будет содержать зашифрованные ключи, если
+не используется
+.Fl Fl decrypt .
+.Pp
+Если
+.Fl Fl format=MIT
+используется, дамп будет в формате MIT.
+Эту опцию можно использовать, если требуется, чтобы все пароли
+принципалов были изменены после загрузки дампа в базу данных MIT KDC.
+.Pp
+Если
+.Fl Fl format=<keytab-file>
+используется, то
+.Dq <keytab-file>
+должен содержать главный ключ для
+MIT KDC (обычно это файл с именем /var/db/krb5kdc/.k5.YOUR.REALM).
+Это приведёт к повторному шифрованию ключей главным ключом MIT,
+а также к созданию дампа в формате MIT.
+Когда этот дамп загружается в базу данных MIT KDC,
+принципалы, имевшие хотя бы один ключ с сильным типом шифрования,
+должны работать, и любые keytab для этих принципалов должны
+продолжать работать.
+Принципалам, имеющим только слабые ключи шифрования, потребуется
+выполнить
+.Dq change_password
+на MIT KDC, чтобы они заработали.
+Флаг
+.Fl Fl decrypt
+в этом случае не имеет смысла.
+.Ed
+.Pp
+.Nm init
+.Op Fl Fl realm-max-ticket-life= Ns Ar строка
+.Op Fl Fl realm-max-renewable-life= Ns Ar строка
+.Ar область
+.Bd -ragged -offset indent
+Инициализирует базу данных Kerberos записями для новой области. Один
+сервер может обслуживать более одной области.
+.Ed
+.Pp
+.Nm load
+.Ar файл
+.Bd -ragged -offset indent
+Читает ранее сохранённый дамп базы данных и создаёт эту базу данных
+заново.
+.Ed
+.Pp
+.Nm merge
+.Ar файл
+.Bd -ragged -offset indent
+Подобна
+.Nm load
+но только изменяет базу данных записями из файла дампа.
+.Ed
+.Pp
+.Nm stash
+.Oo Fl e Ar тип_шифрования \*(Ba Xo
+.Fl Fl enctype= Ns Ar тип_шифрования
+.Xc
+.Oc
+.Oo Fl k Ar файл_ключа \*(Ba Xo
+.Fl Fl key-file= Ns Ar файл_ключа
+.Xc
+.Oc
+.Op Fl Fl convert-file
+.Op Fl Fl master-key-fd= Ns Ar дескриптор
+.Bd -ragged -offset indent
+Записывает главный ключ Kerberos в файл, используемый KDC.
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kadmind 8 ,
+.Xr kdc 8

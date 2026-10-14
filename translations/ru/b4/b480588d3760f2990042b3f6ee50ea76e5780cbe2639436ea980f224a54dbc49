@@ -1,0 +1,44 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\"
+.\" Copyright (c) 2024, Klara Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-ddtprune.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 b480588d3760f2990042b3f6ee50ea76e5780cbe2639436ea980f224a54dbc49
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 17, 2024
+.Dt ZPOOL-DDTPRUNE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-ddtprune
+.Nd Удаляет самые старые записи из таблиц(ы) дедупликации с одной ссылкой
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm ddtprune
+.Fl d Ar дни | Fl p Ar процент
+.Ar пул
+.Sh ОПИСАНИЕ
+Эта команда удаляет более старые уникальные записи из таблицы дедупликации.
+Являясь дополнением к функции квоты дедупликации,
+.Sy ddtprune
+позволяет удалять более старые записи, не являющиеся дубликатами, чтобы
+освободить место для более новых дублирующихся записей.
+.Pp
+Объём удаляемых записей может основываться на целевом проценте уникальных
+записей или на возрасте (то есть каждая уникальная запись старше N дней).
+.
+.Sh СМ. ТАКЖЕ
+.Xr zdb 8 ,
+.Xr zpool-status 8

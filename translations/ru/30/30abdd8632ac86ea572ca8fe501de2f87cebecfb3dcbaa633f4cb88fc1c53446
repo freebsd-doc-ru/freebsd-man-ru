@@ -1,0 +1,137 @@
+.\"	$NetBSD: fsck_msdos.8,v 1.9 1997/10/17 11:19:58 ws Exp $
+.\"
+.\" Copyright (C) 1995 Wolfgang Solfrank
+.\" Copyright (c) 1995 Martin Husemann
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/fsck_msdosfs/fsck_msdosfs.8
+.\" FRDP githash 93f4377caba08e4a47fb9f1878bf609bd4181564
+.\" FRDP hash256 30abdd8632ac86ea572ca8fe501de2f87cebecfb3dcbaa633f4cb88fc1c53446
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 18, 2024
+.Dt FSCK_MSDOSFS 8
+.Os
+.Sh ИМЯ
+.Nm fsck_msdosfs
+.Nd Проверка согласованности файловой системы DOS/Windows (FAT)
+.Sh СИНТАКСИС
+.Nm
+.Fl p
+.Op Fl BCf
+.Ar файловая\ система ...
+.Nm
+.Op Fl BCMny
+.Ar файловая\ система ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+проверяет и восстанавливает файловые системы
+.Tn FAT
+(более известные как
+файловые системы
+.Tn DOS ).
+.Pp
+Первая форма
+.Nm
+выполняет предварительную проверку указанных файловых систем.
+Обычно она запускается
+.Xr fsck 8
+из
+.Pa /etc/rc
+во время автоматической перезагрузки, когда обнаружена файловая система FAT.
+При предварительной проверке файловых систем,
+.Nm
+исправляет распространённые несоответствия неинтерактивно.
+Если обнаружены более серьёзные проблемы,
+.Nm
+не пытается их исправить, сообщает о неудаче и завершает работу.
+.Pp
+Вторая форма
+.Nm
+проверяет указанные файловые системы и пытается исправить все обнаруженные несоответствия, запрашивая подтверждение перед внесением любых изменений.
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl B
+Игнорируется для совместимости с
+.Xr fsck 8 .
+.It Fl C
+Игнорируется для совместимости с
+.Xr fsck 8 .
+.It Fl F
+Совместимость с оболочкой
+.Xr fsck 8 ,
+которая пытается определить, нужно ли очищать файловую систему немедленно в переднем плане, или можно отложить очистку до фонового режима.
+Файловые системы FAT (MS-DOS) всегда должны очищаться в переднем плане.
+Для этой опции всегда возвращается ненулевой код выхода.
+.It Fl M
+Заставляет
+.Nm
+не использовать
+.Xr mmap 2
+при проверке файловой системы FAT32.
+Эта опция в основном предназначена для отладки и обычно не требуется.
+Утилита
+.Nm
+автоматически переключится на использование простого кэша LRU размером 4 МиБ, если не удалось выполнить
+.Xr mmap 2 ,
+или если указана
+.Fl M .
+.It Fl f
+Заставляет
+.Nm
+проверять
+.Dq чистые
+файловые системы при предварительной проверке.
+.It Fl n
+Заставляет
+.Nm
+предполагать
+.Dq Li no
+в качестве ответа на все вопросы оператора, кроме
+.Dq Li CONTINUE? .
+.It Fl p
+Выполнить предварительную проверку указанных файловых систем.
+.It Fl y
+Заставляет
+.Nm
+предполагать
+.Dq Li yes
+в качестве ответа на все вопросы оператора.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr msdosfs 4 ,
+.Xr fsck 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Nx 1.2 .
+.Nm
+впервые появилась в
+.Fx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+является
+.Ud

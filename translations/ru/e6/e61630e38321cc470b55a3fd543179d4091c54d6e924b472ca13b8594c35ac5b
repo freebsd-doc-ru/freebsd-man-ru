@@ -1,0 +1,169 @@
+.\"
+.\" Copyright (c) 2002 M. Warner Losh <imp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/devd/devd.8
+.\" FRDP githash 38a5520692d8202087ae04d1e1ba3dae42b994fa
+.\" FRDP hash256 e61630e38321cc470b55a3fd543179d4091c54d6e924b472ca13b8594c35ac5b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 7, 2025
+.Dt DEVD 8
+.Os
+.Sh ИМЯ
+.Nm devd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dnq
+.Op Fl f Ar файл
+.Op Fl l Ar число
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+предоставляет способ запускать программы пользовательского уровня при возникновении определённых
+событий ядра.
+.Pp
+Принимаются следующие параметры.
+.Bl -tag -width indent
+.It Fl d
+Запуск на переднем плане вместо перехода в режим демона и запись дополнительной информации в журнал для отладки.
+.It Fl f Ar файл
+Использовать файл конфигурации
+.Ar файл
+вместо стандартного
+.Pa /etc/devd.conf .
+Если параметр
+.Fl f
+указан более одного раза, используется последний указанный файл.
+.It Fl l Ar число
+Ограничить количество одновременных подключений через сокет до
+.Ar число .
+Ограничение подключений по умолчанию — 10.
+.It Fl n
+Не обрабатывать все ожидающие события перед переходом в режим демона.
+Вместо этого сразу вызвать daemon.
+.It Fl q
+Тихий режим.
+Записывать в журнал только сообщения с приоритетом LOG_WARNING или выше.
+.El
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Утилита
+.Nm
+— это системный демон, который постоянно работает в фоновом режиме.
+Всякий раз, когда устройство добавляется в дерево устройств или удаляется из него,
+.Nm
+будет выполнять действия, указанные в
+.Xr devd.conf 5 .
+Например,
+.Nm
+может выполнить
+.Xr dhclient 8 ,
+когда в систему добавляется адаптер Ethernet, и завершить экземпляр
+.Xr dhclient 8 ,
+когда тот же адаптер удаляется.
+Другой пример:
+.Nm
+может использовать таблицу, чтобы найти и загрузить через
+.Xr kldload 8
+подходящий драйвер для нераспознанного устройства, добавляемого в систему.
+.Pp
+Утилита
+.Nm
+подключается к драйверу устройства
+.Xr devctl 4 .
+Этот драйвер устройства подключён к системе конфигурации устройств.
+Когда узлы добавляются в дерево или удаляются из него, этот драйвер будет
+передавать информацию о событии в
+.Nm .
+После того как
+.Nm
+разберёт сообщение, он будет искать в своём списке действий действие для такого
+типа события и выполнять действие с наибольшим совпадающим значением.
+Для большинства обычных применений стандартных обработчиков достаточно.
+Однако более опытные пользователи могут настроить каждый аспект происходящего.
+.Pp
+Утилита
+.Nm
+читает
+.Pa /etc/devd.conf
+или альтернативный файл конфигурации, указанный с параметром
+.Fl f ,
+и использует этот файл для управления остальной частью процесса.
+Хотя формат этого файла описан в
+.Xr devd.conf 5 ,
+некоторые основы рассматриваются здесь.
+.Pp
+В разделе
+.Ic options
+можно определить несколько каталогов для поиска
+файлов конфигурации.
+Стандартный файл конфигурации задаёт
+.Pa /etc/devd
+и
+.Pa /usr/local/etc/devd
+как каталоги для поиска.
+Все файлы в этих каталогах, имена которых соответствуют шаблону
+.Pa *.conf ,
+обрабатываются.
+Эти файлы предназначены для установки сторонними поставщиками, которые
+хотят подключиться к системе
+.Nm
+без изменения других файлов конфигурации пользователя.
+.Pp
+Поскольку
+.Xr devctl 4
+допускает только одного активного читателя,
+.Nm
+мультиплексирует его, перенаправляя все события произвольному числу подключённых клиентов.
+Клиенты подключаются, открывая доменный сокет
+.Ux
+SOCK_SEQPACKET по адресу
+.Pa /var/run/devd.seqpacket.pipe .
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/devd.conf
+Стандартный файл конфигурации
+.Nm .
+.It Pa /var/run/devd.seqpacket.pipe
+Сокет, используемый
+.Nm
+для связи со своими клиентами.
+.It Pa /var/run/devd.pipe
+Устаревший сокет, сохранённый для использования со старыми клиентами.
+.El
+.Sh ПРИМЕРЫ
+Используйте
+.Xr cat 1
+для мониторинга событий ядра:
+.Pp
+.Dl cat /var/run/devd.seqpacket.pipe
+.Sh СМ. ТАКЖЕ
+.Xr devctl 4 ,
+.Xr devd.conf 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An M. Warner Losh

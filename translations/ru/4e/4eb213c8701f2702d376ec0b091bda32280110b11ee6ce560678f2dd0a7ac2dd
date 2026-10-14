@@ -1,0 +1,67 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-clear.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 4eb213c8701f2702d376ec0b091bda32280110b11ee6ce560678f2dd0a7ac2dd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 29, 2024
+.Dt ZPOOL-CLEAR 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-clear
+.Nd очистить ошибки устройств в пуле хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm clear
+.Op Fl -power
+.Ar пул
+.Oo Ar устройство Oc Ns …
+.
+.Sh ОПИСАНИЕ
+Очищает ошибки устройств в пуле.
+Если аргументы не указаны, все ошибки устройств в пуле очищаются.
+Если указано одно или несколько устройств, очищаются только те ошибки,
+которые связаны с указанным устройством или устройствами.
+.Pp
+Если пул был приостановлен, он будет возвращён в рабочее состояние при условии,
+что доступ к устройствам возможен.
+Пулы с включённым
+.Sy multihost
+, которые были приостановлены, не могут быть возобновлены, если есть
+признаки того, что пул был импортирован другим хостом.
+Те же проверки, которые выполняются при импорте, будут применены до того,
+как продолжится очистка.
+.Bl -tag -width Ds
+.It Fl -power
+Подать питание на слот устройства в корпусе системы хранения и дождаться
+появления устройства, прежде чем пытаться очистить ошибки.
+Это выполняется для всех указанных устройств.
+В качестве альтернативы можно установить переменную окружения
+.Sy ZPOOL_AUTO_POWER_ON_SLOT
+для постоянного включения такого поведения.
+Примечание: этот флаг в настоящее время работает только в Linux.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zdb 8 ,
+.Xr zpool-reopen 8 ,
+.Xr zpool-status 8

@@ -1,0 +1,109 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man1/intro.1
+.\" FRDP githash cc0af6d5a6c2b10b8655945abdd4ab110cb11998
+.\" FRDP hash256 1c11ba7a3923150bc9c9a29cf491a978f5aa3fd1ec2e2d05cd52a39b9fea4d2e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 12, 2024
+.Dt INTRO 1
+.Os
+.Sh ИМЯ
+.Nm intro
+.Nd введение в общие команды (инструменты и утилиты)
+.Sh ОПИСАНИЕ
+Первый раздел Справочника содержит большинство команд,
+которые составляют пользовательскую среду
+.Fx .
+Некоторые из команд, включённых в систему в первом разделе, —
+это текстовые редакторы, интерпретаторы командных оболочек,
+инструменты поиска и сортировки,
+команды работы с файлами,
+команды состояния системы,
+команды удалённого копирования файлов,
+почтовые команды,
+компиляторы и инструменты компиляторов,
+инструменты форматированного вывода
+и команды построчной печати.
+.Pp
+Десятки тысяч дополнительных команд доступны для установки
+с
+.Xr pkg 8 ,
+или сборки с помощью коллекции
+.Xr ports 7 .
+Некоторые из них включают веб-браузеры, офисные пакеты, календари,
+утилиты для конференций, интегрированные среды разработки,
+медиаплееры, пакеты обработки аудио и видео и т. д.
+.Pp
+Все команды при выходе устанавливают значение состояния, которое можно проверить,
+чтобы узнать, завершилась ли команда нормально.
+Традиционно значение 0 означает успешное
+завершение команды, а значение >0 указывает на ошибку.
+Некоторые команды пытаются описать характер сбоя, используя
+коды выхода, определённые в
+.Xr sysexits 3 ,
+тогда как другие просто устанавливают состояние в произвольное значение >0
+.Pq обычно 1 .
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /usr/local/bin/"
+.It Pa /bin/
+Команды, необходимые для однопользовательского и многопользовательского режимов.
+.It Pa /usr/bin/
+Общие команды, входящие в базовую систему.
+.It Pa /usr/local/bin/
+Локально установленные команды из
+.Xr pkg 8 или
+.Xr ports 7 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr man 1 ,
+.Xr which 1 ,
+.Xr intro 2 ,
+.Xr intro 3 ,
+.Xr sysexits 3 ,
+.Xr intro 4 ,
+.Xr intro 5 ,
+.Xr intro 6 ,
+.Xr intro 7 ,
+.Xr ports 7 ,
+.Xr security 7 ,
+.Xr intro 8 ,
+.Xr pkg 8 ,
+.Xr intro 9
+.Pp
+Учебные руководства в 
+.%T "UNIX User's Manual Supplementary Documents" .
+.Sh ИСТОРИЯ
+Страница Справочника
+.Nm Ns Pq 1
+впервые появилась в
+.At v6 .

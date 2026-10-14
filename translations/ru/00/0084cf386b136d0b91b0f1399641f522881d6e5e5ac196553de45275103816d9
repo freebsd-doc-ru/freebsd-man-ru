@@ -1,0 +1,213 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/savecore/savecore.8
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 0084cf386b136d0b91b0f1399641f522881d6e5e5ac196553de45275103816d9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt SAVECORE 8
+.Os
+.Sh ИМЯ
+.Nm savecore
+.Sh СИНТАКСИС
+.Nm
+.Fl c
+.Op Fl v
+.Op Ar устройство ...
+.Nm
+.Fl C
+.Op Fl v
+.Op Ar устройство ...
+.Nm
+.Fl L
+.Op Fl fvZz
+.Op Fl m Ar maxdumps
+.Op Ar каталог
+.Nm
+.Op Fl -libxo
+.Op Fl fkuvz
+.Op Fl m Ar maxdumps
+.Op Ar каталог Op Ar устройство ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+копирует дамп ядра в
+.Ar каталог ,
+или в текущий рабочий каталог, если аргумент
+.Ar каталог
+не задан,
+и вносит сообщение о перезагрузке и информацию о дампе ядра в
+системный журнал.
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl -libxo
+Создавать вывод через
+.Xr libxo 3
+в различных форматах, читаемых человеком и машиной.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl C
+Проверить, существует ли дамп,
+и вывести краткое сообщение с указанием состояния.
+Статус выхода 0 означает, что дамп есть,
+1 — что его нет.
+Эта опция совместима только с
+.Op Fl v
+опцией.
+.It Fl c
+Очистить дамп, чтобы будущие вызовы
+.Nm
+игнорировали его.
+.It Fl f
+Принудительно создать дамп, даже если дамп был очищен или если
+информация заголовка дампа противоречива.
+.It Fl k
+Не очищать дамп после его сохранения.
+.It Fl L
+Указать
+.Nm
+сгенерировать и сохранить дамп ядра работающей системы, а не
+копировать его с устройства дампа.
+.It Fl m Ar maxdumps
+Максимальное количество сохраняемых дампов.
+Как только число сохранённых дампов станет равным
+.Ar maxdumps ,
+счётчик начнёт заново с
+.Dv 0 .
+.It Fl u
+Распаковать дамп, если он был сжат ядром.
+.It Fl v
+Выводить дополнительную отладочную информацию.
+Укажите дважды для получения более подробной информации.
+.It Fl Z
+Сжать дамп (см.
+.Xr zstd 1 ) .
+Эта опция поддерживается только вместе с
+.Fl L
+опцией.
+Обычные дампы можно настроить для сжатия с помощью zstd, используя
+.Xr dumpon 8 .
+.It Fl z
+Сжать дамп (см.
+.Xr gzip 1 ) .
+Дамп может быть уже сжат, если ядро было настроено
+делать это с помощью
+.Xr dumpon 8 .
+В этом случае опция не оказывает эффекта.
+.Pp
+Если используется вместе с
+.Fl L
+опцией, запрошенный дамп работающей системы будет сжат с помощью gzip.
+.El
+.Pp
+Утилита
+.Nm
+ищет дампы на каждом устройстве, указанном в
+.Ar устройство
+аргументе(ах), или на каждом устройстве в
+.Pa /etc/fstab
+помеченном как
+.Dq dump
+или
+.Dq swap .
+Утилита
+.Nm
+проверяет дамп ядра различными способами, чтобы убедиться, что он полный.
+Если он проходит эти проверки, она сохраняет образ дампа в
+.Ar каталог Ns Pa /vmcore.#
+и информацию о дампе в
+.Ar каталог Ns Pa /info.# .
+Если дамп зашифрован, она сохраняет ключ дампа в
+.Ar каталог Ns Pa /key.# .
+Дамп можно позже расшифровать с помощью
+.Xr decryptcore 8 .
+Для текстовых дампов ядра, созданных с помощью
+.Xr textdump 4
+средства, вывод будет сохранён в
+.Xr tar 5
+формате и назван
+.Ar каталог Ns Pa /textdump.tar.# .
+Символ
+.Dq #
+— это число из первой строки файла
+.Ar каталог Ns Pa /bounds ,
+и оно увеличивается и сохраняется обратно в файл каждый раз, когда
+.Nm
+успешно выполняется.
+.Pp
+Утилита
+.Nm
+также проверяет доступное дисковое пространство перед попыткой создания копий.
+Если в файловой системе, содержащей
+.Ar каталог ,
+недостаточно дискового пространства,
+или если файл
+.Ar каталог Ns Pa /minfree
+существует и количество свободных килобайтов (для не суперпользователей) в
+файловой системе после создания копий оказалось бы меньше числа
+в первой строке этого файла, копирование не выполняется.
+.Pp
+Если
+.Nm
+успешно копирует ядро и дамп ядра, дамп ядра очищается,
+чтобы будущие вызовы
+.Nm
+игнорировали его.
+.Pp
+Утилита
+.Nm
+предназначена для вызова ближе к концу файла инициализации
+.Pa /etc/rc
+(см.
+.Xr rc 8 ) .
+.Sh СМ. ТАКЖЕ
+.Xr gzip 1 ,
+.Xr zstd 1 ,
+.Xr getbootfile 3 ,
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr mem 4 ,
+.Xr textdump 4 ,
+.Xr tar 5 ,
+.Xr crashinfo 8 ,
+.Xr decryptcore 8 ,
+.Xr dumpon 8 ,
+.Xr syslogd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.1 .
+.Pp
+Поддержка текстовых дампов ядра появилась в
+.Fx 7.1 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Код minfree не учитывает влияние сжатия или разреженных файлов.

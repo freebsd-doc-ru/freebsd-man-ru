@@ -1,0 +1,92 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-share.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 c6c3161a703d89e8209b8c38ae3dcfa68d00b2ff36e3ec7f6113147d4ba5e5b4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-SHARE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-share
+.Nd предоставление общего доступа к файловым системам ZFS и его отмена
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm share
+.Op Fl l
+.Fl a Ns | Ns Ar файловая_система
+.Nm zfs
+.Cm unshare
+.Fl a Ns | Ns Ar файловая_система Ns | Ns Ar точка_монтирования
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm share
+.Op Fl l
+.Fl a Ns | Ns Ar файловая_система
+.Xc
+Предоставляет общий доступ к имеющимся файловым системам ZFS.
+.It Fl l
+Загружает ключи для зашифрованных файловых систем во время их монтирования.
+Это эквивалентно выполнению
+.Nm zfs Cm load-key
+для каждого корня шифрования перед его монтированием.
+Обратите внимание, что если файловая система имеет
+.Sy keylocation Ns = Ns Sy prompt ,
+это приведёт к интерактивной блокировке терминала после запроса ключа.
+.It Fl a
+Предоставляет общий доступ ко всем имеющимся файловым системам ZFS.
+Автоматически вызывается в процессе загрузки.
+.It Ar файловая_система
+Предоставляет общий доступ к указанной файловой системе в соответствии со свойствами
+.Sy sharenfs
+и
+.Sy sharesmb .
+Файловые системы становятся общими, когда установлено свойство
+.Sy sharenfs
+или
+.Sy sharesmb .
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm unshare
+.Fl a Ns | Ns Ar файловая_система Ns | Ns Ar точка_монтирования
+.Xc
+Отменяет общий доступ к файловым системам ZFS, которые в данный момент являются общими.
+.It Fl a
+Отменяет общий доступ ко всем имеющимся файловым системам ZFS.
+Автоматически вызывается в процессе завершения работы.
+.It Ar файловая_система Ns | Ns Ar точка_монтирования
+Отменяет общий доступ к указанной файловой системе.
+Команде также можно передать путь к файловой системе ZFS, являющейся общей в системе.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr exports 5 ,
+.Xr smb.conf 5 ,
+.Xr zfsprops 7

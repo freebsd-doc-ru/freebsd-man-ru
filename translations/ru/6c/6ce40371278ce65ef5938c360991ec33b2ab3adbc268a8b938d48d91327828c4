@@ -1,0 +1,169 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 by Pierre Pronchery <khorben@defora.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" From: pppoectl.8,v 1.30 2016/09/12 05:35:20 sevan Exp $
+.\"
+.\" $NetBSD: umbctl.8,v 1.3 2020/03/22 07:45:02 khorben Exp $
+.\"
+.\" last edit-date: [Fri Dec 20 18:20:00 2024]
+.\"
+.\" FRDP path sbin/umbctl/umbctl.8
+.\" FRDP githash 0f1bf1c22a0c97e84a4db19197a75952487aa20b
+.\" FRDP hash256 6ce40371278ce65ef5938c360991ec33b2ab3adbc268a8b938d48d91327828c4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 20, 2024
+.Dt UMBCTL 8
+.Os
+.Sh ИМЯ
+.Nm umbctl
+.Nd отобразить или задать параметры интерфейса сотового модема MBIM (4G/LTE)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Ar имя-интерфейса
+.Op Ar параметр Op Ar значение
+.Ar ...
+.Nm
+.Op Fl v
+.Fl f Ar файл-конфигурации
+.Ar имя-интерфейса
+.Sh ОПИСАНИЕ
+.Nm
+поддерживает следующие параметры:
+.Bl -tag -width Ds
+.It Fl f Ar файл-конфигурации
+Разобрать
+.Ar файл-конфигурации
+на пары
+.Ar параметр Ns Op \&= Ns Ar значение
+,
+по одной в строке, как если бы они были указаны в командной строке.
+Это позволяет не передавать пароль или PIN-коды в качестве аргументов
+командной строки.
+Комментарии, начинающиеся с # и продолжающиеся до конца текущей строки,
+игнорируются.
+.It Fl v
+Включает подробный режим.
+.El
+.Pp
+Драйвер
+.Xr umb 4
+может требовать ряд дополнительных аргументов или необязательных
+параметров помимо настроек, которые можно изменить с помощью
+.Xr ifconfig 8 .
+Это могут быть учётные данные или другие настраиваемые переменные
+подключения.
+Утилита
+.Nm
+может использоваться для отображения текущих настроек или для изменения
+этих параметров по мере необходимости.
+.Pp
+С какой бы целью ни вызывалась
+.Nm
+,
+необходимо указать как минимум параметр
+.Ar имя-интерфейса
+,
+задающий интерфейс, для которого должны быть выполнены или отображены
+настройки.
+Используйте
+.Xr ifconfig 8
+или
+.Xr netstat 1
+,
+чтобы увидеть, какие интерфейсы доступны.
+.Pp
+Если не указан никакой другой параметр,
+.Nm
+просто выведет текущее состояние для
+.Ar имя-интерфейса
+и завершит работу.
+.Pp
+Если указан какой-либо дополнительный параметр, требуются привилегии
+суперпользователя, и команда работает в режиме
+.Ql set
+.
+Обычно это выполняется без вывода, если только не включена также опция
+.Fl v
+,
+которая вызовет окончательный вывод состояния, как описано выше,
+после выполнения всех остальных действий.
+.Pp
+В настоящее время поддерживаются следующие параметры:
+.Bl -tag -width Ds
+.It Ar apn Ns \&= Ns Em точка-доступа
+Установить APN как
+.Em точка-доступа .
+.It Ar username Ns \&= Ns Em имя-пользователя
+Установить имя пользователя как
+.Em имя-пользователя .
+.It Ar password Ns \&= Ns Em пароль
+Установить пароль как
+.Em пароль .
+.It Ar pin Ns \&= Ns Em PIN-код
+Ввести PIN
+.Em PIN-код .
+.It Ar puk Ns \&= Ns Em PUK-код
+Ввести PUK
+.Em PUK-код .
+.It Ar roaming
+Разрешить соединения для передачи данных при роуминге.
+.It Ar -roaming
+Запретить соединения для передачи данных при роуминге.
+.El
+.Sh ПРИМЕРЫ
+Отобразить настройки для umb0:
+.Bd -literal
+# umbctl umb0
+umb0: state up, mode automatic, registration home network
+.Ed
+.Pp
+Настроить параметры подключения для umb0 из командной строки:
+.Bd -literal
+# umbctl umb0 apn operator.internet username mobile password mobile
+.Ed
+.Pp
+Настроить параметры подключения для umb0 из файла:
+.Bd -literal
+# umbctl -f /dev/stdin umb0 << EOF
+pin=1234
+EOF
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr umb 4 ,
+.Xr ifconfig 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Nx 9.0
+и
+.Fx 15.0 .
+.Sh АВТОРЫ
+Программа была написана
+.An Pierre Pronchery .

@@ -1,0 +1,80 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-promote.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 f48ac5f147f4c3d47bb21ba9acd1d25f12815dd8e9e9577aa58b6ad4e0d32717
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-PROMOTE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-promote
+.Nd продвинуть клон набора данных, чтобы он больше не зависел от исходного снимка
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm promote
+.Ar клон
+.
+.Sh ОПИСАНИЕ
+Команда
+.Nm zfs Cm promote
+позволяет уничтожить набор данных, из которого был создан клон.
+Отношение зависимости родитель-потомок клона меняется на обратное, так что
+исходный набор данных становится клоном указанного набора данных.
+.Pp
+Снимок, который был клонирован, и все снимки, предшествующие этому снимку,
+теперь принадлежат продвинутому клону.
+Занимаемое ими пространство перемещается из исходного набора данных в
+продвинутый клон, поэтому должно быть доступно достаточно места для
+размещения этих снимков.
+Эта операция не потребляет новое пространство, но учёт пространства
+корректируется.
+Продвинутый клон не должен иметь собственных снимков с конфликтующими
+именами.
+Подкоманда
+.Nm zfs Cm rename
+может использоваться для переименования любых конфликтующих снимков.
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Продвижение клона ZFS
+Следующие команды показывают, как протестировать изменения файловой системы, а
+затем заменить исходную файловую систему изменённой, используя клоны,
+продвижение клонов и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда устаревшая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-clone 8 ,
+.Xr zfs-rename 8

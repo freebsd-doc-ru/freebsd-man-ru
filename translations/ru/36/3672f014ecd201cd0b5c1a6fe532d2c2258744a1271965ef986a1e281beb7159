@@ -1,0 +1,66 @@
+.\"-
+.\" Copyright (c) 2011-2017 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openpam/bin/su/su.1
+.\" FRDP githash 45538173c120eadca115fd7e56c657905bf73771
+.\" FRDP hash256 3672f014ecd201cd0b5c1a6fe532d2c2258744a1271965ef986a1e281beb7159
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 31, 2025
+.Dt SU 1
+.Os
+.Sh ИМЯ
+.Nm su
+.Nd переключение идентичности пользователя
+.Sh СИНТАКСИС
+.Nm
+.Op Ar логин Op Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запускает оболочку от имени пользователя, указанного первым аргументом в командной строке.
+Если пользователь не указан, по умолчанию используется
+.Dq root .
+.Pp
+Любые дополнительные аргументы командной строки передаются оболочке без изменений.
+.Pp
+Запрашивающий пользователь аутентифицируется с помощью политики PAM
+.Dq su .
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Утилита
+.Nm
+поставляется с библиотекой OpenPAM как пример приложения
+и не должна использоваться в производственных системах.
+.Sh СМ. ТАКЖЕ
+.Xr openpam 3 ,
+.Xr pam 3
+.Sh АВТОРЫ
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Dag-Erling Sm\(/orgrav Aq Mt des@des.dev .

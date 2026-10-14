@@ -1,0 +1,183 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1999 Daniel C. Sobral
+.\" All rights reserved.
+.\" Copyright (c) 2021 Warner Losh <imp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/man/loader.8
+.\" FRDP githash c7ff706b31c22f10c2403869c46b443448da3e08
+.\" FRDP hash256 3805c320b222cebfcac35e714a46d3c86d1c97de8d7ac82842e0afbbaeb0a0e7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 4, 2026
+.Dt LOADER 8
+.Os
+.Sh ИМЯ
+.Nm loader
+.Nd заключительная стадия начальной загрузки ядра
+.Sh ОПИСАНИЕ
+Программа, называемая
+.Nm ,
+является заключительной стадией
+.Fx Ns 's
+процесса начальной загрузки ядра.
+Он отвечает за помещение ядра, модулей ядра и других файлов в память.
+Он создаёт набор переменных окружения, подобных
+.Xr sh 1 ,
+которые передаются ядру.
+Он выполняет загрузочные сценарии, написанные на одном из нескольких
+интерпретаторов.
+Вместе со сценариями он управляет процессом загрузки и взаимодействием с
+пользователем.
+.Pp
+Он предоставляет язык сценариев, который можно использовать для
+автоматизации задач, предварительной настройки или помощи в процедурах
+восстановления.
+Этот язык сценариев условно разделён на два основных компонента.
+Меньший из них — набор команд.
+Главная цель этих команд — удобство для пользователя.
+Больший компонент — это язык сценариев, встроенный в загрузчик.
+.Fx
+предоставляет три различных интерпретатора: Forth, Lua и Simple.
+Загрузчик Forth основан на совместимом с ANS Forth интерпретаторе
+Forth, основанном на FICL, автор
+.An John Sadler .
+Загрузчик Lua — это полноценный интерпретатор Lua из
+.Pa https://www.lua.org/ .
+Загрузчик Simple интерпретирует только список встроенных команд
+без каких-либо управляющих структур.
+.Pp
+Во время инициализации
+.Nm
+выполнит поиск консоли и установит переменную
+.Va console
+или установит её в последовательную консоль
+.Pq Dq Li comconsole ,
+если предыдущая стадия загрузки использовала её.
+Если выбрано несколько консолей, они будут перечислены через пробелы.
+Затем опрашиваются устройства, устанавливаются
+.Va currdev
+и
+.Va loaddev ,
+а
+.Va LINES
+устанавливается в 24.
+Наконец, будет выполнен файл, специфичный для интерпретатора.
+.Sh ВСТРОЕННЫЕ КОМАНДЫ
+Команды, общие для всех интерпретаторов, описаны в
+.Xr loader_simp 8 ,
+раздел
+.Dq ВСТРОЕННЫЕ КОМАНДЫ .
+.Pp
+Следующие команды доступны только в
+.Xr loader_lua 8
+и
+.Xr loader_4th 8 :
+.Pp
+.Bl -tag -width indent -compact
+.It Ic be-list
+Выводит список сред загрузки, видимых
+.Nm .
+Перечисленные имена можно использовать напрямую с
+.Ic be-switch .
+.It Ic be-switch Ar beName
+Переключиться на среду загрузки
+.Ar beName .
+Конфигурация
+.Nm
+будет перезагружена из нового корня, а все ранее загруженные
+ядро и модули будут немедленно выгружены.
+.It Ic boot-conf
+Загрузить конфигурацию
+.Nm
+и запустить последовательность автоматической загрузки.
+.Pp
+.It Ic read-conf Ar файл
+Загрузить указанный файл конфигурации.
+.Pp
+.It Ic reload-conf
+Отменить все ранее применённые настройки и перезагрузить конфигурацию.
+Команды set, которые были выполнены в командной строке для переопределения
+переменных, ранее
+.Cm set
+с помощью конфигурации
+.Xr loader.conf 5 ,
+также будут отменены вместе с любыми переключёнными параметрами модулей.
+.Pp
+.It Ic enable-module Ar kmod-name
+.It Ic disable-module Ar kmod-name
+.It Ic toggle-module Ar kmod-name
+Включить, отключить или переключить загрузку модуля ядра с именем
+.Dq Ar kmod-name .
+.Pp
+.It Ic show-module-options
+Описать все модули, известные
+.Nm ,
+и показать, включены они или нет.
+.El
+.Pp
+Следующая команда доступна только в
+.Xr loader_lua 8 :
+.Pp
+.Bl -tag -width indent -compact
+.It Ic disable-device Ar устройство
+Установить подсказку newbus, чтобы отключить
+.Ar устройство .
+.El
+.Ss ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+Переменные окружения, общие для всех интерпретаторов, описаны в
+.Xr loader_simp 8 ,
+раздел
+.Dq ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ .
+.Sh СМ. ТАКЖЕ
+.Xr libsa 3 ,
+.Xr loader.conf 5 ,
+.Xr tuning 7 ,
+.Xr boot 8 ,
+.Xr btxld 8 ,
+.Xr loader.efi 8 ,
+.Xr loader_4th 8 ,
+.Xr loader_lua 8 ,
+.Xr loader_simp 8
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Fx 3.1 .
+Язык сценариев
+.Nm
+по умолчанию был изменён на Lua в
+.Fx 12.0 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Michael Smith Aq Mt msmith@FreeBSD.org .
+.Pp
+FICL был написан
+.An John Sadler Aq Mt john_sadler@alum.mit.edu .
+.Pp
+.An Warner Losh Aq Mt imp@FreeBSD.org
+интегрировал Lua в дерево на основе первоначальной работы, выполненной Pedro Souza
+для Google Summer of Code 2014.

@@ -1,0 +1,79 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2023 Beckhoff Automation GmbH & Co. KG
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/fwget/fwget.8
+.\" FRDP githash fc618b5f7e5844b859030d8337b2b272dc20169e
+.\" FRDP hash256 1a9df7fc4701f58e480a29095f59a3b7317d854fd185d58a1af4ff738f35a044
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 7, 2025
+.Dt FWGET 8
+.Os
+.Sh ИМЯ
+.Nm fwget
+.Nd установка пакетов прошивок для работающей системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl n
+.Op Fl v
+.Op Ar subsystem
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для обнаружения и установки пакетов прошивок
+для устройств, присутствующих в работающей системе.
+.Pp
+Параметры следующие:
+.Bl -tag -width Fl
+.It Fl n
+Пробный запуск, только показать необходимые пакеты
+.It Fl v
+Более подробный вывод
+.It Ar subsystem
+Аппаратная подсистема(ы); по умолчанию — все поддерживаемые подсистемы.
+Аппаратные подсистемы, разделённые пробелами; принимаются значения
+.Cm pci
+и
+.Cm usb
+.El
+.Sh СМ. ТАКЖЕ
+.Xr firmware 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 14.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Emmanuel Vadot Aq Mt manu@FreeBSD.org
+для Beckhoff Automation GmbH & Co\. KG.
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+В настоящее время эта утилита поддерживает только подсистемы
+.Xr pci 4
+и
+.Xr usb 4 .

@@ -1,0 +1,194 @@
+.\"
+.\" Copyright (c) 2019 Eugene Grosbein <eugen@FreeBSD.org>.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/trim/trim.8
+.\" FRDP githash b2f8d46d898fb50222aefca47d687a852c647b2f
+.\" FRDP hash256 a10b84fdc2425a8e33892b3e3349a0b388b101a9350f8800a73c94da1d9c1aff
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 9, 2025
+.Dt TRIM 8
+.Os
+.Sh ИМЯ
+.Nm trim
+.Nd стирает блоки устройства, содержимое которых не требуется
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Nfqv
+.Fl [ [lo] Xo
+.Bk -words
+.Sm off
+.Ar смещение
+.Op Cm K | k | M | m | G | g | T | t | P | p | E | e ]
+.Sm on
+.Xc
+.Ek
+.Bk -words
+.Op Fl r Ar rfile
+.Ek
+.Ar устройство ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+стирает указанную область устройства.
+Она в основном актуальна для носителей, реализующих trim (например, на основе флеш-памяти
+или с тонким резервированием).
+.Sy Все стираемые данные будут потеряны.
+.Pp
+Утилиту
+.Nm
+не следует использовать на смонтированной файловой системе или активных устройствах,
+входящих в импортированный пул ZFS или другой программный RAID, и ядро
+обычно не разрешает такое использование.
+При использовании на несмонтированной файловой системе
+или неактивном устройстве
+утилита
+.Nm
+стирает блоки неизбирательно, независимо от того, занят блок или нет.
+Обратитесь к команде
+.Xr fsck_ffs 8
+с флагом
+.Fl E
+для trim свободных блоков внутри заполненной UFS и к команде
+.Xr zpool-trim 8
+для trim существующего пула ZFS.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl N
+Не стирать на самом деле ничего, а показать, что было бы сделано (пробный запуск).
+Подразумевает
+.Fl v .
+Это значение по умолчанию.
+Переопределяет
+.Fl f .
+.It Fl f
+Выполнить операцию.
+Переопределяет
+.Fl N .
+.It Fl l Xo
+.Sm off
+.Ar смещение
+.Op Cm K | k | M | m | G | g | T | t | P | p | E | e
+.Sm on
+.Xc
+.It Fl o Xo
+.Sm off
+.Ar смещение
+.Op Cm K | k | M | m | G | g | T | t | P | p | E | e
+.Sm on
+.Xc
+Указывает длину
+.Fl l
+области для trim или её смещение
+.Fl o
+от начала устройства.
+.Sy По умолчанию стирается всё устройство,
+если не указан один или оба этих параметра.
+.Pp
+Аргумент может иметь суффикс из
+.Cm K ,
+.Cm M ,
+.Cm G ,
+.Cm T ,
+.Cm P
+или
+.Cm E
+(в верхнем или нижнем регистре), обозначающий кратность
+килобайтам, мегабайтам, гигабайтам, терабайтам, петабайтам или
+эксабайтам соответственно.
+.It Fl q
+Не выводить ничего, кроме возможных сообщений об ошибках (тихий режим).
+Переопределяет
+.Fl v .
+.It Fl r Ar rfile
+Использует длину указанного
+.Ar rfile
+как длину области для стирания.
+.Sy По умолчанию стирается всё устройство.
+.It Fl v
+Показывать смещение и длину фактически стираемой области в байтах.
+.El
+.Pp
+Более поздние параметры переопределяют предыдущие.
+.Pp
+Учтите, что фактический успех операции зависит от нижележащего
+драйвера устройства, такого как
+.Xr ada 4 ,
+.Xr da 4
+и других.
+Обратитесь к соответствующим страницам Справочника за подробностями о возможных
+особенностях низкоуровневой поддержки команд ATA TRIM или SCSI UNMAP.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+Если окончательная операция стирания для аргумента завершается неудачно, утилита
+.Nm
+возвращает код выхода 1.
+Она также может возвращать один из кодов выхода, определённых в
+.Xr sysexits 3 ,
+следующим образом:
+.Bl -tag -width indent
+.It Dv EX_USAGE
+Указанное смещение или длина области некорректны.
+.It Dv EX_OSERR
+Недостаточно памяти для продолжения.
+.It Dv EX_NOINPUT
+Указанный
+.Ar rfile
+не может быть открыт (возможно, он не существует).
+.It Dv EX_IOERR
+Указанный
+.Ar rfile
+не может быть проверен на размер из-за ошибки ввода/вывода системы.
+.It Dv EX_DATAERR
+Указанный
+.Ar rfile
+не является обычным файлом, каталогом или специальным устройством, поэтому его размер
+не может быть проверен.
+.It Dv EX_UNAVAILABLE
+Указанный
+.Ar rfile
+является файлом специального устройства, не поддерживающим DIOCGMEDIASIZE
+.Xr ioctl 2
+(вероятно, не диск), поэтому его размер не может быть проверен.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ioctl 2 ,
+.Xr sysexits 3 ,
+.Xr ada 4 ,
+.Xr da 4 ,
+.Xr nda 4 ,
+.Xr fsck_ffs 8 ,
+.Xr zpool-trim 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 12.1 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Eugene Grosbein Aq Mt eugen@FreeBSD.org .

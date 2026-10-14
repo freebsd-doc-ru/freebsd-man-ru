@@ -1,0 +1,147 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\" Copyright 2009 Sun Microsystems, Inc.  All rights reserved.
+.\" Use is subject to license terms.
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man1/cstyle.1
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 add08b89b845ed69f27d7de83071583dcbb95bf66b61aad4517442c5f8964f88
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 4, 2022
+.Dt CSTYLE 1
+.Os
+.
+.Sh ИМЯ
+.Nm cstyle
+.Nd проверка некоторых распространённых стилистических ошибок в исходных файлах C
+.Sh СИНТАКСИС
+.Nm
+.Op Fl chpvCP
+.Oo Ar файл Oc Ns …
+.Sh ОПИСАНИЕ
+.Nm
+проверяет исходные файлы C (*.c и *.h) на наличие распространённых стилистических ошибок.
+Он пытается проверить стиль C, описанный в
+.Lk http://www.cis.upenn.edu/~lee/06cse480/data/cstyle.ms.pdf .
+Обратите внимание, что многое в этом документе
+.Em не может
+быть проверено; то, что ваш код
+.Nm Ns -clean
+, не означает, что вы следовали стилю C от Sun.
+.Em Caveat emptor .
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl c
+Проверяет отступы строк продолжения внутри функций.
+Стиль C от Sun
+утверждает, что все операторы должны быть с отступом до соответствующей позиции табуляции,
+а любые строки продолжения после них должны быть с отступом
+.Em ровно
+на четыре пробела от начальной строки.
+Эта опция включает ряд проверок, предназначенных для поиска
+проблем со строками продолжения только внутри функций.
+Эти проверки имеют некоторые ограничения; см.
+.Sy ПРОВЕРКА ПРОДОЛЖЕНИЙ ,
+ниже.
+.It Fl p
+Выполняет некоторые из более придирчивых проверок.
+Включает правила ANSI для
+.Sy #else
+и
+.Sy #endif
+, а также пытается обнаружить пробелы после приведений типов.
+Используется как часть проверок putback.
+.It Fl v
+Подробный вывод; включает текст строки с ошибкой и, для
+.Fl c ,
+первый оператор в текущем блоке продолжения.
+.It Fl P
+Проверяет использование типов, не входящих в POSIX.
+Исторически использовались такие типы, как
+.Sy u_int
+и
+.Sy u_long
+, но теперь они устарели в пользу типов POSIX
+.Sy uint_t ,
+.Sy ulong_t ,
+и т. д.
+Это обнаруживает любое использование устаревших типов.
+Используется как часть проверок putback.
+.It Fl g
+Также выводит вывод в стиле GitHub Actions
+.Li ::error
+.
+.El
+.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width Ds
+.It Ev CI
+Если установлена и не пуста, эквивалентно
+.Fl g .
+.El
+.
+.Sh ПРОВЕРКА ПРОДОЛЖЕНИЙ
+Проверяющий продолжения — это довольно простая машина состояний, которая кое-что знает
+о том, как расположен код C, и может сопоставлять круглые скобки и т. п. на
+нескольких строках.
+У неё есть некоторые ограничения:
+.Bl -enum
+.It
+Макросы препроцессора, вызывающие несбалансированные круглые скобки, запутают
+проверку для этой строки.
+Чтобы исправить это, нужно убедиться, что каждая ветвь оператора
+.Sy #if
+имеет сбалансированные круглые скобки.
+.It
+Некоторые
+.Xr cpp 1
+макросы не требуют
+.Sy ;\& Ns s после них.
+Любые такие макросы
+.Em должны
+быть ALL_CAPS; любые строчные буквы приведут к неправильному выводу.
+.Pp
+Неправильный вывод обычно исправляется после следующего
+.Sy ;\& , { , No или Sy } .
+.El
+Некоторые сообщения об ошибках продолжения заслуживают дополнительного объяснения:
+.Bl -tag -width Ds
+.It Sy несколько операторов, продолженных на несколько строк
+Многострочный оператор, который не разбит на границах операторов.
+Например:
+.Bd -literal -compact -offset Ds
+if (this_is_a_long_variable == another_variable) a =
+    b + c;
+.Ed
+.Pp
+Вызовет эту ошибку.
+Вместо этого сделайте:
+.Bd -literal -compact -offset Ds
+if (this_is_a_long_variable == another_variable)
+    a = b + c;
+.Ed
+.It Sy пустое тело if/for/while не на отдельной строке
+Для наглядности пустые тела операторов if, for и while должны быть
+на отдельной строке.
+Например:
+.Bd -literal -compact -offset Ds
+while (do_something(&x) == 0);
+.Ed
+.Pp
+Вызовет эту ошибку.
+Вместо этого сделайте:
+.Bd -literal -compact -offset Ds
+while (do_something(&x) == 0)
+    ;
+.Ed
+.El

@@ -1,0 +1,139 @@
+.\" Copyright (c) 2002 Gordon Tetlow
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/reboot/nextboot.8
+.\" FRDP githash de670c611b17939712a81dc56f73a3ff84f6c178
+.\" FRDP hash256 ae1cf9202f1673b140f9d3bfa7ef64e892bc65e637758d32cf59abc68463f4f9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 8, 2025
+.Dt NEXTBOOT 8
+.Os
+.Sh ИМЯ
+.Nm nextboot
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aDf
+.Op Fl e Ar переменная=значение
+.Op Fl k Ar ядро
+.Op Fl o Ar параметры
+.Nm
+.Fl D
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+позволяет задать некоторую комбинацию альтернативного ядра, флагов
+загрузки и окружения ядра для следующей загрузки машины.
+Как только
+.Xr loader 8
+загрузит информацию о новом ядре из файла
+.Pa /boot/nextboot.conf ,
+эта конфигурация отключается, так что если новое ядро подвесит машину,
+после перезагрузки машина автоматически вернётся к предыдущей
+конфигурации.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl a
+Этот параметр заставляет
+.Nm
+добавлять данные к существующей конфигурации в
+.Pa /boot/nextboot.conf .
+По умолчанию любая существующая конфигурация перезаписывается.
+.It Fl D
+Вызов
+.Nm
+с этим
+параметром удаляет существующую
+.Nm
+конфигурацию.
+.It Fl e Ar переменная=значение
+Этот параметр добавляет указанную переменную и значение в окружение ядра.
+Значение заключается в кавычки при записи в
+.Nm
+конфигурацию.
+.It Fl f
+Этот
+параметр отключает проверку корректности, которая проверяет, действительно
+ли существует ядро, перед записью
+.Nm
+конфигурации.
+.It Fl k Ar ядро
+Этот параметр задаёт каталог ядра относительно
+.Pa /boot
+для загрузки ядра и любых модулей из него.
+.It Fl o Ar параметры
+Этот параметр
+позволяет передавать флаги ядра для следующей загрузки.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /boot/nextboot.conf"
+.It Pa /boot/nextboot.conf
+Файл конфигурации, в который записывается
+.Nm
+конфигурация.
+.El
+.Sh ПРИМЕРЫ
+Чтобы загрузить ядро
+.Pa GENERIC
+с помощью команды
+.Nm
+:
+.Pp
+.Pp
+Чтобы загрузиться в однопользовательском режиме с обычным ядром:
+.Pp
+.Pp
+Чтобы удалить существующую конфигурацию nextboot:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr boot 8 ,
+.Xr freebsd-update 8 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Оригинальная страница Справочника
+.Nm
+впервые появилась в
+.Fx 2.2 .
+В ней использовался совершенно другой интерфейс для достижения аналогичных
+результатов.
+.Pp
+Текущее воплощение
+.Nm
+появилось в
+.Fx 5.0 .
+.Sh АВТОРЫ
+Эта страница Справочника была написана
+.An Gordon Tetlow Aq Mt gordon@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Код
+.Nm
+реализован в
+.Xr loader 8 .
+Это не самый тщательно протестированный код.
+Это также моя первая попытка писать на Forth.
+.Pp
+Наконец, он делает некоторые злые вещи, например, записывает в файловую
+систему до того, как она была проверена.
+Если он повредит вашу файловую систему, не вините меня.

@@ -1,0 +1,132 @@
+.\"
+.\" Copyright (c) 2019 Google LLC, written by Richard Kralovic <riso@google.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"
+.\" FRDP path usr.sbin/virtual_oss/virtual_equalizer/virtual_equalizer.8
+.\" FRDP githash 9cab9fde5edad9b409dd2317a2aec7815e6d6bed
+.\" FRDP hash256 4c9212d91d1bbdd0ae9eb3e03e753b4336cbcef0947f56558afde593c34aa67b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 12, 2025
+.Dt VIRTUAL_EQUALIZER 8
+.Os
+.Sh ИМЯ
+.Nm virtual_equalizer
+.Nd аудиоэквалайзер
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Op Fl o
+.Op Fl q
+.Op Fl d Ar имя_устройства
+.Op Fl w Ar что
+.Op Fl p Ar часть
+.Op Fl c Ar каналы
+.Op Fl f Ar файл
+.Sh ОПИСАНИЕ
+.Nm
+задаёт указанную амплитудно-частотную характеристику для заданного экземпляра
+.Xr virtual_oss 8
+через управляющее символьное устройство, указанное параметром -d.
+Цель разработки этого эквалайзера — обеспечить точную эквализацию
+для произвольной запрошенной АЧХ ценой повышенной задержки, используя
+так называемый фильтр с конечной импульсной характеристикой, FIR.
+.Pp
+Запрошенная АЧХ задаётся через стандартный ввод или
+файл, указанный параметром -f.
+На каждой строке задаётся одна контрольная точка.
+Каждая строка состоит из двух чисел: частоты в Гц и запрошенного
+усиления.
+Усиление между двумя последовательными контрольными точками
+представляет собой линейную интерполяцию заданных значений контрольных точек.
+.Pp
+Чтобы сделать фильтр конечным, к нему во временной области применяется
+окно Ханна.
+Оконная обработка фактически изменяет АЧХ — фактическая
+характеристика представляет собой свёртку запрошенной характеристики и
+спектра окна.
+Однако она очень близка к запрошенной характеристике.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl q
+Тихий режим: ничего не выводить в стандартный вывод.
+.It Fl d Ar устройство
+Управляющее символьное устройство
+.Xr virtual_oss 8 .
+.It Fl w Ar что
+Выберите часть, к которой должен применяться КИХ-фильтр.
+Допустимые значения: rx_dev, tx_dev, rx_loop и tx_loop.
+Значение по умолчанию — tx_dev.
+.It Fl p Ar часть
+Выберите индекс части, заданной параметром -w, к которой применить фильтр.
+По умолчанию — ноль.
+.It Fl c Ar каналы
+Выберите число каналов, к которым применяется фильтр, начиная с канала
+с номером ноль.
+По умолчанию обновляются все каналы заданной части.
+.It Fl f Ar файл
+Читать коэффициенты фильтра из указанного файла вместо стандартного ввода.
+.It Fl o
+Отключить эквалайзер.
+.It Fl h
+Показать справку.
+.El
+.Sh ПРИМЕРЫ
+Чтобы пропустить только частоты от 200 Гц до 400 Гц:
+.Bd -literal -offset indent
+# Обратите внимание, что параметры -F и -G включают КИХ-фильтрацию.
+virtual_oss -B -C 2 -c 2 -S -Q 0 -b 32 -r 48000 -s 8ms -F 80ms -G 80ms \\
+    -f /dev/dsp -d dsp.virtual -t vdsp.ctl
+
+# Для симплексного режима используйте следующее:
+virtual_oss -B -C 2 -c 2 -S -Q 0 -b 32 -r 48000 -s 8ms -F 80ms -G 80ms \\
+    -R /dev/null -O /dev/dsp -d dsp.virtual -t vdsp.ctl
+
+# Загрузить нормализованные точки фильтра, чтобы избежать переполнения значений отсчётов
+cat << EOF | virtual_equalizer -d /dev/vdsp.ctl -w tx_dev -p 0 -c 2
+NORMALIZE
+199 0.0
+200 1.0
+400 1.0
+401 0.0
+EOF
+
+# Загрузить КИХ-фильтр на основе частотных точек синусоиды
+cat << EOF | virtual_equalizer -d /dev/vdsp.ctl -w tx_dev -p 0 -c 2
+199 0.0
+200 1.0
+400 1.0
+401 0.0
+EOF
+
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr virtual_oss 8
+.Sh АВТОРЫ
+.Nm
+был написан
+.An Richard Kralovic riso@google.com .

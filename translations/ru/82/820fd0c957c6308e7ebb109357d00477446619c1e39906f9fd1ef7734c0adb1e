@@ -1,0 +1,252 @@
+.\"	$NetBSD: gzip.1,v 1.31 2018/10/26 22:10:15 christos Exp $
+.\"
+.\" Copyright (c) 1997, 2003, 2004, 2008, 2009, 2015, 2017 Matthew R. Green
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+.\" AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.bin/gzip/gzip.1
+.\" FRDP githash bc919e81e0b7dadf0ef550d83d0ef910cc20c5bf
+.\" FRDP hash256 820fd0c957c6308e7ebb109357d00477446619c1e39906f9fd1ef7734c0adb1e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 2, 2022
+.Dt GZIP 1
+.Os
+.Sh ИМЯ
+.Nm gzip ,
+.Nm gunzip ,
+.Nm zcat
+.Nd инструмент сжатия/распаковки, использующий кодирование Лемпеля-Зива (LZ77)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cdfhkLlNnqrtVv
+.Op Fl S Ar суффикс
+.Ar файл
+.Oo
+.Ar файл Oo ...
+.Oc
+.Oc
+.Nm gunzip
+.Op Fl cfhkLNqrtVv
+.Op Fl S Ar суффикс
+.Ar файл
+.Oo
+.Ar файл Oo ...
+.Oc
+.Oc
+.Nm zcat
+.Op Fl fhV
+.Ar файл
+.Oo
+.Ar файл Oo ...
+.Oc
+.Oc
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+сжимает и распаковывает файлы, используя кодирование Лемпеля-Зива
+(LZ77).
+Если не указаны
+.Ar файлы
+,
+.Nm
+будет сжимать из стандартного ввода или распаковывать в стандартный вывод.
+В режиме сжатия каждый
+.Ar файл
+будет заменён другим файлом с добавленным суффиксом, заданным параметром
+.Fl S Ar суффикс
+, если возможно.
+.Pp
+В режиме распаковки каждый
+.Ar файл
+будет проверен на существование, как и файл с добавленным суффиксом.
+Каждый аргумент
+.Ar файл
+должен содержать отдельный полный архив;
+если указано несколько
+.Ar файлов ,
+каждый распаковывается по очереди.
+.Pp
+В случае
+.Nm gzcat
+полученные данные затем объединяются так же, как это делает
+.Xr cat 1 .
+.Pp
+Если вызвать как
+.Nm gunzip
+,
+то включается параметр
+.Fl d .
+Если вызвать как
+.Nm zcat
+или
+.Nm gzcat
+,
+то включаются оба параметра
+.Fl c
+и
+.Fl d .
+.Pp
+Эта версия
+.Nm
+также способна распаковывать файлы, сжатые с помощью
+.Xr compress 1 ,
+.Xr bzip2 1 ,
+.Ar lzip ,
+.Xr zstd 1
+или
+.Xr xz 1 .
+.Sh ОПЦИИ
+Доступны следующие параметры:
+.Bl -tag -width XXrXXXrecursiveX
+.It Fl 1 , Fl Fl fast
+.It Fl 2 , 3 , 4 , 5 , 6 , 7 , 8
+.It Fl 9 , Fl Fl best
+Эти параметры изменяют используемый уровень сжатия, при этом
+параметр
+.Fl 1
+является самым быстрым, с меньшим сжатием, а
+параметр
+.Fl 9
+— самым медленным, с оптимальным сжатием.
+Уровень сжатия по умолчанию — 6.
+.It Fl c , Fl Fl stdout , Fl Fl to-stdout
+Этот параметр указывает, что вывод будет направлен в поток
+стандартного вывода, оставляя файлы без изменений.
+.It Fl d , Fl Fl decompress , Fl Fl uncompress
+Этот параметр выбирает распаковку вместо сжатия.
+.It Fl f , Fl Fl force
+Этот параметр включает режим принудительного выполнения.
+Он позволяет обрабатывать файлы с несколькими ссылками, символические ссылки на обычные файлы,
+перезаписывать существующие файлы, читать из терминала или писать в терминал,
+а в сочетании с параметром
+.Fl c
+позволяет несжатым данным проходить без изменений.
+.It Fl h , Fl Fl help
+Этот параметр выводит краткую справку и завершает работу.
+.It Fl k , Fl Fl keep
+Этот параметр запрещает
+.Nm
+удалять входные файлы после сжатия или распаковки.
+.It Fl L , -license
+Этот параметр выводит лицензию
+.Nm .
+.It Fl l , Fl Fl list
+Этот параметр отображает информацию о сжатом и
+несжатом размере файла, коэффициенте сжатия, несжатом имени.
+С параметром
+.Fl v
+он также отображает метод сжатия, CRC, дату и время,
+записанные в файле.
+.It Fl N , Fl Fl name
+Этот параметр предписывает использовать сохранённое имя файла во входном файле
+в качестве имени выходного файла.
+.It Fl n , Fl Fl no-name
+Этот параметр запрещает сохранение имени файла и отметки времени в
+выходном файле.
+.It Fl q , Fl Fl quiet
+С этим параметром предупреждения и ошибки не выводятся.
+.It Fl r , Fl Fl recursive
+Этот параметр используется для
+.Nm
+файлов в дереве каталогов по отдельности, с использованием
+библиотеки
+.Xr fts 3 .
+.It Fl S Ar суффикс , Fl Fl suffix Ar суффикс
+Этот параметр изменяет суффикс по умолчанию с .gz на
+.Ar суффикс .
+.It Fl t , Fl Fl test
+Этот параметр проверяет целостность сжатых файлов.
+.It Fl V , Fl Fl version
+Этот параметр выводит версию программы
+.Nm .
+.It Fl v , Fl Fl verbose
+Этот параметр включает подробный режим, который выводит коэффициент
+сжатия для каждого сжатого файла.
+.El
+.Sh ОКРУЖЕНИЕ
+Если переменная окружения
+.Ev GZIP
+установлена, она разбирается как разделённый пробелами список параметров,
+обрабатываемых перед любыми параметрами командной строки.
+Параметры командной строки переопределяют всё, что указано в
+.Ev GZIP .
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе,
+1 при ошибках
+и 2 при возникновении предупреждения.
+.Sh СИГНАЛЫ
+.Nm
+реагирует на следующие сигналы:
+.Bl -tag -width indent
+.It Dv SIGINFO
+Выводить ход выполнения в стандартный поток ошибок.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bzip2 1 ,
+.Xr compress 1 ,
+.Xr xz 1 ,
+.Xr zstd 1 ,
+.Xr fts 3 ,
+.Xr zlib 3
+.Sh ИСТОРИЯ
+Программа
+.Nm
+изначально была написана Jean-loup Gailly и лицензирована под
+GNU Public Licence.
+Matthew R. Green написал простой интерфейс для
+дистрибутивных носителей
+.Nx 1.3
+на основе свободно распространяемой библиотеки zlib.
+Он был улучшен для большей совместимости по возможностям с оригинальной
+программой
+GNU
+.Nm
+для
+.Nx 2.0 .
+.Pp
+Эта реализация
+.Nm
+была портирована на основе
+.Nx
+.Nm
+версии 20181111
+и впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Эта реализация
+.Nm
+была написана
+.An Matthew R. Green Aq Mt mrg@eterna.com.au
+с поддержкой распаковки, написанной
+.An Xin LI Aq Mt delphij@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Согласно RFC 1952, записанный размер файла хранится в 32-битном
+целом числе, поэтому он не может представлять файлы размером более 4GB.
+Это ограничение также применяется к
+параметру
+.Fl l
+утилиты
+.Nm .

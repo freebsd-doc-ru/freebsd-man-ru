@@ -1,0 +1,218 @@
+.\" Copyright (c) 1996 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Jason R. Thorpe.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+.\" AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $NetBSD: ccdconfig.8,v 1.4 1996/02/28 01:01:17 thorpej Exp $
+.\"
+.\" FRDP path sbin/ccdconfig/ccdconfig.8
+.\" FRDP githash 8432ddac21b3da5fa45b4f934e90e80deaa9cabf
+.\" FRDP hash256 5ffd389ed14d77a18112e02930714872f232e638299bcb6ad15f20d2f8035d00
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 23, 2025
+.Dt CCDCONFIG 8
+.Os
+.Sh ИМЯ
+.Nm ccdconfig
+.Nd утилита настройки драйвера объединённых дисков
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cv
+.Ar ccd
+.Ar ileave
+.Op Ar flags
+.Ar dev ...
+.Nm
+.Fl C
+.Op Fl v
+.Op Fl f Ar config_file
+.Nm
+.Fl u
+.Op Fl v
+.Ar ccd ...
+.Nm
+.Fl U
+.Op Fl v
+.Op Fl f Ar config_file
+.Nm
+.Fl g
+.Op Ar ccd ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для динамической настройки и отмены настройки устройств
+объединённых дисков, или ccd.
+Для получения дополнительной информации о ccd см.
+.Xr ccd 4 .
+.Pp
+Опции перечислены ниже:
+.Bl -tag -width indent
+.It Fl c
+Настроить ccd.
+Это поведение по умолчанию для
+.Nm .
+.It Fl C
+Настроить все устройства ccd, перечисленные в файле конфигурации ccd.
+.It Fl f Ar config_file
+При настройке или отмене настройки всех устройств читать файл
+.Pa config_file
+вместо файла по умолчанию
+.Pa /etc/ccd.conf .
+.It Fl g
+Вывести текущую конфигурацию ccd в формате, пригодном для использования в качестве
+файла конфигурации ccd.
+Если аргументы не указаны, выводятся все настроенные
+ccd.
+В противном случае выводится конфигурация каждого указанного ccd.
+.It Fl u
+Отменить настройку ccd.
+.It Fl U
+Отменить настройку всех устройств ccd, перечисленных в файле конфигурации ccd.
+.It Fl v
+Включить подробный режим работы
+.Nm .
+.El
+.Pp
+ccd описывается в командной строке и в файле конфигурации ccd
+с помощью имени ccd, коэффициента чередования, флагов конфигурации
+ccd и списка одного или нескольких устройств.
+Флаги могут быть представлены
+десятичным числом, шестнадцатеричным числом, списком строк через запятую
+или словом
+.Dq none .
+Флаги перечислены ниже:
+.Bd -literal -offset indent
+CCDF_UNIFORM	0x02		Использовать равномерное чередование
+CCDF_MIRROR	0x04		Поддержка зеркалирования
+CCDF_NO_OFFSET	0x08		Не использовать смещение
+CCDF_LINUX	0x0A		Совместимость с Linux md(4)
+.Ed
+.Pp
+Формат в
+файле конфигурации выглядит точно так же, как если бы он был введён в командной строке.
+Обратите внимание, что в командной строке и в файле конфигурации
+аргумент
+.Pa flags
+является необязательным.
+.Bd -literal -offset indent
+#
+# /etc/ccd.conf
+# Файл конфигурации для устройств объединённых дисков
+#
+
+# ccd           ileave  flags   составляющие устройства
+ccd0            16      none    /dev/da2s1 /dev/da3s1
+.Ed
+.Pp
+Если вы хотите использовать
+.Tn Linux
+.Xr md 4
+режим совместимости, обязательно прочитайте примечания в
+.Xr ccd 4 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/ccd.conf -compact
+.It Pa /etc/ccd.conf
+файл конфигурации ccd по умолчанию
+.El
+.Sh ПРИМЕРЫ
+Ниже показано несколько примеров использования
+.Nm .
+Аргументы, передаваемые
+.Nm ,
+точно такие же, как вы могли бы указать в
+.Pa /etc/ccd.conf
+файле конфигурации.
+Первый пример создаёт полосу из 4 дисков из
+четырёх разделов SCSI-дисков.
+Полоса использует чередование в 64 сектора.
+Второй пример — пример сложной комбинации полосы/зеркала.
+Он читается как полоса из двух дисков da4 и da5, которая зеркалируется
+на полосу из двух дисков da6 и da7.
+Последний пример — простое
+зеркало.
+Второй срез /dev/da8 зеркалируется с третьим срезом /dev/da9
+и назначается ccd0.
+.Bd -literal
+# ccdconfig ccd0 64 none /dev/da0s1 /dev/da1s1 /dev/da2s1 /dev/da3s1
+# ccdconfig ccd0 128 CCDF_MIRROR /dev/da4 /dev/da5 /dev/da6 /dev/da7
+# ccdconfig ccd0 128 CCDF_MIRROR /dev/da8s2 /dev/da9s3
+.Ed
+.Pp
+Ниже приведены соответствующие команды в
+.Tn Linux
+и
+.Fx
+для создания RAID-0 в
+.Tn Linux
+и чтения его во
+.Fx .
+.Bd -literal
+# Создать RAID-0 в Linux:
+mdadm --create --chunk=32 --level=0 --raid-devices=2 /dev/md0 \\
+   /dev/hda1 /dev/hdb1
+# Сделать только что созданный RAID-0 доступным во FreeBSD:
+ccdconfig -c /dev/ccd0 32 linux /dev/ada0s1 /dev/ada0s2
+.Ed
+.Pp
+Когда вы создаёте новый диск ccd, обычно вы хотите
+разметить его с помощью
+.Xr gpart 8
+прежде чем делать что-либо ещё.
+Учтите, что изменение любых параметров ccd: чередования, флагов или
+списка устройств, составляющих диск ccd, обычно уничтожает все предыдущие
+данные на этом диске ccd.
+Если это произошло, обычно хорошей идеей является
+повторная инициализация метки перед [пере]созданием вашего диска ccd.
+.Sh ВОССТАНОВЛЕНИЕ
+Ошибка на диске ccd обычно неисправима, если только вы не используете
+режим зеркалирования.
+Но у зеркалирования есть свои опасности: оно предполагает, что
+обе копии данных в любом заданном секторе одинаковы.
+Это справедливо
+до тех пор, пока не произойдёт ошибка записи или пока вы не замените любую из сторон зеркала.
+Это примитивная реализация зеркалирования.
+Она работает достаточно хорошо, так что если
+у вас начнут возникать ошибки диска, вы сможете сделать резервную копию диска ccd,
+заменить неисправное оборудование и затем пересоздать диск ccd.
+Если вам нужно
+больше, обратите внимание на внешние аппаратные RAID SCSI-боксы,
+RAID-контроллеры (см. GENERIC)
+или программные RAID-системы, такие как
+.Xr graid 8
+или
+.Xr zfs 8 .
+.Sh СМ. ТАКЖЕ
+.Xr dd 1 ,
+.Xr ccd 4 ,
+.Xr gpart 8 ,
+.Xr graid 8 ,
+.Xr rc 8 ,
+.Xr zfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Nx 1.1 .

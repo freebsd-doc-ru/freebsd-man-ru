@@ -1,0 +1,92 @@
+.\" Copyright (c) 2018-2022 Mateusz Piotrowski <0mp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.sbin/setaudit/setaudit.8
+.\" FRDP githash 1238610a27d5bc0914f524296ff587d86eec4c52
+.\" FRDP hash256 9063b24dc0cbe8a8bf00ae1cca8a220b3bb7444fa54e4800d00a5a079cfa96ce
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 21, 2018
+.Dt SETAUDIT 8
+.Os
+.Sh ИМЯ
+.Nm setaudit
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 46U
+.Op Fl a Ar auid
+.Op Fl m Ar маска
+.Op Fl s Ar источник
+.Op Fl p Ar порт
+.Ar команда ...
+.Sh ОПИСАНИЕ
+.Nm
+— инструмент для указания конфигураций аудита для процесса.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl 4
+Использовать IPv4.
+.It Fl 6
+Использовать IPv6.
+.It Fl U
+Обновлять состояние сеанса аудита, а не перезаписывать его.
+По умолчанию
+.Nm
+перезаписывает всё состояние сеанса аудита, используя указанные
+параметры.
+Если
+.Fl U
+указан, обновляются только параметры, заданные в командной строке,
+а остальные остаются без изменений.
+.It Fl a Ar auid
+Идентификатор пользователя аудита или имя пользователя.
+.It Fl m Ar маска
+Строковое представление маски аудита.
+.It Fl s Ar источник
+Адрес IPv4 или IPv6 терминального идентификатора.
+.It Fl p Ar порт
+Порт терминального идентификатора.
+.Xr
+.El
+.Sh ПРИМЕРЫ
+Включить все события аудита, связанные с exe, которые выполняет
+.Ar команда
+и её дочерние процессы:
+.Pp
+.Dl # setaudit -m ex команда
+.Sh СМ. ТАКЖЕ
+.Xr getaudit 2 ,
+.Xr setaudit 2 ,
+.Xr au_mask 3 ,
+.Xr libbsm 3 ,
+.Xr audit_user 5 ,
+.Xr audit 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была написана
+.An Christian S.J. Peron Aq Mt csjp@FreeBSD.org .
+.Sh АВТОРЫ
+Эта
+страница Справочника была написана
+.An Mateusz Piotrowski Aq Mt 0mp@FreeBSD.org .

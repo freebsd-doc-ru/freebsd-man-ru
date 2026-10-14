@@ -1,0 +1,248 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-list.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 30bcfea5b71dc4fd0eb0bfdca8d9ab483b27c548cc0f45b25e93f612171855f3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 25, 2025
+.Dt ZFS-LIST 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-list
+.Nd вывод свойств наборов данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm list
+.Op Fl r Ns | Ns Fl d Ar глубина
+.Op Fl Hp
+.Op Fl j Op Ar --json-int
+.Oo Fl o Ar свойство Ns Oo , Ns Ar свойство Oc Ns … Oc
+.Oo Fl s Ar свойство Oc Ns …
+.Oo Fl S Ar свойство Oc Ns …
+.Oo Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns … Oc
+.Oo Ar файловая_система Ns | Ns Ar том Ns | Ns Ar снимок Oc Ns …
+.
+.Sh ОПИСАНИЕ
+По умолчанию отображаются все файловые системы и тома со следующими
+полями:
+.Sy name , Sy used , Sy available , Sy referenced , Sy mountpoint .
+Снимки отображаются, если свойство пула
+.Sy listsnapshots
+имеет значение
+.Sy on
+.Po по умолчанию —
+.Sy off
+.Pc
+или если указаны параметры
+.Fl t Sy snapshot
+или
+.Fl t Sy all .
+.Bl -tag -width "-d depth"
+.It Fl H
+Используется для режима сценариев.
+Не выводить заголовки и разделять поля одним символом табуляции вместо
+произвольных пробельных символов.
+.It Fl j , -json Op Ar --json-int
+Выводить результат в формате JSON.
+Укажите
+.Sy --json-int
+чтобы выводить числа в целочисленном формате вместо строк в выводе JSON.
+.It Fl d Ar глубина
+Рекурсивно отображать всех потомков набора данных, ограничивая рекурсию до
+.Ar глубина .
+Значение
+.Ar глубина
+равное
+.Sy 1
+отобразит только набор данных и его непосредственных потомков.
+.It Fl o Ar свойство
+Разделённый запятыми список свойств для отображения.
+Каждое свойство должно быть:
+.Bl -bullet -compact
+.It
+Одно из свойств, описанных в разделе
+.Sx "Собственные свойства"
+в
+.Xr zfsprops 7
+.It
+Пользовательское свойство
+.It
+Значение
+.Sy name
+для отображения имени набора данных
+.It
+Значение
+.Sy space
+для отображения свойств использования пространства в файловых системах и томах.
+Это сокращение для указания
+.Fl o Ns \ \& Ns Sy name , Ns Sy avail , Ns Sy used , Ns Sy usedsnap , Ns
+.Sy usedds , Ns Sy usedrefreserv , Ns Sy usedchild
+.Fl t Sy filesystem , Ns Sy volume .
+.El
+.It Fl p
+Отображать числа в разбираемом
+.Pq точном
+виде.
+.It Fl r
+Рекурсивно отображать всех потомков набора данных, указанного в командной строке.
+.It Fl s Ar свойство
+Свойство для сортировки вывода по столбцу в порядке возрастания на основе
+значения свойства.
+Свойство должно быть одним из свойств, описанных в разделе
+.Sx Свойства
+в
+.Xr zfsprops 7
+или значением
+.Sy name
+для сортировки по имени набора данных.
+Можно указать несколько свойств, чтобы они действовали совместно, используя несколько
+.Fl s
+или
+.Fl S
+параметров.
+Несколько параметров
+.Fl s
+и
+.Fl S
+вычисляются слева направо, задавая ключи сортировки в
+порядке убывания приоритета.
+Типы свойств действуют следующим образом:
+.Bl -bullet -compact
+.It
+Числовые типы сортируются в числовом порядке.
+.It
+Строковые типы сортируются в алфавитном порядке.
+.It
+Типы, неприменимые к строке, сортируют эту строку в самый низ,
+независимо от указанного порядка.
+.El
+.Pp
+Если столбцы сортировки не указаны или если две строки вывода сортируются
+одинаково по всем указанным столбцам, то наборы данных и закладки
+сортируются по имени, тогда как снимки сначала сортируются по имени их
+набора данных, а затем по времени их создания.
+Когда столбцы сортировки не указаны, но снимки перечислены, это
+поведение по умолчанию приводит к группировке снимков под их наборами данных в
+хронологическом порядке по времени создания.
+.It Fl S Ar свойство
+То же, что и
+.Fl s ,
+но сортирует по
+.Ar свойство
+в порядке убывания.
+.It Fl t Ar тип
+Разделённый запятыми список типов для отображения, где
+.Ar тип
+— одно из
+.Sy filesystem ,
+.Sy snapshot ,
+.Sy volume ,
+.Sy bookmark ,
+или
+.Sy all .
+Например, указание
+.Fl t Sy snapshot
+отображает только снимки.
+.Sy fs ,
+.Sy snap ,
+или
+.Sy vol
+можно использовать как псевдонимы для
+.Sy filesystem ,
+.Sy snapshot ,
+или
+.Sy volume .
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1: перечисление наборов данных ZFS
+Следующая команда перечисляет все активные файловые системы и тома в системе.
+Снимки отображаются, если
+.Sy listsnaps Ns = Ns Sy on .
+По умолчанию —
+.Sy off .
+См.
+.Xr zpoolprops 7
+для получения дополнительной информации о свойствах пула.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm list
+NAME                      USED  AVAIL  REFER  MOUNTPOINT
+pool                      450K   457G    18K  /pool
+pool/home                 315K   457G    21K  /export/home
+pool/home/anne             18K   457G    18K  /export/home/anne
+pool/home/bob             276K   457G   276K  /export/home/bob
+.Ed
+.Ss Пример 2: перечисление файловых систем и снимков ZFS в формате JSON
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm list Fl j Fl t Ar filesystem,snapshot | Cm jq
+{
+  },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        }
+      }
+    },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        }
+      }
+    },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        }
+      }
+    },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        }
+      }
+    }
+  }
+}
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfsprops 7 ,
+.Xr zfs-get 8

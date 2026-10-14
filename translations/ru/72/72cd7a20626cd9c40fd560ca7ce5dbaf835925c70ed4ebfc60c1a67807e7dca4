@@ -1,0 +1,208 @@
+.\"	$NetBSD: mount_msdos.8,v 1.13 1998/02/06 05:57:00 perry Exp $
+.\"
+.\" Copyright (c) 1993,1994 Christopher G. Demetriou
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgment:
+.\"      This product includes software developed by Christopher G. Demetriou.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/mount_msdosfs/mount_msdosfs.8
+.\" FRDP githash 93f4377caba08e4a47fb9f1878bf609bd4181564
+.\" FRDP hash256 72cd7a20626cd9c40fd560ca7ce5dbaf835925c70ed4ebfc60c1a67807e7dca4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 28, 2017
+.Dt MOUNT_MSDOSFS 8
+.Os
+.Sh ИМЯ
+.Nm mount_msdosfs
+.Nd монтирование файловой системы MS-DOS (FAT)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 9ls
+.Op Fl D Ar DOS_codepage
+.Op Fl g Ar gid
+.Op Fl L Ar locale
+.Op Fl M Ar mask
+.Op Fl m Ar mask
+.Op Fl o Ar options
+.Op Fl u Ar uid
+.Op Fl W Ar table
+.Ar special node
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+присоединяет файловую систему MS-DOS, находящуюся на устройстве
+.Pa special ,
+к глобальному пространству имён файловой системы в месте,
+указанном
+.Pa node .
+Эта команда обычно выполняется
+.Xr mount 8
+во время загрузки, но может использоваться любым пользователем для монтирования
+файловой системы MS-DOS в любом каталоге, которым он владеет (при условии,
+конечно, что у него есть соответствующий доступ к устройству, содержащему
+файловую систему).
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl o Ar options
+Использовать указанные параметры монтирования
+.Ar options ,
+как описано в
+.Xr mount 8 .
+Доступны следующие параметры, специфичные для файловой системы MS-DOS:
+.Bl -tag -width indent
+.It Cm longnames
+Принудительно отображать длинные имена файлов Windows 95.
+.It Cm shortnames
+Принудительно отображать только имена файлов старого формата MS-DOS 8.3.
+.It Cm nowin95
+Полностью игнорировать расширенную информацию о файлах Windows 95.
+.El
+.It Fl u Ar uid
+Установить владельца файлов в файловой системе в
+.Ar uid .
+Владельцем по умолчанию является владелец каталога, на который монтируется
+файловая система.
+.It Fl g Ar gid
+Установить группу файлов в файловой системе в
+.Ar gid .
+Группой по умолчанию является группа каталога, на который монтируется
+файловая система.
+.It Fl m Ar mask
+Указать максимальные права доступа для файлов в файловой системе.
+(Например,
+.Ar mask
+со значением
+.Li 755
+указывает, что по умолчанию владелец должен иметь права на
+чтение, запись и выполнение для файлов, а остальные — только права на чтение
+и выполнение.
+См.
+.Xr chmod 1
+для получения дополнительной информации о восьмеричных режимах файлов.
+Используются только девять младших битов
+.Ar mask .
+Значение
+.Ar -M
+используется, если оно задано, а
+.Ar -m
+опущен.
+Значение
+.Ar mask
+по умолчанию берётся из каталога, на который монтируется файловая система.
+.It Fl M Ar mask
+Указать максимальные права доступа для каталогов в файловой системе.
+Значение
+.Ar -m
+используется, если оно задано, а
+.Ar -M
+опущен.
+Подробности см. в описании предыдущего параметра.
+.It Fl s
+Принудительно игнорировать длинные имена файлов Win'95 и не создавать их.
+.It Fl l
+Принудительно отображать и создавать длинные имена файлов Win'95
+и отдельные даты создания/изменения/доступа.
+.Pp
+Если не задан ни
+.Fl s ,
+ни
+.Fl l ,
+по умолчанию используется
+.Fl l .
+.It Fl 9
+Игнорировать специальные записи каталога Win'95 даже
+при удалении или переименовании файла.
+Это принудительно включает
+.Fl s .
+.It Fl L Ar locale
+Указать имя локали, используемое для преобразования имён файлов
+для имён DOS и Win'95.
+По умолчанию в качестве локального набора символов принимается ISO 8859-1.
+.It Fl D Ar DOS_codepage
+Указать имя кодовой страницы MS-DOS (также известной как кодовая страница IBM/OEM),
+используемое для преобразования имён файлов для имён DOS.
+.It Fl W Ar table
+.Bf Em
+Этот параметр сохранён только для обратной совместимости
+и будет удалён в будущем.
+Пожалуйста, избегайте использования этого параметра.
+.Ef
+.Pp
+Указать имя текстового файла с таблицей преобразования:
+.Pa iso22dos , iso72dos , koi2dos , koi8u2dos .
+.El
+.Sh ПРИМЕРЫ
+Чтобы смонтировать русскую файловую систему MS-DOS, расположенную в
+.Pa /dev/ada1s1 :
+.Pp
+.Pp
+Чтобы смонтировать японскую файловую систему MS-DOS, расположенную в
+.Pa /dev/ada1s1 :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr mount 2 ,
+.Xr unmount 2 ,
+.Xr msdosfs 4 ,
+.Xr fstab 5 ,
+.Xr mount 8
+.Pp
+Список локализованных операционных систем MS:
+.Pa http://www.microsoft.com/globaldev/reference/oslocversion.mspx .
+.Sh ИСТОРИЯ
+Предшественник утилиты
+.Nm mount_msdos
+с именем
+.Nm mount_pcfs
+появился в
+.Nx 0.8 .
+Он был переписан в
+.Nx 1.0
+и впервые появился в
+.Fx 2.0 .
+.Nm mount_msdos
+был переименован в более подходящее название
+.Nm
+в
+.Fx 5.0 .
+Процедура преобразования кодов символов была добавлена в 2003 году.
+.Sh АВТОРЫ
+Первоначальная реализация в виде
+.Nm mount_pcfs
+была написана
+.An -nosplit
+.An Paul Popelka Aq Mt paulp@uts.amdahl.com .
+Он был переписан
+.An Christopher G. Demetriou Aq Mt cgd@NetBSD.org .
+Процедура преобразования кодов символов была добавлена
+.An Ryuichiro Imura Aq Mt imura@ryu16.org .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Использование флага
+.Fl 9
+может привести к повреждению файловых систем,
+хотя повреждение частично устраняется процедурами,
+подобными тем, что используются в Win'95.

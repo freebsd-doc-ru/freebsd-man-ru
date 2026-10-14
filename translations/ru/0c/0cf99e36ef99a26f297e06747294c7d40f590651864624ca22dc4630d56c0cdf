@@ -1,0 +1,150 @@
+.\" Copyright (c) 2004 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/ggate/ggatel/ggatel.8
+.\" FRDP githash 4f2ef756a404df70272b79c16fa7b1689cb0118b
+.\" FRDP hash256 0cf99e36ef99a26f297e06747294c7d40f590651864624ca22dc4630d56c0cdf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 8, 2016
+.Dt GGATEL 8
+.Os
+.Sh ИМЯ
+.Nm ggatel
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Oo Fl o параметр Oc ...
+.Op Fl s Ar размер_сектора
+.Op Fl t Ar тайм-аут
+.Op Fl u Ar номер_устройства
+.Ar путь
+.Nm
+.Cm destroy
+.Op Fl f
+.Fl u Ar номер_устройства
+.Nm
+.Cm list
+.Op Fl v
+.Op Fl u Ar номер_устройства
+.Nm
+.Cm rescue
+.Op Fl v
+.Oo Fl o параметр Oc ...
+.Fl u Ar номер_устройства
+.Ar путь
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является локальным потребителем класса GEOM Gate.
+Её можно использовать в качестве замены устройств
+.Xr md 4
+или как
+.Dq GEOMificator
+для устройств, не поддерживающих GEOM, но в основном она была создана как пример
+того, как использовать и как взаимодействовать с подсистемой ядра GEOM Gate.
+.Pp
+Доступные команды:
+.Bl -tag -width indent
+.It Cm create
+Создать провайдер
+.Nm ggate ,
+связанный с указанным обычным файлом или устройством.
+.It Cm destroy
+Уничтожить указанный провайдер
+.Nm ggate .
+.It Cm list
+Вывести список провайдеров
+.Nm ggate .
+.It Cm rescue
+Перехватить ранее созданный провайдер и обрабатывать ожидающие и будущие
+запросы.
+Это полезно, если исходный процесс
+.Nm
+завершился.
+Чтобы предотвратить потерю данных, указанный путь должен вести к
+обычному файлу или устройству, которые использовались для создания провайдера.
+.El
+.Pp
+Доступные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно уничтожить провайдер
+.Nm ggate
+(отменяет все ожидающие запросы).
+.It Fl o Ar параметр
+Указать права доступа и параметры, используемые при открытии файла или устройства.
+.Bl -tag -width indent
+.It Cm ro
+только для чтения
+.It Cm wo
+только для записи
+.It Cm rw
+чтение и запись
+.It Cm direct
+открывать файл с параметром
+.Dv O_DIRECT
+.El
+.Pp
+По умолчанию используется
+.Cm rw .
+.It Fl s Ar размер_сектора
+Размер сектора для провайдера
+.Nm ggate .
+Если не указан, он берётся из устройства или устанавливается в 512 байт для файлов.
+.It Fl t Ar тайм-аут
+Количество секунд ожидания перед отменой запроса ввода-вывода.
+0 означает отсутствие тайм-аута.
+По умолчанию 30.
+.It Fl u Ar номер_устройства
+Номер устройства для использования.
+.It Fl v
+Не порождать новый процесс, работать на переднем плане и выводить отладочную
+информацию на стандартный вывод.
+.It Ar путь
+Путь к обычному файлу или устройству.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе или 1, если команда завершается ошибкой.
+Чтобы получить подробности об ошибке,
+.Nm
+следует вызвать с параметром
+.Fl v .
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr ggatec 8 ,
+.Xr ggated 8 ,
+.Xr mount 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+, а также эта страница Справочника, были написаны
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org .

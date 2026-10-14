@@ -1,0 +1,71 @@
+.\"
+.\" Copyright (c) 2025 The FreeBSD Foundation
+.\"
+.\" This documentation was written by Björn Zeeb under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path usr.sbin/wlanstat/wlanstat.8
+.\" FRDP githash 89eee8ee2ce57b7884defb8f9af016cd28ef1562
+.\" FRDP hash256 1f9068d9e174744842cdd92a596dca8bf1d12479ff65628d2720668ca573c4ad
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 14, 2025
+.Dt WLANSTAT 8
+.Os
+.Sh ИМЯ
+.Nm wlanstat
+.Nd запрос статистики беспроводной сети 802.11
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Op Fl i Ar ifnet
+.Op Fl l
+.Op Fl m Ar station_MAC_address
+.Op Fl o Ar fmt
+.Op interval
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+является инструментом для запроса статистики 802.11 для
+.Xr wlan 4
+интерфейса.
+Запуск
+.Nm
+без каких-либо опций отобразит текущую статистику
+для
+.Em wlan0
+сетевого интерфейса.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl h
+Вывести справку и выйти.
+.It Fl i Ar ifnet
+Сообщить информацию для указанного
+.Ar ifnet
+вместо заданного по умолчанию
+.Em wlan0 .
+.It Fl l
+Вывести список всех имён полей и их описания.
+.It Fl m Ar station_MAC_address
+Запросить информацию для станции, указанной заданным
+.Ar MAC_address .
+.It Fl o Ar fmt
+Установить формат полей для запроса.
+Это может быть либо предопределённый тег (один из
+.Em default ,
+.Em ampdu ,
+или
+.Em amsdu ) ,
+или список имён полей, разделённых запятыми, без пробелов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ifconfig 8 ,
+.Xr wlandebug 8
+.Pp
+Каталог
+.Pa /usr/src/tools/tools/net80211
+содержит больше утилит, которые могут быть полезны для отладки беспроводных
+проблем.

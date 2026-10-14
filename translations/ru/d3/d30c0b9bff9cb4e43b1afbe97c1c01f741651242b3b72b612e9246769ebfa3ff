@@ -1,0 +1,113 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2025 Hewlett Packard Enterprise Development LP.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-trim.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 d30c0b9bff9cb4e43b1afbe97c1c01f741651242b3b72b612e9246769ebfa3ff
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 30, 2025
+.Dt ZPOOL-TRIM 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-trim
+.Nd инициировать TRIM свободного пространства в пуле хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm trim
+.Op Fl dw
+.Op Fl r Ar rate
+.Op Fl c Ns | Ns Fl s
+.Fl a Ns | Ns Ar pool
+.Oo Ar device Ns Oc Ns …
+.
+.Sh ОПИСАНИЕ
+Инициирует немедленную TRIM-операцию по запросу для всего свободного пространства в
+пуле.
+Эта операция информирует нижележащие устройства хранения обо всех блоках
+в пуле, которые больше не выделены, и позволяет устройствам с тонким
+предоставлением вернуть пространство.
+.Pp
+Ручную TRIM-операцию по запросу можно инициировать независимо от
+настройки свойства пула
+.Sy autotrim .
+См. документацию для свойства
+.Sy autotrim
+выше о типах устройств vdev, которые могут быть подвергнуты TRIM.
+.Bl -tag -width Ds
+.It Fl a , -all
+Выполнить операцию TRIM на
+всех
+пулах.
+.It Fl d , -secure
+Вызывает инициирование безопасного TRIM.
+При выполнении безопасного TRIM
+устройство гарантирует, что данные, хранящиеся в обрезанных блоках, были стерты.
+Это требует поддержки со стороны устройства и поддерживается не всеми SSD.
+.It Fl r , -rate Ar rate
+Управляет скоростью выполнения операции TRIM.
+Без этой
+опции TRIM выполняется как можно быстрее.
+Скорость, выраженная в байтах
+в секунду, применяется для каждого vdev и может быть установлена по-разному для
+каждого конечного vdev.
+.It Fl c , -cancel
+Отменить TRIM на указанных устройствах или на всех подходящих устройствах, если ни одно
+не указано.
+Если одно или несколько целевых устройств недопустимы или в данный момент не
+подвергаются TRIM, команда завершится с ошибкой, и отмена не произойдет ни на одном устройстве.
+.It Fl s , -suspend
+Приостановить TRIM на указанных устройствах или на всех подходящих устройствах, если ни одно
+не указано.
+Если одно или несколько целевых устройств недопустимы или в данный момент не
+подвергаются TRIM, команда завершится с ошибкой, и приостановка не произойдет ни на одном устройстве.
+Затем TRIM можно возобновить, запустив
+.Nm zpool Cm trim
+без флагов на соответствующих целевых устройствах.
+.It Fl w , -wait
+Подождать, пока устройства завершат TRIM, прежде чем вернуть управление.
+.El
+.Sh ПЕРИОДИЧЕСКИЙ TRIM
+На машинах, использующих systemd, таймеры TRIM можно включить для каждого пула отдельно.
+Предоставляются таймерные юниты
+.Nm weekly
+и
+.Nm monthly .
+.Bl -tag -width Ds
+.It Xo
+.Xc
+.Nm systemctl
+.Cm enable
+.Cm zfs-trim-\fIweekly\fB@\fIrpool\fB.timer
+.Cm --now
+.It Xo
+.Xc
+.Nm systemctl
+.Cm enable
+.Cm zfs-trim-\fImonthly\fB@\fIotherpool\fB.timer
+.Cm --now
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr systemd.timer 5 ,
+.Xr zpoolprops 7 ,
+.Xr zpool-initialize 8 ,
+.Xr zpool-wait 8

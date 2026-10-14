@@ -1,0 +1,95 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1987, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/lock/lock.1
+.\" FRDP githash 3ef9e138dd8b70879ba91d84ac623baa0d4b6c91
+.\" FRDP hash256 dc3c5768c24ef16e922233b09e3c71d6910f4f15b177615155b0f3b2d4c3cd5e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 11, 2020
+.Dt LOCK 1
+.Os
+.Sh ИМЯ
+.Nm lock
+.Nd зарезервировать терминал
+.Sh СИНТАКСИС
+.Nm
+.Op Fl npv
+.Op Fl t Ar таймаут
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запрашивает у пользователя пароль, считывает его повторно для проверки
+и затем обычно не освобождает терминал, пока пароль не будет
+повторён.
+Есть два других условия, при которых она завершится: она
+завершится по тайм-ауту через некоторый интервал времени, и она может быть
+завершена кем-то с соответствующими правами.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl n
+Не использовать значение тайм-аута.
+Терминал будет заблокирован навсегда.
+.It Fl p
+Пароль не запрашивается, вместо этого используется текущий
+пароль входа пользователя.
+.It Fl t Ar таймаут
+Предел времени (по умолчанию 15 минут) изменяется на
+.Ar таймаут
+минут.
+.It Fl v
+Отключить переключение виртуальных терминалов, пока этот терминал
+заблокирован.
+Этот параметр реализован способом, аналогичным параметру
+.Fl S
+в
+.Xr vidcontrol 1 ,
+и поэтому имеет те же ограничения.
+Он доступен, только если рассматриваемый терминал является
+виртуальным терминалом
+.Xr syscons 4
+или
+.Xr vt 4 .
+.El
+.Sh ПРИМЕРЫ
+Заблокировать терминал на 5 минут, отключить переключение виртуальных
+терминалов и требовать пароль входа пользователя для разблокировки:
+.Pp
+.Dl $ lock -p -t 5 -v
+.Sh СМ. ТАКЖЕ
+.Xr vidcontrol 1 ,
+.Xr syscons 4 ,
+.Xr vt 4
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .

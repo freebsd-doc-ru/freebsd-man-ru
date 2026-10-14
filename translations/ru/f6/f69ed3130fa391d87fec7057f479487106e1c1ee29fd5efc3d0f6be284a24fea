@@ -1,0 +1,103 @@
+.\" Copyright (c) 2013, 2016 Adrian Chadd <adrian@freebsd.org>
+.\" Copyright (c) 2019 Vladimir Kondratyev <wulf@FreeBSD.org>
+.\" Copyright (c) 2023 Future Crew LLC.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bluetooth/rtlbtfw/rtlbtfw.8
+.\" FRDP githash e63297e1b61e4104ee51e4ed3e170cc2ed24ce38
+.\" FRDP hash256 f69ed3130fa391d87fec7057f479487106e1c1ee29fd5efc3d0f6be284a24fea
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 15, 2025
+.Dt RTLBTFW 8
+.Os
+.Sh ИМЯ
+.Nm rtlbtfw
+.Nd загрузить прошивку для Bluetooth USB-устройств Realtek 87XX/88XX
+.Sh СИНТАКСИС
+.Nm
+.Fl d Ar имя_устройства
+.Fl f Ar путь_к_прошивке
+.Nm
+.Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+загружает указанный файл прошивки в указанное
+.Xr ugen 4
+устройство.
+.Pp
+Эта утилита будет
+.Em только
+работать с Bluetooth USB-устройствами на базе микросхем Realtek 87XX/88XX и некоторыми
+их преемниками.
+Идентификация в настоящее время основана на паре идентификаторов USB производителя/продукта и
+классе интерфейса.
+Для устройств Realtek идентификатор производителя должен быть 0x0bda
+.Pq Dv USB_VENDOR_REALTEK
+а класс/подкласс/протокол интерфейса с номером 0 должны быть Bluetooth RF
+Wireless Controller.
+Устройства, не относящиеся к Realtek, идентифицируются по паре идентификаторов USB производителя/продукта.
+.Pp
+Файлы прошивки доступны в
+.Pa comms/rtlbt-firmware
+порту.
+.Pp
+Утилита
+.Nm
+опрашивает устройство, чтобы определить, какой образ прошивки и конфигурацию платы
+загружать во время выполнения.
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width indent
+.It Fl D
+Включить подробную отладку.
+.It Fl d Ar имя_устройства
+Указать имя устройства
+.Xr ugen 4 .
+.It Fl I
+Включить информационную отладку.
+.It Fl f Ar путь_к_прошивке
+Указать каталог, содержащий файлы прошивки для поиска и загрузки.
+.It Fl h
+Показать сообщение об использовании и выйти.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr libusb 3 ,
+.Xr ng_ubt 4 ,
+.Xr ugen 4 ,
+.Xr devd 8
+.Sh АВТОРЫ
+.Nm
+основана на
+.Xr ath3kfw 8
+утилите, использованной в качестве шаблона загрузчика прошивки, и на исходном коде
+драйвера btrtl для Linux.
+Она написана
+.An Vladimir Kondratyev Aq Mt wulf@FreeBSD.org
+при спонсорской поддержке Future Crew LLC.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Скорее всего.
+Пожалуйста, сообщите, если обнаружите.

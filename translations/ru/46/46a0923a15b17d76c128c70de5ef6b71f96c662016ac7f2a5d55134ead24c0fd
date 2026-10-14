@@ -1,0 +1,235 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/ktrace/ktrace.1
+.\" FRDP githash 96f4be881e8e9e0cb9a6ad2cd9f17f4440983600
+.\" FRDP hash256 46a0923a15b17d76c128c70de5ef6b71f96c662016ac7f2a5d55134ead24c0fd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 17, 2024
+.Dt KTRACE 1
+.Os
+.Sh ИМЯ
+.Nm ktrace
+.Nd включение трассировки процессов ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aCcdi
+.Op Fl f Ar trfile
+.Op Fl g Ar pgrp | Fl p Ar pid
+.Op Fl t Ar trstr
+.Nm
+.Op Fl adi
+.Op Fl f Ar trfile
+.Op Fl t Ar trstr
+.Ar команда
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+включает протоколирование трассировки ядра для указанных процессов.
+Данные трассировки ядра записываются в файл
+.Pa ktrace.out .
+Трассируемые операции ядра включают системные вызовы
+.Pq см. Xr intro 2 ,
+поиск путей в файловой системе
+.Pq Xr namei 9 ,
+обработку сигналов
+.Pq Xr sigaction 2 ,
+и
+.Tn I/O .
+.Pp
+После включения трассировки для процесса данные трассировки будут
+записываться до тех пор, пока процесс не завершится или точка трассировки
+не будет очищена.
+Трассируемый процесс может быстро генерировать огромные объёмы данных
+журнала; настоятельно рекомендуется запомнить, как отключить трассировку,
+прежде чем пытаться трассировать процесс.
+Следующей команды достаточно, чтобы отключить трассировку для всех
+процессов, принадлежащих пользователю, а при выполнении от имени root —
+для всех процессов:
+.Pp
+.Dl \&$ ktrace -C
+.Pp
+Файл трассировки не предназначен для чтения человеком; используйте
+.Xr kdump 1
+для его декодирования.
+.Pp
+Утилиту можно использовать только с ядром, собранным с параметром
+.Dq KTRACE
+в файле конфигурации ядра.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Дописывать в файл трассировки вместо его пересоздания.
+.It Fl C
+Отключить трассировку для всех процессов, принадлежащих пользователю, а при
+выполнении от имени root — для всех процессов в системе.
+.It Fl c
+Очистить указанные точки трассировки, связанные с заданным файлом или
+процессами.
+.It Fl d
+Потомки; выполнить операцию для всех текущих дочерних процессов
+указанных процессов.
+См. также параметр
+.Fl i .
+.It Fl f Ar trfile
+Записывать записи трассировки в
+.Ar trfile
+вместо
+.Pa ktrace.out .
+.It Fl g Ar pgid
+Включить (отключить) трассировку для всех процессов в группе процессов
+(допускается только один флаг
+.Fl g ).
+.It Fl i
+Наследование; передавать флаги трассировки всем будущим дочерним процессам
+указанных процессов.
+См. также параметр
+.Fl d .
+.It Fl p Ar pid
+Включить (отключить) трассировку для указанного идентификатора процесса
+(допускается только один флаг
+.Fl p ).
+.It Fl t Ar trstr
+Указать список точек трассировки для включения или отключения, по одной
+букве на точку.
+Если явный список не указан, используется набор точек трассировки по
+умолчанию.
+.Pp
+Поддерживаются следующие точки трассировки:
+.Pp
+.Bl -tag -width flag -compact
+.It Cm c
+трассировать системные вызовы
+.It Cm f
+трассировать страничные ошибки
+.It Cm i
+трассировать
+.Tn I/O
+.It Cm n
+трассировать преобразования
+.Xr namei 9
+.It Cm p
+трассировать сбои проверки прав
+.It Cm s
+трассировать обработку сигналов
+.It Cm t
+трассировать различные структуры и массивы структур
+.It Cm u
+пользовательские трассировки, создаваемые
+.Xr utrace 2
+.It Cm w
+переключения контекста
+.It Cm y
+трассировать запросы
+.Xr sysctl 3
+.It Cm a
+трассировать аргументы
+.Xr execve 2
+.It Cm e
+трассировать переменные окружения
+.Xr execve 2
+.It Cm x
+трассировать расширенные отчёты об ошибках от ядра, предоставляемые
+.Xr exterr 2
+.It Cm +
+трассировать набор точек трассировки по умолчанию -
+.Cm a, c , e,  i , n , s , t , u , x, y
+.El
+.It Ar команда
+Выполнить
+.Ar команду
+с указанными флагами трассировки.
+.El
+.Pp
+Параметры
+.Fl p ,
+.Fl g ,
+и
+.Ar команда
+являются взаимоисключающими.
+.Sh ТРАССИРОВКА НАРУШЕНИЙ ПРАВ
+Когда указана точка трассировки
+.Cm p ,
+.Nm
+будет записывать нарушения режима прав, связанные с
+.Xr capsicum 4 ,
+допущенные трассируемым процессом.
+Нарушения будут регистрироваться независимо от того, действительно ли
+процесс вошёл в режим прав.
+.Pp
+Разработчикам, заинтересованным в переводе своих программ на Capsicum,
+точки трассировки
+.Cm c , n , p
+могут помочь быстро выявить системные вызовы и поиск путей, которые
+вызывают нарушения.
+.Sh ПРИМЕРЫ
+.Dl $ ktrace -i make
+.Pp
+Трассировать все операции ядра процесса с идентификатором 34:
+.Dl $ ktrace -p 34
+.Pp
+Трассировать все операции ядра процессов в группе процессов 15 и
+передать флаги трассировки всем текущим и будущим дочерним процессам:
+.Dl $ ktrace -idg 15
+.Pp
+Отключить всю трассировку процесса 65:
+.Dl $ ktrace -cp 65
+.Pp
+Отключить трассировку сигналов для процесса 70 и всех текущих дочерних
+процессов:
+.Dl $ ktrace -t s -cdp 70
+.Pp
+Включить трассировку
+.Tn I/O
+для процесса 67:
+.Dl $ ktrace -ti -p 67
+.Pp
+.Dl $ ktrace -c -f tracedata
+.Pp
+Отключить трассировку всех процессов, принадлежащих пользователю:
+.Dl $ ktrace -C
+.Sh СМ. ТАКЖЕ
+.Xr dtrace 1 ,
+.Xr kdump 1 ,
+.Xr truss 1 ,
+.Xr intro 2 ,
+.Xr ktrace 2 ,
+.Xr sigaction 2 ,
+.Xr utrace 2 ,
+.Xr capsicum 4 ,
+.Xr namei 9
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Работает, только если
+.Ar trfile
+является обычным файлом.

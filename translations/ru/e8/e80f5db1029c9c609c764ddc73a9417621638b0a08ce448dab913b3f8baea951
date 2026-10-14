@@ -1,0 +1,506 @@
+.\" Copyright (c) 1987, 1988, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Symmetric Computer Systems.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/bsdlabel/bsdlabel.8
+.\" FRDP githash 9447a4078121fd1ce961fed33dd0099040d0dac9
+.\" FRDP hash256 e80f5db1029c9c609c764ddc73a9417621638b0a08ce448dab913b3f8baea951
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 23, 2025
+.Dt BSDLABEL 8
+.Os
+.Sh ИМЯ
+.Nm bsdlabel
+.Nd чтение и запись метки BSD
+.Sh СИНТАКСИС
+.Nm
+.Op Fl A
+.Ar диск | Fl f Ar файл
+.Nm
+.Fl w
+.Op Fl \&An
+.Op Fl B Op Fl b Ar загрузчик
+.Op Fl m Ar машина
+.Ar диск | Fl f Ar файл
+.Op Ar тип
+.Nm
+.Fl e
+.Op Fl \&An
+.Op Fl B Op Fl b Ar загрузчик
+.Op Fl m Ar машина
+.Ar диск | Fl f Ar файл
+.Nm
+.Fl R
+.Op Fl \&An
+.Op Fl B Op Fl b Ar загрузчик
+.Op Fl m Ar машина
+.Op Fl f
+.Ar диск | Fl f Ar файл
+.Ar файл-прототип
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕВАНИИ
+.Nm
+устарела и недоступна в
+.Fx 16.0
+или более поздних версиях.
+Вместо неё используйте
+.Xr gpart 8
+.Po
+со схемой разбиения
+.Cm BSD
+.Pc ,
+или установите
+.Pa freebsd-bsdlabel
+порт или пакет.
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+устанавливает, исследует или изменяет
+.Bx
+метку на разделе диска или в файле, содержащем образ раздела.
+Кроме того,
+.Nm
+может устанавливать загрузочный код.
+.Ss Имя дискового устройства
+При указании устройства (то есть когда
+параметр
+.Fl f
+не используется),
+префикс пути
+.Pa /dev/
+можно опустить;
+утилита
+.Nm
+автоматически добавит его.
+.Ss Общие параметры
+Параметр
+.Fl A
+включает обработку исторических частей
+.Bx
+метки.
+Если параметр не указан, для этих полей устанавливаются подходящие значения.
+.Pp
+Параметр
+.Fl f
+сообщает
+.Nm ,
+что программа будет работать с файлом вместо раздела диска.
+.Pp
+Параметр
+.Fl n
+останавливает программу
+.Nm
+непосредственно перед изменением диска и выводит
+результат вместо его записи.
+.Pp
+Аргумент
+.Fl m Ar машина
+заставляет
+.Nm
+использовать разметку, подходящую для другой архитектуры.
+Текущие допустимые значения:
+.Cm i386
+и
+.Cm amd64 .
+Если этот параметр опущен,
+.Nm
+будет использовать разметку, подходящую для текущей машины.
+.Ss Чтение метки диска
+Чтобы просмотреть метку на дисковом накопителе, используйте форму
+.Pp
+.Nm
+.Op Fl A
+.Op Fl m Ar машина
+.Ar диск
+.Pp
+.Ar диск
+обозначает рассматриваемый диск и может иметь вид
+.Pa da0
+или
+.Pa /dev/da0 .
+Будет отображена разметка разделов.
+.Ss Запись стандартной метки
+Чтобы записать стандартную метку, используйте форму
+.Pp
+.Nm
+.Fl w
+.Op Fl \&An
+.Op Fl m Ar машина
+.Ar диск
+.Op Ar тип
+.Pp
+Если указан
+.Ar тип
+накопителя, используется запись с этим именем в файле
+.Xr disktab 5
+; в противном случае, или если тип указан как 'auto', используется
+разметка по умолчанию.
+.Ss Редактирование существующей метки диска
+Чтобы отредактировать существующую метку диска, используйте форму
+.Pp
+.Nm
+.Fl e
+.Op Fl \&An
+.Op Fl m Ar машина
+.Ar диск
+.Pp
+Эта команда открывает метку диска в редакторе по умолчанию, и когда редактор
+завершает работу, метка проверяется и, если всё в порядке, записывается на диск.
+.Ss Восстановление метки диска из файла
+Чтобы восстановить метку диска из файла, используйте форму
+.Pp
+.Nm
+.Fl R
+.Op Fl \&An
+.Op Fl m Ar машина
+.Ar диск файл-прототип
+.Pp
+Утилита
+.Nm
+способна восстановить метку диска, ранее сохранённую в файле в формате
+.Tn ASCII .
+Файл-прототип, используемый для создания метки, должен быть в том же формате,
+который получается при чтении или редактировании метки.
+Комментарии отделяются
+.Ql #
+и новой строкой.
+.Ss Установка загрузочных кодов
+Если указан параметр
+.Fl B ,
+загрузочный код будет прочитан из файла
+.Pa /boot/boot
+и записан на диск.
+Параметр
+.Fl b Ar загрузчик
+позволяет использовать другой файл.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /boot/boot
+Образ загрузки по умолчанию.
+.It Pa /etc/disktab
+Файл описания диска.
+.El
+.Sh ФОРМАТ СОХРАНЁННОГО ФАЙЛА
+Утилита
+.Nm
+использует
+.Tn ASCII
+версию метки при просмотре, редактировании или восстановлении метки
+диска.
+Формат таков:
+.Bd -literal -offset 4n
+
+8 partitions:
+#        size   offset    fstype   [fsize bsize bps/cpg]
+  a:    81920       16    4.2BSD     2048 16384  5128
+  b:  1091994    81936      swap
+.Ed
+.Pp
+Если указан параметр
+.Fl A ,
+формат таков:
+.Bd -literal -offset 4n
+# /dev/da1c:
+type: SCSI
+disk: da0s1
+label:
+flags:
+bytes/sector: 512
+sectors/track: 51
+tracks/cylinder: 19
+sectors/cylinder: 969
+cylinders: 1211
+sectors/unit: 1173930
+rpm: 3600
+interleave: 1
+trackskew: 0
+cylinderskew: 0
+headswitch: 0           # milliseconds
+track-to-track seek: 0  # milliseconds
+drivedata: 0
+
+8 partitions:
+#        size   offset    fstype   [fsize bsize bps/cpg]
+  a:    81920       16    4.2BSD     1024  8192    16
+  b:   160000    81936      swap
+.Ed
+.Pp
+Строки, начинающиеся с символа
+.Ql #
+являются комментариями.
+.Pp
+Таблица разделов может содержать до 8 записей.
+Она содержит следующую информацию:
+.Bl -tag -width indent
+.It Ar #
+Идентификатор раздела — это одна буква в диапазоне от
+.Ql a
+до
+.Ql h .
+По соглашению раздел
+.Ql c
+зарезервирован для описания всего диска.
+.It Ar size
+Размер раздела в секторах,
+.Cm K
+(килобайты — 1024),
+.Cm M
+(мегабайты — 1024*1024),
+.Cm G
+(гигабайты — 1024*1024*1024),
+.Cm %
+(процент свободного пространства
+.Em после
+удаления всех разделов фиксированного размера, кроме раздела
+.Ql c ) ,
+или
+.Cm *
+(всё оставшееся свободное пространство
+.Em после
+разделов фиксированного размера и процентных разделов).
+Для раздела
+.Ql c
+размер
+.Cm *
+означает весь диск.
+Допускаются суффиксы в нижнем регистре
+.Cm K , M ,
+и
+.Cm G .
+Размер и суффикс следует указывать без пробелов между ними.
+.Pp
+Пример: 2097152, 1G, 1024M и 1048576K — все одного размера
+(при условии 512-байтовых секторов).
+.It Ar offset
+Смещение начала раздела от начала
+накопителя в секторах, или
+.Cm * ,
+чтобы
+.Nm
+вычислила правильное используемое смещение (конец предыдущего раздела плюс
+один, игнорируя раздел
+.Ql c ) .
+Для раздела
+.Ql c ,
+.Cm *
+будет интерпретироваться как смещение 0.
+Первый раздел должен начинаться со смещения 16, поскольку первые 16 секторов
+зарезервированы для метаданных.
+.It Ar fstype
+Описывает назначение раздела.
+В приведённом выше примере показаны все используемые в настоящее время типы разделов.
+Для файловых систем
+.Tn UFS
+и разделов
+.Xr ccd 4
+используйте тип
+.Cm 4.2BSD .
+Другие распространённые типы —
+.Cm swap
+и
+.Cm unused .
+По соглашению раздел
+.Ql c
+представляет весь срез и должен иметь тип
+.Cm unused ,
+хотя
+.Nm
+не требует соблюдения этого соглашения.
+Утилита
+.Nm
+также знает о ряде других типов разделов,
+ни один из которых в настоящее время не используется.
+(См. определения, начинающиеся с
+.Dv FS_UNUSED
+в
+.In sys/disklabel.h
+для получения более подробной информации.)
+.It Ar fsize
+Только для файловых систем
+.Cm 4.2BSD
+размер фрагмента; см.
+.Xr newfs 8 .
+.It Ar bsize
+Только для файловых систем
+.Cm 4.2BSD
+размер блока; см.
+.Xr newfs 8 .
+.It Ar bps/cpg
+Для файловых систем
+.Cm 4.2BSD
+число цилиндров в группе цилиндров; см.
+.Xr newfs 8 .
+.El
+.Sh ПРИМЕРЫ
+Отобразить метку для первого среза
+.Pa da0
+диска, полученную через
+.Pa /dev/da0s1 :
+.Pp
+.Pp
+Сохранить метку в памяти для
+.Pa da0s1
+в файл
+.Pa savedlabel .
+Этот файл можно использовать с параметром
+.Fl R
+для восстановления метки позже:
+.Pp
+.Pp
+Создать метку для
+.Pa da0s1 :
+.Pp
+.Pp
+Прочитать метку для
+.Pa da0s1 ,
+отредактировать её и установить результат:
+.Pp
+.Pp
+Прочитать метку на диске для
+.Pa da0s1 ,
+отредактировать её и показать, какой будет новая метка (в секторах).
+Она
+.Em не
+устанавливает новую метку ни в памяти, ни на диске:
+.Pp
+.Pp
+Записать метку по умолчанию на
+.Pa da0s1 .
+Используйте другую команду
+.Nm Fl e
+для редактирования информации о разбиении и файловой системе:
+.Pp
+.Pp
+Восстановить метку на диске и в памяти для
+.Pa da0s1
+из информации в
+.Pa savedlabel :
+.Pp
+.Pp
+Показать, какой будет метка для
+.Pa da0s1
+при использовании разметки разделов в
+.Pa label_layout .
+Это полезно для определения того, сколько места будет выделено различным
+разделам при схеме меток, использующей
+.Cm % Ns -основанные
+или
+.Cm *
+размеры разделов:
+.Pp
+.Pp
+Установить новый загрузочный код на
+.Pa da0s1 .
+Загрузочный код берётся из
+.Pa /boot/boot :
+.Pp
+.Pp
+Установить новую метку и загрузочный код.
+Загрузочный код берётся из файла
+.Pa newboot
+в текущем рабочем каталоге:
+.Pp
+.Pp
+Полностью стереть всю предыдущую информацию на диске, создав новый загрузочный
+диск с таблицей разделов
+.Tn DOS
+содержащей один срез, покрывающий весь диск.
+Инициализировать метку на этом срезе,
+затем отредактировать её.
+Команды
+.Xr dd 1
+необязательны, но могут потребоваться некоторым
+.Tn BIOS Ns -системам
+для корректного
+распознавания диска:
+.Bd -literal -offset indent
+dd if=/dev/zero of=/dev/da0 bs=512 count=32
+gpart create -s MBR da0
+gpart add -t freebsd da0
+gpart set -a active -i 1 da0
+gpart bootcode -b /boot/mbr da0
+dd if=/dev/zero of=/dev/da0s1 bs=512 count=32
+bsdlabel -w -B da0s1
+bsdlabel -e da0s1
+.Ed
+.Pp
+Это пример метки диска, использующей некоторые из новых типов размеров разделов,
+таких как
+.Cm % , M , G ,
+и
+.Cm * ,
+который можно использовать в качестве исходного файла для
+.Bd -literal -offset 4n
+# /dev/ada0s1:
+
+8 partitions:
+#        size   offset    fstype   [fsize bsize bps/cpg]
+  a:   400M       16    4.2BSD     4096 16384    75    # (Cyl.    0 - 812*)
+  b:     1G        *      swap
+  c:      *        *    unused
+  e: 204800        *    4.2BSD
+  f:     5g        *    4.2BSD
+  g:      *        *    4.2BSD
+.Ed
+.Sh ДИАГНОСТИКА
+Драйверы устройств ядра не позволяют уменьшать размер раздела диска
+или изменять смещение раздела, пока он открыт.
+.Sh СОВМЕСТИМОСТЬ
+Из-за использования
+.Vt uint32_t
+для хранения числа секторов
+.Bx
+метки ограничены максимумом в 2^32-1 секторов.
+Обычно это означает 2 ТБ дискового пространства.
+Большие диски следует разбивать другим методом, например
+.Xr gpart 8 .
+.Pp
+Различные
+.Bx Ns -системы
+используют немного различающиеся версии
+.Bx
+меток и
+обычно несовместимы.
+.Sh СМ. ТАКЖЕ
+.Xr ccd 4 ,
+.Xr geom 4 ,
+.Xr md 4 ,
+.Xr disktab 5 ,
+.Xr boot0cfg 8 ,
+.Xr gpart 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm disklabel
+появилась в
+.Bx 4.3 Tahoe .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Схема disklabel поддерживает до 20 разделов, но
+.Nm
+поддерживает только 8 разделов.
