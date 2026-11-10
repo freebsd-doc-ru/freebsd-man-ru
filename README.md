@@ -115,27 +115,53 @@ Example:
 
 ```sh
 git -C ~/freebsd-src checkout main
+tools/man-tr-fix.sh meta/main.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/main.tsv
+tools/man-tr-fix.sh meta/main.tsv translations/ru
 git -C ~/freebsd-src checkout stable/15
+tools/man-tr-fix.sh meta/stable15.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/stable15.tsv
+tools/man-tr-fix.sh meta/stable15.tsv translations/ru
+git -C ~/freebsd-src checkout releng/15.2
+tools/man-tr-fix.sh meta/releng15.2.tsv translations/ru
+tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.2.tsv
+tools/man-tr-fix.sh meta/releng15.2.tsv translations/ru
 git -C ~/freebsd-src checkout releng/15.1
+tools/man-tr-fix.sh meta/releng15.1.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.1.tsv
+tools/man-tr-fix.sh meta/releng15.1.tsv translations/ru
 git -C ~/freebsd-src checkout releng/15.0
+tools/man-tr-fix.sh meta/releng15.0.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.0.tsv
+tools/man-tr-fix.sh meta/releng15.0.tsv translations/ru
 git -C ~/freebsd-src checkout stable/14
+tools/man-tr-fix.sh meta/stable14.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/stable14.tsv
+tools/man-tr-fix.sh meta/stable14.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.5
+tools/man-tr-fix.sh meta/releng14.5.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.5.tsv
+tools/man-tr-fix.sh meta/releng14.5.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.4
+tools/man-tr-fix.sh meta/releng14.4.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.4.tsv
+tools/man-tr-fix.sh meta/releng14.4.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.3
+tools/man-tr-fix.sh meta/releng14.3.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.3.tsv
+tools/man-tr-fix.sh meta/releng14.3.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.2
+tools/man-tr-fix.sh meta/releng14.2.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.2.tsv
+tools/man-tr-fix.sh meta/releng14.2.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.1
+tools/man-tr-fix.sh meta/releng14.1.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.1.tsv
+tools/man-tr-fix.sh meta/releng14.1.tsv translations/ru
 git -C ~/freebsd-src checkout releng/14.0
+tools/man-tr-fix.sh meta/releng14.0.tsv translations/ru
 tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng14.0.tsv
+tools/man-tr-fix.sh meta/releng14.0.tsv translations/ru
 ```
 
 Recomended run sequence:
@@ -156,6 +182,7 @@ Prepare candidates list for translation based on `meta/main.tsv`, check existing
 and output result into `output.txt`
 ```sh
 tools/man-tr-candidates.sh meta/main.tsv translations/ru output.txt
+tools/man-tr-candidates.sh meta/releng15.2.tsv translations/ru releng15.2_20261110.txt
 ```
 
 
