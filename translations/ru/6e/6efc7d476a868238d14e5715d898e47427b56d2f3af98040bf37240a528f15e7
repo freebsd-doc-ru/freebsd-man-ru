@@ -1,0 +1,74 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2020 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/loader.conf.lua.5
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 6efc7d476a868238d14e5715d898e47427b56d2f3af98040bf37240a528f15e7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 10, 2023
+.Dt LOADER.CONF.LUA 5
+.Os
+.Sh ИМЯ
+.Nm loader.conf.lua
+.Nd информация о конфигурации Lua для начальной загрузки системы
+.Sh ОПИСАНИЕ
+Когда основанный на Lua
+.Xr loader 8
+встречает в
+.Va loader_conf_files
+имя файла с суффиксом
+.Dq .lua
+, такой файл будет загружен и выполнен интерпретатором Lua в ограниченной среде.
+.Pp
+Ограниченная среда не позволяет ссылаться на другие модули Lua или загружать их.
+К существующим переменным окружения загрузчика можно обращаться так, как если бы они уже были определены как глобальные переменные.
+.Pp
+Файл конфигурации Lua может задавать любую глобальную переменную, которая затем будет обработана и добавлена в окружение после завершения выполнения файла конфигурации.
+Кроме настройки
+.Ar exec
+, все переменные, описанные в
+.Xr loader.conf 5
+, в среде
+.Nm
+работают одинаково.
+Обратите внимание, что настройки, описывающие параметры модулей, можно задавать только в окружении; в настоящее время не существует способа для
+.Pa loader.conf.lua
+получить их.
+В настоящее время глобальные значения таблиц и функций игнорируются.
+.Pp
+Хук
+.Fn config.buildenv
+будет запущен с предоставленным ему пустым окружением, которое пользовательский
+.Pa local.lua
+может заполнить.
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5
+.Sh АВТОРЫ
+Механизм загрузки файлов
+.Nm
+был первоначально написан
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

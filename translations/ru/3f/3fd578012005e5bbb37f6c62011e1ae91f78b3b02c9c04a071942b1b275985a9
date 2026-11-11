@@ -1,0 +1,59 @@
+.\" $NetBSD: rpc.5,v 1.3 2000/06/15 20:05:54 fvdl Exp $
+.\" Copyright 1989 AT&T
+.\" FRDP path lib/libc/rpc/rpc.5
+.\" FRDP githash dc36d6f9bb1753f3808552f3afd30eda9a7b206a
+.\" FRDP hash256 3fd578012005e5bbb37f6c62011e1ae91f78b3b02c9c04a071942b1b275985a9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 10, 1991
+.Dt RPC 5
+.Os
+.Sh ИМЯ
+.Nm rpc
+.Nd База данных номеров программ RPC
+.Sh СИНТАКСИС
+.Pa /etc/rpc
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит имена, читаемые пользователем, которые можно использовать вместо номеров программ RPC.
+Для каждой программы RPC должна присутствовать одна строка со следующей информацией:
+.Pp
+.Bl -enum -compact
+.It
+имя программы RPC
+.It
+номер программы RPC
+.It
+псевдонимы
+.El
+.Pp
+Элементы разделяются любым числом пробелов и/или символов табуляции.
+Символ решётки
+.Pq Dq Li #
+указывает начало комментария; символы до конца
+строки не интерпретируются процедурами, которые выполняют поиск по файлу.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/nsswitch.conf -compact
+.It Pa /etc/nsswitch.conf
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён пример базы данных RPC:
+.Bd -literal
+#
+#	rpc
+#
+rpcbind		100000	portmap	sunrpc portmapper
+rusersd		100002	rusers
+nfs		100003	nfsprog
+mountd		100005	mount	showmount
+walld		100008	rwall	shutdown
+sprayd		100012	spray
+llockmgr	100020
+nlockmgr	100021
+status		100024
+bootparam	100026
+keyserv		100029	keyserver
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr getrpcent 3

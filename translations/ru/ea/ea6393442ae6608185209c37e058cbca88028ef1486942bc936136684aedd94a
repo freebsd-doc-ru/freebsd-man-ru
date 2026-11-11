@@ -1,0 +1,332 @@
+.\"	$KAME: rrenumd.conf.5,v 1.8 2001/02/06 02:17:23 jinmei Exp $
+.\"
+.\" Copyright (C) 1995, 1996, 1997, and 1998 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rrenumd/rrenumd.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 ea6393442ae6608185209c37e058cbca88028ef1486942bc936136684aedd94a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 5, 1998
+.Dt RRENUMD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm rrenumd.conf
+.Nd файл конфигурации демона перенумерации маршрутизаторов
+.Sh ОПИСАНИЕ
+Файл конфигурации rrenumd описывает, как должен быть сформирован пакет
+перенумерации маршрутизатора и в какие назначения его следует отправлять.
+Этот файл состоит из последовательности операторов, завершаемых точкой с запятой (`;').
+Операторы состоят из лексем, разделённых пробельными символами, которыми может быть
+любая комбинация пробелов, табуляций и переводов строк.
+Эта структура упрощает идентификацию связанных друг с другом частей конфигурации.
+Строки, начинающиеся с
+.Ql #
+являются комментариями.
+.Sh Синтаксис метаязыка
+Ключевые слова и специальные символы, которые синтаксический анализатор ожидает
+встретить без изменений, отображаются с использованием
+.Ic жирного
+шрифта.
+Параметры обозначаются с помощью
+.Ar подчёркивания .
+Параметры, заключённые в квадратные скобки (`[' и `]'), используются для обозначения
+необязательных ключевых слов и параметров.
+Вертикальная черта (`|') используется для указания выбора между необязательными
+параметрами.
+Фигурные скобки (`{' и `}') используются для группировки ключевых слов и параметров
+при необходимости.
+.Sh Спецификация интерфейса
+Некоторые операторы могут или должны указывать интерфейс.
+.Ar lo0
+и
+.Ar ep1 .
+.Sh Операторы конфигурации
+.Bl -tag -width Ds
+.It Ic debug on|off ;
+Включает отладку синтаксического анализатора файла конфигурации.
+При указании
+.Ic on
+отладка включается.
+При указании
+.Ic off
+отладка отключается.
+По умолчанию она отключена.
+.It Ic dest Ar список-назначений Op Ar команда-повтора ;
+Указывает назначения, в которые должны отправляться сообщения о перенумерации
+маршрутизатора.
+.Ar список-назначений
+может быть любой комбинацией одного или нескольких числовых адресов IPv6
+или полных доменных имён (FQDN).
+.Ar команда-повтора
+имеет следующий синтаксис.
+.Bl -tag -width Ds
+.It Ic retry Ar число-повторов
+.Ar число-повторов
+указывает, сколько сообщений о перенумерации маршрутизатора отправляется повторно.
+.El
+.It Op Ic add|change|setglobal
+.Cm match-prefix Ar значение-префикса-совпадения
+.Bk -words
+.Op /match-prefix-len
+.Ek
+.Bk -words
+.Op Cm maxlen Ar значение-макс-длины
+.Ek
+.Bk -words
+.Op Cm minlen Ar значение-мин-длины
+.Ek
+.Bk -words
+.Op Cm use-prefix Ar значение-используемого-префикса
+.Ek
+.Bk -words
+.Op /use-prefix-len
+.Ek
+.Bk -words
+.Op Cm keeplen Ar значение-сохраняемой-длины
+.Ek
+.Bk -words
+.Op Ar значения-используемого-префикса ;
+.Ek
+.Pp
+Указывает содержимое отправляемого сообщения о перенумерации маршрутизатора
+с seqnum 0.
+Если
+.Cm add|change|setglobal
+не указан, то предполагается
+.Cm add .
+.Ar значения-используемого-префикса
+имеет следующий синтаксис.
+.Pp
+{
+.Op Cm vltime Ar значение-vltime
+.Bk -words
+.Op Cm pltime Ar значение-pltime
+.Ek
+.Bk -words
+.Op Cm raf_onlink Cm on|off
+.Ek
+.Bk -words
+.Op Cm raf_auto Cm on|off
+.Ek
+.Bk -words
+.Op Cm rrf_decrprefd Cm on|off
+.Ek
+.Bk -words
+.Op Cm rrf_decrvalid Cm on|off
+.Ek
+}
+.Pp
+Каждое значение имеет следующий смысл.
+.Pp
+.Bl -tag -width Ds -compact
+.It Cm match-prefix Ar значение-префикса-совпадения Op /match-prefix-len
+Указывает
+.Ar значение-префикса-совпадения ,
+которое используется для сопоставления с заранее назначенными префиксами,
+к которым должна применяться команда
+.Cm add|change|setglobal .
+.Ar /match-prefix-len
+Указывает начальную часть
+.Ar значения-префикса-совпадения ,
+используемую для сопоставления с заранее назначенными префиксами,
+как десятичное число битов.
+.It Cm maxlen Ar значение-макс-длины
+Указывает максимальную длину префиксов, которые разрешено сопоставлять с
+.Ar значение-префикса-совпадения
+в виде десятичного числа битов.
+.It Cm minlen Ar значение-мин-длины
+Указывает минимальную длину префиксов, которые разрешено сопоставлять с
+.Ar значение-префикса-совпадения
+в виде десятичного числа битов.
+.It Cm use-prefix Ar значение-используемого-префикса Op /usr-prefix-len
+Указывает
+.Ar значение-используемого-префикса ,
+которое используется для префиксов, добавляемых командой
+.Cm add|change|setglobal .
+.Ar /use-prefix-len
+Указывает начальную часть
+.Ar значения-используемого-префикса ,
+копируемую в начальную часть префиксов, добавляемых командой
+.Cm add|change|setglobal ,
+в виде десятичного числа битов.
+.It Cm keeplen Ar значение-сохраняемой-длины
+Указывает среднюю часть
+.Ar значение-используемого-префикса
+сразу после начальной части, заданной
+.Ar use-prefix-len ,
+в виде десятичного числа битов.
+Непрерывная часть битов в той же битовой позиции существующего префикса,
+сопоставленного с
+.Ar значение-префикса-совпадения ,
+копируется в ту же битовую позицию добавляемых префиксов.
+.It Cm vltime Ar значение-vmtime
+Назначает
+.Ar время
+как допустимое время жизни префикса для добавляемого префикса.
+Допустимое значение для
+.Ar времени ;
+альтернативно можно указать специальное ключевое слово.
+.It Cm pltime Ar значение-pltime
+Назначает
+.Ar время
+как предпочтительное время жизни префикса для добавляемого префикса.
+Допустимое значение для
+.Ar времени
+такое же, как для
+.Ar значение-vltime .
+.It Cm raf_onlink Cm on|off
+Позволяет добавляемому префиксу иметь характер on-link или off-link
+для назначенного интерфейса.
+При указании
+.Cm on
+префикс имеет характер on-link (например, префикс принадлежит каналу).
+При указании
+.Cm off
+префикс имеет характер off-link (например, префикс не принадлежит каналу).
+.It Cm raf_auto Cm on|off
+Включает или отключает автономную автоматическую конфигурацию адресов
+для добавляемого префикса.
+При указании
+.Cm on
+автономная автоматическая конфигурация адресов включается.
+При указании
+.Cm off
+она отключается.
+.It Cm rrf_decrprefd Cm on|off
+Включает или отключает уменьшение pltime.
+При указании
+.Cm on
+уменьшение pltime включается.
+При указании
+.Cm off
+уменьшение pltime отключается.
+.It Cm rrf_decrvalid Cm on|off
+Включает или отключает уменьшение vltime.
+При указании
+.Cm on
+уменьшение vltime включается.
+При указании
+.Cm off
+уменьшение vltime отключается.
+.El
+.It seqnum Ar значение-seqnum { Ar команда-перенумерации } ;
+Указывает содержимое отправляемого сообщения о перенумерации маршрутизатора
+с некоторым конкретным seqnum.
+Можно указать несколько таких операторов, если их
+.Ar значения-seqnum
+различаются.
+.Ar команда-перенумерации
+имеет такой же синтаксис, как приведённый выше оператор add|change|setglobal.
+.El
+.Sh ПРИМЕРЫ
+Для каждого показанного ниже примера файла конфигурации мы предполагаем,
+что каждая подсеть IPv6 имеет собственный префикс, начинающийся с
+fec0:0:0::/48, и собственный номер подсети
+(в данном случае номер подсети — это значение 7-го и 8-го октетов префикса).
+.Pp
+Если вы хотите назначить каждой подсети префиксы, начинающиеся с
+3ffe:501:ffff::/48, то следующей конфигурации будет достаточно,
+если каждый из ваших маршрутизаторов поддерживает многоадресную пересылку IPv6.
+Номер подсети существующего префикса fec0:0:0::/48 и нового назначенного
+префикса 3ffe:501:ffff::/48 будет одинаковым.
+.Bd -literal -offset indent
+dest ff05::2;
+
+add match-prefix fec0:0:0:: /48 use-prefix 3ffe:501:ffff:: /48 keeplen 16;
+.Ed
+.Pp
+Если ваши маршрутизаторы не поддерживают многоадресную пересылку IPv6,
+вам потребуется указать каждое назначение в команде
+.Cm dest .
+.Bd -literal -offset indent
+dest fec0:0:0:1:260:8ff:fe24:fb3a fec0:0:0:2:200:eff:fe2e:dfe1 fec0:0:0:3:5254:ff:fedc:5217;
+
+add match-prefix fec0:0:0:: /48 use-prefix 3ffe:501:ffff:: /48 keeplen 16;
+.Ed
+.Pp
+Если вы собираетесь выполнять перенумерацию, то следующая процедура будет
+естественной.
+.Bl -enum -offset indent
+.It
+Назначьте новый префикс.
+.It
+Установите для времени жизни старых префиксов некоторый подходящий
+переходный период.
+В следующем примере мы используем 1 неделю как допустимое время жизни
+и 0 как предпочтительное время жизни.
+Также включите истечение срока жизни старых префиксов
+(по умолчанию они статичны и не истекают).
+.It
+После переходного периода старые префиксы должны стать недействительными
+и, возможно, будут удалены.
+Чтобы убедиться, что они удалены, отправьте новое сообщение о перенумерации
+маршрутизатора, в котором старые префиксы указаны как префиксы совпадения,
+а используемый префикс отсутствует.
+.El
+.Pp
+Следующий файл конфигурации выполнит пункты 1 и 2.
+.Bd -literal -offset indent
+dest ff05::2;
+
+seqnum 0 {
+	add match-prefix fec0:0:0:: /48 use-prefix 3ffe:501:fffe:: /48 keeplen 16;
+	};
+
+seqnum 1 {
+	change match-prefix 3ffe:501:ffff:: /48 use-prefix 3ffe:501:ffff:: /48 keeplen 16 vltime d7 pltime 0 rrf_decrvalid on rrf_decrprefd on;
+	};
+.Ed
+.Pp
+А следующий файл конфигурации выполнит пункт 3
+(его следует использовать для сообщения о перенумерации маршрутизатора,
+которое нужно отправить через 1 неделю).
+.Bd -literal -offset indent
+dest ff05::2;
+
+change match-prefix 3ffe:501:ffff:: /48;
+.Ed
+.Pp
+В приведённом выше примере используются только команды
+.Cm add
+и
+.Cm change ,
+и нет примера для команды
+.Cm setglobal .
+Команда
+.Cm setglobal
+почти совпадает с командой
+.Cm change ,
+за исключением того, что она удаляет все предопределённые глобальные адреса IPv6.
+.Sh СМ. ТАКЖЕ
+.Xr prefix 8 ,
+.Xr rrenumd 8
+.Sh ИСТОРИЯ
+Файл конфигурации
+.Nm
+впервые появился в комплекте протокольного стека IPv6 KAME.

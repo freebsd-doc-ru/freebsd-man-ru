@@ -1,0 +1,144 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/hosts.equiv.5
+.\" FRDP githash 96b71cb17e61f11828e2fdfc1bef7ee65406657d
+.\" FRDP hash256 f61fd8798f2fd37f9ad08f09198f376fbda62c5b8db2182a4eb7ee84a7cf136e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 23, 2026
+.Dt HOSTS.EQUIV 5
+.Os
+.Sh ИМЯ
+.Nm hosts.equiv ,
+.Nm rhosts
+.Nd база данных доверенных удалённых хостов и имён пользователей
+.Sh ОПИСАНИЕ
+Файлы
+.Pa hosts.equiv
+и
+.Pa .rhosts
+содержат информацию о
+доверенных хостах и пользователях в сети.
+Для каждого хоста должна присутствовать одна строка
+со следующей информацией:
+.Pp
+простая
+.Bd -unfilled -offset indent
+hostname [username]
+.Ed
+.Pp
+или более подробная форма
+.Bd -unfilled -offset indent
+[+-][hostname|@netgroup] [[+-][username|@netgroup]]
+.Ed
+.Pp
+Символ
+.Dq @
+обозначает хост по сетевой группе или пользователя по сетевой группе.
+Одиночный
+.Dq +
+совпадает со всеми хостами или пользователями.
+Имя хоста с ведущим
+.Dq -
+отклоняет
+все соответствующие хосты и всех их пользователей.
+Имя пользователя с ведущим
+.Dq -
+отклоняет всех соответствующих пользователей с соответствующих хостов.
+.Pp
+Элементы разделяются любым числом пробелов и/или
+символов табуляции.
+Символ
+.Dq #
+обозначает начало
+комментария; символы до конца строки
+не интерпретируются подпрограммами, которые выполняют поиск по файлу.
+.Pp
+Имена хостов задаются в обычной нотации доменов Интернета DNS,
+разделённых точками,
+.Dq .\&
+(точка), с помощью
+.Xr inet_addr 3
+из библиотеки работы с интернет-адресами
+.Xr inet 3 .
+Имена хостов могут содержать любые печатные
+символы, кроме разделителя полей, перевода строки
+или символа комментария.
+.Pp
+По соображениям безопасности файл
+.Nm .rhosts
+пользователя игнорируется, если он не является обычным файлом, если он
+не принадлежит пользователю или
+если он доступен для записи кому-либо, кроме пользователя.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/hosts.equivxxx -compact
+.It Pa /etc/hosts.equiv
+Файл
+.Nm
+находится в
+.Pa /etc .
+.It Pa $HOME/.rhosts
+Файл
+.Nm .rhosts
+находится в
+.Pa $HOME .
+.El
+.Sh ПРИМЕРЫ
+.Dl bar.com foo
+.Pp
+Доверять пользователю
+.Dq foo
+с хоста
+.Dq bar.com .
+.Pp
+.Dl +@allclient
+.Pp
+Доверять всем хостам из сетевой группы
+.Dq allclient .
+.Pp
+.Dl +@allclient -@dau
+.Pp
+Доверять всем хостам из сетевой группы
+.Dq allclient
+и их пользователям,
+кроме пользователей из сетевой группы
+.Dq dau .
+.Sh СМ. ТАКЖЕ
+.Xr gethostbyname 3 ,
+.Xr inet 3 ,
+.Xr innetgr 3 ,
+.Xr ruserok 3 ,
+.Xr netgroup 5 ,
+.Xr ifconfig 8 ,
+.Xr yp 8
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эта страница руководства неполна.
+Для получения дополнительной информации прочитайте
+исходный код в
+.Pa src/lib/libc/net/rcmd.c
+или страницу руководства SunOS.

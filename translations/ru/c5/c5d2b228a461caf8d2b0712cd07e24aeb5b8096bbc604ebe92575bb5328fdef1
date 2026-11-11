@@ -1,0 +1,156 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2003
+.\" Originally written by Sergey A. Osokin
+.\" Rewritten by Tom Rhodes
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/nsmb.conf.5
+.\" FRDP githash dddf29712f38ba1d804c02bcfd02d24098ae48b0
+.\" FRDP hash256 c5d2b228a461caf8d2b0712cd07e24aeb5b8096bbc604ebe92575bb5328fdef1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 2, 2018
+.Dt NSMB.CONF 5
+.Os
+.Sh ИМЯ
+.Nm nsmb.conf
+.Nd файл конфигурации для запросов Server Message Block (SMB1/CIFS)
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит информацию о компьютерах, пользователях и общих ресурсах
+или точках монтирования для сетевого протокола
+.Tn SMB .
+.Pp
+Файлы конфигурации загружаются в следующем порядке:
+.Pp
+.Bl -bullet -compact
+.It
+.Pa ~/.nsmbrc
+.It
+.Pa /etc/nsmb.conf
+.El
+.Pp
+В результате настройки
+.Pa /etc/nsmb.conf
+переопределяют настройки в
+.Pa ~/.nsmbrc .
+.Pp
+Иерархия конфигурации состоит из нескольких разделов,
+причём каждый раздел содержит несколько строк параметров
+и назначенных им значений.
+Каждый из этих разделов должен начинаться с имени раздела, заключённого в
+квадратные скобки, например:
+.Pp
+.D1 Bq Ar section_name
+.Pp
+Конец каждого раздела отмечается либо началом нового раздела,
+либо внезапным концом файла, обычно обозначаемым как
+.Tn EOF .
+Каждый раздел может содержать ноль или более параметров, например:
+.Pp
+.D1 Bq Ar section_name
+.D1 Ar key Ns = Ns Ar value
+.Pp
+где
+.Ar key
+обозначает имя параметра, а
+.Ar value
+— назначенное значение параметра.
+.Pp
+Библиотека
+.Tn SMB
+использует следующую информацию для имён разделов:
+.Pp
+.Bl -tag -width indent -compact
+.It Ic A)
+.Bq Li default
+.It Ic B)
+.Bq Ar SERVER
+.It Ic C)
+.Bq Ar SERVER : Ns Ar USER
+.It Ic D)
+.Op Ar SERVER : Ns Ar USER : Ns Ar SHARE
+.El
+.Pp
+Возможные ключевые слова могут включать:
+.Sh ФАЙЛЫ
+.Bl -tag -width indent -compact
+.It Pa /etc/nsmb.conf
+Файл конфигурации удалённой точки монтирования по умолчанию.
+.It Pa ~/.nsmbrc
+Файл конфигурации удалённой точки монтирования для конкретного пользователя.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён пример файла конфигурации, который может
+соответствовать или не соответствовать вашей среде:
+.Bd -literal -offset indent
+# Файл конфигурации для example.com
+[default]
+workgroup=SALES
+# 'FSERVER' — это сервер NT.
+[FSERVER]
+charsets=koi8-r:cp866
+addr=fserv.example.com
+# Данные пользователя для FSERVER
+[FSERVER:MYUSER]
+password=$$16144562c293a0314e6e1
+.Ed
+.Pp
+Все строки, которые начинаются с символа
+.Ql #
+, являются комментариями и не будут разбираться.
+Раздел
+.Dq Li default
+описывает рабочую группу или домен по умолчанию, в данном случае
+.Dq Li SALES .
+Следующий раздел, обозначенный здесь как
+.Dq Li FSERVER ,
+определяет раздел сервера и затем назначает ему кодировку, которая требуется
+только тогда, когда кириллические символы не используются.
+Значение имени хоста,
+.Dq Li fserv.example.com ,
+также назначается в этом разделе.
+.Dq Li FSERVER:USER ,
+определяет настройки пользователя и полезен для сохранения пароля,
+используемого при конкретном подключении.
+Пароль может быть открытым текстом или замаскирован с помощью простого шифрования.
+Простой зашифрованный пароль начинается с символов `$$1'.
+Предупреждение: функция шифрования очень слаба и предназначена только для сокрытия
+паролей в открытом виде.
+Если требуется использование простого шифрования, для пароля можно использовать
+следующую команду:
+.Bd -literal -offset indent
+smbutil crypt
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr smbutil 1 ,
+.Xr mount_smbfs 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An -nosplit
+.An Sergey Osokin Aq Mt osa@FreeBSD.org
+и
+.An Tom Rhodes Aq Mt trhodes@FreeBSD.org .

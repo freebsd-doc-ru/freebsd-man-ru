@@ -1,0 +1,101 @@
+.\"
+.\" Copyright (c) 2004 Paul Armstrong
+.\" Copyright (c) 2009 Thomas Abthorpe
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\" notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\" notice, this list of conditions and the following disclaimer in the
+.\" documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/portindex.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 af7fe07b4b34b2bfd934b562b2aa82a585c1775b392293aaf813e1d5250aa1db
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 14, 2012
+.Dt PORTINDEX 5
+.Os
+.Sh ИМЯ
+.Nm INDEX
+.Sh ОПИСАНИЕ
+Файл индекса портов в
+.Pa /usr/ports
+содержит различные сведения о дереве портов.
+Для каждой основной ветви
+.Fx
+имеется отдельный файл индекса с именем
+.Dq INDEX- Ns Ar N ,
+где
+.Ar N
+— номер основной версии ветви
+.Fx
+, т.е.:
+.Pa INDEX-7 ,
+или
+.Pa INDEX-8 .
+.Bl -tag -width XXXXXXXXXX
+.It Cm \&name
+Имя пакета.
+.It Cm \&path
+Путь к каталогу порта.
+.It Cm \&install prefix
+Префикс установки по умолчанию.
+.It Cm \&short description
+Краткое описание.
+.It Cm \&full description
+Путь к полному описанию.
+.It Cm \&maintainer email
+Адрес электронной почты сопровождающего.
+.It Cm \&index
+Категории, к которым относится этот порт.
+.It Cm \&build dependencies
+Порты, которые должны быть установлены перед сборкой этого порта.
+.It Cm \&run dependencies
+Порты, которые должны быть установлены для работы этого порта.
+.It Cm \&website
+Веб-сайт проекта для этого порта.
+.It Cm \&e-deps
+Порты, которые могут потребоваться для распаковки этого порта.
+.It Cm \&p-deps
+Порты, которые могут потребоваться для наложения заплат на этот порт.
+.It Cm \&f-deps
+Порты, которые могут потребоваться для загрузки этого порта.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/ports/INDEX-8XX
+.It Pa /usr/ports/INDEX- Ns Ar N
+где
+.Ar N
+— номер основной версии ветви
+.Fx
+.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr build 7 ,
+.Xr ports 7
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была написана
+.An Paul Armstrong
+и
+.An Thomas Abthorpe Aq Mt tabthorpe@FreeBSD.org .

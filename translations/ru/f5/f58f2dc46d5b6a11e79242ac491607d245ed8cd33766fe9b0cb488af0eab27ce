@@ -1,0 +1,166 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/dir.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 f58f2dc46d5b6a11e79242ac491607d245ed8cd33766fe9b0cb488af0eab27ce
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 14, 2018
+.Dt DIR 5
+.Os
+.Sh ИМЯ
+.Nm dir ,
+.Nm dirent
+.Nd формат файла каталога
+.Sh СИНТАКСИС
+.In dirent.h
+.Sh ОПИСАНИЕ
+Каталоги обеспечивают удобный иерархический способ группировки
+файлов, скрывая при этом подробности нижележащего носителя хранения.
+Файл каталога отличается от обычного файла
+флагом в его
+.Xr inode 5
+записи.
+Он состоит из записей (элементов каталога), каждая из которых содержит
+информацию о файле и указатель на сам файл.
+Элементы каталога могут содержать другие каталоги,
+а также обычные файлы; такие вложенные каталоги называются
+подкаталогами.
+Иерархия каталогов и файлов, сформированная таким образом,
+называется файловой системой (или деревом файловой системы).
+.Pp
+Каждый файл каталога содержит два специальных элемента каталога; один — указатель
+на сам каталог,
+называемый точка
+.Ql .\&
+, а другой — указатель на его родительский каталог, называемый точка-точка
+.Ql \&.. .
+Точка и точка-точка
+являются допустимыми именами путей, однако
+корневой каталог системы
+.Ql / ,
+не имеет родителя, и точка-точка указывает на себя так же, как и точка.
+.Pp
+Узлы файловой системы — это обычные файлы каталогов, на которые был
+смонтирован объект файловой системы, такой как физический диск или
+область, разбитая на разделы такого диска.
+(См.
+.Xr mount 2
+и
+.Xr mount 8 . )
+.Pp
+Формат элемента каталога определён в файле
+.In sys/dirent.h
+(который не следует включать напрямую в приложения):
+.Bd -literal
+#ifndef	_SYS_DIRENT_H_
+#define	_SYS_DIRENT_H_
+
+#include <machine/ansi.h>
+
+/*
+ * Структура dirent определяет формат элементов каталога, возвращаемых
+ * системным вызовом getdirentries(2).
+ *
+ * Элемент каталога имеет struct dirent в начале, содержащую его
+ * номер inode, длину элемента и длину имени,
+ * содержащегося в элементе.  Затем следует имя, дополненное до границы
+ * в 8 байт нулевыми байтами.  Все имена гарантированно завершаются нулевым байтом.
+ * Максимальная длина имени в каталоге — MAXNAMLEN.
+ * Явное дополнение добавлено между последним членом заголовка и
+ * d_name, чтобы избежать ABI-дополнения в конце dirent на
+ * архитектурах LP64.  Есть код, зависящий от того, что d_name идёт последним.  Также
+ * сохранение этого дополнения для архитектур ILP32 упрощает слой compat32.
+ */
+
+struct dirent {
+	ino_t      d_fileno;		/* номер файла элемента */
+	off_t      d_off;		/* смещение в каталоге следующего элемента */
+	__uint16_t d_reclen;		/* длина этой записи */
+	__uint8_t  d_type;		/* тип файла, см. ниже */
+	__uint8_t  d_namlen;		/* длина строки в d_name */
+	__uint32_t d_pad0;
+#if __BSD_VISIBLE
+#define	MAXNAMLEN	255
+	char	d_name[MAXNAMLEN + 1];	/* имя не должно быть длиннее этого */
+#else
+	char	d_name[255 + 1];	/* имя не должно быть длиннее этого */
+#endif
+};
+
+/*
+ * Типы файлов
+ */
+#define	DT_UNKNOWN	 0
+#define	DT_FIFO		 1
+#define	DT_CHR		 2
+#define	DT_DIR		 4
+#define	DT_BLK		 6
+#define	DT_REG		 8
+#define	DT_LNK		10
+#define	DT_SOCK		12
+#define	DT_WHT		14
+
+/*
+ * Преобразование между типами структуры stat и типами каталога.
+ */
+#define	IFTODT(mode)	(((mode) & 0170000) >> 12)
+#define	DTTOIF(dirtype)	((dirtype) << 12)
+
+/*
+ * Макрос _GENERIC_DIRSIZ даёт минимальную длину записи, которая вместит
+ * элемент каталога.  Он возвращает объём пространства в struct direct
+ * без поля d_name, плюс достаточно места для имени с завершающим
+ * нулевым байтом (dp->d_namlen+1), округлённый вверх до границы в 8 байт.
+ *
+ * XXX хотя этот макрос находится в пространстве имён реализации, он требует
+ * манифестной константы, которая таковой не является.
+ */
+#define	_GENERIC_DIRLEN(namlen)					\
+	((__offsetof(struct dirent, d_name) + (namlen) + 1 + 7) & ~7)
+#define	_GENERIC_DIRSIZ(dp)	_GENERIC_DIRLEN((dp)->d_namlen)
+#endif /* __BSD_VISIBLE */
+
+#ifdef _KERNEL
+#define	GENERIC_DIRSIZ(dp)	_GENERIC_DIRSIZ(dp)
+#endif
+
+#endif /* !_SYS_DIRENT_H_ */
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr fs 5 ,
+.Xr inode 5
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.At v7 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Использование члена d_type структуры struct dirent непереносимо, так как он
+является .Fx Ns -специфичным .
+Он также может не работать в некоторых файловых системах, например в файловой системе cd9660.

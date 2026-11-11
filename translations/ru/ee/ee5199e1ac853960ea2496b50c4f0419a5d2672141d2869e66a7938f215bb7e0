@@ -1,0 +1,169 @@
+.\"	$OpenBSD: ypldap.conf.5,v 1.19 2012/04/30 11:28:25 jmatthew Exp $
+.\"
+.\" Copyright (c) 2008 Pierre-Yves Ritschard <pyr@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path usr.sbin/ypldap/ypldap.conf.5
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 ee5199e1ac853960ea2496b50c4f0419a5d2672141d2869e66a7938f215bb7e0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: March 22 2020 $
+.Dt YPLDAP.CONF 5
+.Os
+.Sh ИМЯ
+.Nm ypldap.conf
+.Nd файл конфигурации демона карт YP LDAP
+.Sh ОПИСАНИЕ
+Демон
+.Xr ypldap 8
+предоставляет карты YP, используя LDAP в качестве бэкенда.
+.Sh РАЗДЕЛЫ
+Файл конфигурации
+.Nm
+разделён на три основных раздела.
+.Bl -tag -width xxxx
+.It Sy Макросы
+Пользовательские переменные могут быть определены и использованы позже, что упрощает
+файл конфигурации.
+.It Sy Глобальная конфигурация
+Глобальные настройки для
+.Xr ypldap 8 .
+.It Sy Каталоги
+Параметры, специфичные для каталога LDAP.
+.El
+.Sh МАКРОСЫ
+Подобно
+.Xr cpp 1
+или
+.Xr m4 1 ,
+макросы могут быть определены, а затем раскрыты в контексте.
+Имена макросов должны начинаться с буквы, цифры или подчёркивания
+и могут содержать любые из этих символов.
+Имена макросов не могут быть зарезервированными словами (например,
+.Ic domain ) .
+Макросы не раскрываются внутри кавычек.
+.Pp
+Например:
+.Bd -literal -offset indent
+
+
+fixed attribute gecos $fixed_gecos
+.Ed
+.Sh ГЛОБАЛЬНАЯ КОНФИГУРАЦИЯ
+Глобальные настройки определяют основное поведение демона.
+.Pp
+.Bl -tag -width Ds -compact
+.It domain Ar строка
+Указывает имя домена NIS, который будет обслуживать
+.Nm .
+.It interval Ar секунды
+Указывает интервал в секундах, с которым весь каталог будет извлекаться
+из LDAP.
+.It provide map Ar строка
+Указывает карту, которую должен предоставлять
+.Nm .
+В настоящее время реализованы карты: passwd.byname, passwd.byuid,
+group.byname, group.bygid.
+.El
+.Sh КАТАЛОГИ
+Каталоги используются для описания схемы LDAP и помогают
+.Nm
+преобразовывать записи LDAP в строки
+.Xr passwd 5 ,
+.Xr master.passwd 5
+и
+.Xr group 5 .
+Объявление каталога имеет следующий вид:
+.Bd -literal -offset indent
+	# директивы
+}
+.Ed
+.Pp
+Допустимые директивы для каталогов:
+.Bl -tag -width Ds
+.It Xo
+.Ic attribute Ar имя Ic maps to Ar строка
+.Xc
+Сопоставляет атрибут
+.Xr passwd 5 ,
+.Xr master.passwd 5
+или
+.Xr group 5
+с указанным именем атрибута LDAP.
+.It Ic basedn Ar строка
+Использует указанную базу поиска в качестве начальной точки для поиска по каталогу.
+.It Ic groupdn Ar строка
+Использует указанную базу поиска в качестве начальной точки для поиска групп
+в каталоге.
+Если она не указана, будет использоваться значение basedn.
+.It Ic bindcred Ar строка
+Использует указанные учётные данные для простой аутентификации в каталоге.
+.It Ic binddn Ar строка
+Использует указанное отличительное имя (Distinguished Name) для привязки к каталогу.
+.It Ic fixed attribute Ar атрибут Ar строка
+Не извлекает указанный атрибут из LDAP, а
+вместо этого безусловно устанавливает для каждой записи указанное значение.
+.It Ic group filter Ar строка
+Использует указанный фильтр LDAP для извлечения записей групп.
+.It Xo
+.Ic list Ar имя Ic maps to Ar строка
+.Xc
+Сопоставляет атрибут
+.Xr passwd 5 ,
+.Xr master.passwd 5
+или
+.Xr group 5
+с указанным именем атрибута LDAP.
+Список создаёт разделённый запятыми список всех найденных атрибутов LDAP.
+.Pp
+Допустимые атрибуты:
+.Pp
+.Bl -tag -width groupmembers -offset indent -compact
+.It Ic name
+.It Ic passwd
+.It Ic uid
+.It Ic gid
+.It Ic gecos
+.It Ic home
+.It Ic shell
+.It Ic change
+.It Ic expire
+.It Ic class
+.It Ic groupname
+.It Ic grouppasswd
+.It Ic groupgid
+.It Ic groupmembers
+.El
+.It Ic passwd filter Ar строка
+Использует указанный фильтр LDAP для извлечения записей паролей.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/ypldap.conf
+.Xr ypldap 8
+файл конфигурации.
+.It Pa /usr/share/examples/ypldap/ypldap.conf
+.Xr ypldap 8
+пример файла конфигурации.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ypbind 8 ,
+.Xr ypldap 8 ,
+.Xr ypserv 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+впервые появился в
+.Ox 4.4 .

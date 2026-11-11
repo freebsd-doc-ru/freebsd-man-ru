@@ -126,7 +126,7 @@ tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/stable15.tsv
 tools/man-tr-fix.sh meta/stable15.tsv translations/ru
 git -C ~/freebsd-src checkout releng/15.2
 tools/man-tr-fix.sh meta/releng15.2.tsv translations/ru
-tools/man-tr-scan.sh -s 1,8 ~/freebsd-src/  meta/releng15.2.tsv
+tools/man-tr-scan.sh -s 1,8,5 ~/freebsd-src/  meta/releng15.2.tsv
 tools/man-tr-fix.sh meta/releng15.2.tsv translations/ru
 git -C ~/freebsd-src checkout releng/15.1
 tools/man-tr-fix.sh meta/releng15.1.tsv translations/ru

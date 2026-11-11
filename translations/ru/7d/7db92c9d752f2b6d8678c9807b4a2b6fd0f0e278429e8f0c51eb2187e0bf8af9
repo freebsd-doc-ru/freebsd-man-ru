@@ -1,0 +1,154 @@
+.\" Copyright (c) 2001
+.\" Kazutaka YOKOTA <yokota@zodiac.mech.utsunomiya-u.ac.jp>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/device.hints.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 7db92c9d752f2b6d8678c9807b4a2b6fd0f0e278429e8f0c51eb2187e0bf8af9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 19, 2019
+.Dt DEVICE.HINTS 5
+.Os
+.Sh ИМЯ
+.Nm device.hints
+.Nd подсказки о ресурсах устройств
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+читается загрузчиком
+.Xr loader 8
+перед запуском системы, и его содержимое
+передаётся ядру.
+Он содержит различные переменные, управляющие поведением ядра при загрузке.
+Эти переменные обычно представляют собой
+.Dq подсказки устройств ,
+но могут включать любые настраиваемые параметры ядра.
+.Pp
+Файл содержит одну переменную на строку.
+Строки, начинающиеся с символа
+.Ql #
+, считаются комментариями и игнорируются загрузчиком.
+.Pp
+После того как файл прочитан загрузчиком, вы можете просмотреть
+переменные с помощью команды
+.Ic show
+, а также добавить новую переменную, изменить существующую
+или удалить переменную с помощью команд
+.Ic set
+и
+.Ic unset
+загрузчика
+(см.
+.Xr loader 8 ) .
+.Pp
+После запуска системы вы можете вывести эти переменные
+с помощью команды
+.Xr kenv 1 .
+.Sh ПОДСКАЗКИ УСТРОЙСТВ
+Переменные подсказок устройств используются драйверами устройств для настройки
+устройства.
+Чаще всего они используются драйверами устройств ISA, чтобы указать,
+где драйвер будет искать соответствующие устройства и какие
+ресурсы он попытается использовать.
+.Pp
+Строка подсказки устройства выглядит так:
+.Pp
+.Sm off
+.D1 Li hint. Ar driver . Ar unit . Ar keyword Li = Qq Ar value
+.Sm on
+.Pp
+где
+.Ar driver
+— имя драйвера устройства,
+.Ar unit
+— номер устройства, а
+.Ar keyword
+— ключевое слово подсказки.
+Ключевым словом может быть:
+.Pp
+.Bl -tag -width indent
+.It Li at
+указывает шину, к которой подключено устройство.
+.It Li port
+указывает начальный адрес портов ввода-вывода, используемых устройством.
+.It Li portsize
+указывает количество портов, используемых устройством.
+.It Li irq
+задаёт номер линии прерывания, которая будет использоваться.
+.It Li drq
+задаёт номер канала DMA.
+.It Li maddr
+указывает физический адрес памяти, используемый устройством.
+.It Li msize
+указывает размер физической памяти, используемой устройством.
+.It Li flags
+устанавливает различные биты флагов для устройства.
+.It Li disabled
+можно установить в
+.Qq 1
+, чтобы отключить устройство.
+.El
+.Pp
+Драйверу устройства может потребоваться одна или несколько строк подсказок с этими
+ключевыми словами; он также может принимать другие ключевые слова, не перечисленные
+здесь, через
+.Xr resource_int_value 9 .
+Сведения о доступных ключевых словах и их возможных значениях приведены
+на страницах руководства соответствующих драйверов устройств.
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /boot/device.hints"
+.It Pa /boot/device.hints
+Файл подсказок о ресурсах устройств.
+.It Pa /sys/ Ns Ar ARCH Ns Pa /conf/GENERIC.hints
+Образец подсказок о ресурсах для ядра
+.Pa GENERIC .
+.It Pa /sys/ Ns Ar ARCH Ns Pa /conf/NOTES
+Заметки о файле конфигурации ядра и подсказках о ресурсах устройств.
+.El
+.Sh ПРИМЕРЫ
+Следующий пример настраивает ресурсы для драйвера
+.Xr uart 4
+на шине ISA:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Следующий пример отключает драйвер ACPI:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Установка настраиваемой переменной:
+.Bd -literal -offset indent
+vm.pmap.pg_ps_enabled=1
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kenv 1 ,
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr resource_int_value 9
+.Sh ИСТОРИЯ
+Файл
+.Nm
+впервые появился в
+.Fx 5.0 .

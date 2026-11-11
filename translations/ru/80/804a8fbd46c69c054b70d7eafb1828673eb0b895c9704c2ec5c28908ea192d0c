@@ -1,0 +1,80 @@
+.\"	$NetBSD: hesiod.conf.5,v 1.2 1999/01/25 22:37:06 lukem Exp $
+.\"
+.\" from: #Id: hesiod.conf.5,v 1.1 1996/12/08 21:36:38 ghudson Exp #
+.\"
+.\" Copyright 1996 by the Massachusetts Institute of Technology.
+.\"
+.\" Permission to use, copy, modify, and distribute this
+.\" software and its documentation for any purpose and without
+.\" fee is hereby granted, provided that the above copyright
+.\" notice appear in all copies and that both that copyright
+.\" notice and this permission notice appear in supporting
+.\" documentation, and that the name of M.I.T. not be used in
+.\" advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.
+.\" M.I.T. makes no representations about the suitability of
+.\" this software for any purpose.  It is provided "as is"
+.\" without express or implied warranty.
+.\"
+.\" FRDP path share/man/man5/hesiod.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 804a8fbd46c69c054b70d7eafb1828673eb0b895c9704c2ec5c28908ea192d0c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 30, 1996
+.Dt HESIOD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm hesiod.conf
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+определяет поведение библиотеки Hesiod.
+Пустые строки и строки, начинающиеся с символа
+.Ql #
+игнорируются.
+Все
+остальные строки должны иметь вид
+.Ar переменная
+=
+.Ar значение ,
+где
+.Ar значение
+должно быть одним словом.
+Возможные
+.Ar переменные
+и
+.Ar значения :
+.Bl -tag -width classes
+.It Ic lhs
+Задаёт префикс домена, используемый для запросов Hesiod.
+Почти во всех случаях следует указывать
+.Dq Li lhs=.ns .
+Значение по умолчанию, если вы
+не указываете значение lhs, — без префикса домена, что несовместимо
+с большинством доменов Hesiod.
+.It Ic rhs
+Задаёт домен Hesiod по умолчанию; это значение может быть переопределено
+переменной окружения
+.Ev HES_DOMAIN .
+Вы должны указать строку rhs, чтобы библиотека Hesiod
+работала правильно.
+.It Ic classes
+Задаёт, в каких классах DNS Hesiod должен выполнять поиск.
+Возможные значения —
+.Cm IN
+(предпочтительный класс) и
+.Cm HS
+(устаревший класс, всё ещё используемый некоторыми сайтами).
+Можно указать оба класса через
+запятую, чтобы сначала попробовать один класс, а затем другой, если в
+первом классе нет записи.
+Значение по умолчанию для переменной classes —
+.Dq Li IN,HS .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hesiod 3
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Значение по умолчанию для
+.Ic lhs
+вероятно, должно быть более разумным.

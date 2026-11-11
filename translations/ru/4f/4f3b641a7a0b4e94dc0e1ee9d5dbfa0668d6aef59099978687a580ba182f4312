@@ -1,0 +1,118 @@
+.\" Copyright 1998 Juniper Networks, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libtacplus/tacplus.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4f3b641a7a0b4e94dc0e1ee9d5dbfa0668d6aef59099978687a580ba182f4312
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 13, 2023
+.Dt TACPLUS.CONF 5
+.Os
+.Sh ИМЯ
+.Nm tacplus.conf
+.Nd Файл конфигурации клиента TACACS+
+.Sh СИНТАКСИС
+.Pa /etc/tacplus.conf
+.Sh ОПИСАНИЕ
+.Nm
+содержит информацию, необходимую для настройки клиентской библиотеки TACACS+.
+Он обрабатывается
+.Fn tac_config
+(см.
+.Xr libtacplus 3 ) .
+Файл содержит одну или несколько строк текста, каждая из которых описывает
+один сервер TACACS+, который должен использоваться библиотекой.
+Начальные пробельные символы игнорируются, как и пустые строки и строки,
+содержащие только комментарии.
+.Pp
+Сервер TACACS+ описывается как минимум двумя полями в строке.
+Поля разделяются пробельными символами и подчиняются тем же правилам для
+комментариев, кавычек, экранирования и продолжения строк, что и в оболочке POSIX.
+.Pp
+Первое поле задаёт хост сервера — либо полное доменное имя, либо IP-адрес
+в точечной десятичной записи.
+За хостом может необязательно следовать
+.Ql \&:
+и числовой номер порта без промежуточных пробельных символов.
+Если спецификация порта опущена, по умолчанию используется 49 — стандартный
+порт TACACS+.
+.Pp
+Второе поле содержит общий секрет, который должен быть известен только
+клиентскому и серверному хостам.
+Это произвольная строка символов, однако она должна быть заключена в двойные
+кавычки, если содержит пробельные символы или пуста.
+Пустой секрет отключает обычный механизм шифрования, из-за чего все данные
+передаются по сети в открытом виде.
+.Pp
+Необязательное третье поле может содержать десятичное целое число, задающее
+тайм-аут в секундах для связи с сервером.
+Тайм-аут применяется отдельно к каждой операции подключения, записи и чтения.
+Если это поле опущено, по умолчанию используется 3 секунды.
+.Pp
+Необязательное четвёртое поле может содержать строку
+.Ql single-connection .
+Если этот параметр указан, библиотека попытается договориться с сервером
+о сохранении TCP-соединения открытым для нескольких сеансов.
+Некоторые старые серверы TACACS+ работают неправильно, если указан этот параметр.
+.Pp
+Любые последующие поля должны иметь вид
+.Ar атрибут Ns = Ns Ar значение
+и будут добавляться к ответам авторизации так, как если бы они были отправлены
+сервером.
+.Pp
+Можно указать до 10 серверов TACACS+.
+Серверы опрашиваются по порядку, пока не будет получен допустимый ответ или
+список не исчерпан.
+.Pp
+Стандартное расположение этого файла —
+.Pa /etc/tacplus.conf .
+Альтернативный путь может быть указан при вызове
+.Fn tac_config
+(см.
+.Xr libtacplus 3 ) .
+Поскольку файл содержит конфиденциальную информацию в виде общих секретов,
+он не должен быть доступен для чтения никому, кроме root.
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa
+.It Pa /etc/tacplus.conf
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+# Простая запись, использующая все значения по умолчанию:
+tacserver.domain.com	OurLittleSecret
+
+# Сервер, использующий нестандартный порт, с увеличенным тайм-аутом
+# и атрибутами оболочки.
+
+# Сервер, заданный своим IP-адресом:
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libtacplus 3
+.Sh АВТОРЫ
+Эта документация была написана
+.An John Polstra ,
+и передана проекту
+.Fx
+компанией Juniper Networks, Inc.

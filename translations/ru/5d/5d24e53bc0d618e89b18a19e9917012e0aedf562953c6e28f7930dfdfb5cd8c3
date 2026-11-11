@@ -1,0 +1,197 @@
+.\" Copyright 1998 Juniper Networks, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libradius/radius.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5d24e53bc0d618e89b18a19e9917012e0aedf562953c6e28f7930dfdfb5cd8c3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 30, 1999
+.Dt RADIUS.CONF 5
+.Os
+.Sh ИМЯ
+.Nm radius.conf
+.Nd Файл конфигурации клиента RADIUS
+.Sh СИНТАКСИС
+.Pa /etc/radius.conf
+.Sh ОПИСАНИЕ
+.Nm
+содержит информацию, необходимую для настройки библиотеки клиента
+RADIUS.
+Он разбирается
+.Xr rad_config 3 .
+Файл содержит одну или несколько строк текста, каждая из которых описывает
+один сервер RADIUS, который будет использоваться библиотекой.
+Ведущие
+пробельные символы игнорируются, как и пустые строки и строки, содержащие
+только комментарии.
+.Pp
+Сервер RADIUS описывается от трёх до семи полей в строке:
+.Pp
+.Bl -item -offset indent -compact
+.It
+Тип службы
+.It
+Хост сервера
+.It
+Общий секрет
+.It
+Тайм-аут
+.It
+Повторы
+.It
+Время недоступности
+.It
+Адрес привязки
+.El
+.Pp
+Поля разделяются пробельными символами.
+Символ
+.Ql #
+в начале поля начинает комментарий, который продолжается
+до конца строки.
+Поле может быть заключено в двойные кавычки;
+в этом случае оно может содержать пробельные символы и/или начинаться с
+символа
+.Ql # .
+В строке, заключённой в кавычки, символ двойной кавычки может
+быть представлен с помощью, а обратная косая черта — с помощью
+.Ql \e\e .
+Другие escape-последовательности не поддерживаются.
+.Pp
+Первое поле задаёт тип службы: либо
+.Ql auth
+для аутентификации RADIUS, либо
+.Ql acct
+для учёта RADIUS.
+Если один сервер предоставляет обе службы, в файле требуется две
+строки.
+Более ранние версии этого файла не
+содержали тип службы.
+Для обратной совместимости, если первое
+поле не
+.Ql auth
+или
+.Ql acct ,
+библиотека ведёт себя так, как если бы
+.Ql auth
+было указано, и интерпретирует поля в строке так, как если бы
+они были полями со второго по пятое.
+.Pp
+Второе поле задаёт
+хост сервера — либо полное доменное имя, либо
+IP-адрес в виде четырёх чисел, разделённых точками.
+После хоста необязательно может следовать
+.Ql \&:
+и числовой номер порта без промежуточных пробелов.
+Если
+спецификация порта опущена, по умолчанию используется служба
+.Ql radius
+или
+.Ql radacct
+из файла
+.Pa /etc/services
+для типов служб
+.Ql auth
+и
+.Ql acct
+соответственно.
+Если такой записи нет, используются стандартные порты 1812 и 1813.
+.Pp
+Третье поле содержит общий секрет, который должен быть известен
+только хостам клиента и сервера.
+Это произвольная строка
+символов, но она должна быть заключена в двойные кавычки, если
+содержит пробельные символы.
+Общий секрет может быть
+любой длины, но протокол RADIUS использует только первые 128
+символов.
+N.B., некоторые популярные серверы RADIUS имеют ошибки, которые
+не позволяют им правильно работать с секретами длиннее 16
+символов.
+.Pp
+Четвёртое поле содержит десятичное целое число, задающее тайм-аут в
+секундах для получения корректного ответа от сервера.
+Если это поле
+опущено, по умолчанию используется 3 секунды.
+.Pp
+Пятое поле содержит десятичное целое число, задающее максимальное
+число попыток аутентификации на сервере, которые будут сделаны,
+прежде чем прекратить попытки.
+Если опущено, по умолчанию используется 3 попытки.
+Обратите внимание:
+это общее число попыток, а не число повторов.
+.Pp
+Шестое поле содержит десятичное целое число, задающее интервал времени
+в секундах, в течение которого сервер не будет запрашиваться, если он был недоступен
+при последней попытке. 0 означает запрашивать всегда.
+.Pp
+Седьмое поле содержит IP-адрес на хосте с несколькими сетевыми интерфейсами. Все
+запросы будут привязаны к этому IP-адресу.
+.Pp
+Для каждого типа службы можно указать до 10 серверов RADIUS.
+Серверы перебираются
+циклически, пока не будет получен корректный ответ или пока
+для всех серверов не будет достигнуто максимальное число попыток.
+.Pp
+Стандартное расположение этого файла —
+.Pa /etc/radius.conf .
+Но альтернативный путь может быть указан при вызове
+.Xr rad_config 3 .
+Поскольку файл содержит конфиденциальную информацию в виде
+общих секретов, он не должен быть доступен для чтения никому, кроме root.
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa
+.It Pa /etc/radius.conf
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+# Простая запись с использованием всех значений по умолчанию:
+acct  radius1.domain.com  OurLittleSecret
+
+# Сервер, всё ещё использующий устаревший порт RADIUS, с увеличенными
+# тайм-аутом и максимальным числом попыток:
+
+# Как выше, но с заданными временем недоступности и адресом привязки
+
+# Сервер, заданный своим IP-адресом:
+auth  192.168.27.81  $X*#..38947ax-+=
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libradius 3
+.Rs
+.%A C. Rigney, et al
+.%O RFC 2138
+.Re
+.Rs
+.%A C. Rigney
+.%T RADIUS Accounting
+.%O RFC 2139
+.Re
+.Sh АВТОРЫ
+Эта документация была написана
+.An John Polstra ,
+и передана проекту
+.Fx
+компанией Juniper Networks, Inc.

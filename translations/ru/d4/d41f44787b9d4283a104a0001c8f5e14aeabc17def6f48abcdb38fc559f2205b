@@ -1,0 +1,611 @@
+.\"	$OpenBSD: dhcp-options.5,v 1.5 2005/03/02 15:30:42 jmc Exp $
+.\"
+.\" Copyright (c) 1995, 1996, 1997, 1998 The Internet Software Consortium.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of The Internet Software Consortium nor the names
+.\"    of its contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INTERNET SOFTWARE CONSORTIUM AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE INTERNET SOFTWARE CONSORTIUM OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" This software has been written for the Internet Software Consortium
+.\" by Ted Lemon <mellon@fugue.com> in cooperation with Vixie
+.\" Enterprises.  To learn more about the Internet Software Consortium,
+.\" see ``http://www.isc.org/isc''.  To learn more about Vixie
+.\" Enterprises, see ``http://www.vix.com''.
+.\"
+.\" FRDP path sbin/dhclient/dhcp-options.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d41f44787b9d4283a104a0001c8f5e14aeabc17def6f48abcdb38fc559f2205b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 1, 1995
+.Dt DHCP-OPTIONS 5
+.Os
+.Sh ИМЯ
+.Nm dhcp-options
+.Nd Параметры протокола динамической конфигурации узла
+.Sh ОПИСАНИЕ
+Протокол динамической конфигурации узла (DHCP) позволяет клиенту получать
+.Ic параметры
+от сервера DHCP, описывающие сетевую конфигурацию и различные
+службы, доступные в сети.
+При настройке
+.Xr dhcpd 8
+или
+.Xr dhclient 8
+часто требуется объявлять параметры.
+Здесь документированы синтаксис объявления параметров, а также имена и форматы
+параметров, которые можно объявлять.
+.Sh ССЫЛКА: ОПЕРАТОРЫ ПАРАМЕТРОВ
+Операторы
+.Ic option
+DHCP всегда начинаются с ключевого слова
+.Ic option
+, за которым следует имя параметра, а затем данные параметра.
+Имена параметров и форматы данных описаны ниже.
+Не обязательно исчерпывающе задавать все параметры DHCP —
+нужно указывать только те параметры, которые необходимы клиентам.
+.Pp
+Данные параметров бывают различных форматов, определённых ниже:
+.Pp
+Тип данных
+.Ar ip-address
+можно задавать либо как явный IP-адрес
+(например,
+.Li 239.254.197.10 )
+либо как доменное имя (например,
+.Li haagen.isc.org ) .
+Доменное имя должно разрешаться в один IP-адрес.
+.Pp
+Тип данных
+.Ar int32
+задаёт знаковое 32-битное целое.
+Тип данных
+.Ar uint32
+задаёт беззнаковое 32-битное целое.
+Типы данных
+.Ar int16
+и
+.Ar uint16
+задают знаковые и беззнаковые 16-битные целые.
+Типы данных
+.Ar int8
+и
+.Ar uint8
+задают знаковые и беззнаковые 8-битные целые.
+Беззнаковые 8-битные целые иногда также называют октетами.
+.Pp
+Тип данных
+.Ar string
+задаёт строку
+.Tn NVT
+.Pq Сетевой виртуальный терминал
+.Tn ASCII
+, которую нужно заключать в двойные кавычки — например,
+чтобы задать параметр domain-name, синтаксис будет таким
+.Pp
+.Pp
+Тип данных
+.Ar flag
+задаёт логическое значение.
+Логические значения могут быть либо
+.Li true
+, либо
+.Li false
+(или
+.Li on
+, либо
+.Li off ,
+если вам так понятнее).
+.Pp
+Тип данных
+.Ar data-string
+задаёт либо строку
+.Tn NVT ASCII
+, заключённую в двойные кавычки, либо последовательность октетов, заданных в
+шестнадцатеричном виде и разделённых двоеточиями.
+Например:
+.Pp
+или
+.Dl option dhcp-client-identifier 43:4c:49:45:54:2d:46:4f:4f;
+.Pp
+Документация для различных параметров, упомянутых ниже, взята
+из черновика IETF о параметрах DHCP, RFC 2132.
+Параметры, не перечисленные по имени, можно определить с помощью имени
+.Li option- Ns Ar nnn ,
+где
+.Ar nnn
+— десятичный номер кода параметра.
+После этих параметров может следовать либо строка, заключённая в кавычки, либо
+последовательность октетов, выраженных двузначными шестнадцатеричными числами,
+разделёнными двоеточиями.
+Например:
+.Bd -literal -offset indent
+option option-129 1:54:c9:2b:47;
+.Ed
+.Pp
+Поскольку
+.Xr dhcpd 8
+не знает формат этих неопределённых кодов параметров,
+проверка правильности введённых данных не выполняется.
+.Pp
+Стандартные параметры:
+.Ss Расширения поставщика RFC 1497
+.Bl -tag -width indent
+.It Ic option subnet-mask Ar ip-address ;
+Параметр
+.Ic subnet-mask
+задаёт маску подсети клиента согласно RFC 950.
+Если параметр subnet-mask нигде в области видимости не задан, в крайнем случае
+.Xr dhcpd 8
+будет использовать маску подсети из объявления подсети для сети, в которой
+назначается адрес.
+Однако
+.Em любое
+объявление параметра subnet-mask, находящееся в области видимости для
+назначаемого адреса, переопределит маску подсети, указанную в объявлении подсети.
+.It Ic option time-offset Ar int32 ;
+Параметр
+.Ic time-offset
+задаёт смещение подсети клиента в секундах от
+Всемирного координированного времени (UTC).
+.It Xo
+.Ic option routers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic routers
+задаёт список IP-адресов маршрутизаторов в подсети клиента.
+Маршрутизаторы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option time-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic time-server
+задаёт список серверов времени RFC 868, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option ien116-name-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic ien116-name-servers
+задаёт список серверов имён IEN 116, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option domain-name-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic domain-name-servers
+задаёт список серверов имён Domain Name System (STD 13, RFC 1035),
+доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option log-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic log-servers
+задаёт список серверов журналирования UDP MIT-LCS, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option cookie-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic cookie-servers
+задаёт список серверов cookie RFC 865, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option lpr-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic lpr-servers
+задаёт список серверов строчных принтеров RFC 1179, доступных
+клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option impress-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic impress-servers
+задаёт список серверов Imagen Impress, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option resource-location-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список серверов определения местоположения ресурсов RFC 887,
+доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Ic option host-name Ar string ;
+Этот параметр задаёт имя клиента.
+Имя может быть или не быть дополнено локальным доменным именем
+(предпочтительнее использовать параметр
+.Ic domain-name
+для указания доменного имени).
+Ограничения набора символов см. в RFC 1035.
+.It Ic option boot-size Ar uint16 ;
+Этот параметр задаёт длину образа загрузки по умолчанию для клиента
+в блоках по 512 октетов.
+.It Ic option merit-dump Ar string ;
+Этот параметр задаёт путь к файлу, в который следует сбрасывать образ памяти
+клиента в случае аварийного завершения клиента.
+Путь форматируется как строка символов из набора символов
+.Tn NVT ASCII
+.
+.It Ic option domain-name Ar string ;
+Этот параметр задаёт доменное имя, которое клиент должен использовать при
+разрешении имён узлов через Domain Name System.
+.It Ic option domain-search Ar string ;
+Этот параметр задаёт список доменных имён, которые клиент должен использовать
+при разрешении имён узлов через Domain Name System.
+Этот параметр определён в RFC 3397.
+.It Ic option swap-server Ar ip-address ;
+Этот параметр задаёт IP-адрес сервера подкачки клиента.
+.It Ic option root-path Ar string ;
+Этот параметр задаёт путь, содержащий корневой диск клиента.
+Путь форматируется как строка символов из набора символов
+.Tn NVT ASCII
+.
+.El
+.Ss Параметры IP-уровня для узла
+.Bl -tag -width indent
+.It Ic option ip-forwarding Ar flag ;
+Этот параметр указывает, должен ли клиент настраивать свой IP-уровень
+для пересылки пакетов.
+Значение 0 означает отключение пересылки IP-пакетов, а значение 1 — включение
+пересылки IP-пакетов.
+.It Ic option non-local-source-routing Ar flag ;
+Этот параметр указывает, должен ли клиент настраивать свой IP-уровень
+так, чтобы разрешать пересылку датаграмм с маршрутами источника, не являющимися
+локальными
+(обсуждение этого вопроса см. в разделе 3.3.5 [4]).
+Значение 0 означает запрет пересылки таких датаграмм, а значение 1
+— разрешение пересылки.
+.It Xo
+.Ic option policy-filter Ar ip-address ip-address
+.Oo , Ar ip-address ip-address ... Oc ;
+.Xc
+Этот параметр задаёт фильтры политики для маршрутизации от источника, не являющейся
+локальной.
+Фильтры состоят из списка IP-адресов и масок, задающих
+пары адрес назначения/маска, с помощью которых фильтруются входящие маршруты источника.
+.Pp
+Любая датаграмма с маршрутизацией от источника, адрес следующего перехода которой
+не соответствует одному из фильтров, должна быть отброшена клиентом.
+.Pp
+Дополнительные сведения см. в STD 3 (RFC 1122).
+.It Ic option max-dgram-reassembly Ar uint16 ;
+Этот параметр задаёт максимальный размер датаграммы, которую клиент должен быть
+готов собрать.
+Минимальное допустимое значение — 576.
+.It Ic option default-ip-ttl Ar uint8 ;
+Этот параметр задаёт время жизни по умолчанию, которое клиент должен
+использовать для исходящих датаграмм.
+.It Ic option path-mtu-aging-timeout Ar uint32 ;
+Этот параметр задаёт тайм-аут (в секундах), используемый при устаревании значений
+Path MTU, обнаруженных механизмом, определённым в RFC 1191.
+.It Xo
+.Ic option path-mtu-plateau-table Ar uint16
+.Oo , Ar uint16 ... Oc ;
+.Xc
+Этот параметр задаёт таблицу размеров MTU, используемых при выполнении
+Path MTU Discovery, как определено в RFC 1191.
+Таблица форматируется как список 16-битных беззнаковых целых,
+упорядоченных от наименьшего к наибольшему.
+Минимальное значение MTU не может быть меньше 68.
+.El
+.Ss Параметры IP-уровня для интерфейса
+.Bl -tag -width indent
+.It Ic option interface-mtu Ar uint16 ;
+Этот параметр задаёт MTU, используемый на этом интерфейсе.
+Минимальное допустимое значение MTU — 68.
+.It Ic option all-subnets-local Ar flag ;
+Этот параметр указывает, может ли клиент предполагать, что все подсети
+IP-сети, к которой подключён клиент, используют тот же MTU, что и
+подсеть этой сети, к которой клиент подключён напрямую.
+Значение 1 указывает, что все подсети используют общий MTU.
+Значение 0 означает, что клиент должен предполагать, что некоторые подсети
+непосредственно подключённой сети могут иметь меньшие MTU.
+.It Ic option broadcast-address Ar ip-address ;
+Этот параметр задаёт широковещательный адрес, используемый в подсети клиента.
+Допустимые значения широковещательных адресов указаны в разделе 3.2.1.3
+STD 3 (RFC 1122).
+.It Ic option perform-mask-discovery Ar flag ;
+Этот параметр указывает, должен ли клиент выполнять обнаружение маски подсети
+с помощью ICMP.
+Значение 0 указывает, что клиент не должен выполнять обнаружение маски.
+Значение 1 означает, что клиент должен выполнять обнаружение маски.
+.It Ic option mask-supplier Ar flag ;
+Этот параметр указывает, должен ли клиент отвечать на запросы маски подсети
+с помощью ICMP.
+Значение 0 указывает, что клиент не должен отвечать.
+Значение 1 означает, что клиент должен отвечать.
+.It Ic option router-discovery Ar flag ;
+Этот параметр указывает, должен ли клиент запрашивать маршрутизаторы с помощью
+механизма Router Discovery, определённого в RFC 1256.
+Значение 0 указывает, что клиент не должен выполнять обнаружение маршрутизаторов.
+Значение 1 означает, что клиент должен выполнять обнаружение маршрутизаторов.
+.It Ic option router-solicitation-address Ar ip-address ;
+Этот параметр задаёт адрес, на который клиент должен отправлять
+запросы на поиск маршрутизаторов.
+.It Xo
+.Ic option static-routes Ar ip-address ip-address
+.Oo , Ar ip-address ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список статических маршрутов, которые клиент должен
+установить в свой кэш маршрутизации.
+Если указано несколько маршрутов к одному и тому же пункту назначения, они
+перечисляются в порядке убывания приоритета.
+.Pp
+Маршруты состоят из списка пар IP-адресов.
+Первый адрес — адрес назначения,
+второй адрес — маршрутизатор для пункта назначения.
+.Pp
+Маршрут по умолчанию (0.0.0.0) является недопустимым пунктом назначения для статического маршрута.
+Чтобы задать маршрут по умолчанию, используйте
+.Ic routers
+.
+.El
+.Ss Параметры канального уровня для интерфейса
+.Bl -tag -width indent
+.It Ic option trailer-encapsulation Ar flag ;
+Этот параметр указывает, должен ли клиент согласовывать
+использование трейлеров (RFC 893 [14]) при использовании протокола ARP.
+Значение 0 указывает, что клиент не должен пытаться использовать трейлеры.
+Значение 1 означает, что клиент должен попытаться использовать трейлеры.
+.It Ic option arp-cache-timeout Ar uint32 ;
+Этот параметр задаёт тайм-аут в секундах для записей кэша ARP.
+.It Ic option ieee802-3-encapsulation Ar flag ;
+Этот параметр указывает, должен ли клиент использовать инкапсуляцию Ethernet
+версии 2 (RFC 894) или IEEE 802.3 (RFC 1042), если
+интерфейс является Ethernet.
+Значение 0 указывает, что клиент должен использовать инкапсуляцию RFC 894.
+Значение 1 означает, что клиент должен использовать инкапсуляцию RFC 1042.
+.El
+.Ss Параметры TCP
+.Bl -tag -width indent
+.It Ic option default-tcp-ttl Ar uint8 ;
+Этот параметр задаёт TTL по умолчанию, который клиент должен использовать при
+отправке сегментов TCP.
+Минимальное значение — 1.
+.It Ic option tcp-keepalive-interval Ar uint32 ;
+Этот параметр задаёт интервал (в секундах), который TCP клиента
+должен выждать перед отправкой сообщения keepalive по TCP-соединению.
+Время задаётся как 32-битное беззнаковое целое.
+Значение ноль указывает, что клиент не должен генерировать сообщения keepalive
+в соединениях, если только приложение явно не запросит это.
+.It Ic option tcp-keepalive-garbage Ar flag ;
+Этот параметр указывает, должен ли клиент отправлять сообщения keepalive TCP
+с октетом мусора для совместимости со старыми реализациями.
+Значение 0 указывает, что октет мусора отправлять не следует.
+Значение 1 указывает, что октет мусора следует отправлять.
+.El
+.Ss Параметры приложений и служб
+.Bl -tag -width indent
+.It Ic option nis-domain Ar string ;
+Этот параметр задаёт имя домена NIS клиента (Sun Network Information
+Services).
+Домен форматируется как строка символов из набора символов
+.Tn NVT ASCII
+.
+.It Xo
+.Ic option nis-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список IP-адресов, указывающих серверы NIS,
+доступные клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option ntp-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список IP-адресов, указывающих серверы NTP (RFC 1305),
+доступные клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option netbios-name-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр сервера имён NetBIOS (NBNS) задаёт список серверов имён NBNS RFC 1001/1002,
+перечисленных в порядке предпочтения.
+Служба имён NetBIOS в настоящее время чаще называется WINS.
+Серверы WINS можно задать с помощью параметра
+.Ic netbios-name-servers
+.
+.It Xo
+.Ic option netbios-dd-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр сервера распределения датаграмм NetBIOS (NBDD) задаёт
+список серверов NBDD RFC 1001/1002, перечисленных в порядке предпочтения.
+.It Ic option netbios-node-type Ar uint8 ;
+Параметр типа узла NetBIOS позволяет настраивать клиенты NetBIOS over TCP/IP,
+поддерживающие настройку, как описано в RFC 1001/1002.
+Значение задаётся одним октетом, идентифицирующим тип клиента.
+.Pp
+Возможные типы узлов:
+.Bl -tag -width indent
+.It 1
+B-узел: широковещательный — без WINS
+.It 2
+P-узел: одноранговый — только WINS
+.It 4
+M-узел: смешанный — широковещательная передача, затем WINS
+.It 8
+H-узел: гибридный — WINS, затем широковещательная передача
+.El
+.It Ic option netbios-scope Ar string ;
+Параметр области NetBIOS задаёт параметр области NetBIOS over TCP/IP
+для клиента, как указано в RFC 1001/1002.
+Ограничения набора символов см. в RFC 1001, RFC 1002 и RFC 1035.
+.It Xo
+.Ic option font-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список серверов шрифтов X Window System, доступных
+клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option x-display-manager Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список систем, на которых работает диспетчер экрана
+X Window System и которые доступны клиенту.
+Адреса следует перечислять в порядке предпочтения.
+.It Ic option dhcp-client-identifier Ar data-string ;
+Этот параметр можно использовать для указания идентификатора клиента DHCP
+в объявлении узла, чтобы
+.Xr dhcpd 8
+мог найти запись узла путём сопоставления с идентификатором клиента.
+.It Ic option nisplus-domain Ar string ;
+Этот параметр задаёт имя домена NIS+ клиента.
+Домен форматируется как строка символов из набора символов
+.Tn NVT ASCII
+.
+.It Xo
+.Ic option nisplus-servers Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список IP-адресов, указывающих серверы NIS+,
+доступные клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Ic option tftp-server-name Ar string ;
+Этот параметр используется для идентификации TFTP-сервера и, если он
+поддерживается клиентом, должен иметь тот же эффект, что и
+объявление
+.Ic server-name
+.
+Клиенты BOOTP, скорее всего, не поддерживают этот параметр.
+Некоторые клиенты DHCP будут его поддерживать, а другие действительно требуют его.
+.It Ic option bootfile-name Ar string ;
+Этот параметр используется для идентификации загрузочного файла.
+Если он поддерживается клиентом, он должен иметь тот же эффект, что и
+объявление
+.Ic filename
+.
+Клиенты BOOTP, скорее всего, не поддерживают этот параметр.
+Некоторые клиенты DHCP будут его поддерживать, а другие действительно требуют его.
+.It Xo
+.Ic option mobile-ip-home-agent Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Этот параметр задаёт список IP-адресов, указывающих домашних агентов Mobile IP,
+доступных клиенту.
+Агентов следует перечислять в порядке предпочтения, хотя обычно такой агент
+только один.
+.It Xo
+.Ic option smtp-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic smtp-server
+задаёт список SMTP-серверов, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option pop-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic pop-server
+задаёт список POP3-серверов, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option nntp-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic nntp-server
+задаёт список NNTP-серверов, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option www-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic www-server
+задаёт список WWW-серверов, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option finger-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic finger-server
+задаёт список серверов
+.Xr finger 1
+, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option irc-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic irc-server
+задаёт список IRC-серверов, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option streettalk-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр
+.Ic streettalk-server
+задаёт список серверов StreetTalk, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Xo
+.Ic option streettalk-directory-assistance-server Ar ip-address
+.Oo , Ar ip-address ... Oc ;
+.Xc
+Параметр сервера StreetTalk Directory Assistance (STDA) задаёт
+список серверов STDA, доступных клиенту.
+Серверы следует перечислять в порядке предпочтения.
+.It Ic option url Ar string ;
+Этот параметр задаёт URL, который клиент может использовать при загрузке UEFI
+с HTTP-сервера.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr dhclient.conf 5 ,
+.Xr dhcpd.conf 5 ,
+.Xr dhcpd.leases 5 ,
+.Xr dhclient 8 ,
+.Xr dhcpd 8
+.Rs
+.Re
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Xr dhcpd 8
+была написана
+.An Ted Lemon Aq Mt mellon@vix.com
+по контракту с Vixie Labs.
+.Pp
+Текущая реализация была переработана
+.An Henning Brauer Aq Mt henning@openbsd.org .

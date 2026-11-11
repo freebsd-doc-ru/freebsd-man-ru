@@ -1,0 +1,411 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2025 Vladimir Kondratyev <wulf@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/moused/moused/moused.conf.5
+.\" FRDP githash d48dc8c0c7319b927f9d1ca44e83e5a232ad7642
+.\" FRDP hash256 db1df96a2399471170046feec61522c85a22ac08e1baf5466f878bfc57724082
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 19, 2025
+.Dt MOUSED.CONF 5
+.Os
+.Sh ИМЯ
+.Nm moused.conf
+.Nd файл конфигурации демона мыши
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+определяет, как должен работать
+.Xr moused 8
+(демон мыши). Он позволяет настраивать определённые параметры мышей для каждого устройства отдельно.
+.Pp
+Формат файла конфигурации происходит от
+.Xr libinput 1
+файлов квирков устройств.
+Файл может содержать несколько заголовков разделов ([некоторый идентификатор]),
+за которыми следуют одна или несколько директив MatchFoo=Bar, а затем по крайней мере
+одна директива MousedFoo=bar или AttrFoo=bar.
+Файл конфигурации должен содержать хотя бы один раздел, каждый раздел
+должен иметь хотя бы один тег
+.Sq Match
+и хотя бы один из тегов
+.Sq Attr
+или
+.Sq Moused .
+Имена разделов задаются произвольно и могут содержать пробелы.
+.Ss Список доступных в настоящее время сопоставлений.
+.Bl -tag -width indent
+.It MatchName, MatchUniq
+Сопоставление по свойству udev NAME или UNIQ на этом устройстве. Эти
+свойства обычно происходят из имени или uniq ядра устройства.
+Эти сопоставления используют
+.Fn fnmatch
+glob-шаблоны.
+.It MatchBus
+Имя шины в нижнем регистре. В настоящее время поддерживаются usb, bluetooth, ps2,
+rmi, i2c и spi.
+.It MatchVendor, MatchProduct, MatchVersion
+Шестнадцатеричный 4-значный ID производителя, ID продукта или версия драйвера в
+экспортируемом виде, без префикса 0x.
+.It MatchDMIModalias, MatchDeviceTree
+Шаблон
+.Fn fnmatch
+для modalias DMI или строки совместимости DeviceTree.
+.It MatchDevType
+Одно из значений: touchpad, mouse, pointingstick, keyboard, joystick, tablet,
+tablet-pad.
+Поддерживаются только типы touchpad и mouse.
+.El
+.Ss Список доступных в настоящее время тегов Moused.
+.Bl -tag -width indent
+.It MousedGrabDevice
+Только для интерфейса evdev.
+Стать единственным получателем всех входящих событий ввода.
+Это не позволяет другим процессам получать события ввода с устройства.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl g .
+.It MousedIgnoreDevice
+Игнорировать указанное устройство.
+.It MousedClickThreshold
+Задаёт скорость двойного щелчка как максимальный интервал в мс между нажатиями кнопок.
+Без этой опции предполагается значение по умолчанию 500 мс.
+Эта опция влияет только на операции вырезания и вставки
+в текстовой консоли.
+Пользовательская программа, читающая данные мыши
+через
+.Xr sysmouse 4 ,
+затронута не будет.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl C .
+.It MousedEmulateThirdButton
+Эмулирует третью (среднюю) кнопку для двухкнопочных мышей.
+Она эмулируется
+одновременным нажатием левой и правой физических кнопок.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl 3 .
+.It MousedEmulateThirdButtonTimeout
+Когда эмуляция третьей кнопки включена
+(см. выше),
+утилита
+.Xr moused 8
+ждёт не более
+.Ar MousedEmulateThirdButtonTimeout
+мс, прежде чем решить, нажаты ли две кнопки
+одновременно.
+Тайм-аут по умолчанию — 100 мс.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl E .
+.It MousedLinearAccelX
+.It MousedLinearAccelY
+.It MousedLinearAccelZ
+Ускоряет или замедляет ввод мыши.
+Это только линейное ускорение.
+Значения меньше 1.0 замедляют движение, значения больше 1.0 ускоряют его.
+.Pp
+Вы можете использовать параметры
+.Ar MousedLinearAccel
+и
+.Ar MousedExponentialAccel
+одновременно, чтобы получить совместный эффект
+линейного и экспоненциального ускорения.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl a .
+.It MousedExponentialAccel
+.It MousedExponentialOffset
+Применяет экспоненциальное (динамическое) ускорение к движениям мыши:
+чем быстрее вы двигаете мышь, тем сильнее она ускоряется.
+Это означает, что небольшие движения мыши не ускоряются,
+поэтому они остаются очень точными, а более быстрое движение
+быстро перемещает указатель по экрану.
+.Pp
+Значение
+.Ar MousedExponentialAccel
+задаёт показатель степени, который по сути является
+величиной ускорения. Полезные значения находятся в
+диапазоне от 1.1 до 2.0, но это зависит от аппаратного обеспечения вашей мыши
+и ваших личных предпочтений. Значение 1.0 означает отсутствие
+экспоненциального ускорения. Значение 2.0 означает квадратичное
+ускорение (то есть если вы двигаете мышь вдвое быстрее,
+указатель будет перемещаться по экрану в четыре раза быстрее).
+Значения больше 2.0 возможны, но не рекомендуются.
+Хорошее начальное значение — вероятно, 1.5.
+.Pp
+Необязательное значение
+.Ar MousedExponentialOffset
+задаёт расстояние, на котором начинается ускорение.
+По умолчанию используется 1.0, что означает, что
+ускорение применяется к движениям больше одной единицы.
+Если указать большее значение, потребуется больше скорости, чтобы
+ускорение включилось, то есть диапазон скоростей для
+небольших и точных движений становится шире.
+Обычно значения по умолчанию должно быть достаточно, но если вы
+не удовлетворены поведением, попробуйте значение 2.0.
+.Pp
+Обратите внимание, что опция
+.Fl A
+плохо взаимодействует с собственным ускорением X-сервера,
+которое в любом случае работает не очень хорошо. Поэтому
+рекомендуется отключать его при необходимости:
+.Dq xset m 1 .
+.Pp
+В качестве альтернативы используйте опцию
+.Fl A .
+.It MousedMapZAxis
+Сопоставляет движение оси Z (ролик/колесо) с другой осью или с виртуальными кнопками.
+Пока не поддерживается.
+Вместо этого используйте опцию
+.Fl z .
+.It MousedVirtualScrollEnable
+Включает
+.Dq Виртуальная прокрутка .
+При установке этой опции удержание средней кнопки мыши
+приводит к тому, что движение интерпретируется как прокрутка.
+Используйте параметр
+.Ar MousedVirtualScrollThreshold
+чтобы задать расстояние, которое мышь должна пройти до активации режима прокрутки,
+и параметр
+.Ar MousedVirtualScrollSpeed
+чтобы задать скорость прокрутки.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl V .
+.It MousedHorVirtualScrollEnable
+Включает
+.Dq Горизонтальная виртуальная прокрутка .
+При установке этой опции удержание средней кнопки мыши
+приводит к тому, что движение интерпретируется как
+горизонтальная прокрутка.
+Используйте параметр
+.Ar MousedVirtualScrollThreshold
+чтобы задать расстояние, которое мышь должна пройти до активации режима прокрутки,
+и параметр
+.Ar MousedVirtualScrollSpeed
+чтобы задать скорость прокрутки.
+Эту опцию можно использовать с параметром
+.Ar MousedVirtualScrollEnable
+или без него.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl H .
+.It MousedVirtualScrollSpeed= Ar расстояние
+Когда
+.Dq Виртуальная прокрутка
+включена, параметр
+.Ar MousedVirtualScrollSpeed
+можно использовать, чтобы задать
+.Ar расстояние
+(в пикселях), которое мышь должна пройти до генерации события прокрутки.
+Это фактически управляет скоростью прокрутки.
+По умолчанию
+.Ar расстояние
+равно 2 пикселям.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl L .
+.It MousedVirtualScrollThreshold= Ar расстояние
+Когда
+.Dq Виртуальная прокрутка
+включена, параметр
+.Ar MousedVirtualScrollThreshold
+можно использовать, чтобы задать
+.Ar расстояние
+(в пикселях), которое мышь должна пройти до активации режима
+прокрутки.
+По умолчанию
+.Ar расстояние
+равно 3 пикселям.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl U .
+.It MousedWMode= Ar N
+Заставляет физическую кнопку
+.Ar N
+действовать как кнопка режима колеса.
+Пока эта кнопка нажата, движение по осям X и Y передаётся как нулевое,
+а движение по оси Y сопоставляется с осью Z.
+Вы можете дополнительно сопоставить движение по оси Z с виртуальными кнопками с помощью
+тега
+.Ar MousedMapZAxis .
+.Pp
+В качестве альтернативы используйте опцию
+.Fl w .
+.El
+.Ss Список доступных в настоящее время тегов Moused, специфичных для мышей.
+.Bl -tag -width indent
+.It MousedDriftTerminate
+.It MousedDriftDistance
+.It MousedDriftTime
+.It MousedDriftAfter
+Прекращает дрейф.
+Используйте эту опцию, если указатель мыши медленно смещается, когда мышь не двигается.
+Движения до
+.Ar MousedDriftDistance
+(например, 4) пикселей (X+Y) в течение
+.Ar MousedDriftTime
+мс (по умолчанию 500) игнорируются, кроме как в течение
+.Ar MousedDriftAfter
+мс (по умолчанию 4000) с момента последнего реального движения мыши.
+.Pp
+В качестве альтернативы используйте опцию
+.Fl T .
+.El
+.Ss Список доступных в настоящее время тегов Moused, специфичных для сенсорных панелей.
+.Bl -tag -width indent
+.It MousedTwoFingerScroll
+Включает прокрутку двумя пальцами.
+.It MousedNaturalScroll
+Включает естественную прокрутку.
+.It MousedThreeFingerDrag
+Включает перетаскивание тремя пальцами.
+.It MousedSoftButton2X
+Горизонтальное положение левого края 2-й программной кнопки в процентах.
+(0 — отключено)
+.It MousedSoftButton3X
+Горизонтальное положение левого края 3-й программной кнопки в процентах.
+(0 — отключено)
+.It MousedSoftButtonsY
+Вертикальный размер области программных кнопок в процентах.
+Используйте отрицательные значения, чтобы разместить область программных кнопок в верхней части сенсорной панели.
+.It MousedTapTimeout
+Тайм-аут касания в миллисекундах
+.It MousedTapPressureThreshold
+Порог давления для обнаружения касания.
+.It MousedTapMaxDelta
+Длина движения пальца, выше которой касание игнорируется, измеряется в мм.
+.It MousedTapholdTimeout
+Максимальное прошедшее время между двумя касаниями, чтобы считать действие касанием-удержанием.
+.It MousedVScrollMinDelta
+Минимальное движение для распознавания виртуальной прокрутки.
+.It MousedVScrollHorArea
+Область, зарезервированная для горизонтальной виртуальной прокрутки, в мм.
+.It MousedVScrollVerArea
+Область, зарезервированная для вертикальной виртуальной прокрутки, в мм.
+.El
+.Ss Список доступных в настоящее время тегов, совместимых с libinput.
+.Bl -tag -width indent
+.It AttrSizeHint
+Подсказывает ширину x высоту устройства в мм.
+.It AttrTouchSizeRange
+Пока не поддерживается.
+.It AttrPalmSizeThreshold
+Максимальная ширина пальца для обнаружения ладони в мм.
+.It AttrLidSwitchReliability
+Пока не поддерживается.
+.It AttrKeyboardIntegration
+Пока не поддерживается.
+.It AttrPointingStickIntegration
+Пока не поддерживается.
+.It AttrTPKComboLayout
+Пока не поддерживается.
+.It AttrPressureRange= Ar N : Ar M
+Задаёт давление касания, необходимое для срабатывания нажатия
+.Ar N
+и для срабатывания отпускания
+.Ar M .
+.It AttrPalmPressureThreshold
+Максимальное давление для обнаружения ладони.
+.It AttrResolutionHint
+Подсказывает разрешение оси x/y в единицах/мм.
+.It AttrTrackpointMultiplier
+Пока не поддерживается.
+.It AttrThumbPressureThreshold
+Пока не поддерживается.
+.It AttrUseVelocityAveraging
+Пока не поддерживается.
+.It AttrTabletSmoothing
+Пока не поддерживается.
+.It AttrThumbSizeThreshold
+Пока не поддерживается.
+.It AttrMscTimestamp
+Пока не поддерживается.
+.It AttrEventCode
+Включает или отключает кортежи типа/кода события evdev на устройстве.
+Префикс каждой записи — либо
+.Sq +
+(включить), либо
+.Sq -
+(отключить).
+Записи могут быть именованным типом события, именованным кодом события или именованным
+типом события с шестнадцатеричным кодом события, разделёнными одним двоеточием.
+.It AttrInputProp
+Включает или отключает свойство ввода evdev на устройстве.
+Префикс каждой записи — либо
+,Sq +
+(включить), либо
+.Sq -
+(отключить).
+Записи могут быть именованным свойством ввода или шестнадцатеричным значением этого
+свойства.
+.El
+.Pp
+Все
+.Xr libinput 1
+.Sq Model
+квирки в настоящее время игнорируются.
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/local/etc/moused.conf -compact
+.It Pa /usr/local/etc/moused.conf
+Файл
+.Nm
+находится в
+.Pa /usr/local/etc .
+.It Pa /usr/local/share/moused/*.quirks
+Предопределённые квирки, обрабатываемые перед
+.Nm .
+.El
+.Sh ПРИМЕРЫ
+Установите пороги давления касания и обнаружения ладони для сенсорной панели
+PS/2 Synaptics:
+.Bd -literal -offset indent
+[SynPS/2 Synaptics TouchPad]
+MatchDevType=touchpad
+MatchName=SynPS/2 Synaptics TouchPad
+AttrPressureRange=35:30
+AttrPalmPressureThreshold=220
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr moused 8
+.Pp
+.Xr libinput 1
+формат квирков устройств:
+.Lk https://wayland.freedesktop.org/libinput/doc/latest/device-quirks.html
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+впервые появился в
+.Fx 15.0 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Vladimir Kondratyev Aq Mt wulf@FreeBSD.org
+на основе
+. Xr moused 8
+страницы руководства и
+.Xr libinput 1
+документации.

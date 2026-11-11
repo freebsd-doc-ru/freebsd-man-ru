@@ -1,0 +1,243 @@
+.\" $NetBSD: blocklistd.conf.5,v 1.9 2026/01/13 21:38:18 christos Exp $
+.\"
+.\" Copyright (c) 2015, 2025 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Christos Zoulas.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/blocklist/bin/blacklistd.conf.5
+.\" FRDP githash 1864a03eb2ac90faa3381f20eab9672efaa8a3d5
+.\" FRDP hash256 c34e98a57873ccb4a1fe646e705a3b565abd6f58729311de1339e29236cc2ce6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 13, 2026
+.Dt BLACKLISTD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm blacklistd.conf
+.Nd формат файла конфигурации для blacklistd
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит записи конфигурации для
+.Xr blacklistd 8
+по аналогии с
+.Xr inetd.conf 5 .
+На каждой строке разрешена только одна запись.
+Все поля каждой записи должны быть заполнены.
+Поля могут разделяться табуляцией или пробелом.
+Комментарии обозначаются символом
+.Dq #
+в начале строки.
+.Pp
+Существуют два вида строк конфигурации:
+.Va [local]
+и
+.Va [remote] .
+По умолчанию строки конфигурации являются
+.Va [local] ,
+т.е. указанный адрес относится к адресам на локальной машине.
+Чтобы переключаться между
+.Va [local]
+и
+.Va [remote]
+строками конфигурации, можно указать разделы:
+.Dq [local]
+и
+.Dq [remote] .
+.Pp
+В строках
+.Va [local]
+и
+.Va [remote]
+.Dq *
+означает использование значения по умолчанию или совпадение по шаблону.
+Кроме того, для строк
+.Va [remote]
+.Dq =
+означает использование значений из совпавшей строки конфигурации
+.Va [local]
+при сопоставлении.
+.Pp
+Первые четыре поля,
+.Va location ,
+.Va type ,
+.Va proto
+и
+.Va owner
+используются для сопоставления адресов
+.Va [local]
+или
+.Va [remote] ,
+тогда как последние 3 поля
+.Va name ,
+.Va nfail
+и
+.Va disable
+используются для изменения действия фильтрации.
+.Pp
+Первое поле обозначает
+.Va location
+как адрес, маску и порт.
+Синтаксис для
+.Va location
+такой:
+.Bd -literal -offset indent
+	[<address>|<interface>[/<mask>]:]<port>
+.Ed
+.Pp
+.Dv address
+может быть IPv4-адресом в числовом формате, IPv6-адресом
+в числовом формате, заключённым в квадратные скобки, или именем интерфейса.
+Модификаторы маски не разрешены на интерфейсах, поскольку интерфейсы
+могут иметь несколько адресов в разных протоколах, где маска имеет
+другой размер.
+.Pp
+.Dv mask
+всегда является числовой, но
+.Dv port
+может быть как числовым, так и символическим.
+.Pp
+Второе поле — это тип сокета
+.Va type :
+.Dv stream ,
+.Dv dgram
+или числовое значение.
+Третье поле — это протокол
+.Va protocol :
+.Dv tcp ,
+.Dv udp ,
+.Dv tcp6 ,
+.Dv udp6
+или числовое значение.
+Четвёртое поле — это эффективный пользователь
+.Va ( owner )
+процесса демона, сообщающего о событии,
+заданный либо как имя пользователя, либо как идентификатор пользователя.
+.Pp
+Остальные поля управляют поведением фильтра.
+.Pp
+Поле
+.Va name
+— это имя используемого правила пакетного фильтра.
+Если
+.Va name
+начинается с дефиса
+.Pq Dq - ,
+то к заданному имени в начало добавляется имя правила по умолчанию.
+Если
+.Dv name
+содержит
+.Dq / ,
+оставшаяся часть имени интерпретируется как маска, которая должна быть
+применена к адресу, указанному в правиле, в результате чего одно нарушение правила
+блокирует всю подсеть для настроенного префикса.
+.Pp
+Поле
+.Va nfail
+содержит число неудачных попыток до блокировки доступа;
+по умолчанию
+.Dq *
+означает «никогда», а последнее поле
+.Va duration
+задаёт промежуток времени с момента последнего доступа, в течение которого
+правило блокировки должно быть активно; по умолчанию
+.Dq *
+означает «навсегда».
+Единица по умолчанию для
+.Va duration
+— секунды, но можно указывать суффиксы для разных единиц, например
+.Dq m
+для минут,
+.Dq h
+для часов и
+.Dq d
+для дней.
+.Pp
+Сопоставление сначала выполняется путём индивидуальной проверки правил
+.Va [local]
+в порядке от наиболее конкретного к наименее конкретному.
+Если найдено совпадение, применяются соответствующие правила
+.Va [remote]
+для этого события.
+Поля
+.Va name ,
+.Va nfail
+и
+.Va duration
+могут быть изменены совпавшим правилом
+.Va [remote]
+из конфигурации.
+.Pp
+Правила
+.Va [remote]
+можно использовать для разрешения определённых адресов, изменения размера
+маски (с помощью
+.Va name ) ,
+правила, используемого пакетным фильтром (также с помощью
+.Va name ) ,
+числа неудачных попыток (с помощью
+.Va nfail ) ,
+или длительности блокировки (с помощью
+.Va duration ) .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/blacklistd.conf -compact
+.It Pa /etc/blacklistd.conf
+Файл конфигурации.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal -offset 8n
+# Блокировать ssh после 3 попыток на 6 часов на интерфейсе bnx0
+[local]
+# location	type	proto	owner	name	nfail	duration
+bnx0:ssh	*	*	*	*	3	6h
+[remote]
+# Никогда не блокировать 1.2.3.4
+1.2.3.4:ssh	*	*	*	*	*	*
+# Также никогда не блокировать пример IPv6-подсети
+[2001:db8::]/32:ssh	*	*	*	*	*	*
+# Для адресов из 8.8.0.0/16 блокировать целые сети /24 вместо
+# отдельных хостов, но оставить остальные параметры блокировки прежними.
+8.8.0.0/16:ssh	*	*	*	/24	=	=
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr blacklistctl 8 ,
+.Xr blacklistd 8
+.Sh ПРИМЕЧАНИЯ
+Файл
+.Nm
+был переименован в
+.Xr blocklistd.conf 8 .
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Nx 7 .
+.Fx
+поддержка
+.Nm
+была реализована в
+.Fx 11 .
+.Sh АВТОРЫ
+.An Christos Zoulas

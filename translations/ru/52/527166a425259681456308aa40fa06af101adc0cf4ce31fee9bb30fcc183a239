@@ -1,0 +1,101 @@
+.\" Copyright (c) 2003 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project in part by Network
+.\" Associates Laboratories, the Security Research Division of Network
+.\" Associates, Inc. under DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"),
+.\" as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/posix1e/mac.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 527166a425259681456308aa40fa06af101adc0cf4ce31fee9bb30fcc183a239
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2015
+.Dt MAC.CONF 5
+.Os
+.Sh ИМЯ
+.Nm mac.conf
+.Nd формат файла конфигурации библиотеки MAC
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+настраивает элементы меток по умолчанию, используемые приложениями, не зависящими от политик, которые работают с метками MAC.
+Файл содержит ряд наборов меток по умолчанию, задаваемых классом объекта, а также пустые строки и комментарии, предварённые символом
+.Ql #
+.
+.Pp
+В настоящее время реализация поддерживает два стиля синтаксиса для объявления элементов меток.
+Старый (устаревший) синтаксис состоит из одной строки с двумя полями, разделёнными пробельными символами: имя класса объекта и список элементов меток, используемых библиотечными вызовами
+.Xr mac_prepare 3
+до вызова приложением функции из
+.Xr mac_get 3 .
+.Pp
+Более новый и предпочтительный синтаксис состоит из трёх полей, разделённых пробельными символами: группа меток, имя класса объекта и список элементов меток.
+.Pp
+Имена элементов меток могут необязательно начинаться со следующего символа:
+.Ql \&?
+Это указывает, что сбой получения элемента метки для объекта должен молча игнорироваться; это повышает удобство, если набор политик MAC может со временем меняться.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/mac.conf -compact
+.It Pa /etc/mac.conf
+Файл конфигурации библиотеки MAC.
+.El
+.Sh ПРИМЕРЫ
+Следующий пример настраивает пользовательские приложения на работу с четырьмя политиками MAC:
+.Xr mac_biba 4 ,
+.Xr mac_mls 4 ,
+SEBSD,
+и
+.Xr mac_partition 4 .
+.Bd -literal -offset indent
+#
+# Набор меток по умолчанию, используемый простыми приложениями MAC
+
+default_labels file ?biba,?lomac,?mls,?sebsd
+default_labels ifnet ?biba,?lomac,?mls,?sebsd
+default_labels process ?biba,?lomac,?mls,?partition,?sebsd
+default_labels socket ?biba,?lomac,?mls
+
+#
+# Устаревший (старый) синтаксис
+
+default_file_labels ?biba,?mls,?sebsd
+default_ifnet_labels ?biba,?mls,?sebsd
+default_process_labels ?biba,?mls,partition,?sebsd
+.Ed
+.Pp
+В этом примере приложения пространства пользователя будут пытаться получить метки Biba, MLS и SEBSD для всех классов объектов; для процессов они дополнительно попытаются получить идентификатор Partition.
+Во всех случаях, кроме идентификатора Partition, сбой получения метки из-за отсутствия соответствующей политики будет игнорироваться.
+.Sh СМ. ТАКЖЕ
+.Xr mac 3 ,
+.Xr mac_get 3 ,
+.Xr mac_prepare 3 ,
+.Xr mac 4 ,
+.Xr mac 9
+.Sh ИСТОРИЯ
+Поддержка обязательного управления доступом была введена в
+.Fx 5.0
+в рамках проекта
+.Tn TrustedBSD .

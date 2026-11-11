@@ -1,0 +1,551 @@
+.\" Copyright (c) 1999 - 2005 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/lib/krb5/krb5.conf.5
+.\" FRDP githash f4b792fa6754e42df78d3ebff8c919f81d051f7a
+.\" FRDP hash256 c1fc5787a30c7d2fdfad9b76d337c58f690bedfe53bcb6868dd1bd29cd65947b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May  4, 2005
+.Dt KRB5.CONF 5
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm krb5.conf
+.Nd файл конфигурации для Kerberos 5
+.Sh СИНТАКСИС
+.In krb5.h
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+задаёт несколько параметров конфигурации для библиотеки Kerberos 5,
+а также для некоторых программ.
+.Pp
+Файл состоит из одного или нескольких разделов, содержащих несколько
+привязок.
+Значением каждой привязки может быть либо строка, либо список других
+привязок.
+Грамматика выглядит так:
+.Bd -literal -offset indent
+file:
+	/* empty */
+	sections
+
+sections:
+	section sections
+	section
+
+section:
+	'[' section_name ']' bindings
+
+section_name:
+	STRING
+
+bindings:
+	binding bindings
+	binding
+
+binding:
+	name '=' STRING
+	name '=' '{' bindings '}'
+
+name:
+	STRING
+
+.Ed
+.Li STRINGs
+состоит из одного или нескольких символов, не являющихся пробельными.
+.Pp
+Строки STRING, указанные далее в этой странице руководства, используют следующую
+нотацию.
+.Bl -tag -width Ds
+.It boolean
+значения могут быть yes/true или no/false.
+.It time
+значения времени могут быть списком year, month, day, hour, min, second.
+Пример: 1 month 2 days 30 min.
+Если единица измерения не указана, предполагаются секунды.
+.It etypes
+допустимые типы шифрования: des-cbc-crc, des-cbc-md4, des-cbc-md5,
+des3-cbc-sha1, arcfour-hmac-md5, aes128-cts-hmac-sha1-96 и
+aes256-cts-hmac-sha1-96 .
+.It address
+адрес может быть IPv4 или IPv6 адресом.
+.El
+.Pp
+В настоящее время распознаются следующие разделы и привязки:
+.Bl -tag -width Ds
+.It Li [appdefaults]
+Указывает значения по умолчанию для приложений Kerberos.
+Можно задавать значения по умолчанию для приложения, realm или их комбинации.
+Порядок предпочтения:
+.Bl -enum -compact
+.It
+.Va application Va realm Va option
+.It
+.Va application Va option
+.It
+.Va realm Va option
+.It
+.Va option
+.El
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Li forwardable = Va boolean
+При получении первоначальных учётных данных делать учётные данные передаваемыми (forwardable).
+.It Li proxiable = Va boolean
+При получении первоначальных учётных данных делать учётные данные проксируемыми (proxiable).
+.It Li no-addresses = Va boolean
+При получении первоначальных учётных данных запрашивать их для пустого набора
+адресов, делая билеты действительными с любого адреса.
+.It Li ticket_lifetime = Va time
+Время жизни билета по умолчанию.
+.It Li renew_lifetime = Va time
+Время жизни возобновляемого билета по умолчанию.
+.It Li encrypt = Va boolean
+Использовать шифрование, когда оно доступно.
+.It Li forward = Va boolean
+Передавать учётные данные на удалённый хост (для
+.Xr rsh 1 ,
+.Xr telnet 1 ,
+и т.п.).
+.El
+.It Li [libdefaults]
+.Bl -tag -width Ds
+.It Li default_realm = Va REALM
+Realm по умолчанию для использования; он также известен как ваш
+.Dq локальный realm .
+По умолчанию используется результат
+.It Li allow_weak_crypto = Va boolean
+разрешено ли использовать слабые криптоалгоритмы; среди прочих DES считается
+слабым.
+.It Li clockskew = Va time
+Максимальная допустимая разница во времени (в секундах) при сравнении
+времени.
+По умолчанию 300 секунд (пять минут).
+.It Li kdc_timeout = Va time
+Максимальное время ожидания ответа от kdc; по умолчанию 3 секунды.
+.It Li v4_name_convert
+.It Li v4_instance_resolve
+Они описаны в руководстве
+.Xr krb5_425_conv_principal  3
+.
+.It Li capath = {
+.Bl -tag -width Ds
+.It Va destination-realm Li = Va next-hop-realm
+.It ...
+.It Li }
+.El
+Это устарело, см. раздел
+.Li capaths
+ниже.
+.It Li default_cc_type = Va cctype
+задаёт тип учётных данных по умолчанию.
+.It Li default_cc_name = Va ccname
+имя кэша учётных данных по умолчанию.
+Если нужно изменить только тип, используйте
+.Li default_cc_type .
+Строка может содержать переменные, раскрываемые во время выполнения.
+Сейчас поддерживается только переменная
+.Li %{uid}
+, которая раскрывается в текущий идентификатор пользователя.
+.It Li default_etypes = Va etypes ...
+Список типов шифрования по умолчанию для использования. (По умолчанию: все enctypes, если
+allow_weak_crypto = TRUE, иначе все enctypes, кроме single DES enctypes.)
+.It Li default_as_etypes = Va etypes ...
+Список типов шифрования по умолчанию для использования в AS-запросах.  (По умолчанию:
+значение default_etypes.)
+.It Li default_tgs_etypes = Va etypes ...
+Список типов шифрования по умолчанию для использования в TGS-запросах.  (По умолчанию:
+значение default_etypes.)
+.It Li default_etypes_des = Va etypes ...
+Список типов шифрования по умолчанию для использования при запросе учётных данных DES.
+.It Li default_keytab_name = Va keytab
+Keytab для использования, если другой не указан; по умолчанию —
+.Dq FILE:/etc/krb5.keytab .
+.It Li dns_lookup_kdc = Va boolean
+Использовать записи DNS SRV для поиска расположения служб KDC.
+.It Li dns_lookup_realm = Va boolean
+Использовать записи DNS TXT для поиска сопоставлений домена с realm.
+.It Li kdc_timesync = Va boolean
+Пытаться отслеживать разницу во времени между локальной машиной
+и KDC, а затем компенсировать её при выдаче запросов.
+.It Li max_retries = Va number
+Максимальное число попыток связаться с каждым KDC.
+.It Li large_msg_size = Va number
+Порог, при котором протоколы с очень маленьким максимальным размером сообщения
+считаются непригодными для отправки сообщений KDC.
+.It Li ticket_lifetime = Va time
+Время жизни билета по умолчанию.
+.It Li renew_lifetime = Va time
+Время жизни возобновляемого билета по умолчанию.
+.It Li forwardable = Va boolean
+При получении первоначальных учётных данных делать учётные данные передаваемыми.
+Эта опция также допустима в разделе [realms].
+.It Li proxiable = Va boolean
+При получении первоначальных учётных данных делать учётные данные проксируемыми.
+Эта опция также допустима в разделе [realms].
+.It Li verify_ap_req_nofail = Va boolean
+Если включено, неудачная проверка учётных данных по локальному ключу является
+фатальной ошибкой.
+Чтобы это работало, приложение должно иметь возможность читать соответствующий
+ключ службы.
+Некоторые приложения, такие как
+.Xr su 1 ,
+включают эту опцию безусловно.
+.It Li warn_pwexpire = Va time
+За сколько времени предупреждать об истечении пароля.
+По умолчанию — семь дней.
+.It Li http_proxy = Va proxy-spec
+HTTP-прокси для использования при обращении к KDC по HTTP.
+.It Li dns_proxy = Va proxy-spec
+Включить использование DNS через HTTP.
+.It Li extra_addresses = Va address ...
+Список адресов, для которых нужно получать билеты, вместе со всеми локальными адресами.
+.It Li time_format = Va string
+Как печатать строки времени в журналах; эта строка передаётся в
+.Xr strftime 3 .
+.It Li date_format = Va string
+Как печатать строки даты в журналах; эта строка передаётся в
+.Xr strftime 3 .
+.It Li log_utc = Va boolean
+Записывать записи журнала в UTC вместо локального часового пояса.
+.It Li scan_interfaces = Va boolean
+Сканировать все сетевые интерфейсы на предмет адресов вместо простого использования
+адреса, связанного с именем хоста системы.
+.It Li fcache_version = Va int
+Использовать указанную версию формата файлового кэша учётных данных.
+.It Li krb4_get_tickets = Va boolean
+Также получать билеты Kerberos 4 в
+.Nm kinit ,
+.Nm login ,
+и других программах.
+Эта опция также допустима в разделе [realms].
+.It Li fcc-mit-ticketflags = Va boolean
+Использовать совместимый с MIT формат для файлового кэша учётных данных.
+В версиях старше Heimdal 0.7 поле ticketflags хранится в обратном порядке битов.
+Установка этого флага в
+.Dv TRUE
+заставляет хранить способом MIT; это значение по умолчанию для Heimdal 0.7.
+.It Li check-rd-req-server
+.Xr krb5_rd_req 3 ,
+это очень полезно, когда сервер GSS-API передаёт неправильное имя сервера
+в вызов gss_accept_sec_context.
+.El
+.It Li [domain_realm]
+Это список сопоставлений DNS-домена с Kerberos realm.
+Каждая привязка в этом разделе выглядит так:
+.Pp
+.Dl domain = realm
+.Pp
+Домен может быть либо полным именем хоста, либо конечным
+компонентом; в последнем случае строка домена должна начинаться с
+точки.
+Конечный компонент соответствует только хостам в том же домене, т.е.
+.Dq .example.com
+соответствует
+.Dq foo.example.com ,
+но не
+.Dq foo.test.example.com .
+.Pp
+Realm может быть токеном `dns_locate', и в этом случае фактический
+realm будет определён с помощью DNS (независимо от значения
+опции `dns_lookup_realm').
+.It Li [realms]
+.Bl -tag -width Ds
+.It Va REALM Li = {
+.Bl -tag -width Ds
+.It Li kdc = Va [service/]host[:port]
+Указывает список KDC для этого realm.
+Если необязательный
+.Va port
+отсутствует, будет использоваться
+значение по умолчанию для порта
+.Dq kerberos/udp
+.Dq kerberos/tcp ,
+и
+.Dq http/tcp
+(в зависимости от службы).
+KDC будут использоваться в порядке их указания.
+.Pp
+Необязательный
+.Va service
+указывает, через какую среду следует связываться с kdc.
+Возможные службы:
+.Dq udp ,
+.Dq tcp ,
+и
+.Dq http .
+Http также можно записать как
+.Dq http:// .
+Служба по умолчанию —
+.Dq udp
+и
+.Dq tcp .
+.It Li admin_server = Va host[:port]
+Указывает административный сервер для этого realm, где выполняются все изменения
+базы данных.
+.It Li kpasswd_server = Va host[:port]
+Указывает на сервер, где выполняются все изменения паролей.
+Если такой записи нет, будет опробован порт kpasswd на хосте admin_server.
+.It Li krb524_server = Va host[:port]
+Указывает на сервер, выполняющий преобразования 524.
+Если он не указан, будет опробован порт krb524 на KDC.
+.It Li v4_instance_convert
+.It Li v4_name_convert
+.It Li default_domain
+См.
+.Xr krb5_425_conv_principal 3 .
+.It Li tgs_require_subkey
+логическая переменная, по умолчанию false.
+Старому DCE secd (до 1.1) может потребоваться значение true.
+.El
+.It Li }
+.El
+.It Li [capaths]
+.Bl -tag -width Ds
+.It Va client-realm Li = {
+.Bl -tag -width Ds
+.It Va server-realm Li = Va hop-realm ...
+Это служит двум целям. Во-первых, первый указанный
+.Va hop-realm
+сообщает клиенту, к какому realm следует обращаться, чтобы в конечном итоге
+получить учётные данные для службы в
+.Va server-realm .
+Во-вторых, он сообщает KDC (и другим серверам), какие realm
+разрешены при многошаговом переходе от
+.Va client-realm
+к
+.Va server-realm .
+За исключением клиентского случая, порядок realm не важен.
+.El
+.It Va }
+.El
+.It Li [logging]
+.Bl -tag -width Ds
+.It Va entity Li = Va destination
+Указывает, что
+.Va entity
+должна использовать указанный
+.Li destination
+для журналирования.
+Список определённых назначений см. в руководстве
+.Xr krb5_openlog 3
+.
+.El
+.It Li [kdc]
+.Bl -tag -width Ds
+.It Li database Li = {
+.Bl -tag -width Ds
+.It Li dbname Li = Va DATABASENAME
+Использовать эту базу данных для этого realm.
+См. документацию info о настройке различных бэкендов базы данных.
+.It Li realm Li = Va REALM
+Указывает realm, который будет храниться в этой базе данных.
+Если realm не задан, база данных будет использоваться как база по умолчанию; может
+быть только одна запись без блока
+.Li realm .
+.It Li mkey_file Li = Pa FILENAME
+Использовать этот keytab-файл для мастер-ключа этой базы данных.
+Если не указан, будет использоваться
+.Va DATABASENAME Ns .mkey .
+.It Li acl_file Li = PA FILENAME
+Использовать этот файл для списка ACL этой базы данных.
+.It Li log_file Li = Pa FILENAME
+Использовать этот файл как журнал изменений, выполненных в базе данных.
+Этот файл используется
+.Nm ipropd-master
+для распространения изменений на подчинённые серверы.
+.El
+.It Li }
+.It Li max-request = Va SIZE
+Максимальный размер запроса kdc.
+.It Li require-preauth = Va BOOL
+Если задано, требуется предварительная аутентификация.
+Поскольку запросы krb4 не проходят предварительную аутентификацию, они будут отклонены.
+Список портов, которые kdc должен прослушивать.
+Список адресов, к которым kdc должен привязываться.
+.It Li enable-kerberos4 = Va BOOL
+Включить поддержку Kerberos 4.
+.It Li v4-realm = Va REALM
+В какой realm должны отображаться запросы v4.
+.It Li enable-524 = Va BOOL
+Должна ли быть включена функция преобразования Kerberos 524.
+По умолчанию совпадает с
+.Va enable-kerberos4 .
+.It Li enable-http = Va BOOL
+Должен ли kdc отвечать на kdc-запросы по http.
+.It Li enable-kaserver = Va BOOL
+Должен ли этот kdc эмулировать AFS kaserver.
+.It Li tgt-use-strongest-session-key = Va BOOL
+Если TRUE, KDC будет предпочитать самый сильный ключ из списка enctype в AS-REQ или TGS-REQ клиента для сеансового ключа билета, который поддерживается KDC и целевым principal, когда целевой principal является principal krbtgt. Иначе будет предпочитаться первый ключ из списка enctype в AS-REQ клиента, который также поддерживается KDC и целевым principal. По умолчанию TRUE.
+.It Li svc-use-strongest-session-key = Va BOOL
+Как tgt-use-strongest-session-key, но применяется к enctype сеансового ключа билетов для служб, отличных от principal krbtgt. По умолчанию TRUE.
+.It Li preauth-use-strongest-session-key = Va BOOL
+Если TRUE, выбирать самый сильный возможный enctype из AS-REQ клиента для PA-ETYPE-INFO2 (т.е. для предварительной аутентификации по паролю). Иначе выбрать первый поддерживаемый enctype из AS-REQ клиента. По умолчанию TRUE.
+.It Li use-strongest-server-key = Va BOOL
+Если TRUE, KDC выбирает для ключа зашифрованной части билета первый поддерживаемый enctype из текущего набора ключей записи hdb целевого service principal. Иначе KDC выбирает первый поддерживаемый enctype из текущего набора ключей записи hdb целевого service principal. По умолчанию TRUE.
+.It Li check-ticket-addresses = Va BOOL
+Проверять адреса в билетах, используемых в tgs-запросах.
+.It Li allow-null-ticket-addresses = Va BOOL
+Разрешать билеты без адресов.
+.It Li allow-anonymous = Va BOOL
+Разрешено ли kdc выдавать анонимные билеты.
+.It Li encode_as_rep_as_tgs_rep = Va BOOL
+Кодировать as-rep как tgs-rep, чтобы быть совместимым с ошибками, которые делал старый DCE secd.
+.It Li kdc_warn_pwexpire = Va TIME
+Время до истечения, за которое пользователя следует предупредить о скором истечении его
+пароля.
+.It Li logging = Va Logging
+Какой тип журналирования должен использовать kdc; см. также [logging]/kdc.
+.It Li use_2b = {
+.Bl -tag -width Ds
+.It Va principal Li = Va BOOL
+логическое значение, должен ли демон 524 возвращать токены AFS 2b для
+.Fa principal .
+.It ...
+.El
+.It Li }
+.It Li hdb-ldap-structural-object Va structural object
+Если для хранения principal используется бэкенд LDAP, это структурный объект, который будет использоваться при создании и чтении объектов.
+Значение по умолчанию — account .
+.It Li hdb-ldap-create-base Va creation dn
+это dn, который будет добавляться к principal при создании записей.
+Значение по умолчанию — search dn.
+.It Li enable-digest = Va BOOL
+Должен ли kdc отвечать на digest-запросы. По умолчанию FALSE.
+.It Li digests_allowed = Va list of digests
+Указывает digest, на которые kdc будет отвечать. По умолчанию
+.Li ntlm-v2 .
+.El
+.It Li [kadmin]
+.Bl -tag -width Ds
+.It Li require-preauth = Va BOOL
+Требуется ли предварительная аутентификация для обращения к серверу kadmin.
+.It Li password_lifetime = Va time
+Если для principal уже задан срок истечения пароля, это время, в течение которого он
+будет действителен после изменения.
+.It Li default_keys = Va keytypes...
+Для каждой записи в
+.Va default_keys
+попытаться разобрать её как последовательность синтаксиса
+.Va etype:salttype:salt
+, если она выглядит примерно так:
+.Pp
+[(des|des3|etype):](pw-salt|afs3-salt)[:string]
+.Pp
+Если
+.Ar etype
+опущен, это означает всё, а если string опущен, это означает строку соли по умолчанию
+(для этого principal и типа шифрования).
+Дополнительные специальные значения keytypes:
+.Bl -tag -width Ds
+.It Li v5
+Соль Kerberos 5
+.Va pw-salt
+.It Li v4
+Соль Kerberos 4
+.Va des:pw-salt:
+.El
+.It Li use_v4_salt = Va BOOL
+Когда true, это то же самое, что
+.Pp
+.Va default_keys = Va des3:pw-salt Va v4
+.Pp
+и оставлено только для обратной совместимости.
+.El
+.It Li [password_quality]
+.Bl -tag -width Ds
+Дополнительную информацию о проверке качества паролей см. в документации info.
+.It Li check_library = Va library-name
+Имя библиотеки, содержащей check_function пароля
+.It Li check_function = Va function-name
+Имя функции для проверки паролей в check_library
+.It Li policy_libraries = Va library1 ... libraryN
+Список библиотек, которые могут выполнять проверки политики паролей
+.It Li policies = Va policy1 ... policyN
+Список имён политик, применяемых к паролю. Встроенные политики включают, среди
+прочего, minimum-length, character-class, external-check.
+.El
+.El
+.Sh ОКРУЖЕНИЕ
+.Ev KRB5_CONFIG
+указывает на файл конфигурации для чтения.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/krb5.conf
+файл конфигурации для Kerberos 5.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent
+[libdefaults]
+	default_realm = FOO.SE
+[domain_realm]
+	.foo.se = FOO.SE
+	.bar.se = FOO.SE
+[realms]
+	FOO.SE = {
+		kdc = kerberos.foo.se
+		v4_name_convert = {
+			rcmd = host
+		}
+		v4_instance_convert = {
+			xyz = xyz.bar.se
+		}
+		default_domain = foo.se
+	}
+[logging]
+	kdc = FILE:/var/heimdal/kdc.log
+	kdc = SYSLOG:INFO
+	default = SYSLOG:INFO:USER
+.Ed
+.Sh ДИАГНОСТИКА
+Поскольку
+.Nm
+читается и разбирается библиотекой krb5, у программ не так много
+возможностей сообщать об ошибках разбора в каком-либо полезном
+формате.
+Чтобы помочь преодолеть эту проблему, существует программа
+.Nm verify_krb5_conf
+, которая читает
+.Nm
+и пытается выдавать полезную диагностику по ошибкам разбора.
+Учтите, что эта программа никак не может знать, какие опции
+фактически используются, и поэтому не может предупреждать о неизвестных или
+с ошибками в написании опциях.
+.Sh СМ. ТАКЖЕ
+.Xr kinit 1 ,
+.Xr krb5_425_conv_principal 3 ,
+.Xr krb5_openlog 3 ,
+.Xr strftime 3 ,
+.Xr verify_krb5_conf 8

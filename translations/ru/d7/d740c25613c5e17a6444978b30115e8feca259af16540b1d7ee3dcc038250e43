@@ -1,0 +1,230 @@
+.\"-
+.\" Copyright (c) 2005-2025 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openpam/doc/man/pam.conf.5
+.\" FRDP githash 45538173c120eadca115fd7e56c657905bf73771
+.\" FRDP hash256 d740c25613c5e17a6444978b30115e8feca259af16540b1d7ee3dcc038250e43
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 31, 2025
+.Dt PAM.CONF 5
+.Os
+.Sh ИМЯ
+.Nm pam.conf
+.Nd формат файла политики PAM
+.Sh ОПИСАНИЕ
+Библиотека PAM ищет политики в следующих файлах в порядке убывания предпочтения:
+.Bl -enum
+.It
+.Pa /etc/pam.d/ Ns Ar имя-службы
+.It
+.Pa /etc/pam.conf
+.It
+.Pa /usr/local/etc/pam.d/ Ns Ar имя-службы
+.It
+.Pa /usr/local/etc/pam.conf
+.El
+.Pp
+Если ни одно из этих мест не содержит политику для данной службы,
+вместо неё используется политика
+.Dq Dv other , если она существует.
+.Pp
+Записи в файлах политики для отдельных служб должны иметь одну из двух
+приведённых ниже форм:
+.Bd -unfilled -offset indent
+.Ed
+.Pp
+Записи в файлах политики в стиле
+.Pa pam.conf Ns -style
+имеют ту же форму, но перед ними стоит дополнительное
+поле, указывающее имя службы, к которой они применяются.
+.Pp
+В обоих случаях пустые строки и комментарии, начинающиеся со знака
+.Ql #
+игнорируются, и применяются обычные правила кавычек оболочки.
+Точные сведения о том, как файл разбивается на лексемы, описаны в
+.Xr openpam_readword 3 .
+.Pp
+Поле
+.Ar категория
+задаёт категорию, к которой применяется запись, и является одним из следующих:
+.Bl -tag -width 12n
+.It Cm auth
+Функции аутентификации
+.Po
+.Xr pam_authenticate 3 ,
+.Xr pam_setcred 3
+.Pc
+.It Cm account
+Функции управления учётными записями
+.Pq Xr pam_acct_mgmt 3
+.It Cm session
+Функции обработки сеансов
+.Po
+.Xr pam_open_session 3 ,
+.Xr pam_close_session 3
+.Pc
+.It Cm password
+Функции управления паролями
+.Pq Xr pam_chauthtok 3
+.El
+.Pp
+Перед полем
+.Ar категория
+необязательно может стоять дефис
+.Pq Ql - ,
+который указывает, что неудачная загрузка указанного модуля (или политики,
+если
+.Ar управляющий-флаг
+имеет значение
+.Cm include )
+не должна считаться фатальной ошибкой.
+Это предназначено для ситуаций, когда желательно совместно использовать одну
+политику на нескольких системах, но определённые дополнительные модули
+или политики могут присутствовать только на некоторых из них.
+.Pp
+Поле
+.Ar управляющий-флаг
+определяет, как результат, возвращённый модулем, влияет на поток
+управления через остальную часть цепочки (и на её окончательный результат),
+и является одним из следующих:
+.Bl -tag -width 12n
+.It Cm required
+Если этот модуль завершается успешно, результат цепочки будет успешным,
+если только какой-либо последующий модуль не завершится с ошибкой.
+Если он завершается с ошибкой, остальная часть цепочки всё равно выполняется,
+но окончательный результат будет неуспешным независимо от успеха
+последующих модулей.
+.It Cm requisite
+Если этот модуль завершается успешно, результат цепочки будет успешным,
+если только какой-либо последующий модуль не завершится с ошибкой.
+Если модуль завершается с ошибкой, цепочка прерывается, и результат — неуспех.
+.It Cm sufficient
+Если этот модуль завершается успешно, цепочка прерывается, и результат —
+успех.
+Если он завершается с ошибкой, остальная часть цепочки всё равно выполняется,
+но окончательный результат будет неуспешным, если только какой-либо
+последующий модуль не завершится успешно.
+.It Cm binding
+Если этот модуль завершается успешно, цепочка прерывается, и результат —
+успех.
+Если он завершается с ошибкой, остальная часть цепочки всё равно выполняется,
+но окончательный результат будет неуспешным независимо от успеха
+последующих модулей.
+.It Cm optional
+Если этот модуль завершается успешно, результат цепочки будет успешным,
+если только какой-либо последующий модуль не завершится с ошибкой.
+Если этот модуль завершается с ошибкой, результат цепочки будет неуспешным,
+если только какой-либо последующий модуль не завершится успешно.
+.El
+.Pp
+Из вышесказанного есть два исключения:
+модули
+.Cm sufficient
+и
+.Cm binding
+рассматриваются как
+.Cm optional
+функцией
+.Xr pam_setcred 3 ,
+и в фазе
+.Dv PAM_PRELIM_CHECK
+функции
+.Xr pam_chauthtok 3 .
+.Pp
+Поле
+.Ar путь-к-модулю
+задаёт имя или полный путь вызываемого модуля.
+Если указано только имя, библиотека PAM будет искать его в
+следующих местах:
+.Bl -enum
+.It
+.Pa /usr/lib
+.It
+.Pa /usr/local/lib
+.El
+.Pp
+Остальные поля, если они есть, передаются модулю без изменений, если и
+когда он вызывается.
+.Pp
+Форма записи
+.Cm include
+приводит к включению в текущую цепочку записей из другой цепочки
+(указанной
+.Ar имя-другой-системы ) .
+Это позволяет определять общесистемные политики, которые затем включаются
+в политики для отдельных служб.
+После этого общесистемную политику можно изменять, не изменяя каждую
+политику для отдельных служб.
+.Pp
+.Bf -symbolic
+Следите за тем, чтобы не создавать циклы при использовании правил
+.Cm include ,
+поскольку в настоящее время обнаружение циклов не реализовано.
+.Ef
+.Sh ПАРАМЕТРЫ МОДУЛЯ
+Некоторые функции библиотеки PAM могут изменять своё поведение при вызове
+из модуля службы, если были указаны определённые параметры модуля,
+независимо от того, придаёт ли им значение сам модуль.
+Одним из таких параметров является
+.Cm debug ,
+который заставляет диспетчер включать отладочные сообщения перед
+вызовом каждой функции службы и отключать их после этого (если они не были
+включены ранее).
+К другим специальным параметрам относятся:
+.Bl -tag -width 12n
+.It Cm authtok_prompt Ns = Ns Ar приглашение , Cm oldauthtok_prompt Ns = Ns Ar приглашение , Cm user_prompt Ns = Ns Ar приглашение
+Эти параметры можно использовать для переопределения приглашений, используемых
+.Xr pam_get_authtok 3
+и
+.Xr pam_get_user 3 .
+.It Cm echo_pass
+Этот параметр управляет тем, будет ли
+.Xr pam_get_authtok 3
+разрешать пользователю видеть вводимый текст.
+.It Cm try_first_pass , Cm use_first_pass
+Эти параметры управляют использованием кэшированных маркеров аутентификации
+в
+.Xr pam_get_authtok 3 Ns 's .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3
+.Sh СТАНДАРТЫ
+.Rs
+.Re
+.Sh АВТОРЫ
+Библиотека OpenPAM была разработана для проекта
+.Fx
+компаниями ThinkSec AS и Network Associates Laboratories, Security Research
+Division of Network Associates, Inc.\& по контракту DARPA/SPAWAR
+N66001-01-C-8035
+.Pq Dq CBOSS ,
+в рамках исследовательской программы DARPA CHATS.
+.Pp
+Библиотека OpenPAM поддерживается
+.An Dag-Erling Sm\(/orgrav Aq Mt des@des.dev .

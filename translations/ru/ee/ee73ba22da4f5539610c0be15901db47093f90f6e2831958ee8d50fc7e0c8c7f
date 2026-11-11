@@ -1,0 +1,82 @@
+.\" Copyright (c) 2004 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR
+.\" ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/audit_warn.5
+.\" FRDP githash a1e5a9af6390f3a1d901155095264aeb1bae7382
+.\" FRDP hash256 ee73ba22da4f5539610c0be15901db47093f90f6e2831958ee8d50fc7e0c8c7f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 30, 2026
+.Dt AUDIT_WARN 5
+.Os
+.Sh ИМЯ
+.Nm audit_warn
+.Sh ОПИСАНИЕ
+.Nm
+сценарий
+запускается, когда
+.Xr auditd 8
+генерирует предупреждающие сообщения.
+.Pp
+По умолчанию
+.Nm
+представляет собой сценарий, который передаёт свои аргументы в
+.Xr logger 1 .
+Администраторы могут заменить этот сценарий: более полный сценарий мог бы предпринимать
+разные действия в зависимости от типа предупреждения.
+Например, предупреждение о нехватке места
+может привести к отправке электронного письма администратору.
+.Pp
+Если сценарий не существует или не является исполняемым,
+.Xr auditd 8
+будет вести журнал непосредственно в
+.Xr syslogd 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/security/audit_warn
+.It Pa /etc/security/audit_warn
+.El
+.Sh СМ. ТАКЖЕ
+.Xr logger 1 ,
+.Xr audit 4 ,
+.Xr auditd 8 ,
+.Xr syslogd 8
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением по безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением по
+исследованиям в области безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока событий
+аудита были определены Sun Microsystems.

@@ -1,0 +1,207 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/remote.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 b40560f2ec87cd6557a3642314b5efc7225f3241ca69a00dbf7520f4376eaf80
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 20, 2003
+.Dt REMOTE 5
+.Os
+.Sh ИМЯ
+.Nm remote
+.Nd файл описания удалённого хоста
+.Sh ОПИСАНИЕ
+Системы, известные
+.Xr tip 1 ,
+и их атрибуты хранятся в файле
+.Tn ASCII ,
+структура которого несколько напоминает файл
+.Xr termcap 5 .
+Каждая строка файла содержит описание одной
+.Em системы .
+Поля разделяются двоеточием (``:'').
+Строки, заканчивающиеся символом \e с непосредственно следующим за ним
+переводом строки, продолжаются на следующей строке.
+.Pp
+Первый элемент — это имя (имена) хоста.
+Если у системы есть более одного имени, имена разделяются вертикальными чертами.
+После имени системы идут поля описания.
+Имя поля, за которым следует знак `=', указывает строковое значение.
+Имя поля, за которым следует знак `#', указывает числовое значение.
+.Pp
+Записи с именами ``tip*'' и ``cu*'' используются как записи по умолчанию программой
+.Xr tip 1
+и интерфейсом
+.Xr cu 1
+к
+.Nm tip
+следующим образом.
+Когда
+.Nm tip
+вызывается только с номером телефона, он ищет запись
+вида ``tip300'', где 300 — скорость передачи данных, с
+которой должно устанавливаться соединение.
+Когда используется интерфейс
+.Nm cu ,
+применяются записи вида ``cu300''.
+.Sh ВОЗМОЖНОСТИ
+Возможности бывают строками (str), числами (num) или булевыми
+флагами (bool).
+Строковая возможность задаётся как
+.Em возможность Ns Ar = Ns Em значение ;
+например, ``dv=/dev/harris''.
+Числовая возможность задаётся как
+.Em возможность Ns Ar # Ns Em значение ;
+например, ``xa#99''.
+Булева возможность задаётся простым перечислением этой возможности.
+.Bl -tag -width indent
+.It Cm \&at
+(str)
+Тип устройства автоматического вызова.
+.It Cm \&br
+(num)
+Скорость передачи данных (бит/с), используемая для связи через
+последовательный порт.
+При использовании модема скорость передачи данных для связи
+с удалённым модемом может отличаться от этой скорости.
+Это десятичное число.
+Скорость по умолчанию — 115200 бит/с.
+.It Cm \&cm
+(str)
+Начальное сообщение о соединении, которое нужно отправить удалённому хосту.
+Например, если доступ к хосту осуществляется через селектор портов, здесь
+можно задать соответствующую последовательность, необходимую для переключения на этот хост.
+.It Cm \&cu
+(str)
+Устройство вызова, если выполняется телефонный звонок.
+По умолчанию совпадает с полем `dv'.
+.It Cm \&di
+(str)
+Сообщение о разъединении, отправляемое хосту, когда пользователь
+запрашивает разъединение.
+.It Cm \&du
+(bool)
+Этот хост подключён по коммутируемой линии.
+.It Cm \&dv
+(str)
+.Ux -устройство(а), которое нужно открыть для установления соединения.
+Если этот файл ссылается на терминальную линию,
+.Xr tip 1
+пытается выполнить монопольное открытие устройства, чтобы гарантировать, что только
+один пользователь одновременно имеет доступ к порту.
+.It Cm \&el
+(str)
+Символы, отмечающие конец строки.
+По умолчанию
+.Dv NULL .
+Экранирования `~' распознаются
+.Nm tip
+только после одного из символов в `el' или после возврата каретки.
+.It Cm \&fs
+(str)
+Размер кадра для передач.
+Размер кадра по умолчанию равен
+.Dv BUFSIZ .
+.It Cm \&hd
+(bool)
+Хост использует полудуплексную связь; должно выполняться локальное эхо.
+.It Cm \&ie
+(str)
+Маркеры конца файла на входе.
+По умолчанию
+.Dv NULL .
+.It Cm \&oe
+(str)
+Строка конца файла на выходе.
+По умолчанию
+.Dv NULL .
+Когда
+.Nm tip
+передаёт файл, эта
+строка отправляется в конце файла.
+.It Cm \&pa
+(str)
+Тип контроля чётности, используемый при отправке данных
+хосту.
+Это может быть одно из значений ``even'',
+``odd'', ``none'', ``zero'' (всегда устанавливать бит 8 в ноль),
+``one'' (всегда устанавливать бит 8 в единицу).
+По умолчанию используется чётный контроль чётности.
+.It Cm \&pn
+(str)
+Номер(а) телефона для этого хоста.
+Если поле номера телефона содержит знак @,
+.Nm tip
+ищет список телефонных номеров в файле
+.Pa /etc/phones
+(см.
+.Xr phones 5 ) .
+.It Cm \&tc
+(str)
+Указывает, что список возможностей продолжается в указанном
+описании.
+В основном используется для совместного использования общей информации о возможностях.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/remote -compact
+.It Pa /etc/remote
+Файл описания хоста
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён краткий пример использования возможности продолжения
+описания.
+Он определяет соединение через модем 56k на первом последовательном порту со скоростью 115200
+бит/с, без контроля чётности, с использованием набора команд Hayes со стандартным
+редактированием строки и символами конца файла.
+Запись arpavax включает всё из записи UNIX-57600 плюс
+номер телефона для arpavax (в данном случае символ @, чтобы он
+извлекался из окружения).
+.Bd -literal
+UNIX-57600:\e
+:dv=/dev/cuau0:el=^D^U^C^S^Q^O@:oe=^D:du:at=hayes:br#115200:pa=none:
+arpavax|ax:\e
+:pn=\e@:tc=UNIX-57600
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr cu 1 ,
+.Xr tip 1 ,
+.Xr phones 5
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Xr tip 1
+использует собственное представление о скорости передачи данных последовательного порта, а не
+системное значение по умолчанию для последовательного порта.

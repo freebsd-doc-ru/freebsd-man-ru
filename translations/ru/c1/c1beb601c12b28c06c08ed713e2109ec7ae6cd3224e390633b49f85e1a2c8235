@@ -1,0 +1,100 @@
+.\" Copyright (c) 1996
+.\"	Mike Pritchard <mpp@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Mike Pritchard and
+.\"	contributors.
+.\" 4. Neither the name of the author nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/forward.5
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 c1beb601c12b28c06c08ed713e2109ec7ae6cd3224e390633b49f85e1a2c8235
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 2, 1996
+.Dt FORWARD 5
+.Os
+.Sh ИМЯ
+.Nm forward
+.Nd инструкции по пересылке почты
+.Sh ОПИСАНИЕ
+Файл
+.Nm .forward
+содержит список почтовых адресов или программ,
+на которые должна быть перенаправлена почта пользователя.
+Если
+файл отсутствует, то пересылка почты не выполняется.
+Почта также может быть переслана программе как стандартный ввод,
+если поставить в начале строки
+обычный символ конвейера оболочки (|).
+Если команде
+должны быть переданы аргументы, то всю строку
+следует заключить в кавычки.
+В целях безопасности
+файл
+.Nm .forward
+должен принадлежать пользователю, которому отправляется почта,
+или root, а оболочка пользователя должна быть указана в
+.Pa /etc/shells .
+.Pp
+Например, если файл
+.Nm .forward
+содержал следующие строки:
+.Bd -literal -offset indent
+nobody@FreeBSD.org
+.Ed
+.Pp
+Почта была бы переслана на
+.Aq Mt nobody@FreeBSD.org
+и программе
+.Pa /usr/bin/vacation
+с единственным аргументом
+.Ar nobody .
+.Pp
+Если локальный адрес пользователя начинается с символа
+обратной косой черты, почта доставляется непосредственно в
+файл почтового ящика пользователя, минуя дальнейшее
+перенаправление.
+.Pp
+Например, если у пользователя chris есть файл
+.Nm .forward
+со следующими строками:
+.Bd -literal -offset indent
+chris@otherhost
+\echris
+.Ed
+.Pp
+Одна копия почты была бы переслана на
+.Ar chris@otherhost ,
+а другая копия была бы сохранена как почта для локального пользователя chris.
+.Sh ФАЙЛЫ
+.Bl -tag -width $HOME/.forward -compact
+.It Pa $HOME/.forward
+Инструкции пользователя по пересылке почты.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aliases 5 ,
+.Xr sendmail 8

@@ -1,0 +1,214 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/stab.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 eba27a517e5a7df11bd1272860c9940bb173524e40efacf0dc03fe4d8fe6341e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 10, 2010
+.Dt STAB 5
+.Os
+.Sh ИМЯ
+.Nm stab
+.Nd типы таблицы символов
+.Sh СИНТАКСИС
+.In stab.h
+.Sh ОПИСАНИЕ
+Файл
+.In stab.h
+определяет некоторые значения поля
+.Fa n_type
+таблицы символов для файлов a.out.
+Это типы постоянных символов (т. е. не локальных меток и т. п.\&),
+используемые старым отладчиком
+.Em sdb
+и компилятором Беркли для Паскаля
+.Xr pc 1 .
+Элементы таблицы символов могут создаваться директивой ассемблера
+.Pa .stabs .
+Это позволяет задать имя, ограниченное двойными кавычками, тип символа,
+один char и один short информации о символе, а также unsigned
+long (обычно адрес).
+Чтобы не создавать явную метку для поля адреса, можно использовать
+директиву
+.Pa .stabd
+для неявной адресации текущего местоположения.
+Если имя не требуется, элементы таблицы символов можно создавать с помощью
+директивы
+.Pa .stabn .
+Загрузчик обещает сохранять порядок элементов таблицы символов, создаваемых
+директивами
+.Pa .stab .
+Как описано в
+.Xr a.out 5 ,
+элемент таблицы символов
+состоит из следующей структуры:
+.Bd -literal
+/*
+* Формат элемента таблицы символов.
+*/
+
+struct nlist {
+	union {
+		const char *n_name;	/* для использования в оперативной памяти */
+		long	n_strx;		/* индекс в строковой таблице файла */
+	} n_un;
+	unsigned char	n_type;		/* флаг типа */
+	char		n_other;	/* не используется */
+	short		n_desc;		/* см. struct desc ниже */
+	unsigned	n_value;	/* адрес, смещение или строка */
+};
+.Ed
+.Pp
+Младшие биты поля
+.Fa n_type
+используются для помещения символа не более чем в один сегмент, согласно
+следующим маскам, определённым в
+.In a.out.h .
+Символ может не принадлежать ни одному из этих сегментов, если ни один из этих битов сегмента
+не установлен.
+.Bd -literal
+/*
+* Простые значения для n_type.
+*/
+
+#define	N_UNDF	0x0	/* не определён */
+#define	N_ABS	0x2	/* абсолютный */
+#define	N_TEXT	0x4	/* текст */
+#define	N_DATA	0x6	/* данные */
+#define	N_BSS	0x8	/* bss */
+
+#define	N_EXT	01	/* бит внешней видимости, объединяется по ИЛИ */
+.Ed
+.Pp
+Поле
+.Fa n_value
+символа перемещается компоновщиком
+.Xr ld 1
+как адрес внутри соответствующего сегмента.
+Поля
+.Fa N_value
+символов, не входящих ни в один сегмент, не изменяются компоновщиком.
+Кроме того, компоновщик отбрасывает некоторые символы по своим правилам,
+если в поле
+.Fa n_type
+не установлен один из следующих битов:
+.Bd -literal
+/*
+* Другие постоянные элементы таблицы символов имеют некоторые из битов N_STAB установленными.
+* Они приведены в <stab.h>
+*/
+
+#define	N_STAB	0xe0	/* если какой-либо из этих битов установлен, не отбрасывать */
+.Ed
+.Pp
+Это допускает до 112 (7 \(** 16) типов символов, распределённых между различными
+сегментами.
+Некоторые из них уже заняты.
+Старый символьный отладчик
+.Em sdb
+использует следующие значения n_type:
+.Bd -literal
+#define	N_GSYM	0x20	/* глобальный символ: имя,,0,тип,0 */
+#define	N_FNAME	0x22	/* имя процедуры (хак для f77): имя,,0 */
+#define	N_FUN	0x24	/* процедура: имя,,0,номер_строки,адрес */
+#define	N_STSYM	0x26	/* статический символ: имя,,0,тип,адрес */
+#define	N_LCSYM	0x28	/* символ .lcomm: имя,,0,тип,адрес */
+#define	N_RSYM	0x40	/* символ регистра: имя,,0,тип,регистр */
+#define	N_SLINE	0x44	/* строка исходного кода: 0,,0,номер_строки,адрес */
+#define	N_SSYM	0x60	/* элемент структуры: имя,,0,тип,struct_offset */
+#define	N_SO	0x64	/* имя исходного файла: имя,,0,0,адрес */
+#define	N_LSYM	0x80	/* локальный символ: имя,,0,тип,смещение */
+#define	N_SOL	0x84	/* имя включённого файла: имя,,0,0,адрес */
+#define	N_PSYM	0xa0	/* параметр: имя,,0,тип,смещение */
+#define	N_ENTRY	0xa4	/* альтернативная точка входа: имя,номер_строки,адрес */
+#define	N_LBRAC	0xc0	/* левая скобка: 0,,0,уровень_вложенности,адрес */
+#define	N_RBRAC	0xe0	/* правая скобка: 0,,0,уровень_вложенности,адрес */
+#define	N_BCOMM	0xe2	/* начало common: имя,, */
+#define	N_ECOMM	0xe4	/* конец common: имя,, */
+#define	N_ECOML	0xe8	/* конец common (локальное имя): ,,адрес */
+#define	N_LENG	0xfe	/* второй элемент stab с информацией о длине */
+.Ed
+.Pp
+где комментарии указывают обычное для
+.Em sdb
+использование
+.Pa .stab
+.Fa s
+и полей
+.Fa n_name ,
+.Fa n_other ,
+.Fa n_desc
+и
+.Fa n_value
+заданного
+.Fa n_type .
+.Em Sdb
+использует поле
+.Fa n_desc
+для хранения спецификатора типа в форме, используемой
+Portable C Compiler,
+.Xr cc 1 ;
+подробности формата этих значений типов см. в заголовочном файле
+.Pa pcc.h .
+.Pp
+Компилятор Беркли для Паскаля
+.Xr pc 1
+использует следующее значение
+.Fa n_type :
+.Bd -literal
+#define	N_PC	0x30	/* глобальный символ Паскаля: имя,,0,подтип,строка */
+.Ed
+.Pp
+и использует следующие подтипы для проверки типов в отдельно
+компилируемых файлах:
+.Bd -unfilled -offset indent
+1	имя исходного файла
+2	имя включённого файла
+3	глобальная метка
+4	глобальная константа
+5	глобальный тип
+6	глобальная переменная
+7	глобальная функция
+8	глобальная процедура
+9	внешняя функция
+10	внешняя процедура
+11	библиотечная переменная
+12	библиотечная подпрограмма
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr as 1 ,
+.Xr ld 1 ,
+.Xr a.out 5
+.Sh ИСТОРИЯ
+Файл
+.Nm
+появился в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Требуется больше базовых типов.

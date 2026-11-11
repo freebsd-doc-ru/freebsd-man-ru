@@ -1,0 +1,325 @@
+.\" Copyright (c) 2000
+.\"	David Malone
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/kbdcontrol/kbdmap.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d7d5b8202c2dbd906826f7c5245ce940b27ad7e9713db20f64ba368a26410a44
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 2, 2016
+.Dt KBDMAP 5
+.Os
+.Sh ИМЯ
+.Nm kbdmap
+.Nd формат файла карты клавиатуры для kbdcontrol
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+описывает, как должны вести себя клавиши на клавиатуре.
+Эти файлы можно загрузить с помощью
+.Xr kbdcontrol 1 ,
+или
+.Xr kbdmap 1
+можно использовать для интерактивного выбора одного из файлов
+.Nm
+по умолчанию.
+Файл
+.Nm
+можно указать в
+.Xr rc.conf 5 ,
+чтобы он загружался при загрузке системы.
+Текущую карту клавиатуры также можно напечатать с помощью
+.Xr kbdcontrol 1 .
+.Pp
+Каждая строка в файле может описывать клавишу или акцент.
+Символ
+.Ql #
+начинает комментарий, который продолжается до конца строки.
+.Pp
+Описание клавиши начинается со скан-кода этой клавиши.
+Затем эффекты клавиши при комбинациях
+Shift,
+Control
+и Alt
+перечисляются в следующем порядке:
+без модификатора,
+Shift,
+Control,
+Control и Shift,
+Alt,
+Alt и Shift,
+Alt и Control,
+Alt и Control и Shift.
+Действие клавиши при каждом модификаторе может быть:
+.Bl -tag -width Ar
+.It ' Ns Ar symbol Ns No '
+Символ, который должна выдавать клавиша, в одинарных кавычках.
+.It Ar decnum
+Значение
+.Tn Unicode
+для выдачи в виде десятичного числа
+(см.
+.Xr ascii 7 ) .
+Например, 32 для пробела.
+.It 0x Ns Ar hexnum
+Значение
+.Tn Unicode
+для выдачи в виде шестнадцатеричного числа.
+Например, 0x20 для пробела.
+.It Ar ctrlname
+Одно из стандартных имён
+для
+.Tn ASCII
+управляющих символов:
+nul,
+soh,
+stx,
+etx,
+eot,
+enq,
+ack,
+bel,
+bs,
+ht,
+lf,
+vt,
+ff,
+cr,
+so,
+si,
+dle,
+dc1,
+dc2,
+dc3,
+dc4,
+nak,
+syn,
+etb,
+can,
+em,
+sub,
+esc,
+fs,
+gs,
+rs,
+us,
+sp,
+del.
+.It Ar control-alias
+Один из исторических псевдонимов для некоторых
+.Tn ASCII
+управляющих символов:
+nl,
+np,
+ns.
+.It Ar accentname
+Если задать одно из имён акцентов,
+следующая нажатая клавиша выдаст
+символ с акцентом
+в соответствии с этим акцентом.
+См. описание акцентов ниже.
+Имена акцентов:
+dgra,
+dacu,
+dcir,
+dtil,
+dmac,
+dbre,
+ddot,
+duml,
+ddia,
+dsla,
+drin,
+dced,
+dapo,
+ddac,
+dogo,
+dcar.
+.It fkey Ns Ar N
+Действует как
+.Ar N Ns No th
+функциональная клавиша,
+где
+.Ar N
+— десятичное число в диапазоне от 1 до 96.
+Обратитесь к странице руководства
+.Xr atkbd 4
+за списком предопределённых функциональных клавиш.
+Вы можете использовать параметр
+.Fl f
+утилиты
+.Xr kbdcontrol 1
+для назначения произвольных строк функциональным клавишам.
+.It lshift
+Действует как левая клавиша Shift.
+.It rshift
+Действует как правая клавиша Shift.
+.It clock
+Действует как клавиша Caps Lock.
+.It nlock
+Действует как клавиша Num Lock.
+.It slock
+Действует как клавиша Scroll Lock.
+.It lalt|alt
+Действует как левая клавиша Alt.
+.It btab
+Действует как обратная табуляция.
+.It lctrl|ctrl
+Действует как левая клавиша Control.
+.It rctrl
+Действует как правая клавиша Control.
+.It ralt
+Действует как правая клавиша Alt (AltGr).
+.It alock
+Действует как клавиша Alt Lock.
+.It ashift
+Действует как клавиша Alt Shift.
+.It meta
+Действует как клавиша Meta.
+.It lshifta|shifta
+Действует как левая клавиша Shift / Alt Lock.
+.It rshifta
+Действует как правая клавиша Shift / Alt Lock.
+.It lctrla|ctrla
+Действует как левая клавиша Ctrl / Alt Lock.
+.It rctrla
+Действует как правая клавиша Ctrl / Alt Lock.
+.It lalta|alta
+Действует как левая клавиша Alt / Alt Lock.
+.It ralta
+Действует как правая клавиша Alt / Alt Lock.
+.It nscr
+Действует как переключение на следующий экран.
+.It pscr
+Действует как переключение на предыдущий экран.
+.It scr Ns Ar N
+Переключиться на экран
+.Ar N ,
+где
+.Ar N
+— десятичное число.
+.It boot
+Перезагрузить машину.
+.It halt
+Остановить машину.
+.It pdwn
+Остановить машину
+и попытаться отключить её питание.
+.It debug
+Вызвать отладчик.
+.It susp
+Использовать APM для приостановки питания.
+.It saver
+Активировать хранитель экрана
+переключением между splash- и текстовым экраном.
+.It panic
+Вызвать панику системы.
+Чтобы включить эту возможность,
+переменная
+.Xr sysctl 8
+.Va machdep.enable_panic_key
+должна быть установлена в 1.
+.It paste
+Действует как вставка из буфера мыши.
+.El
+.Pp
+Наконец,
+чтобы завершить описание клавиши,
+указывается флаг, описывающий
+влияние Caps Lock и Num Lock
+на эту клавишу.
+Флаг может быть
+.Ql C
+чтобы указать, что Caps Lock влияет на клавишу,
+.Ql N
+чтобы указать, что Num Lock влияет на клавишу,
+.Ql B
+чтобы указать, что и Caps Lock, и Num Lock влияют на клавишу,
+или
+.Ql O
+чтобы указать, что ни один из них не влияет на клавишу.
+.Pp
+Клавиша акцента работает,
+изменяя поведение
+следующей нажатой клавиши.
+Описание акцента начинается
+с одного из имён акцентов,
+приведённых выше.
+Затем следует
+символ акцента,
+заданный в одинарных кавычках или
+как десятичное либо шестнадцатеричное значение
+.Tn Unicode .
+Этот символ будет выдан,
+если нажать клавишу акцента, а
+затем нажать клавишу пробела.
+.Pp
+Описание клавиши акцента
+продолжается списком, показывающим,
+как она изменяет различные символы,
+с помощью пар, состоящих из обычного символа и
+изменённого символа,
+заключённых в круглые скобки.
+Оба символа в паре могут быть заданы
+в одинарных кавычках или
+как десятичные или
+шестнадцатеричные значения
+.Tn Unicode .
+.Pp
+Например,
+рассмотрим следующий фрагмент из
+.Nm :
+.Bd -literal -offset indent
+  041   dgra   172    nop    nop    '|'    '|'    nop    nop     O
+  dgra  '`'  ( 'a' 224 ) ( 'A' 192 ) ( 'e' 232 ) ( 'E' 200 )
+             ( 'i' 236 ) ( 'I' 204 ) ( 'o' 242 ) ( 'O' 210 )
+             ( 'u' 249 ) ( 'U' 217 )
+.Ed
+Этот фрагмент
+настраивает клавишу обратной кавычки на британской клавиатуре
+так, чтобы она действовала как клавиша грависа.
+Нажатие обратной кавычки с последующим пробелом
+выдаёт обратную кавычку, а
+нажатие обратной кавычки с последующей гласной
+выдаёт символ ISO-8859-1
+для этой гласной с грависом.
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/syscons/keymaps/* -compact
+.It Pa /usr/share/syscons/keymaps/*
+стандартные файлы карт клавиатуры для syscons
+.It Pa /usr/share/vt/keymaps/*
+стандартные файлы карт клавиатуры для vt
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kbdcontrol 1 ,
+.Xr kbdmap 1 ,
+.Xr keyboard 4 ,
+.Xr syscons 4 ,
+.Xr vt 4 ,
+.Xr ascii 7
+.Sh ИСТОРИЯ
+Эта страница руководства впервые появилась в
+.Fx 4.2 .

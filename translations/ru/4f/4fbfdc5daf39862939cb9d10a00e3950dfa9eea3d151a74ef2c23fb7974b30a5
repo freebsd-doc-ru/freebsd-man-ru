@@ -1,0 +1,99 @@
+.\" Copyright (c) 1995
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the author nor the names of any co-contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/eui64.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4fbfdc5daf39862939cb9d10a00e3950dfa9eea3d151a74ef2c23fb7974b30a5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 11, 2004
+.Dt EUI64 5
+.Os
+.Sh ИМЯ
+.Nm eui64
+.Nd База данных адресов IEEE EUI-64
+.Sh ОПИСАНИЕ
+База данных
+.Nm
+содержит сведения об известных адресах IEEE EUI-64 узлов.
+Данные хранятся в файле с именем
+.Pa /etc/eui64
+в следующем формате:
+.Bd -ragged -offset indent
+.Em EUI-64 имя узла
+.Ed
+.Pp
+Элементы разделяются любым количеством пробелов и/или
+символов табуляции.
+Символ
+.Ql #
+в начале строки обозначает
+начало комментария, который продолжается до конца строки.
+Допустимые строки также могут содержать комментарии.
+Символ
+.Ql +
+в начале строки заставит библиотечные функции
+.Xr eui64 3
+использовать данные, хранящиеся в картах NIS
+.Pa eui64.byname
+и
+.Pa eui64.byid ,
+в дополнение к данным в файле
+.Pa /etc/eui64 .
+.Pp
+EUI-64 выражается в форме
+.Tn ASCII
+как
+.Qq x-x-x-x-x-x-x-x
+где
+.Ar x
+— шестнадцатеричное значение от 0x00 до 0xFF.
+Значения адресов
+должны быть в сетевом порядке.
+Имена узлов, указанные в базе данных
+.Pa /etc/eui64 ,
+должны соответствовать записям в файле
+.Xr hosts 5 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/eui64 -compact
+.It Pa /etc/eui64
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr eui64 3 ,
+.Xr yp 8
+.Sh ИСТОРИЯ
+Формат
+.Nm
+основан на формате
+.Xr ethers 5 .

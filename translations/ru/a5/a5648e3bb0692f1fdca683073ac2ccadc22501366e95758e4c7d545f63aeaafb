@@ -1,0 +1,104 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/services.5
+.\" FRDP githash 702766d09a37534298676092712864151ab308bd
+.\" FRDP hash256 a5648e3bb0692f1fdca683073ac2ccadc22501366e95758e4c7d545f63aeaafb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 29, 2024
+.Dt SERVICES 5
+.Os
+.Sh ИМЯ
+.Nm services
+.Nd база данных имён интернет-служб и номеров портов
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит информацию об известных службах, доступных в Интернете.
+Для каждой службы должна присутствовать одна строка со следующей информацией:
+.Bd -unfilled -offset indent
+официальное имя службы
+номер порта
+имя протокола
+псевдонимы
+.Ed
+.Pp
+Элементы разделяются любым количеством пробелов и/или символов табуляции.
+Номер порта и имя протокола считаются одним
+.Em элементом ;
+символ ``/'' используется для
+разделения порта и протокола (например, ``512/tcp'').
+Символ ``#'' обозначает начало
+комментария; последующие символы до конца строки
+не интерпретируются процедурами, которые выполняют поиск в файле.
+.Pp
+Имена служб могут содержать любые печатные
+символы, кроме разделителя полей, символа новой строки
+или символа комментария.
+.Pp
+Если
+.Dq db
+указан как источник в
+.Xr nsswitch.conf 5 ,
+выполняется поиск в
+.Pa /var/db/services.db .
+Базу данных в
+.Pa /var/db/services.db
+необходимо обновить с помощью
+.Xr services_mkdb 8
+после применения изменений к файлу служб.
+.Sh ВЗАИМОДЕЙСТВИЕ С NIS
+Доступ к карте NIS
+.Pa services.byname
+можно включить, добавив одиночный ``+'' в отдельной строке
+в файл
+.Pa /etc/services .
+Это приводит к вставке содержимого карты служб NIS
+в место, где находится ``+''.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/services -compact
+.It Pa /etc/services
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getservent 3 ,
+.Xr nsswitch.conf 5 ,
+.Xr services_mkdb 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Следует использовать сервер имён вместо статического файла.

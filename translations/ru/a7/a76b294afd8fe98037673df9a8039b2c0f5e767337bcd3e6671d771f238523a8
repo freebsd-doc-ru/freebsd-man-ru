@@ -1,0 +1,111 @@
+.\" Copyright (c) 1999 Chris Costello <chris@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/sysctl.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a76b294afd8fe98037673df9a8039b2c0f5e767337bcd3e6671d771f238523a8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 30, 2022
+.Dt SYSCTL.CONF 5
+.Os
+.Sh ИМЯ
+.Nm sysctl.conf
+.Nd значения по умолчанию состояния ядра
+.Sh ОПИСАНИЕ
+Файл
+.Pa /etc/sysctl.conf
+читается, когда система переходит в многопользовательский режим, чтобы установить
+значения по умолчанию для ядра.
+Файл
+.Pa /etc/sysctl.conf
+имеет формат команды
+.Xr sysctl 8 ,
+т. е.
+.Bd -literal -offset indent
+sysctl_mib=value
+.Ed
+.Pp
+Комментарии обозначаются
+.Dq #
+в начале строки.
+Комментарии также могут находиться в конце строки,
+как показано в разделе
+.Sx ПРИМЕРЫ
+ниже.
+.Pp
+Для модулей ядра, загружаемых через систему
+.Xr rc.subr 8 ,
+дополнительные настройки для конкретного модуля можно применить,
+добавив файл в том же формате с именем
+.Pf /etc/sysctl.kld.d/<module name>.conf .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/rc.d/sysctl_lastload -compact
+.It Pa /etc/rc.d/sysctl
+Скрипт
+.Xr rc 8 ,
+который обрабатывает
+.Nm
+на раннем этапе перехода в многопользовательский режим.
+.It Pa /etc/rc.d/sysctl_lastload
+Скрипт
+.Xr rc 8 ,
+который обрабатывает
+.Nm
+незадолго до перехода системы в многопользовательский режим.
+.It Pa /etc/sysctl.conf
+Начальные настройки для
+.Xr sysctl 8 .
+.It Pa /etc/sysctl.conf.local
+Настройки для конкретной машины для площадок с общим
+.Pa /etc/sysctl.conf .
+.It Pa /etc/sysctl.kld.d
+Настройки для отдельных модулей ядра, загружаемых через
+.Xr rc.subr 8 .
+.El
+.Sh ПРИМЕРЫ
+Чтобы отключить журналирование программ, завершающихся из-за фатальных сигналов, можно использовать
+такую конфигурацию:
+.Bd -literal -offset indent
+# Настроить журналирование.
+kern.logsigexit=0	# Не журналировать завершения из-за фатальных сигналов (например, sig 11)
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr rc.conf 5 ,
+.Xr rc 8 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Файл
+.Nm
+появился в
+.Fx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если загружаемые модули ядра используются для добавления дополнительной функциональности ядра
+и sysctl-параметров для управления этой функциональностью,
+.Nm
+может быть обработан слишком рано в процессе загрузки, чтобы установить эти sysctl-параметры.
+Обратитесь к
+.Xr rcorder 8 ,
+чтобы узнать больше о порядке скриптов
+.Xr rc 8 .

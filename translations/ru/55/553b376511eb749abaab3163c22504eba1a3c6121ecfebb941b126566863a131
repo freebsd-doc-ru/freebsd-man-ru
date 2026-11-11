@@ -1,0 +1,832 @@
+.\"
+.\" Copyright (c) 2002 M. Warner Losh <imp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" The section on comments was taken from named.conf.5, which has the
+.\" following copyright:
+.\" Copyright (c) 1999-2000 by Internet Software Consortium
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND INTERNET SOFTWARE CONSORTIUM DISCLAIMS
+.\" ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL INTERNET SOFTWARE
+.\" CONSORTIUM BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+.\" DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+.\" PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+.\" ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+.\" SOFTWARE.
+.\"
+.\" FRDP path sbin/devd/devd.conf.5
+.\" FRDP githash 270bfa34cd421039532e079e2549c02e4a7f88ea
+.\" FRDP hash256 553b376511eb749abaab3163c22504eba1a3c6121ecfebb941b126566863a131
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 26, 2026
+.Dt DEVD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm devd.conf
+.Nd формат конфигурационного файла для
+.Xr devd 8
+.Sh ОПИСАНИЕ
+.Ss Общий синтаксис
+Конфигурация
+.Xr devd 8
+состоит из двух общих элементов: операторов
+и комментариев.
+Все операторы заканчиваются точкой с запятой.
+Многие операторы могут содержать подоператоры, которые также
+завершаются точкой с запятой.
+.Pp
+Поддерживаются следующие операторы:
+.Bl -tag -width indent
+.It Ic attach
+Задаёт различные критерии сопоставления и действия, выполняемые, когда
+только что подключённое устройство соответствует этим критериям.
+.It Ic detach
+Задаёт различные критерии сопоставления и действия, выполняемые, когда
+только что отключённое устройство соответствует этим критериям.
+.It Ic nomatch
+Задаёт различные критерии сопоставления и действия, выполняемые, когда
+ни один драйвер устройства, загруженный в ядро, не заявляет права на (новое)
+устройство.
+.It Ic notify
+Задаёт различные критерии сопоставления и действия, выполняемые, когда ядро
+отправляет уведомление о событии в пространство пользователя.
+.It Ic options
+Задаёт различные параметры и настройки для работы
+.Xr devd 8 .
+.El
+.Pp
+Операторы могут встречаться в конфигурационном файле в любом порядке и могут
+повторяться столько раз, сколько необходимо.
+Подробности о синтаксисе и значении каждого оператора и его
+подоператоров объясняются ниже.
+.Pp
+Каждый оператор, кроме
+.Ic options
+, имеет связанный с ним приоритет (произвольное число), где
+.Ql 0
+определён как наименьший приоритет.
+Если два оператора соответствуют одному и тому же событию, будет выполнено только действие оператора с
+наибольшим приоритетом.
+Таким образом, общие операторы можно переопределить для устройств или
+уведомлений, требующих особого внимания.
+.Pp
+Общий синтаксис оператора:
+.Bd -literal -offset indent
+оператор приоритет {
+	...
+};
+.Ed
+.Ss Подоператоры
+В операторе
+.Ic options
+поддерживаются следующие подоператоры.
+.Bl -tag -width indent
+.It Ic directory Qq Ar /some/path ;
+Добавляет указанный каталог в список каталогов, из которых
+.Xr devd 8
+читает конфигурационные файлы.
+Можно использовать любое число операторов
+.Ic directory .
+.It Ic pid-file Qq Pa /var/run/devd.pid ;
+Задаёт PID-файл.
+.It Ic set Ar regexp-name Qq Ar (some|regexp) ;
+Создаёт регулярное выражение и присваивает его переменной
+.Ar regexp-name .
+Переменная доступна во всём остальном
+конфигурационном файле.
+Если строка начинается с
+.Ql \&! ,
+она совпадает, если регулярное выражение, образованное остатком строки,
+не совпадает.
+Все регулярные выражения неявно окружены
+.Ql ^$ .
+.El
+.Pp
+В операторах
+.Ic attach
+и
+.Ic detach
+поддерживаются следующие подоператоры.
+.Bl -tag -width indent
+.It Ic action Qq Ar команда ;
+Команда, выполняемая при успешном сопоставлении.
+Пример
+.It Ic class Qq Ar строка ;
+Это сокращение для
+.Dq Ic match Qo Li class Qc Qq Ar строка .
+.It Ic device-name Qq строка ;
+Это сокращение для
+.Dq Ic match Qo Li device-name Qc Qq Ar строка .
+Это сопоставляет устройство с именем
+.Ar строка ,
+которое может быть регулярным выражением или ранее созданной переменной,
+содержащей регулярное выражение.
+Переменная
+.Dq Li device-name
+доступна для последующего использования в операторе
+.Ic action .
+.It Ic match Qo Ar переменная Qc Qq Ar значение ;
+Сопоставляет содержимое
+.Ar значение
+с
+.Ar переменная ;
+содержимое
+.Ar значение
+может быть регулярным выражением.
+Не требуется во время событий
+.Ic attach
+и
+.Ic detach
+, поскольку оператор
+.Ic device-name
+обеспечивает всё сопоставление устройств.
+Частичный список переменных см. ниже.
+.It Ic media-type Qq Ar строка ;
+Для сетевых устройств
+.Ic media-type
+будет сопоставлять устройства, имеющие заданный тип среды.
+Допустимые типы среды:
+.Dq Li Ethernet ,
+.Dq Li 802.11
+и
+.Dq Li ATM .
+.It Ic subdevice Qq Ar строка ;
+Это сокращение для
+.Dq Ic match Qo Li subdevice Qc Qq Ar строка .
+.El
+.Pp
+В операторе
+.Ic nomatch
+поддерживаются следующие подоператоры.
+.Bl -tag -width indent
+.It Ic action Qq Ar команда ;
+То же, что выше.
+.It Ic match Qo Ar переменная Qc Qq Ar значение ;
+Сопоставляет содержимое
+.Ar значение
+с
+.Ar переменная ;
+содержимое
+.Ar значение
+может быть регулярным выражением.
+Частичный список переменных см. ниже.
+.El
+.Pp
+В операторе
+.Ic notify
+поддерживаются следующие подоператоры.
+Переменная
+.Dq Li notify
+доступна внутри этого оператора и содержит значение в зависимости
+от того, какая система и подсистема доставили событие.
+.Bl -tag -width indent
+.It Ic action Qq Ar команда ;
+Команда, выполняемая при успешном сопоставлении.
+Пример
+.It Ic match Qo Ar system | subsystem | type | notify Qc Qq Ar значение ;
+В операторе
+.Ic notify
+может быть любое число операторов
+.Ic match ;
+.Ar значение
+может быть как фиксированной строкой, так и регулярным выражением.
+Ниже приведён список доступных систем, подсистем и типов.
+.It Ic media-type Qq Ar строка ;
+См. выше.
+.El
+.Ss Переменные, которые можно использовать с оператором match
+Частичный список переменных и их возможных значений, которые можно использовать вместе
+с оператором
+.Ic match .
+Переменные публикуются шиной на основе характеристик устройства,
+сгенерировавшего событие (для событий устройств).
+Переменные для других классов событий зависят от этих событий.
+.Pp
+.Bl -tag -width indent
+.It Ic Переменная
+.Ic Описание
+.It Li *
+Всё сообщение текущего события.
+.It Li _
+Всё сообщение текущего события после начального символа типа.
+.It Li timestamp
+Время обработки этого события в секундах с 1970 года с дробной частью.
+.It Li bus
+Имя устройства родительской шины.
+.It Li cdev
+Путь к узлу устройства, если он создан файловой системой
+.Xr devfs 4 .
+.It Li class
+Класс устройства.
+.It Li comm
+Имя исполняемого файла (ядро).
+.It Li core
+Путь к файлу дампа памяти (ядро).
+.It Li device
+Идентификатор устройства.
+.It Li devclass
+Класс устройства (USB).
+.It Li devsubclass
+Подкласс устройства (USB).
+.It Li device-name
+Имя подключённого/отключённого устройства.
+.It Li endpoints
+Количество конечных точек (USB).
+.It Li function
+Функции карты.
+.It Li interface
+Идентификатор интерфейса (USB).
+.It Li intclass
+Класс интерфейса (USB).
+.It Li intprotocol
+Протокол интерфейса (USB).
+.It Li intsubclass
+Подкласс интерфейса (USB).
+.It Li jail
+Имя клетки для процесса, запускающего правило (RCTL).
+.It Li mode
+Режим периферийного устройства (USB).
+.It Li notify
+Сопоставить значение переменной
+.Dq Li notify .
+.It Li parent
+Родительское устройство.
+.It Li pid
+PID процесса, запускающего правило (RCTL).
+.It Li port
+Номер порта концентратора (USB).
+.It Li product
+Идентификатор продукта (USB).
+.It Li release
+Ревизия аппаратного обеспечения (USB).
+.It Li ruid
+Реальный UID процесса, запускающего правило (RCTL).
+.It Li rule
+Правило (RCTL).
+.It Li sernum
+Серийный номер (USB).
+.It Li slot
+Слот карты.
+.It Li subvendor
+Идентификатор субпоставщика (PCI).
+.It Li subdevice
+Идентификатор подустройства (PCI).
+.It Li subsystem
+Сопоставляет подсистему системы, см. ниже.
+.It Li system
+Сопоставляет тип системы, см. ниже.
+.It Li type
+Тип уведомления, см. ниже.
+.It Li vendor
+Идентификатор поставщика.
+.El
+.Ss Сопоставление notify
+Частичный список систем, подсистем и типов, используемых в
+механизме
+.Ic notify .
+.Pp
+.Bl -tag -width indent
+.It Li ACPI Ta Ta Ta
+События, связанные с подсистемой ACPI.
+.It Li ACPI Ta Li ACAD Ta Ta
+Состояние линии переменного тока ($notify=0x00 — отключено, 0x01 — подключено).
+.It Li ACPI Ta Li Button Ta Ta
+Состояние кнопки ($notify=0x00 — питание, 0x01 — сон).
+.It Li ACPI Ta Li CMBAT Ta Ta
+События аккумулятора.
+.It Li ACPI Ta Li Dock Ta Ta
+Состояние док-станции ($notify=0x00 — не в доке, 0x01 — в доке).
+.It Li ACPI Ta Li Lid Ta Ta
+Состояние крышки ($notify=0x00 — закрыта, 0x01 — открыта).
+.It Li ACPI Ta Li PROCESSOR Ta Ta
+Состояние/конфигурация процессора ($notify=0x81 — изменение доступных состояний Cx).
+.It Li ACPI Ta Li Resume Ta Ta
+Уведомление о возобновлении.
+.It Li ACPI Ta Li Suspend Ta Ta
+Уведомление о приостановке.
+.It Li ACPI Ta Li Thermal Ta Ta
+События тепловой зоны.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li AEON Ta Li power Ta Li press Ta
+Кнопка питания на Amiga была нажата.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li CAM Ta Ta Ta
+События, связанные с системой
+.Xr cam 4 .
+.It Li CAM Ta Li periph Ta Ta
+События, связанные с периферийными устройствами.
+.It Li CAM Ta Li periph Ta Li error Ta
+Общие ошибки.
+.It Li CAM Ta Li periph Ta Li timeout Ta
+Тайм-ауты команд.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li CARP Ta Ta Ta
+События, связанные с протоколом
+.Xr carp 4 .
+.It Li CARP Ta Ar vhid@inet Ta Ta
+В
+.Dq subsystem
+содержатся фактический CARP vhid и имя сетевого интерфейса,
+на котором произошло событие.
+.It Li CARP Ta Ar vhid@inet Ta Li MASTER Ta
+Узел стал мастером для виртуального хоста.
+.It Li CARP Ta Ar vhid@inet Ta Li BACKUP Ta
+Узел стал резервным для виртуального хоста.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li coretemp Ta Ta Ta
+События, связанные с устройством
+.Xr coretemp 4 .
+.It Li coretemp Ta Li Thermal Ta Ta
+Уведомление о том, что ядро ЦП достигло критической температуры.
+.It Li coretemp Ta Li Thermal Ta Li temperature Ta
+Строка, содержащая температуру ядра, которое стало слишком горячим.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li DEVFS
+.It Li DEVFS Ta Li CDEV Ta Li CREATE Ta
+Узел
+.Xr devfs 4
+создан.
+.It Li DEVFS Ta Li CDEV Ta Li DESTROY Ta
+Узел
+.Xr devfs 4
+уничтожен.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li ETHERNET Ta Ar inet Ta IFATTACH Ta
+Уведомление при подключении экземпляра VNET по умолчанию интерфейса
+.Em inet .
+.El
+.Pp
+.Bl -tag -width indent
+.It Li GEOM Ta Ta Ta
+События, связанные с фреймворком
+.Xr geom 4 .
+Отличие от
+.Li DEVFS
+состоит в том, что
+.Li GEOM
+включает только дисковые устройства.
+.It Li GEOM Ta Li DEV Ta Li CREATE Ta
+Провайдер
+.Xr geom 4
+создан.
+.It Li GEOM Ta Li DEV Ta Li DESTROY Ta
+Провайдер
+.Xr geom 4
+уничтожен.
+.It Li GEOM Ta Li DEV Ta Li GEOM::physpath Ta
+Физический путь устройства изменился.
+.It Li GEOM Ta Li DEV Ta Li GEOM::rotation_rate Ta
+Скорость вращения диска изменилась.
+.It Li GEOM Ta Li DEV Ta Li MEDIACHANGE Ta
+Физический носитель изменился.
+.It Li GEOM Ta Li DEV Ta Li SIZECHANGE Ta
+Размер провайдера
+.Xr geom 4
+изменился.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li IFNET
+.It Li IFNET Ta Em inet Ta Ta
+В
+.Dq subsystem
+указывается фактическое имя сетевого интерфейса, на котором произошло событие.
+.It Li IFNET Ta Em inet Ta Li LINK_UP Ta
+Состояние несущей изменилось на UP.
+.It Li IFNET Ta Em inet Ta Li LINK_DOWN Ta
+Состояние несущей изменилось на DOWN.
+.It Li IFNET Ta Em inet Ta Li ATTACH Ta
+Сетевой интерфейс подключён к системе.
+.It Li IFNET Ta Em inet Ta Li DETACH Ta
+Сетевой интерфейс отключён от системы.
+.It Li IFNET Ta Em inet Ta Li RENAME Ta
+Сетевой интерфейс переименован.
+.It Li IFNET Ta Em inet Ta Li ADDR_ADD Ta
+Адрес сетевого интерфейса добавлен.
+.It Li IFNET Ta Em inet Ta Li ADDR_DEL Ta
+Адрес сетевого интерфейса удалён.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li kernel Ta Li signal Ta Li coredump Ta
+Уведомление о том, что процесс аварийно завершился и создал дамп памяти.
+.It Li kernel Ta Li power Ta Li resume Ta
+Уведомление о том, что система вышла из приостановленного состояния.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li nvme Ta Li controller Ta Ta
+События контроллера предоставляют имя контроллера
+.Pq например, Li nvme0
+в $name.
+.It Li nvme Ta Li controller Ta Li SMART_ERROR Ta
+Произошло изменение состояния критического предупреждения SMART.
+$state содержит шестнадцатеричную битовую маску изменившихся битов, как определено
+в стандарте NVMe для поля Critical Warning страницы журнала 2
+.Dq SMART / Health Information Log :
+.Pp
+.Sy Значение
+.Bl -tag -width indent
+.It 0x1
+Резервная ёмкость ниже порога
+.It 0x2
+Температура вне допустимого диапазона
+.It 0x4
+Надёжность носителя снижена
+.It 0x8
+Носитель переведён в режим только чтения
+.It 0x10
+Сбой резервного питания энергозависимой памяти
+.It 0x20
+Энергонезависимая память доступна только для чтения или деградировала
+.El
+.It Li nvme Ta Li controller Ta Li RESET Ta
+Произошло событие сброса контроллера.
+$event — одно из значений
+.Dq start ,
+.Dq success
+и
+.Dq timed_out
+, обозначающих соответственно начало сброса контроллера, успешное завершение
+сброса контроллера или тайм-аут при ожидании сброса контроллера.
+.It Li nvme Ta Li controller Ta Li RECONNECT Ta
+Хост NVMe over Fabrics отключился и запрашивает переподключение.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li PMU Ta Ta Ta
+Уведомление о событиях от различных типов блоков управления питанием.
+Уведомления о событиях, связанных с питанием переменного тока.
+На линии питания переменного тока обнаружено перенапряжение.
+Питание подано на линию питания переменного тока.
+Питание снято с линии питания переменного тока.
+.It Li PMU Ta Li Battery Ta Ta
+.It Li PMU Ta Li Battery Ta Li absent Ta
+Батарея больше не отсутствует.
+.It Li PMU Ta Li Battery Ta Li charged Ta
+Батарея заряжена.
+.It Li PMU Ta Li Battery Ta Li charging Ta
+Батарея начала заряжаться.
+.It Li PMU Ta Li Battery Ta Li disconnected Ta
+Батарея отключена.
+.It Li PMU Ta Li Battery Ta Li high-temp Ta
+Батарея сообщила о температуре выше предельной.
+.It Li PMU Ta Li Battery Ta Li low-temp Ta
+Батарея сообщила о температуре ниже предельной.
+.It Li PMU Ta Li Battery Ta Li plugged Ta
+Батарея подключена (например, соединена).
+.It Li PMU Ta Li Battery Ta Li shutdown-threshold Ta
+Заряд батареи упал ниже порога выключения.
+.It Li PMU Ta Li Battery Ta Li warning-threshold Ta
+Заряд батареи упал ниже порога предупреждения пользователя.
+.It Li PMU Ta Li Button Ta Li pressed Ta
+Кнопка на
+.Xr adb 4
+или
+.Xr pmu 4
+была нажата.
+.It Li PMU Ta Li keys Ta Ta
+Одна из клавиш на клавиатуре
+.Xr adb 4
+была нажата.
+.It Li PMU Ta Li keys Ta Li brightness Ta
+Запрошено изменение уровня яркости.
+Направление находится в переменной $notify.
+.It Li PMU Ta Li keys Ta Li mute Ta
+Клавиша отключения звука
+.It Li PMU Ta Li keys Ta Li volume Ta
+Запрошено изменение уровня громкости.
+Направление находится в переменной $notify.
+.It Li PMU Ta Li keys Ta Li eject Ta
+Запрошено извлечение.
+.It Li PMU Ta Li lid Ta Li close Ta
+Устройство
+.Xr pmc 4
+обнаружило закрытие крышки.
+.It Li PMU Ta Li lid Ta Li open Ta
+Устройство
+.Xr pmc 4
+обнаружило открытие крышки.
+.It Li PMU Ta Li POWER Ta Li ACLINE Ta
+Устройство
+.Xr pmc 4
+обнаружило состояние линии переменного тока ($notify=0x00 — отключено, 0x01 — подключено).
+.It Li PMU Ta Li USB Ta Li overvoltage Ta
+Перенапряжение на линиях питания контактов USB.
+.It Li PMU Ta Li USB Ta Li plugged Ta
+Устройство было подключено к USB-устройству.
+.It Li PMU Ta Li USB Ta Li undervoltage Ta
+Пониженное напряжение на линиях питания контактов USB.
+.It Li PMU Ta Li USB Ta Li unplugged Ta
+Устройство было отключено от USB-устройства.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li RCTL Ta Ta Ta
+События, связанные с фреймворком
+.Xr rctl 8 .
+.It Li RCTL Ta Li rule Ta Li matched Ta
+.El
+.Pp
+.Bl -tag -width indent
+.It Li USB Ta Ta Ta
+События, связанные с подсистемой USB.
+.It Li USB Ta Li DEVICE Ta Li ATTACH Ta
+USB-устройство подключено к системе.
+.It Li USB Ta Li DEVICE Ta Li DETACH Ta
+USB-устройство отключено от системы.
+.It Li USB Ta Li INTERFACE Ta Li ATTACH Ta
+USB-интерфейс подключён к устройству.
+.It Li USB Ta Li INTERFACE Ta Li DETACH Ta
+USB-интерфейс отключён от устройства.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li VFS Ta Ta Ta
+События от системы vfs.
+.It Li VFS Ta Li FS Ta Ta
+События, изменяющие то, что смонтировано в системе.
+.It Li VFS Ta Li FS Ta Li MOUNT Ta
+Уведомление о том, что файловая система смонтирована впервые.
+.It Li VFS Ta Li FS Ta Li REMOUNT Ta
+Уведомление о том, что файловая система перемонтирована (независимо от того, изменились ли параметры на самом деле).
+.It Li VFS Ta Li FS Ta Li UNMOUNT Ta
+Уведомление о размонтировании файловой системы.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li VT Ta Li BELL Ta Li RING Ta
+Уведомление о том, что прозвенел звонок консоли.
+См.
+.Xr vt 4
+для подробностей.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li ZFS Ta Li ZFS Ta Ta
+События о подсистеме ZFS.
+См.
+.Xr zfsd 8
+и
+.Pa /etc/devd/zfs.conf
+для подробностей.
+.El
+.Pp
+.Bl -tag -width indent
+.It Li SND Ta Ta Ta
+События, связанные с драйвером
+.Xr sound 4 .
+.It Li SND Ta Li CONN Ta Li IN Ta
+Подключённое входное устройство, указанное в переменной
+.Pa cdev .
+.It Li SND Ta Li CONN Ta Li OUT Ta
+Подключённое выходное устройство, указанное в переменной
+.Pa cdev .
+.It Li SND Ta Li CONN Ta Li NODEV Ta
+Нет подключённых устройств.
+.El
+.Pp
+Изменение состояния канала на UP на интерфейсе
+.Dq Li fxp0
+приведёт к следующему событию notify:
+.Bd -literal -offset indent
+system=IFNET subsystem=fxp0 type=LINK_UP
+.Ed
+.Pp
+Изменение состояния линии переменного тока на
+.Dq offline
+приведёт к следующему событию:
+.Bd -literal -offset indent
+system=ACPI subsystem=ACAD notify=0x00
+.Ed
+.Ss Комментарии
+Комментарии могут появляться в любом месте конфигурационного файла, где может встречаться пробел.
+Чтобы быть удобными для программистов всех видов, они могут
+быть записаны в конструкциях C, C++ или shell/Perl.
+.Pp
+Комментарии в стиле C начинаются с двух символов
+.Ql /*
+(слэш, звёздочка) и заканчиваются
+.Ql */
+(звёздочка, слэш).
+Поскольку они полностью ограничены этими символами,
+их можно использовать для комментирования только части строки или нескольких строк.
+.Pp
+Комментарии в стиле C не могут быть вложенными.
+Например, следующий код
+недопустим, поскольку весь комментарий заканчивается на первом
+.Ql */ :
+.Bd -literal -offset indent
+/* Это начало комментария.
+   Это всё ещё часть комментария.
+/* Это некорректная попытка вложить комментарий. */
+   Это уже не внутри какого-либо комментария. */
+.Ed
+.Pp
+Комментарии в стиле C++ начинаются с двух символов
+.Ql //
+(слэш, слэш) и продолжаются до конца физической строки.
+Они не могут продолжаться через несколько физических строк; чтобы один логический комментарий охватывал несколько строк, каждая строка должна использовать пару
+.Ql // .
+Например:
+.Bd -literal -offset indent
+// Это начало комментария.  Следующая строка
+// является новым комментарием, хотя логически
+// является частью предыдущего комментария.
+.Ed
+.Ss Замечания о раскрытии переменных
+Переменные раскрываются путём предварения их знаком
+.Dq $
+.
+Любой текст, непосредственно следующий за этим знаком и начинающийся с буквы, знака минус
+.Dq - ,
+подчёркивания
+.Dq _ ,
+или звёздочки
+.Dq *
+, считается внутренней переменной и раскрывается соответствующим образом.
+Если такой переменной не существует, она без предупреждения раскрывается в пустую строку.
+Следовательно, если нужно передать переменную
+.Xr sh 1 ,
+её необходимо окружить фигурными скобками, чтобы она не считалась внутренней переменной.
+.Pp
+Подробный пример см. в
+.Sx ПРИМЕРЫ .
+.Pp
+Чтобы избежать проблем со специальными символами оболочки, для каждой
+переменной
+.Ic $foo
+происходит следующее.
+.Bl -enum
+.It
+Вставляются символы
+.Dq $' .
+.It
+Строка
+.Dq $foo
+удаляется.
+.It
+Значение переменной
+.Ic foo
+вставляется в буфер, при этом все символы одинарной кавычки
+предваряются обратной косой чертой.
+.It
+Вставляется завершающая
+.Dq ' .
+.El
+.Pp
+О значении этой конструкции см.
+.Xr sh 1 .
+Она безопасна во всех контекстах, кроме одного: внутри одинарных кавычек.
+Если foo=meta и bar=var, то правило следующего вида:
+.Bd -literal -offset indent -compact
+.Ed
+будет передано оболочке через
+.Xr system 3
+как
+.Bd -literal -offset indent -compact
+echo '$'meta' $'var''
+.Ed
+что даст следующий вывод:
+.Bd -literal -offset indent -compact
+$meta $var
+.Ed
+в качестве вывода.
+Это неожиданный результат.
+Будущая версия этого программного обеспечения изменит это поведение.
+Пользователям не рекомендуется использовать одинарные кавычки внутри значения
+.Ic action
+без должной осторожности.
+.Pp
+Вышеизложенное следует записать как
+.Bd -literal -offset indent -compact
+.Ed
+чтобы получить один аргумент для echo.
+С учётом описанного выше раскрытия, размещение простых переменных рядом с выражениями в одинарных кавычках даст правильный вывод независимо от значения переменной.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/devd.conf
+Конфигурационный файл
+.Xr devd 8 .
+.It Pa /etc/devd
+Каталог, в котором
+.Nm devd
+ищет дополнительные конфигурационные файлы.
+.It Pa /usr/local/etc/devd
+Каталог, в котором
+.Nm devd
+ищет дополнительные конфигурационные файлы.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+#
+# Это будет перехватывать события отключения канала на интерфейсах fxp0 и ath0
+#
+notify 0 {
+};
+
+#
+# Сопоставить события открытия/закрытия крышки
+# Их можно объединить в одно событие, передав
+# значение $notify внешнему скрипту.
+#
+notify 0 {
+};
+
+notify 0 {
+};
+
+#
+# Сопоставить тип USB-устройства
+#
+notify 0 {
+};
+
+#
+# Попытаться настроить устройства ath и iwn с помощью pccard_ether
+# при их подключении.
+#
+attach 0 {
+};
+
+#
+# Остановить устройства ath и iwn при их отключении от
+# системы.
+#
+detach 0 {
+};
+.Ed
+.Pp
+Следующий пример иллюстрирует разницу между внутренними и shell-переменными:
+.Bd -literal
+attach 20 {
+                un=$(sysctl -n dev.umodem.${dn#umodem}.ttyname); \\
+};
+.Ed
+.Pp
+.Dq product
+и
+.Dq device-name
+являются внутренними переменными.
+Их содержимое изначально присваивается shell-переменным
+.Dq p
+и
+.Dq dn
+соответственно.
+Затем переменная
+.Dq dn
+используется внутри подстановки команды shell, присваивая значение shell-переменной
+.Dq un .
+Наконец, эта shell-переменная используется в двух других операторах shell, где
+её нужно заключить в фигурные скобки, чтобы она не считалась внутренней переменной для
+.Nm devd .
+.Pp
+В установленном
+.Pa /etc/devd.conf
+есть множество дополнительных примеров.
+.Sh СМ. ТАКЖЕ
+.Xr cam 4 ,
+.Xr coretemp 4 ,
+.Xr devfs 4 ,
+.Xr re_format 7 ,
+.Xr devd 8
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Взаимодействие раскрытия переменных с одинарными кавычками
+неоптимально и неожиданно.

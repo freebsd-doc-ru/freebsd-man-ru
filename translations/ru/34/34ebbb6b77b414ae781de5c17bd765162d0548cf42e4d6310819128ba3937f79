@@ -1,0 +1,131 @@
+.\"	$OpenBSD: moduli.5,v 1.19 2022/04/16 04:30:10 dtucker Exp $
+.\"
+.\" Copyright (c) 2008 Damien Miller <djm@mindrot.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\" FRDP path crypto/openssh/moduli.5
+.\" FRDP githash 38a52bd3b5cac3da6f7f6eef3dd050e6aa08ebb3
+.\" FRDP hash256 34ebbb6b77b414ae781de5c17bd765162d0548cf42e4d6310819128ba3937f79
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: April 16 2022 $
+.Dt MODULI 5
+.Os
+.Sh ИМЯ
+.Nm moduli
+.Nd модули Диффи-Хеллмана
+.Sh ОПИСАНИЕ
+Файл
+.Pa /etc/moduli
+содержит простые числа и генераторы для использования
+.Xr sshd 8
+в методе обмена ключами Diffie-Hellman Group Exchange.
+.Pp
+Новые модули можно сгенерировать с помощью
+.Xr ssh-keygen 1
+, используя двухэтапный процесс.
+Первоначальный проход
+.Em генерации кандидатов
+с использованием
+.Ic ssh-keygen -M generate ,
+вычисляет числа, которые, вероятно, будут полезны.
+Второй проход
+.Em проверки на простоту
+с использованием
+.Ic ssh-keygen -M screen ,
+обеспечивает высокую степень уверенности в том, что числа простые и
+безопасны для использования в операциях Диффи-Хеллмана, выполняемых
+.Xr sshd 8 .
+Этот формат
+.Nm
+используется как выходные данные каждого прохода.
+.Pp
+Файл состоит из записей, разделённых символами новой строки, по одной на модуль,
+содержащих семь полей, разделённых пробелами.
+Эти поля следующие:
+.Bl -tag -width Description -offset indent
+.It timestamp
+Время последней обработки модуля в формате YYYYMMDDHHMMSS.
+.It type
+Десятичное число, задающее внутреннюю структуру простого модуля.
+Поддерживаются следующие типы:
+.Pp
+.Bl -tag -width 0x00 -compact
+.It 0
+Неизвестно, не проверялось.
+.It 2
+.It 4
+Софи Жермен; 2p+1 также простое.
+.El
+.Pp
+Кандидаты в модули, первоначально создаваемые
+.Xr ssh-keygen 1
+, являются простыми числами Софи Жермен (тип 4).
+Дальнейшая проверка на простоту с помощью
+.Xr ssh-keygen 1
+даёт безопасные простые модули (тип 2), готовые к использованию в
+.Xr sshd 8 .
+Другие типы не используются OpenSSH.
+.It tests
+Десятичное число, указывающее, каким типам проверок на простоту
+подвергалось число, в виде битовой маски следующих значений:
+.Pp
+.Bl -tag -width 0x00 -compact
+.It 0x00
+Не проверялось.
+.It 0x01
+Составное число \(en не простое.
+.It 0x02
+Решето Эратосфена.
+.It 0x04
+Вероятностные проверки на простоту Миллера-Рабина.
+.El
+.Pp
+Генерация кандидатов в модули с помощью
+.Xr ssh-keygen 1
+использует решето Эратосфена (флаг 0x02).
+Последующие проверки на простоту с помощью
+.Xr ssh-keygen 1
+являются тестами Миллера-Рабина (флаг 0x04).
+.It trials
+Десятичное число, указывающее количество испытаний на простоту,
+выполненных для модуля.
+.It size
+Десятичное число, указывающее размер простого числа в битах.
+.It generator
+Рекомендуемый генератор для использования с этим модулем (в шестнадцатеричном виде).
+.It modulus
+Сам модуль в шестнадцатеричном виде.
+.El
+.Pp
+При выполнении Diffie-Hellman Group Exchange
+.Xr sshd 8
+сначала оценивает размер модуля, необходимый для получения достаточного
+объёма выходных данных Диффи-Хеллмана, чтобы сформировать достаточный ключевой материал для выбранного симметричного шифра.
+Затем
+.Xr sshd 8
+случайным образом выбирает модуль из
+.Fa /etc/moduli
+, который лучше всего соответствует требованию к размеру.
+.Sh СМ. ТАКЖЕ
+.Xr ssh-keygen 1 ,
+.Xr sshd 8
+.Sh СТАНДАРТЫ
+.Rs
+.%A M. Friedl
+.%A N. Provos
+.%A W. Simpson
+.%D март 2006
+.%R RFC 4419
+.%T Обмен группами Диффи-Хеллмана для протокола транспортного уровня Secure Shell (SSH)
+.Re

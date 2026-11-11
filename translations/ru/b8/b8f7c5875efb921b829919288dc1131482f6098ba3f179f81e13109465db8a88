@@ -1,0 +1,345 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/autofs/auto_master.5
+.\" FRDP githash 7839534a5a7b0d97131512888d6baa8ba5c20e56
+.\" FRDP hash256 b8f7c5875efb921b829919288dc1131482f6098ba3f179f81e13109465db8a88
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 27, 2023
+.Dt AUTO_MASTER 5
+.Os
+.Sh ИМЯ
+.Nm auto_master
+.Nd формат файла конфигурации автомонтировщика autofs и карт
+.Sh ОПИСАНИЕ
+Конфигурация автомонтировщика состоит из файла конфигурации
+.Nm
+, который назначает путям файловой системы имена карт, и карт, которые содержат фактическую информацию о монтировании.
+Файл конфигурации
+.Nm
+используется командой
+.Xr automount 8 .
+Файлы карт читаются демоном
+.Xr automountd 8 .
+.Sh СИНТАКСИС AUTO_MASTER
+Файл
+.Nm
+состоит из строк с двумя или тремя записями, разделёнными пробельными символами и завершающимися символом новой строки:
+.Bd -literal -offset indent
+.Pa mountpoint Pa map_name Op Ar -options
+.Ed
+.Pp
+.Pa mountpoint
+— это либо полный путь, либо
+.Li /- .
+Когда
+.Pa mountpoint
+— полный путь,
+.Pa map_name
+должен ссылаться на косвенную карту.
+В противном случае
+.Pa map_name
+должен ссылаться на прямую карту.
+См.
+.Pp
+.Pa map_name
+указывает карту для использования.
+Если
+.Pa map_name
+начинается с
+.Li - ,
+это указывает на специальную карту.
+См. ниже.
+Если
+.Pa map_name
+не является полным путём
+.Pq это не начинается с Li / ,
+.Xr automountd 8
+будет искать это имя в
+.Li /etc .
+В противном случае он будет использовать путь как указано.
+Если файл, указанный в
+.Pa map_name
+, является исполняемым,
+.Xr automountd 8
+будет считать его исполняемой картой.
+См. ниже.
+В противном случае файл открывается и его содержимое анализируется.
+.Pp
+.Pa -options
+— это необязательное поле, которое начинается с
+.Li -
+и может содержать общие параметры монтирования файловой системы.
+.Pp
+Следующий пример указывает, что косвенная карта /etc/auto_example будет смонтирована в /example.
+.Bd -literal -offset indent
+/example auto_example
+.Ed
+.Sh СИНТАКСИС КАРТ
+Файлы карт состоят из строк с несколькими записями, разделёнными пробельными символами и завершающимися символом новой строки:
+.Bd -literal -offset indent
+.Pa key Oo Ar -options Oc Oo Ar mountpoint Oo -options Oc Oc Ar location Op ...
+.Ed
+.Pp
+В большинстве случаев это можно упростить до:
+.Bd -literal -offset indent
+.Pa key Oo Ar -options Oc Ar location
+.Ed
+.Pp
+.Pa key
+— это компонент пути, используемый
+.Xr automountd 8
+для поиска нужной записи карты.
+Он также используется для формирования итоговой точки монтирования.
+Шаблон
+.Pq Ql *
+можно использовать в качестве ключа.
+Он соответствует каждому каталогу, который не соответствует другим ключам.
+Эти каталоги не будут видны пользователю до обращения к ним.
+.Pp
+Поле
+.Ar options
+, если присутствует, должно начинаться с
+.Li - .
+При монтировании файловой системы параметры, переданные
+.Nm
+, и параметры, указанные в записи карты, объединяются вместе.
+Специальный параметр
+.Li fstype
+используется для указания типа файловой системы.
+Он не передаётся программе монтирования как параметр.
+Вместо этого он передаётся как аргумент в
+По умолчанию
+.Li fstype
+— это
+.Ql nfs .
+Специальный параметр
+.Li nobrowse
+используется для отключения создания каталогов верхнего уровня для специальных и исполняемых карт.
+.Pp
+Необязательное поле
+.Pa mountpoint
+используется для указания нескольких точек монтирования для одного ключа.
+.Pp
+Поле
+.Ar location
+указывает файловую систему для монтирования.
+Символы амперсанда
+.Pq Ql &
+в поле
+.Ar location
+заменяются значением
+.Ar key .
+Обычно это используется с шаблонами, например:
+.Bd -literal -offset indent
+.Li *	192.168.1.1:/share/&
+.Ed
+.Pp
+Поле
+.Ar location
+может содержать ссылки на переменные, например:
+.Bd -literal -offset indent
+.Li sys	192.168.1.1:/sys/${OSNAME}
+.Ed
+.Pp
+Определённые переменные:
+.Pp
+.Bl -tag -width "OSVERS"
+.It Li ARCH
+Раскрывается в вывод
+.It Li CPU
+То же, что ARCH.
+.It Li DOLLAR
+Символ $ как есть.
+.It Li HOST
+Раскрывается в вывод
+.It Li OSNAME
+Раскрывается в вывод
+.It Li OSREL
+Раскрывается в вывод
+.It Li OSVERS
+Раскрывается в вывод
+.El
+.Pp
+Дополнительные переменные можно определить с помощью параметра
+.Fl D
+команды
+.Xr automount 8
+и
+.Xr automountd 8 .
+.Pp
+Чтобы передать местоположение, начинающееся с
+.Li / ,
+предварите его двоеточием.
+Например,
+.Li :/dev/cd0 .
+.Pp
+Этот пример, если поместить его в
+.Pa /etc/auto_example ,
+и если
+.Nm
+ссылается на карту, как описано выше, указывает, что общий ресурс NFS
+.Li 192.168.1.1:/share/example/x
+будет смонтирован в
+.Pa /example/x/
+, когда любой процесс попытается получить доступ к этой точке монтирования, с параметрами монтирования
+.Li intr
+и
+.Li nfsv4 ,
+описанными в
+.Xr mount_nfs 8 :
+.Bd -literal -offset indent
+.Li x -intr,nfsv4 192.168.1.1:/share/example/x
+.Ed
+.Pp
+Автоматически монтировать общий ресурс SMB при доступе, как гость, без запроса пароля:
+.Bd -literal -offset indent
+.Li share -fstype=smbfs,-N ://@server/share
+.Ed
+.Pp
+Автоматически монтировать привод CD при доступе:
+.Bd -literal -offset indent
+.Li cd -fstype=cd9660 :/dev/cd0
+.Ed
+.Sh СПЕЦИАЛЬНЫЕ КАРТЫ
+Специальные карты имеют имена, начинающиеся с
+.Li - .
+Поддерживаемые специальные карты:
+.Pp
+.Bl -tag -width "-noauto"
+.It Li -hosts
+Запрашивает удалённый сервер NFS и отображает экспортированные общие ресурсы.
+Эта карта традиционно монтируется в
+.Pa /net .
+Доступ к файлам на удалённом сервере NFS предоставляется через каталог
+.Pf /net/ Ar nfs-server-ip Ns / Ns Ar share-name Ns /
+без дополнительной настройки.
+Каталоги для отдельных серверов NFS отсутствуют до первого доступа, когда они создаются автоматически.
+.It Li -media
+Запрашивает устройства, которые ещё не смонтированы, но содержат допустимые файловые системы.
+Обычно используется для доступа к файлам на съёмных носителях.
+.It Li -noauto
+Монтирует файловые системы, настроенные в
+.Xr fstab 5
+Это необходимо настроить как прямую карту.
+.It Li -null
+Запрещает
+.Xr automountd 8
+монтировать что-либо в точке монтирования.
+.El
+.Pp
+Можно добавлять пользовательские специальные карты, добавляя их как исполняемые карты с именем
+.Pa special_foo
+в каталог
+.Pa /etc/autofs/ .
+.Sh ИСПОЛНЯЕМЫЕ КАРТЫ
+Если файл карты, указанный в
+.Nm
+, имеет установленный бит выполнения,
+.Xr automountd 8
+выполнит его и проанализирует стандартный вывод вместо анализа содержимого файла.
+При вызове без аргументов командной строки ожидается, что исполняемый файл выведет список доступных ключей карты, разделённых символами новой строки.
+В противном случае исполняемый файл будет вызван с именем ключа в качестве аргумента командной строки.
+Ожидается, что вывод исполняемого файла будет записью для этого ключа, не включая сам ключ.
+.Sh КОСВЕННЫЕ И ПРЯМЫЕ КАРТЫ
+Косвенные карты указываются в
+.Nm
+записями с полным путём в качестве точки монтирования и должны содержать только относительные пути в качестве ключей.
+Прямые карты указываются в
+.Nm
+записями с
+.Li /-
+в качестве точки монтирования и должны содержать только полные пути в качестве ключей.
+Для косвенных карт итоговая точка монтирования определяется путём объединения
+.Nm
+точки монтирования с ключом записи карты и необязательной точкой монтирования записи карты.
+Для прямых карт итоговая точка монтирования определяется путём объединения ключа записи карты с необязательной точкой монтирования записи карты.
+.Pp
+Приведённый выше пример можно переписать, используя прямую карту, поместив это в
+.Nm :
+.Bd -literal -offset indent
+.Li /- auto_example
+.Ed
+.Pp
+и это в
+.Li /etc/auto_example
+файл карты:
+.Bd -literal -offset indent
+.Li /example/x -intr,nfsv4 192.168.1.1:/share/example/x
+.Li /example/share -fstype=smbfs,-N ://@server/share
+.Li /example/cd -fstype=cd9660 :/dev/cd0
+.Ed
+.Sh СЛУЖБЫ КАТАЛОГОВ
+И
+.Nm
+, и карты могут содержать записи, состоящие из знака плюс и имени карты:
+.Bd -literal -offset indent
+.Li +auto_master
+.Ed
+.Pp
+Такие записи заставляют демон
+.Xr automountd 8
+извлекать именованную карту из служб каталогов (например, LDAP) и включать её туда, где была запись.
+.Pp
+Если файл, содержащий карту, на которую ссылается
+.Nm
+, не найден, карта будет извлечена из служб каталогов вместо этого.
+.Pp
+Чтобы извлечь записи из служб каталогов, демон
+.Xr automountd 8
+запускает
+.Pa /etc/autofs/include ,
+который обычно является shell-скриптом, с именем карты в качестве единственного параметра командной строки.
+Скрипт должен выводить записи, отформатированные в соответствии с синтаксисом
+.Nm
+или карты автомонтировщика, в стандартный вывод.
+Пример скрипта для использования LDAP включён в
+.Pa /etc/autofs/include_ldap .
+На него можно создать символическую ссылку
+.Pa /etc/autofs/include .
+.Sh ФАЙЛЫ
+.Bl -tag -width "/etc/auto_master"
+.It Pa /etc/auto_master
+Расположение по умолчанию файла
+.Pa auto_master .
+.It Pa /etc/autofs/
+Каталог, содержащий shell-скрипты для реализации специальных карт и служб каталогов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr autofs 4 ,
+.Xr automount 8 ,
+.Xr automountd 8 ,
+.Xr autounmountd 8
+.Sh АВТОРЫ
+Функциональность файла конфигурации
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

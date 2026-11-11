@@ -1,0 +1,126 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Paul Borman at Krystal Technologies.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/locale/euc.5
+.\" FRDP githash dc36d6f9bb1753f3808552f3afd30eda9a7b206a
+.\" FRDP hash256 0647db281b58ef8d0dc553166dfc152a68c47a120b4149d6ebd588211bd9b04b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 9, 2019
+.Dt EUC 5
+.Os
+.Sh ИМЯ
+.Nm euc
+.Nd Кодировка EUC широких символов
+.Sh СИНТАКСИС
+.Nm ENCODING
+.Qq EUC
+.Pp
+.Nm VARIABLE
+.Ar len1
+.Ar mask1
+.Ar len2
+.Ar mask2
+.Ar len3
+.Ar mask3
+.Ar len4
+.Ar mask4
+.Ar mask
+.Sh ОПИСАНИЕ
+.Nm EUC
+реализует систему из 4 наборов многобайтовых кодов.
+Многобайтовый символ в первом наборе кодов состоит из
+.Ar len1
+байт, начиная с байта в диапазоне от 0x00 до 0x7f.
+Чтобы обеспечить использование
+.Tn ASCII ,
+.Ar len1
+всегда равен 1.
+Многобайтовый символ во втором наборе кодов состоит из
+.Ar len2
+байт, начиная с байта в диапазоне 0x80-0xff, исключая 0x8e и 0x8f.
+Многобайтовый символ в третьем наборе кодов состоит из
+.Ar len3
+байт, начиная с байта 0x8e.
+Многобайтовый символ в четвёртом наборе кодов состоит из
+.Ar len4
+байт, начиная с байта 0x8f.
+.Pp
+Кодировка
+.Vt wchar_t
+многобайтовых символов
+.Nm EUC
+зависит от аргументов
+.Ar len
+и
+.Ar mask
+.
+Сначала байты помещаются в
+.Vt wchar_t
+следующим образом:
+.Bd -literal
+byte0 << ((\fIlen\fPN-1) * 8) | byte1 << ((\fIlen\fPN-2) * 8) | ... | byte\fIlen\fPN-1
+.Ed
+.Pp
+Затем к результату применяется операция побитового И с
+.Ar ~mask
+и побитового ИЛИ с
+.Ar maskN
+.
+Наборы кодов 2 и 3 особенные: ведущий байт (0x8e или 0x8f)
+сначала удаляется, а
+.Ar lenN
+уменьшается на 1.
+.Pp
+Например, локаль
+.Li ja_JP.eucJP
+имеет следующую строку
+.Va VARIABLE
+:
+.Bd -literal
+VARIABLE	1 0x0000 2 0x8080 2 0x0080 3 0x8000 0x8080
+.Ed
+.Pp
+Набор кодов 1 состоит из значений 0x0000 - 0x007f.
+.Pp
+Набор кодов 2 состоит из значений, у которых установлены биты 0x8080.
+.Pp
+Набор кодов 3 состоит из значений 0x0080 - 0x00ff.
+.Pp
+Набор кодов 4 состоит из значений 0x8000 - 0xff7f, исключая значения,
+у которых установлен бит 0x0080.
+.Pp
+Обратите внимание, что глобальная
+.Ar mask
+установлена в 0x8080; это означает, что по этим 2 битам можно определить
+набор кодов.
+.Sh СМ. ТАКЖЕ
+.Xr localedef 1 ,
+.Xr setlocale 3

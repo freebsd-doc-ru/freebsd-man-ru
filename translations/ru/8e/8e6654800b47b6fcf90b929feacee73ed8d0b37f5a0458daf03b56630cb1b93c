@@ -1,0 +1,133 @@
+.\" Copyright (c) 2004 Roland Smith <rsmith@xs4all.nl>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/devfs.conf.5
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 8e6654800b47b6fcf90b929feacee73ed8d0b37f5a0458daf03b56630cb1b93c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 25, 2019
+.Dt DEVFS.CONF 5
+.Os
+.Sh ИМЯ
+.Nm devfs.conf
+.Nd Информация о конфигурации devfs при загрузке
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+предоставляет простой способ задать владельца и права доступа или создать
+ссылки для устройств, доступных при загрузке.
+.Pp
+Он не работает для устройств, подключаемых и отключаемых после запуска
+системы, например\& USB-устройств.
+См.
+.Xr devfs.rules 5
+для настройки владельца и прав доступа для всех узлов устройств и
+.Xr devd.conf 5
+для действий, которые следует выполнять при присоединении или отсоединении устройств.
+.Pp
+Строки, начинающиеся с символа решётки
+.Pq Ql #
+, и пустые строки игнорируются.
+Строки, задающие правила
+.Nm
+, состоят из трёх параметров, разделённых пробельными символами:
+.Bl -tag -width indent
+.It Ar действие
+Действие, которое нужно выполнить для устройства.
+В именах действий значим только первый уникальный символ.
+.It Ar имя_устройства
+Имя устройства, созданного
+.Xr devfs 4 .
+.It Ar аргумент
+Аргумент
+.Ar действия .
+.El
+.Pp
+В настоящее время поддерживаются следующие действия:
+.Bl -tag -width indent
+.It Ic link
+Это действие создаёт символическую ссылку с именем
+.Ar аргумент
+, указывающую на
+.Ar имя_устройства
+— имя устройства, созданного
+.Xr devfs 4 .
+.It Ic own
+Это действие изменяет владельца
+.Ar имя_устройства .
+Параметр
+.Ar аргумент
+должен иметь вид пары
+.Ar владелец Ns : Ns Ar группа
+в том же формате, который используется
+.Xr chown 8 .
+.It Ic perm
+Это действие изменяет права доступа
+.Ar имя_устройства .
+Параметр
+.Ar аргумент
+должен быть
+.Ar режим
+, как объяснено в
+.Xr chmod 1 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -compact -width Pa
+.It Pa /etc/devfs.conf
+.It Pa /usr/share/examples/etc/devfs.conf
+.El
+.Sh ПРИМЕРЫ
+Чтобы создать ссылку
+.Pa /dev/cdrom
+, указывающую на первый CD-ROM,
+в
+.Nm
+можно добавить следующее:
+.Bd -literal -offset indent
+link	cd0	cdrom
+.Ed
+.Pp
+Чтобы задать владельца устройства, можно указать действие
+.Ic own
+:
+.Bd -literal -offset indent
+own	cd0	root:cdrom
+.Ed
+.Pp
+Чтобы задать права доступа устройства, следует использовать действие
+.Ic perm
+:
+.Bd -literal -offset indent
+perm	cd0	0660
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr chmod 1 ,
+.Xr devfs 4 ,
+.Xr devd.conf 5 ,
+.Xr devfs.rules 5 ,
+.Xr chown 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Roland Smith Aq Mt rsmith@xs4all.nl .

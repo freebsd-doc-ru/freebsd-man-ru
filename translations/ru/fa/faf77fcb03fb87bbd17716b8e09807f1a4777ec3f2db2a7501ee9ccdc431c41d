@@ -1,0 +1,172 @@
+.\" Copyright (c) 2005 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/bluetooth.device.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 faf77fcb03fb87bbd17716b8e09807f1a4777ec3f2db2a7501ee9ccdc431c41d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 29, 2021
+.Dt BLUETOOTH.DEVICE.CONF 5
+.Os
+.Sh ИМЯ
+.Nm bluetooth.device.conf
+.Nd Файл конфигурации Bluetooth-устройства
+.Sh ОПИСАНИЕ
+Инфраструктура конфигурации Bluetooth-устройств предоставляет возможность настраивать определённые параметры Bluetooth-устройства для каждого устройства отдельно.
+.Pp
+Файлы конфигурации Bluetooth-устройств — это обычные текстовые файлы, которые должны соответствовать базовому синтаксису
+.Xr sh 1
+.
+Хотя Bluetooth-устройства не являются в точности shell-скриптами,
+они разбираются и передаются через команду shell
+.Ic eval
+.
+Это позволяет использовать различные трюки shell в файлах конфигурации Bluetooth-устройств.
+.Pp
+Скрипт
+.Pa /etc/rc.d/bluetooth
+используется для запуска и остановки Bluetooth-устройств.
+Этот скрипт не выполняется по умолчанию при загрузке системы.
+Он вызывается
+.Xr devd 8
+в ответ на события подключения и отключения Bluetooth-устройств.
+При необходимости этот скрипт можно выполнить вручную.
+Скрипт принимает имя драйвера Bluetooth-устройства в качестве дополнительного параметра.
+.Pp
+Общесистемный файл конфигурации Bluetooth-устройств называется
+.Pa /etc/defaults/\:bluetooth.device.conf .
+Параметры конфигурации, заданные в общесистемном файле конфигурации Bluetooth-устройств, применяются к каждому Bluetooth-устройству, подключённому к системе.
+.Pp
+Переопределения параметров конфигурации для конкретного Bluetooth-устройства
+следует размещать в файле
+.Pa /etc/bluetooth/ Ns Ar DEVICE_DRIVER_NAME Ns Pa .conf .
+Где
+.Ar DEVICE_DRIVER_NAME
+— имя драйвера Bluetooth-устройства.
+.Pp
+Следующий список содержит имя и краткое описание каждой переменной, которую можно задать в файле конфигурации Bluetooth-устройства.
+.Bl -tag -width indent-two
+.It Va authentication_enable
+.Pq Vt bool
+Параметр
+.Va authentication_enable
+управляет тем, требует ли устройство аутентификации удалённого устройства при установке соединения.
+Если задано
+.Dq Li YES ,
+устройство попытается аутентифицировать другое устройство при установке соединения.
+Запросы аутентификации Bluetooth обрабатываются демоном
+.Xr hcsecd 8
+.
+.It Va class
+.Pq Vt str
+Параметр
+.Va class
+используется для указания возможностей устройства другим устройствам.
+Дополнительные сведения см. в документе
+.Dq Assigned Numbers - Bluetooth Baseband
+.
+.It Va connectable
+.Pq Vt bool
+Параметр
+.Va connectable
+управляет тем, должно ли устройство периодически сканировать попытки пейджинга от других устройств.
+Если задано
+.Dq Li YES ,
+устройство будет периодически сканировать попытки пейджинга от других устройств.
+.It Va discoverable
+.Pq Vt bool
+Параметр
+.Va discoverable
+управляет тем, должно ли устройство периодически сканировать запросы обнаружения от других устройств.
+Если задано
+.Dq Li YES ,
+устройство будет периодически сканировать запросы обнаружения от других устройств.
+.It Va encryption_mode
+.Pq Vt str
+Параметр
+.Va encryption_mode
+управляет тем, требует ли устройство шифрования соединения с удалённым устройством при установке соединения.
+При установке соединения только устройства с включённым параметром
+.Va authentication_enable
+и включённым параметром
+.Va encryption_mode
+попытаются зашифровать соединение с другим устройством.
+Возможные значения:
+.Dq Li NONE
+— шифрование отключено,
+.Dq Li P2P
+— шифрование только для пакетов "точка-точка",
+или
+.Dq Li ALL
+— шифрование как для пакетов "точка-точка", так и для широковещательных пакетов.
+.It Va hci_debug_level
+.Pq Vt int
+Уровень отладки узла HCI.
+Более высокие значения означают более подробный вывод.
+.It Va l2cap_debug_level
+.Pq Vt int
+Уровень отладки узла L2CAP.
+Более высокие значения означают более подробный вывод.
+.It Va local_name
+.Pq Vt str
+Параметр
+.Va local_name
+предоставляет возможность изменить понятное пользователю имя устройства.
+.It Va role_switch
+.Pq Vt bool
+Параметр
+.Va role_switch
+управляет тем, должно ли локальное устройство выполнять переключение ролей.
+По умолчанию, если переключение ролей поддерживается, локальное устройство попытается выполнить переключение ролей и стать Master при входящем соединении.
+Некоторые устройства не поддерживают переключение ролей, поэтому входящие соединения от таких устройств будут завершаться неудачей.
+Если
+.Va role_switch
+отключён, принимающее устройство останется Slave.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent-two
+.It Pa /etc/defaults/bluetooth.device.conf
+.It Pa /etc/rc.d/bluetooth
+.El
+.Sh ПРИМЕРЫ
+Файл
+.Pa /etc/bluetooth/ubt0.conf
+следует использовать для задания переопределений параметров конфигурации для первого USB Bluetooth-устройства
+(имя драйвера устройства —
+.Li ubt0 ) .
+.Pp
+Файл
+.Pa /etc/bluetooth/ubt1.conf
+следует использовать для задания переопределений параметров конфигурации для второго USB Bluetooth-устройства.
+.Sh СМ. ТАКЖЕ
+.Xr ng_hci 4 ,
+.Xr ng_l2cap 4 ,
+.Xr ng_ubt 4 ,
+.Xr devd 8 ,
+.Xr hccontrol 8 ,
+.Xr hcsecd 8 ,
+.Xr l2control 8
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com

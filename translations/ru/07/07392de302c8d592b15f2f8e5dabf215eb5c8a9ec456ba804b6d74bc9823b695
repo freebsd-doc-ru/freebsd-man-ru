@@ -1,0 +1,102 @@
+.\" Copyright (c) 2007 Daniel Gerzo <danger@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path share/man/man5/boot.config.5
+.\" FRDP githash de67d3cfc6537f6bfa8f2601da7af9c165d09075
+.\" FRDP hash256 07392de302c8d592b15f2f8e5dabf215eb5c8a9ec456ba804b6d74bc9823b695
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 14, 2025
+.Dt BOOT.CONFIG 5
+.Os
+.Sh ИМЯ
+.Nm boot.config
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит параметры для кода загрузочного блока
+.Fx .
+.Pp
+Когда загрузчики
+.Fx
+первой и второй стадии запускаются, они ищут в слайсе
+.Dq Li a
+загрузочного раздела файл
+.Nm
+(в результате слайсы, в которых отсутствует раздел
+.Dq Li a ,
+требуют вмешательства пользователя во время процесса загрузки).
+Если файл
+.Nm
+найден, его содержимое используется как параметры конфигурации по умолчанию
+для кода загрузочного блока и выводится на системную консоль.
+.Pp
+Допустимый формат этого файла — указать номер диска BIOS, тип
+контроллера, номер устройства, раздел, имя файла ядра и любой другой
+допустимый параметр
+.Xr boot 8
+в одной строке, как это делается в приглашении.
+.Pp
+Параметры, связанные с выбором загрузочного образа, описанные ниже, и все
+остальные параметры, доступные для
+.Nm ,
+подробно описаны на странице руководства
+.Xr boot 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot.config -compact
+.It Pa /boot.config
+параметры для загрузочных блоков (необязательно)
+.It Pa /boot/config
+альтернативное расположение информации о конфигурации загрузки
+.El
+.Sh ПРИМЕРЫ
+Команда:
+.Bd -literal -offset indent
+.Ed
+.Pp
+активирует последовательную консоль
+.Fx ,
+если клавиатура отсутствует; в противном случае будет использоваться
+видеоконсоль.
+.Pp
+Команда:
+.Bd -literal -offset indent
+.Ed
+.Pp
+предпишет второй стадии
+.Xr boot 8
+на первом диске загружаться с третьей стадией
+.Xr boot 8
+со второго диска.
+.Pp
+Команда:
+.Bd -literal -offset indent
+.Ed
+.Pp
+выполнит оба вышеописанных действия.
+.Sh СМ. ТАКЖЕ
+.Xr boot 8 ,
+.Xr loader 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Daniel Gerzo Aq Mt danger@FreeBSD.org .

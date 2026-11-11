@@ -1,0 +1,132 @@
+.\"	$NetBSD: netconfig.5,v 1.2 2000/11/08 13:18:28 lukem Exp $
+.\" $NetBSD: netconfig.5,v 1.2 2000/11/08 13:18:28 lukem Exp $
+.\" FRDP path lib/libc/rpc/netconfig.5
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 9bd06dacc07583f921db4ef98f3798107a185d30dfc4c16d354970ad92e0e423
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 17, 2000
+.Dt NETCONFIG 5
+.Os
+.Sh ИМЯ
+.Nm netconfig
+.Nd база данных сетевой конфигурации
+.Sh СИНТАКСИС
+.Pa /etc/netconfig
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+определяет список
+.Dq имён транспортов ,
+описывая их семантику и протокол.
+В
+.Fx
+этот файл используется только кодом библиотеки RPC.
+.Pp
+Записи имеют следующий формат:
+.Pp
+.Ar network_id semantics flags family protoname device libraries
+.Pp
+Записи состоят из следующих полей:
+.Bl -tag -width network_id
+.It Ar network_id
+Имя описываемого транспорта.
+.It Ar semantics
+Описывает семантику транспорта.
+Это может быть одним из:
+.Bl -tag -width tpi_cots_ord -offset indent
+.It Sy tpi_clts
+Транспорт без установления соединения.
+.It Sy tpi_cots
+Транспорт с установлением соединения
+.It Sy tpi_cots_ord
+Транспорт с установлением соединения и упорядочиванием.
+.It Sy tpi_raw
+Сырое соединение.
+.El
+.It Ar flags
+Это поле либо пустое (указывается с помощью
+.Dq Li - ) ,
+либо содержит один или несколько следующих символов:
+.Bl -tag -width b -offset indent
+.It Sy b
+Сеть, представленная этой записью, поддерживает широковещательную передачу.
+Этот флаг не имеет смысла в
+.Fx .
+.It Sy v
+Эта запись может быть возвращена функцией
+.Xr getnetpath 3 .
+.El
+.It Ar family
+Семейство протоколов транспорта.
+В настоящее время это одно из:
+.Bl -tag -width loopback -offset indent
+.It Sy inet6
+Семейство протоколов IPv6
+.Pq Dv PF_INET6 .
+.It Sy inet
+Семейство протоколов IPv4
+.Pq Dv PF_INET .
+.It Sy loopback
+Семейство протоколов
+.Dv PF_LOCAL .
+.El
+.It Ar protoname
+Имя протокола, используемого для этого транспорта.
+В настоящее время может быть
+.Sy udp ,
+.Sy tcp
+или пустым.
+.It Ar device
+Это поле всегда пустое в
+.Fx .
+.It Ar libraries
+Это поле всегда пустое в
+.Fx .
+.El
+.Pp
+Порядок записей в этом файле определяет, какой транспорт будет
+предпочтительнее для кода библиотеки RPC при совпадении по указанному
+типу сети.
+Например, если образец файла конфигурации сети выглядит так:
+.Bd -literal -offset indent
+udp6       tpi_clts      v     inet6    udp     -       -
+tcp6       tpi_cots_ord  v     inet6    tcp     -       -
+udp        tpi_clts      v     inet     udp     -       -
+tcp        tpi_cots_ord  v     inet     tcp     -       -
+rawip      tpi_raw       -     inet      -      -       -
+local      tpi_cots_ord  -     loopback  -      -       -
+.Ed
+.Pp
+тогда использование типа сети
+.Sy udp
+в вызовах функции библиотеки RPC (см.
+.Xr rpc 3 )
+заставит код сначала попробовать
+.Sy udp6 ,
+а затем
+.Sy udp .
+.Pp
+.Xr getnetconfig 3
+и связанные функции разбирают этот файл и возвращают структуры
+следующего формата:
+.Bd -literal
+struct netconfig {
+    char *nc_netid;              /* Идентификатор сети */
+    unsigned long nc_semantics;  /* Семантика */
+    unsigned long nc_flag;       /* Флаги */
+    char *nc_protofmly;          /* Семейство протоколов */
+    char *nc_proto;              /* Имя протокола */
+    char *nc_device;             /* Путь к сетевому устройству (не используется) */
+    unsigned long nc_nlookups;   /* Количество библиотек поиска (не используется) */
+    char **nc_lookups;           /* Имена библиотек (не используется) */
+    unsigned long nc_unused[9];  /* зарезервировано */
+};
+.Ed
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/netconfig -compact
+.It Pa /etc/netconfig
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getnetconfig 3 ,
+.Xr getnetpath 3

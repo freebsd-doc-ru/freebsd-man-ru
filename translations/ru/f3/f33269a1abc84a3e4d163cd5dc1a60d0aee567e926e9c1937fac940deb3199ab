@@ -1,0 +1,243 @@
+.\" Copyright (c) 2013 Marcel Moolenaar
+.\" Copyright (c) 2013 Craig Rodrigues
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"
+.\" FRDP path share/man/man5/mount.conf.5
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 f33269a1abc84a3e4d163cd5dc1a60d0aee567e926e9c1937fac940deb3199ab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 17, 2013
+.Dt MOUNT.CONF 5
+.Os
+.Sh ИМЯ
+.Nm mount.conf
+.Nd файл конфигурации монтирования корневой файловой системы
+.Sh СИНТАКСИС
+.Pa /.mount.conf
+.Sh ОПИСАНИЕ
+Во время загрузки ядро
+.Fx
+попытается смонтировать корневую файловую систему,
+используя логику в функции
+.Fn vfs_mountroot
+в файле
+.Pa src/sys/kern/vfs_mountroot.c .
+Логику монтирования корневой файловой системы можно описать следующим образом:
+.Bl -enum
+.It
+Ядро создаст в памяти файл конфигурации
+с директивами по умолчанию для монтирования
+корневой файловой системы.
+Логика для этого находится в функции
+.Fn vfs_mountroot_conf0 .
+.It
+Сначала ядро смонтирует
+.Xr devfs 4
+как корневую файловую систему.
+.It
+Затем ядро разберёт созданный на шаге 1 файл конфигурации в памяти
+и попытается смонтировать фактическую корневую файловую систему.
+О формате файла конфигурации см.
+.Sx ФОРМАТ ФАЙЛА .
+.It
+Когда фактическая корневая файловая система смонтирована,
+.Xr devfs 4
+будет перемонтирован на каталог
+.Pa /dev .
+.It
+Если файл
+.Pa /.mount.conf
+не существует в только что смонтированной корневой файловой системе,
+логика монтирования корневой файловой системы останавливается здесь.
+.It
+Если файл
+.Pa /.mount.conf
+существует в только что смонтированной корневой файловой системе,
+этот файл будет разобран, и ядро использует этот новый файл конфигурации,
+чтобы попытаться перемонтировать корневую файловую систему.
+О формате файла конфигурации см.
+.Sx ФОРМАТ ФАЙЛА .
+.It
+Если новая корневая файловая система имеет каталог
+.Pa /.mount ,
+старая корневая файловая система будет перемонтирована
+на
+.Pa /.mount .
+.It
+Логика монтирования корневой файловой системы вернётся к шагу 4.
+.El
+.Pp
+Логика монтирования корневой файловой системы является рекурсивной, и шаг 8 будет
+повторяться до тех пор, пока каждая новая монтируемая корневая файловая система
+имеет файл
+.Pa /.mount.conf .
+.Sh ФОРМАТ ФАЙЛА
+Ядро разбирает каждую строку в
+.Pa .mount.conf
+и затем пытается выполнить действие, указанное в этой строке, как только она разобрана.
+.Bl -tag -width ".Ic .onfail Ar [panic|reboot|retry|continue]"
+.It Ic #
+Строка, начинающаяся с #, является комментарием и игнорируется.
+.It Ic {FS}:{MOUNTPOINT} {OPTIONS}
+Ядро попытается выполнить монтирование, эквивалентное операции:
+.Bd -literal -offset indent
+mount -t {FS} -o {OPTIONS} {MOUNTPOINT} /
+.Ed
+.Pp
+Если это успешно смонтировано,
+дальнейшие строки в
+.Pa .mount.conf
+игнорируются.
+Если все строки в
+.Pa .mount.conf
+обработаны и ни одна корневая файловая система не была успешно
+смонтирована, то выполняется действие, указанное
+.Ic .onfail .
+.It Ic .ask
+Когда ядро обрабатывает эту строку, отображается приглашение командной строки
+.Li mountroot> .
+В этом приглашении оператор может ввести корневую файловую систему для монтирования.
+.It Ic .md Ar файл
+Создать размещённый в памяти виртуальный диск
+.Xr md 4 ,
+используя
+.Ar файл
+в качестве резервного хранилища.
+.It Ic .onfail Ar [panic|reboot|retry|continue]
+Если после разбора всех строк в
+.Pa .mount.conf
+ядро не может смонтировать корневую файловую систему,
+директива
+.Ic .onfail
+сообщает ядру, какое действие выполнить.
+.It Ic .timeout Ar N
+Перед попыткой смонтировать корневую файловую систему,
+если устройство корневой файловой системы не существует, подождать не более
+.Ar N
+секунд появления устройства, прежде чем пытаться смонтировать его.
+Если
+.Ic .timeout
+не указан, тайм-аут по умолчанию составляет 3 секунды.
+.El
+.Sh ПРИМЕРЫ
+Следующий пример
+.Pa .mount.conf
+предписывает ядру попытаться смонтировать корневую файловую систему
+сначала как файловую систему ISO CD9660 на
+.Pa /dev/cd0 ,
+затем, если это не сработает, как файловую систему ISO CD9660 на
+.Pa /dev/cd1 ,
+а затем, если это не сработает, как файловую систему UFS на
+.Pa /dev/ada0s1a .
+Если и это не сработает, будет отображено приглашение командной строки
+.Li mountroot> ,
+где оператор может вручную ввести корневую файловую систему для монтирования.
+Наконец, если и это не сработает, ядро запаникует.
+.Bd -literal -offset indent
+.Li .onfail panic
+.Li .timeout 3
+cd9660:/dev/cd0 ro
+.Li .timeout 0
+cd9660:/dev/cd1 ro
+.Li .timeout 3
+ufs:/dev/ada0s1a
+.Li .ask
+.Ed
+.Pp
+Следующий пример
+.Pa .mount.conf
+предписывает ядру создать размещённый в памяти диск
+.Xr md 4 ,
+связанный с файлом
+.Pa /data/OS-1.0.iso ,
+а затем смонтировать файловую систему ISO CD9660
+на только что созданном устройстве md.
+Последняя строка — комментарий, который игнорируется.
+.Bd -literal -offset indent
+.Li .timeout 3
+.Li .md /data/OS-1.0.iso
+.Li cd9600:/dev/md# ro
+.Li # Можно также использовать cd9660:/dev/md0 ro
+.Ed
+.Pp
+Следующий пример
+.Pa .mount.conf
+предписывает ядру создать размещённый в памяти диск
+.Xr md 4 ,
+связанный с файлом
+.Pa /data/base.ufs.uzip ,
+а затем смонтировать файловую систему UFS
+на только что созданном драйвером
+.Xr geom_uzip 4
+устройстве md uzip.
+.Bd -literal -offset indent
+.Li .md /data/base.ufs.uzip
+.Li ufs:/dev/md#.uzip ro
+.Li # Можно также использовать ufs:/dev/md0.uzip ro
+.Ed
+.Pp
+Следующий пример
+.Pa .mount.conf
+предписывает ядру выполнить монтирование unionfs
+на каталог
+.Pa /jail/freebsd-8-stable ,
+который содержит окружение
+.Xr chroot 2 .
+.Bd -literal -offset indent
+.Li .timeout 3
+.Li unionfs:/jail/freebsd-8-stable
+.Ed
+.Sh ПРИМЕЧАНИЯ
+Для каждой монтируемой корневой файловой системы каталог
+.Pa /dev
+.Em должен
+существовать, чтобы логика монтирования корневой файловой системы могла правильно перемонтировать
+.Xr devfs 4 .
+Если этот каталог не существует, система
+может зависнуть во время загрузки.
+.Sh СМ. ТАКЖЕ
+.Xr nmount 2 ,
+.Xr md 4 ,
+.Xr boot.config 5 ,
+.Xr fstab 5 ,
+.Xr boot 8 ,
+.Xr loader 8 ,
+.Xr mount 8
+.Sh ИСТОРИЯ
+Файл
+.Nm
+впервые появился в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Логика монтирования корневой файловой системы в ядре
+.Fx ,
+которая разбирает
+.Pa /.mount.conf ,
+была написана
+.An Marcel Moolenaar Aq Mt marcel@FreeBSD.org .
+Эта справочная страница была написана
+.An Craig Rodrigues Aq Mt rodrigc@FreeBSD.org .

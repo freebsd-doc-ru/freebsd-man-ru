@@ -1,0 +1,132 @@
+.\" Copyright (c) 2001	Nik Clayton
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/quota.user.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d0158018c287b1a68bc3d2f0b804677b19fa8bd33642978474e57a7dff1f8d26
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 30, 2007
+.Dt QUOTA.USER 5
+.Os
+.Sh ИМЯ
+.Nm quota.user , quota.group
+.Nd база данных квот для каждой файловой системы
+.Sh ОПИСАНИЕ
+Каждая файловая система с активными квотами должна содержать
+.Pa quota.user
+и
+.Pa quota.group
+в корневом каталоге файловой системы.
+Эти файлы создаются
+.Xr quotacheck 8
+и должны редактироваться с помощью
+.Xr edquota 8 .
+Можно указать другое расположение и имя файла с помощью
+.Dq Li userquota
+и
+.Dq Li groupquota
+в файле
+.Xr fstab 5 .
+.Pp
+Файлы данных содержат следующую информацию:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Текущее использование блоков
+.It
+Текущее количество файлов
+.It
+Мягкий лимит блоков
+.It
+Мягкий лимит файлов
+.It
+Жёсткий лимит блоков
+.It
+Жёсткий лимит файлов
+.It
+Оставшееся льготное время для блоков при превышении мягкого лимита
+.It
+Оставшееся льготное время для файлов при превышении мягкого лимита
+.El
+.Pp
+См.
+.Xr edquota 8
+для описания различных лимитов и льготных периодов.
+.Pp
+При обычных операциях с квотами интерфейс
+.Xr quotactl 2
+используется для запроса или установки информации о квотах, а ядро
+будет поддерживать файлы данных по мере необходимости.
+Если квоты отключены в
+файловой системе, но отмечены как включённые в
+.Xr fstab 5 ,
+то файлы данных квот будут использоваться напрямую.
+.Pp
+Файлы данных хранятся как массив структур
+.Dq Li struct dqblk
+как определено в
+.In ufs/ufs/quota.h ,
+и индексируются по UID или GID.
+Файлы данных будут записаны как разрежённый файл, если это возможно.
+Данные поддерживаются только для идентификаторов, которые имеют либо
+ненулевое использование, либо ненулевые лимиты квот.
+Если выполняется попытка доступа к данным для идентификатора, который
+находился бы за концом текущего файла данных, будет создана структура
+квоты со всеми значениями, равными нулю, и файл данных будет расширен
+по мере необходимости.
+Утилита
+.Xr quotacheck 8
+усечёт файлы данных до минимального размера, необходимого
+для хранения наибольшего идентификатора с ненулевым использованием файлов или
+ненулевыми лимитами квот.
+.Pp
+Запись данных для идентификатора 0 имеет особое значение.
+Если поля
+.Dq Dv dqb_btime
+или
+.Dq Dv dbq_itime
+не равны нулю, они используются для указания льготного периода в
+этой файловой системе для пользователей, превысивших свой мягкий лимит.
+Эти значения времени можно установить с помощью
+.Xr edquota 8
+с флагом
+.Fl t .
+Если явный льготный период не был установлен с помощью
+.Xr edquota 8 ,
+то будет использовано значение по умолчанию — 7 дней.
+Значения по умолчанию определяются
+.Dv MAX_DQ_TIME
+и
+.Dv MAX_IQ_TIME
+в
+.In ufs/ufs/quota.h .
+.Sh СМ. ТАКЖЕ
+.Xr quota 1 ,
+.Xr quotactl 2 ,
+.Xr fstab 5 ,
+.Xr edquota 8 ,
+.Xr quotacheck 8 ,
+.Xr quotaoff 8 ,
+.Xr quotaon 8 ,
+.Xr repquota 8

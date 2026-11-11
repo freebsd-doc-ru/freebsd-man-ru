@@ -1,0 +1,186 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/core.5
+.\" FRDP githash ce51f79913aa28a32217a424845a2649019535af
+.\" FRDP hash256 8ac5fd77dc1ad930cd8fa0b8c4120e9a17a38006f3c1d238b21e97c6f6f924a5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 17, 2025
+.Dt CORE 5
+.Os
+.Sh ИМЯ
+.Nm core
+.Nd формат файла образа памяти
+.Sh СИНТАКСИС
+.In sys/param.h
+.Sh ОПИСАНИЕ
+Небольшое число сигналов, вызывающих аварийное завершение процесса,
+также приводит к записи состояния процесса в оперативной памяти на диск
+для последующего изучения одним из доступных отладчиков.
+(См.
+.Xr sigaction 2 . )
+Этот образ памяти записывается в файл, который по умолчанию называется
+.Nm programname.core
+в рабочем каталоге;
+при условии, что завершившийся процесс имел право записи в этот каталог,
+и при условии, что аварийная ситуация не вызвала
+системный сбой.
+(В этом случае решение о сохранении core-файла произвольно, см.
+.Xr savecore 8 . )
+.Pp
+Имя файла управляется через переменную
+.Xr sysctl 8
+.Va kern.corefile .
+Содержимое этой переменной описывает имя файла для сохранения
+образа core.
+Это имя файла может быть абсолютным или относительным (относительное
+разрешается в текущий рабочий каталог программы,
+создающей его).
+.Pp
+В sysctl
+.Va kern.corefile
+можно использовать следующие спецификаторы формата для вставки
+дополнительной информации в итоговое имя core-файла:
+.Bl -tag -width indent
+.It Em \&%H
+Имя хоста машины.
+.It Em \&%I
+Индекс, начинающийся с нуля, пока не будет достигнут sysctl
+.Em debug.ncores .
+Это может быть полезно для ограничения числа core-файлов,
+создаваемых конкретным процессом.
+.It Em \&%N
+имя процесса.
+.It Em \&%P
+PID процесса.
+.It Em \&%S
+сигнал во время создания core.
+.It Em \&%U
+UID процесса.
+.El
+.Pp
+Имя по умолчанию —
+.Em \&%N.core ,
+что обеспечивает традиционное поведение
+.Fx .
+.Pp
+Максимальный размер core-файла ограничивается лимитом
+.Dv RLIMIT_CORE
+.Xr setrlimit 2 .
+Файлы, которые были бы больше этого лимита, не создаются.
+.Pp
+При большом лимите процесс, отобразивший очень большой
+и, возможно, разреженно заполненный регион виртуальной памяти, может
+очень долго создавать core-дампы.
+Система игнорирует все сигналы, отправляемые процессу, записывающему core-файл, кроме
+.Dv SIGKILL ,
+который прекращает запись и вызывает немедленный выход процесса.
+Поведение
+.Dv SIGKILL
+можно отключить, установив настраиваемую переменную
+.Xr sysctl 8
+.Va kern.core_dump_can_intr
+в ноль.
+.Pp
+По умолчанию процесс, изменяющий учетные данные пользователя или группы,
+реальные или эффективные, не будет создавать core-файл.
+Это поведение можно
+изменить, чтобы создавался core-дамп, установив переменную
+.Xr sysctl 8
+.Va kern.sugid_coredump
+в 1.
+.Pp
+Ядро может сжимать core-файлы, если в файл конфигурации ядра
+включен один из следующих элементов:
+.Bl -tag -width indent
+.It options
+GZIO
+.It options
+ZSTDIO
+.El
+.Pp
+Следующие параметры sysctl управляют сжатием core-файлов:
+.Bl -tag -width indent
+.It Em kern.compress_user_cores
+Включить сжатие пользовательских core-файлов.
+Значение 1 настраивает сжатие
+.Xr gzip 1 ,
+а значение 2 настраивает сжатие
+.Xr zstd 1 .
+К именам сжатых core-файлов будет добавлен суффикс
+.Ql .gz
+или
+.Ql .zst
+в зависимости от выбранного формата.
+.It Em kern.compress_user_cores_level
+Уровень сжатия.
+По умолчанию 6.
+.El
+.Sh ПРИМЕЧАНИЯ
+Core-файлы записываются с информацией об открытых файловых дескрипторах в виде ELF-заметки.
+По умолчанию пути к файлам упаковываются так, чтобы использовать только необходимое пространство.
+Однако пути к файлам могут измениться в любое время, в том числе во время создания core-дампа,
+и это может привести к усечению данных файловых дескрипторов.
+.Pp
+Всю информацию о файловых дескрипторах можно сохранить, отключив упаковку.
+Это потенциально может расходовать до PATH_MAX байт на каждый открытый fd.
+Упаковка отключается с помощью
+.Dl sysctl kern.coredump_pack_fileinfo=0 .
+.Pp
+Аналогично core-файлы записываются с информацией vmmap в виде ELF-заметки, которая
+содержит пути к файлам.
+По умолчанию они упаковываются так, чтобы использовать только необходимое
+пространство.
+По тому же механизму, что и для заметки об открытых файлах, эти пути также
+могут измениться в любое время и привести к усечению заметки.
+.Pp
+Всю информацию vmmap можно сохранить, отключив упаковку.
+Как и в случае с информацией о файлах, это потенциально может расходовать до PATH_MAX байт на
+каждый отображенный объект.
+Упаковка отключается с помощью
+.Dl sysctl kern.coredump_pack_vmmapinfo=0 .
+.Sh ПРИМЕРЫ
+Чтобы хранить все образы core в частных областях каждого пользователя в
+.Pa /var/coredumps
+(при условии, что соответствующие подкаталоги существуют и доступны пользователям для записи),
+можно использовать следующую команду
+.Xr sysctl 8 :
+.Pp
+.Dl sysctl kern.corefile=/var/coredumps/\&%U/\&%N.core
+.Sh СМ. ТАКЖЕ
+.Xr gdb 1 Pq Pa ports/devel/gdb ,
+.Xr gzip 1 ,
+.Xr kgdb 1 Pq Pa ports/devel/gdb ,
+.Xr setrlimit 2 ,
+.Xr sigaction 2 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.At v1 .

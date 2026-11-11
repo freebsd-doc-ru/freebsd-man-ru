@@ -1,0 +1,62 @@
+.\" Copyright (c) 2002, 2003 Tim J. Robbins
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/locale/big5.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4dc4866598621b77506220ddcbed3738fd1d545dbb87bc31ff316cd7a4545f71
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 1, 2020
+.Dt BIG5 5
+.Os
+.Sh ИМЯ
+.Nm big5
+.Nd
+кодировка для текста на традиционном китайском языке
+.Sh СИНТАКСИС
+.Nm ENCODING
+.Qq BIG5
+.Sh ОПИСАНИЕ
+.Dq Big Five
+является стандартом кодирования текста на традиционном китайском языке.
+Каждый символ представляется одним или двумя байтами.
+Символы из набора символов ASCII представляются одним байтом в диапазоне 0x00 - 0x7F.
+Символы традиционного китайского языка представляются двумя байтами:
+первый в диапазоне 0xA1 - 0xFE, второй в диапазоне
+0x40 - 0xFE.
+.Sh СМ. ТАКЖЕ
+.Xr euc 5 ,
+.Xr gb18030 5 ,
+.Xr utf8 5
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Диапазон второго байта пересекается с некоторыми символами ASCII, включая
+0x5C
+.Pq Ql \e
+и 0x7C
+.Pq Ql |
+что может вызвать проблемы при выполнении программ или
+отображении.
+Big5 считается устаревшим стандартом и сохраняется только для
+обратной совместимости.
+Для новых документов и систем рекомендуется напрямую использовать UTF-8.

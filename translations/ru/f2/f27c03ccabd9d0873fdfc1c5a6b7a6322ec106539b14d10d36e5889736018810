@@ -1,0 +1,221 @@
+.\"
+.\" Copyright (c) 2004 Tom Rhodes
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/adduser/adduser.conf.5
+.\" FRDP githash 9ff2ebd92891b6953bbe44c6d6a6d8bc31f5139f
+.\" FRDP hash256 f27c03ccabd9d0873fdfc1c5a6b7a6322ec106539b14d10d36e5889736018810
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 18, 2024
+.Dt ADDUSER.CONF 5
+.Os
+.Sh ИМЯ
+.Nm adduser.conf
+.Nd
+.Xr adduser 8
+— файл конфигурации
+.Sh ОПИСАНИЕ
+Файл
+.Pa /etc/adduser.conf
+автоматически создаётся утилитой
+.Xr adduser 8
+при вызове с параметром
+.Fl C
+командной строки.
+Он не предназначен для редактирования вручную.
+.Pp
+Файл
+.Pa /etc/adduser.conf
+используется для предварительного задания некоторых параметров конфигурации для утилиты
+.Xr adduser 8 .
+При вызове
+.Xr adduser 8
+она проверяет, существует ли этот файл, и
+если да, конфигурация будет использована или предложена в качестве
+настроек по умолчанию.
+Файл
+.Nm
+предлагает три типа конфигурации:
+.Bl -bullet
+.It
+Настройки по умолчанию, предлагаемые
+.Xr adduser 8 .
+Эти параметры задаются в файле конфигурации и предлагаются
+как значения по умолчанию при каждом вызове утилиты
+.Xr adduser 8 .
+.It
+Параметры конфигурации, которые можно задать в
+.Nm ,
+но переопределить, передав флаг команде
+.Xr adduser 8 .
+.It
+Конфигурация, поддерживаемая
+.Xr adduser 8 ,
+но не предлагаемая с помощью флага или при первоначальном вызове.
+.El
+.Pp
+В первом случае эти параметры можно задать в
+.Nm ,
+но они всё равно будут предлагаться при вызове
+.Xr adduser 8 .
+Во втором случае
+.Xr adduser 8
+прочитает данные конфигурации, если не был передан флаг
+для их переопределения.
+Например, параметр
+.Va defaultshell .
+В третьем случае конфигурация будет использоваться, но
+пользователю никогда не будет предложено изменить настройку по умолчанию
+с помощью флага или запроса
+.Xr adduser 8 .
+Например, параметр
+.Va upwexpire .
+.Pp
+В
+.Nm
+можно задать следующие параметры конфигурации:
+.Bl -tag -width indent
+.It Va defaultLgroup
+Группа по умолчанию, в которую будут добавляться новые пользователи.
+.It Va defaultclass
+Класс по умолчанию, в который помещаются пользователи, как описано в
+.Xr login.conf 5 .
+.It Va defaultgroups
+Этот параметр используется, чтобы указать, в какие другие группы
+следует добавить новую учётную запись.
+.It Va passwdtype
+Может быть одним из
+.Cm no , none , random ,
+или
+.Cm yes ,
+как описано в
+.Xr adduser 8 .
+Поэтому текст здесь не дублируется, и его можно
+прочитать в
+.Xr adduser 8 .
+.It Va homeprefix
+Префикс домашнего каталога по умолчанию, обычно
+.Pa /home .
+.It Va defaultshell
+Оболочка пользователя по умолчанию, которая может быть любой из оболочек, перечисленных в
+.Xr shells 5 .
+.It Va udotdir
+Определяет расположение файлов конфигурации оболочки и окружения
+по умолчанию.
+.It Va msgfile
+Расположение файла сообщения для новых пользователей по умолчанию.
+Это сообщение будет отправлено всем новым пользователям, если оно указано
+здесь или в запросе
+.Xr adduser 8 .
+.It Va disableflag
+Сообщение по умолчанию, заключённое в квадратные скобки, для
+запроса блокировки учётной записи.
+.It Va upwexpire
+Время истечения срока действия пароля по умолчанию.
+Формат даты — либо
+.Ux
+время в десятичном виде, либо дата в
+.Sm off
+.Ar dd No - Ar mmm No - Ar yy Op Ar yy
+.Sm on
+формате, где
+.Ar dd
+— день,
+.Ar mmm
+— месяц в числовом или
+буквенном формате, а
+.Ar yy Ns Op Ar yy
+— год из двух или четырёх цифр.
+Этот параметр также принимает относительную дату в виде
+.Sm off
+.Ar n Op Ar m h d w o y
+.Sm on
+где
+.Ar n
+— десятичное, восьмеричное (с ведущим 0) или шестнадцатеричное (с ведущим 0x) число,
+за которым следует количество минут, часов, дней, недель, месяцев или
+лет от текущей даты, на
+которое должно быть установлено время истечения.
+.It Va uexpire
+Время истечения срока действия учётной записи по умолчанию.
+Формат аналогичен параметру
+.Va upwexpire .
+.It Va ugecos
+Информация по умолчанию, которая будет храниться в поле GECOS файла
+.Pa /etc/master.passwd .
+.It Va uidstart
+Значение идентификатора пользователя по умолчанию.
+Оно должно быть числом больше 1000 и меньше 65534.
+.It Va Zcreate
+Установите значение
+.Dq no ,
+чтобы предотвратить создание домашнего набора данных ZFS, если
+.Va homeprefix
+является точкой монтирования ZFS.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведён пример
+.Nm
+файла, созданного с помощью флага
+.Fl C
+.Xr adduser 8
+и изменённого.
+.Bd -literal -offset indent
+# Файл конфигурации для adduser(8).
+# ПРИМЕЧАНИЕ: сохраняются только *некоторые* переменные.
+# Последнее изменение: Fri Mar 30 14:04:05 EST 2004.
+
+defaultLgroup=
+defaultclass=
+defaultgroups=
+passwdtype=yes
+homeprefix=/home
+defaultshell=/bin/csh
+udotdir=/usr/share/skel
+msgfile=/etc/adduser.msg
+disableflag=
+upwexpire=91d # Срок действия паролей истекает через 91 день после создания.
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr adduser 8 ,
+.Xr pw 8 ,
+.Xr rmuser 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Tom Rhodes Aq Mt trhodes@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Внутренние переменные, описанные здесь, могут изменяться без уведомления.
+Не полагайтесь на них.
+Для изменения этого файла вместо этого вызывайте
+.Xr adduser 8
+с параметром
+.Fl C .

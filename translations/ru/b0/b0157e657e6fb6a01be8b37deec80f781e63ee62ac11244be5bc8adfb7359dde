@@ -1,0 +1,56 @@
+.\" Copyright (c) 2003 Tim J. Robbins
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/locale/gb2312.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 b0157e657e6fb6a01be8b37deec80f781e63ee62ac11244be5bc8adfb7359dde
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 7, 2003
+.Dt GB2312 5
+.Os
+.Sh ИМЯ
+.Nm gb2312
+.Sh СИНТАКСИС
+.Nm ENCODING
+.Qq GB2312
+.Sh ОПИСАНИЕ
+Кодировка
+.Nm GB2312
+реализует GB\ 2312-1980, национальный стандарт КНР для кодирования упрощённых китайских иероглифов.
+.Pp
+Многобайтовые символы в кодировке GB2312 могут занимать один или два байта.
+Символы
+.No GB\ 11383-1981 Pq Tn ASCII
+представляются одним байтом в диапазоне от 0x00 до 0x7F.
+Упрощённые китайские иероглифы представляются двумя байтами, каждый из которых находится в диапазоне 0xA1-0xFE.
+.Sh СМ. ТАКЖЕ
+.Xr euc 5 ,
+.Xr gb18030 5 ,
+.Xr gbk 5
+.Sh СТАНДАРТЫ
+Считается, что кодировка
+.Nm GB2312
+совместима с GB\ 2312-1980.
+Этот стандарт был заменён GB\ 18030-2000, но по-прежнему широко используется.

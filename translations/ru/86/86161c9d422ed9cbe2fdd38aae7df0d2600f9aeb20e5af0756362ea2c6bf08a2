@@ -1,0 +1,134 @@
+.\"
+.\" Copyright (c) 2019 M. Warner Losh <imp@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/os-release.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 86161c9d422ed9cbe2fdd38aae7df0d2600f9aeb20e5af0756362ea2c6bf08a2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 23, 2021
+.Dt OS-RELEASE 5
+.Os
+.Sh ИМЯ
+.Nm os-release
+.Nd файл, описывающий текущую ОС и некоторые её атрибуты
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+представляет собой разделённый переводами строк список пар ключ-значение.
+Синтаксис этого файла — сокращённое присваивание переменной
+.Xr sh 1
+со следующими ограничениями:
+.Bl -bullet
+.It
+Строки нельзя объединять друг с другом
+.It
+Подстановка переменных не выполняется
+.It
+Все специальные символы оболочки должны быть заключены в кавычки, как описано в
+.Xr sh 1
+.It
+Присваивания переменных должны быть заключены в двойные кавычки,
+если они содержат символы вне A-Z, a-z и 0-9
+.It
+Все строки должны быть в формате UTF-8
+.It
+В строках не следует использовать непечатаемые символы
+.El
+.Pp
+Строки с символом
+.Ql #
+в начале игнорируются как комментарии.
+.Sh ПЕРЕМЕННЫЕ
+Следующие переменные определены стандартом.
+.Bl -tag -width XXXXXXXXXX -compact
+.It Dv NAME
+Строка, описывающая предпочтительное имя ОС.
+.It Dv VERSION
+Строка версии ОС в её обычном и общепринятом формате.
+.It Dv ID
+Имя в нижнем регистре, содержащее только a-z, 0-9,
+.Ql \&. ,
+.Ql - ,
+и
+.Ql _ .
+.It Dv VERSION_ID
+Версия в нижнем регистре, содержащая только a-z, 0-9,
+.Ql \&. ,
+.Ql - ,
+и
+.Ql _ .
+.It Dv PRETTY_NAME
+Удобочитаемое представление имени для пользователя.
+Может содержать информацию о выпуске.
+.It Dv ANSI_COLOR
+Предлагаемое цветовое представление для ОС.
+Эта строка должна подходить для включения в escape-последовательность ESC [ m ANSI/ECMA-48,
+чтобы отображать ОС в предпочтительном цвете.
+Эта переменная необязательна.
+.It Dv CPE_NAME
+Имя CPE для операционной системы.
+Это поле должно соответствовать спецификации NIST Common Platform Enumeration.
+.It Dv HOME_URL
+.It Dv SUPPORT_URL
+.It Dv BUG_REPORT_URL
+.It Dv PRIVACY_POLICY_URL
+Ссылки в интернете в формате RFC 3986 для различных аспектов этой ОС.
+Эти переменные необязательны.
+.It Dv BUILD_ID
+Строка, идентифицирующая сборку.
+Эта переменная необязательна.
+.It Dv VARIANT
+Строка, описывающая вариант этой операционной системы.
+Эта переменная необязательна.
+.It Dv VARIANT_ID
+Вариант в нижнем регистре, содержащий только a-z, 0-9,
+.Ql \&. ,
+.Ql - ,
+и
+.Ql _ .
+Эта переменная необязательна.
+.El
+.Pp
+Все остальные переменные не имеют определённого стандартом значения.
+.Sh ФАЙЛЫ
+.Bl -tag -width XXXXXXXXXX -compact
+.It Pa /etc/os-release
+Символическая ссылка на фактический файл
+.Pa os-release .
+.It Pa /var/run/os-release
+Сгенерированный файл os-release, описывающий текущую работающую систему.
+.El
+.Sh СМ. ТАКЖЕ
+.Bl -tag -width XXXXXXXXXX -compact
+.It Спецификация CPE
+.Lk https://csrc.nist.gov/projects/security-content-automation-protocol/scap-specifications/cpe
+.It RFC 3986
+.Lk https://tools.ietf.org/html/rfc3986
+.It Спецификация os-release
+.Lk https://www.linux.org/docs/man5/os-release.html
+.El
+.Sh ИСТОРИЯ
+Этот файл впервые появился в
+.Fx 13.0 .

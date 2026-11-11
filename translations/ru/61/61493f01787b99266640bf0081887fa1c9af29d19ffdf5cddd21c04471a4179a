@@ -1,0 +1,179 @@
+.\" Copyright (c) 2003 Matthew N. Dodd <winter@jurai.net>
+.\" Copyright (c) 2013 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/libmap.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 61493f01787b99266640bf0081887fa1c9af29d19ffdf5cddd21c04471a4179a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 16, 2013
+.Dt LIBMAP.CONF 5
+.Os
+.Sh ИМЯ
+.Nm libmap.conf
+.Sh ОПИСАНИЕ
+Функциональность
+.Nm libmap
+в
+.Xr ld-elf.so.1 1
+позволяет отображать зависимости динамических объектов на произвольные имена.
+.Pp
+Каждая строка в
+.Pa /etc/libmap.conf
+может иметь одну из пяти форм:
+.Bl -tag -width indent
+.It Ar источник Ar цель
+Всякий раз, когда при загрузке динамического объекта встречается зависимость от
+.Ar источника, использовать
+.Ar цель
+вместо поиска
+.Ar источника
+в обычных путях поиска библиотек.
+.It Ar путь1 Ar путь2
+При переборе пути поиска библиотек заменять любой элемент, точно совпадающий с
+.Ar путём1,
+на
+.Ar путь2 .
+.It Bq Ar ограничение
+Применять
+.Ar ограничение
+ко всем последующим отображениям до следующей строки ограничения или до конца
+файла.
+Подробности см. в разделе
+.Sx Ограничения .
+.It Cm include Ar файл
+Разобрать содержимое
+.Ar файла
+перед продолжением работы с текущим файлом.
+Глубина вложенности ограничена только доступной памятью, но каждый встреченный
+файл обрабатывается только один раз, а циклы молча игнорируются.
+.It Cm includedir Ar каталог
+Рекурсивно обойти
+.Ar каталог
+и разобрать содержимое любого файла, заканчивающегося на
+.Pa .conf
+перед продолжением работы с текущим файлом.
+Глубина вложенности ограничена только доступной памятью, но каждый встреченный
+каталог или файл обрабатывается только один раз, а циклы молча
+игнорируются.
+.El
+.Ss Ограничения
+Отображения с ограничениями применяются только при обработке двоичных файлов или библиотек,
+удовлетворяющих ограничению.
+Существует три типа ограничений:
+.Bl -tag -width indent
+.It Точное
+Ограничение сопоставляется буквально, поэтому ему удовлетворяет только исполняемый файл с
+идентичным полным путём.
+Это означает, что исполняемый файл
+.Pa /usr/bin/foo
+не будет удовлетворять ограничению
+.Bq Pa /usr/bin/./foo ,
+и наоборот.
+Это тип ограничения по умолчанию.
+.It Базовое имя
+Ограничение без пути сопоставляется с базовым именем
+исполняемого файла.
+Например, ограничение
+.Bq Pa foo
+будет соответствовать
+.Pa /bin/foo ,
+.Pa /usr/local/sbin/foo ,
+или любому другому исполняемому файлу с именем
+.Pa foo ,
+независимо от того, в каком каталоге он находится.
+.It Каталог
+Ограничение с завершающей косой чертой удовлетворяется, если полный путь
+начинается со строки ограничения.
+Например, ограничение
+.Bq Pa /usr/bin/
+будет соответствовать любому исполняемому файлу, путь которого начинается с
+.Pa /usr/bin/ .
+.El
+.Pp
+Обратите внимание, что ограничения сопоставляются с путём, который был передан
+в качестве первого аргумента той функции
+.Xr exec 3 ,
+которая использовалась для выполнения данного двоичного файла.
+Большинство программ, запускаемых из оболочки, выполняются без полного пути — через
+.Xr execvp 3
+или аналогичную функцию, поэтому тип ограничения по базовому имени наиболее полезен.
+.Pp
+.Bf -symbolic
+ВНИМАНИЕ!
+Ограничения применяются ко всем отображениям до следующего ограничения или до конца
+файла.
+Следовательно, отображения без ограничений должны быть размещены в начале файла.
+.Ef
+.Ss Совместимость ABI
+В 64-битных архитектурах, обеспечивающих совместимость с 32-битными двоичными файлами,
+отображения в
+.Pa /etc/libmap.conf
+применяются только к 64-битным двоичным файлам.
+Отображения для 32-битных двоичных файлов должны быть размещены в
+.Pa /etc/libmap32.conf .
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/libmap.conf
+Файл конфигурации libmap.
+.It Pa /etc/libmap32.conf
+Файл конфигурации libmap для 32-битных двоичных файлов в 64-битной системе.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+#
+# источник		цель
+#
+libc_r.so.6		libpthread.so.2	# Всё, что использует 'libc_r'
+libc_r.so		libpthread.so	# теперь использует 'libpthread'
+
+[/tmp/mplayer]		# Тестовая версия mplayer использует libc_r
+libpthread.so.2		libc_r.so.6
+libpthread.so		libc_r.so
+
+[/usr/local/jdk1.4.1/]	# Все программы Java 1.4.1 используют libthr
+			# программы с полным путём
+libpthread.so.2		libthr.so.2
+libpthread.so		libthr.so
+
+# Связка для .so принтера EPSON, предназначенного только для Linux, для загрузки в cups и т.п.
+[/usr/local/lib/pips/libsc80c.so]
+libc.so.6		pluginwrapper/pips.so
+libdl.so.2		pluginwrapper/pips.so
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ldd 1 ,
+.Xr rtld 1
+.Sh ИСТОРИЯ
+Механизм
+.Nm libmap
+впервые появился в
+.Fx 5.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была написана
+.An Matthew N. Dodd Aq Mt winter@jurai.net
+и существенно переписана
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .
