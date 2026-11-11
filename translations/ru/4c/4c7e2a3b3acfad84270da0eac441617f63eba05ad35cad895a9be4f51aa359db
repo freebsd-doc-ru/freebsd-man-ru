@@ -1,0 +1,279 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-create.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 4c7e2a3b3acfad84270da0eac441617f63eba05ad35cad895a9be4f51aa359db
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 2023
+.Dt ZFS-CREATE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-create
+.Nd создание набора данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm create
+.Op Fl Pnpuv
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc Ns …
+.Ar файловая_система
+.Nm zfs
+.Cm create
+.Op Fl ps
+.Op Fl b Ar размер_блока
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc Ns …
+.Fl V Ar размер Ar том
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm create
+.Op Fl Pnpuv
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc Ns …
+.Ar файловая_система
+.Xc
+Создаёт новую файловую систему ZFS.
+Файловая система автоматически монтируется в соответствии со свойством
+.Sy mountpoint
+унаследованным от родителя, если параметр
+.Fl u
+не используется.
+.Bl -tag -width Ds
+.It Fl o Ar свойство Ns = Ns Ar значение
+Устанавливает указанное свойство так, как если бы команда
+.Nm zfs Cm set Ar свойство Ns = Ns Ar значение
+была вызвана одновременно с созданием набора данных.
+Любое редактируемое свойство ZFS также можно установить во время создания.
+Можно указать несколько
+.Fl o
+параметров.
+Возникает ошибка, если одно и то же свойство указано в нескольких
+.Fl o
+параметрах.
+.It Fl p
+Создаёт все несуществующие родительские наборы данных.
+Наборы данных, созданные таким образом, автоматически монтируются в соответствии со свойством
+.Sy mountpoint
+унаследованным от их родителя.
+Любое свойство, указанное в командной строке с помощью
+.Fl o
+параметра, игнорируется.
+Если целевая файловая система уже существует, операция завершается успешно.
+.It Fl n
+Выполнить пробное
+.Pq Qq без-операций
+создание.
+Наборы данных не будут созданы.
+Это полезно вместе с
+.Fl v
+или
+.Fl P
+параметрами для проверки свойств, передаваемых через
+.Fl o
+параметры, и свойств, подразумеваемых другими параметрами.
+Фактическое создание набора данных всё ещё может завершиться неудачно из-за недостаточных привилегий или
+доступной ёмкости.
+.It Fl P
+Вывести подробную информацию о созданном наборе данных в машиночитаемом виде.
+Каждая строка вывода содержит ключ и одно или два значения, все разделённые табуляциями.
+Ключи
+.Sy create_ancestors
+и
+.Sy create
+имеют
+.Em файловая_система
+в качестве единственного значения.
+Ключ
+.Sy create_ancestors
+появляется, только если используется параметр
+.Fl p .
+Ключ
+.Sy property
+имеет два значения: имя свойства и значение этого свойства.
+Ключ
+.Sy property
+может появляться ноль или более раз, по одному разу для каждого свойства, которое будет установлено локально для
+.Em файловая_система
+из-за использования
+.Fl o
+параметра.
+.It Fl u
+Не монтировать только что созданную файловую систему.
+.It Fl v
+Вывести подробную информацию о созданном наборе данных.
+.El
+.It Xo
+.Nm zfs
+.Cm create
+.Op Fl ps
+.Op Fl b Ar размер_блока
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc Ns …
+.Fl V Ar размер Ar том
+.Xc
+Создаёт том заданного размера.
+Том экспортируется как блочное устройство в
+.Pa /dev/zvol/path ,
+где
+.Em путь
+— имя тома в пространстве имён ZFS.
+Размер представляет собой логический размер, экспортируемый устройством.
+По умолчанию создаётся резервирование равного размера.
+.Pp
+.Ar размер
+автоматически округляется вверх до ближайшего кратного
+.Sy blocksize .
+.Bl -tag -width Ds
+.It Fl b Ar размер_блока
+Эквивалентно
+.Fl o Sy volblocksize Ns = Ns Ar размер_блока .
+Если этот параметр указан вместе с
+.Fl o Sy volblocksize ,
+результирующее поведение не определено.
+.It Fl o Ar свойство Ns = Ns Ar значение
+Устанавливает указанное свойство так, как если бы команда
+.Nm zfs Cm set Ar свойство Ns = Ns Ar значение
+была вызвана одновременно с созданием набора данных.
+Любое редактируемое свойство ZFS также можно установить во время создания.
+Можно указать несколько
+.Fl o
+параметров.
+Возникает ошибка, если одно и то же свойство указано в нескольких
+.Fl o
+параметрах.
+.It Fl p
+Создаёт все несуществующие родительские наборы данных.
+Наборы данных, созданные таким образом, автоматически монтируются в соответствии со свойством
+.Sy mountpoint
+унаследованным от их родителя.
+Любое свойство, указанное в командной строке с помощью
+.Fl o
+параметра, игнорируется.
+Если целевая файловая система уже существует, операция завершается успешно.
+.It Fl s
+Создаёт разрежённый том без резервирования.
+См.
+.Sy volsize
+в разделе
+.Em Собственные свойства
+страницы
+.Xr zfsprops 7
+для получения дополнительной информации о разрежённых томах.
+.It Fl n
+Выполнить пробное
+.Pq Qq без-операций
+создание.
+Наборы данных не будут созданы.
+Это полезно вместе с
+.Fl v
+или
+.Fl P
+параметрами для проверки свойств, передаваемых через
+.Fl o
+параметры, и свойств, подразумеваемых другими параметрами.
+Фактическое создание набора данных всё ещё может завершиться неудачно из-за недостаточных привилегий или
+доступной ёмкости.
+.It Fl P
+Вывести подробную информацию о созданном наборе данных в машиночитаемом виде.
+Каждая строка вывода содержит ключ и одно или два значения, все разделённые табуляциями.
+Ключи
+.Sy create_ancestors
+и
+.Sy create
+имеют
+.Em том
+в качестве единственного значения.
+Ключ
+.Sy create_ancestors
+появляется, только если используется параметр
+.Fl p .
+Ключ
+.Sy property
+имеет два значения: имя свойства и значение этого свойства.
+Ключ
+.Sy property
+может появляться ноль или более раз, по одному разу для каждого свойства, которое будет установлено локально для
+.Em том
+из-за использования параметров
+.Fl b
+или
+.Fl o ,
+а также
+.Sy refreservation ,
+если том не разрежённый.
+.It Fl v
+Вывести подробную информацию о созданном наборе данных.
+.El
+.El
+.Ss ZFS для подкачки
+Подкачка на том ZFS подвержена взаимоблокировкам и не рекомендуется.
+См. OpenZFS FAQ.
+.Pp
+Подкачка в файл на файловой системе ZFS не поддерживается.
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание иерархии файловой системы ZFS
+Следующие команды создают файловую систему с именем
+.Ar pool/home
+и файловую систему с именем
+.Ar pool/home/bob .
+Точка монтирования
+.Pa /export/home
+задана для родительской файловой системы и автоматически наследуется дочерней
+файловой системой.
+.Dl # Nm zfs Cm create Ar pool/home
+.Dl # Nm zfs Cm set Sy mountpoint Ns = Ns Ar /export/home pool/home
+.Dl # Nm zfs Cm create Ar pool/home/bob
+.
+.Ss Пример 2 : No Продвижение клона ZFS
+Следующие команды иллюстрируют, как проверить изменения файловой системы, а
+затем заменить исходную файловую систему изменённой, используя клоны, продвижение
+клонов и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда устаревшая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-destroy 8 ,
+.Xr zfs-list 8 ,
+.Xr zpool-create 8

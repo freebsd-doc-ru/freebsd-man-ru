@@ -1,0 +1,123 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2021 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-wait.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 6270a87f79f2a183b100b8047fda744301ae9b787157ee4e72642d6407140e54
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 29, 2024
+.Dt ZPOOL-WAIT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-wait
+.Nd ожидание остановки активности в пуле хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm wait
+.Op Fl Hp
+.Op Fl T Sy u Ns | Ns Sy d
+.Op Fl t Ar активность Ns Oo , Ns Ar активность Ns Oc Ns …
+.Ar пул
+.Op Ar интервал
+.
+.Sh ОПИСАНИЕ
+Ожидает, пока вся фоновая активность указанных типов не прекратится в указанном
+пуле.
+Активность может прекратиться, поскольку она завершилась, была приостановлена
+или отменена пользователем, либо поскольку пул был экспортирован или уничтожен.
+Если активности не указаны, команда ожидает, пока не прекратится фоновая
+активность всех перечисленных ниже типов.
+Если активность указанных типов не выполняется, команда немедленно возвращает
+управление.
+.Pp
+Возможные значения для
+.Ar активность ,
+а также то, чего ожидает каждое из них:
+.Bl -tag -width Ds
+.It Sy discard
+Контрольная точка будет удалена
+.It Sy free
+Свойство
+.Sy freeing
+станет равным
+.Sy 0
+.It Sy initialize
+Все инициализации прекратятся
+.It Sy replace
+Все замены устройств прекратятся
+.It Sy remove
+Удаление устройств прекратится
+.It Sy resilver
+Resilver прекратится
+.It Sy scrub
+Scrub прекратится
+.It Sy trim
+Ручной trim прекратится
+.It Sy raidz_expand
+Присоединение к vdev RAID-Z завершится
+.El
+.Pp
+Если указан
+.Ar интервал ,
+объём оставшейся работы в байтах для каждой активности выводится каждые
+.Ar интервал
+секунд.
+.Bl -tag -width Ds
+.It Fl H
+Режим сценариев.
+Не отображать заголовки и разделять поля одним символом табуляции вместо
+произвольного количества пробелов.
+.It Fl p
+Отображать числа в пригодных для разбора (точных) значениях.
+.It Fl T Sy u Ns | Ns Sy d
+Отображать отметку времени.
+Укажите
+.Sy u
+для печатного представления внутреннего представления времени.
+См.
+.Xr time 1 .
+Укажите
+.Sy d
+для стандартного формата даты.
+См.
+.Xr date 1 .
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-checkpoint 8 ,
+.Xr zpool-initialize 8 ,
+.Xr zpool-remove 8 ,
+.Xr zpool-replace 8 ,
+.Xr zpool-resilver 8 ,
+.Xr zpool-scrub 8 ,
+.Xr zpool-status 8 ,
+.Xr zpool-trim 8

@@ -1,0 +1,251 @@
+.\" Copyright (c) 2013 Warren Block
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/i386/gptboot/gptboot.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 e22d8cbc67c6aac547b4ca67aa2cfe6b0d0a659c77a297d831e0030794a8221f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 18, 2022
+.Dt GPTBOOT 8
+.Os
+.Sh ИМЯ
+.Nm gptboot
+.Nd Загрузочный код GPT для UFS на компьютерах с BIOS
+.Sh ОПИСАНИЕ
+.Nm
+используется на компьютерах с BIOS для загрузки с раздела UFS на
+диске с GPT-разметкой.
+.Nm
+устанавливается в раздел
+.Cm freebsd-boot
+с помощью
+.Xr gpart 8 .
+Для UEFI вместо него используется
+.Xr gptboot.efi 8 .
+Хотя концептуально они похожи, детали различаются.
+.Pp
+При запуске
+.Nm
+сначала читает GPT и определяет, с какого диска и раздела
+загружаться, как описано ниже в разделе
+.Sx ЗАГРУЗКА .
+Если он не находит подходящий раздел или если пользователь нажимает
+клавишу в течение трёх секунд,
+.Nm
+переключается с автоматической загрузки на интерактивный режим.
+Интерактивный режим позволяет вручную выбирать диск, раздел,
+имя файла и флаги параметров загрузки, как описано в
+.Xr boot 8 .
+.Sh ПРИМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Стандарт GPT допускает переменное число разделов, но
+.Nm
+загружается только из таблиц с 128 разделами или меньше.
+.Sh АТРИБУТЫ РАЗДЕЛОВ
+.Nm
+проверяет несколько атрибутов разделов UFS на GPT-дисках и управляет ими.
+.Bl -tag -width ".Cm bootfailed" -compact
+.It Cm bootme
+Попытаться загрузиться с этого раздела.
+Если атрибут
+.Cm bootme
+установлен более чем на одном разделе,
+.Nm
+будет пытаться загрузиться с каждого из них, пока не добьётся успеха.
+.It Cm bootonce
+Попытаться загрузиться с этого раздела только один раз.
+Установка этого атрибута с помощью
+.Xr gpart 8
+автоматически также устанавливает атрибут
+.Cm bootme .
+Атрибуты
+.Cm bootonce
+и
+.Cm bootme
+могут быть установлены на нескольких разделах.
+.It Cm bootfailed
+Атрибут
+.Cm bootfailed
+помечает разделы, на которых был установлен атрибут
+.Cm bootonce
+, но загрузка с них не удалась.
+Этим атрибутом управляет система.
+Подробности см. ниже.
+.El
+.Sh ИСПОЛЬЗОВАНИЕ
+При обычном использовании пользователю не нужно устанавливать или изменять
+какие-либо атрибуты разделов.
+.Nm
+будет загружаться с первого найденного раздела UFS.
+.Pp
+Атрибут
+.Cm bootonce
+можно использовать для тестирования обновлённой операционной системы на
+уже работающем компьютере.
+Существующий системный раздел остаётся нетронутым, а новая версия
+операционной системы, которую нужно протестировать, устанавливается на другой раздел.
+Атрибут
+.Cm bootonce
+устанавливается на этом новом тестовом разделе.
+Следующая попытка загрузки выполняется с тестового раздела.
+Успех или неудача будут отражены в файлах системного журнала.
+После успешной загрузки тестового раздела пользовательский сценарий может проверить
+журналы и изменить атрибуты
+.Cm bootme
+, чтобы тестовый раздел стал новым системным разделом.
+Поскольку атрибут
+.Cm bootonce
+сбрасывается после попытки загрузки, неудачная загрузка не
+оставит систему пытающейся загрузиться с раздела, который никогда не
+заработает.
+Вместо этого система загрузится со старой, заведомо рабочей операционной
+системы, которая не была изменена.
+Если атрибут
+.Cm bootme
+установлен на каких-либо разделах, сначала будет предпринята попытка загрузки с них.
+Если не найдено ни одного раздела с атрибутом
+.Cm bootme
+, будет предпринята попытка загрузки с первого найденного раздела UFS.
+.Sh ЗАГРУЗКА
+.Nm
+сначала читает таблицу разделов.
+Всем разделам
+.Cm freebsd-ufs
+, на которых установлен только атрибут
+.Cm bootonce
+, что указывает на неудачную загрузку, устанавливается атрибут
+.Cm bootfailed .
+.Nm
+затем просматривает все разделы
+.Cm freebsd-ufs .
+Поведение при загрузке зависит от сочетания атрибутов
+.Cm bootme
+и
+.Cm bootonce
+, установленных на этих разделах.
+.Bl -tag -width ".Cm bootonce + Cm bootme" -compact
+.It Cm bootonce + Cm bootme
+Наивысший приоритет: предпринимается попытка загрузки с каждого из разделов
+.Cm freebsd-ufs
+, на которых установлены оба этих атрибута.
+На каждом разделе атрибут
+.Cm bootme
+удаляется и выполняется попытка загрузки.
+.It Cm bootme
+Средний приоритет: предпринимается попытка загрузки с каждого из разделов
+.Cm freebsd-ufs
+, на которых установлен атрибут
+.Cm bootme .
+.El
+.Pp
+Если ни атрибут
+.Cm bootonce
+, ни атрибут
+.Cm bootme
+не найдены ни на одном разделе, предпринимается попытка загрузки с первого
+раздела
+.Cm freebsd-ufs
+на диске.
+.Sh ДЕЙСТВИЯ ПОСЛЕ ЗАГРУЗКИ
+Сценарий запуска
+.Pa /etc/rc.d/gptboot
+проверяет атрибуты разделов
+.Cm freebsd-ufs
+на всех GPT-дисках.
+Разделы с атрибутом
+.Cm bootfailed
+создают сообщение системного журнала
+.Dq загрузка с X не удалась .
+Разделы, на которых установлен только атрибут
+.Cm bootonce
+, что указывает на успешную загрузку раздела, создают сообщение системного журнала
+.Dq загрузка с X удалась .
+Атрибуты
+.Cm bootfailed
+сбрасываются со всех разделов.
+Атрибут
+.Cm bootonce
+сбрасывается с раздела, который успешно загрузился.
+Обычно такой раздел только один.
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/gptboot -compact
+.It Pa /boot/gptboot
+двоичный файл загрузочного кода
+.It Pa /boot.config
+параметры для загрузочных блоков
+.Pq необязательно
+.El
+.Sh ПРИМЕРЫ
+.Nm
+устанавливается в раздел
+.Cm freebsd-boot
+, обычно в первый раздел на диске.
+.Dq защитная MBR
+.Po
+см.
+.Xr gpart 8
+.Pc
+обычно устанавливается вместе с
+.Nm .
+.Pp
+Установите
+.Nm
+на диск
+.Pa ada0 :
+.Bd -literal -offset indent
+gpart bootcode -b /boot/pmbr -p /boot/gptboot -i 1 ada0
+.Ed
+.Pp
+.Nm
+также можно установить без PMBR:
+.Bd -literal -offset indent
+gpart bootcode -p /boot/gptboot -i 1 ada0
+.Ed
+.Pp
+Установите атрибут
+.Cm bootme
+для раздела 2:
+.Bd -literal -offset indent
+gpart set -a bootme -i 2 ada0
+.Ed
+.Pp
+Установите атрибут
+.Cm bootonce
+для раздела 2, что автоматически также установит атрибут
+.Cm bootme :
+.Bd -literal -offset indent
+gpart set -a bootonce -i 2 ada0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr boot.config 5 ,
+.Xr rc.conf 5 ,
+.Xr boot 8 ,
+.Xr gpart 8
+.Sh ИСТОРИЯ
+.Nm
+появился в
+.Fx 7.1 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Warren Block Aq Mt wblock@FreeBSD.org .

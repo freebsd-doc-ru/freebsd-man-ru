@@ -1,0 +1,235 @@
+.\"
+.\" Copyright (c) 2015 Spectra Logic Corporation
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions, and the following disclaimer,
+.\"    without modification.
+.\" 2. Redistributions in binary form must reproduce at minimum a disclaimer
+.\"    substantially similar to the "NO WARRANTY" disclaimer below
+.\"    ("Disclaimer") and any redistribution must be conditioned upon
+.\"    including a substantially similar Disclaimer requirement for further
+.\"    binary redistribution.
+.\"
+.\" NO WARRANTY
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" HOLDERS OR CONTRIBUTORS BE LIABLE FOR SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGES.
+.\"
+.\" Authors: Ken Merry           (Spectra Logic Corporation)
+.\"
+.\" FRDP path usr.sbin/zonectl/zonectl.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 c66b675b4e9ad1199c4ae1239705aef6fd4da8b7790bdbe0af93aa2ecc0f46a4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 18, 2016
+.Dt ZONECTL 8
+.Os
+.Sh ИМЯ
+.Nm zonectl
+.Nd Утилита управления зонами черепичной магнитной записи
+.Sh СИНТАКСИС
+.Nm
+.Aq Fl d Ar dev
+.Aq Fl c Ar cmd
+.Op Fl a
+.Op Fl l Ar LBA
+.Op Fl o Ar rep_opts
+.Op Fl P Ar print_opts
+.Sh ОПИСАНИЕ
+Управление
+.Tn SCSI
+и
+.Tn ATA
+зонированными блочными устройствами.
+Это позволяет управлять устройствами, соответствующими спецификациям
+.Tn SCSI
+Zoned Block Commands (ZBC) и
+.Tn ATA
+Zoned ATA Command Set (ZAC).
+Устройства, использующие эти наборы команд, обычно являются жёсткими дисками
+с черепичной магнитной записью (SMR).
+Существует три типа SMR-дисков:
+.Bl -tag -width 13n
+.It Управляемый накопителем
+Диски, управляемые накопителем, выглядят и работают как стандартное блочное
+устройство с произвольным доступом, но внутри накопитель читает и записывает
+большую часть своей ёмкости, используя SMR-зоны.
+Последовательная запись даст лучшую производительность, но последовательная
+запись не требуется.
+.It С поддержкой хоста
+Диски с поддержкой хоста предоставляют базовую раскладку зон через команды
+.Tn SCSI
+или
+.Tn ATA
+и позволяют хосту управлять состоянием зон.
+Однако хост не обязан управлять зонами на диске.
+Последовательная запись даст лучшую производительность в зонах с
+предпочтительной последовательной записью, но хост может писать в эти зоны
+в произвольном порядке.
+.It Управляемый хостом
+Диски, управляемые хостом, предоставляют базовую раскладку зон через команды
+.Tn SCSI
+или
+.Tn ATA.
+Хост обязан обращаться к зонам в соответствии с правилами, описанными
+раскладкой зон.
+Любые команды, нарушающие правила, будут возвращены с ошибкой.
+.El
+.Pp
+SMR-диски делятся на зоны (обычно размером около 256 МБ каждая),
+которые относятся к трём общим категориям:
+.Bl -tag -width 20n
+.It Обычные
+Эти зоны также известны как зоны без указателя записи.
+В эти зоны можно писать в произвольном порядке без неожиданного снижения
+производительности.
+.It С предпочтительной последовательной записью
+В эти зоны следует писать последовательно, начиная с указателя записи
+для зоны.
+В них можно писать в произвольном порядке.
+Запись, не соответствующая раскладке зон, может быть значительно медленнее
+ожидаемой.
+.It С обязательной последовательной записью
+В эти зоны необходимо писать последовательно.
+Если запись выполняется не последовательно, начиная с указателя записи,
+команда завершится с ошибкой.
+.El
+.Bl -tag -width 12n
+.It Fl c Ar cmd
+Укажите подкоманду зоны:
+.Bl -tag -width 6n
+.It params
+Показать параметры устройства, включая тип устройства (управляемый накопителем,
+с поддержкой хоста, управляемый хостом, не зонированное), поддерживаемые
+команды зон и количество поддерживаемых открытых зон.
+.It rz
+Выдать команду Report Zones.
+По умолчанию возвращаются все зоны.
+Укажите параметры отчёта с помощью
+.Fl o
+и параметры печати с помощью
+.Fl P .
+Укажите начальный LBA с помощью
+.Fl l .
+Обратите внимание, что
+.Dq reportzones
+также принимается как аргумент команды.
+.It open
+Явно открыть зону, указанную начальным LBA.
+.It close
+Закрыть зону, указанную начальным LBA.
+.It finish
+Завершить зону, указанную начальным LBA.
+.It rwp
+Сбросить указатель записи для зоны, указанной начальным LBA.
+.El
+.It Fl a
+Для операций Open, Close, Finish и Reset Write Pointer применить
+операцию ко всем зонам на диске.
+.It Fl l Ar lba
+Указать начальный LBA.
+Для команды Report Zones это указывает накопителю сообщать начиная с
+зоны, которая начинается с заданного LBA.
+Для остальных команд это позволяет пользователю определить запрошенную зону
+по её начальному LBA.
+LBA может быть указан в десятичной, шестнадцатеричной или восьмеричной
+системе счисления.
+.It Fl o Ar rep_opt
+Для команды Report Zones указать подмножество зон для отчёта.
+.Bl -tag -width 8n
+.It all
+Сообщать обо всех зонах.
+Это значение по умолчанию.
+.It empty
+Сообщать только о пустых зонах.
+.It imp_open
+Сообщать о зонах, которые неявно открыты.
+Это означает, что хост отправил запись в зону, не открывая зону явно.
+.It exp_open
+Сообщать о зонах, которые явно открыты.
+.It closed
+Сообщать о зонах, закрытых хостом.
+.It full
+Сообщать о заполненных зонах.
+.It ro
+Сообщать о зонах, находящихся в состоянии только для чтения.
+Обратите внимание, что
+.Dq readonly
+также принимается как аргумент.
+.It offline
+Сообщать о зонах, находящихся в автономном состоянии.
+.It reset
+Сообщать о зонах, для которых устройство рекомендует сбросить указатели
+записи.
+.It nonseq
+Сообщать о зонах, у которых установлен флаг Non Sequential Resources Active.
+Это зоны с предпочтительной последовательной записью, но запись в них
+выполнялась не последовательно.
+.It nonwp
+Сообщать о зонах без указателя записи, также известных как обычные зоны.
+.El
+.It Fl P Ar print_opt
+Указать параметр печати для Report Zones:
+.Bl -tag -width 7n
+.It normal
+Обычный вывод Report Zones.
+Это значение по умолчанию.
+Печатаются сводка и заголовки столбцов, поля разделяются пробелами,
+а сами поля могут содержать пробелы.
+.It summary
+Печатать только сводку: количество зон, максимальный LBA (LBA последнего
+логического блока на диске) и значение поля
+.Dq same .
+Поле
+.Dq same
+описывает, все ли зоны на диске идентичны, все различны или они одинаковы,
+за исключением последней зоны, и т. п.
+.It script
+Печатать зоны в формате, удобном для скриптов.
+Сводка и заголовки столбцов опускаются, поля разделяются запятыми,
+а поля не содержат пробелов.
+В полях используются символы подчёркивания там, где обычно были бы пробелы.
+.El
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent
+zonectl -d /dev/da5 -c params
+.Ed
+.Pp
+Показать базовую информацию о зонировании для диска da5.
+.Bd -literal -offset indent
+zonectl -d /dev/da5 -c rz
+.Ed
+.Pp
+Выдать команду Report Zones для диска da5 и вывести все зоны на диске
+в формате по умолчанию.
+.Bd -literal -offset indent
+zonectl -d /dev/da5 -c rz -o reset -P script
+.Ed
+.Pp
+Выдать команду Report Zones для диска da5 и вывести все зоны, у которых
+бит Reset Write Pointer Recommended установлен в true.
+Вывести зоны в форме, удобной для скриптов.
+.Bd -literal -offset indent
+zonectl -d /dev/da5 -c rwp -l 0x2c80000
+.Ed
+.Pp
+Выдать команду Reset Write Pointer для диска da5 для зоны,
+которая начинается с LBA 0x2c80000.
+.Sh СМ. ТАКЖЕ
+.Xr camcontrol 8
+.Sh АВТОРЫ
+.An Kenneth Merry Aq Mt ken@FreeBSD.org

@@ -1,0 +1,171 @@
+.\" $OpenBSD: sftp-server.8,v 1.32 2026/05/21 02:50:59 djm Exp $
+.\"
+.\" Copyright (c) 2000 Markus Friedl.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path crypto/openssh/sftp-server.8
+.\" FRDP githash f2b0910a9831d09404558611d20364456549a96f
+.\" FRDP hash256 675a9d87c91e8acc730a21b2de0d3e7d1e3b64199f2810f8ccfeb0da394ee370
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: May 21 2026 $
+.Dt SFTP-SERVER 8
+.Os
+.Sh ИМЯ
+.Nm sftp-server
+.Nd подсистема SFTP-сервера OpenSSH
+.Sh СИНТАКСИС
+.Nm sftp-server
+.Bk -words
+.Op Fl ehR
+.Op Fl d Ar start_directory
+.Op Fl f Ar log_facility
+.Op Fl l Ar log_level
+.Op Fl P Ar denied_requests
+.Op Fl p Ar allowed_requests
+.Op Fl u Ar umask
+.Ek
+.Nm
+.Fl Q Ar protocol_feature
+.Sh ОПИСАНИЕ
+.Nm
+— это программа, реализующая серверную сторону протокола SFTP; она выводит данные в stdout и ожидает клиентские запросы из stdin.
+.Nm
+не предназначена для прямого вызова; её следует вызывать из
+.Xr sshd 8
+с помощью параметра
+.Cm Subsystem .
+.Pp
+Флаги командной строки для
+.Nm
+должны указываться в объявлении
+.Cm Subsystem .
+Дополнительную информацию см. в
+.Xr sshd_config 5 .
+.Pp
+Допустимые параметры:
+.Bl -tag -width Ds
+.It Fl d Ar start_directory
+Задаёт альтернативный начальный каталог для пользователей.
+Имя пути может содержать следующие токены, раскрываемые во время выполнения:
+%% заменяется на литеральный символ '%',
+%d заменяется на домашний каталог пользователя, проходящего проверку подлинности,
+а %u заменяется на имя этого пользователя.
+По умолчанию используется домашний каталог пользователя.
+Этот параметр полезен вместе с параметром
+.Cm ChrootDirectory
+из
+.Xr sshd_config 5 .
+.It Fl e
+Заставляет
+.Nm
+выводить журнальные сообщения в stderr вместо syslog для отладки.
+.It Fl f Ar log_facility
+Задаёт код категории журналирования, используемый при журналировании сообщений от
+.Nm .
+Возможные значения: DAEMON, USER, AUTH, LOCAL0, LOCAL1, LOCAL2,
+LOCAL3, LOCAL4, LOCAL5, LOCAL6, LOCAL7.
+По умолчанию используется AUTH.
+.It Fl h
+Показывает информацию об использовании
+.Nm .
+.It Fl l Ar log_level
+Задаёт, какие сообщения будет регистрировать
+.Nm .
+Возможные значения:
+QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2 и DEBUG3.
+INFO и VERBOSE регистрируют транзакции, которые
+.Nm
+выполняет от имени клиента.
+DEBUG и DEBUG1 эквивалентны.
+DEBUG2 и DEBUG3 задают более высокие уровни отладочного вывода.
+По умолчанию используется ERROR.
+.It Fl P Ar denied_requests
+Задаёт разделённый запятыми список запросов протокола SFTP, запрещённых сервером.
+.Nm
+будет отвечать на любой запрещённый запрос сообщением о сбое.
+Флаг
+.Fl Q
+можно использовать для определения поддерживаемых типов запросов.
+Если указаны оба списка — запрещённых и разрешённых, — то список запрещённых применяется перед списком разрешённых.
+Этот флаг вместе с флагом
+.Fl p
+можно использовать для отключения операций, которые не имеют отношения к серверу или нежелательны для него.
+Например,
+.Nm ,
+принимающий подключения от недоверенных клиентов, может пожелать отключить операции
+.Dq copy-data
+или
+.Dq users-groups-by-id .
+.It Fl p Ar allowed_requests
+Задаёт разделённый запятыми список запросов протокола SFTP, разрешённых сервером.
+Все типы запросов, отсутствующие в списке разрешённых, будут регистрироваться, и на них будет возвращаться сообщение о сбое.
+.Pp
+При использовании этой функции необходимо обеспечить, чтобы запросы, неявно выполняемые клиентами SFTP, были разрешены.
+.It Fl Q Ar protocol_feature
+Запрашивает сведения о функциях протокола, поддерживаемых
+.Nm .
+В настоящее время единственная функция, которую можно запросить, —
+.Dq requests ;
+её можно использовать для запрета или разрешения конкретных запросов (флаги
+.Fl P
+и
+.Fl p
+соответственно).
+.It Fl R
+Переводит данный экземпляр
+.Nm
+в режим только для чтения.
+Попытки открыть файлы для записи, а также другие операции, изменяющие состояние файловой системы, будут запрещены.
+.It Fl u Ar umask
+Устанавливает явную маску
+.Xr umask 2 ,
+применяемую к новым файлам и каталогам вместо маски пользователя по умолчанию.
+.El
+.Pp
+В некоторых системах
+.Nm
+должна иметь доступ к
+.Pa /dev/log
+для работы журналирования; поэтому использование
+.Nm
+в конфигурации chroot требует, чтобы
+.Xr syslogd 8
+создал сокет журналирования внутри каталога chroot.
+.Sh СМ. ТАКЖЕ
+.Xr sftp 1 ,
+.Xr ssh 1 ,
+.Xr sshd_config 5 ,
+.Xr sshd 8
+.Rs
+.%A T. Ylonen
+.%A S. Lehtinen
+.%N draft-ietf-secsh-filexfer-02.txt
+.%D October 2001
+.%O материал в стадии разработки
+.Re
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Ox 2.8 .
+.Sh АВТОРЫ
+.An Markus Friedl Aq Mt markus@openbsd.org

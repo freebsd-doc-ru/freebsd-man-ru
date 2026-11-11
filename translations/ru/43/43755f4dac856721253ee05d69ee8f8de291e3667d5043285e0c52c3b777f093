@@ -1,0 +1,290 @@
+.\" Copyright (c) 2004-2005 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/label/glabel.8
+.\" FRDP githash c80c104cbd52db994c0f2757bd1c6d014744022c
+.\" FRDP hash256 43755f4dac856721253ee05d69ee8f8de291e3667d5043285e0c52c3b777f093
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2024
+.Dt GLABEL 8
+.Os
+.Sh ИМЯ
+.Nm glabel
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Ar имя
+.Ar устройство
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm label
+.Op Fl v
+.Ar имя
+.Ar устройство
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar устройство ...
+.Nm
+.Cm dump
+.Ar устройство ...
+.Nm
+.Cm refresh
+.Ar устройство ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания меток провайдеров GEOM.
+Метку на провайдере GEOM можно установить двумя способами:
+.Dq вручную
+или
+.Dq автоматически .
+При использовании метода
+.Dq вручную
+метаданные не сохраняются на устройствах, поэтому метку приходится настраивать вручную каждый раз, когда она нужна.
+Метод
+.Dq автоматически
+использует метаданные на диске для хранения метки и её автоматического обнаружения в дальнейшем.
+.Pp
+Этот GEOM-класс также обеспечивает обнаружение меток томов для файловых систем.
+Эти метки нельзя задать с помощью
+.Nm ,
+их нужно задавать соответствующей утилитой файловой системы; например, для UFS метка файловой системы задаётся с помощью
+.Xr tunefs 8 .
+В настоящее время поддерживаются следующие файловые системы:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Имена томов UFS1 (каталог
+.Pa /dev/ufs/ ) .
+.It
+Имена томов UFS2 (каталог
+.Pa /dev/ufs/ ) .
+.It
+Идентификаторы файловых систем UFS1 (каталог
+.Pa /dev/ufsid/ ) .
+.It
+Идентификаторы файловых систем UFS2 (каталог
+.Pa /dev/ufsid/ ) .
+.It
+MSDOSFS (FAT12, FAT16, FAT32) (каталог
+.Pa /dev/msdosfs/ ) .
+.It
+CD ISO9660 (каталог
+.Pa /dev/iso9660/ ) .
+.It
+EXT2FS (каталог
+.Pa /dev/ext2fs/ ) .
+.It
+NTFS (каталог
+.Pa /dev/ntfs/ ) .
+.It
+Swap Linux (каталог
+.Pa /dev/swaplinux/ ) .
+.El
+.Pp
+Поддержка метаданных разделов реализована для:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Метки GPT (каталог
+.Pa /dev/gpt/ ) .
+.It
+UUID GPT (каталог
+.Pa /dev/gptid/ ) .
+.El
+.Pp
+Универсальные строки идентификаторов дисков экспортируются как метки в формате
+.Pa /dev/diskid/GEOM_CLASS-ident
+например
+.Pa /dev/diskid/DISK-6QG3Z026  .
+.Pp
+Универсальные метки, создаваемые и управляемые исключительно
+.Nm ,
+создаются в каталоге
+.Pa /dev/label/ .
+Обратите внимание, что универсальные автоматические метки занимают некоторое пространство на устройстве и поэтому их не следует добавлять на устройство, уже содержащее файловую систему.
+В частности,
+.Nm
+резервирует последний сектор устройства для хранения информации метки.
+Если устройство уже содержит файловую систему,
+.Nm
+перезапишет последний сектор, возможно повредив файловую систему, а файловая система может позже перезаписать сектор метки.
+Вместо этого создайте метку перед инициализацией файловой системы и инициализируйте эту файловую систему на устройстве, созданном
+.Nm
+в каталоге
+.Pa /dev/label/ .
+Тогда файловая система правильно учтёт пространство, занимаемое универсальной меткой, поскольку устройство
+.Nm
+будет на один сектор меньше устройства, из которого оно создано.
+.Pp
+Обратите внимание, что для всех типов меток вложенные GEOM-классы приведут к созданию дополнительных узлов устройств, к именам которых добавляются данные, зависящие от контекста.
+Например, для каждого узла вида
+.Pa /dev/label/bigdisk
+будут дополнительные записи для любых разделов, которые содержит устройство, например
+.Pa /dev/label/bigdiskp1
+и
+.Pa /dev/label/bigdiskp1a .
+.Pp
+.Nm
+требует доступа на запись к устройству для создания, изменения и удаления меток.
+Изменения не сохранятся, если их применить, пока файловая система на устройстве смонтирована.
+Чтобы изменения сохранились после перезагрузки, файловую систему нужно сначала размонтировать.
+Если устройство содержит корневую файловую систему системы, для сохранения изменения требуется войти в однопользовательский режим и смонтировать её в режиме только для чтения.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm create
+Создать временную метку
+.Ar имя
+для указанного провайдера.
+Это метод
+.Dq вручную .
+Модуль ядра
+.Pa geom_label.ko
+будет загружен, если он ещё не загружен.
+.It Cm label
+Установить метку
+.Ar имя
+для указанного провайдера.
+Это метод
+.Dq автоматически ,
+при котором метаданные сохраняются в последнем секторе провайдера.
+Модуль ядра
+.Pa geom_label.ko
+будет загружен, если он ещё не загружен.
+.It Cm stop
+Отключить указанную метку, заданную как
+.Ar имя .
+Эта команда не затрагивает метаданные на диске!
+.It Cm destroy
+То же, что
+.Cm stop .
+.It Cm clear
+Очистить метаданные на указанных устройствах.
+.It Cm dump
+Вывести метаданные, сохранённые на указанных устройствах.
+.It Cm refresh
+Обновить / заново обнаружить метаданные на указанных устройствах.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно удалить указанные метки.
+.It Fl v
+Выводить больше информации.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие переменные
+.Xr sysctl 8
+можно использовать для управления поведением GEOM-класса
+.Nm LABEL .
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.geom.label.debug : No 0
+Уровень отладки GEOM-класса
+.Nm LABEL .
+Можно задать число от 0 до 2 включительно.
+Если задано 0, выводится минимальный объём отладочной информации, а если 2 — максимальный объём отладочной информации.
+.El
+.Bl -tag -width indent
+.It Va kern.geom.label.*.enable : No 1
+Большинство провайдеров
+.Nm LABEL
+реализуют флаг
+.Xr sysctl 8
+и настраиваемую переменную с именем в вышеуказанном формате.
+Этот флаг управляет тем, будет ли провайдер меток активен, выполнять опробование устройств и создавать узлы меток в дереве
+.Xr devfs 4 .
+Иногда желательно отключить некоторые типы меток, если они конфликтуют с другими классами в сложных топологиях GEOM.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода — 0 при успехе и 1, если команда завершается ошибкой.
+.Sh ПРИМЕРЫ
+В следующем примере показано, как установить метку для диска
+.Dq Li da2 ,
+создать на нём файловую систему и смонтировать её:
+.Bd -literal -offset indent
+glabel label -v usr /dev/da2
+newfs /dev/label/usr
+mount /dev/label/usr /usr
+[...]
+umount /usr
+glabel stop usr
+glabel unload
+.Ed
+.Pp
+Следующий пример показывает, как установить метку для файловой системы UFS:
+.Bd -literal -offset indent
+tunefs -L data /dev/da4s1a
+mount /dev/ufs/data /mnt/data
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr loader.conf 5 ,
+.Xr geom 8 ,
+.Xr mount 8 ,
+.Xr newfs 8 ,
+.Xr sysctl 8 ,
+.Xr tunefs 8 ,
+.Xr umount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org

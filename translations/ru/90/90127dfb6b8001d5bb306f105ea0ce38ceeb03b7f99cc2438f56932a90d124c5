@@ -1,0 +1,229 @@
+.\" Copyright (c) 1988, 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/su/su.1
+.\" FRDP githash f850a9288bde429befdfc4563288b8d71b58b308
+.\" FRDP hash256 90127dfb6b8001d5bb306f105ea0ce38ceeb03b7f99cc2438f56932a90d124c5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 11, 2025
+.Dt SU 1
+.Os
+.Sh ИМЯ
+.Nm su
+.Nd замена идентичности пользователя
+.Sh СИНТАКСИС
+.Nm
+.Op Fl
+.Op Fl c Ar класс
+.Op Fl flms
+.Op Ar логин Op Ar аргументы
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запрашивает соответствующие учётные данные пользователя через PAM
+и переключается на этот идентификатор пользователя
+(по умолчанию используется суперпользователь).
+Затем запускается оболочка.
+.Pp
+PAM используется для задания политики, которую будет применять
+.Nm .
+В частности, по умолчанию только пользователи из группы
+.Dq Li wheel
+могут переключаться на UID 0
+.Pq Dq Li root .
+Это требование к группе можно изменить, изменив раздел
+.Dq Li pam_group
+в
+.Pa /etc/pam.d/su .
+См.
+.Xr pam_group 8
+для подробностей о том, как изменить эту настройку.
+.Pp
+По умолчанию окружение не изменяется, за исключением
+.Ev USER ,
+.Ev HOME
+и
+.Ev SHELL .
+.Ev HOME
+и
+.Ev SHELL
+устанавливаются в значения по умолчанию целевого логина.
+.Ev USER
+устанавливается в целевой логин, если только целевой логин не имеет идентификатора пользователя 0;
+в этом случае он не изменяется.
+Вызываемая оболочка — та, что принадлежит целевому логину.
+Это традиционное поведение
+.Nm .
+Ограничения ресурсов и приоритет сеанса, применимые к классу входа исходного пользователя (см.
+.Xr login.conf 5 ),
+также обычно сохраняются, если только целевой логин не имеет идентификатора пользователя 0.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl c Ar класс
+Использовать настройки указанного класса входа.
+Класс входа должен быть определён в
+.Xr login.conf 5 .
+Разрешено только для суперпользователя.
+.It Fl f
+Если вызываемая оболочка —
+.Xr csh 1 ,
+этот параметр запрещает ей читать файл
+.Dq Pa .cshrc .
+.It Fl l
+Имитировать полный вход.
+Окружение отбрасывается, за исключением
+.Ev HOME ,
+.Ev SHELL ,
+.Ev PATH ,
+.Ev TERM
+и
+.Ev USER .
+.Ev HOME
+и
+.Ev SHELL
+изменяются, как указано выше.
+.Ev USER
+устанавливается в целевой логин.
+.Ev PATH
+устанавливается в
+.Dq Pa /bin:/usr/bin .
+.Ev TERM
+импортируется из вашего текущего окружения.
+Переменные окружения могут быть установлены или переопределены из базы данных возможностей классов входа в соответствии с классом целевого логина.
+Вызываемая оболочка — оболочка целевого логина, и
+.Nm
+перейдёт в домашний каталог целевого логина.
+Ограничения ресурсов и приоритет сеанса изменяются на соответствующие классу входа целевой учётной записи.
+.It Fl
+(без буквы) То же, что
+.Fl l .
+.It Fl m
+Оставить окружение без изменений.
+Вызываемая оболочка — ваша входная оболочка, и никаких изменений каталога не производится.
+В качестве меры предосторожности, если оболочка целевого пользователя является нестандартной оболочкой (как определено в
+.Xr getusershell 3 )
+и реальный UID вызывающего процесса не равен нулю,
+.Nm
+завершится с ошибкой.
+.It Fl s
+Установить метку MAC в метку пользователя по умолчанию как часть настройки учётных данных пользователя.
+Установка метки MAC может завершиться ошибкой, если метки MAC вызывающего процесса недостаточно для перехода к метке MAC пользователя по умолчанию.
+Если метку нельзя установить,
+.Nm
+завершится с ошибкой.
+.El
+.Pp
+Параметры
+.Fl l
+(или
+.Fl )
+и
+.Fl m
+взаимоисключающие; последний указанный переопределяет все предыдущие.
+.Pp
+Если необязательные
+.Ar аргументы
+указаны в командной строке, они передаются входной оболочке целевого логина.
+Обратите внимание, что все аргументы командной строки перед именем целевого логина обрабатываются самим
+.Nm ,
+а всё после имени целевого логина передаётся входной оболочке.
+.Pp
+По умолчанию (если приглашение не сброшено стартовым файлом) приглашение суперпользователя устанавливается в
+.Dq Sy \&#
+чтобы напоминать о его внушительной власти.
+.Sh ОКРУЖЕНИЕ
+Переменные окружения, используемые
+.Nm :
+.Bl -tag -width HOME
+.It Ev HOME
+Домашний каталог по умолчанию для реального идентификатора пользователя, если не изменён, как указано выше.
+.It Ev PATH
+Путь поиска по умолчанию для реального идентификатора пользователя, если не изменён, как указано выше.
+.It Ev TERM
+Задаёт тип терминала, который может быть сохранён для подставляемого идентификатора пользователя.
+.It Ev USER
+После
+.Nm
+идентификатор пользователя всегда является эффективным идентификатором (идентификатором целевого пользователя), если только идентификатор пользователя не равен 0 (root).
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/pam.d/su
+Конфигурация PAM для
+.Nm .
+.El
+.Sh ПРИМЕРЫ
+.Bl -tag -width 5n -compact
+Запускает оболочку от имени пользователя
+.Li operator ,
+и выполняет команду
+.Li poweroff .
+Вас попросят ввести пароль operator, если ваш реальный UID не равен 0.
+Обратите внимание, что параметр
+.Fl m
+обязателен, поскольку пользователь
+.Dq operator
+по умолчанию не имеет допустимой оболочки.
+В этом примере
+.Fl c
+передаётся оболочке пользователя
+.Dq operator ,
+и не интерпретируется как аргумент для
+.Nm .
+То же, что выше, но целевая команда состоит более чем из одного слова и поэтому заключается в кавычки для использования с параметром
+.Fl c ,
+передаваемым оболочке.
+(Большинство оболочек ожидают, что аргумент
+.Fl c
+будет одним словом).
+То же, что выше, но целевая команда выполняется с ограничениями ресурсов класса входа
+.Dq staff .
+Примечание: в этом примере первый
+.Fl c
+применяется к
+.Nm ,
+а второй является аргументом вызываемой оболочки.
+Смоделировать вход для пользователя foo.
+То же, что выше.
+Смоделировать вход для root.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr csh 1 ,
+.Xr mdo 1 ,
+.Xr sh 1 ,
+.Xr group 5 ,
+.Xr login.conf 5 ,
+.Xr passwd 5 ,
+.Xr environ 7 ,
+.Xr pam_group 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

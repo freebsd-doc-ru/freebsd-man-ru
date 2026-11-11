@@ -1,0 +1,292 @@
+.\" Copyright (c) 2006-2011 Ivan Voras <ivoras@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/virstor/gvirstor.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 ad9d948cadc770f053ab1f75849b93e36f207bb0340eacabdae2c104588c382d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 1, 2013
+.Dt GVIRSTOR 8
+.Os
+.Sh ИМЯ
+.Nm gvirstor
+.Sh СИНТАКСИС
+.Nm
+.Cm label
+.Op Fl hv
+.Op Fl s Ar virsize
+.Op Fl m Ar chunksize
+.Ar name
+.Ar prov ...
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar name ...
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar name ...
+.Nm
+.Cm add
+.Op Fl vh
+.Ar name prov ...
+.Nm
+.Cm remove
+.Op Fl v
+.Ar name prov ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar prov ...
+.Nm
+.Cm dump
+.Ar prov ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания виртуального устройства хранения произвольно
+большого размера
+.Pq например, несколько TB ,
+состоящего из произвольного числа физических устройств хранения, суммарный
+размер которых равен виртуальному размеру или меньше него.
+Данные для виртуальных устройств будут выделяться из физических устройств по
+требованию.
+Идея
+.Nm
+аналогична концепции виртуальной памяти в операционных системах,
+фактически позволяя пользователям выполнять переподписку хранилища
+.Pq свободное пространство файловой системы ,
+только здесь это реализовано на уровне физических устройств хранения.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm label
+Создать виртуальное устройство из заданных компонентов с указанным
+.Ar name .
+Метаданные хранятся в последнем секторе каждого компонента.
+Аргумент
+.Fl s Ar virsize
+задаёт размер нового виртуального устройства; по умолчанию — 2 TiB
+.Pq 2097152 MiB .
+Аргумент
+.Fl m Ar chunksize
+задаёт размер фрагмента; по умолчанию — 4 MiB
+.Pq 4096 KiB .
+Таким образом, аргументы по умолчанию:
+.Qq Fl s Ar 2097152 Fl m Ar 4096 .
+.It Cm stop
+Отключить существующее виртуальное устройство с заданным
+.Ar name .
+Эта команда не изменяет метаданные на диске.
+Как и для других классов GEOM, остановленные geom нельзя запустить вручную.
+.It Cm destroy
+То же, что
+.Cm stop.
+.It Cm add
+Добавляет новые компоненты к существующему виртуальному устройству с заданным
+.Ar name .
+Указанное устройство virstor должно существовать и быть активным
+.Pq то есть модуль загружен, устройство присутствует в Pa /dev .
+Это действие можно безопасно выполнять, пока устройство virstor используется
+.Pq Qo горячей Qc операции .
+.It Cm remove
+Удаляет компоненты из существующего виртуального устройства с заданным
+.Ar name .
+Можно удалять только нераспределённые провайдеры.
+.It Cm clear
+Очистить метаданные на заданных провайдерах.
+.It Cm dump
+Вывести дамп метаданных, хранящихся на заданных провайдерах.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно удалить указанное виртуальное устройство.
+.It Fl h
+Жёстко зафиксировать имена провайдеров в метаданных.
+.It Fl v
+Выводить больше подробностей.
+.El
+.Sh ПРИМЕРЫ
+В следующем примере показано, как создать виртуальное устройство размера по
+умолчанию
+.Pq 2 TiB ,
+с размером фрагмента по умолчанию
+.Pq extent ,
+равным
+.Pq 4 MiB ,
+с двумя физическими устройствами для хранения.
+.Bd -literal -offset indent
+.No gvirstor label -v Ar mydata Ar /dev/ada4 Ar /dev/ada6
+.No newfs Ar /dev/virstor/mydata
+.Ed
+.Pp
+С этого момента виртуальное устройство будет доступно через
+.Pa /dev/virstor/mydata
+запись устройства.
+Чтобы добавить новое физическое устройство / компонент в активное устройство virstor:
+.Bd -literal -offset indent
+.No gvirstor add Ar mydata Ar ada8
+.Ed
+.Pp
+Это добавит физическое хранилище
+.Ar ada8
+к устройству
+.Pa /dev/virstor/mydata .
+.Pp
+Чтобы просмотреть информацию о состоянии устройства
+.Pq включая, сколько физического хранилища ещё доступно для виртуального устройства ,
+выполните:
+.Bd -literal -offset indent
+gvirstor list
+.Ed
+.Pp
+Также поддерживаются все стандартные подкоманды
+.Xr geom 8
+.Pq например, Cm status , Cm help .
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+.Nm
+имеет несколько настраиваемых переменных
+.Xr sysctl 8 .
+.Bd -literal -offset indent
+.Va int kern.geom.virstor.debug
+.Ed
+.Pp
+Этот sysctl управляет подробностью сообщений модуля ядра в диапазоне от 1 до 15.
+Сообщения с более высоким уровнем подробности, чем этот, подавляются.
+Значение по умолчанию — 5; не рекомендуется устанавливать эту настраиваемую
+переменную меньше 2, поскольку сообщения уровня 1 — это события ошибок, а
+сообщения уровня 2 — системные предупреждения.
+.Bd -literal -offset indent
+.Va int kern.geom.virstor.chunk_watermark
+.Ed
+.Pp
+Значение этого sysctl задаёт порог предупреждения для использования физических
+фрагментов на одном компоненте.
+Предупреждение выдаётся, когда у компонента virstor остаётся меньше этого числа
+свободных фрагментов
+.Pq по умолчанию 100 .
+.Bd -literal -offset indent
+.Va int kern.geom.virstor.component_watermark
+.Ed
+.Pp
+Значение этого sysctl задаёт порог предупреждения для использования компонентов.
+Предупреждение выдаётся, когда остаётся меньше этого числа нераспределённых
+компонентов
+.Pq по умолчанию 1 .
+.Pp
+Все эти sysctl также доступны как настраиваемые параметры
+.Xr loader 8 .
+.Sh ДИАГНОСТИКА
+.Ex -std
+.Pp
+Модуль ядра
+.Nm
+выдаёт сообщения журнала с префиксами в стандартизированном формате, что
+полезно для фильтрации и маршрутизации сообщений журнала.
+Каждая строка сообщения начинается с
+.Bd -literal -offset indent
+.Li GEOM_VIRSTOR[%d]:
+.Ed
+.Pp
+Число
+.Pq %d
+— это уровень подробности / важности сообщения в диапазоне от 1 до 15.
+Если используется система фильтрации, маршрутизации сообщений или оповещения
+оператора, рекомендуется серьёзно относиться к сообщениям уровней 1 и 2
+.Pq например, чтобы обнаруживать условия нехватки места, заданные sysctl-порогами.
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr fstab 5 ,
+.Xr geom 8 ,
+.Xr glabel 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+.An Ivan Voras Aq Mt ivoras@FreeBSD.org
+.Pp
+При поддержке Google Summer of Code 2006.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Команды
+.Cm add
+и
+.Cm remove
+содержат неизбежные критические секции, из-за которых устройство virstor может
+стать неработоспособным при сбое питания
+.Pq или другом разрушительном событии
+во время их выполнения.
+Рекомендуется запускать их, когда система находится в состоянии покоя.
+.Sh ДОПУЩЕНИЯ И ВЗАИМОДЕЙСТВИЕ С ФАЙЛОВЫМИ СИСТЕМАМИ
+В работе
+.Nm
+есть несколько допущений: размер виртуального устройства хранения не изменится
+после установки, а размеры отдельных физических компонентов хранения всегда
+остаются постоянными в течение их существования.
+Альтернативные способы реализации виртуальных или изменяемых по размеру
+файловых систем см. в
+.Xr zfs 1M ,
+.Xr gconcat 8
+и
+.Xr growfs 8 .
+.Pp
+Обратите внимание, что
+.Nm
+нетривиально взаимодействует с файловыми системами, которые инициализируют
+большое количество структур на диске во время newfs.
+Если такие файловые системы пытаются распределить свои структуры по носителю
+.Pq как это делает UFS/UFS2 ,
+их усилия фактически сводятся на нет последовательным распределением фрагментов
+в
+.Nm
+и все их структуры физически размещаются в начале первого компонента virstor.
+Это может существенно повлиять на производительность файловой системы
+.Pq что в некоторых редких случаях может быть даже положительным .

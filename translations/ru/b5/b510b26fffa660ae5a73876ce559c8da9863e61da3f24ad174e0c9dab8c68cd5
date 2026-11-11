@@ -1,0 +1,98 @@
+.\" Copyright (c) 2011-2012 Ed Schouten <ed@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/utx/utx.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 b510b26fffa660ae5a73876ce559c8da9863e61da3f24ad174e0c9dab8c68cd5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 3, 2013
+.Dt UTX 8
+.Os
+.Sh ИМЯ
+.Nm utx
+.Nd управление базой данных учёта пользователей
+.Sh СИНТАКСИС
+.Nm
+.Cm boot
+.Nm
+.Cm shutdown
+.Nm
+.Cm rm
+.Ar идентификатор
+.Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для выполнения операций с базой данных учёта пользователей, как это делается с помощью
+.Xr pututxline 3 .
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm boot
+Записать запись о времени загрузки в базу данных учёта пользователей.
+Обычно этот параметр должен использоваться только
+.Xr rc 8 .
+.It Cm shutdown
+Записать запись о времени завершения работы в базу данных учёта пользователей.
+Обычно этот параметр должен использоваться только
+.Xr rc 8 .
+.It Cm rm
+Удалить устаревшие сеансы из базы данных учёта пользователей, ссылаясь на их
+.Ar идентификатор .
+Устаревшие сеансы могут возникать, если служба входа завершается преждевременно или не может
+удалить сеанс из базы данных учёта.
+.Pp
+Такие утилиты, как
+.Xr w 1 ,
+не будут отображать идентификатор, соответствующий сеансу входа,
+поскольку его значение обычно полезно только процессу, управляющему
+записью.
+Следующая команда может использоваться для получения всех записей из
+таблицы активных сеансов базы данных учёта пользователей, включая их идентификаторы:
+.Pp
+.Dl getent utmpx active
+.Pp
+Идентификаторы могут быть переданы либо в шестнадцатеричной форме, как отображается
+.Xr getent 1 ,
+либо в виде строки, если идентификатор допускает такое представление.
+.El
+.Pp
+Поскольку эта утилита требует доступа на запись к базе данных учёта
+пользователей, её использование ограничено суперпользователем.
+.Sh СМ. ТАКЖЕ
+.Xr getent 1 ,
+.Xr w 1 ,
+.Xr pututxline 3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+заменила
+.Nm utxrm
+в
+.Fx 10.0 .
+.Sh АВТОРЫ
+.An Ed Schouten Aq Mt ed@FreeBSD.org

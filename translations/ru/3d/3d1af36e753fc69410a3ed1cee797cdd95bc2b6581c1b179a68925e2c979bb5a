@@ -1,0 +1,134 @@
+.\"-
+.\" Copyright (c) 2010 Edward Tomasz Napierala
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/mountver/gmountver.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 3d1af36e753fc69410a3ed1cee797cdd95bc2b6581c1b179a68925e2c979bb5a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 18, 2015
+.Dt GMOUNTVER 8
+.Os
+.Sh ИМЯ
+.Nm gmountver
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Ar prov ...
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar name
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Op Fl s Ar name
+.Nm
+.Cm load
+.Op Fl v
+.Nm
+.Cm unload
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления GEOM-классом проверки монтирования.
+При настройке она передаёт все запросы ввода-вывода нижележащему провайдеру.
+Когда нижележащий провайдер исчезает — например, из-за отключения дискового
+устройства — она ставит все запросы ввода-вывода в очередь и ждёт повторного
+появления провайдера.
+Когда это происходит, она присоединяется к нему и отправляет запросы из
+очереди.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm create
+Включить проверку монтирования для указанного провайдера.
+Если операция успешна, будет создан новый GEOM-провайдер с именем указанного
+провайдера и суффиксом
+.Ql .mountver .
+Модуль ядра
+.Pa geom_mountver.ko
+будет загружен, если он ещё не загружен.
+.It Cm destroy
+Уничтожить
+.Ar name .
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно удалить указанное устройство mountver.
+.It Fl v
+Выводить более подробную информацию.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие переменные
+.Xr sysctl 8
+могут использоваться для управления поведением GEOM-класса
+.Nm MOUNTVER .
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.geom.mountver.debug : No 0
+Уровень отладки GEOM-класса
+.Nm MOUNTVER .
+Можно задать число от 0 до 3 включительно.
+При значении 0 выводится минимальный объём отладочной информации, а при
+значении 3 — максимальный объём отладочной информации.
+.It Va kern.geom.mountver.check_ident : No 1
+Можно задать 0 или 1.
+При значении 0
+.Nm
+повторно присоединится к устройству, даже если устройство сообщает другой
+идентификатор диска.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успешном завершении и 1, если команда завершается
+с ошибкой.
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr geom 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org

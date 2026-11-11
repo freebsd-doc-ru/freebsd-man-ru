@@ -1,0 +1,101 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-clone.8
+.\" FRDP githash a8dbd836b7856aa6f12cb2442a224fdb58d17f54
+.\" FRDP hash256 c99de43f1f684e1617e3edd84500efdd6f14d389920396e205c0272c0e8af9bc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-CLONE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-clone
+.Nd клонирование снимка набора данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm clone
+.Op Fl pu
+.Oo Fl o Ar property Ns = Ns Ar value Oc Ns …
+.Ar snapshot Ar filesystem Ns | Ns Ar volume
+.
+.Sh ОПИСАНИЕ
+Подробности см. в разделе
+.Sx Клоны
+страницы
+.Xr zfsconcepts 7 .
+Целевой набор данных может находиться в любом месте иерархии ZFS
+и создаётся того же типа, что и исходный.
+.Bl -tag -width Ds
+.It Fl o Ar property Ns = Ns Ar value
+Устанавливает указанное свойство; подробности см. в
+.Nm zfs Cm create .
+.It Fl p
+Создаёт все несуществующие родительские наборы данных.
+Созданные таким образом наборы данных автоматически монтируются в соответствии со
+свойством
+.Sy mountpoint ,
+унаследованным от их родителя.
+Если целевая файловая система или том уже существует, операция завершается
+успешно.
+.It Fl u
+Не монтировать только что созданную файловую систему.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание клона ZFS
+Следующая команда создаёт файловую систему с возможностью записи, начальное
+содержимое которой совпадает с
+.Ar pool/home/bob@yesterday .
+.Dl # Nm zfs Cm clone Ar pool/home/bob@yesterday pool/clone
+.
+.Ss Пример 2 : No Повышение клона ZFS
+Следующие команды показывают, как проверить изменения в файловой системе,
+а затем заменить исходную файловую систему изменённой, используя клоны,
+повышение клона и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполните /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внесите изменения в /pool/project/beta и протестируйте их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда устаревшая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-promote 8 ,
+.Xr zfs-snapshot 8

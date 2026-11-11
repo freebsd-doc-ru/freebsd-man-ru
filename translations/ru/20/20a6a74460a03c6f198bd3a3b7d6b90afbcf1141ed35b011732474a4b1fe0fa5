@@ -1,0 +1,65 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2024, Klara Inc.
+.\" Copyright (c) 2024, Mateusz Piotrowski
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-reguid.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 20a6a74460a03c6f198bd3a3b7d6b90afbcf1141ed35b011732474a4b1fe0fa5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 26, 2024
+.Dt ZPOOL-REGUID 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-reguid
+.Nd сгенерировать новый уникальный идентификатор для пула хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm reguid
+.Op Fl g Ar guid
+.Ar пул
+.
+.Sh ОПИСАНИЕ
+Генерирует новый уникальный идентификатор пула.
+Перед выполнением этого действия необходимо убедиться, что все устройства в этом пуле доступны и исправны.
+.
+.Bl -tag -width Ds
+.It Fl g Ar guid
+Задаёт GUID пула указанным значением.
+GUID может быть любым 64-битным значением, принимаемым
+.Xr strtoull 3
+в десятичной системе счисления.
+.Nm
+вернёт ошибку, если указанный GUID уже используется.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr zpool-export 8 ,
+.Xr zpool-import 8

@@ -1,0 +1,176 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2005 Sam Leffler <sam@errno.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/wpa_supplicant/wpa_supplicant.8
+.\" FRDP githash ed0adb244484366e5f1e43e63b96b2da5087b84f
+.\" FRDP hash256 ad9004f09cfbabfe1908a02d4ba98ef6775dac1a31950eae8660f94b672cde7b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 12, 2026
+.Dt WPA_SUPPLICANT 8
+.Os
+.Sh ИМЯ
+.Nm wpa_supplicant
+.Sh СИНТАКСИС
+.Nm
+.Op Fl BdhKLqstuvW
+.Op Fl b Ar br_ifname
+.Fl c Ar config-file
+.Op Fl C Ar ctrl
+.Op Fl D Ar driver
+.Op Fl f Ar debug file
+.Op Fl g Ar global ctrl
+.Fl i Ar ifname
+.Op Fl o Ar override driver
+.Op Fl O Ar override ctrl
+.Op Fl P Ar pid file
+.Oo Fl N
+.Fl i Ar ifname
+.Fl c Ar config-file
+.Op Fl C Ar ctrl
+.Op Fl D driver
+.Op Fl p Ar driver_param
+.Op Fl b Ar br_ifname
+.No ...
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является реализацией компонента WPA Supplicant,
+то есть части, работающей на клиентских станциях.
+Она реализует согласование ключей WPA с аутентификатором WPA
+и аутентификацию EAP с сервером аутентификации.
+Кроме того,
+.Nm
+управляет поддержкой роуминга и аутентификации/ассоциации IEEE 802.11
+модуля
+.Xr wlan 4
+и может использоваться для настройки статических ключей WEP
+на основе идентифицированных сетей.
+.Pp
+Утилита
+.Nm
+разработана как
+.Dq программа-демон ,
+работающая в
+фоновом режиме и выступающая в качестве внутреннего компонента, управляющего
+беспроводным соединением.
+Она поддерживает отдельные программы интерфейса пользователя, такие как
+текстовая
+.Xr wpa_cli 8
+программа.
+.Pp
+В командной строке должны быть указаны следующие аргументы:
+.Bl -tag -width indent
+.It Fl i Ar ifname
+Использовать указанный беспроводной интерфейс.
+.It Fl c Ar config-file
+Использовать настройки в указанном файле конфигурации при управлении
+беспроводным интерфейсом.
+См.
+.Xr wpa_supplicant.conf 5
+для описания синтаксиса и содержимого файла конфигурации.
+.Pp
+Изменения в файле конфигурации можно перезагрузить, отправив
+.Dv SIGHUP
+процессу
+.Nm
+или с помощью утилиты
+.Xr wpa_cli 8
+, используя
+.El
+.Sh ОПЦИИ
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl b
+Необязательное имя интерфейса моста.
+.It Fl B
+Отсоединиться от управляющего терминала и работать как процесс-демон
+в фоновом режиме.
+.It Fl d
+Включить отладочные сообщения.
+Если эта опция указана дважды, отображаются более подробные сообщения.
+.It Fl D
+Имя драйвера (может быть указано несколько драйверов: nl80211,wext).
+.It Fl f
+Записывать вывод журнала в файл отладки вместо stdout.
+.It Fl g
+Глобальный ctrl_interface.
+.It Fl h
+Показать текст справки.
+.It Fl K
+Включать информацию о ключах в отладочный вывод.
+.It Fl L
+Показать лицензию для этой программы в терминале и выйти.
+.It Fl N
+Начать описание нового интерфейса.
+.It Fl o
+Переопределяет параметр драйвера для новых интерфейсов.
+.It Fl O
+Переопределить параметр ctrl_interface для новых интерфейсов.
+.It Fl p
+Указать параметры драйвера.
+.It Fl P
+Файл, в который сохраняется PID процесса.
+.It Fl q
+Уменьшить подробность отладочных сообщений (т. е. нейтрализовать использование флага
+.Fl d
+).
+.It Fl s
+Отправлять сообщения журнала через
+.Xr syslog 3
+вместо терминала.
+.It Fl t
+Включать отметку времени в отладочные сообщения.
+.It Fl v
+Показать информацию о версии в терминале и выйти.
+.It Fl W
+Ожидать монитор интерфейса управления перед запуском.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr wlan 4 ,
+.Xr wpa_supplicant.conf 5 ,
+.Xr networking 7 ,
+.Xr devd 8 ,
+.Xr ifconfig 8 ,
+.Xr wpa_cli 8 ,
+.Xr wpa_passphrase 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Jouni Malinen Aq Mt j@w1.fi .
+Эта страница руководства создана на основе файла
+.Pa README
+, включённого в дистрибутив
+.Nm
+.

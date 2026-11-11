@@ -1,0 +1,356 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2006 Daniel Gerzo <danger@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man8/nanobsd.8
+.\" FRDP githash fbc4e90c5ca6186ade53d29bf3e69aab6ad1cbc3
+.\" FRDP hash256 f30b9c3936a0baf52322ce91d9034fffa24d565618a213f1816324007d6ced52
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 14, 2025
+.Dt NANOBSD 8
+.Os
+.Sh ИМЯ
+.Nm nanobsd.sh
+.Nd создать образ встраиваемой системы FreeBSD
+.Sh СИНТАКСИС
+.Nm
+.Op Fl BbfhIiKknqvWwX
+.Op Fl c Ar config-file
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это сценарий, который создаёт минимальную реализацию
+.Fx
+(называемую
+.Nm NanoBSD ) ,
+которая обычно помещается на небольшом носителе, таком как карта
+Compact Flash, или другом носителе массового хранения.
+Его можно использовать для сборки специализированных установочных
+образов, предназначенных для простой установки и обслуживания.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width ".Fl c Ar config-file"
+.It Fl B
+Пропустить стадии установки (как для ядра, так и для world).
+.It Fl b
+Пропустить стадии сборки (как для ядра, так и для world).
+.It Fl c Ar config-file
+Указать используемый файл конфигурации.
+.It Fl f
+Пропустить извлечение среза кода.
+.It Fl h
+Показать информацию об использовании.
+.It Fl I
+Собрать образ диска из существующей сборки/установки.
+.It Fl i
+Пропустить стадию сборки образа диска.
+.It Fl K
+Пропустить стадию
+.Cm installkernel
+сборки.
+.It Fl k
+Пропустить стадию
+.Cm buildkernel
+сборки.
+.It Fl n
+Не выполнять очистку перед каждой стадией сборки.
+Это отменяет обычную очистку, выполняемую перед стадией
+.Cm buildworld ,
+и добавляет -DNO_CLEAN в командную строку make,
+используемую для каждой стадии сборки (world и kernel).
+.It Fl q
+Сделать вывод менее подробным.
+.It Fl v
+Сделать вывод более подробным.
+.It Fl W
+Пропустить стадию
+.Cm installworld
+сборки.
+.It Fl w
+Пропустить стадию
+.Cm buildworld
+сборки.
+.It Fl X
+Собрать
+.Cm native-xtools .
+.El
+.Pp
+Возможности
+.Nm NanoBSD
+включают:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Порты и пакеты работают так же, как в
+.Fx .
+Любое отдельное приложение можно установить и использовать в
+образе
+.Nm NanoBSD
+так же, как в
+.Fx .
+.It
+Нет недостающей функциональности.
+Если что-то можно сделать с помощью
+.Fx ,
+то же самое можно сделать с помощью
+.Nm NanoBSD ,
+если только конкретная функция или функции не были явно удалены из
+образа
+.Nm NanoBSD
+при его создании.
+.It
+Во время работы всё доступно только для чтения.
+Можно безопасно выдернуть вилку питания.
+Нет необходимости запускать
+.Xr fsck 8
+после некорректного завершения работы системы.
+.It
+Простота сборки и настройки.
+Используя только один сценарий оболочки и один файл конфигурации,
+можно собирать уменьшенные и настроенные образы, удовлетворяющие
+любому произвольному набору требований.
+.El
+.Ss Разметка носителя NanoBSD
+Носитель массового хранения по умолчанию разделён на три части
+(которые обычно монтируются только для чтения):
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Два раздела образа:
+.Li code#1
+и
+.Li code#2 .
+.It
+Раздел файла конфигурации, который можно смонтировать в каталоге
+.Pa /cfg
+во время работы.
+.El
+.Pp
+Каталоги
+.Pa /etc
+и
+.Pa /var
+являются дисками
+.Xr md 4
+(с поддержкой malloc).
+.Pp
+Раздел файла конфигурации сохраняется в каталоге
+.Pa /cfg .
+Он содержит файлы для каталога
+.Pa /etc
+и ненадолго монтируется только для чтения сразу после загрузки системы,
+поэтому требуется копировать изменённые файлы из
+.Pa /etc
+обратно в каталог
+.Pa /cfg ,
+если изменения должны сохраниться после перезапуска системы.
+.Sh СБОРКА Nm NanoBSD
+Образ
+.Nm NanoBSD
+собирается с помощью простого сценария оболочки
+.Nm ,
+который можно найти в каталоге
+.Pa src/tools/tools/nanobsd .
+Этот сценарий создаёт загрузочный образ, который можно скопировать
+на носитель с помощью утилиты
+.Xr dd 1 .
+.Pp
+Необходимые команды для сборки и установки образа
+.Nm NanoBSD :
+.Bd -literal -offset indent
+cd /usr/src/tools/tools/nanobsd
+sh nanobsd.sh
+cd /usr/obj/nanobsd.full
+dd if=_.disk.full of=/dev/da0 bs=64k
+.Ed
+.Sh НАСТРОЙКА Nm NanoBSD
+Это, вероятно, наиболее важная и наиболее интересная возможность
+.Nm NanoBSD .
+Здесь же вы будете проводить большую часть времени при разработке с
+.Nm NanoBSD .
+.Pp
+Настройка выполняется двумя способами:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+Параметры конфигурации.
+.It
+Пользовательские функции.
+.El
+.Pp
+С помощью параметров конфигурации можно настроить параметры, передаваемые
+как стадиям
+.Cm buildworld
+и
+.Cm installworld
+процесса сборки
+.Nm NanoBSD ,
+так и внутренние параметры, передаваемые основному процессу сборки
+.Nm NanoBSD .
+Благодаря этим параметрам можно уменьшить систему так, чтобы она
+помещалась на носителе размером всего 64MB.
+Вы можете использовать параметры конфигурации, чтобы ещё сильнее
+урезать систему, пока она не будет состоять только из ядра и двух-трёх
+файлов в пользовательском пространстве.
+.Pp
+Файл конфигурации состоит из параметров конфигурации, которые
+переопределяют значения по умолчанию.
+Наиболее важные директивы:
+.Bl -tag -width "NANO_BOOTLOADER"
+.It Va NANO_NAME
+Имя сборки (используется для формирования имён рабочих каталогов).
+.It Va NANO_SRC
+Путь к дереву исходного кода, используемому для сборки образа.
+.It Va NANO_KERNEL
+Имя файла конфигурации ядра, используемого для сборки ядра.
+.It Va NANO_ARCH
+Архитектура процессора машины для сборки.
+По умолчанию используется вывод
+.Cm uname -p .
+.It Va NANO_BOOT0CFG
+Управляет параметрами, передаваемыми
+.Xr boot0cfg 8 ;
+они задают поведение
+.Nm boot0 Ns 's.
+.It Va NANO_BOOTLOADER
+Загрузчик
+.Nm boot0 ,
+который следует использовать относительно переменной
+.Va NANO_WORLDDIR .
+По умолчанию используется
+.Pa boot/boot0sio ,
+и его следует переопределить на
+.Pa boot/boot0 ,
+чтобы обеспечить консоль VGA.
+.It Va CONF_BUILD
+Параметры, передаваемые стадии
+.Cm buildworld
+сборки.
+.It Va CONF_INSTALL
+Параметры, передаваемые стадии
+.Cm installworld
+сборки.
+.It Va CONF_WORLD
+Параметры, передаваемые как стадии
+.Cm buildworld ,
+так и стадии
+.Cm installworld
+сборки.
+.It Va FlashDevice
+Определяет тип используемого носителя.
+Подробности см. в файле
+.Pa FlashDevice.sub .
+.El
+.Pp
+Дополнительные параметры конфигурации см. в сценарии
+.Nm .
+.Pp
+Чтобы собрать образ
+.Nm NanoBSD
+с использованием файла конфигурации
+.Pa nanobsd.conf ,
+используйте следующую команду:
+.Bd -literal -offset indent
+sh nanobsd.sh -c nanobsd.conf
+.Ed
+.Pp
+Можно точно настроить
+.Nm NanoBSD
+с помощью функций оболочки в файле конфигурации.
+Следующий пример иллюстрирует базовую модель пользовательских функций:
+.Bd -literal -offset indent
+cust_foo () (
+	     ${NANO_WORLDDIR}/etc/foo
+)
+customize_cmd cust_foo
+.Ed
+.Pp
+Есть несколько предопределённых функций настройки, готовых к использованию:
+.Bl -tag -width "cust_install_files"
+.It Cm cust_comconsole
+Отключает
+.Xr getty 8
+на виртуальных терминалах
+.Xr syscons 4
+или
+.Xr vt 4
+.Pq Pa /dev/ttyv*
+и включает использование первого последовательного порта в качестве
+системной консоли.
+.It Cm cust_allow_ssh_root
+Разрешить root входить через
+.Xr sshd 8 .
+.It Cm cust_install_files
+Устанавливает файлы из каталога
+.Pa nanobsd/Files ,
+который содержит некоторые полезные сценарии для системного
+администрирования.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width "src/tools/tools/nanobsd"
+.It Pa src/tools/tools/nanobsd
+Базовый каталог сценария сборки
+.Nm NanoBSD .
+.El
+.Sh ПРИМЕРЫ
+Внесение постоянных изменений в
+.Pa /etc/resolv.conf :
+.Bd -literal -offset indent
+vi /etc/resolv.conf
+\&...
+mount /cfg
+cp /etc/resolv.conf /cfg
+umount /cfg
+.Ed
+.Pp
+Более полезный пример функции настройки — следующий, который изменяет
+размер каталога
+.Pa /etc
+по умолчанию с 5MB на 30MB:
+.Bd -literal -offset indent
+cust_etc_size () (
+	cd ${NANO_WORLDDIR}/conf
+	echo 30000 > default/etc/md_size
+)
+customize_cmd cust_etc_size
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr make.conf 5 ,
+.Xr boot 8 ,
+.Xr boot0cfg 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm NanoBSD
+был разработан
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org .
+Эта страница руководства была написана
+.An Daniel Gerzo Aq Mt danger@FreeBSD.org .

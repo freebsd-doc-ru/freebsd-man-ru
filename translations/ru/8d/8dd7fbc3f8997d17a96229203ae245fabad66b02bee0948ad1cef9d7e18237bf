@@ -1,0 +1,238 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/vgrind/vgrind.1
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 8dd7fbc3f8997d17a96229203ae245fabad66b02bee0948ad1cef9d7e18237bf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 29, 2006
+.Dt VGRIND 1
+.Os
+.Sh ИМЯ
+.Nm vgrind
+.Nd создаёт аккуратные листинги программ
+.Sh СИНТАКСИС
+.Nm
+.Op Fl
+.Op Fl W
+.Op Fl d Ar файл
+.Op Fl f
+.Op Fl h Ar заголовок
+.Op Fl l Ns Ar язык
+.Op Fl n
+.Op Fl p Ar постпроцессор
+.Op Fl s Ar размер_в_пунктах
+.Op Fl t
+.Op Fl x
+.Ar имя Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+форматирует исходные тексты программ, указанные в качестве аргументов
+командной строки, в аккуратном стиле с помощью
+.Xr troff 1 Pq Pa ports/textproc/groff .
+Комментарии выделяются курсивом, ключевые слова — полужирным шрифтом,
+а имя текущей функции указывается на полях каждой страницы по мере её
+обнаружения.
+.Pp
+Утилита
+.Nm
+работает в двух основных режимах: режиме фильтра (см. параметр
+.Fl f
+) или обычном режиме.
+В режиме фильтра
+.Nm
+действует как фильтр подобно
+.Xr tbl 1 .
+Стандартный ввод передаётся напрямую в стандартный вывод, за исключением
+строк, обрамлённых макросами в стиле
+.Em troff :
+.Bl -tag -width Ds
+.It \&.vS
+начинает обработку
+.It \&.vE
+завершает обработку
+.El
+.Pp
+Эти строки форматируются, как описано выше.
+Выходные данные этого фильтра можно передать в
+.Xr troff 1 Pq Pa ports/textproc/groff
+для вывода.
+При этом не требуется какого-либо определённого порядка с
+.Xr eqn 1 Pq Pa ports/textproc/groff
+или
+.Xr tbl 1 Pq Pa ports/textproc/groff .
+.Pp
+В обычном режиме
+.Nm
+принимает входные файлы, обрабатывает их и передаёт их постпроцессору
+для вывода,
+.Xr psroff 1
+по умолчанию.
+.Pp
+В обоих режимах
+.Nm
+передаёт любые строки, начинающиеся с десятичной точки, без преобразования.
+.Pp
+Параметры:
+.Bl -tag -width Ar
+.It Fl
+принудительно использует стандартный ввод (по умолчанию, если
+.Fl f
+указан)
+.It Fl W
+принудительно выводит на (широкий) принтер Versatec, а не на (узкий)
+Varian
+.It Fl d Ar файл
+указывает альтернативный файл определений языков (по умолчанию —
+.Pa /usr/share/misc/vgrindefs )
+.It Fl f
+принудительно включает режим фильтра
+.It Fl h Ar заголовок
+указывает конкретный заголовок, который нужно помещать на каждой выходной
+странице (по умолчанию — имя файла)
+.It Fl l
+указывает используемый язык.
+В настоящее время известны
+.Tn PASCAL
+.Pq Fl l Ns Ar p ,
+.Tn MODEL
+.Pq Fl l Ns Ar m ,
+C
+.Pf ( Fl l Ns Ar c
+или значение по умолчанию),
+.Tn C++
+.Pq Fl l Ns Ar c++ ,
+.Tn CSH
+.Pq Fl l Ns Ar csh ,
+.Tn SHELL
+.Pq Fl l Ns Ar sh ,
+.Tn RATFOR
+.Pq Fl l Ns Ar r ,
+.Tn MODULA2
+.Pq Fl l Ns Ar mod2 ,
+.Tn YACC
+.Pq Fl l Ns Ar yacc ,
+.Tn LISP
+.Pq Fl l Ns Ar isp ,
+.Tn ICON
+.Pq Fl l Ns Ar I ,
+и
+.Tn PERL
+.Pq Fl l Ns Ar perl .
+.It Fl n
+отключает выделение ключевых слов полужирным
+.It Fl p Ar постпроцессор
+использовать
+.Ar постпроцессор
+для постобработки вывода,
+.Xr psroff 1
+по умолчанию.
+.It Fl s Ar размер_в_пунктах
+указывает размер шрифта в пунктах для вывода (точно так же, как аргумент
+запроса .ps)
+.It Fl t
+аналогичен одноимённому параметру в
+.Xr troff 1 Pq Pa ports/textproc/groff ,
+при этом форматированный текст выводится в стандартный вывод
+.It Fl x
+выводит файл индекса в «красивом» формате.
+Сам файл индекса создаётся всякий раз, когда
+.Nm
+запускается в текущем каталоге, где есть файл с именем
+.Pa index .
+Затем индекс определений функций можно вывести, передав
+.Nm
+параметр
+.Fl x
+и файл
+.Pa index
+в качестве аргумента.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/misc/vgrindefsxx -compact
+.It Pa index
+файл, в котором создаётся исходный текст для индекса
+.It Pa /usr/share/tmac/tmac.vgrind
+пакет макросов
+.It Pa /usr/libexec/vfontedpr
+препроцессор
+.It Pa /usr/share/misc/vgrindefs
+описания языков
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getcap 3 ,
+.Xr vgrindefs 5
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Препроцессор vfontedpr предполагает соблюдение определённого стиля
+программирования:
+.Pp
+Для
+.Tn C
+— имена функций в строке могут предваряться только пробелами, табуляциями
+или звёздочкой.
+Аргументы в скобках также должны находиться в той же строке.
+.Pp
+Для
+.Tn PASCAL
+— имена функций должны находиться в той же строке, что и ключевые слова
+.Em function
+или
+.Em procedure .
+.Pp
+Для
+.Tn MODEL
+— имена функций должны находиться в той же строке, что и ключевые слова
+.Em is beginproc .
+.Pp
+Если эти соглашения не соблюдаются, механизмы индексации и комментариев
+с именем функции на полях не будут работать.
+.Pp
+В более общем случае произвольные стили форматирования программ в основном
+выглядят плохо.
+Использование пробелов для выравнивания исходного кода совершенно не
+работает; если вы собираетесь обрабатывать свою программу с помощью
+.Nm ,
+используйте табуляции.
+Это в некоторой степени неизбежно, поскольку шрифт, используемый
+.Nm ,
+имеет переменную ширину.
+.Pp
+Здесь следует использовать механизм распознавания функций из
+.Xr ctags 1 .
+.Pp
+Режим фильтра не работает в документах, использующих макросы
+.Fl me
+или
+.Fl ms .
+(Так какой от него вообще толк?)

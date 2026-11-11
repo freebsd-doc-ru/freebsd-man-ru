@@ -1,0 +1,362 @@
+.\"
+.\" scp.1
+.\"
+.\" Author: Tatu Ylonen <ylo@cs.hut.fi>
+.\"
+.\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+.\"                    All rights reserved
+.\"
+.\" Created: Sun May  7 00:14:37 1995 ylo
+.\"
+.\" $OpenBSD: scp.1,v 1.115 2025/10/04 21:41:35 naddy Exp $
+.\"
+.\" FRDP path crypto/openssh/scp.1
+.\" FRDP githash 687a0d4a6b2391cd045951e4e431dd585d131575
+.\" FRDP hash256 4c085a4e18ca38be759dd69ca3e6bfabb04c6b65eedd512d773f41b63af7ce8e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: October 4 2025 $
+.Dt SCP 1
+.Os
+.Sh ИМЯ
+.Nm scp
+.Nd Безопасное копирование файлов OpenSSH
+.Sh СИНТАКСИС
+.Nm scp
+.Op Fl 346ABCOpqRrsTv
+.Op Fl c Ar шифр
+.Op Fl D Ar sftp_server_path
+.Op Fl F Ar ssh_config
+.Op Fl i Ar identity_file
+.Op Fl J Ar пункт_назначения
+.Op Fl l Ar лимит
+.Op Fl o Ar ssh_option
+.Op Fl P Ar порт
+.Op Fl S Ar программа
+.Op Fl X Ar sftp_option
+.Ar источник ... назначение
+.Sh ОПИСАНИЕ
+.Nm
+копирует файлы между хостами в сети.
+.Pp
+.Nm
+использует протокол SFTP через соединение
+.Xr ssh 1
+для передачи данных, а также использует ту же аутентификацию и обеспечивает
+ту же безопасность, что и сеанс входа в систему.
+.Pp
+.Nm
+запросит пароли или парольные фразы, если они необходимы для
+аутентификации.
+.Pp
+.Ar источник
+и
+.Ar назначение
+могут быть заданы как локальное имя пути, удалённый хост с необязательным путём
+в форме
+.Sm off
+.Oo user @ Oc host : Op path ,
+.Sm on
+или URI в форме
+.Sm off
+.No scp:// Oo user @ Oc host Oo : port Oc Op / path .
+.Sm on
+Локальные имена файлов можно задать явно с помощью абсолютных или относительных имён путей,
+чтобы
+.Nm
+не считал спецификаторами хоста имена файлов, содержащие
+.Sq :\& .
+.Pp
+При копировании между двумя удалёнными хостами, если используется формат URI,
+.Ar порт
+нельзя указать для
+.Ar назначения
+при использовании параметра
+.Fl R .
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width Ds
+.It Fl 3
+Копирование между двумя удалёнными хостами выполняется через локальный хост.
+Этот режим используется по умолчанию,
+но также см. параметр
+.Fl R
+для копирования данных напрямую между двумя удалёнными хостами.
+Обратите внимание, что при использовании устаревшего протокола SCP (через
+флаг
+.Fl O ) этот параметр
+выбирает пакетный режим для второго хоста, так как
+.Nm
+не может запрашивать пароли или парольные фразы для обоих хостов.
+.It Fl 4
+Заставляет
+.Nm
+использовать только адреса IPv4.
+.It Fl 6
+Заставляет
+.Nm
+использовать только адреса IPv6.
+.It Fl A
+Разрешает перенаправление
+.Xr ssh-agent 1
+в удалённую систему.
+По умолчанию агент аутентификации не перенаправляется.
+.It Fl B
+Выбирает пакетный режим (предотвращает запрос паролей или парольных фраз).
+.It Fl C
+Включает сжатие.
+Передаёт флаг
+.Fl C
+команде
+.Xr ssh 1
+для включения сжатия.
+.It Fl c Ar шифр
+Выбирает шифр, используемый для шифрования передачи данных.
+Этот параметр напрямую передаётся
+.Xr ssh 1 .
+.It Fl D Ar sftp_server_path
+Подключается напрямую к локальной программе SFTP-сервера, а не к
+удалённой через
+.Xr ssh 1 .
+Этот параметр может быть полезен при отладке клиента и сервера.
+.It Fl F Ar ssh_config
+Указывает альтернативный
+пользовательский файл конфигурации для
+.Nm ssh .
+Этот параметр напрямую передаётся
+.Xr ssh 1 .
+.It Fl i Ar identity_file
+Выбирает файл, из которого читается идентификатор (закрытый ключ) для
+аутентификации по открытому ключу.
+Этот параметр напрямую передаётся
+.Xr ssh 1 .
+.It Fl J Ar пункт_назначения
+Подключается к целевому хосту, сначала устанавливая соединение
+.Nm
+с промежуточным хостом, заданным в
+.Ar пункт_назначения ,
+а затем устанавливая TCP-перенаправление к конечному пункту назначения оттуда.
+Можно указать несколько промежуточных переходов, разделённых запятыми.
+Это сокращение для указания директивы конфигурации
+.Cm ProxyJump .
+Этот параметр напрямую передаётся
+.Xr ssh 1 .
+.It Fl l Ar лимит
+Ограничивает используемую полосу пропускания, указанную в Кбит/с.
+.It Fl O
+Использовать устаревший протокол SCP для передачи файлов вместо протокола SFTP.
+Принудительное использование протокола SCP может потребоваться для серверов, которые
+не реализуют SFTP, для обратной совместимости с определёнными шаблонами
+подстановочных знаков имён файлов и для раскрытия путей с префиксом
+.Sq ~
+для старых SFTP-серверов.
+.It Fl o Ar ssh_option
+Может использоваться для передачи параметров
+.Nm ssh
+в формате, используемом в
+.Xr ssh_config 5 .
+Это полезно для указания параметров,
+для которых нет отдельного
+флага командной строки
+.Nm scp .
+Полные сведения о перечисленных ниже параметрах и их возможных значениях см. в
+.Xr ssh_config 5 .
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It AddKeysToAgent
+.It AddressFamily
+.It BatchMode
+.It BindAddress
+.It BindInterface
+.It CASignatureAlgorithms
+.It CanonicalDomains
+.It CanonicalizeFallbackLocal
+.It CanonicalizeHostname
+.It CanonicalizeMaxDots
+.It CanonicalizePermittedCNAMEs
+.It CertificateFile
+.It ChannelTimeout
+.It CheckHostIP
+.It Ciphers
+.It ClearAllForwardings
+.It Compression
+.It ConnectTimeout
+.It ConnectionAttempts
+.It ControlMaster
+.It ControlPath
+.It ControlPersist
+.It DynamicForward
+.It EnableEscapeCommandline
+.It EnableSSHKeysign
+.It EscapeChar
+.It ExitOnForwardFailure
+.It FingerprintHash
+.It ForkAfterAuthentication
+.It ForwardAgent
+.It ForwardX11
+.It ForwardX11Timeout
+.It ForwardX11Trusted
+.It GSSAPIAuthentication
+.It GSSAPIDelegateCredentials
+.It GatewayPorts
+.It GlobalKnownHostsFile
+.It HashKnownHosts
+.It Host
+.It HostKeyAlgorithms
+.It HostKeyAlias
+.It HostbasedAcceptedAlgorithms
+.It HostbasedAuthentication
+.It Hostname
+.It IPQoS
+.It IdentitiesOnly
+.It IdentityAgent
+.It IdentityFile
+.It IgnoreUnknown
+.It Include
+.It KbdInteractiveAuthentication
+.It KbdInteractiveDevices
+.It KexAlgorithms
+.It KnownHostsCommand
+.It LocalCommand
+.It LocalForward
+.It LogLevel
+.It LogVerbose
+.It MACs
+.It NoHostAuthenticationForLocalhost
+.It NumberOfPasswordPrompts
+.It ObscureKeystrokeTiming
+.It PKCS11Provider
+.It PasswordAuthentication
+.It PermitLocalCommand
+.It PermitRemoteOpen
+.It Port
+.It PreferredAuthentications
+.It ProxyCommand
+.It ProxyJump
+.It ProxyUseFdpass
+.It PubkeyAcceptedAlgorithms
+.It PubkeyAuthentication
+.It RekeyLimit
+.It RemoteCommand
+.It RemoteForward
+.It RequestTTY
+.It RequiredRSASize
+.It RevokedHostKeys
+.It SecurityKeyProvider
+.It SendEnv
+.It ServerAliveCountMax
+.It ServerAliveInterval
+.It SessionType
+.It SetEnv
+.It StdinNull
+.It StreamLocalBindMask
+.It StreamLocalBindUnlink
+.It StrictHostKeyChecking
+.It SyslogFacility
+.It TCPKeepAlive
+.It Tag
+.It Tunnel
+.It TunnelDevice
+.It UpdateHostKeys
+.It User
+.It UserKnownHostsFile
+.It VerifyHostKeyDNS
+.It VisualHostKey
+.It XAuthLocation
+.El
+.It Fl P Ar порт
+Указывает порт для подключения на удалённом хосте.
+Обратите внимание, что этот параметр записывается с заглавной
+.Sq P ,
+поскольку
+.Fl p
+уже зарезервирован для сохранения времени и битов режима файла.
+.It Fl p
+Сохраняет время модификации, время доступа и биты режима файла из
+исходного файла.
+.It Fl q
+Тихий режим: отключает индикатор выполнения, а также предупреждающие и диагностические
+сообщения от
+.Xr ssh 1 .
+.It Fl R
+По умолчанию копирование между двумя удалёнными хостами выполняется через локальный хост.
+Этот параметр вместо этого копирует между двумя удалёнными хостами, подключаясь к исходному
+хосту и выполняя
+.Nm
+там.
+Для этого требуется, чтобы
+.Nm
+запущенный на исходном хосте, мог аутентифицироваться на хосте назначения без запроса пароля.
+.It Fl r
+Рекурсивно копировать целые каталоги.
+Обратите внимание, что
+.Nm
+переходит по символическим ссылкам, встречающимся при обходе дерева.
+.It Fl S Ar программа
+Имя
+.Ar программы ,
+используемой для зашифрованного соединения.
+Программа должна понимать параметры
+.Xr ssh 1 .
+.It Fl T
+Отключает строгую проверку имён файлов.
+По умолчанию при копировании файлов с удалённого хоста в локальный каталог
+.Nm
+проверяет, что полученные имена файлов соответствуют запрошенным в командной строке,
+чтобы удалённая сторона не отправляла неожиданные или нежелательные файлы.
+Из-за различий в том, как различные операционные системы и оболочки интерпретируют
+шаблоны имён файлов, эти проверки могут приводить к отклонению нужных файлов.
+Этот параметр отключает эти проверки ценой полного доверия тому, что
+сервер не отправит неожиданные имена файлов.
+.It Fl v
+Подробный режим.
+Заставляет
+.Nm
+и
+.Xr ssh 1
+выводить отладочные сообщения о ходе своей работы.
+Это помогает при отладке проблем подключения, аутентификации и конфигурации.
+.It Fl X Ar sftp_option
+Указывает параметр, управляющий аспектами поведения протокола SFTP.
+Допустимые параметры:
+.Bl -tag -width Ds
+.It Cm nrequests Ns = Ns Ar значение
+Управляет тем, сколько одновременных запросов чтения или записи SFTP может выполняться
+в любой момент времени во время загрузки или выгрузки.
+По умолчанию одновременно может быть активно 64 запроса.
+.It Cm buffer Ns = Ns Ar значение
+Управляет максимальным размером буфера для одной операции чтения/записи SFTP,
+используемой во время загрузки или выгрузки.
+По умолчанию используется буфер размером 32 КБ.
+.El
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std scp
+.Sh СМ. ТАКЖЕ
+.Xr sftp 1 ,
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-agent 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr sftp-server 8 ,
+.Xr sshd 8
+.Sh ИСТОРИЯ
+.Nm
+основан на программе rcp в исходном коде
+.Bx
+от Регентов Калифорнийского университета.
+.Pp
+Начиная с OpenSSH 9.0,
+.Nm
+по умолчанию использует протокол SFTP для передачи.
+.Sh АВТОРЫ
+.An Timo Rinne Aq Mt tri@iki.fi
+.An Tatu Ylonen Aq Mt ylo@cs.hut.fi
+.Sh ПРЕДУПРЕЖДЕНИЯ
+Устаревший протокол SCP (выбираемый флагом
+.Fl O )
+требует выполнения оболочки удалённого пользователя для сопоставления с образцом
+.Xr glob 3 .
+Это требует тщательного экранирования любых символов, имеющих особое значение
+для удалённой оболочки, например символов кавычек.

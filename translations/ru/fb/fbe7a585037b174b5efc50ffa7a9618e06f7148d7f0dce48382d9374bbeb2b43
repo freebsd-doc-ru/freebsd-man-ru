@@ -1,0 +1,104 @@
+.\" Copyright 1997 John-Mark Gurney.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS''
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/brandelf/brandelf.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 fbe7a585037b174b5efc50ffa7a9618e06f7148d7f0dce48382d9374bbeb2b43
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 25, 2014
+.Dt BRANDELF 1
+.Os
+.Sh ИМЯ
+.Nm brandelf
+.Nd пометить ELF-двоичный файл для конкретного ABI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl lv
+.Op Fl f Ar ELF_ABI_number
+.Op Fl t Ar строка
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+помечает ELF-двоичный файл как предназначенный для выполнения в
+.Fx .
+под определённым ABI
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width indent
+.It Fl f Ar ELF_ABI_number
+Принудительно задаёт маркировку с использованием указанного номера ABI ELF.
+Несовместим с параметром
+.Fl t .
+Эти значения назначены SCO/USL.
+.It Fl l
+Записывает список всех известных типов ELF в стандартный поток ошибок.
+.It Fl v
+Включает подробный вывод.
+.It Fl t Ar строка
+Помечает заданные ELF-двоичные файлы как имеющие ABI-тип
+.Ar строка .
+В настоящее время поддерживаются ABI
+.Dq Li FreeBSD ,
+.Dq Li Linux
+и
+.Dq Li SVR4 .
+.It Ar файл
+Если указан
+.Fl t Ar строка ,
+то
+.Ar файл
+будет помечен как имеющий тип
+.Ar строка ;
+в противном случае просто отображается маркировка
+.Ar файл .
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается неудачно:
+файл не существует, слишком короток, не удаётся правильно выполнить маркировку,
+либо запрошенная маркировка не относится к известным типам и параметр
+.Fl f
+не задан.
+.Sh ПРИМЕРЫ
+Ниже приведён пример типичного использования команды
+.Nm :
+.Bd -literal -offset indent
+brandelf file
+brandelf -t Linux file
+.Ed
+.Sh СМ. ТАКЖЕ
+.Rs
+.%A The Santa Cruz Operation, Inc.
+.%T System V Application Binary Interface
+.%D April 29, 1998 (DRAFT)
+.%U http://www.sco.com/developers/devspecs/
+.Re
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 2.2 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An John-Mark Gurney Aq Mt jmg@FreeBSD.org .

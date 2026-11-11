@@ -96,6 +96,8 @@ Copy translated files from source directory `man/fixed` to final storage in `tra
 
 ```sh
 tools/man-tr-copy.sh -v man/fixed  translations/ru
+tools/man-tr-copy.sh -v ~/Development/postgrespro/FreeBSDtranslate/translateman/releng152_1/man1/  translations/ru
+tools/man-tr-copy.sh -v ~/Development/postgrespro/FreeBSDtranslate/translateman/releng152_1/man8/  translations/ru
 ```
 
 Verify metadata file `meta/releng15.1.tsv` (check if old translation is not needed anymore), when new translations are added

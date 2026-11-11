@@ -1,0 +1,90 @@
+.\" Copyright (c) 2014 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/soelim/soelim.1
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 e69366f0bef2e5f0f7544855e41a81cdf8c93d5c529468ee2fbc26097fea1e1c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 7, 2015
+.Dt SOELIM 1
+.Os
+.Sh ИМЯ
+.Nm soelim
+.Nd интерпретирует запросы .so в страницах руководства
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Crtv
+.Op Fl I Ar каталог
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает указанные файлы или стандартный ввод и выполняет текстовое включение, подразумеваемое директивами
+.Xr nroff 1 Pq Pa ports/textproc/groff
+вида:
+.Pp
+.Dl \&.so anotherfile
+.Pp
+Если строка начинается с:
+.Dq .so anotherfile
+то она заменяется результатом обработки
+.Dq anotherfile .
+В противном случае строка выводится в стандартный вывод.
+.Bl -tag -width Ds
+.It Fl C
+Распознавать
+.Em .so ,
+если за ним не следует пробел.
+.It Fl r
+Совместимость с
+.Xr soelim 1
+из groff (ничего не делает).
+.It Fl t
+Совместимость с
+.Xr soelim 1
+из groff (ничего не делает).
+.It Fl v
+Совместимость с
+.Xr soelim 1
+из groff (ничего не делает).
+.It Fl I Ar каталог
+Эта опция задаёт каталоги, в которых
+.Nm
+ищет файлы (как указанные в командной строке, так и названные в директиве
+.Dq .so ).
+Эта опция может быть указана несколько раз.
+Каталоги будут просматриваться в указанном порядке.
+.El
+.Pp
+Файлы всегда сначала ищутся в текущем каталоге.
+.Pp
+Файл, указанный с абсолютным путём, открывается напрямую без выполнения поиска.
+.Sh СМ. ТАКЖЕ
+.Xr mandoc 1
+.Sh АВТОРЫ
+Эта версия утилиты
+.Nm
+была написана
+.An Baptiste Daroussin Aq Mt bapt@FreeBSD.org .

@@ -1,0 +1,307 @@
+.\" Copyright (c) 1999 Mitsuru IWASAKI <iwasaki@FreeBSD.org>
+.\" Copyright (c) 1999 KOIE Hidetaka <koie@suri.co.jp>
+.\" Copyright (c) 1999 Yoshihiko SARUMARU <mistral@imasy.or.jp>
+.\" Copyright (c) 1999 Norihiro Kumagai <kuma@nk.rim.or.jp>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/apmd/apmd.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 c7520b651194677beb6c931df4ddd02f26a67013e34b5114b26248318d402fb7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 28, 1999
+.Dt APMD 8 i386
+.Os
+.Sh ИМЯ
+.Nm apmd
+.Nd демон мониторинга Advanced Power Management
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl f файл
+.Op Fl s
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отслеживает наступление указанных событий Advanced Power Management
+.Pq Tn APM
+и, если одно из событий происходит, выполняет последовательность
+команд, соответствующую этому событию.
+Только события, указанные в
+файле конфигурации, передаются
+.Nm ;
+все остальные события игнорируются.
+Для каждого события, отправленного APM BIOS,
+.Nm
+вызывает последовательность команд, указанную в файле конфигурации.
+Когда
+.Nm
+работает с отслеживанием запросов приостановки/ожидания,
+ядро не будет обрабатывать эти запросы.
+Поэтому, если вы хотите, чтобы при наступлении этих событий
+выполнялись действия, необходимо явно настроить соответствующие команды или
+встроенные функции в файле конфигурации.
+.Pp
+Утилита
+.Nm
+распознаёт следующие параметры времени выполнения:
+.Bl -tag -width f_file
+.It Fl d
+Запускается в режиме отладки.
+Это заставляет
+.Nm
+выполняться на переднем плане, а не в режиме демона.
+.It Fl f Ar файл
+Указывает другой файл конфигурации
+.Ar файл
+для использования вместо файла по умолчанию
+.Pa /etc/apmd.conf .
+.It Fl s
+Заставляет
+.Nm
+имитировать событие POWERSTATECHANGE, когда обнаружено изменение состояния питания
+(AC_POWER_STATE), но BIOS ноутбука не сообщает о нём.
+Это позволяет, например, уменьшать яркость подсветки LCD при отключении
+кабеля питания.
+.It Fl v
+Режим подробного вывода.
+.El
+.Pp
+Когда
+.Nm
+запускается, он читает файл конфигурации
+.Pa ( /etc/apmd.conf
+по умолчанию)
+и уведомляет драйвер устройства APM о наборе событий, которые нужно отслеживать.
+При завершении драйвер устройства APM автоматически отменяет
+отслеживаемые события.
+.Pp
+Если процесс
+.Nm
+получает
+.Dv SIGHUP ,
+он повторно читает свой файл конфигурации и
+уведомляет драйвер устройства APM о любых изменениях своей конфигурации.
+.Pp
+Утилита
+.Nm
+использует устройство
+.Pa /dev/apmctl
+для выдачи запросов
+.Xr ioctl 2
+для отслеживания событий и управления системой APM.
+Этот файл устройства открывается монопольно, поэтому в любой момент
+может работать только один процесс
+.Nm .
+.Pp
+Когда
+.Nm
+получает событие APM, он создаёт дочерний процесс для выполнения
+команд, указанных в файле конфигурации, а затем продолжает
+прослушивание новых событий.
+Дочерний процесс выполняет указанные команды
+по одной в порядке их перечисления.
+.Pp
+Пока
+.Nm
+обрабатывает список команд для запросов SUSPEND/STANDBY, драйвер устройства APM
+в ядре раз в секунду отправляет уведомления BIOS APM, чтобы
+BIOS знал, что некоторые команды всё ещё ожидают выполнения и что ему пока не следует
+завершать запрос.
+.Pp
+Утилита
+.Nm
+создаёт файл
+.Pa /var/run/apmd.pid ,
+и сохраняет там идентификатор своего процесса.
+Это можно использовать для завершения или перенастройки
+.Nm .
+.Sh ФАЙЛ КОНФИГУРАЦИИ
+Структура файла конфигурации
+.Nm
+довольно проста.
+Например:
+.Bd -literal
+apm_event SUSPENDREQ {
+}
+.Ed
+.Pp
+приведёт к тому, что
+.Nm
+получит событие APM
+.Ql SUSPENDREQ
+(которое может быть отправлено при закрытии LCD), выполнит команду
+.Ql sync
+3 раза и подождёт некоторое время, затем выполнит
+.Nm zzz ( Ns Nm apm Fl z )
+чтобы перевести систему в состояние приостановки.
+.Bl -bullet
+.It
+Ключевое слово apm_event
+.Bd -ragged -offset indent
+.Ql apm_event
+— это ключевое слово, обозначающее начало конфигурации для
+каждого события.
+.Ed
+.It
+События APM
+.Bd -ragged -offset indent
+Если вы хотите выполнять одни и те же команды для разных событий,
+имена событий следует разделять запятой.
+Допустимы следующие
+имена событий:
+.Bl -item
+.It
+- События, игнорируемые ядром, если
+.Nm
+работает:
+.Pp
+.Bl -tag -width USERSUSPENDREQ -compact -offset indent
+.It STANDBYREQ
+.It USERSTANDBYREQ
+.It SUSPENDREQ
+следует включить sync в список команд,
+.It USERSUSPENDREQ
+следует включить sync в список команд,
+.It BATTERYLOW
+в списке команд следует указать только zzz.
+.El
+.It
+- События, передаваемые
+.Nm
+после обработки ядром:
+.Pp
+.Bl -tag -width USERSUSPENDREQ -compact -offset indent
+.It NORMRESUME
+.It CRITRESUME
+.It STANDBYRESUME
+.It POWERSTATECHANGE
+.It UPDATETIME
+.It CAPABILITIESCHANGE
+.El
+.Pp
+Другие события не будут отправляться в
+.Nm .
+.El
+.Ed
+.It
+синтаксис командной строки
+.Bd -ragged -offset indent
+В приведённом выше примере три строки, начинающиеся с
+.Ql exec
+являются командами для события.
+Каждая строка должна заканчиваться точкой с запятой.
+Список команд для события должен быть заключён в
+.Ql {
+и
+.Ql } .
+Утилита
+.Nm
+использует
+.Pa /bin/sh
+для выполнения команд, заключённых в двойные кавычки, так же как и
+.Xr system 3 .
+Каждая команда выполняется по порядку до конца
+списка или до тех пор, пока команда не завершится с ненулевым кодом состояния.
+Утилита
+.Nm
+сообщит код состояния любой неудачной команды через
+.Xr syslog 3
+и затем отклонит событие запроса, отправленное BIOS APM.
+.Ed
+.It
+Встроенные функции
+.Bd -ragged -offset indent
+Вы также можете указывать
+.Nm
+встроенные функции вместо командных строк.
+Имя встроенной функции должно заканчиваться точкой с запятой,
+как и командная строка.
+В настоящее время поддерживаются следующие встроенные функции:
+.Bl -item
+.It
+\- reject
+Отклонить последний запрос, отправленный BIOS APM.
+Это можно использовать для отклонения
+запроса SUSPEND при закрытии LCD и вместо этого перевести систему в
+состояние STANDBY.
+.El
+.Ed
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/apmd.conf -compact
+.It Pa /etc/apmd.conf
+.It Pa /dev/apmctl
+.It Pa /var/run/apmd.pid
+.El
+.Sh ПРИМЕРЫ
+Примеры команд конфигурации включают:
+.Bd -literal
+apm_event SUSPENDREQ {
+}
+
+apm_event USERSUSPENDREQ {
+}
+
+apm_event NORMRESUME {
+}
+
+apm_event STANDBYRESUME {
+}
+
+# конфигурация события resume для пользователей последовательной мыши:
+# повторная инициализация moused(8), подключённой к последовательному порту.
+#
+#apm_event NORMRESUME {
+#}
+#
+# конфигурация события запроса suspend для пользователей ATA HDD:
+# выполнять standby вместо suspend.
+#
+#apm_event SUSPENDREQ {
+#       reject;
+#}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr apm 4 ,
+.Xr apm 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 3.3 .
+.Sh АВТОРЫ
+.An Mitsuru IWASAKI Aq Mt iwasaki@FreeBSD.org
+.An KOIE Hidetaka Aq Mt koie@suri.co.jp
+.Pp
+.An -nosplit
+Также свой вклад внесли
+.An Warner Losh Aq Mt imp@FreeBSD.org ,
+.An Hiroshi Yamashita Aq Mt bluemoon@msj.biglobe.ne.jp ,
+.An Yoshihiko SARUMARU Aq Mt mistral@imasy.or.jp ,
+.An Norihiro Kumagai Aq Mt kuma@nk.rim.or.jp ,
+.An NAKAGAWA Yoshihisa Aq Mt nakagawa@jp.FreeBSD.org ,
+и
+.An Nick Hilliard Aq Mt nick@foobar.org .

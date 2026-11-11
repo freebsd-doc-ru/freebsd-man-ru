@@ -1,0 +1,114 @@
+.\" Copyright (c) 2020 Emmanuel Vadot <manu@freebsd.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/backlight/backlight.8
+.\" FRDP githash 5245187af22b934ad10b82151f7f5a970140f283
+.\" FRDP hash256 4ccb592f5a79ddf7a10d98b5ae4da9c9efaf5960cf9b56b55399e12ebc6f8017
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 1, 2026
+.Dt BACKLIGHT 8
+.Os
+.Sh ИМЯ
+.Nm backlight
+.Nd настройка аппаратной подсветки
+.Sh СИНТАКСИС
+.Nm
+.Op Fl q
+.Op Fl f Ar устройство
+.Nm
+.Op Fl q
+.Op Fl f Ar устройство
+.Fl i
+.Nm
+.Op Fl f Ar устройство
+.Ar значение
+.Nm
+.Op Fl f Ar устройство
+.Cm incr Ns | Ns Cm +
+.Op Ar значение
+.Nm
+.Op Fl f Ar устройство
+.Cm decr Ns | Ns Cm -
+.Op Ar значение
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для настройки уровней яркости зарегистрированных подсветок.
+.Pp
+При вызове без аргументов она выводит текущий уровень яркости первой
+зарегистрированной подсветки.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl f Ar устройство
+Устройство, с которым нужно работать.
+Если не указано,
+.Pa /dev/backlight/backlight0
+используется.
+Если указано имя без полного пути,
+.Pa /dev/backlight/
+автоматически добавляется в начало.
+.It Fl i
+Запросить информацию о подсветке (имя, тип).
+.It Fl q
+При запросе уровня яркости выводить только значение.
+.It Ar значение
+Установить уровень яркости в это значение; должно быть от 0 до 100.
+Завершающий
+.Dq %
+допустим.
+.It Cm incr Ns | Ns Cm + Op Ar значение
+Уменьшить уровень подсветки.
+Если значение не указано, по умолчанию используется 10 процентов.
+.It Cm decr Ns | Ns Cm - Op Ar значение
+Увеличить уровень подсветки.
+Если значение не указано, по умолчанию используется 10 процентов.
+.El
+.Pp
+Уровни яркости могут не сохраняться после перезагрузки, если только
+.Va backlight_enable
+не установлена в
+.Dq Li YES
+в
+.Xr rc.conf 5 .
+Это отключено по умолчанию, чтобы не мешать окружениям рабочего стола,
+которые самостоятельно управляют подсветкой.
+.Sh ПРИМЕРЫ
+Показать текущий уровень яркости:
+.Bd -literal -offset indent
+$ backlight -f /dev/backlight/backlight0
+brightness: 98
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr backlight 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 13.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и эта страница руководства были написаны
+.An Emmanuel Vadot Aq Mt manu@FreeBSD.org .

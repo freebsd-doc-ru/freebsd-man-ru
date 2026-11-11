@@ -1,0 +1,113 @@
+.\" Copyright (c) 2003 David O'Brien
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/elfdump/elfdump.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a7c8514ecc3f19ab1bd2747bb1f6ff16df348374fa1acbe85ee1e38ed10009a9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 5, 2018
+.Dt ELFDUMP 1
+.Os
+.Sh ИМЯ
+.Nm elfdump
+.Tn ELF
+файлы
+.Sh СИНТАКСИС
+.Nm
+.Fl a | E | cdeGhinprs
+.Op Fl w Ar файл
+.Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит различную информацию об указанном
+.Tn ELF
+.Ar файле .
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width Ds
+.It Fl a
+Вывести всю информацию.
+.It Fl c
+Вывести заголовки разделов.
+.It Fl d
+Вывести динамические символы.
+.It Fl e
+Вывести заголовок ELF.
+.It Fl E
+Возвращать успех, если
+.Ar файл
+является ELF-файлом, и неудачу, если нет.
+Этот параметр несовместим с другими параметрами.
+.It Fl G
+Вывести GOT.
+.It Fl h
+Вывести значения хешей.
+.It Fl i
+Вывести динамический интерпретатор.
+.It Fl n
+Вывести разделы примечаний.
+.It Fl p
+Вывести заголовок программы.
+.It Fl r
+Вывести перемещения.
+.It Fl s
+Вывести таблицу символов.
+.It Fl w Ar файл
+Записывать вывод в
+.Ar файл
+вместо стандартного вывода.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Ниже приведён пример типичного использования
+команды
+.Nm :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr objdump 1 ,
+.Xr readelf 1
+.Rs
+.%U http://www.sco.com/developers/gabi/
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Jake Burkholder Aq Mt jake@FreeBSD.org .
+Эта
+страница руководства была написана
+.An David O'Brien Aq Mt obrien@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Не полностью реализует
+.Tn ELF
+gABI.

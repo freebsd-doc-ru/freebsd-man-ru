@@ -1,0 +1,69 @@
+.\" * SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2024 Beckhoff Automation GmbH & Co. KG
+.\"
+.\" * Redistribution and use in source and binary forms, with or without
+.\" * modification, are permitted provided that the following conditions
+.\" * are met:
+.\" * 1. Redistributions of source code must retain the above copyright
+.\" *    notice, this list of conditions and the following disclaimer.
+.\" * 2. Redistributions in binary form must reproduce the above copyright
+.\" *    notice, this list of conditions and the following disclaimer in the
+.\" *    documentation and/or other materials provided with the distribution.
+.\" *
+.\" * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" * SUCH DAMAGE.
+.\" FRDP path lib/libpam/modules/pam_xdg/pam_xdg.8
+.\" FRDP githash 616bb0b230835e8b88d032e2026854ad031afea2
+.\" FRDP hash256 091f9e31bf381aafb085fb7eeb295c215072836e727bd69c4e5d05db30eb3317
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2025
+.Dt PAM_XDG 8
+.Os
+.Sh ИМЯ
+.Nm pam_xdg
+.Nd Модуль PAM XDG
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_xdg
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+Сервисный модуль xdg для PAM создаёт базовый каталог для файлов времени выполнения в соответствии со спецификацией базовых каталогов Cross Desktop Group.
+.Pp
+По умолчанию каталог создаётся в
+.Pa /var/run/xdg/ Ns $ Ns Ev USER .
+.Pp
+Модулю аутентификации можно передать следующий параметр:
+.Bl -tag -width indent
+.It Cm runtime_dir_prefix Ns = Ns Ar каталог
+Использовать альтернативный базовый каталог
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width indent
+.It Ev XDG_RUNTIME_DIR
+Расположение базового каталога для файлов времени выполнения, создаваемого этим модулем.
+Обратите внимание, что модуль не устанавливает эту переменную окружения.
+.El
+.Sh СТАНДАРТЫ
+Каталог, создаваемый этим модулем, соответствует
+.Lk https://specifications.freedesktop.org/basedir-spec Спецификации базовых каталогов XDG .
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr pam.conf 5
+.Sh АВТОРЫ
+Модуль
+.Nm
+и эта страница руководства были написаны
+.An Emmanuel Vadot Aq Mt manu@FreeBSD.org .

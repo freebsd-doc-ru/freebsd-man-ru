@@ -1,0 +1,70 @@
+.\" Copyright (c) 2018 iXsystems, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/i386/isoboot/isoboot.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 01de8c7aa4d99cf7b1b1614ebec4690425b82a47c624b4904a297a3ea2fc5b85
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2018
+.Dt ISOBOOT 8
+.Os
+.Sh ИМЯ
+.Nm isoboot
+.Nd Загрузочный код для гибридных образов ISO/USB на компьютерах с BIOS
+.Sh ОПИСАНИЕ
+.Nm
+используется на компьютерах с BIOS для загрузки с образа ISO, записанного
+на USB-флеш-накопитель или другое устройство, подобное жёсткому диску.
+.Nm
+устанавливается в
+.Cm freebsd-boot
+раздел с помощью
+.Xr mkimg 1 .
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+в начале образа.
+Чтобы создать образ, который может загружаться BIOS как либо
+необходимо иметь как стандартный загрузочный каталог El Torito,
+содержащий таблицу разделов в стиле HDD, так и загрузочный код.
+.Nm
+предполагается размещать в разделе GPT, чтобы система могла найти
+стандартный
+.Fx
+.Xr loader 8
+в файловой системе ISO далее в образе.
+.Sh ЗАГРУЗКА
+.Nm
+ищет образ файловой системы ISO на устройстве, с которого была загружена, и
+пытается прочитать либо первичный
+.Fx
+.Xr loader 8
+или ядро оттуда.
+.Sh СМ. ТАКЖЕ
+.Xr mkimg 1
+.Sh ИСТОРИЯ
+.Nm
+появилась в FreeBSD 12.0.
+.Sh АВТОРЫ
+Эта страница руководства написана
+.An Benno Rice Aq Mt benno@FreeBSD.org .

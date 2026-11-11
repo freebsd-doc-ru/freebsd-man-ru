@@ -1,0 +1,315 @@
+.\" Copyright (c) 2013  iXsystems.com,
+.\"                     author: Alfred Perlstein <alfred@freebsd.org>
+.\" Copyright (c) 2004  Poul-Henning Kamp <phk@FreeBSD.org>
+.\" Copyright (c) 2003  Sean M. Kelly <smkelly@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/watchdogd/watchdogd.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 20d2c5037de3c2edb2ad880c44e907058c284fdb8af516f3e65fc6bd3f241ec0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 11, 2015
+.Dt WATCHDOGD 8
+.Os
+.Sh ИМЯ
+.Nm watchdogd
+.Nd демон сторожевого таймера
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dnSw
+.Op Fl -debug
+.Op Fl -softtimeout
+.Op Fl -softtimeout-action Ar action
+.Op Fl -pretimeout Ar timeout
+.Op Fl -pretimeout-action Ar action
+.Op Fl e Ar cmd
+.Op Fl I Ar file
+.Op Fl s Ar sleep
+.Op Fl t Ar timeout
+.Op Fl T Ar script_timeout
+.Op Fl x Ar exit_timeout
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+взаимодействует с подсистемой сторожевого таймера ядра, чтобы убедиться,
+что система находится в рабочем состоянии.
+Если
+.Nm
+не может взаимодействовать с ядром в течение заданного тайм-аута,
+ядро предпримет действия, помогающие отладке или перезапуску компьютера.
+.Pp
+Если указан
+.Fl e Ar cmd ,
+.Nm
+попытается выполнить эту команду с помощью
+.Xr system 3 ,
+и сторожевой таймер будет сброшен только в том случае, если команда
+завершится с нулевым кодом выхода.
+Если
+.Fl e Ar cmd
+не указан, демон вместо этого выполнит простую проверку файловой системы.
+.Pp
+Аргумент
+.Fl n
+«пробный запуск» заставит watchdog не взводить системный сторожевой таймер,
+а вместо этого только выполнять функцию сторожевого таймера и сообщать об ошибках.
+Это полезно при разработке новых скриптов watchdogd, так как система не
+перезагрузится при проблемах со скриптом.
+.Pp
+Аргумент
+.Fl s Ar sleep
+можно использовать для управления периодом сна между каждым выполнением
+проверки; по умолчанию он равен 10 секундам.
+.Pp
+Аргумент
+.Fl t Ar timeout
+задаёт желаемый период тайм-аута в секундах.
+Тайм-аут по умолчанию — 128 секунд.
+.Pp
+Одно из возможных обстоятельств, вызывающих срабатывание сторожевого таймера, —
+шторм прерываний.
+Если это произойдёт,
+.Nm
+больше не будет выполняться, и поэтому процедуры сторожевого таймера ядра
+предпримут действия после настраиваемого тайм-аута.
+.Pp
+Аргумент
+.Fl T Ar script_timeout
+задаёт порог (в секундах), при котором watchdogd будет сообщать,
+что его скрипт выполняется слишком долго.
+Если не задан,
+.Ar script_timeout
+по умолчанию принимает значение, указанное в параметре
+.Fl s Ar sleep .
+.Pp
+Аргумент
+.Fl x Ar exit_timeout
+— это период тайм-аута (в секундах), который остаётся действующим при
+выходе программы.
+Использование
+.Fl x
+с ненулевым значением защищает от зависания во время перезагрузки,
+инициируя аппаратный сброс, если программная перезагрузка не завершится
+до истечения заданного тайм-аута.
+.Pp
+При получении сигналов
+.Dv SIGTERM
+или
+.Dv SIGINT
+.Nm
+завершит работу, предварительно указав ядру отключить тайм-аут или сбросить
+его к значению, заданному
+.Fl x Ar exit_timeout .
+.Pp
+Утилита
+.Nm
+распознаёт следующие параметры времени выполнения:
+.Bl -tag -width 30m
+.It Fl I Ar file
+Записать идентификатор процесса утилиты
+.Nm
+в указанный файл.
+.It Fl d Fl -debug
+Не выполнять fork.
+Если этот параметр указан,
+.Nm
+не будет переходить в фоновый режим при запуске.
+.It Fl S
+Не отправлять сообщение системному журналу, когда команда сторожевого таймера
+выполняется дольше ожидаемого.
+По умолчанию выдаётся предупреждение через системный журнал с помощью средства
+LOG_DAEMON и выводится предупреждение в стандартный поток ошибок.
+.It Fl w
+Сообщать, когда скрипт сторожевого таймера выполняется слишком долго.
+Этот флаг заставит watchdogd сообщать, когда время выполнения скрипта
+сторожевого таймера превышает порог параметра 'sleep'.
+.It Fl -pretimeout Ar timeout
+Действие задаётся флагом --pretimeout-action.
+По умолчанию просто регистрируется сообщение (WD_SOFT_LOG) через
+.Xr log 9 .
+.It Fl -pretimeout-action Ar action
+Задать действие по тайм-ауту для предварительного тайм-аута.
+См. раздел
+.Sx Действия по тайм-ауту .
+.It Fl -softtimeout
+Вместо взведения различных аппаратных сторожевых таймеров использовать только
+базовый программный сторожевой таймер.
+Действие по умолчанию — просто записать сообщение (WD_SOFT_LOG) через
+.Xr log 9 .
+.It Fl -softtimeout-action Ar action
+Задать действие по тайм-ауту для softtimeout.
+См. раздел
+.Sx Действия по тайм-ауту .
+.El
+.Sh Действия по тайм-ауту
+Следующие действия по тайм-ауту доступны через флаги
+.Fl -pretimeout-action
+и
+.Fl -softtimeout-action :
+.Bl -tag -width 30m
+.It Ar panic
+Вызвать
+.Xr panic 9
+при достижении тайм-аута.
+.It Ar ddb
+Войти в отладчик ядра через
+.Xr kdb_enter 9
+при достижении тайм-аута.
+.It Ar log
+Записать сообщение с помощью
+.Xr log 9
+при достижении тайм-аута.
+.It Ar printf
+Вызвать ядерную
+.Xr printf 9
+для вывода сообщения на консоль и в буфер
+.Xr dmesg 8 .
+.El
+.Pp
+Действия можно объединять в список через запятую, например:
+.Ar log,printf ,
+что будет одновременно
+.Xr printf 9
+и
+.Xr log 9 ,
+которые отправят сообщения как в
+.Xr dmesg 8 ,
+так и в устройство
+.Xr log 4
+ядра для
+.Xr syslogd 8 .
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/run/watchdogd.pid" -compact
+.It Pa /var/run/watchdogd.pid
+.El
+.Sh ПРИМЕРЫ
+.Ss Отладка watchdogd и/или вашего скрипта сторожевого таймера.
+Это полезный рецепт для отладки
+.Nm
+и вашего скрипта сторожевого таймера.
+.Pp
+(Обратите внимание, что ^C работает странно, потому что
+.Nm
+вызывает
+.Xr system 3 ,
+поэтому
+.Pp
+Пояснение используемых параметров:
+.Bl -enum -offset indent -compact
+.It
+Включить отладку (--debug)
+.It
+Настроить срабатывание сторожевого таймера через 30 секунд. (-t 30)
+.It
+Использование softtimeout:
+.Bl -enum -offset indent -compact -nested
+.It
+Использовать softtimeout (не взводить аппаратный сторожевой таймер).
+(--softtimeout)
+.It
+Задать действие softtimeout так, чтобы при срабатывании выполнялись и ядерный
+.Xr printf 9 ,
+и
+.Xr log 9 .
+(--softtimeout-action log,printf)
+.El
+.It
+Использование предварительного тайм-аута:
+.Bl -enum -offset indent -compact -nested
+.It
+Задать предварительный тайм-аут 15 секунд (это позже вызовет панику/дамп).
+(--pretimeout 15)
+.It
+Задать действие, чтобы при срабатывании также выполнялись ядерный
+.Xr printf 9
+и
+.Xr log 9 .
+(--pretimeout-action log,printf)
+.El
+.It
+Использование скрипта:
+.Bl -enum -offset indent -compact -nested
+.It
+.It
+Предупреждать нас, когда скрипт выполняется дольше 1 секунды (-w)
+.El
+.El
+.Bd -literal
+watchdogd --debug -t 30 \\
+  --softtimeout --softtimeout-action log,printf \\
+  --pretimeout 15 --pretimeout-action log,printf \\
+  -e 'sleep 60' -w
+.Ed
+.Ss Пример использования в рабочей среде
+.Bl -enum -offset indent -compact
+.It
+Установить жёсткий тайм-аут в 120 секунд (-t 120)
+.It
+Настроить возникновение паники через 60 секунд (чтобы вызвать
+.Xr crash 8
+для анализа дампа):
+.Bl -enum -offset indent -compact -nested
+.It
+Использовать предварительный тайм-аут (--pretimeout 60)
+.It
+Указать действие предварительного тайм-аута (--pretimeout-action log,printf,panic )
+.El
+.It
+Использование скрипта:
+.Bl -enum -offset indent -compact -nested
+.It
+Запускать ваш скрипт (-e '/path/to/your/script 60')
+.It
+Записывать в журнал, если ваш скрипт выполняется дольше 15 секунд. (-w -T 15)
+.El
+.El
+.Bd -literal
+watchdogd  -t 120 \\
+  --pretimeout 60 --pretimeout-action log,printf,panic \\
+  -e '/path/to/your/script 60' -w -T 15
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr watchdog 4 ,
+.Xr watchdog 8 ,
+.Xr watchdog 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и страница руководства были написаны
+.An Sean Kelly Aq Mt smkelly@FreeBSD.org
+и
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org .
+.Pp
+Некоторые улучшения внесены
+.An Jeff Roberson Aq Mt jeff@FreeBSD.org .
+.Pp
+Система действий pretimeout и softtimeout была добавлена
+.An Alfred Perlstein Aq Mt alfred@FreeBSD.org .

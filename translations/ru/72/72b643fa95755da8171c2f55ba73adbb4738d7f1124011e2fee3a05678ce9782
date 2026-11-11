@@ -1,0 +1,121 @@
+.\"
+.\" Copyright (c) 2014 Sandvine Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/iovctl/iovctl.8
+.\" FRDP githash d36050dc99ea68894f5c300a550a7841e8803e7e
+.\" FRDP hash256 72b643fa95755da8171c2f55ba73adbb4738d7f1124011e2fee3a05678ce9782
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 31, 2020
+.Dt IOVCTL 8
+.Os
+.Sh NAME
+.Nm iovctl
+.Sh SYNOPSIS
+.Nm
+.Fl C
+.Fl f Ar файл-конфигурации
+.Op Fl n
+.Nm
+.Fl D
+.Op Fl f Ar файл-конфигурации | Fl d Ar устройство
+.Op Fl n
+.Nm
+.Fl S
+.Op Fl f Ar файл-конфигурации | Fl d Ar устройство
+.Sh DESCRIPTION
+Утилита
+.Nm
+создаёт или уничтожает PCI Single-Root I/O Virtualization
+.Pq SR-IOV
+виртуальные функции
+.Pq VFs .
+При вызове с флагом
+.Fl C
+.Nm
+создаёт VFs как дочерние устройства физической функции
+.Pq PF ,
+настроенной в указанном файле конфигурации.
+При вызове с флагом
+.Fl D
+.Nm
+уничтожает все VFs, являющиеся дочерними для указанного устройства.
+Доступные устройства PF можно увидеть в
+.Pa /dev/iov/ .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl C
+Включить SR-IOV на указанном устройстве PF и создать дочерние VF.
+Эта операция завершится ошибкой, если PF уже имеет дочерние VF.
+Этот параметр необходимо использовать вместе с параметром
+.Fl f .
+.It Fl d Ar устройство
+Указать устройство PF, используемое для данной операции.
+.Ar устройство
+может быть либо именем устройства PF, либо полным путём к узлу в
+.Pa /dev/iov/ .
+Этот параметр нельзя использовать с параметром
+.Fl C .
+.It Fl D
+Удалить все дочерние VF указанного устройства PF.
+Эта операция завершится ошибкой, если SR-IOV в данный момент не включён на указанном устройстве.
+.It Fl f Ar файл-конфигурации
+Указать путь к файлу конфигурации.
+Для параметра
+.Fl C
+этот файл будет использоваться для задания всех значений конфигурации.
+Для параметров
+.Fl D
+и
+.Fl S
+этот файл будет использоваться только для задания имени устройства PF.
+.Pp
+См.
+.Xr iovctl.conf 5
+для описания формата файла конфигурации и документации по параметрам конфигурации, применимым ко всем драйверам PF.
+См. страницу руководства драйвера PF для параметров конфигурации, специфичных для конкретного оборудования.
+.It Fl n
+Выполнить пробный запуск.
+Выполнить всю проверку указанного действия и вывести, что было бы сделано, но не выполнять фактическое создание или уничтожение VFs.
+Этот параметр нельзя использовать с флагом
+.Fl S .
+.It Fl S
+Прочитать схему конфигурации с указанного устройства и вывести её содержимое в stdout.
+Это действие можно использовать для обнаружения параметров конфигурации, поддерживаемых на данном устройстве PF.
+.El
+.Pp
+Для сетевых устройств используйте
+.Xr ifconfig 8
+с параметром
+.Fl v
+на интерфейсе PF, чтобы отобразить специфичное для NIC состояние инициализации VF, ресурсов и политики.
+.Sh SEE ALSO
+.Xr iovctl.conf 5 ,
+.Xr rc.conf 5 ,
+.Xr ifconfig 8
+.Sh AUTHORS
+Эта страница руководства была написана
+.An Ryan Stone Aq Mt rstone@FreeBSD.org .

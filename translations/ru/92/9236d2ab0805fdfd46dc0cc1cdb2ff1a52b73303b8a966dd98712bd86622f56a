@@ -1,0 +1,218 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018, 2021 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2025 Hewlett Packard Enterprise Development LP.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-scrub.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 9236d2ab0805fdfd46dc0cc1cdb2ff1a52b73303b8a966dd98712bd86622f56a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2025
+.Dt ZPOOL-SCRUB 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-scrub
+.Nd начать или возобновить скраб пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm scrub
+.Op Ns Fl e | Ns Fl p | Fl s Ns | Fl C Ns
+.Op Fl w
+.Op Fl S Ar дата
+.Op Fl E Ar дата
+.Fl a Ns | Ns Ar пул Ns …
+.
+.Sh ОПИСАНИЕ
+Начинает скраб или возобновляет приостановленный скраб.
+Скраб проверяет все данные в указанных пулах, чтобы убедиться, что их
+контрольные суммы верны.
+Для реплицированных
+.Pq зеркало, raidz или draid
+устройств ZFS автоматически исправляет любые повреждения, обнаруженные во время
+скраба.
+Команда
+.Nm zpool Cm status
+сообщает о ходе скраба и по завершении суммирует результаты скраба.
+.Pp
+Скраб и ресилверинг — очень похожие операции.
+Разница в том, что ресилверинг проверяет только данные, которые ZFS считает
+устаревшими
+.Po
+например, при подключении нового устройства к зеркалу или замене существующего
+устройства
+.Pc ,
+тогда как скраб проверяет все данные для обнаружения скрытых ошибок из-за сбоев
+оборудования или отказа диска.
+.Pp
+При выполнении скраба пула с зашифрованными файловыми системами ключи не нужно
+загружать.
+Однако, если ключи не загружены и обнаружена неисправимая ошибка контрольной
+суммы, имя файла не может быть включено в
+.Nm zpool Cm status Fl v
+подробный отчет об ошибках.
+.Pp
+Поскольку скраб и ресилверинг являются операциями с интенсивным вводом-выводом,
+ZFS разрешает выполнять только одну из них одновременно.
+.Pp
+Скраб делится на две части: сканирование метаданных и скраб блоков.
+Сканирование метаданных сортирует блоки в большие последовательные диапазоны,
+которые затем можно намного эффективнее читать с диска при выдаче операций
+ввода-вывода скраба.
+.Pp
+Если скраб приостановлен,
+.Nm zpool Cm scrub
+возобновляет его.
+Если выполняется ресилверинг, ZFS не позволяет начать скраб до завершения
+ресилверинга.
+.Pp
+Обратите внимание, что из-за изменений данных пула в работающей системе прогресс
+скраба может немного превысить 100% завершения.
+В течение этого периода оценка времени завершения не предоставляется.
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl a , -all
+Начать, приостановить или остановить скраб на
+всех
+пулах.
+Запуск скрабов на нескольких пулах может создать значительную нагрузку и давление
+на память системы, поэтому эту операцию следует выполнять с осторожностью.
+.It Fl s
+Остановить скраб.
+.It Fl p
+Приостановить скраб.
+Состояние приостановки скраба и его прогресс периодически синхронизируются с
+диском.
+Если система перезагружена или пул экспортирован во время приостановленного
+скраба, то даже после импорта скраб останется приостановленным до его
+возобновления.
+После возобновления скраб продолжится с места, где он в последний раз был
+зафиксирован на диске.
+Чтобы возобновить приостановленный скраб, выполните
+.Nm zpool Cm scrub
+или
+.Nm zpool Cm scrub
+.Fl e
+снова.
+.It Fl w
+Дождаться завершения скраба перед возвратом.
+.It Fl e
+Выполнять скраб только для файлов с известными ошибками данных, как сообщает
+.Nm zpool Cm status Fl v .
+Чтобы использовать эту опцию, пул должен хотя бы один раз пройти скраб при
+включенной функции
+.Sy head_errlog .
+Скраб ошибок нельзя запускать одновременно с обычным скрабом или
+ресилверингом, а также нельзя запускать, когда обычный скраб приостановлен.
+.It Fl C
+Продолжить скраб с последнего сохраненного txg (см. свойство zpool
+.Sy last_scrubbed_txg
+).
+.It Fl S Ar дата , Fl E Ar дата
+Позволяет указать диапазон дат для блоков, созданных между этими датами.
+.Bl -bullet -compact -offset indent
+.It
+.Fl S
+Задает начальную дату.
+Если не указана, скраб начинается с начала существования пула.
+.It
+.Fl E
+Задает конечную дату.
+Если не указана, скраб продолжается до самых последних данных.
+.El
+Предоставленная дата должна быть в формате:
+.Dq YYYY-MM-DD HH:MM .
+Где:
+.Bl -bullet -compact -offset indent
+.It
+.Dq YYYY
+— год.
+.It
+.Dq MM
+— числовое представление месяца.
+.It
+.Dq DD
+— день месяца.
+.It
+.Dq HH
+— часы.
+.It
+.Dq MM
+— минуты.
+.El
+Параметры часов и минут можно опустить.
+Время следует указывать в локальном часовом поясе машины.
+Указание дат до включения этой функции приведет к тому, что скраб начнется с
+даты создания пула.
+Если время было вручную переведено назад, диапазон данных может стать неточным.
+.El
+.Sh ПРИМЕРЫ
+.Ss Пример 1
+Состояние пула с выполняющимся скрабом:
+.sp
+.Bd -literal -compact
+.No # Nm zpool Cm status
+  ...
+  scan: scrub in progress since Sun Jul 25 16:07:49 2021
+        403M / 405M scanned at 100M/s, 68.4M / 405M issued at 10.0M/s
+        0B repaired, 16.91% done, 00:00:04 to go
+  ...
+.Ed
+.Pp
+Где метаданные, ссылающиеся на 403M файловых данных, были просканированы со
+скоростью 100M/s, а 68.4M из этих файловых данных были последовательно
+обработаны скрабом со скоростью 10.0M/s.
+.Sh ПЕРИОДИЧЕСКИЙ СКРАБ
+На машинах с systemd таймеры скраба можно включать для каждого пула отдельно.
+Предоставляются таймерные юниты
+.Nm weekly
+и
+.Nm monthly
+.
+.Bl -tag -width Ds
+.It Xo
+.Xc
+.Nm systemctl
+.Cm enable
+.Cm zfs-scrub-\fIweekly\fB@\fIrpool\fB.timer
+.Cm --now
+.It Xo
+.Xc
+.Nm systemctl
+.Cm enable
+.Cm zfs-scrub-\fImonthly\fB@\fIotherpool\fB.timer
+.Cm --now
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr systemd.timer 5 ,
+.Xr zpool-iostat 8 ,
+.Xr zpool-resilver 8 ,
+.Xr zpool-status 8

@@ -1,0 +1,117 @@
+.\" Copyright (c) 2011-2013 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/color.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 c8d261d58e37205252e603c8a32cdc81a8cf39754f28052ce74893b3eda52b0f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2013
+.Dt COLOR.4TH 8
+.Os
+.Sh ИМЯ
+.Nm color.4th
+.Nd загрузочный модуль FreeBSD для определения цвета
+.Sh ОПИСАНИЕ
+Файл с именем
+.Nm
+представляет собой набор команд, предназначенных для упрощения логики работы с цветом.
+Сами по себе команды
+.Nm
+недостаточны для большинства случаев использования.
+Обратитесь к приведённым ниже примерам для наиболее распространённых ситуаций и к
+.Xr loader 8
+за дополнительными командами.
+.Pp
+Перед использованием любой из команд, предоставляемых в
+.Nm ,
+его необходимо включить
+с помощью команды:
+.Pp
+.Dl include color.4th
+.Pp
+Эта строка присутствует в файле
+.Pa /boot/loader.4th ,
+поэтому в обычной конфигурации она не нужна (и не должна добавляться повторно).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic loader_color?
+Возвращает FALSE, если переменная окружения
+.Ic loader_color
+установлена в
+.Dq NO
+(без учёта регистра) или
+.Dq 0 .
+В противном случае возвращает TRUE
+.Pq если не выполняется загрузка с последовательного порта .
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootfile -offset indent
+.It Va loader_color
+Если установлена в
+.Dq NO
+(без учёта регистра) или
+.Dq 0 ,
+приводит к тому, что
+.Ic loader_color?
+возвращает FALSE, сообщая многим модулям, что цвет не следует использовать.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/loader.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/color.4th
+.Nm
+сам по себе.
+.It Pa /boot/loader.rc
+.Xr loader 8
+сценарий начальной загрузки.
+.El
+.Sh ПРИМЕРЫ
+Стандартный для i386
+.Pa /boot/loader.rc :
+.Pp
+Использовать цвет, где применимо:
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr loader.4th 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

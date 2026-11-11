@@ -1,0 +1,128 @@
+.\"	$KAME: ifmcstat.8,v 1.6 2002/10/31 04:23:43 suz Exp $
+.\"
+.\" Copyright (c) 2007-2009 Bruce Simpson.
+.\" Copyright (C) 1995, 1996, 1997, 1998, and 1999 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ifmcstat/ifmcstat.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 673d50014247a9fb492445383b9c2adc7bca4a7205c5286858bf1c419ad968b1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 27, 2009
+.Dt IFMCSTAT 8
+.Os
+.Sh ИМЯ
+.Nm ifmcstat
+.Nd выводит статистику управления группами многоадресной рассылки для каждого интерфейса
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i Ar интерфейс
+.Op Fl f Ar семейство-адресов
+.Op Fl v
+.Op Fl K
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+выводит информацию о группах многоадресной рассылки из ядра.
+.Pp
+Поддерживаются следующие параметры:
+.Bl -tag -width Fl
+.It Fl i Ar интерфейс
+задаёт интерфейс для отображения.
+.It Fl f Ar семейство-адресов
+задаёт семейство адресов для отображения;
+.Ar inet ,
+.Ar inet6
+и
+.Ar link
+поддерживаются.
+.It Fl v
+указывает, что должны выводиться членства на канальном уровне;
+по умолчанию они не выводятся.
+Его нельзя указывать для
+.Fl f Ar link .
+Списки источников для каждой группы также будут напечатаны.
+.Pp
+Если указать его дважды и
+.Xr kvm 3
+используется, таймеры плоскости управления для каждого интерфейса
+и счётчики списков источников для каждой группы
+также будут напечатаны.
+.El
+.Pp
+Следующие параметры доступны, только если
+.Nm
+была собрана с поддержкой
+.Xr kvm 3 :
+.Bl -tag -width Fl
+.It Fl K
+пытается использовать
+.Xr kvm 3
+для получения информации о группах многоадресной рассылки.
+.It Fl M Ar core
+извлекает значения, связанные со списком имён, из указанного core,
+вместо значения по умолчанию
+.Pa /dev/kmem .
+.It Fl N Ar system
+извлекает список имён из указанного ядра вместо
+значения по умолчанию, которым является образ ядра, с которого загружена система.
+.El
+.Sh ПРИМЕЧАНИЯ О РЕАЛИЗАЦИИ
+.Nm
+всегда печатает встроенные идентификаторы области действия для членств в группах многоадресной рассылки IPv6.
+Это связано с тем, что членства всегда ограничены интерфейсом.
+.Pp
+При запуске с параметром
+.Fl v
+команда
+.Nm
+может печатать MAC-адреса многоадресной рассылки дважды, если на них
+ссылается протокол уровня 3.
+.Pp
+При запуске с поддержкой
+.Xr kvm 3
+имена всех интерфейсов, настроенных в системе, будут
+напечатаны в первом столбце вывода, даже если на этих интерфейсах
+отсутствуют членства в группах многоадресной рассылки.
+Вывод также может немного отличаться, поскольку обход структур данных ядра
+выполняется с минимальной постобработкой вывода.
+.Pp
+Если
+.Nm
+собрана без поддержки
+.Xr kvm 3 ,
+отображаемая ею информация более ограничена.
+Эта поддержка рекомендуется для целей отладки.
+Для её использования при просмотре работающего ядра требуются права суперпользователя.
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr getifaddrs 3 ,
+.Xr getifmaddrs 3 ,
+.Xr kvm 3

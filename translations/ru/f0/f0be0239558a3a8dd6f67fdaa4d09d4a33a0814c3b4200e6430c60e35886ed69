@@ -1,0 +1,848 @@
+.\"
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 2015, 2018 Chelsio Inc
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright notice,
+.\"    this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Chelsio Inc nor the names of its
+.\"    contributors may be used to endorse or promote products derived from
+.\"    this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" * Other names and brands may be claimed as the property of others.
+.\"
+.\" FRDP path usr.sbin/cxgbetool/cxgbetool.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 f0be0239558a3a8dd6f67fdaa4d09d4a33a0814c3b4200e6430c60e35886ed69
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 11, 2025
+.Dt CXGBETOOL 8
+.Os
+.Sh ИМЯ
+.Nm cxgbetool
+.Nd пользовательское дополнение к Ethernet-драйверу Chelsio cxgbe
+.Sh СИНТАКСИС
+.Bl -item -compact
+.It
+.Nm
+.Ar nexus команда Op Ar параметр ...
+.Pp
+.It
+.Nm
+.Ar nexus Cm clearstats Ar port_id
+.It
+.Nm
+.Ar nexus Cm clip Bro Cm hold | release Brc Ar ipv6-address
+.It
+.Nm
+.Ar nexus Cm clip Cm list
+.It
+.Nm
+.Ar nexus Cm context Bro Cm ingress | egress | fl | cong Brc Ar cntxt_id
+.It
+.Nm
+.Ar nexus Cm hashfilter mode
+.It
+.Nm
+.Ar nexus Cm hashfilter Ar спецификация-фильтра
+.It
+.Nm
+.Ar nexus Cm hashfilter Ar idx Cm delete
+.It
+.Nm
+.Ar nexus Cm hashfilter list
+.It
+.Nm
+.Ar nexus Cm filter mode
+.It
+.Nm
+.Ar nexus Cm filter Ar idx Ar спецификация-фильтра
+.It
+.Nm
+.Ar nexus Cm filter Ar idx Cm delete Op Cm prio Bro Cm 0 | 1 Brc
+.It
+.Nm
+.Ar nexus Cm filter list
+.It
+.Nm
+.Ar nexus Cm i2c Ar port_id devaddr addr Op Ar len
+.It
+.Nm
+.Ar nexus Cm loadcfg Ar fw-config.txt
+.It
+.Nm
+.Ar nexus Cm loadcfg clear
+.It
+.Nm
+.Ar nexus Cm loadfw Ar fw-image.bin
+.It
+.Nm
+.Ar nexus Cm memdump Ar addr len
+.It
+.Nm
+.Ar nexus Cm policy Ar cop.txt
+.It
+.Nm
+.Ar nexus Cm policy clear
+.It
+.Nm
+.Ar nexus Bro Cm reg | reg64 Brc Ar addr Ns Op Ar =val
+.It
+.Nm
+.Ar nexus Cm regdump Op Ar register-block ...
+.It
+.Nm
+.Ar nexus Cm sched-class Ar подкоманда Op Ar param Ar значение
+.It
+.Nm
+.Ar nexus Cm sched-queue Ar port Ar очередь Ar class
+.It
+.Nm
+.Ar nexus Cm stdio
+.It
+.Nm
+.Ar nexus Cm tcb Ar tid
+.El
+.Sh ОПИСАНИЕ
+.Nm
+предоставляет доступ из командной строки к возможностям и средствам отладки, экспортируемым
+.Xr cxgbe 4
+через частные ioctl.
+Целевое устройство nexus,
+.Va t4nex%d
+, всегда является первым аргументом.
+(Родительский nexus для Ethernet-порта
+.Va cxgbe%d
+указан в
+.Va dev.cxgbe.%d.%parent
+в MIB
+.Xr sysctl 8 ).
+Остальное состоит из команды и любых параметров, требуемых этой командой.
+.Ss Команды
+.Bl -ohang
+.It Cm clearstats Ar port_id
+Очистить всю статистику передачи, приёма и ошибок всех очередей, связанных
+с портом.
+Общее количество портов, привязанных к nexus, указано в
+.Va dev.t4nex.%d.nports
+, а
+.Ar port_id
+с нулевой нумерацией идентифицирует порт в этом диапазоне.
+.Pp
+.Bl -item -compact
+.It
+.Cm clip hold Ar ipv6-address
+.El
+Установить ссылку на заданный
+.Ar ipv6-address
+в таблице CLIP (Compressed Local IPv6).
+Адрес добавляется в таблицу CLIP, если его там ещё нет.
+.Pp
+.Bl -item -compact
+.It
+.Cm clip list
+.El
+Показать содержимое таблицы CLIP.
+.Pp
+.Bl -item -compact
+.It
+.Cm clip release Ar ipv6-address
+.El
+Освободить ссылку на заданный
+.Ar ipv6-address
+в таблице CLIP.
+Ссылка на адрес должна была быть получена ранее.
+.Pp
+.Bl -item -compact
+.It
+.Cm context ingress Ar ingress_cntxt_id
+.It
+.Cm context cong Ar ingress_cntxt_id
+.It
+.Cm context egress Ar egress_cntxt_id
+.It
+.Cm context fl Ar flm_cntxt_id
+.El
+Показать аппаратный контекст для входной очереди, менеджера перегрузки, выходной
+очереди или менеджера списка свободных.
+.Bl -ohang -offset indent
+.It Ar ingress_cntxt_id
+идентификатор контекста входной очереди -- значение, указанное в одном из
+.Va dev.t4nex.%d.fwq.cntxt_id ,
+.Va dev.cxgbe.%d.rxq.%d.cntxt_id ,
+или
+.Va dev.cxgbe.%d.ofld_rxq.%d.cntxt_id .
+.It Ar egress_cntxt_id
+идентификатор контекста выходной очереди -- значение, указанное в одном из
+.Va dev.t4nex.%d.mgmtq.cntxt_id ,
+.Va dev.cxgbe.%d.txq.%d.cntxt_id ,
+.Va dev.cxgbe.%d.ctrlq.%d.cntxt_id ,
+.Va dev.cxgbe.%d.ofld_txq.%d.cntxt_id ,
+.Va dev.cxgbe.%d.rxq.%d.fl.cntxt_id ,
+или
+.Va dev.cxgbe.%d.ofld_rxq.%d.fl.cntxt_id .
+Обратите внимание, что списки свободных также являются выходными очередями.
+.It Ar flm_cntxt_id
+идентификатор контекста менеджера списка свободных.
+Идентификатор контекста FLM отображается в дампе выходного контекста списка
+свободных как FLMcontextID.
+.El
+.Pp
+.Bl -item -compact
+.It
+.Cm hashfilter mode
+.It
+.Cm filter mode
+.El
+Показать список критериев совпадения, доступных для использования в правилах
+фильтрации.
+Полный список критериев совпадения, известных чипу, приведён в таблице ниже,
+но не все они могут использоваться вместе, и прошивка настраивает доступные
+параметры на основе
+Каждый фильтр должен соответствовать режиму фильтра -- допускается несколько
+критериев совпадения на фильтр, но только из числа тех, которые входят в
+текущую настройку режима фильтра.
+Режим фильтра для хеш-фильтров является подмножеством режима для обычных
+TCAM-фильтров, и хеш-фильтры не поддерживают совпадения по маске и точное
+значение для каждого при создании хеш-фильтра.
+.Pp
+(Обратите внимание, что
+.Ar mask
+по умолчанию равно всем 1, если не задано явно.
+Хеш-фильтры не поддерживают совпадения по маске.
+Также обратите внимание, что многие из сопоставляемых элементов являются
+дискретными числовыми значениями, а не битовыми полями, и маскировать их
+следует с осторожностью.)
+.TS
+center expand;
+cb cb cbw(40m)
+cb l l.
+Критерий	Использование	Совпадает, если ...
+_
+ipv4	T{
+.Cm type ipv4
+T}	T{
+входящий пакет является датаграммой IPv4.
+T}
+_
+ipv6	T{
+.Cm type ipv6
+T}	T{
+входящий пакет является датаграммой IPv6.
+T}
+_
+sip	T{
+.Cm sip Ar addr Ns Op / Ns Ar mask
+T}	T{
+побитовое И адреса источника во входящей IP-датаграмме с
+.Ar mask
+равно
+.Ar addr .
+.Ar addr
+может быть адресом IPv4 или IPv6.
+T}
+_
+dip	T{
+.Cm dip Ar addr Ns Op / Ns Ar mask
+T}	T{
+побитовое И адреса назначения во входящей IP-датаграмме с
+.Ar mask
+равно
+.Ar addr .
+.Ar addr
+может быть адресом IPv4 или IPv6.
+T}
+_
+sport	T{
+.Cm sport Ar port Ns Op : Ns Ar mask
+T}	T{
+побитовое И исходного порта во входящей TCP- или UDP-датаграмме с
+.Ar mask
+равно
+.Ar port .
+T}
+_
+dport	T{
+.Cm dport Ar port Ns Op : Ns Ar mask
+T}	T{
+побитовое И порта назначения во входящей TCP- или UDP-датаграмме с
+.Ar mask
+равно
+.Ar port .
+T}
+_
+fcoe	T{
+.Cm fcoe Brq 0 | 1
+T}	T{
+входящий кадр является Fibre Channel over Ethernet(1) или нет(0).
+T}
+_
+iport	T{
+.Cm iport Ar val Ns Op : Ns Ar mask
+T}	T{
+побитовое И входного порта с
+.Ar mask
+равно
+.Ar val .
+Входной порт — это 3-битное число, идентифицирующее порт, на который прибыл
+кадр.
+Физические порты пронумерованы 0-3, а 4-7 — внутренние петлевые пути
+внутри чипа.
+Обратите внимание, что входной порт не является битовым полем, поэтому не
+всегда возможно сопоставить произвольное подмножество входных портов одним
+правилом фильтра.
+T}
+_
+ovlan	T{
+.Cm ovlan Ar tag Ns Op : Ns Ar mask
+T}	T{
+побитовое И 16-битного внешнего VLAN-тега входящего кадра с
+.Ar mask
+равно
+.Ar tag .
+T}
+_
+vlan	T{
+.Cm vlan Ar tag Ns Op : Ns Ar mask
+T}	T{
+побитовое И 16-битного VLAN-тега входящего QinQ-кадра с
+.Ar mask
+равно
+.Ar tag .
+Используется внутренний VLAN-тег, если входящий кадр является QinQ.
+T}
+_
+tos	T{
+.Cm tos Ar val Ns Op : Ns Ar mask
+T}	T{
+побитовое И 8-битного IP Type of Service/IPv6 Traffic Class во входящем
+пакете с
+.Ar mask
+равно
+.Ar val .
+T}
+_
+proto	T{
+.Cm proto Ar ipproto Ns Op : Ns Ar mask
+T}	T{
+побитовое И 8-битного IP-протокола во входящем пакете с
+.Ar mask
+равно
+.Ar ipproto .
+T}
+_
+ethtype	T{
+.Cm ethtype Ar type Ns Op : Ns Ar mask
+T}	T{
+побитовое И 16-битного поля Ethernet type входящего кадра с
+.Ar mask
+равно
+.Ar type .
+T}
+_
+macidx	T{
+.Cm macidx Ar idx Ns Op : Ns Ar mask
+T}	T{
+побитовое И MAC Address Match Index входящего кадра с
+.Ar mask
+равно
+.Ar idx .
+MAC Address Match Index ссылается на запись в MPS TCAM или в хеше MPS.
+См.
+.Cm matchtype
+для получения дополнительной информации.
+T}
+_
+matchtype	T{
+.Cm matchtype Ar type Ns Op : Ns Ar mask
+T}	T{
+побитовое И Match Type входящего кадра с
+.Ar mask
+равно
+.Ar idx .
+Match Type — одно из следующих:
+.It 0
+MAC-адрес назначения во входящем кадре является одноадресным L2-адресом,
+который запрограммирован в MPS TCAM.
+.Cm macidx
+можно использовать для сопоставления индекса (и, следовательно, MAC-адреса)
+совпадения в TCAM.
+.It 1
+запись хеша в хеш-таблице MPS.
+.Cm macidx
+можно использовать для сопоставления индекса записи в хеш-таблице MPS.
+.It 2
+MAC-адрес назначения во входящем кадре является многоадресным L2-адресом,
+который запрограммирован в MPS TCAM.
+.Cm macidx
+можно использовать для сопоставления индекса (и, следовательно, MAC-адреса)
+совпадения в TCAM.
+.It 3
+запись в хеш-таблице MPS.
+.It 4
+интерфейс, на котором был получен входящий кадр, находится в режиме
+promiscuous, а MAC-адрес назначения в кадре не является широковещательным
+адресом и также не совпадает в MPS TCAM или хеше MPS.  (Кадр был бы
+отброшен, если бы интерфейс не находился в режиме promiscuous.)
+.It 5
+интерфейс, на котором был получен входящий кадр, находится в режиме
+promiscuous, а MAC-адрес назначения в кадре не является широковещательным
+адресом; он не искался в MPS TCAM или хеше MPS, потому что чип настроен
+отдавать предпочтение классификации promiscuous.
+.It 6
+MAC-адрес назначения во входящем кадре является широковещательным адресом.
+.It 7
+Не документировано.  Не использовать.
+.El
+T}
+_
+frag	T{
+.Cm frag Brq 0 | 1
+T}	T{
+входящий кадр является частью фрагментированной IP-датаграммы(1) или нет(0).
+T}
+.TE
+.Pp
+.Bl -item -compact
+.It
+.Cm hashfilter Ar спецификация-фильтра
+.It
+.Cm filter Ar idx Ar спецификация-фильтра
+.El
+Запрограммировать фильтр.
+.Pp
+TCAM-фильтры: количество доступных фильтров указано в
+dev.<nexus>.<instance>.nfilters.
+.Ar idx
+должен быть неиспользуемым индексом от 0 до nfilters - 1.
+IPv6-фильтры занимают 4 последовательные записи на T4/T5 и 2 на T6, и
+.Ar idx
+в этом случае должен быть выровнен по 4 или 2.
+.Pp
+Хеш-фильтры: они находятся в памяти карты, а не в её TCAM, и включаются с
+помощью специального файла конфигурации, который выбирается с помощью
+в loader.conf.
+С поставляемым с драйвером примером конфигурации доступно как минимум
+полмиллиона фильтров.
+Обратите внимание, что аппаратное обеспечение выбирает индекс для
+хеш-фильтра, и этот индекс отображается при создании фильтра.
+Хеш-фильтры и TCAM-фильтры можно использовать вместе.
+.Pp
+.Ar спецификация-фильтра
+состоит из одного или нескольких совпадений (см. Использование в таблице выше),
+которые проверяются для входящего кадра, действия, выполняемого при успехе всех
+совпадений, и некоторых дополнительных рабочих параметров.
+Хеш-фильтры требуют точного значения для 5-кортежа (sip, dip, sport, dport,
+Возможные действия фильтра:
+.Cm drop ,
+.Cm pass или
+.Cm switch .
+.Pp
+Рабочие параметры, которые можно использовать со всеми фильтрами:
+.Bl -ohang -offset indent
+.It Cm hitcnts
+Считать попадания фильтра: 0 или 1 (по умолчанию).
+.It Cm prio
+Фильтр имеет приоритет над активной и серверной областями TCAM: 0
+(по умолчанию) или 1.
+.El
+.Pp
+Рабочие параметры, которые можно использовать с фильтрами с
+.Cm action pass :
+.Bl -ohang -offset indent
+.It Cm queue
+Идентификатор контекста входной очереди, в которую доставлять пакет.
+Идентификатор контекста доступен в
+.Va dev.cxgbe.%d.rxq.%d.cntxt_id .
+По умолчанию пакеты, попавшие в фильтр с action pass, доставляются на основе
+их RSS-хеша, как обычно.
+Используйте это, чтобы направлять их в конкретную очередь.
+.It Cm rpttid
+Сообщать tid фильтра вместо RSS-хеша в rx-дескрипторе.
+0 (по умолчанию) или 1.
+.It Cm tcbhash
+Выбирать информацию о хеше TCB в rx-дескрипторе.
+0 (по умолчанию) или 1
+.El
+.Pp
+Рабочие параметры, которые можно использовать с фильтрами с
+.Cm action switch :
+.Bl -ohang -offset indent
+.It Cm eport
+Номер выходного порта, через который отправлять пакет, соответствующий
+фильтру.
+От 0 до dev.<nexus>.<instance>.nports - 1.
+.It Cm dmac
+Заменить MAC-адрес назначения пакета на предоставленный перед отправкой
+через eport.
+.It Cm smac
+Заменить MAC-адрес источника пакета на предоставленный перед отправкой через
+eport.
+.It Cm swapmac
+Поменять местами MAC-адреса источника и назначения пакета перед отправкой
+через eport.
+.It Cm vlan
+Вставить, удалить или перезаписать VLAN-тег перед отправкой пакета через
+eport.
+.Cm none
+удаляет тег,
+.Cm = Ns Ar tag
+заменяет существующий тег предоставленным, а
+.Cm + Ns Ar tag
+вставляет заданный тег в кадр.
+.It Cm nat
+Указать желаемый режим NAT.
+Допустимые значения режимов NAT:
+.Bl -ohang -offset indent
+.It Cm dip
+Выполнять NAT для IP-адреса назначения.
+.It Cm dip-dp
+Выполнять NAT для IP-адреса назначения, порта назначения.
+.It Cm dip-dp-sip
+Выполнять NAT для IP-адреса назначения, порта назначения, IP-адреса источника.
+.It Cm dip-dp-sp
+Выполнять NAT для IP-адреса назначения, порта назначения, порта источника.
+.It Cm sip-sp
+Выполнять NAT для IP-адреса источника, порта источника.
+.It Cm dip-sip-sp
+Выполнять NAT для IP-адреса назначения, IP-адреса источника, порта источника.
+.It Cm all
+Выполнять NAT для всех полей 4-кортежа.
+.El
+.It Cm natflag
+Выполнять NAT только для сегментов, у которых не установлены TCP FIN или RST.
+.It Cm natseq
+Выполнять NAT только если номер последовательности входящего сегмента + длина
+полезной нагрузки меньше указанного значения.
+.It Cm nat_dip
+Выполнять NAT с использованием этого IP-адреса назначения.
+.It Cm nat_sip
+Выполнять NAT с использованием этого IP-адреса источника.
+.It Cm nat_dport
+Выполнять NAT с использованием этого порта назначения.
+.It Cm nat_sport
+Выполнять NAT с использованием этого порта источника.
+Выполнять NAT только если номер последовательности входящего сегмента + длина
+полезной нагрузки меньше указанного значения.
+.El
+.Pp
+.Bl -item -compact
+.It
+.Cm hashfilter Ar idx Cm delete
+.It
+.Cm filter Ar idx Cm delete
+.El
+Удалить фильтр, находящийся по заданному индексу.
+.It Cm filter Cm list
+Показать все фильтры, запрограммированные в аппаратном обеспечении.
+.It Cm i2c Ar port_id devaddr addr Op Ar len
+.It Cm loadcfg Ar fw-config.txt
+Установить файл конфигурации прошивки, содержащийся в
+.Ar fw-config.txt ,
+на карту.
+Установите
+в loader.conf, чтобы заставить
+.Xr cxgbe 4
+использовать конфигурацию на флеш-памяти.
+.It Cm loadcfg Cm clear
+Стереть файл конфигурации с карты.
+.It Cm loadfw Ar fw-image.bin
+Установить прошивку, содержащуюся в
+.Ar fw-image.bin ,
+на карту.
+.It Cm memdump Ar addr len
+Показать
+.Ar len
+байт данных памяти карты, начиная с
+.Ar addr .
+Карта памяти карты доступна в
+.Va dev.t4nex.%d.misc.meminfo .
+.It Cm policy Ar cop.txt
+Установить политику разгрузки соединений (COP) из
+.Ar cop.txt .
+COP обеспечивает тонкий контроль над тем, какие соединения разгружаются и
+с какими параметрами.
+Установите
+в loader.conf, чтобы гарантировать, что t4_tom не будет разгружать никакие
+соединения до установки COP.
+Обратите внимание, что t4_tom должен быть загружен и работоспособен
+(IFCAP_TOE включён), как всегда для любого вида разгрузки на основе
+аппаратного TOE.
+.Bl -ohang -offset indent
+.It Sy COP установлена Ta Sy cop_managed_offloading Ta Sy Поведение
+.It NO Ta 0 Ta разгружать все [По умолчанию]
+.It NO Ta 1 Ta не разгружать
+.It YES Ta Не важно Ta разгрузка на основе правил
+.El
+.Pp
+Файл политики состоит из пустых строк, комментариев (строк, начинающихся с #)
+и любого количества правил.
+Правила применяются в порядке их появления в файле, и обработка
+останавливается на первом совпадении.
+Существует неявное правило, которое отключает разгрузку для соединений, не
+соответствующих ничему в политике.
+.Pp
+Каждое правило состоит из части фильтра, которая определяет, к каким
+соединениям применяется правило, и части настроек, которая определяет, будут
+ли соответствующие соединения разгружаться и, если да, с какими настройками.
+Общая форма правила:
+.Bl -ohang -offset indent
+.It Cm \&[ Ar тип-сокета Cm \&] Ar pcap-фильтр Cm => Ar настройки
+.Pp
+.Ar тип-сокета
+— один из следующих.
+.It Sy A
+Активное открытие.
+Соединение открывается этим хостом.
+.It Sy P
+Пассивное открытие.
+Соединение было запрошено узлом сети.
+.It Sy L
+Вызван listen на сокете.
+Отключение разгрузки в таком правиле предотвратит запуск аппаратного
+слушателя.
+.It Sy D
+Не важно.
+Совпадает со всеми вышеперечисленными.
+.El
+.Pp
+.Ar pcap-фильтр
+— это выражение, следующее синтаксису
+.Xr pcap-filter 7 ,
+или ключевое слово
+.Cm all ,
+которое совпадает со всем.
+.Pp
+.Ar настройки
+определяют, разгружаются ли соединения, соответствующие
+.Ar тип-сокета
+и
+.Ar pcap-фильтр ,
+и при необходимости задают некоторые свойства для каждого соединения.
+Допускается комбинация следующих параметров.
+.Bl -ohang -offset indent
+.It Cm offload
+Соединение должно быть разгружено.
+Используйте
+.Cm !offload
+или
+.Cm not offload
+, чтобы вместо этого отключить разгрузку.
+.It Cm coalesce
+Включить объединение полезной нагрузки rx.
+Отрицание отключает.
+.It Cm timestamp
+Включить опцию TCP timestamp.
+Отрицание отключает.
+.It Cm sack
+Включить TCP Selective Acknowledgements (SACK).
+Отрицание отключает.
+.It Cm nagle
+Включить алгоритм Нейгла.
+Отрицание отключает.
+.It Cm ecn
+Включить Explicit Congestion Notification (ECN).
+Отрицание отключает.
+.It Cm ddp
+Использовать Direct Data Placement (приём с нулевым копированием) и передачу
+с нулевым копированием на соединении для обслуживания запросов AIO на сокете.
+Отрицание отключает.
+.It Cm tls
+Установить режим ULP в ULP_MODE_TLS.
+.It Cm cong Ar algo
+Использовать указанный алгоритм управления перегрузкой.
+.Ar algo
+должен быть одним из
+.Cm reno , Cm tahoe , Cm newreno или Cm highspeed .
+.It Cm class Ar sc
+Привязать соединение к указанному классу планирования tx.
+Допустимый диапазон: от 0 до 14 (для T4) и от 0 до 15 (начиная с T5).
+.It Cm rxq Ar qnum
+Использовать указанную очередь rx разгрузки.
+.Ar qnum
+должен быть
+.Cm random , Cm roundrobin
+или числом от 0 до nofldrxq для ifnet.
+.It Cm txq Ar qnum
+Использовать указанную очередь tx разгрузки.
+.Ar qnum
+должен быть
+.Cm random , Cm roundrobin
+или числом от 0 до nofldtxq для ifnet.
+.It Cm bind Ar qnum
+Сокращение для
+.Cm rxq Ar qnum Cm txq Ar qnum .
+Использовать, когда nofldrxq совпадает с nofldtxq.
+.It Cm mss Ar val
+Установить анонсируемый TCP MSS в SYN для этого соединения в
+.Ar val
+(в байтах).
+В аппаратной таблице MTU уже должна быть запись, подходящая для этого MSS.
+.El
+.Bl -ohang -offset indent
+.It Пример COP.
+Обратите внимание, что аппаратный слушатель для порта 22 будет только IPv4,
+потому что правило перед ним предотвратит любые IPv6-серверы, кроме первых
+двух.
+Также обратите внимание, что исходящие соединения в 192.168/16 — единственные
+исходящие соединения, которые будут разгружаться.
+.Bd -literal
+[L] port 80 => offload
+[L] port 443 => offload
+[L] ip6 => !offload
+[L] port 22 => offload
+[P] dst port 80 => offload cong highspeed !sack !ecn
+[P] dst port 443 => offload tls
+[A] dst net 192.168/16 => offload
+[A] all => !offload
+[D] port 22 => offload !nagle
+.Ed
+.El
+.It Cm policy clear
+Удалить политику разгрузки соединений (COP), если она используется.
+.It Bro Cm reg | reg64 Brc Ar addr Ns Op Ar =val
+.It Cm regdump Op Ar register-block ...
+Показать содержимое регистров устройства.
+Можно указать один или несколько
+.Ar register-block ,
+чтобы ограничить отображаемые регистры.
+По умолчанию отображаются регистры для всех блоков.
+Регистры с побочными эффектами при чтении не читаются во время операции
+.Cm regdump .
+.Ar register-block
+может быть
+.Cm sge pci dbg mc ma edc0 edc1 cim tp ulp_rx ulp_tx pmrx pmtx mps cplsw
+.Cm smb i2c mi uart pmu sf pl le ncsi xgmac .
+.It Cm sched-class config Op Ar param Ar значение
+Настроить дополнительные возможности для планировщика TX.
+.Bl -ohang -offset indent
+.It Sy type Ar scheduler-type
+Использовать packet для пакетного планировщика.
+.It Sy minmax Ar value
+.Pp
+ПРИМЕЧАНИЕ: Многие (большинство) параметров и ограничений зависят от
+адаптера — например, количество доступных каналов и классов,
+реализованы ли различные режимы и т. д.
+Обратитесь к документации адаптера для получения конкретной информации о
+любых ограничениях.
+.El
+.It Cm sched-class params Op Ar param Ar значение
+Настроить параметры для класса планирования.
+.Bl -ohang -offset indent
+.It Sy type Ar scheduler-type
+Использовать packet для пакетного планировщика.
+.It Sy level Ar scheduler-hierarchy-level
+.Pp
+.It Sy cl-rl
+Ограничение скорости класса.
+.Pp
+.It Sy cl-wrr
+Взвешенный круговой обход классов.
+.Pp
+.It Sy ch-rl
+Ограничение скорости канала.
+.El
+.Bl -ohang -offset indent
+.It Sy mode Ar scheduler-mode
+Режим, в котором будет работать класс планирования:
+.Pp
+.Bl -ohang -offset indent
+.It Sy class
+.Pp
+.It Sy flow
+.El
+.Pp
+Например, если класс планирования имеет пропускную способность TX 10 Мбит/с, в
+.Cm class
+агрегированная пропускная способность 10 Мбит/с; но в
+.Cm flow
+.It Sy rate-unit Ar scheduler-rate-unit
+Единицы ограничений скорости планировщика:
+.Pp
+.Bl -ohang -offset indent
+.It Sy bits
+битовая скорость в Кбит/с.
+.Pp
+.It Sy pkts
+пакетов/с.
+.El
+.It Sy rate-mode Ar scheduler-rate-mode
+Режим ограничений скорости планировщика:
+.Pp
+.Bl -ohang -offset indent
+.It Sy relative
+процент от скорости порта.
+.Pp
+.It Sy absolute
+Кбит/с.
+.El
+.It Sy channel Ar scheduler-channel-index
+Канал планирования, к которому будет привязан класс планирования.
+.It Sy class Ar scheduler-class-index
+Класс планирования, который программируется.
+.It Sy min-rate Ar minimum-rate
+Минимальная гарантированная скорость, к которой будет иметь доступ иерархия
+классов планирования с ограничением скорости.
+.It Sy max-rate Ar maximum-rate
+Максимальная скорость для иерархии классов планирования с ограничением
+скорости.
+.It Sy weight Ar round-robin-weight
+Вес, используемый для иерархии планирования со взвешенным круговым обходом.
+.It Sy pkt-size Ar average-packet-size
+Средний размер пакета будет использоваться для вычисления ограничений
+планировщика для иерархии классов планирования с ограничением скорости.
+.Pp
+ПРИМЕЧАНИЕ: Многие (большинство) параметров и ограничений зависят от адаптера — например, количество доступных каналов и классов,
+реализованы ли различные режимы и т. д.
+Обратитесь к документации адаптера для получения конкретной информации о любых ограничениях.
+.El
+.It Cm sched-queue Ar port Ar очередь Ar class
+Привязать очередь TX NIC указанного порта
+.Ar очередь
+к указанному планировщику TX
+.Ar class .
+Если очередь TX
+.Ar очередь
+равна
+.Cm all, *
+или любому отрицательному значению, привязка будет применена ко всем
+очередям TX, связанным с
+.Ar интерфейс .
+Если класс равен
+.Cm unbind, clear
+или любому отрицательному значению, очередь(и) TX будут отвязаны от любой
+текущей привязки к классу планировщика TX.
+.It Cm stdio
+Переключиться в интерактивный режим.
+.It Cm tcb Ar tid
+Показать содержимое аппаратного TCB (TCP Control Block) для соединения,
+идентифицированного
+.Ar tid .
+.El
+.Sh ФАЙЛЫ
+/sys/dev/cxgbe/t4_ioctl.h
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Navdeep Parhar Aq Mt np@FreeBSD.org .

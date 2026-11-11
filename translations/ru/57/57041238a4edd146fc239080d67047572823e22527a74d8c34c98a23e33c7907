@@ -1,0 +1,143 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-mount.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 57041238a4edd146fc239080d67047572823e22527a74d8c34c98a23e33c7907
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 12, 2024
+.Dt ZFS-MOUNT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-mount
+.Nd управление состоянием монтирования файловых систем ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm mount
+.Op Fl j
+.Nm zfs
+.Cm mount
+.Op Fl Oflv
+.Op Fl o Ar параметры
+.Fl a Ns | Ns Fl R Ar файловая_система Ns | Ns Ar файловая_система
+.Nm zfs
+.Cm unmount
+.Op Fl fu
+.Fl a Ns | Ns Ar файловая_система Ns | Ns Ar точка_монтирования
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width "zfs mount [-Oflv] [-o options] -a | -R filesystem | filesystem"
+.It Xo
+.Nm zfs
+.Cm mount
+.Op Fl j
+.Xc
+Отображает все файловые системы ZFS, смонтированные в данный момент.
+.Bl -tag -width "zfs mount -j, -json"
+.It Fl j , -json
+Отображает все смонтированные файловые системы в формате JSON.
+.El
+.It Xo
+.Nm zfs
+.Cm mount
+.Op Fl Oflv
+.Op Fl o Ar параметры
+.Fl a Ns | Ns Fl R Ar файловая_система Ns | Ns Ar файловая_система
+.Xc
+Смонтировать файловую систему ZFS по пути, заданному её свойством
+.Sy mountpoint
+, если путь существует и пуст.
+Если
+.Sy mountpoint
+установлено в
+.Em legacy ,
+файловая система должна вместо этого монтироваться с помощью
+.Xr mount 8 .
+.Bl -tag -width "zfs mount -O"
+.It Fl O
+Выполнить наложенное монтирование.
+Позволяет монтировать в непустой
+.Sy mountpoint .
+См.
+.Xr mount 8
+для получения дополнительной информации.
+.It Fl a
+Смонтировать все доступные файловые системы ZFS.
+Автоматически вызывается в ходе процесса загрузки, если настроено.
+.It Fl R
+Смонтировать указанные файловые системы вместе со всеми их дочерними файловыми системами.
+.It Ar файловая_система
+Смонтировать указанную файловую систему.
+.It Fl o Ar параметры
+Необязательный разделённый запятыми список параметров монтирования, которые
+используются временно на время монтирования.
+Подробности см. в разделе
+.Em Временные свойства точки монтирования
+.Xr zfsprops 7 .
+.It Fl l
+Загружать ключи для зашифрованных файловых систем при их монтировании.
+Это эквивалентно выполнению
+.Nm zfs Cm load-key
+для каждого корня шифрования перед его монтированием.
+Учтите, что если файловая система имеет
+.Sy keylocation Ns = Ns Sy prompt ,
+это приведёт к тому, что терминал интерактивно заблокируется после запроса ключа.
+.It Fl v
+Сообщать о ходе монтирования.
+.It Fl f
+Попытаться принудительно смонтировать все файловые системы, даже те, которые обычно
+не могут быть смонтированы (например, сокращённые наборы данных).
+.El
+.It Xo
+.Nm zfs
+.Cm unmount
+.Op Fl fu
+.Fl a Ns | Ns Ar файловая_система Ns | Ns Ar точка_монтирования
+.Xc
+Размонтирует смонтированные в данный момент файловые системы ZFS.
+.Bl -tag -width "zfs unmount -a"
+.It Fl a
+Размонтировать все доступные файловые системы ZFS.
+Автоматически вызывается в процессе завершения работы.
+.It Fl f
+Принудительно размонтировать файловую систему, даже если она используется в данный момент.
+Этот параметр не поддерживается в Linux.
+.It Fl u
+Выгружать ключи для всех корней шифрования, размонтированных этой командой.
+.It Ar файловая_система Ns | Ns Ar точка_монтирования
+Размонтировать указанную файловую систему.
+Команде также можно передать путь к точке монтирования файловой системы ZFS в
+системе.
+.El
+.El

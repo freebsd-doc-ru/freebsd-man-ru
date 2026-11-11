@@ -1,0 +1,239 @@
+.\" Copyright (c) 2012 Ron McDowell
+.\" Copyright (c) 2012-2013 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bsdconfig/bsdconfig.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f47365a5bdbdc2d359d4214d0d5b3875560ff9bd23449222ce3630c78955e8ac
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 12, 2020
+.Dt BSDCONFIG 8
+.Os
+.Sh ИМЯ
+.Nm bsdconfig
+.Nd утилита настройки системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Nm
+.Ar команда
+.Op Fl h
+.Nm
+.Op ПАРАМЕТРЫ
+.Op команда Op ПАРАМЕТРЫ
+.Sh ОПИСАНИЕ
+.Nm
+используется для настройки многих параметров конфигурации системы как для новых
+систем, так и для изменения параметров конфигурации существующих систем.
+.Pp
+.Nm
+может принимать команду в качестве аргумента.
+Если вызвать её без аргументов, появится интерактивное меню со списком
+доступных модулей.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent+
+.It Fl d
+Выводить много отладочной информации в стандартный вывод при работе.
+.It Fl D Ar файл
+Отправлять отладочную информацию в .Ar файл.
+Если .Ar файл начинается со знака плюс, отладочная информация отправляется и в
+стандартный вывод, и в .Ar файл (без ведущего плюса).
+.It Fl f Ar файл
+Загрузить .Ar файл как сценарий и затем выйти.
+При нескольких указаниях программа завершится только после последнего.
+Если .Ar файл — одиночный дефис
+.Pq Sq Fl ,
+.Nm
+читает со стандартного ввода.
+.It Fl h
+Вывести справку по использованию и выйти.
+.It Fl S
+Безопасный режим X11
+.Pq подразумевает Fl X .
+При работе от root всегда запрашивать и проверять имя пользователя/пароль для
+.Xr sudo 8 Pq Pa ports/security/sudo
+перед запуском.
+.It Fl X
+Использовать
+.Xr Xdialog 1 Pq Pa ports/x11/xdialog
+вместо
+.Xr dialog 1 .
+.El
+.Sh КОМАНДЫ
+Следующие команды
+.Pq отсортированы по алфавиту
+в настоящее время включены в базовую программу
+.Nm ,
+и вскоре будут добавлены другие.
+Другие команды можно добавить, как подробно описано ниже в разделе
+.Cm ДОБАВЛЕНИЕ КОМАНД ,
+и после добавления они появятся как в главном меню, так и в списке
+.Cm -h .
+.Bl -tag -width indent
+.It Cm console
+Утилиты для настройки поведения системной консоли.
+.It Cm defaultrouter
+Ярлык к меню маршрутизатора/шлюза по умолчанию в разделе networking.
+.It Cm diskmgmt
+Управление разделами дисков и/или метками.
+Запускает
+.Xr sade 8 .
+.It Cm docsinstall
+Запускает подутилиту
+.Cm bsdinstall docsinstall ,
+позволяющую устанавливать/переустанавливать набор(ы) документации FreeBSD.
+.It Cm dot
+Создать файл на языке graphviz
+.Xr dot 1 Pq Pa ports/graphics/graphviz
+.Pq выводится в стандартный вывод ,
+визуализирующий структуру связей меню, включаемых файлов и ярлыков
+.Nm .
+См.
+.Dq bsdconfig dot -h
+для получения дополнительных сведений.
+.It Cm groupadd
+Ярлык к меню добавления групп в разделе groupmgmt.
+.It Cm groupdel
+Ярлык к меню удаления групп в разделе groupmgmt.
+.It Cm groupedit
+Ярлык к меню редактирования/просмотра групп в разделе groupmgmt.
+.It Cm groupmgmt
+Утилиты для добавления/изменения/просмотра/удаления учётных записей групп.
+.It Cm hostname
+Ярлык к меню имени хоста/домена в разделе networking.
+.It Cm kern_securelevel
+Ярлык к меню kern.securelevel в разделе security.
+.It Cm mouse
+Утилиты для настройки, изучения и включения поддержки мыши в консоли.
+.It Cm mouse_disable
+Ярлык к меню отключения в разделе mouse.
+.It Cm mouse_enable
+Ярлык к меню включения в разделе mouse.
+.It Cm mouse_flags
+Ярлык к меню флагов в разделе mouse.
+.It Cm mouse_port
+Ярлык к меню порта в разделе mouse.
+.It Cm mouse_type
+Ярлык к меню типа в разделе mouse.
+.It Cm nameservers
+Ярлык к меню DNS-серверов имён в разделе networking.
+.It Cm netdev
+Ярлык к меню сетевых интерфейсов в разделе networking.
+.It Cm networking
+Утилиты для задания/изменения имени хоста/домена, сетевых интерфейсов,
+беспроводной сети, маршрутизатора/шлюза по умолчанию и DNS-серверов имён.
+.It Cm packages
+Просмотр, установка, удаление и переустановка пакетированного программного
+обеспечения.
+.It Cm password
+Установить пароль системного администратора
+.Pq root .
+.It Cm security
+Настройка различных параметров безопасности системы.
+.It Cm startup
+Настройка различных аспектов загрузки системы.
+.It Cm startup_misc
+Ярлык к меню прочих служб загрузки в разделе startup.
+.It Cm startup_rcadd
+Ярлык к меню добавления новой записи в меню просмотра/редактирования
+конфигурации загрузки (startup_rcconf) раздела startup.
+.It Cm startup_rcconf
+Ярлык к меню просмотра/редактирования конфигурации загрузки в разделе startup.
+.It Cm startup_rcdelete
+Ярлык к меню удаления в меню просмотра/редактирования конфигурации загрузки
+(startup_rcconf) раздела startup.
+.It Cm startup_rcvar
+Ярлык к меню переключения служб загрузки в разделе startup.
+.It Cm syscons_font
+Ярлык к меню шрифта в разделе console.
+.It Cm syscons_keymap
+Ярлык к меню раскладки клавиатуры в разделе console.
+.It Cm syscons_repeat
+Ярлык к меню повтора в разделе console.
+.It Cm syscons_saver
+Ярлык к меню хранителя экрана в разделе console.
+.It Cm syscons_screenmap
+Ярлык к меню карты экрана в разделе console.
+.It Cm syscons_ttys
+Ярлык к меню Ttys в разделе console.
+.It Cm timezone
+Установить региональный часовой пояс локальной машины.
+.It Cm ttys
+Редактировать базу данных
+.Xr ttys 5
+с помощью любимого редактора.
+.It Cm useradd
+Ярлык к меню добавления пользователей в разделе usermgmt.
+.It Cm userdel
+Ярлык к меню удаления пользователей в разделе usermgmt.
+.It Cm useredit
+Ярлык к меню редактирования/просмотра пользователей в разделе usermgmt.
+.It Cm usermgmt
+Утилиты для добавления/редактирования/просмотра/удаления учётных записей
+пользователей.
+.It Cm wireless
+Ярлык к меню беспроводных сетей в разделе networking.
+.El
+.Sh ИНТЕРНАЦИОНАЛИЗАЦИЯ
+Возможности i18n встроены в
+.Nm ,
+а языковые файлы перевода будут добавляться по мере появления.
+При отсутствии языковых файлов перевода будут использоваться файлы по умолчанию
+.Pq en_US.ISO8859-1 .
+.Sh ДОБАВЛЕНИЕ КОМАНД
+Будет задокументировано позже.
+.Sh ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+Следующие переменные окружения влияют на выполнение
+.Nm :
+.Bl -tag -width indent
+.It Ev LANG
+Если LANG задана, сообщения и информация индекса будут читаться из файлов с
+именами messages.$LANG и INDEX.$LANG, с переходом к файлам с именами messages и
+INDEX, если messages.$LANG и INDEX.$LANG не существуют.
+LANG имеет приоритет над LC_ALL.
+.It Ev LC_ALL
+Если LC_ALL задана, сообщения и информация индекса будут читаться из файлов с
+именами messages.$LC_ALL и INDEX.$LC_ALL, с переходом к файлам с именами messages и
+INDEX, если messages.$LC_ALL и INDEX.$LC_ALL не существуют.
+.El
+.Sh ФАЙЛЫ
+Файл /usr/share/examples/bsdconfig/bsdconfigrc можно скопировать в
+$HOME/.bsdconfigrc и настроить по необходимости.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr bsdinstall 8
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 9.2 .
+.Sh АВТОРЫ
+.An Ron McDowell
+.An Devin Teske Aq Mt dteske@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Модули docsinstall и diskmgmt вызывают bsdinstall.
+Ошибки, обнаруженные в этих модулях, следует считать ошибками bsdinstall, а не
+.Nm .

@@ -1,0 +1,315 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/du/du.1
+.\" FRDP githash b0c292621eb61ba4e88d5868fa7cba4911f2a172
+.\" FRDP hash256 37a96c01a02758b2ff72cb105836a75cdc271dd35724a11b82eb37a371edb188
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 7, 2026
+.Dt DU 1
+.Os
+.Sh ИМЯ
+.Nm du
+.Nd отображение статистики использования диска
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl Aclnx
+.Op Fl H | L | P
+.Op Fl g | h | k | m
+.Op Fl a | s | d Ar depth
+.Op Fl B Ar blocksize
+.Op Fl I Ar mask
+.Op Fl t Ar threshold
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает использование блоков файловой системы для каждого аргумента-файла
+и для каждого каталога в иерархии файлов, корнем которой является каждый
+аргумент-каталог.
+Если файл не указан, отображается использование блоков иерархией, корнем
+которой является текущий каталог.
+.Pp
+Опции перечислены ниже:
+.Bl -tag -width indent
+.It Fl -libxo
+Создавать вывод с помощью
+.Xr libxo 3
+в одном из различных удобочитаемых и машиночитаемых форматов.
+См.
+.Xr xo_options 7
+для получения сведений об аргументах командной строки.
+.It Fl A
+Показывать кажущийся размер вместо использования диска.
+Это может быть полезно при работе со сжатыми томами или разрежёнными файлами.
+.It Fl B Ar blocksize
+Вычислять количество блоков в блоках по
+.Ar blocksize
+байт.
+Это отличается от опций
+.Fl h , k , m ,
+.Fl Fl si
+и
+.Fl g
+или установки
+.Ev BLOCKSIZE
+и даёт оценку того, сколько места потребует рассматриваемая иерархия файлов
+в файловой системе с заданным
+.Ar blocksize .
+Если не используется режим
+.Fl A ,
+значение
+.Ar blocksize
+округляется вверх до следующего кратного 512.
+.It Fl H
+Символические ссылки в командной строке прослеживаются; символические ссылки
+в иерархиях файлов не прослеживаются.
+.It Fl I Ar mask
+Игнорировать файлы и каталоги, соответствующие указанной
+.Ar mask .
+.It Fl L
+Символические ссылки в командной строке и в иерархиях файлов прослеживаются.
+.It Fl P
+Символические ссылки не прослеживаются.
+Это поведение по умолчанию.
+.It Fl a
+Показывать запись для каждого файла в иерархии файлов.
+.It Fl c
+Показывать общий итог.
+.It Fl d Ar depth
+Показывать запись для всех файлов и каталогов, находящихся на глубине
+.Ar depth
+каталогов.
+.It Fl g
+Показывать количество блоков в блоках по 1073741824 байт (1 GiB).
+.It Fl h
+.Dq Удобочитаемый
+вывод.
+Использовать суффиксы единиц: байт, килобайт, мегабайт,
+гигабайт, терабайт и петабайт на основе степеней 1024.
+.It Fl k
+Показывать количество блоков в блоках по 1024 байта (1 kiB).
+.It Fl l
+Если файл имеет несколько жёстких ссылок, учитывать его размер несколько раз.
+По умолчанию
+.Nm
+учитывает файлы с несколькими жёсткими ссылками только один раз.
+Если указана опция
+.Fl l ,
+проверки жёстких ссылок отключаются, и эти файлы
+учитываются (и отображаются) столько раз, сколько они встречаются.
+.It Fl m
+Показывать количество блоков в блоках по 1048576 байт (1 MiB).
+.It Fl n
+Игнорировать файлы и каталоги с установленным пользовательским флагом
+.Dq nodump
+.Pq Dv UF_NODUMP .
+.It Fl r
+Выдавать сообщения о каталогах, которые невозможно прочитать, файлах,
+которые невозможно открыть, и т.д.
+Это поведение по умолчанию.
+Эта опция существует исключительно для соответствия
+.St -xpg4 .
+.It Fl s
+Показывать запись для каждого указанного файла.
+(Эквивалентно
+.Fl d Li 0 )
+.It Fl Fl si
+.Dq Удобочитаемый
+вывод.
+Использовать суффиксы единиц: байт, килобайт, мегабайт,
+гигабайт, терабайт и петабайт на основе степеней 1000.
+.It Fl t Ar threshold
+Показывать только записи, размер которых превышает
+.Ar threshold .
+Если
+.Ar threshold
+отрицательно, показывать только записи, размер которых меньше абсолютного
+значения
+.Ar threshold .
+.It Fl x
+Точки монтирования файловых систем не обходятся.
+.El
+.Pp
+Утилита
+.Nm
+учитывает объём хранилища, используемый символическими ссылками, а не файлами,
+на которые они ссылаются, если не указана опция
+.Fl H
+или
+.Fl L .
+Если указана любая из опций
+.Fl H
+или
+.Fl L ,
+объём хранилища, используемый любыми прослеживаемыми символическими ссылками,
+не учитывается (и не отображается).
+Опции
+.Fl H ,
+.Fl L
+и
+.Fl P
+переопределяют друг друга, и действия команды определяются последней
+указанной из них.
+.Pp
+Опции
+.Fl h , k , m
+и
+.Fl Fl si
+переопределяют друг друга; последняя указанная определяет используемое
+количество блоков.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент
+.Cm status
+для
+.Xr stty 1 ),
+текущий файл будет записан в стандартный поток ошибок.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width BLOCKSIZE
+.It Ev BLOCKSIZE
+Если переменная окружения
+.Ev BLOCKSIZE
+установлена и опции
+.Fl h , k , m
+или
+.Fl Fl si
+не указаны, количество блоков будет отображаться в единицах этого размера
+блока.
+Если
+.Ev BLOCKSIZE
+не установлена и опции
+.Fl h , k , m
+или
+.Fl Fl si
+не указаны, количество блоков будет отображаться в блоках по 512 байт.
+.El
+.Sh ПРИМЕРЫ
+Показать использование диска для всех файлов в текущем каталоге.
+Вывод в удобочитаемой форме:
+.Pp
+.Dl # du -ah
+.Pp
+Суммировать использование диска в текущем каталоге:
+.Pp
+.Dl # du -hs
+.Pp
+Суммировать использование диска для указанного каталога:
+.Pp
+.Dl # du -hs /home
+.Pp
+Показать имя и размер всех файлов C в указанном каталоге.
+Также показать общий итог в конце:
+.Pp
+.Dl # du -ch /usr/src/sys/kern/*.c
+.Sh СМ. ТАКЖЕ
+.Xr df 1 ,
+.Xr chflags 2 ,
+.Xr fts 3 ,
+.Xr libxo 3 ,
+.Xr symlink 7 ,
+.Xr xo_options 7 ,
+.Xr quot 8
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует спецификации
+.St -p1003.1-2008 .
+.Pp
+Флаги
+.Op Fl ABIPcdghlmnt ,
+.Op Fl -libxo ,
+.Op Fl -si ,
+а также переменная окружения
+.Ev BLOCKSIZE ,
+являются расширениями этой спецификации.
+.Pp
+Флаг
+.Op Fl r
+принимается, но игнорируется для совместимости с системами, реализующими
+устаревший стандарт
+.St -xcu5 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+и её опции
+.Fl a
+и
+.Fl s
+впервые появились в
+.At v1 .
+.Pp
+Опция
+.Fl r
+впервые появилась в
+.At III
+и доступна начиная с
+.Fx 3.5 .
+Опции
+.Fl k
+и
+.Fl x
+впервые появились в
+.Bx 4.3 Reno ,
+а
+.Fl H
+в
+.Bx 4.4 .
+Опции
+.Fl c
+и
+.Fl L
+впервые появились в GNU fileutils;
+.Fl L
+и
+.Fl P
+доступны начиная с
+.Bx 4.4 Lite1 ,
+.Fl c
+начиная с
+.Fx 2.2.6 .
+Опция
+.Fl d
+впервые появилась в
+.Fx 2.2 ,
+.Fl h
+впервые появилась в
+.Fx 4.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Эту версию
+.Nm
+написал
+.An Chris Newcomb
+для
+.Bx 4.3 Reno
+в 1989 году.

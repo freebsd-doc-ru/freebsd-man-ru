@@ -1,0 +1,54 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or http://www.opensolaris.org/os/licensing.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\"
+.\" Copyright (c) 2023, Klara Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-prefetch.8
+.\" FRDP githash 155d5b8a19baa864ebe9d8346d932bd04ea23aca
+.\" FRDP hash256 a92e225e9d270ae36d5341879d0a51c4229d6029154928250969fd61c1a06a49
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 14, 2024
+.Dt ZPOOL-PREFETCH 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-prefetch
+.Nd Выполняет предварительную выборку метаданных пула в ARC
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm prefetch
+.Op Fl t Ar тип
+.Ar пул
+.Sh ОПИСАНИЕ
+Выполняет массовую предварительную выборку метаданных указанного типа для заданного пула в ARC, чтобы снизить задержку некоторых операций в дальнейшем.
+Если тип не указан, выполняется предварительная выборка всех типов.
+.Pp
+Поддерживаются следующие типы:
+.Bl -tag -width Ds
+.It Sy brt
+Выполняет предварительную выборку BRT (таблицы ссылок на блоки).
+Это может повысить производительность операций клонирования блоков и освобождения ранее клонированных блоков.
+.It Sy ddt
+Выполняет предварительную выборку DDT (таблицы дедупликации).
+Это может повысить производительность записей при включённой дедупликации и освобождения ранее дедуплицированных блоков.
+.El

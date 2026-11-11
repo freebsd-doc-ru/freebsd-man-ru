@@ -1,0 +1,136 @@
+.\" Copyright (c) 2005 Sam Leffler <sam@errno.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/hostapd/hostapd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8011d80b82eec43ff42ac2a08c24cdf3ca5b74e7de89b378d28108a1ee17e6b9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 18, 2012
+.Dt HOSTAPD 8
+.Os
+.Sh ИМЯ
+.Nm hostapd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl BdhKtv
+.Op Fl P Ar pidfile
+.Ar config-file ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является аутентификатором для сетей IEEE 802.11.
+Она обеспечивает полную поддержку WPA/IEEE 802.11i и
+может также выступать в качестве аутентификатора IEEE 802.1X с подходящим
+внутренним сервером аутентификации (обычно
+.Tn FreeRADIUS ) .
+Утилита
+.Nm
+реализует протоколы аутентификации, работающие поверх
+обычных механизмов протокола IEEE 802.11.
+Чтобы использовать
+.Nm
+в качестве аутентификатора, базовое устройство должно поддерживать некоторые
+основные функции, например возможность задавать сведения о безопасности
+в управляющих кадрах 802.11.
+Учтите, что не все устройства поддерживают эту возможность.
+.Pp
+Утилита
+.Nm
+разработана как
+программа
+.Dq демон ,
+работающая в
+фоне и выполняющая роль внутреннего компонента, управляющего
+беспроводным соединением.
+Она поддерживает отдельные внешние программы, такие как
+текстовый интерфейс
+.Xr hostapd_cli 8 .
+.Pp
+В командной строке необходимо указать следующие аргументы:
+.Bl -tag -width indent
+.It Ar config-file
+Использовать настройки из указанного файла конфигурации; имя
+указанного беспроводного интерфейса содержится в этом файле.
+См.
+.Xr hostapd.conf 5
+для описания синтаксиса файла конфигурации.
+.Pp
+Изменения в файле конфигурации можно перезагрузить, отправив
+.Dv SIGHUP
+процессу
+.Nm
+или с помощью утилиты
+.Xr hostapd_cli 8 ,
+используя
+.El
+.Sh ОПЦИИ
+Опции перечислены ниже:
+.Bl -tag -width indent
+.It Fl d
+Включить отладочные сообщения.
+Если эта опция указана дважды, выводятся более подробные сообщения.
+.It Fl h
+Показать текст справки.
+.It Fl t
+Включать отметки времени в отладочный вывод.
+.It Fl v
+Вывести сведения о версии на терминал и завершить работу.
+.It Fl B
+Отсоединиться от управляющего терминала и работать как процесс-демон
+в фоне.
+.It Fl K
+Включать сведения о ключах в отладочный вывод.
+.It Fl P Ar pidfile
+Сохранить PID в
+.Ar pidfile .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ath 4 ,
+.Xr ipw 4 ,
+.Xr iwi 4 ,
+.Xr mwl 4 ,
+.Xr ral 4 ,
+.Xr rum 4 ,
+.Xr run 4 ,
+.Xr ural 4 ,
+.Xr hostapd.conf 5 ,
+.Xr hostapd_cli 8 ,
+.Xr ifconfig 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Jouni Malinen Aq Mt j@w1.fi .
+Эта справочная страница основана на
+файле
+.Pa README ,
+входящем в
+дистрибутив
+.Nm .

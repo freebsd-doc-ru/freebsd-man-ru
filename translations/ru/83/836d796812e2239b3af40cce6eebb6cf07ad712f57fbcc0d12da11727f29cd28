@@ -1,0 +1,284 @@
+.\"-
+.\" Copyright (c) 1999 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/sockstat/sockstat.1
+.\" FRDP githash 335bee05d91467aa38caa68e8e4134c1c883c5e6
+.\" FRDP hash256 836d796812e2239b3af40cce6eebb6cf07ad712f57fbcc0d12da11727f29cd28
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 26, 2026
+.Dt SOCKSTAT 1
+.Os
+.Sh ИМЯ
+.Nm sockstat
+.Nd список открытых сокетов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl 46AbCcfIiLlnqSsUuvw
+.Op Fl j Ar клетка
+.Op Fl p Ar порты
+.Op Fl P Ar протоколы
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+выводит список открытых сокетов доменов Internet или
+.Ux .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Fl
+.It Fl -libxo
+Формировать вывод через
+.Xr libxo 3
+в одном из различных форматов, удобочитаемых человеком и машиной.
+Подробности об аргументах командной строки см. в
+.Xr xo_options 7 .
+.It Fl 4
+Показать сокеты
+.Dv AF_INET
+(IPv4).
+.It Fl 6
+Показать сокеты
+.Dv AF_INET6
+(IPv6).
+.It Fl A
+Показать адрес блока управления протоколом (PCB), связанного с сокетом;
+используется для отладки.
+.It Fl b
+Показать информацию, связанную с BBLog, для сокета.
+В настоящее время это реализовано только для TCP.
+.It Fl C
+Показать модуль управления перегрузкой, если применимо.
+В настоящее время это реализовано только для TCP.
+.It Fl c
+Показать подключённые сокеты.
+.It Fl f
+Показать номер FIB для каждого сокета.
+.It Fl I
+Показать локальный адрес сокета, к которому присоединён текущий сокет, если
+таковой имеется.
+Дополнительную информацию см. в
+.Xr setsockopt 2 ,
+опция
+.Dv SO_SPLICE .
+.It Fl i
+Показать
+.Dv inp_gencnt .
+.It Fl j Ar клетка
+Показывать только сокеты, принадлежащие указанному ID или имени клетки.
+.It Fl L
+Показывать интернет-сокеты, только если локальный и внешний адреса не
+находятся в префиксе сети loopback
+.Li 127.0.0.0/8 ,
+или не содержат адрес loopback IPv6
+.Li ::1 .
+.It Fl l
+Показать прослушиваемые сокеты.
+.It Fl n
+Не преобразовывать числовые UID в имена пользователей.
+.It Fl p Ar порты
+Показывать интернет-сокеты, только если номер локального или внешнего порта
+входит в указанный список.
+Аргумент
+.Ar порты
+— это разделённый запятыми список номеров портов и диапазонов,
+задаваемых как первый и последний порт, разделённые дефисом.
+.It Fl P Ar протоколы
+Показывать только сокеты, использующие указанные
+.Ar протоколы .
+Аргумент
+.Ar протоколы
+— это разделённый запятыми список имён протоколов,
+как они определены в
+.Xr protocols 5 .
+.It Fl q
+Тихий режим, не выводить строку заголовка.
+.It Fl S
+Показать стек протоколов, если применимо.
+В настоящее время это реализовано только для TCP.
+.It Fl s
+Показать состояние протокола, если применимо.
+В настоящее время это реализовано только для SCTP и TCP.
+.It Fl U
+Показать номер удалённого порта UDP-инкапсуляции, если применимо.
+В настоящее время это реализовано только для SCTP и TCP.
+.It Fl u
+Показать сокеты
+.Dv AF_LOCAL
+.Pq Ux .
+.It Fl v
+Подробный режим.
+.It Fl w
+Автоматически подбирать ширину столбцов.
+.El
+.Pp
+Если не указан ни
+.Fl 4 , 6,
+ни
+.Fl u ,
+.Nm
+будет выводить сокеты во всех трёх доменах.
+.Pp
+Если не указан ни
+.Fl c ,
+ни
+.Fl l ,
+.Nm
+будет выводить как прослушиваемые, так и подключённые сокеты.
+.Pp
+Для каждого сокета выводится следующая информация:
+.Bl -tag -width ".Li ВНЕШНИЙ АДРЕС"
+.It Li ПОЛЬЗОВАТЕЛЬ
+Пользователь, которому принадлежит сокет.
+.It Li КОМАНДА
+Команда, которая удерживает сокет.
+.It Li PID
+Идентификатор процесса команды, которая удерживает сокет.
+.It Li FD
+Номер файлового дескриптора сокета.
+.It Li ПРОТОКОЛ
+Транспортный протокол, связанный с сокетом, для интернет-сокетов, или тип сокета
+.Pq потоковый, датаграммный или seqpacket
+для сокетов
+.Ux .
+.It Li ЛОКАЛЬНЫЙ АДРЕС
+Для интернет-сокетов это адрес, к которому привязан локальный конец сокета
+(см.
+.Xr getsockname 2 ) .
+.Pp
+Для привязанных сокетов
+.Ux
+выводится имя файла сокета.
+Для непривязанных сокетов
+.Ux
+поле пусто.
+.It Li ВНЕШНИЙ АДРЕС
+Для интернет-сокетов это адрес, к которому привязан внешний конец сокета
+(см.
+.Xr getpeername 2 ) .
+.Pp
+Для привязанных сокетов
+.Ux
+выводится стрелка влево, за которой следует список партнёров.
+Для сокетов
+.Ux ,
+прошедших через системный вызов
+.Xr connect 2 ,
+выводится стрелка вправо, за которой следует партнёр.
+Партнёры выводятся в квадратных скобках как [PID FD].
+.It Li ID
+Значение inp_gencnt, если указан
+.Fl i
+(только для TCP или UDP).
+.It Li ENCAPS
+Номер удалённого порта UDP-инкапсуляции, если указан
+.Fl U
+(только для SCTP или TCP).
+.It Li СОСТОЯНИЕ ПУТИ
+Состояние пути, если указан
+.Fl s
+(только для SCTP).
+При использовании традиционного текстового вывода этот столбец показывается только
+при наличии хотя бы одного состояния пути для отображения.
+.It Li СОСТОЯНИЕ СОЕДИНЕНИЯ
+Состояние соединения, если указан
+.Fl s
+(только для SCTP или TCP).
+.It Li BBLOG СОСТОЯНИЕ
+Состояние BBLog, если указан
+.Fl b
+(только для TCP).
+.It Li BBLOG КОЛИЧЕСТВО
+Количество записей BBLog, в настоящее время хранящихся в конечной точке, если
+указан
+.Fl b
+(только для TCP).
+.It Li BBLOG ПРЕДЕЛ
+Максимальное количество записей BBLog, которые могут храниться в конечной точке,
+если
+.Fl b
+указан (только для TCP).
+.It Li BBLOG ПОРЯДКОВЫЙ НОМЕР
+Следующий порядковый номер BBLog, который будет назначен, если
+.Fl b
+указан (только для TCP).
+.It Li СТЕК
+Стек протоколов, если указан
+.Fl S
+(только для TCP).
+.It Li CC
+Управление перегрузкой, если указан
+.Fl C
+(только для TCP).
+.El
+.Pp
+Если сокет связан более чем с одним файловым дескриптором,
+он показывается несколько раз.
+Если сокет не связан ни с одним файловым дескриптором,
+первые четыре столбца не имеют смысла.
+.Sh ПРИМЕРЫ
+Показать информацию для IPv4-сокетов, прослушивающих порт 22 по протоколу
+TCP:
+.Bd -literal -offset indent
+$ sockstat -4 -l -P tcp -p 22
+.Ed
+.Pp
+Показать информацию для сокетов, использующих TCP или UDP, если ни локальный, ни
+внешний адрес не находятся в сети loopback:
+.Bd -literal -offset indent
+$ sockstat -L -P tcp,udp
+.Ed
+.Pp
+Показать прослушиваемые и подключённые TCP-сокеты IPv6 (по умолчанию):
+.Bd -literal -offset indent
+$ sockstat -6 -P tcp
+.Ed
+.Pp
+Показать все сокеты в формате JSON с аккуратным выравниванием:
+.Bd -literal -offset indent
+$ sockstat --libxo json,pretty
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr netstat 1 ,
+.Xr procstat 1 ,
+.Xr setfib 1 ,
+.Xr libxo 3 ,
+.Xr inet 4 ,
+.Xr inet6 4 ,
+.Xr protocols 5 ,
+.Xr xo_options 7
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 3.1 .
+.Sh АВТОРЫ
+Команда
+.Nm
+и эта страница руководства были написаны
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .

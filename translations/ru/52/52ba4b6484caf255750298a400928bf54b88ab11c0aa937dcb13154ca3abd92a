@@ -1,0 +1,237 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-status.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 52ba4b6484caf255750298a400928bf54b88ab11c0aa937dcb13154ca3abd92a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2025
+.Dt ZPOOL-STATUS 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-status
+.Nd отображение подробного состояния работоспособности пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm status
+.Op Fl DdegiLPpstvx
+.Op Fl c Ar скрипт1 Ns Oo , Ns Ar скрипт2 Ns ,… Oc
+.Oo Fl j|--json
+.Oo Ns Fl -json-flat-vdevs Oc
+.Oo Ns Fl -json-int Oc
+.Oo Ns Fl -json-pool-key-guid Oc
+.Oc
+.Op Fl T Ar d|u
+.Op Fl -power
+.Op Ar пул
+.Op Ar интервал Op Ar количество
+.
+.Sh ОПИСАНИЕ
+Отображает подробное состояние работоспособности указанных пулов.
+Если
+.Ar пул
+не указан, отображается состояние каждого пула в системе.
+Дополнительные сведения о работоспособности пулов и устройств см. в разделе
+.Sx Отказы и восстановление устройств
+из
+.Xr zpoolconcepts 7 .
+.Pp
+Если выполняется очистка (scrub) или ресинхронизация (resilver), эта команда
+сообщает процент выполнения и оценочное время до завершения.
+Оба значения приблизительны, поскольку объём данных в пуле и другие нагрузки
+на систему могут изменяться.
+.Bl -tag -width Ds
+.It Fl c Ar скрипт1 Ns Oo , Ns Ar скрипт2 Ns ,… Oc
+Запустить скрипт (или скрипты) на каждом vdev и включить вывод как новый столбец
+в вывод
+.Nm zpool Cm status
+.
+Полные сведения см. в описании параметра
+.Fl c
+команды
+.Nm zpool Cm iostat
+.
+.It Fl D
+Показать гистограмму статистики дедупликации, отображающую количество и размеры
+выделенных
+.Pq физически присутствующих на диске
+и ссылочных
+.Pq логически указанных в пуле
+блоков в разбивке по счётчику ссылок.
+При повторении (-DD) также показывает статистику о том, какая часть DDT
+находится в ARC.
+.It Fl d
+Показать количество ошибок проверки контрольных сумм при чтении/записи
+Direct I/O, возникших на vdev верхнего уровня.
+Подробности об условиях, которые могут вызвать ошибки проверки контрольных
+сумм при записи Direct I/O, см. в
+.Sx zfs_vdev_direct_write_verify
+в
+.Xr zfs 4
+.
+Ошибки проверки контрольных сумм при чтении Direct I/O также могут возникать,
+если содержимое буфера изменяется после выдачи I/O и во время его выполнения.
+В случае ошибок проверки контрольных сумм при чтении Direct I/O операция I/O
+будет повторно выдана через ARC.
+.It Fl e
+Показывать только неработоспособные vdev (не в состоянии ONLINE или с ошибками).
+.It Fl g
+Показать GUID vdev вместо обычных имён устройств.
+Эти GUID можно использовать вместо имён устройств в командах zpool
+detach/offline/remove/replace.
+.It Fl i
+Показать состояние инициализации vdev.
+.It Fl j , -json Oo Ns Fl -json-flat-vdevs Oc Oo Ns Fl -json-int Oc \
+Oo Ns Fl -json-pool-key-guid Oc
+Показать состояние пулов ZFS в формате JSON.
+Укажите
+.Sy --json-flat-vdevs
+, чтобы отображать vdev в плоской иерархии вместо вложенных объектов vdev.
+Укажите
+.Sy --json-int
+, чтобы отображать числа в целочисленном формате вместо строк.
+Укажите
+.Sy --json-pool-key-guid
+, чтобы использовать GUID пула в качестве ключа для объектов пулов вместо имён
+пулов.
+.It Fl L
+Показать реальные пути для vdev с разрешением всех символических ссылок.
+Это можно использовать для поиска текущего имени блочного устройства независимо
+от пути
+.Pa /dev/disk/
+, использованного для его открытия.
+.It Fl P
+Показать полные пути для vdev вместо только последнего компонента пути.
+Это можно использовать вместе с флагом
+.Fl L
+.
+.It Fl p
+Показать числа в пригодном для разбора (точном) виде.
+.It Fl -power
+Показать состояние питания слота корпуса vdev (вкл. или выкл.).
+.It Fl s
+Показать количество медленных операций I/O на листовых vdev.
+Это количество операций I/O, которые не завершились за
+.Sy zio_slow_io_ms
+миллисекунд
+.Pq Sy 30000 No по умолчанию .
+Это не обязательно означает, что операции I/O не завершились, а лишь то, что
+они заняли неоправданно много времени.
+Это может указывать на проблему с нижележащим хранилищем.
+.It Fl T Sy d Ns | Ns Sy u
+Показать отметку времени.
+Укажите
+.Sy d
+для стандартного формата даты.
+См.
+.Xr date 1 .
+Укажите
+.Sy u
+для печатного представления внутреннего представления времени.
+См.
+.Xr time 1 .
+.It Fl t
+Показать состояние TRIM для vdev.
+.It Fl v
+Показать подробную информацию об ошибках данных, выводя полный список всех
+ошибок данных с момента последней полной очистки (scrub) пула.
+Если функция head_errlog включена и файлы, содержащие ошибки, были удалены,
+соответствующие имена файлов не будут указываться при последующих запусках
+этой команды.
+.It Fl x
+Показывать состояние только тех пулов, в которых есть ошибки или которые иным
+образом недоступны.
+Предупреждения о пулах, не использующих последний формат на диске, не будут
+включены.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Добавление столбцов вывода
+Дополнительные столбцы можно добавить в вывод
+.Nm zpool Cm status No и Nm zpool Cm iostat No с помощью Fl c .
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm status Fl c Pa vendor , Ns Pa model , Ns Pa size
+   NAME     STATE  READ WRITE CKSUM vendor  model        size
+   tank     ONLINE 0    0     0
+   mirror-0 ONLINE 0    0     0
+   U1       ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U10      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U11      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U12      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U13      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U14      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+
+.No # Nm zpool Cm iostat Fl vc Pa size
+              capacity     operations     bandwidth
+pool        alloc   free   read  write   read  write  size
+----------  -----  -----  -----  -----  -----  -----  ----
+rpool       14.6G  54.9G      4     55   250K  2.69M
+  sda1      14.6G  54.9G      4     55   250K  2.69M   70G
+----------  -----  -----  -----  -----  -----  -----  ----
+.Ed
+.
+.Ss Пример 2 : No Вывод статуса в формате JSON
+.Nm zpool Cm status No может выводить в формате JSON, если указан
+.Fl j
+.
+.Fl c
+можно использовать для запуска скрипта на каждом VDEV.
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm status Fl j Fl c Pa vendor , Ns Pa model , Ns Pa size | Nm jq
+{
+  },
+                },
+                }
+              }
+            }
+          }
+        }
+      },
+            },
+            }
+          }
+        }
+      },
+        }
+      },
+    }
+  }
+}
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-events 8 ,
+.Xr zpool-history 8 ,
+.Xr zpool-iostat 8 ,
+.Xr zpool-list 8 ,
+.Xr zpool-resilver 8 ,
+.Xr zpool-scrub 8 ,
+.Xr zpool-wait 8

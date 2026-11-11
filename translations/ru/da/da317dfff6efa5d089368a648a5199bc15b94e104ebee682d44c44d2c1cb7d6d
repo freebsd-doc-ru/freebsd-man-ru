@@ -1,0 +1,266 @@
+.\" ACPI (ACPI Package)
+.\"
+.\" Copyright (c) 1999 Doug Rabson <dfr@FreeBSD.org>
+.\" Copyright (c) 2000 Mitsuru IWASAKI <iwasaki@FreeBSD.org>
+.\" Copyright (c) 2000 Yasuo YOKOYAMA <yokoyama@jp.FreeBSD.org>
+.\" Copyright (c) 2000 Hiroki Sato <hrs@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/acpi/acpidump/acpidump.8
+.\" FRDP githash 3ff9ea7dc2c52fcb67b7f6234cd351c3e2fbfafd
+.\" FRDP hash256 da317dfff6efa5d089368a648a5199bc15b94e104ebee682d44c44d2c1cb7d6d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 5, 2024
+.Dt ACPIDUMP 8
+.Os
+.Sh ИМЯ
+.Nm acpidump
+.Nd выгружает таблицы ACPI и ASL
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl f Ar dsdt_input
+.Op Fl h
+.Op Fl o Ar dsdt_output
+.Op Fl t
+.Op Fl T Ar table_name
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+анализирует таблицы ACPI в физической памяти и может выгружать их в файл.
+Кроме того,
+.Nm
+может вызывать
+.Xr iasl 8
+для дизассемблирования AML
+(машинного языка ACPI),
+содержащегося в этих таблицах, и выводить его как ASL
+(язык исходного кода ACPI)
+в стандартный вывод.
+.Pp
+Таблицы ACPI имеют основной блок данных (DSDT,
+таблица описания дифференцированной системы),
+который включает информацию, используемую на стороне ядра, такую как
+подробные сведения об оборудовании PnP, процедуры управления
+поддержкой питания и т. д.
+Утилита
+.Nm
+может извлекать блок данных DSDT из физической памяти и сохранять его в
+выходной файл, а также при необходимости дизассемблировать его.
+Если присутствуют записи SSDT
+(таблица описания вторичной системы),
+они также будут включены в выходной файл и дизассемблирование.
+.Pp
+Когда
+.Nm
+вызывается без параметра
+.Fl f ,
+она читает таблицы ACPI из физической памяти через
+.Pa /dev/mem .
+Сначала она ищет RSDP
+(указатель описания корневой системы),
+имеющий сигнатуру
+.Qq RSD PTR\ \& ,
+затем получает RSDT
+(таблицу описания корневой системы),
+которая содержит список указателей на физические адреса памяти
+других таблиц.
+Сам RSDT и все другие таблицы, связанные с RSDT, обычно
+называются SDT
+(таблицы описания системы),
+а их заголовок имеет общий формат, состоящий из таких элементов,
+как Signature, Length, Revision, Checksum, OEMID, OEM Table ID,
+OEM Revision, Creator ID и Creator Revision.
+.Pp
+При вызове с флагом
+.Fl t
+утилита
+.Nm
+выгружает содержимое всех таблиц ACPI, кроме DSDT и SSDT.
+Следующие SDT выводятся подробно, а для остальных выводится только
+общая информация заголовка:
+.Pp
+.Bl -tag -offset indent -width 12345 -compact
+.It BERT Таблица записей ошибок загрузки
+Сообщает о любых предыдущих ошибках загрузки.
+.It DMAR Таблица переназначения DMA
+Содержит информацию о переназначении DMA, необходимом системе
+для виртуализации ввода-вывода на процессорах Intel.
+.It DSDT Таблица описания дифференцированной системы
+Содержит основной AML для системы.
+.It ECDT Таблица загрузочных ресурсов встроенного контроллера
+Содержит информацию о доступе к встроенному контроллеру
+до того, как ОС декодирует DSDT во всех подробностях.
+.It EINJ Таблица инъекции ошибок
+Используется для внесения аппаратных ошибок в механизмы отчётов об ошибках.
+.It ERST Таблица сериализации записей об ошибках
+Информация для извлечения и управления ошибками, сообщаемыми оборудованием.
+.It FACS Структура управления ACPI прошивки
+Информация для взаимодействия ОС с прошивкой для таких задач,
+как приостановка / возобновление, и предотвращения взаимного доступа к ресурсам,
+разделяемым между ОС и прошивкой.
+.It FACP Таблица описания фиксированной ACPI (FADT)
+Информация, относящаяся к управлению питанием, и другие данные, связанные с CPU.
+.It HEST Таблица источников аппаратных ошибок
+Описывает для ОС возможные источники аппаратных ошибок.
+.It HPET Таблица таймеров событий высокой точности
+Описывает таймеры высокой точности в системе.
+.It IVRS Структура отчётности о виртуализации ввода-вывода
+Информация, которую гипервизоры используют для совместного доступа к ресурсам ввода-вывода на процессорах AMD.
+.It LPIT Таблица простоя с низким энергопотреблением
+Информация об управлении питанием для снижения энергопотребления системы.
+.It MADT Таблица описания множественных APIC
+Описывает все усовершенствованные программируемые контроллеры прерываний и
+Intel Streamlined Advanced Programmable Interrupt Controller, присутствующие
+в системе.
+.It MCFG Конфигурация PCI Express с отображением в память
+Регистр базового адреса конфигурационного пространства PCI.
+.It NFIT Таблица интерфейса прошивки NVDIMM
+Информация о NVDIMM в системе.
+.It RSD PTR
+Указатель на RSDT.
+.It RSDT Таблица описания корневой системы
+Массив физических указателей на другие таблицы описания системы,
+FACP (таблица описания фиксированной ACPI).
+.It SLIT Таблица информации о расстояниях локальности системы
+Предоставляет информацию о стоимости обмена между различными
+частями системы (NUMA).
+.It SPCR Перенаправление консоли последовательного порта
+Содержит информацию о любом последовательном порте, который прошивка использовала как
+консоль для вывода отчётов.
+.It SRAT Таблица аффинности системных ресурсов
+Определяет домены локальности в системе для процессоров, памяти
+и универсальных инициаторов (например, корневых комплексов PCIe).
+.It TCPA Альянс доверенных вычислительных платформ
+Информация об элементах TPM системы.
+.It TPM2 Модуль доверенной платформы 2
+Дополнительная информация о более новом оборудовании TPM.
+.It WDDT Таблица описания сторожевого таймера
+Информация о том, как управлять сторожевыми таймерами в системе.
+.El
+.Pp
+FACP определяет статическую системную информацию о поддержке управления питанием
+(реализация аппаратных регистров ACPI), такую как режим прерываний (INT_MODEL),
+номер прерывания SCI, порт команды SMI (SMI_CMD)
+и расположение регистров ACPI.
+FACP также содержит указатель на физический адрес памяти для DSDT.
+Хотя другие таблицы имеют фиксированный формат,
+DSDT состоит из AML-данных свободного формата.
+.Sh ПАРАМЕТРЫ
+Утилита
+.Nm
+поддерживает следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Объединяет DSDT и SSDT в единый образ и дизассемблирует образ в ASL с помощью
+.Xr iasl 8
+и выводит результаты в стандартный вывод.
+.It Fl t
+Выгружает содержимое различных фиксированных таблиц, перечисленных выше.
+.It Fl T Ar table_name
+Выгружает содержимое указанной таблицы.
+Все таблицы ACPI имеют длину ровно 4 символа.
+.It Fl h
+Показывает использование и завершает работу.
+.It Fl s
+Дизассемблирует каждую из DSDT и SSDT в ASL с помощью
+.Xr iasl 8
+и выводит результаты в стандартный вывод.
+Это позволяет избежать ошибки
+.Xr iasl 8
+при дизассемблировании объединённого образа.
+Если указаны одновременно
+.Fl d
+и
+.Fl s ,
+действует последний из указанных параметров.
+.It Fl v
+Включает подробные сообщения.
+.It Fl f Ar dsdt_input
+Загружает DSDT из указанного файла вместо физической памяти.
+Поскольку в файле хранится только DSDT, флаг
+.Fl t
+не может использоваться вместе с этим параметром.
+.It Fl o Ar dsdt_output
+Сохраняет блок данных DSDT из физической памяти в указанный файл.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /dev/mem
+.It Pa /dev/mem
+.El
+.Sh ПРИМЕРЫ
+Если разработчик запрашивает копию вашего ASL, используйте следующую
+команду, чтобы выгрузить все таблицы и сжать результат.
+.Bd -literal -offset indent
+# acpidump -dt | gzip -c9 > my_computer.asl.gz
+.Ed
+.Pp
+В этом примере DSDT выгружается из физической памяти в foo.dsdt.
+Также выводится содержимое различных системных таблиц и выполняется дизассемблирование
+AML, содержащегося в DSDT, в стандартный вывод с перенаправлением вывода
+в foo.asl.
+.Bd -literal -offset indent
+# acpidump -t -d -o foo.dsdt > foo.asl
+.Ed
+.Pp
+В этом примере читается файл DSDT, который дизассемблируется в стандартный вывод.
+Включены подробные сообщения.
+.Bd -literal -offset indent
+# acpidump -v -d -f foo.dsdt
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr mem 4 ,
+.Xr acpiconf 8 ,
+.Xr acpidb 8 ,
+.Xr iasl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0
+и была переписана для использования
+.Xr iasl 8
+в
+.Fx 5.2 .
+.Sh АВТОРЫ
+.An Doug Rabson Aq Mt dfr@FreeBSD.org
+.An Mitsuru IWASAKI Aq Mt iwasaki@FreeBSD.org
+.An Yasuo YOKOYAMA Aq Mt yokoyama@jp.FreeBSD.org
+.An Nate Lawson Aq Mt njl@FreeBSD.org
+.Pp
+.An -nosplit
+Часть вклада внесли
+.An Chitoshi Ohsawa Aq Mt ohsawa@catv1.ccn-net.ne.jp ,
+.An Takayasu IWANASHI Aq Mt takayasu@wendy.a.perfect-liberty.or.jp ,
+.An Yoshihiko SARUMARU Aq Mt mistral@imasy.or.jp ,
+.An Hiroki Sato Aq Mt hrs@FreeBSD.org ,
+.An Michael Lucas Aq Mt mwlucas@blackhelicopters.org
+и
+.An Michael Smith Aq Mt msmith@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Текущая реализация не выгружает структуру BOOT или
+другие прочие таблицы.

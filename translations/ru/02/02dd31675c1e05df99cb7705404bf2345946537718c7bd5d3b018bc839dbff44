@@ -1,0 +1,231 @@
+.\" Copyright (c) 2004-2005 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/concat/gconcat.8
+.\" FRDP githash 27bd6c32bbb49a592a0dfbec5f211a7c2fed31d6
+.\" FRDP hash256 02dd31675c1e05df99cb7705404bf2345946537718c7bd5d3b018bc839dbff44
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 23, 2025
+.Dt GCONCAT 8
+.Os
+.Sh ИМЯ
+.Nm gconcat
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Ar имя
+.Ar провайдер ...
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm label
+.Op Fl hv
+.Ar имя
+.Ar провайдер ...
+.Nm
+.Cm append
+.Op Fl hv
+.Ar имя
+.Ar провайдер
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar провайдер ...
+.Nm
+.Cm dump
+.Ar провайдер ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для настройки объединения устройств.
+Объединение можно настроить двумя разными методами:
+.Dq ручным
+или
+.Dq автоматическим .
+При использовании
+.Dq ручного
+метода метаданные на устройствах не сохраняются, поэтому объединённое
+устройство приходится настраивать вручную каждый раз, когда оно нужно.
+Метод
+.Dq автоматический
+использует метаданные на диске для обнаружения устройств.
+После маркировки устройств они будут автоматически обнаружены и
+настроены.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm create
+Объединить заданные устройства с указанным
+.Ar именем .
+Это
+.Dq ручной
+метод.
+Модуль ядра
+.Pa geom_concat.ko
+будет загружен, если он ещё не загружен.
+.It Cm label
+Объединить заданные устройства с указанным
+.Ar именем .
+Это
+.Dq автоматический
+метод, при котором метаданные сохраняются в последнем секторе каждого устройства.
+Модуль ядра
+.Pa geom_concat.ko
+будет загружен, если он ещё не загружен.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl h
+Жёстко задавать имена провайдеров в метаданных.
+.El
+.It Cm append
+Добавить новое устройство в конец существующего объединённого устройства
+с указанным
+.Ar именем .
+.Pp
+Если существующее устройство использует
+.Dq ручной
+метод, новое устройство просто добавляется как есть.
+.Pp
+Если существующее устройство использует
+.Dq автоматический
+метод, устройство добавляется с сохранением.
+Новые метаданные
+.Cm gconcat
+записываются во все существующие компоненты, а также во
+вновь добавленный.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl h
+Жёстко задавать имена провайдеров в метаданных.
+.El
+.It Cm stop
+Отключить существующее объединённое устройство по его
+.Ar имени .
+Эта команда не изменяет метаданные на диске!
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl f
+Остановить заданное устройство, даже если оно открыто.
+.El
+.It Cm destroy
+То же, что
+.Cm stop .
+.It Cm clear
+Очистить метаданные на заданных устройствах.
+.It Cm dump
+Вывести метаданные, хранящиеся на заданных устройствах.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl v
+Выводить больше информации.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие переменные
+.Xr sysctl 8
+можно использовать для управления поведением класса GEOM
+.Nm CONCAT .
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.geom.concat.debug : No 0
+Уровень отладки класса GEOM
+.Nm CONCAT .
+Можно задать число от 0 до 3 включительно.
+При значении 0 выводится минимум отладочной информации, а при значении 3
+— максимум отладочной информации.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода — 0 при успехе и 1 при ошибке команды.
+.Sh ПРИМЕРЫ
+Следующий пример показывает, как настроить четыре диска для автоматического
+объединения, создать на нём файловую систему и смонтировать его:
+.Bd -literal -offset indent
+gconcat label -v data /dev/da0 /dev/da1 /dev/da2 /dev/da3
+newfs /dev/concat/data
+mount /dev/concat/data /mnt
+[...]
+umount /mnt
+gconcat stop data
+gconcat unload
+.Ed
+.Pp
+Настройте объединённый провайдер только на одном диске.
+Создайте файловую систему.
+Добавьте ещё два диска и расширьте существующую файловую систему.
+.Bd -literal -offset indent
+gconcat label data /dev/da0
+newfs /dev/concat/data
+gconcat label data /dev/da0 /dev/da1 /dev/da2
+growfs /dev/concat/data
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr loader.conf 5 ,
+.Xr geom 8 ,
+.Xr growfs 8 ,
+.Xr mount 8 ,
+.Xr newfs 8 ,
+.Xr sysctl 8 ,
+.Xr umount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org

@@ -1,0 +1,94 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2010 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" Copyright (c) 2013, 2016 Adrian Chadd <adrian@freebsd.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bluetooth/ath3kfw/ath3kfw.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 5a5c2e452beeb1862a697d3c3e7391da0326f09c5a0e3e992853074009d172f2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 15, 2025
+.Dt ATH3KFW 8
+.Os
+.Sh ИМЯ
+.Nm ath3kfw
+.Nd загрузить прошивку для Bluetooth USB-устройств Atheros AR3011/AR3012
+.Sh СИНТАКСИС
+.Nm
+.Op Fl DI
+.Fl d Ar имя_устройства
+.Fl f Ar путь_к_прошивке
+.Nm
+.Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+загружает указанный файл прошивки в указанное устройство
+.Xr ugen 4 .
+.Pp
+Эта утилита будет работать
+.Em только
+с Bluetooth USB-устройствами на основе микросхем Atheros AR3011 и AR3012.
+В настоящее время идентификация основана на паре идентификаторов производителя и продукта USB.
+Идентификатор производителя должен быть 0x0cf3
+.Pq Dv USB_VENDOR_ATHEROS2
+, а идентификатор продукта должен соответствовать одному из поддерживаемых устройств.
+.Pp
+Файлы прошивки доступны в RPM-пакете linux-firmware.
+.Pp
+Утилита
+.Nm
+опросит устройство, чтобы определить, какой образ прошивки и конфигурацию платы загружать во время выполнения.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl D
+Включить подробную отладку.
+.It Fl d Ar имя_устройства
+Указать имя устройства
+.Xr ugen 4 .
+.It Fl f Ar путь_к_прошивке
+Указать каталог, содержащий файлы прошивки для поиска и загрузки.
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl I
+Включить информационную отладку.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr libusb 3 ,
+.Xr ugen 4 ,
+.Xr devd 8
+.Sh АВТОРЫ
+Оригинальная утилита была написана
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com .
+Эта утилита была написана на основе Linux ath3k
+.An Adrian Chadd Aq Mt adrian@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Скорее всего.
+Пожалуйста, сообщите, если обнаружите.

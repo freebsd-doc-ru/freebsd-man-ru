@@ -1,0 +1,783 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2011, Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" Copyright (c) 2012, Glen Barber <gjb@FreeBSD.org>
+.\" Copyright (c) 2012, Bryan Drewery <bdrewery@FreeBSD.org>
+.\" Copyright (c) 2013, Steven Hartland <smh@FreeBSD.org>
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright (c) 2014, Xin LI <delphij@FreeBSD.org>
+.\" Copyright (c) 2014-2015, The FreeBSD Foundation, All Rights Reserved.
+.\" Copyright (c) 2016 Nexenta Systems, Inc. All Rights Reserved.
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 580231279f4efe0f9fe5e352d75166ee1adb69f9350636c83b27b1d005ec3eac
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 12, 2025
+.Dt ZFS 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs
+.Nd настройка наборов данных ZFS
+.Sh СИНТАКСИС
+.Nm
+.Fl ?V
+.Nm
+.Cm version
+.Op Fl j
+.Nm
+.Cm подкоманда
+.Op Ar аргументы
+.
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+настраивает наборы данных ZFS в пуле хранения ZFS, как описано в
+.Xr zpool 8 .
+Набор данных идентифицируется уникальным путём в пространстве имён ZFS:
+.Pp
+.D1 Ar pool Ns Oo Sy / Ns Ar component Oc Ns Sy / Ns Ar component
+.Pp
+например:
+.Pp
+.Dl rpool/var/log
+.Pp
+Максимальная длина имени набора данных —
+.Sy ZFS_MAX_DATASET_NAME_LEN No - 1
+ASCII-символов (в настоящее время 255), удовлетворяющих
+.Sy [A-Za-z_.:/ -] .
+Кроме того, снимки могут содержать один символ
+.Sy @ ,
+а закладки — один символ
+.Sy # .
+.Sy /
+используется как разделитель между компонентами.
+Максимальная глубина вложенности, допускаемая в пути, —
+.Sy zfs_max_dataset_nesting
+уровней.
+Настраиваемые параметры ZFS
+.Pq Sy zfs_*
+описаны в
+.Xr zfs 4 .
+.Pp
+Набор данных может быть одним из следующих:
+.Bl -tag -width Ds
+.It Sy файловая система
+Может быть смонтирована в стандартном пространстве имён системы и ведёт себя как другие файловые системы.
+Хотя файловые системы ZFS спроектированы совместимыми с POSIX, существуют известные проблемы, которые в некоторых случаях препятствуют соответствию.
+Приложения, зависящие от соответствия стандартам, могут работать неправильно из-за нестандартного поведения при проверке свободного места в файловой системе.
+.It Sy том
+Логический том, экспортируемый как необработанное или блочное устройство.
+Этот тип набора данных следует использовать только тогда, когда требуется блочное устройство.
+В большинстве сред обычно используются файловые системы.
+.It Sy снимок
+Версия файловой системы или тома только для чтения на определённый момент времени.
+Он задаётся как
+.Ar filesystem Ns @ Ns Ar name
+или
+.Ar volume Ns @ Ns Ar name .
+.It Sy закладка
+Очень похожа на
+.Sy снимок ,
+но без удержания данных на диске.
+Может использоваться как источник для отправки (но не для приёма).
+Она задаётся как
+.Ar filesystem Ns # Ns Ar name
+или
+.Ar volume Ns # Ns Ar name .
+.El
+.Pp
+Подробности см. в
+.Xr zfsconcepts 7 .
+.
+.Ss Свойства
+Свойства делятся на два типа: собственные свойства и определяемые пользователем
+.Pq или Qq пользовательские
+свойства.
+Собственные свойства либо экспортируют внутреннюю статистику, либо управляют поведением ZFS.
+Кроме того, собственные свойства бывают либо редактируемыми, либо доступными только для чтения.
+Пользовательские свойства не влияют на поведение ZFS, но их можно использовать для аннотирования наборов данных способом, значимым в вашей среде.
+Дополнительные сведения о свойствах см. в
+.Xr zfsprops 7 .
+.
+.Ss Шифрование
+Включение функции
+.Sy encryption
+позволяет создавать зашифрованные файловые системы и тома.
+ZFS шифрует данные файлов и zvol, атрибуты файлов, ACL, биты прав доступа, содержимое каталогов, сопоставления FUID и данные
+.Sy userused Ns / Ns Sy groupused Ns / Ns Sy projectused .
+Обзор шифрования см. в
+.Xr zfs-load-key 8 .
+.
+.Sh ПОДКОМАНДЫ
+Все подкоманды, изменяющие состояние, постоянно записываются в пул в исходной форме.
+.Bl -tag -width Ds
+.It Nm Fl ?
+Показывает справочное сообщение.
+.It Xo
+.Nm
+.Fl V , -version
+.Xc
+.It Xo
+.Nm
+.Cm version
+.Op Fl j
+.Xc
+Показывает версию программного обеспечения пользовательской утилиты
+.Nm
+и модуля ядра zfs.
+Используйте
+.Fl j
+для вывода в формате JSON.
+.El
+.
+.Ss Управление наборами данных
+.Bl -tag -width Ds
+.It Xr zfs-list 8
+Выводит информацию о свойствах указанных наборов данных в табличной форме.
+.It Xr zfs-create 8
+Создаёт новую файловую систему или том ZFS.
+.It Xr zfs-destroy 8
+Уничтожает указанные наборы данных, снимки или закладки.
+.It Xr zfs-rename 8
+Переименовывает указанный набор данных (файловую систему или снимок).
+.It Xr zfs-upgrade 8
+Управляет обновлением версии файловых систем на диске.
+.El
+.
+.Ss Снимки
+.Bl -tag -width Ds
+.It Xr zfs-snapshot 8
+Создаёт снимки с указанными именами.
+.It Xr zfs-rollback 8
+Откатывает указанный набор данных к предыдущему снимку.
+.It Xr zfs-hold 8 Ns / Ns Xr zfs-release 8
+Добавляет или удаляет удерживающую ссылку на указанный снимок или снимки.
+Если на снимке существует удержание, попытки уничтожить этот снимок с помощью команды
+.Nm zfs Cm destroy
+возвращают
+.Sy EBUSY .
+.It Xr zfs-diff 8
+Показывает различия между снимком указанной файловой системы и другим снимком этой файловой системы, сделанным позже, или текущим содержимым файловой системы.
+.El
+.
+.Ss Клоны
+.Bl -tag -width Ds
+.It Xr zfs-clone 8
+Создаёт клон указанного снимка.
+.It Xr zfs-promote 8
+Повышает клонированную файловую систему, чтобы она больше не зависела от своего
+.Qq исходного
+снимка.
+.El
+.
+.Ss Отправка и приём
+.Bl -tag -width Ds
+.It Xr zfs-send 8
+Создаёт поток отправки, который может относиться к файловой системе и может быть инкрементным от закладки.
+.It Xr zfs-receive 8
+Создаёт снимок, содержимое которого соответствует указанному в потоке, переданном на стандартный ввод.
+Если получен полный поток, то также создаётся новая файловая система.
+Потоки создаются с помощью подкоманды
+.Xr zfs-send 8 ,
+которая по умолчанию создаёт полный поток.
+.It Xr zfs-bookmark 8
+Создаёт новую закладку указанного снимка или закладки.
+Закладки отмечают момент создания снимка и могут использоваться как инкрементный источник для команды
+.Nm zfs Cm send .
+.It Xr zfs-redact 8
+Создаёт новую закладку редактирования.
+Эта функция может использоваться, чтобы клоны файловой системы могли быть доступны на удалённой системе в случае, когда их родитель не должен (или не должен иметь возможности) быть используемым.
+.El
+.
+.Ss Свойства
+.Bl -tag -width Ds
+.It Xr zfs-get 8
+Показывает свойства указанных наборов данных.
+.It Xr zfs-set 8
+Устанавливает свойство или список свойств в заданные значения для каждого набора данных.
+.It Xr zfs-inherit 8
+Очищает указанное свойство, в результате чего оно наследуется от предка, восстанавливается до значения по умолчанию, если ни у одного предка свойство не задано, или, с опцией
+.Fl S
+возвращается к полученному значению, если оно существует.
+.El
+.
+.Ss Квоты
+.Bl -tag -width Ds
+.It Xr zfs-userspace 8 Ns / Ns Xr zfs-groupspace 8 Ns / Ns Xr zfs-projectspace 8
+Показывает пространство, занятое каждым пользователем, группой или проектом, и квоты для них в указанной файловой системе или снимке.
+.It Xr zfs-project 8
+Выводит список, устанавливает или очищает ID проекта и/или флаг наследования для файлов или каталогов.
+.El
+.
+.Ss Точки монтирования
+.Bl -tag -width Ds
+.It Xr zfs-mount 8
+Показывает все смонтированные в данный момент файловые системы ZFS или монтирует файловую систему ZFS по пути, описанному её свойством
+.Sy mountpoint .
+.It Xr zfs-unmount 8
+Размонтирует смонтированные в данный момент файловые системы ZFS.
+.El
+.
+.Ss Общие ресурсы
+.Bl -tag -width Ds
+.It Xr zfs-share 8
+Предоставляет общий доступ к доступным файловым системам ZFS.
+.It Xr zfs-unshare 8
+Закрывает общий доступ к файловым системам ZFS, к которым он в данный момент предоставлен.
+.El
+.
+.Ss Делегированное администрирование
+.Bl -tag -width Ds
+.It Xr zfs-allow 8
+Делегирует права доступа на указанной файловой системе или томе.
+.It Xr zfs-unallow 8
+Удаляет делегированные права доступа на указанной файловой системе или томе.
+.El
+.
+.Ss Шифрование
+.Bl -tag -width Ds
+.It Xr zfs-change-key 8
+Добавляет или изменяет ключ шифрования на указанном наборе данных.
+.It Xr zfs-load-key 8
+Загружает ключ для указанного зашифрованного набора данных, открывая доступ.
+.It Xr zfs-unload-key 8
+Выгружает ключ для указанного набора данных, удаляя возможность доступа к набору данных.
+.El
+.
+.Ss Программы канала
+.Bl -tag -width Ds
+.It Xr zfs-program 8
+Выполняет административные операции ZFS программно с помощью программы канала на языке сценариев Lua.
+.El
+.
+.Ss Перезапись данных
+.Bl -tag -width Ds
+.It Xr zfs-rewrite 8
+Перезаписывает указанные файлы без изменения.
+.El
+.
+.Ss Клетки
+.Bl -tag -width Ds
+.It Xr zfs-jail 8
+Присоединяет файловую систему к клетке.
+.It Xr zfs-unjail 8
+Отсоединяет файловую систему от клетки.
+.El
+.
+.Ss Ожидание
+.Bl -tag -width Ds
+.It Xr zfs-wait 8
+Ожидает завершения фоновой активности в файловой системе.
+.El
+.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом
+.Sy 0
+при успехе,
+.Sy 1
+при возникновении ошибки и
+.Sy 2
+, если были указаны недопустимые параметры командной строки.
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание иерархии файловой системы ZFS
+Следующие команды создают файловую систему с именем
+.Ar pool/home
+и файловую систему с именем
+.Ar pool/home/bob .
+Точка монтирования
+.Pa /export/home
+задаётся для родительской файловой системы и автоматически наследуется дочерней файловой системой.
+.Dl # Nm zfs Cm create Ar pool/home
+.Dl # Nm zfs Cm set Sy mountpoint Ns = Ns Ar /export/home pool/home
+.Dl # Nm zfs Cm create Ar pool/home/bob
+.
+.Ss Пример 2 : No Создание снимка ZFS
+Следующая команда создаёт снимок с именем
+.Ar yesterday .
+Этот снимок монтируется по требованию в каталоге
+.Pa .zfs/snapshot
+в корне файловой системы
+.Ar pool/home/bob .
+.Dl # Nm zfs Cm snapshot Ar pool/home/bob Ns @ Ns Ar yesterday
+.
+.Ss Пример 3 : No Создание и уничтожение нескольких снимков
+Следующая команда создаёт снимки с именем
+.Ar yesterday No из Ar pool/home
+и всех его дочерних файловых систем.
+Каждый снимок монтируется по требованию в каталоге
+.Pa .zfs/snapshot
+в корне своей файловой системы.
+Вторая команда уничтожает только что созданные снимки.
+.Dl # Nm zfs Cm snapshot Fl r Ar pool/home Ns @ Ns Ar yesterday
+.Dl # Nm zfs Cm destroy Fl r Ar pool/home Ns @ Ns Ar yesterday
+.
+.Ss Пример 4 : No Отключение и включение сжатия файловой системы
+Следующая команда отключает свойство
+.Sy compression
+для всех файловых систем под
+.Ar pool/home .
+Следующая команда явно включает
+.Sy compression
+для
+.Ar pool/home/anne .
+.Dl # Nm zfs Cm set Sy compression Ns = Ns Sy off Ar pool/home
+.Dl # Nm zfs Cm set Sy compression Ns = Ns Sy on Ar pool/home/anne
+.
+.Ss Пример 5 : No Вывод списка наборов данных ZFS
+Следующая команда выводит список всех активных файловых систем и томов в системе.
+Снимки отображаются, если
+.Sy listsnaps Ns = Ns Sy on .
+По умолчанию —
+.Sy off .
+Дополнительные сведения о свойствах пула см. в
+.Xr zpoolprops 7 .
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm list
+NAME                      USED  AVAIL  REFER  MOUNTPOINT
+pool                      450K   457G    18K  /pool
+pool/home                 315K   457G    21K  /export/home
+pool/home/anne             18K   457G    18K  /export/home/anne
+pool/home/bob             276K   457G   276K  /export/home/bob
+.Ed
+.
+.Ss Пример 6 : No Установка квоты на файловой системе ZFS
+Следующая команда устанавливает квоту 50 Гбайт для
+.Ar pool/home/bob :
+.Dl # Nm zfs Cm set Sy quota Ns = Ns Ar 50G pool/home/bob
+.
+.Ss Пример 7 : No Вывод списка свойств ZFS
+Следующая команда выводит все свойства для
+.Ar pool/home/bob :
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Sy all Ar pool/home/bob
+NAME           PROPERTY              VALUE                  SOURCE
+pool/home/bob  type                  filesystem             -
+pool/home/bob  creation              Tue Jul 21 15:53 2009  -
+pool/home/bob  used                  21K                    -
+pool/home/bob  available             20.0G                  -
+pool/home/bob  referenced            21K                    -
+pool/home/bob  compressratio         1.00x                  -
+pool/home/bob  mounted               yes                    -
+pool/home/bob  quota                 20G                    local
+pool/home/bob  reservation           none                   default
+pool/home/bob  recordsize            128K                   default
+pool/home/bob  mountpoint            /pool/home/bob         default
+pool/home/bob  sharenfs              off                    default
+pool/home/bob  checksum              on                     default
+pool/home/bob  compression           on                     local
+pool/home/bob  atime                 on                     default
+pool/home/bob  devices               on                     default
+pool/home/bob  exec                  on                     default
+pool/home/bob  setuid                on                     default
+pool/home/bob  readonly              off                    default
+pool/home/bob  zoned                 off                    default
+pool/home/bob  snapdir               hidden                 default
+pool/home/bob  acltype               off                    default
+pool/home/bob  aclmode               discard                default
+pool/home/bob  aclinherit            restricted             default
+pool/home/bob  canmount              on                     default
+pool/home/bob  xattr                 on                     default
+pool/home/bob  copies                1                      default
+pool/home/bob  version               4                      -
+pool/home/bob  utf8only              off                    -
+pool/home/bob  normalization         none                   -
+pool/home/bob  casesensitivity       sensitive              -
+pool/home/bob  vscan                 off                    default
+pool/home/bob  nbmand                off                    default
+pool/home/bob  sharesmb              off                    default
+pool/home/bob  refquota              none                   default
+pool/home/bob  refreservation        none                   default
+pool/home/bob  primarycache          all                    default
+pool/home/bob  secondarycache        all                    default
+pool/home/bob  usedbysnapshots       0                      -
+pool/home/bob  usedbydataset         21K                    -
+pool/home/bob  usedbychildren        0                      -
+pool/home/bob  usedbyrefreservation  0                      -
+.Ed
+.Pp
+Следующая команда получает значение одного свойства:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Fl H o Sy value compression Ar pool/home/bob
+on
+.Ed
+.Pp
+Следующая команда выводит все свойства с локальными настройками для
+.Ar pool/home/bob :
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Fl r s Sy local Fl o Sy name , Ns Sy property , Ns Sy value all Ar pool/home/bob
+NAME           PROPERTY              VALUE
+pool/home/bob  quota                 20G
+pool/home/bob  compression           on
+.Ed
+.
+.Ss Пример 8 : No Откат файловой системы ZFS
+Следующая команда возвращает содержимое
+.Ar pool/home/anne
+к снимку с именем
+.Ar yesterday ,
+удаляя все промежуточные снимки:
+.Dl # Nm zfs Cm rollback Fl r Ar pool/home/anne Ns @ Ns Ar yesterday
+.
+.Ss Пример 9 : No Создание клона ZFS
+Следующая команда создаёт файловую систему с возможностью записи, начальное содержимое которой совпадает с
+.Ar pool/home/bob@yesterday .
+.Dl # Nm zfs Cm clone Ar pool/home/bob@yesterday pool/clone
+.
+.Ss Пример 10 : No Повышение клона ZFS
+Следующие команды иллюстрируют, как протестировать изменения файловой системы, а затем заменить исходную файловую систему изменённой, используя клоны, повышение клона и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда устаревшая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Ss Пример 11 : No Наследование свойств ZFS
+Следующая команда заставляет
+.Ar pool/home/bob No и Ar pool/home/anne
+наследовать свойство
+.Sy checksum
+от их родителя.
+.Dl # Nm zfs Cm inherit Sy checksum Ar pool/home/bob pool/home/anne
+.
+.Ss Пример 12 : No Удалённое реплицирование данных ZFS
+Следующие команды отправляют полный поток, а затем инкрементный поток на удалённую машину, восстанавливая их соответственно в
+.Em poolB/received/fs@a
+и
+.Em poolB/received/fs@b .
+.Em poolB
+должен содержать файловую систему
+.Em poolB/received ,
+и изначально не должен содержать
+.Em poolB/received/fs .
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm send Ar pool/fs@a |
+.No # Nm zfs Cm send Fl i Ar a pool/fs@b |
+.Ed
+.
+.Ss Пример 13 : No Использование опции Nm zfs Cm receive Fl d No
+Следующая команда отправляет полный поток
+.Ar poolA/fsA/fsB@snap
+на удалённую машину, принимая его в
+.Ar poolB/received/fsA/fsB@snap .
+Часть
+.Ar fsA/fsB@snap
+имени полученного снимка определяется из имени отправленного снимка.
+.Ar poolB
+должен содержать файловую систему
+.Ar poolB/received .
+Если
+.Ar poolB/received/fsA
+не существует, он создаётся как пустая файловая система.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm send Ar poolA/fsA/fsB@snap |
+.Ed
+.
+.Ss Пример 14 : No Установка пользовательских свойств
+Следующий пример устанавливает определяемое пользователем свойство
+.Ar com.example : Ns Ar department
+для набора данных:
+.Dl # Nm zfs Cm set Ar com.example : Ns Ar department Ns = Ns Ar 12345 tank/accounting
+.
+.Ss Пример 15 : No Выполнение циклического снимка
+Следующий пример показывает, как поддерживать историю снимков с согласованной схемой именования.
+Чтобы хранить снимки за неделю, пользователь уничтожает самый старый снимок, переименовывает остальные снимки, а затем создаёт новый снимок следующим образом:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm destroy Fl r Ar pool/users@7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@6daysago No @ Ns Ar 7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@5daysago No @ Ns Ar 6daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@4daysago No @ Ns Ar 5daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@3daysago No @ Ns Ar 4daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@2daysago No @ Ns Ar 3daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@yesterday No @ Ns Ar 2daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@today No @ Ns Ar yesterday
+.No # Nm zfs Cm snapshot Fl r Ar pool/users Ns @ Ns Ar today
+.Ed
+.
+.Ss Пример 16 : No Установка параметров свойства sharenfs на файловой системе ZFS
+Следующие команды показывают, как задать параметры свойства
+.Sy sharenfs
+чтобы включить доступ для чтения и записи для набора IP-адресов и включить доступ root для системы
+.Qq neo
+на файловой системе
+.Ar tank/home :
+.Dl # Nm zfs Cm set Sy sharenfs Ns = Ns ' Ns Ar rw Ns =@123.123.0.0/16:[::1],root= Ns Ar neo Ns ' tank/home
+.Pp
+Если вы используете DNS для разрешения имён хостов, указывайте полное доменное имя.
+.
+.Ss Пример 17 : No Делегирование прав администрирования ZFS на наборе данных ZFS
+Следующий пример показывает, как задать права, чтобы пользователь
+.Ar cindys
+мог создавать, уничтожать, монтировать и делать снимки на
+.Ar tank/cindys .
+Права на
+.Ar tank/cindys
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Sy cindys create , Ns Sy destroy , Ns Sy mount , Ns Sy snapshot Ar tank/cindys
+.No # Nm zfs Cm allow Ar tank/cindys
+---- Permissions on tank/cindys --------------------------------------
+Local+Descendent permissions:
+        user cindys create,destroy,mount,snapshot
+.Ed
+.Pp
+Поскольку права на точку монтирования
+.Ar tank/cindys
+по умолчанию установлены в 755, пользователь
+.Ar cindys
+не сможет монтировать файловые системы внутри
+.Ar tank/cindys .
+Добавьте ACE, аналогичный следующему синтаксису, чтобы обеспечить доступ к точке монтирования:
+.Dl # Cm chmod No A+user : Ns Ar cindys Ns :add_subdirectory:allow Ar /tank/cindys
+.
+.Ss Пример 18 : No Делегирование прав времени создания на наборе данных ZFS
+Следующий пример показывает, как разрешить любому члену группы
+.Ar staff
+создавать файловые системы в
+.Ar tank/users .
+Этот синтаксис также позволяет членам staff уничтожать свои собственные файловые системы, но не уничтожать файловые системы других.
+Права на
+.Ar tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Ar staff Sy create , Ns Sy mount Ar tank/users
+.No # Nm zfs Cm allow Fl c Sy destroy Ar tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        destroy
+Local+Descendent permissions:
+        group staff create,mount
+.Ed
+.
+.Ss Пример 19 : No Определение и предоставление набора прав на наборе данных ZFS
+Следующий пример показывает, как определить и предоставить набор прав на файловой системе
+.Ar tank/users .
+Права на
+.Ar tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Fl s No @ Ns Ar pset Sy create , Ns Sy destroy , Ns Sy snapshot , Ns Sy mount Ar tank/users
+.No # Nm zfs Cm allow staff No @ Ns Ar pset tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        @pset create,destroy,mount,snapshot
+Local+Descendent permissions:
+        group staff @pset
+.Ed
+.
+.Ss Пример 20 : No Делегирование прав на свойства на наборе данных ZFS
+Следующий пример показывает, как предоставить возможность устанавливать квоты и резервирования на файловой системе
+.Ar users/home .
+Права на
+.Ar users/home
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Ar cindys Sy quota , Ns Sy reservation Ar users/home
+.No # Nm zfs Cm allow Ar users/home
+---- Permissions on users/home ---------------------------------------
+Local+Descendent permissions:
+        user cindys quota,reservation
+cindys% zfs set quota=10G users/home/marks
+cindys% zfs get quota users/home/marks
+NAME              PROPERTY  VALUE  SOURCE
+users/home/marks  quota     10G    local
+.Ed
+.
+.Ss Пример 21 : No Удаление делегированных прав ZFS на наборе данных ZFS
+Следующий пример показывает, как удалить право snapshot у группы
+.Ar staff
+на файловой системе
+.Sy tank/users .
+Права на
+.Sy tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm unallow Ar staff Sy snapshot Ar tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        @pset create,destroy,mount,snapshot
+Local+Descendent permissions:
+        group staff @pset
+.Ed
+.
+.Ss Пример 22 : No Показ различий между снимком и набором данных ZFS
+Следующий пример показывает, как увидеть, что изменилось между предыдущим снимком набора данных ZFS и его текущим состоянием.
+Опция
+.Fl F
+используется для указания информации о типе затронутых файлов.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm diff Fl F Ar tank/test@before tank/test
+M       /       /tank/test/
+M       F       /tank/test/linked      (+1)
+R       F       /tank/test/oldname -> /tank/test/newname
+-       F       /tank/test/deleted
++       F       /tank/test/created
+M       F       /tank/test/modified
+.Ed
+.
+.Ss Пример 23 : No Создание закладки
+Следующий пример создаёт закладку для снимка.
+Эту закладку затем можно использовать вместо снимка в потоках отправки.
+.Dl # Nm zfs Cm bookmark Ar rpool Ns @ Ns Ar snapshot rpool Ns # Ns Ar bookmark
+.
+.Ss Пример 24 : No Установка Sy sharesmb No параметров свойства на файловой системе ZFS
+Следующий пример показывает, как предоставить общий доступ к файловой системе SMB через ZFS.
+Обратите внимание, что необходимо указать пользователя и его пароль.
+.Dl # Nm smbmount Ar //127.0.0.1/share_tmp /mnt/tmp Fl o No user=workgroup/turbo,password=obrut,uid=1000
+.Pp
+Требуется минимальная конфигурация
+.Pa /etc/samba/smb.conf ,
+как показано ниже.
+.Pp
+Samba должна привязаться к интерфейсу обратной петли, чтобы утилиты ZFS могли взаимодействовать с Samba.
+Это поведение по умолчанию для большинства дистрибутивов Linux.
+.Pp
+Samba должна иметь возможность аутентифицировать пользователя.
+Это можно сделать несколькими способами
+.Pq Xr passwd 5 , LDAP , Xr smbpasswd 5 , &c.\& .
+Как это сделать, выходит за рамки данного документа — обратитесь к
+.Xr smb.conf 5
+за дополнительной информацией.
+.Pp
+См. раздел
+.Sx USERSHARES
+для всех параметров конфигурации, если вам нужно будет изменить какие-либо параметры общего ресурса позже.
+Учтите, что любые изменения, сделанные командой
+.Xr net 8 ,
+будут отменены, если общий ресурс когда-либо будет закрыт (например, при перезагрузке).
+.
+.Sh ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+.Bl -tag -width Ds
+.It Sy ZFS_COLOR
+Использовать цвет ANSI в выводе
+.Nm zfs Cm diff
+и
+.Nm zfs Cm list .
+.It Sy ZFS_MOUNT_HELPER
+Заставлять
+.Nm zfs Cm mount
+использовать
+.Xr mount 8
+для монтирования наборов данных ZFS.
+Эта опция предоставлена для обратной совместимости со старыми версиями ZFS.
+.
+.It Sy ZFS_SET_PIPE_MAX
+Указывает
+.Nm zfs
+устанавливать максимальный размер канала для отправки/приёма.
+По умолчанию отключено в Linux из-за неисправленной взаимной блокировки в коде обработки размера канала Linux.
+.
+.It Sy ZFS_MODULE_TIMEOUT
+Время в секундах, в течение которого нужно ждать появления
+.Pa /dev/zfs .
+По умолчанию —
+.Sy 10 ,
+максимум —
+.Sy 600 Pq 10 минут .
+Если
+.Pf < Sy 0 ,
+ждать бесконечно; если
+.Sy 0 ,
+не ждать.
+.El
+.
+.Sh СТАБИЛЬНОСТЬ ИНТЕРФЕЙСА
+.Sy Committed .
+.
+.Sh СМ. ТАКЖЕ
+.Xr attr 1 ,
+.Xr gzip 1 ,
+.Xr ssh 1 ,
+.Xr chmod 2 ,
+.Xr fsync 2 ,
+.Xr stat 2 ,
+.Xr write 2 ,
+.Xr acl 5 ,
+.Xr attributes 5 ,
+.Xr exports 5 ,
+.Xr zfsconcepts 7 ,
+.Xr zfsprops 7 ,
+.Xr exportfs 8 ,
+.Xr mount 8 ,
+.Xr net 8 ,
+.Xr selinux 8 ,
+.Xr zfs-allow 8 ,
+.Xr zfs-bookmark 8 ,
+.Xr zfs-change-key 8 ,
+.Xr zfs-clone 8 ,
+.Xr zfs-create 8 ,
+.Xr zfs-destroy 8 ,
+.Xr zfs-diff 8 ,
+.Xr zfs-get 8 ,
+.Xr zfs-groupspace 8 ,
+.Xr zfs-hold 8 ,
+.Xr zfs-inherit 8 ,
+.Xr zfs-jail 8 ,
+.Xr zfs-list 8 ,
+.Xr zfs-load-key 8 ,
+.Xr zfs-mount 8 ,
+.Xr zfs-program 8 ,
+.Xr zfs-project 8 ,
+.Xr zfs-projectspace 8 ,
+.Xr zfs-promote 8 ,
+.Xr zfs-receive 8 ,
+.Xr zfs-redact 8 ,
+.Xr zfs-release 8 ,
+.Xr zfs-rename 8 ,
+.Xr zfs-rollback 8 ,
+.Xr zfs-send 8 ,
+.Xr zfs-set 8 ,
+.Xr zfs-share 8 ,
+.Xr zfs-snapshot 8 ,
+.Xr zfs-unallow 8 ,
+.Xr zfs-unjail 8 ,
+.Xr zfs-unload-key 8 ,
+.Xr zfs-unmount 8 ,
+.Xr zfs-unshare 8 ,
+.Xr zfs-upgrade 8 ,
+.Xr zfs-userspace 8 ,
+.Xr zfs-wait 8 ,
+.Xr zpool 8

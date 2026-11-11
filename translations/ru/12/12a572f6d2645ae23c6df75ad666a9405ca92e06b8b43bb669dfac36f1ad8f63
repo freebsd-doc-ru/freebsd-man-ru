@@ -1,0 +1,287 @@
+.\"
+.\" Copyright (c) 1992, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software donated to Berkeley by
+.\" John Heidemann of the UCLA Ficus project.
+.\"
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/mount_nullfs/mount_nullfs.8
+.\" FRDP githash 1853976b752229b0a93b21a6bcc7691d177bceb3
+.\" FRDP hash256 12a572f6d2645ae23c6df75ad666a9405ca92e06b8b43bb669dfac36f1ad8f63
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 24, 2026
+.Dt MOUNT_NULLFS 8
+.Os
+.Sh ИМЯ
+.Nm mount_nullfs
+.Sh СИНТАКСИС
+.Nm
+.Op Fl o Ar параметры
+.Ar цель
+.Ar точка_монтирования
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт слой
+.Xr nullfs 4
+, дублируя поддерево пространства имён файловой системы в другой части глобального пространства имён файловой системы.
+Это позволяет обращаться к существующим файлам и каталогам по другому пути.
+.Pp
+Основные различия между виртуальной копией файловой системы
+и символической ссылкой состоят в том, что функции
+.Xr getcwd 3
+правильно работают в виртуальной копии и что на виртуальную копию
+можно смонтировать другие файловые системы, не затрагивая оригинал.
+Для виртуальной копии
+.Xr stat 2
+возвращает другой номер устройства,
+но в остальном её невозможно отличить от оригинала.
+.Pp
+Утилита
+.Nm
+поддерживает монтирование каталогов, обычных файлов и
+сокетов
+.Xr unix 4 .
+Оба аргумента
+.Ar цель
+и
+.Ar точка_монтирования
+должны быть одного типа.
+Монтирование каталогов на файлы или файлов на
+каталоги не поддерживается.
+.Pp
+Файловая система
+.Nm
+отличается от традиционной
+петлевой файловой системы в двух отношениях: она реализована с использованием
+техники стековых слоёв, и её
+.Do null-node Dc Ns s
+располагаются над
+всеми vnode нижнего слоя, а не только над vnode каталогов.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl o
+Параметры задаются с помощью флага
+.Fl o
+, за которым следует разделённая запятыми строка параметров.
+Возможные параметры и их значения см. в странице руководства
+.Xr mount 8 .
+Дополнительно поддерживается следующий параметр:
+.Bl -tag -width nounixbypass
+.It Cm nocache
+Отключить кэширование метаданных в слое null.
+Некоторые файловые системы нижнего слоя могут принудительно задавать этот параметр.
+В зависимости от шаблона доступа
+это может привести к усилению конкуренции за блокировки.
+.It Cm cache
+Принудительно включить кэширование метаданных.
+.It Cm nounixbypass
+Отключить обход файлов сокетов
+.Xr unix 4
+, используемых для
+.Xr bind 2
+и
+.Xr connect 2
+, к нижнему (исходному) слою файловой системы.
+.Pp
+Эффект состоит в том, что нижние и верхние (обойдённые) unix-сокеты
+являются раздельными.
+.It Cm unixbypass
+Включить обход файла unix-сокета к нижнему слою файловой системы.
+Это значение по умолчанию.
+.Pp
+Эффект состоит в том, что
+операции
+.Xr bind 2
+и
+.Xr connect 2
+над unix-сокетом, выполненные как по пути верхнего (nullfs), так и нижнего
+слоя, выполняются над одним и тем же unix-сокетом.
+Например, если сервер выполнил
+.Xr bind 2
+на сокете в нижнем слое, то
+.Xr connect 2
+к файлу сокета, доступному через монтирование nullfs, подключается к серверу.
+.El
+.El
+.Pp
+Переменная sysctl
+.Dv vfs.nullfs.cache_vnodes
+задаёт глобальное значение по умолчанию для параметра cache/nocache конкретного монтирования.
+.Pp
+Слой null имеет две цели.
+Во-первых, он служит демонстрацией слоения, предоставляя слой,
+который ничего не делает.
+(На самом деле он делает всё, что делает петлевая файловая система,
+что немного больше, чем ничего.)
+Во-вторых, слой null может служить прототипом слоя.
+Поскольку он предоставляет весь необходимый каркас слоя,
+новые слои файловой системы можно очень легко создавать, начиная
+со слоя null.
+.Pp
+Остальная часть этой страницы руководства рассматривает слой null как основу
+для построения новых слоёв.
+.Sh СОЗДАНИЕ НОВЫХ СЛОЁВ NULL
+Новые слои null создаются с помощью
+.Nm .
+Утилита
+.Nm
+принимает два аргумента: путь
+нижней VFS (target-pn) и путь, по которому слой null
+будет находиться в пространстве имён (mount-point-pn).
+После
+размещения слоя null содержимое
+поддерева target-pn будет доступно по псевдониму под mount-point-pn.
+.Sh РАБОТА СЛОЯ NULL
+Слой null — это минимальный слой файловой системы,
+который просто передаёт все возможные операции нижнему слою
+для обработки там.
+Большая часть его работы сосредоточена
+на процедуре обхода, через которую проходят почти все операции над vnode.
+.Pp
+Процедура обхода принимает произвольные операции над vnode для
+обработки нижним слоем.
+Она начинается с проверки аргументов
+операции над vnode и замены любых null-node на их
+эквиваленты нижнего слоя.
+Затем она вызывает операцию
+в нижнем слое.
+Наконец, она заменяет null-node
+в аргументах и, если операция возвращает vnode,
+помещает null-node поверх возвращённого vnode.
+.Pp
+Хотя обход обрабатывает большинство операций,
+.Em vop_getattr ,
+.Em vop_inactive ,
+.Em vop_reclaim ,
+и
+.Em vop_print
+не обходятся.
+.Em Vop_getattr
+должен изменять возвращаемый fsid.
+.Em Vop_inactive
+и
+.Em vop_reclaim
+не обходятся, чтобы
+они могли освобождать данные, специфичные для слоя null.
+.Em Vop_print
+не обходится во избежание чрезмерного объёма отладочной
+информации.
+.Sh СОЗДАНИЕ СТЕКОВ VNODE
+Монтирование связывает слой null с нижним слоем,
+фактически создавая стек из двух VFS.
+Стеки vnode, напротив,
+создаются по мере необходимости при доступе к файлам.
+.Pp
+Начальное монтирование создаёт один стек vnode для
+корня нового слоя null.
+Все остальные стеки vnode
+создаются в результате операций над vnode
+в этом или других стеках vnode null.
+.Pp
+Новые стеки vnode возникают в результате
+операции, возвращающей vnode.
+Процедура обхода помещает null-node над новым
+vnode перед возвратом его вызывающему.
+.Pp
+Например, представьте монтирование слоя null с помощью
+.Bd -literal -offset indent
+mount_nullfs /usr/include /dev/layer/null
+.Ed
+.Pp
+Смена каталога на
+.Pa /dev/layer/null
+назначит
+корневой null-node (который был создан при монтировании слоя null).
+Теперь рассмотрим открытие
+.Pa sys .
+Для корневого null-node будет выполнена операция vop_lookup.
+Эта операция будет перенаправлена в обход
+к нижнему слою, который вернёт vnode, представляющий
+UFS
+.Pa sys .
+Затем Null_bypass создаёт null-node,
+являющийся псевдонимом UFS
+.Pa sys
+, и возвращает его вызывающему.
+Последующие операции над null-node
+.Pa sys
+повторят этот
+процесс при построении других стеков vnode.
+.Sh СОЗДАНИЕ ДРУГИХ СЛОЁВ ФАЙЛОВОЙ СИСТЕМЫ
+Один из самых простых способов построить новые слои файловой системы — сделать
+копию слоя null, переименовать все файлы и переменные, а
+затем начать изменять копию.
+Утилиту
+.Xr sed 1
+можно использовать для простого переименования
+всех переменных.
+.Pp
+Слой umap — пример слоя, происходящего от
+слоя null.
+.Sh ВЫЗОВ ОПЕРАЦИЙ НА НИЖНИХ СЛОЯХ
+Есть две техники вызова операций в нижнем слое,
+когда операцию нельзя полностью обойти.
+Каждый метод
+подходит в разных ситуациях.
+В обоих случаях
+ответственность слоя-псевдонима — выполнить это
+путём отображения аргумента vnode на нижний слой.
+.Pp
+Первый подход — вызвать процедуру обхода слоя-псевдонима.
+Этот метод наиболее подходит, когда требуется вызвать операцию,
+текущую обрабатываемую в нижнем слое.
+Его преимущество в том, что
+процедура обхода уже должна выполнять отображение аргументов.
+Пример этого —
+.Em null_getattrs
+в слое null.
+.Pp
+Второй подход — напрямую вызывать операции над vnode в
+нижнем слое через интерфейс
+.Em VOP_OPERATIONNAME .
+Преимущество этого метода в том, что легко вызывать
+произвольные операции в нижнем слое.
+Недостаток
+в том, что аргументы vnode необходимо отображать вручную.
+.Sh СМ. ТАКЖЕ
+.Xr nullfs 4 ,
+.Xr mount 8
+.Pp
+UCLA Technical Report CSD-910056,
+.Sh ИСТОРИЯ
+Утилита
+.Nm mount_null
+впервые появилась в
+.Bx 4.4 .
+Она была переименована в
+.Nm
+в
+.Fx 5.0 .

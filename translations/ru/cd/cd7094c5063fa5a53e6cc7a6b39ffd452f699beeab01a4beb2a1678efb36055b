@@ -1,0 +1,190 @@
+.\" Copyright (c) 2014 Andriy Gapon <avg@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/i386/gptzfsboot/gptzfsboot.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 cd7094c5063fa5a53e6cc7a6b39ffd452f699beeab01a4beb2a1678efb36055b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 15, 2014
+.Dt GPTZFSBOOT 8
+.Os
+.Sh ИМЯ
+.Nm gptzfsboot
+.Nd Загрузочный код GPT для ZFS на компьютерах с BIOS
+.Sh ОПИСАНИЕ
+.Nm
+используется на компьютерах с BIOS для загрузки из файловой системы в
+пуле ZFS.
+.Nm
+устанавливается в раздел
+.Cm freebsd-boot
+диска с разметкой GPT с помощью
+.Xr gpart 8 .
+.Sh ПРИМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Стандарт GPT допускает переменное число разделов, но
+.Nm
+загружается только с таблиц, содержащих 128 разделов или меньше.
+.Sh ЗАГРУЗКА
+.Nm
+пытается найти все пулы ZFS, состоящие из видимых в BIOS
+жёстких дисков или разделов на них.
+.Nm
+ищет метки устройств ZFS на всех видимых дисках и в обнаруженных
+поддерживаемых разделах для всех поддерживаемых типов схем разметки.
+Поиск начинается с диска, с которого был загружен сам
+.Nm .
+Другие диски проверяются в порядке, определённом BIOS.
+После проверки диска и определения
+.Nm ,
+что весь диск не является членом пула ZFS, отдельные разделы проверяются
+в порядке их таблицы разделов.
+В настоящее время поддерживаются схемы разметки GPT и MBR.
+При схеме GPT проверяются только разделы типа
+.Cm freebsd-zfs .
+Первый пул, обнаруженный при проверке, используется как пул загрузки по умолчанию.
+.Pp
+Файловая система, указанная свойством
+.Cm bootfs
+пула, используется как файловая система загрузки по умолчанию.
+Если свойство
+.Cm bootfs
+не задано, то корневая файловая система пула используется
+по умолчанию.
+.Xr loader 8
+загружается из файловой системы загрузки.
+Если
+.Pa /boot.config
+или
+.Pa /boot/config
+присутствует в файловой системе загрузки, параметры загрузки читаются из него
+так же, как в
+.Xr boot 8 .
+.Pp
+GUID ZFS первого успешно проверенного устройства и первого
+обнаруженного пула становятся доступны
+.Xr loader 8
+в переменных
+.Cm vfs.zfs.boot.primary_vdev
+и
+.Cm vfs.zfs.boot.primary_pool .
+.Sh ИСПОЛЬЗОВАНИЕ
+Обычно
+.Nm
+загружается в полностью автоматическом режиме.
+Однако, как и
+.Xr boot 8 ,
+можно прервать процесс автоматической загрузки и взаимодействовать с
+.Nm
+через приглашение.
+.Nm
+принимает все параметры, которые поддерживает
+.Xr boot 8 .
+.Pp
+Спецификация файловой системы и путь к
+.Xr loader 8
+отличаются от
+.Xr boot 8 .
+Формат:
+.Pp
+.Sm off
+.Oo zfs:pool/filesystem: Oc Oo /path/to/loader Oc
+.Sm on
+.Pp
+Можно указать как файловую систему, так и путь.
+Если указан только путь, используется файловая система по умолчанию.
+Если указаны только пул и файловая система, то в качестве пути
+используется
+.Pa /boot/loader .
+.Pp
+Кроме того, команду
+.Ic status
+можно использовать для запроса информации об обнаруженных пулах.
+Формат вывода аналогичен формату
+.Cm zpool status
+.Pq см. Xr zpool 8 .
+.Pp
+Настроенная или автоматически определённая файловая система загрузки ZFS
+сохраняется в
+.Xr loader 8
+переменной
+.Cm loaddev
+и также устанавливается как начальное значение переменной
+.Cm currdev .
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/gptzfsboot -compact
+.It Pa /boot/gptzfsboot
+двоичный файл загрузочного кода
+.It Pa /boot.config
+параметры для загрузочного блока
+.Pq необязательно
+.It Pa /boot/config
+альтернативные параметры для загрузочного блока
+.Pq необязательно
+.El
+.Sh ПРИМЕРЫ
+.Nm
+обычно устанавливается вместе с
+.Dq защитной MBR
+.Po
+см.
+.Xr gpart 8
+.Pc .
+Чтобы установить
+.Nm
+на диск
+.Pa ada0 :
+.Bd -literal -offset indent
+gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 1 ada0
+.Ed
+.Pp
+.Nm
+также можно установить без PMBR:
+.Bd -literal -offset indent
+gpart bootcode -p /boot/gptzfsboot -i 1 ada0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr boot.config 5 ,
+.Xr boot 8 ,
+.Xr gpart 8 ,
+.Xr loader 8 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+.Nm
+появился в FreeBSD 7.3.
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Andriy Gapon Aq Mt avg@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Nm
+ищет метаданные ZFS только в разделах MBR
+.Pq известных в FreeBSD как срезы .
+Он не просматривает разделы BSD
+.Xr disklabel 8 ,
+которые традиционно называются разделами.
+Если раздел disklabel оказывается размещён так, что метаданные ZFS можно
+найти по фиксированным смещениям относительно среза, то
+.Nm
+распознает этот раздел как часть пула ZFS,
+но это не гарантируется.

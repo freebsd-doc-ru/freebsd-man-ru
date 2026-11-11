@@ -1,0 +1,286 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2017-2018 Netflix, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/efibootmgr/efibootmgr.8
+.\" FRDP githash 80a97bc622509ac56a6e49c9254441de7817e16d
+.\" FRDP hash256 5550782a5b93a979a6ed9077957093b0954a800be37f720e7170350d891faf8d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 11, 2026
+.Dt EFIBOOTMGR 8
+.Os
+.Sh ИМЯ
+.Nm efibootmgr
+.Nd управление менеджером загрузки EFI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Nm
+.Fl a
+.Fl b Ar bootnum
+.Nm
+.Fl A
+.Fl b Ar bootnum
+.Nm
+.Fl B
+.Fl b Ar bootnum
+.Nm
+.Fl c
+.Fl l Ar loader
+.Op Fl aD
+.Op Fl b Ar bootnum
+.Op Fl k Ar kernel
+.Op Fl L Ar label
+.Op Fl e Ar env
+.Nm
+.Fl E
+.Op Fl d
+.Op Fl p
+.Nm
+.Fl F
+.Nm
+.Fl f
+.Nm
+.Fl n
+.Fl b Ar bootnum
+.Nm
+.Fl N
+.Nm
+.Fl o Ar bootorder
+.Nm
+.Fl t Ar timeout
+.Nm
+.Fl T
+.Nm
+.Fl u Ar unix-path
+Программа
+.Nm
+управляет тем, как UEFI Boot Managers загружают систему.
+Она может создавать и удалять методы загрузки, а также активировать или
+деактивировать их.
+Она также может изменять заданный порядок методов загрузки.
+Она может создавать временную переменную загрузки (BootNext), которая ссылается на
+метод загрузки, который нужно опробовать один раз при следующей загрузке.
+.Pp
+Стандарт UEFI определяет, как хосты могут управлять тем, что используется для
+начальной загрузки системы.
+Каждый метод инкапсулирован в постоянную переменную UEFI,
+хранимую прошивкой UEFI в форме
+.Cm Boot Ns Em XXXX
+(где XXXX — заглавные шестнадцатеричные цифры).
+Эти переменные пронумерованы; каждая описывает, откуда загружать программу
+начальной загрузки и активен ли метод (используется для загрузки,
+иначе метод будет пропущен).
+Порядок этих методов управляется другой переменной,
+.Cm BootOrder .
+Текущий загруженный метод передаётся с помощью
+.Cm BootCurrent .
+Также можно задать глобальный тайм-аут.
+.Pp
+.Nm
+требует, чтобы модуль ядра
+.Xr efirt 9
+присутствовал или был загружен для получения и установки этих
+энергонезависимых переменных.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl a -activate
+Активирует указанную загрузочную запись
+.Ar bootnum
+или новую запись при использовании с
+.Fl c .
+.It Fl A -deactivate
+Деактивирует указанную загрузочную запись
+.Ar bootnum .
+.It Fl b -bootnum Ar bootnum
+При создании или изменении записи использует
+.Ar bootnum
+в качестве индекса.
+При создании новой записи завершает работу с ошибкой, если она уже существует.
+Для удобства, если
+.Ar bootnum
+начинается с
+.Dq boot ,
+этот префикс игнорируется.
+.It Fl B -delete
+Удаляет указанную загрузочную запись
+.Ar bootnum .
+.It Fl c -create
+Создаёт новую переменную
+.Cm Boot
+(также называемую методом или записью).
+.It Fl D -dry-run
+Обрабатывает, но не изменяет никакие переменные.
+.It Fl e -env
+При создании переменной
+.Cm Boot
+включает набор переменных окружения, которые загрузчик должен установить после
+разбора командной строки.
+Переменные имеют вид
+.Dq a=b
+и разделяются пробелами.
+Аргумент следует заключать в кавычки.
+.Nm
+добавляет их в конец переменной окружения
+.Cm Boot .
+Прежде чем обрабатывать что-либо ещё,
+.Xr loader.efi 8
+разберёт эту область и установит все найденные там переменные.
+.It Fl E -esp
+Выводит путь
+.Fx
+к устройству ESP, полученный из переменных EFI
+.Va BootCurrent
+и
+.Va BootXXXX .
+Это раздел ESP, используемый UEFI для загрузки текущего экземпляра системы.
+Если указан
+.Fl d -device-path ,
+вместо этого выводится путь устройства UEFI к ESP.
+Если указан
+.Fl p -unix-path ,
+вместо этого выводится точка монтирования ESP.
+.It Fl f -fw-ui , Fl F -no-fw-ui
+Устанавливает или сбрасывает запрос к прошивке системы остановиться в её
+пользовательском интерфейсе при следующей загрузке.
+.It Fl k -kernel Ar kernel
+Путь к ядру и его имя.
+.It Fl l -loader Ar loader
+Путь к загрузчику и его имя.
+.It Fl L -label Ar label
+Необязательное описание метода.
+.It Fl n -bootnext
+Устанавливает загрузочную запись
+.Ar bootnum
+как переменную
+.Cm BootNext .
+.It Fl N -delete-bootnext
+Удаляет необязательную переменную
+.Cm BootNext .
+.It Fl o -bootorder Ar bootorder
+Устанавливает переменную
+.Cm BootOrder
+в заданный набор
+.Ar bootnum Ns s ,
+разделённых запятыми.
+Числа указаны в шестнадцатеричном виде, чтобы соответствовать
+.Cm Boot Ns Em XXXX ,
+но могут опускать ведущие нули.
+.It Fl t -set-timeout Ar timeout
+Устанавливает значение тайм-аута меню загрузки.
+.It Fl T -del-timeout
+Удаляет переменную
+.Cm BootTimeout .
+.It Fl u -efidev Ar unix-path
+Отображает путь устройства UEFI для
+.Ar unix-path .
+.It Fl v -verbose
+Отображает путь устройства загрузочных записей в выводе.
+.El
+.Sh ПРИМЕРЫ
+Чтобы отобразить текущие переменные, связанные с
+.Cm Boot ,
+в системе:
+.Pp
+.Dl efibootmgr -v
+.Pp
+Это отобразит необязательную переменную
+.Cm BootNext
+(если присутствует),
+.Cm BootCurrent
+(текущий загруженный метод), затем необязательное значение
+.Cm Timeout ,
+любую установленную
+.Cm BootOrder
+и, наконец, все текущие определённые переменные
+.Cm Boot ,
+активные или нет.
+Флаг подробного вывода
+.Pq Fl v
+дополняет этот вывод UUID дискового раздела, размером/смещением и путём устройства переменной.
+Этот флаг также включит любые переменные, не упомянутые (в BootOrder).
+.Pp
+Программу
+.Nm
+можно использовать для создания новых загрузочных переменных EFI.
+Следующая команда может использоваться для создания нового метода загрузки с использованием
+раздела EFI, смонтированного в
+.Pa /boot/efi ,
+чтобы пометить метод активным, используя указанный загрузчик, и назначить метку метода
+.Qq FreeBSD-15 :
+.Pp
+.Dl efibootmgr -a -c -l /boot/efi/EFI/freebsd/loader.efi -L FreeBSD-15
+.Pp
+В результате следующему доступному bootnum будет назначена новая загрузочная
+переменная UEFI, и ей будет присвоена метка
+.Qq FreeBSD-15
+например:
+.Pp
+.Dl Boot0009 FreeBSD-15
+.Pp
+Обратите внимание, что новые загрузочные записи по умолчанию создаются неактивными; поэтому
+выше указан флаг
+.Fl a ,
+чтобы запись рассматривалась для загрузки.
+Активное состояние обозначается символом '*' после имени
+.Cm Boot Ns Em XXXX
+в выводе.
+Они также вставляются в первую позицию текущей переменной
+.Cm BootOrder ,
+если она существует.
+Сначала их нужно сделать активными, прежде чем они будут рассматриваться как доступные для попытки
+загрузки, иначе они игнорируются.
+.Pp
+.Dl efibootmgr -B -b 0009
+.Pp
+Удалит указанную загрузочную запись Boot0009.
+.Pp
+Чтобы сделать указанную загрузочную запись активной:
+.Pp
+.Dl efibootmgr -a -b 0009
+.Pp
+Чтобы задать указанную загрузочную запись для использования в качестве
+переменной
+.Cm BootNext
+независимо от её активного состояния, используйте:
+.Pp
+.Dl efibootmgr -n -b 0009
+.Pp
+Чтобы задать
+.Cm BootOrder
+для следующей перезагрузки, используйте:
+.Pp
+.Dl efibootmgr -o 0009,0003,...
+.Sh СМ. ТАКЖЕ
+.Xr efivar 8 ,
+.Xr gpart 8 ,
+.Xr loader.efi 8 ,
+.Xr uefi 8 ,
+.Xr efirt 9
+.Sh СТАНДАРТЫ
+Спецификация Unified Extensible Firmware Interface доступна на
+.Pa www.uefi.org .

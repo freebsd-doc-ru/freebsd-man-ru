@@ -1,0 +1,164 @@
+.\" Copyright (c) 2011-2018 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/check-password.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 01601ad917267054a0c87dcb941f1368e662d9e21fbf80c5b9caaf20f6990f14
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 24, 2018
+.Dt CHECK-PASSWORD.4TH 8
+.Os
+.Sh ИМЯ
+.Nm check-password.4th
+.Nd Загрузочный модуль FreeBSD для проверки пароля
+.Sh ОПИСАНИЕ
+Файл, который носит имя
+.Nm
+, представляет собой набор команд, предназначенных для выполнения одного или нескольких из следующих действий:
+.Pp
+.Dl o Запретить загрузку без пароля
+.Dl o Запретить изменение параметров загрузки без пароля
+.Dl o Предоставить пароль для монтирования зашифрованных корневых дисков geli(8)
+.Pp
+Самих команд
+.Nm
+недостаточно для большинства случаев использования.
+Обратитесь к приведённым ниже примерам для наиболее распространённых ситуаций и к
+.Xr loader 8
+за дополнительными командами.
+.Pp
+Перед использованием любой из команд, предоставляемых в
+.Nm
+, необходимо включить его с помощью команды:
+.Pp
+.Dl include check-password.4th
+.Pp
+Эта строка присутствует в файле
+.Pa /boot/loader.4th
+, поэтому в обычной конфигурации она не нужна (и не должна добавляться повторно).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic check-password
+Многофункциональная функция, которая может защищать интерактивное меню загрузки,
+предотвращать загрузку без пароля или запрашивать парольную фразу geli(8)
+.Pq в зависимости от настроек Xr loader.conf 5 .
+.Pp
+Сначала проверяет
+.Va bootlock_password
+и, если она задана, пользователь не может продолжить, пока не введён правильный пароль.
+.Pp
+Затем проверяет
+.Va geom_eli_passphrase_prompt
+и, если она установлена в
+.Li YES
+.Pq без учёта регистра
+, предлагает пользователю ввести свой пароль GELI для последующего монтирования корневого устройства (устройств) во время загрузки.
+.Pp
+Наконец, проверяет
+.Va password
+и, если она задана, пытается выполнить
+.Ic autoboot
+и запрашивает пароль только при неудаче или прерывании пользователем.
+Дополнительную информацию см. в
+.Xr loader.conf 5 .
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootlock_password -offset indent
+.It Va bootlock_password
+Задаёт пароль блокировки загрузки (длиной до 255 символов), который
+.Ic check-password
+требует ввести до того, как системе будет разрешено загружаться.
+.It Va geom_eli_passphrase_prompt
+Определяет, будет ли loader(8) запрашивать учётные данные GELI, передавая их ядру для последующего монтирования зашифрованных с помощью
+.Xr geli 8
+корневых устройств.
+.It Va password
+Задаёт пароль (длиной до 255 символов), который
+.Ic check-password
+требует ввести до того, как пользователю будет разрешено перейти в меню загрузки.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/check-password.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/check-password.4th
+Сам файл
+.Nm
+.
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Xr loader 8 .
+.El
+.Sh ПРИМЕРЫ
+Стандартный файл
+.Pa /boot/loader.rc
+для i386:
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/loader.4th
+check-password
+.Ed
+.Pp
+Задайте пароль в
+.Xr loader.conf 5
+, чтобы запретить изменение параметров загрузки:
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Pp
+Задайте пароль в
+.Xr loader.conf 5
+, чтобы запретить загрузку без пароля:
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Pp
+Добавьте следующее в
+.Xr loader.conf 5
+, чтобы при загрузке выводился запрос для сбора учётных данных GELI для монтирования зашифрованных с помощью
+.Xr geli 8
+корневых устройств:
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr loader.4th 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

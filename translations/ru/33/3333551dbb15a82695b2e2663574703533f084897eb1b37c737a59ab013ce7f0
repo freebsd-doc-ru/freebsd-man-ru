@@ -1,0 +1,423 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\"  Copyright (c) 2010 Gordon Tetlow
+.\"  All rights reserved.
+.\"
+.\"  Redistribution and use in source and binary forms, with or without
+.\"  modification, are permitted provided that the following conditions
+.\"  are met:
+.\"  1. Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\"  2. Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\"
+.\"  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\"  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\"  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\"  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\"  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\"  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\"  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\"  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\"  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\"  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\"  SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/man/man.1
+.\" FRDP githash 9fe7f514ef249372afe78773c230a8f9e13cb672
+.\" FRDP hash256 3333551dbb15a82695b2e2663574703533f084897eb1b37c737a59ab013ce7f0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 24, 2025
+.Dt MAN 1
+.Os
+.Sh ИМЯ
+.Nm man
+.Nd отображать страницы интерактивного руководства
+.Sh СИНТАКСИС
+.Nm
+.Op Fl adhlo
+.Op Fl t | w
+.Op Fl M Ar manpath
+.Op Fl P Ar pager
+.Op Fl S Ar mansect
+.Op Fl m Ar arch Ns Op : Ns Ar machine
+.Op Fl p Op Ar eprtv
+.Op Ar mansect
+.Ar page | Ar
+.Nm
+.Fl K | f | k
+.Ar expression ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+находит и отображает страницы интерактивного руководства.
+Если
+.Ar mansect
+указан,
+.Nm
+ограничивает поиск конкретным разделом руководства.
+.Pp
+Разделы руководства:
+.Pp
+.Bl -enum -offset indent -compact
+.It
+.Fx
+Руководство по общим командам
+.It
+.Fx
+Руководство по системным вызовам
+.It
+.Fx
+Руководство по библиотечным функциям
+.It
+.Fx
+Руководство по интерфейсам ядра
+.It
+.Fx
+Руководство по форматам файлов
+.It
+.Fx
+Руководство по играм
+.It
+.Fx
+Руководство по прочей информации
+.It
+.Fx
+Руководство системного администратора
+.It
+.Fx
+Руководство разработчика ядра
+.El
+.Pp
+Параметры, которые понимает
+.Nm :
+.Bl -tag -width indent
+.It Fl K Ar expression
+Искать во всём тексте всех страниц руководства по расширенному регулярному выражению
+.Ar expression ,
+как описано в
+.Xr re_format 7 .
+Для этого параметра требуется
+.Xr mandoc 1 .
+Это медленная операция.
+.It Fl M Ar manpath
+Принудительно использовать указанный список путей к страницам руководства, разделённый двоеточиями, вместо пути поиска по умолчанию.
+См.
+.Ev MANPATH
+в
+.Sx ОКРУЖЕНИЕ .
+.It Fl P Ar pager
+Использовать указанный пейджер.
+По умолчанию используется
+.Ql less -sR
+при включённой поддержке цвета или
+.Ql less -s .
+Переопределяет переменную окружения
+.Ev MANPAGER ,
+которая, в свою очередь, переопределяет переменную окружения
+.Ev PAGER .
+.It Fl S Ar mansect
+Ограничить разделы руководства, в которых выполняется поиск, указанным списком, разделённым двоеточиями.
+По умолчанию используется
+.Ql 1:8:2:3:3lua:n:4:5:6:7:9:l .
+Переопределяет переменную окружения
+.Ev MANSECT .
+.It Fl a
+Показать все страницы руководства, а не только первую найденную для каждого аргумента
+.Ar page .
+.It Fl d
+Выводить дополнительную отладочную информацию.
+Повторяйте для увеличения подробности.
+Не отображает страницу руководства.
+.It Fl f Ar expression
+Искать имена всех страниц руководства по расширенному регулярному выражению
+.Ar expression ,
+имитируя
+.Xr whatis 1 .
+.It Fl h
+Показать краткое справочное сообщение и выйти.
+.It Fl k Ar expression
+Искать имена и описания всех страниц руководства по расширенному регулярному выражению
+.Ar expression ,
+имитируя базовую функциональность
+.Xr apropos 1 .
+.It Fl l
+Интерпретировать все аргументы как абсолютные или относительные имена файлов страниц руководства для отображения.
+Поиск не выполняется, а параметры
+.Fl M ,
+.Fl m ,
+и
+.Fl S
+игнорируются.
+.It Fl m Ar arch Ns Op : Ns Ar machine
+Переопределить настройки архитектуры и машины по умолчанию, позволяя искать другие страницы руководства, специфичные для платформы.
+См.
+.Sx ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+о том, как этот параметр изменяет поведение по умолчанию.
+Переопределяет переменные окружения
+.Ev MACHINE_ARCH
+и
+.Ev MACHINE .
+.It Fl o
+Принудительно использовать нелокализованные страницы руководства.
+См.
+.Sx ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+о том, как работает поиск с учётом локали.
+Переопределяет переменные окружения
+.Ev LC_ALL , LC_CTYPE ,
+и
+.Ev LANG .
+.It Fl p Op Cm eprtv
+Использовать список указанных препроцессоров перед запуском
+.Xr nroff 1 Pq Pa ports/textproc/groff
+или
+.Xr troff 1 Pq Pa ports/textproc/groff .
+Допустимые аргументы препроцессоров:
+.Pp
+.Bl -tag -width indent -compact
+.It Cm e
+.Xr eqn 1 Pq Pa ports/textproc/groff
+.It Cm p
+.Xr pic 1 Pq Pa ports/textproc/groff
+.It Cm r
+.Xr refer 1 Pq Pa ports/textproc/groff
+.It Cm t
+.Xr tbl 1 Pq Pa ports/textproc/groff
+.It Cm v
+.Xr vgrind 1
+.El
+.Pp
+Переопределяет переменную окружения
+.Ev MANROFFSEQ .
+.It Fl t
+Передать исходный текст страницы руководства через
+.Xr troff 1 Pq Pa ports/textproc/groff ,
+позволяя преобразовывать страницы руководства в другие форматы.
+.It Fl w
+Показать местоположение страницы руководства вместо её содержимого.
+.El
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+.Ss Поиск с учётом локали
+Утилита
+.Nm
+поддерживает страницы руководства в разных локалях.
+Поведение поиска определяется первой из трёх переменных окружения с непустой строкой:
+.Ev LC_ALL , LC_CTYPE ,
+или
+.Ev LANG .
+Если задано,
+.Nm
+будет искать страницы руководства, специфичные для локали, по следующей логике:
+.Pp
+.Bl -item -offset indent -compact
+.It
+.Va lang Ns _ Ns Va country . Ns Va charset
+.It
+.Va lang . Ns Va charset
+.It
+.Va lang
+.It
+.Li en . Ns Va charset
+.El
+.Pp
+Например, если
+.Ev LC_ALL
+установлена в
+.Ql ja_JP.eucJP ,
+.Nm
+будет искать следующие пути при рассмотрении страниц руководства раздела 1 в
+.Pa /usr/share/man :
+.Pp
+.Bl -item -offset indent -compact
+.It
+.Pa /usr/share/man/ja_JP.eucJP/man1
+.It
+.Pa /usr/share/man/ja.eucJP/man1
+.It
+.Pa /usr/share/man/ja/man1
+.It
+.Pa /usr/share/man/en.eucJP/man1
+.It
+.Pa /usr/share/man/man1
+.El
+.Ss Поиск с учётом платформы
+Утилита
+.Nm
+поддерживает страницы руководства, специфичные для платформы.
+Поведение поиска определяется
+.Fl m
+параметром или
+.Ev MACHINE_ARCH
+и
+.Ev MACHINE
+переменными окружения.
+Например, если
+.Ev MACHINE_ARCH
+установлена в
+.Ql aarch64 ,
+а
+.Ev MACHINE
+установлена в
+.Ql arm64 ,
+.Nm
+будет искать следующие пути при рассмотрении страниц руководства раздела 4 в
+.Pa /usr/share/man :
+.Pp
+.Bl -item -offset indent -compact
+.It
+.Pa /usr/share/man/man4/aarch64
+.It
+.Pa /usr/share/man/man4/arm64
+.It
+.Pa /usr/share/man/man4
+.El
+.Ss Отображение конкретных файлов руководства
+По соображениям совместимости
+.Nm
+будет интерпретировать любой аргумент, содержащий хотя бы один символ
+.Ql /
+как абсолютный или относительный путь к отображаемой странице руководства.
+Эта эвристика, ставшая избыточной из-за более широко поддерживаемого
+.Fl l
+параметра, теперь устарела и может быть удалена в будущих выпусках.
+.Sh ОКРУЖЕНИЕ
+На выполнение
+.Nm
+влияют следующие переменные окружения:
+.Bl -tag -width indent
+.It Ev LC_ALL , Ev LC_CTYPE , Ev LANG
+Используются для поиска страниц руководства, специфичных для локали.
+Допустимые значения можно найти, запустив команду
+.Xr locale 1 .
+См.
+.Sx ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+для подробностей.
+На них влияет параметр
+.Fl o .
+.It Ev MACHINE_ARCH , Ev MACHINE
+Используются для поиска страниц руководства, специфичных для платформы.
+Если не заданы, используются выходные данные
+.Ql sysctl Va hw.machine_arch
+и
+.Ql sysctl Va hw.machine
+соответственно.
+См.
+.Sx ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+для подробностей.
+Соответствует параметру
+.Fl m .
+.It Ev MANPATH
+Список каталогов для проверки страниц руководства, разделённый двоеточием
+.Pq Ql \&: .
+Недопустимые пути или пути без баз данных руководства игнорируются.
+Переопределяется
+.Fl M .
+Если
+.Ev MANPATH
+начинается с двоеточия, он добавляется в конец списка по умолчанию;
+если заканчивается двоеточием, он добавляется в начало списка по умолчанию;
+или если содержит два соседних двоеточия,
+стандартный путь поиска вставляется между двоеточиями.
+Если ни одно из этих условий не выполняется, он переопределяет стандартный путь поиска.
+См.
+.Xr manpath 1 .
+.It Ev MANROFFSEQ
+Используется для определения препроцессоров для исходного текста руководства перед запуском
+.Xr nroff 1 Pq Pa ports/textproc/groff
+или
+.Xr troff 1 Pq Pa ports/textproc/groff .
+Если не задана, по умолчанию используется
+.Xr tbl 1 Pq Pa ports/textproc/groff .
+Соответствует параметру
+.Fl p .
+.It Ev MANSECT
+Ограничивает разделы руководства, в которых выполняется поиск, указанным списком, разделённым двоеточиями.
+Соответствует параметру
+.Fl S .
+.It Ev MANWIDTH
+Если задано числовое значение, используется как ширина, в которой должны отображаться страницы руководства.
+В противном случае, если задано специальное значение
+.Ql tty ,
+и вывод направлен в терминал, страницы могут отображаться на всю ширину экрана.
+.It Ev MANCOLOR
+Если задана, включает поддержку цвета.
+.It Ev MANPAGER
+Программа, используемая для отображения файлов.
+.Pp
+Если не задана и поддержка цвета включена,
+.Ql less -sR
+используется.
+.Pp
+Если не задана и поддержка цвета отключена, то
+.Ev PAGER
+используется.
+Если она также не имеет значения,
+.Ql less -s
+используется.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/man.conf
+Системный конфигурационный файл
+.It Pa /usr/local/etc/man.d/*.conf
+Локальные конфигурационные файлы
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Показать страницу руководства для
+.Xr stat 2 :
+.Pp
+.Dl $ man 2 stat
+.Pp
+Показать все страницы руководства для
+.Ql stat :
+.Pp
+.Dl $ man -a stat
+.Pp
+Показать страницы руководства, которые соответствуют регулярному выражению либо в заголовке, либо в тексте:
+.Pp
+.Dl $ man -k '\e<copy\e>.*archive'
+.Pp
+Показать страницу руководства для
+.Xr ls 1 ,
+используя
+.Xr cat 1
+в качестве пейджера:
+.Pp
+.Dl $ man -P cat ls
+.Pp
+Показать местоположение страницы руководства
+.Xr ls 1 :
+.Pp
+.Dl $ man -w ls
+.Pp
+Показать страницу руководства в текущем рабочем каталоге:
+.Pp
+.Dl $ man -l man.1
+.Pp
+Показать местоположение страниц руководства в разделах 1 и 8, которые содержат слово
+.Ql arm :
+.Pp
+.Dl $ man -w -K '\e<arm\e>' -S 1:8
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr intro 1 ,
+.Xr mandoc 1 ,
+.Xr manpath 1 ,
+.Xr whatis 1 ,
+.Xr intro 2 ,
+.Xr intro 3 ,
+.Xr intro 3lua ,
+.Xr intro 4 ,
+.Xr intro 5 ,
+.Xr man.conf 5 ,
+.Xr intro 6 ,
+.Xr intro 7 ,
+.Xr mdoc 7 ,
+.Xr re_format 7 ,
+.Xr intro 8 ,
+.Xr intro 9

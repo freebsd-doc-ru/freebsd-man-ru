@@ -1,0 +1,110 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2025 iXsystems, Inc.
+.\" Copyright (c) 2025, Klara, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-rewrite.8
+.\" FRDP githash 155d5b8a19baa864ebe9d8346d932bd04ea23aca
+.\" FRDP hash256 5de8a942c5b89ba8d08d8961875e3cfe3d4128f83d7cd36882a399154340d92d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 5, 2025
+.Dt ZFS-REWRITE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-rewrite
+.Nd перезапись указанных файлов без изменения
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm rewrite
+.Oo Fl Prvx Ns Oc
+.Op Fl l Ar длина
+.Op Fl o Ar смещение
+.Ar файл Ns | Ns Ar каталог Ns …
+.
+.Sh ОПИСАНИЕ
+Перезаписывать блоки, принадлежащие указанному
+.Ar файлу
+как есть, без изменения, в новом месте и, возможно, с новыми свойствами,
+как если бы они были атомарно прочитаны и записаны обратно.
+.No См. Sx ПРИМЕЧАНИЯ .
+для получения дополнительной информации об изменениях свойств, которые могут быть применены во время перезаписи.
+.Bl -tag -width Ds
+.It Fl P
+Выполнить физическую перезапись, сохраняя логическое время рождения блоков.
+По умолчанию перезапись обновляет логическое время рождения, из-за чего блоки выглядят
+изменёнными в снимках и инкрементальных потоках send.
+Физическая перезапись сохраняет логическое время рождения, избегая ненужного
+включения в инкрементальные потоки.
+Физическая перезапись требует, чтобы в пуле была включена возможность
+.Sy physical_rewrite .
+.It Fl l Ar длина
+Перезаписать не более этого числа байт.
+.It Fl o Ar смещение
+Начать с этого смещения в байтах.
+.It Fl r
+Рекурсивно обходить каталоги.
+.It Fl v
+Выводить имена всех успешно перезаписанных файлов.
+.It Fl x
+Не пересекать точки монтирования файловых систем при рекурсивном обходе.
+.El
+.Sh ПРИМЕЧАНИЯ
+Перезапись работает путём замены существующего блока новым блоком того же
+логического размера.
+Изменённые свойства набора данных, которые воздействуют на данные или метаданные без
+изменения логического размера, будут применены.
+К ним относятся
+.Sy checksum ,
+.Sy compression ,
+.Sy dedup
+и
+.Sy copies .
+Изменения свойств, влияющих на размер логического блока, таких как
+.Sy recordsize ,
+не будут иметь эффекта.
+.Pp
+Перезапись клонированных блоков и блоков, входящих в какие-либо снимки,
+как и некоторые изменения свойств, может увеличить использование пространства пула.
+Дыры, в которые никогда не производилась запись или которые ранее были сжаты в ноль,
+не перезаписываются и останутся дырами, даже если сжатие отключено.
+.Pp
+Если значение
+.Fl l
+или
+.Fl o
+требует перезаписи областей за концом файла, то такие области молча игнорируются,
+и ошибка не сообщается.
+.Pp
+По умолчанию перезаписанные блоки обновляют своё логическое время рождения,
+а значит, будут включены в инкрементальные потоки
+.Nm zfs Cm send
+как изменённые данные.
+Когда используется флаг
+.Fl P ,
+перезаписанные блоки сохраняют своё логическое время рождения, поскольку
+изменения пользовательских данных отсутствуют.
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfsprops 7 ,
+.Xr zpool-features 7

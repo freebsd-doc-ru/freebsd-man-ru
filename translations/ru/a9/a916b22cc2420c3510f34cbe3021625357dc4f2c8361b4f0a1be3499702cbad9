@@ -1,0 +1,259 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Oracle and/or its affiliates. All rights reserved.
+.\" Copyright (c) 2009 Michael Gebetsroither <michael.geb@gmx.at>. All rights
+.\" reserved.
+.\" Copyright (c) 2017, Intel Corporation.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man1/ztest.1
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 a916b22cc2420c3510f34cbe3021625357dc4f2c8361b4f0a1be3499702cbad9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 12, 2025
+.Dt ZTEST 1
+.Os
+.
+.Sh ИМЯ
+.Nm ztest
+.Nd написан разработчиками ZFS как юнит-тест ZFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl VEG
+.Op Fl v Ar число_vdev
+.Op Fl s Ar размер_каждого_vdev
+.Op Fl a Ar сдвиг_выравнивания
+.Op Fl m Ar зеркальные_копии
+.Op Fl r Ar диски_raidz/диски_draid
+.Op Fl R Ar чётность_raid
+.Op Fl K Ar тип_raid
+.Op Fl D Ar данные_draid
+.Op Fl S Ar резервы_draid
+.Op Fl C Ar состояние_класса_vdev
+.Op Fl d Ar наборы_данных
+.Op Fl t Ar потоки
+.Op Fl g Ar порог_ганг-блока
+.Op Fl i Ar число_инициализаций_пула
+.Op Fl k Ar процент_прерываний
+.Op Fl p Ar имя_пула
+.Op Fl T Ar время
+.Op Fl z Ar частота_сбоев_zil
+.
+.Nm
+.Fl X
+.Op Fl VG
+.Op Fl s Ar размер_каждого_vdev
+.Op Fl a Ar сдвиг_выравнивания
+.Op Fl r Ar диски_raidz
+.Op Fl R Ar чётность_raid
+.Op Fl d Ar наборы_данных
+.Op Fl t Ar потоки
+.
+.Sh ОПИСАНИЕ
+.Nm
+был написан разработчиками ZFS как юнит-тест ZFS.
+Инструмент разрабатывался вместе с функциональностью ZFS и
+запускался каждую ночь как один из многих регрессионных тестов против ежедневной сборки.
+По мере добавления возможностей в ZFS в
+.Nm
+также добавлялись юнит-тесты.
+Кроме того, отдельная команда разработчиков тестов написала и
+выполняла дополнительные функциональные и стресс-тесты.
+.
+.Pp
+По умолчанию
+.Nm
+работает десять минут и использует блочные файлы
+(хранящиеся в
+.Pa /tmp )
+для создания пулов вместо физических дисков.
+Блочные файлы дают
+.Nm
+гибкость для экспериментов с
+компонентами zpool без необходимости в больших аппаратных конфигурациях.
+Однако хранение блочных файлов в
+.Pa /tmp
+может не подойти, если у вас
+маленький каталог tmp.
+.
+.Pp
+По умолчанию режим не подробный.
+Поэтому выполнение приведённой выше команды приведёт к тому, что
+.Nm
+будет тихо работать 5 минут.
+Опция
+.Fl V
+может использоваться для повышения подробности вывода инструмента.
+Можно добавлять несколько опций
+.Fl V
+чем больше вы добавите, тем более разговорчивым становится
+.Nm .
+.
+.Pp
+После завершения работы
+.Nm
+вы должны заметить множество файлов
+.Pa ztest.*
+, разбросанных вокруг.
+После завершения работы эти файлы можно безопасно удалить.
+Учтите, что не следует удалять эти файлы во время работы.
+Вы можете повторно использовать эти файлы в следующем запуске
+.Nm
+с помощью опции
+.Fl E .
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl h , \&? , -help
+Вывести краткую справку.
+.It Fl v , -vdevs Ns = (по умолчанию: Sy 5 )
+Количество vdev.
+.It Fl s , -vdev-size Ns = (по умолчанию: Sy 64M )
+Размер каждого vdev.
+.It Fl a , -alignment-shift Ns = (по умолчанию: Sy 9 ) No (используйте Sy 0 No для случайного выравнивания )
+Сдвиг выравнивания, используемый в тесте.
+.It Fl m , -mirror-copies Ns = (по умолчанию: Sy 2 )
+Количество зеркальных копий.
+.It Fl r , -raid-disks Ns = (по умолчанию: Sy 4 No для raidz/ Ns Sy 16 No для draid )
+Количество дисков raidz/draid.
+.It Fl R , -raid-parity Ns = (по умолчанию: Sy 1 )
+Чётность RAID (raidz и draid).
+.It Xo
+.Fl K , -raid-kind Ns = Ns
+.Sy raidz Ns | Ns Sy eraidz Ns | Ns Sy draid Ns | Ns Sy random
+(по умолчанию:
+.Sy random Ns
+)
+.Xc
+Тип используемой конфигурации RAID.
+При
+.Sy random
+тип чередуется между raidz, eraidz (расширяемый raidz) и draid.
+.It Fl D , -draid-data Ns = (по умолчанию: Sy 4 )
+Количество дисков данных в группе избыточности dRAID.
+.It Fl S , -draid-spares Ns = (по умолчанию: Sy 1 )
+Количество распределённых резервных дисков dRAID.
+.It Fl d , -datasets Ns = (по умолчанию: Sy 7 )
+Количество наборов данных.
+.It Fl t , -threads Ns = (по умолчанию: Sy 23 )
+Количество потоков.
+.It Fl g , -gang-block-threshold Ns = (по умолчанию: Sy 32K )
+Порог ганг-блока.
+.It Fl i , -init-count Ns = (по умолчанию: Sy 1 )
+Количество инициализаций пула.
+.It Fl k , -kill-percentage Ns = (по умолчанию: Sy 70% )
+Процент прерываний.
+.It Fl p , -pool-name Ns = (по умолчанию: Sy ztest )
+Имя пула.
+.It Fl f , -vdev-file-directory Ns = (по умолчанию: Pa /tmp )
+Каталог для файлов vdev.
+.It Fl M , -multi-host
+Многоузловой режим; имитировать пул, импортированный на удалённом узле.
+.It Fl E , -use-existing-pool
+Использовать существующий пул (использовать существующий пул вместо создания нового).
+.It Fl T , -run-time Ns = (по умолчанию: Sy 300 Ns s)
+Общее время выполнения теста.
+.It Fl P , -pass-time Ns = (по умолчанию: Sy 60 Ns s)
+Время на один проход.
+.It Fl F , -freeze-loops Ns = (по умолчанию: Sy 50 )
+Максимум циклов в
+.Fn spa_freeze .
+.It Fl B , -alt-ztest Ns =
+.Nm ztest
+для управления; он будет использоваться для инициализации пула и, в половине случаев случайным образом, для запуска тестов.
+Параллельный каталог
+.Pa lib
+добавляется в начало
+.Ev LD_LIBRARY_PATH ;
+т. е. при указании
+.Fl B Pa ./chroots/lenny/usr/bin/ Ns Nm ,
+будет загружен
+.Pa ./chroots/lenny/usr/lib .
+.It Fl C , -vdev-class-state Ns = Ns Sy on Ns | Ns Sy off Ns | Ns Sy random No (по умолчанию : Sy random  )
+Состояние класса распределения vdev.
+.It Fl o , -option Ns = Ns Ar переменная Ns = Ns Ar значение Ns …
+Установить заданный настраиваемый параметр в указанное значение.
+.It Fl G , -dump-debug
+Сбросить буфер zfs_dbgmsg перед выходом из-за ошибки.
+.It Fl V , -verbose
+Подробный вывод (используйте несколько раз для ещё большей подробности).
+.It Fl X , -raidz-expansion
+Выполнить специальный тест расширения raidz.
+.El
+.
+.Sh ПРИМЕРЫ
+Чтобы переопределить
+.Pa /tmp
+как местоположение для блочных файлов, можно использовать опцию
+.Fl f :
+.Dl # ztest -f /
+.Pp
+Чтобы понять, что
+.Nm
+на самом деле тестирует, попробуйте это:
+.Dl # ztest -f / -VVV
+.Pp
+Может быть, вы хотите запустить
+.Nm ztest
+дольше? Для этого просто используйте опцию
+.Fl T
+и укажите длительность в секундах так:
+.Dl # ztest -f / -V -T 120
+.
+.Sh ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+.Bl -tag -width Ds
+.It Ev ZFS_HOSTID Ns = Ns Em id
+Использовать
+.Em id
+вместо SPL hostid для идентификации этого узла.
+Предназначена для использования с
+.Nm , но эта переменная окружения повлияет на любую утилиту, использующую
+libzpool, включая
+.Xr zpool 8 .
+Поскольку ядро не знает об этой настройке,
+результаты с утилитами, отличными от ztest, не определены.
+.It Ev ZFS_STACK_SIZE Ns = Ns Em stacksize
+Ограничить размер стека по умолчанию до
+.Em stacksize
+байт для
+обнаружения и отладки переполнений стека ядра.
+По умолчанию это значение равно
+.Em 32K
+что вдвое больше размера стека ядра Linux по умолчанию, равного
+.Em 16K .
+.Pp
+На практике требуется задать размер стека немного больше, потому что
+различия в использовании стека между ядром и пользовательским пространством могут приводить к ложным
+переполнениям стека (особенно при включённой отладке).
+Указанное значение
+будет округлено вверх до минимального значения PTHREAD_STACK_MIN, которое является минимальным стеком,
+необходимым для процедуры NULL в пользовательском пространстве.
+.Pp
+По умолчанию размер стека ограничен
+.Em 256K .
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zdb 1 ,
+.Xr zfs 1 ,
+.Xr zpool 1 ,
+.Xr spl 4

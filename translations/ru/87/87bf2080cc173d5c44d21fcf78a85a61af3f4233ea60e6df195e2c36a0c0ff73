@@ -1,0 +1,203 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2020 by Delphix. All rights reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zstream.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 87bf2080cc173d5c44d21fcf78a85a61af3f4233ea60e6df195e2c36a0c0ff73
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 10, 2022
+.Dt ZSTREAM 8
+.Os
+.
+.Sh NAME
+.Nm zstream
+.Nd манипулировать потоками отправки ZFS
+.Sh SYNOPSIS
+.Nm
+.Cm dump
+.Op Fl Cvd
+.Op Ar файл
+.Nm
+.Cm decompress
+.Op Fl v
+.Op Ar объект Ns Sy \&, Ns Ar смещение Ns Op Sy \&, Ns Ar тип Ns ...
+.Nm
+.Cm redup
+.Op Fl v
+.Ar файл
+.Nm
+.Cm token
+.Ar resume_token
+.Nm
+.Cm recompress
+.Op Fl l Ar уровень
+.Ar алгоритм
+.
+.Sh DESCRIPTION
+Утилита
+.Sy zstream
+управляет потоками отправки ZFS, выводимыми командой
+.Sy zfs send .
+.Bl -tag -width Ds
+.It Xo
+.Nm
+.Cm dump
+.Op Fl Cvd
+.Op Ar файл
+.Xc
+Выводит информацию об указанном потоке отправки, включая заголовки и
+количество записей.
+Поток отправки может либо содержаться в файле, заданном параметром
+.Ar файл ,
+либо быть предоставлен на стандартном вводе.
+.Bl -tag -width Ds
+.It Fl C
+Отключает проверку контрольных сумм.
+.It Fl v
+Подробный вывод.
+Выводит метаданные для каждой записи.
+.It Fl d
+Выводит данные, содержащиеся в каждой записи.
+Подразумевает подробный вывод.
+.El
+.Pp
+Псевдоним
+.Nm zstreamdump
+предоставляется для совместимости и эквивалентен запуску
+.Nm
+.Cm dump .
+.It Xo
+.Nm
+.Cm token
+.Ar resume_token
+.Xc
+Выводит информацию о токене возобновления zfs
+.It Xo
+.Nm
+.Cm decompress
+.Op Fl v
+.Op Ar объект Ns Sy \&, Ns Ar смещение Ns Op Sy \&, Ns Ar тип Ns ...
+.Xc
+Распаковывает выбранные записи в потоке отправки ZFS, предоставленном на стандартном вводе,
+когда тип сжатия, записанный в метаданных ZFS, может быть неверным.
+Укажите номер объекта и смещение в байтах для каждой записи, которую вы хотите
+распаковать.
+При необходимости укажите тип сжатия.
+Допустимые типы сжатия включают
+.Sy off ,
+.Sy gzip ,
+.Sy lz4 ,
+.Sy lzjb ,
+.Sy zstd ,
+и
+.Sy zle .
+По умолчанию используется
+.Sy lz4 .
+Каждая запись для этого объекта, начинающаяся с указанного смещения, будет распакована, если
+это возможно.
+Это может быть невозможно, поскольку запись может быть повреждена в некоторых, но не
+во всех снимках потока.
+Указание типа сжатия
+.Sy off
+изменит метаданные потока соответствующим образом без попытки распаковки.
+Это может быть полезно, если запись уже не сжата, но метаданные
+утверждают обратное.
+Исправленный поток будет записан в стандартный вывод.
+.Bl -tag -width Ds
+.It Fl v
+Подробный вывод.
+Выводит сводку по распакованным записям.
+.El
+.It Xo
+.Nm
+.Cm redup
+.Op Fl v
+.Ar файл
+.Xc
+Дедуплицированные потоки отправки можно создавать с помощью
+.Nm zfs Cm send Fl D
+команды.
+Возможность отправки дедуплицированных потоков отправки устарела.
+В будущем возможность получения дедуплицированного потока отправки с помощью
+.Nm zfs Cm receive
+будет удалена.
+Однако дедуплицированные потоки отправки всё ещё можно получать с помощью
+.Nm zstream Cm redup .
+.Pp
+Команде
+.Nm zstream Cm redup
+передаётся
+.Ar файл ,
+содержащий дедуплицированный поток отправки, и она выводит эквивалентный
+недедуплицированный поток отправки в стандартный вывод.
+Следовательно, дедуплицированный поток отправки можно получить, выполнив:
+.Dl # Nm zstream Cm redup Pa DEDUP_STREAM_FILE | Nm zfs Cm receive No …
+.Bl -tag -width Ds
+.It Fl v
+Подробный вывод.
+Выводит сводку по преобразованным записям.
+.El
+.It Xo
+.Nm
+.Cm recompress
+.Op Fl l Ar уровень
+.Ar алгоритм
+.Xc
+Повторно сжимает поток отправки, предоставленный на стандартном вводе, используя заданный
+алгоритм и необязательный уровень, и записывает изменённый поток в стандартный вывод.
+Все записи WRITE в потоке отправки будут повторно сжаты, если только это не приведёт
+к уменьшению размера по сравнению с оставлением их несжатыми.
+Заданный алгоритм может быть любым допустимым значением свойства
+.Nm compress .
+Обратите внимание, что зашифрованные потоки отправки нельзя повторно сжать.
+.Bl -tag -width Ds
+.It Fl l Ar уровень
+Указывает уровень сжатия.
+Требуется только для алгоритмов, в которых уровень не подразумевается частью имени
+алгоритма (например, gzip-3 не требует его, а zstd требует, если
+нужен уровень, отличный от уровня по умолчанию).
+.El
+.El
+.
+.Sh EXAMPLES
+Восстановите набор данных, повреждённый из-за ошибки OpenZFS #12762.
+Сначала определите, какие записи повреждены.
+Это нельзя сделать автоматически; для этого требуется информация, выходящая за пределы
+метаданных ZFS.
+Если объект
+.Sy 128
+повреждён по смещению
+.Sy 0
+и сжат с помощью
+.Sy lz4 ,
+выполните следующую команду:
+.Bd -literal
+.No # Nm zfs Ar send Fl c Ar … | Nm zstream decompress Ar 128,0,lz4 | \
+Nm zfs recv Ar …
+.Ed
+.Sh SEE ALSO
+.Xr zfs 8 ,
+.Xr zfs-receive 8 ,
+.Xr zfs-send 8 ,
+.Lk https://github.com/openzfs/zfs/issues/12762

@@ -1,0 +1,636 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 cdb7d6c44b302b5bee838fdc7e9c5083dd0b5567ce7de863757b1e3b70b5bfba
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 19, 2024
+.Dt ZPOOL 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool
+.Nd настройка пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm
+.Fl ?V
+.Nm
+.Cm version
+.Op Fl j
+.Nm
+.Cm subcommand
+.Op Ar аргументы
+.
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+настраивает пулы хранения ZFS.
+Пул хранения — это совокупность устройств, обеспечивающая физическое хранение и
+репликацию данных для наборов данных ZFS.
+Все наборы данных в пуле хранения совместно используют одно и то же пространство.
+См.
+.Xr zfs 8
+для получения информации об управлении наборами данных.
+.Pp
+Обзор создания пулов хранения ZFS и управления ими см. на странице руководства
+.Xr zpoolconcepts 7 .
+.
+.Sh ПОДКОМАНДЫ
+Все подкоманды, изменяющие состояние, постоянно протоколируются в пуле в их
+исходной форме.
+.Pp
+Команда
+.Nm
+предоставляет подкоманды для создания и уничтожения пулов хранения, добавления ёмкости
+в пулы хранения и предоставления информации о пулах хранения.
+Поддерживаются следующие подкоманды:
+.Bl -tag -width Ds
+.It Xo
+.Nm
+.Fl ?\&
+.Xc
+Показывает справочное сообщение.
+.It Xo
+.Nm
+.Fl V , -version
+.Xc
+.It Xo
+.Nm
+.Cm version
+.Op Fl j
+.Xc
+Показывает версию программного обеспечения
+.Nm
+пользовательской утилиты и модуля ядра ZFS.
+Используйте параметр
+.Fl j
+для вывода в формате JSON.
+.El
+.
+.Ss Создание
+.Bl -tag -width Ds
+.It Xr zpool-create 8
+Создаёт новый пул хранения, содержащий виртуальные устройства, указанные в
+командной строке.
+.It Xr zpool-initialize 8
+Начинает инициализацию, записывая во все невыделенные области на указанных
+устройствах или во все подходящие устройства в пуле, если отдельные устройства не
+указаны.
+.El
+.
+.Ss Уничтожение
+.Bl -tag -width Ds
+.It Xr zpool-destroy 8
+Уничтожает указанный пул, освобождая все устройства для другого использования.
+.It Xr zpool-labelclear 8
+Удаляет информацию метки ZFS с указанного
+.Ar устройства .
+.El
+.
+.Ss Виртуальные устройства
+.Bl -tag -width Ds
+.It Xo
+.Xr zpool-attach 8 Ns / Ns Xr zpool-detach 8
+.Xc
+Преобразует нерезервированный диск в зеркало или повышает
+уровень избыточности существующего зеркала
+.Cm ( attach Ns ), либо выполняет обратную операцию (
+.Cm detach Ns ).
+.It Xo
+.Xr zpool-add 8 Ns / Ns Xr zpool-remove 8
+.Xc
+Добавляет указанные виртуальные устройства в заданный пул
+или удаляет указанное устройство из пула.
+.It Xr zpool-replace 8
+Заменяет существующее устройство (которое может быть отказавшим) на новое.
+.It Xr zpool-split 8
+Создаёт новый пул, разделяя все зеркала в существующем пуле (что уменьшает
+его избыточность).
+.El
+.
+.Ss Свойства
+Доступные свойства пула перечислены на странице руководства
+.Xr zpoolprops 7 .
+.Bl -tag -width Ds
+.It Xr zpool-list 8
+Перечисляет заданные пулы вместе с состоянием работоспособности и использованием пространства.
+.It Xo
+.Xr zpool-get 8 Ns / Ns Xr zpool-set 8
+.Xc
+Извлекает заданный список свойств
+.Po
+или все свойства, если используется
+.Sy all
+.Pc
+для указанного пула (пулов) хранения.
+.El
+.
+.Ss Мониторинг
+.Bl -tag -width Ds
+.It Xr zpool-status 8
+Показывает подробное состояние работоспособности для заданных пулов.
+.It Xr zpool-iostat 8
+Показывает статистику логического ввода-вывода для заданных пулов/vdev.
+Физические операции ввода-вывода можно наблюдать с помощью
+.Xr iostat 1 .
+.It Xr zpool-events 8
+Перечисляет все недавние события, сгенерированные модулями ядра ZFS.
+Эти события потребляются
+.Xr zed 8
+и используются для автоматизации административных задач, таких как замена отказавшего устройства
+горячим резервом.
+Эта страница руководства также описывает подклассы и полезные данные событий,
+которые могут генерироваться.
+.It Xr zpool-history 8
+Показывает историю команд указанных пулов (или всех пулов, если пул не
+указан).
+.El
+.
+.Ss Обслуживание
+.Bl -tag -width Ds
+.It Xr zpool-prefetch 8
+Выполняет предварительную выборку определённых типов данных пула.
+.It Xr zpool-scrub 8
+Начинает scrub или возобновляет приостановленный scrub.
+.It Xr zpool-checkpoint 8
+Создаёт контрольную точку текущего состояния
+.Ar pool ,
+которое позже можно восстановить с помощью
+.Nm zpool Cm import Fl -rewind-to-checkpoint .
+.It Xr zpool-trim 8
+Инициирует немедленную TRIM-операцию по требованию для всего свободного пространства в
+пуле.
+Эта операция сообщает базовым устройствам хранения обо всех блоках
+в пуле, которые больше не выделены, и позволяет устройствам с тонким выделением
+освободить это пространство.
+.It Xr zpool-sync 8
+Эта команда принудительно записывает все грязные данные из памяти в основное
+хранилище пула, а не в ZIL.
+Она также обновляет административную информацию, включая отчёты о квотах.
+Без аргументов
+.Nm zpool Cm sync
+синхронизирует все пулы в системе.
+В противном случае синхронизируются только указанные пулы.
+.It Xr zpool-upgrade 8
+Управляет версией формата хранения пулов на диске.
+.It Xr zpool-wait 8
+Ожидает, пока в указанном пуле прекратится вся фоновая активность указанных типов.
+.El
+.
+.Ss Устранение неисправностей
+.Bl -tag -width Ds
+.It Xo
+.Xr zpool-offline 8 Ns / Ns Xr zpool-online 8
+.Xc
+Переводит указанное физическое устройство в автономный режим или в рабочий режим.
+.It Xr zpool-resilver 8
+Запускает resilver.
+Если существующий resilver уже выполняется, он будет перезапущен с
+начала.
+.It Xr zpool-reopen 8
+Повторно открывает все vdev, связанные с пулом.
+.It Xr zpool-clear 8
+Очищает ошибки устройств в пуле.
+.El
+.
+.Ss Импорт и экспорт
+.Bl -tag -width Ds
+.It Xr zpool-import 8
+Делает диски, содержащие пулы хранения ZFS, доступными для использования в системе.
+.It Xr zpool-export 8
+Экспортирует указанные пулы из системы.
+.It Xr zpool-reguid 8
+Генерирует новый уникальный идентификатор для пула.
+.El
+.
+.Sh СТАТУС ВЫХОДА
+Возвращаются следующие значения выхода:
+.Bl -tag -width Ds
+.It Sy 0
+Успешное завершение.
+.It Sy 1
+Произошла ошибка.
+.It Sy 2
+Указаны неверные параметры командной строки.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Создание пула хранения RAID-Z
+Следующая команда создаёт пул с одним корневым vdev raidz, который
+состоит из шести дисков:
+.Dl # Nm zpool Cm create Ar tank Sy raidz Pa sda sdb sdc sdd sde sdf
+.
+.Ss Пример 2 : Создание зеркального пула хранения
+Следующая команда создаёт пул с двумя зеркалами, где каждое зеркало
+содержит два диска:
+.Dl # Nm zpool Cm create Ar tank Sy mirror Pa sda sdb Sy mirror Pa sdc sdd
+.
+.Ss Пример 3 : Создание пула хранения ZFS с использованием разделов
+Следующая команда создаёт нерезервированный пул с использованием двух разделов диска:
+.Dl # Nm zpool Cm create Ar tank Pa sda1 sdb2
+.
+.Ss Пример 4 : Создание пула хранения ZFS с использованием файлов
+Следующая команда создаёт нерезервированный пул с использованием файлов.
+Хотя это не рекомендуется, пул на основе файлов может быть полезен для экспериментальных
+целей.
+.Dl # Nm zpool Cm create Ar tank Pa /path/to/file/a /path/to/file/b
+.
+.Ss Пример 5 : Преобразование незеркального пула хранения ZFS в зеркальный
+Следующая команда преобразует существующее одиночное устройство
+.Ar sda
+в зеркало, присоединяя к нему второе устройство
+.Ar sdb .
+.Dl # Nm zpool Cm attach Ar tank Pa sda sdb
+.
+.Ss Пример 6 : Добавление зеркала в пул хранения ZFS
+Следующая команда добавляет два зеркальных диска в пул
+.Ar tank ,
+предполагая, что пул уже состоит из двухсторонних зеркал.
+Дополнительное пространство сразу доступно любым наборам данных в пуле.
+.Dl # Nm zpool Cm add Ar tank Sy mirror Pa sda sdb
+.
+.Ss Пример 7 : Перечисление доступных пулов хранения ZFS
+Следующая команда перечисляет все доступные пулы в системе.
+В этом случае пул
+.Ar zion
+находится в состоянии faulted из-за отсутствующего устройства.
+Результаты этой команды похожи на следующие:
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm list
+NAME    SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+rpool  19.9G  8.43G  11.4G         -    33%    42%  1.00x  ONLINE  -
+tank   61.5G  20.0G  41.5G         -    48%    32%  1.00x  ONLINE  -
+zion       -      -      -         -      -      -      -  FAULTED -
+.Ed
+.
+.Ss Пример 8 : Уничтожение пула хранения ZFS
+Следующая команда уничтожает пул
+.Ar tank
+и все содержащиеся в нём наборы данных:
+.Dl # Nm zpool Cm destroy Fl f Ar tank
+.
+.Ss Пример 9 : Экспорт пула хранения ZFS
+Следующая команда экспортирует устройства в пуле
+.Ar tank ,
+чтобы их можно было переместить или позже импортировать:
+.Dl # Nm zpool Cm export Ar tank
+.
+.Ss Пример 10 : Импорт пула хранения ZFS
+Следующая команда показывает доступные пулы, а затем импортирует пул
+.Ar tank
+для использования в системе.
+Результаты этой команды похожи на следующие:
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm import
+  pool: tank
+    id: 15451357997522795478
+ state: ONLINE
+action: The pool can be imported using its name or numeric identifier.
+config:
+
+        tank        ONLINE
+          mirror    ONLINE
+            sda     ONLINE
+            sdb     ONLINE
+
+.No # Nm zpool Cm import Ar tank
+.Ed
+.
+.Ss Пример 11 : Обновление всех пулов хранения ZFS до текущей версии
+Следующая команда обновляет все пулы хранения ZFS до текущей версии
+программного обеспечения:
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm upgrade Fl a
+This system is currently running ZFS version 2.
+.Ed
+.
+.Ss Пример 12 : Управление горячими резервами
+Следующая команда создаёт новый пул с доступным горячим резервом:
+.Dl # Nm zpool Cm create Ar tank Sy mirror Pa sda sdb Sy spare Pa sdc
+.Pp
+Если один из дисков выйдет из строя, пул перейдёт в состояние degraded.
+Отказавшее устройство можно заменить с помощью следующей команды:
+.Dl # Nm zpool Cm replace Ar tank Pa sda sdd
+.Pp
+После завершения resilver резерв автоматически удаляется и
+становится доступным для использования, если другое устройство выйдет из строя.
+Горячий резерв можно навсегда удалить из пула с помощью следующей
+команды:
+.Dl # Nm zpool Cm remove Ar tank Pa sdc
+.
+.Ss Пример 13 : Создание пула ZFS с зеркальными отдельными журналами намерений
+Следующая команда создаёт пул хранения ZFS, состоящий из двух двухсторонних
+зеркал и зеркальных устройств журнала:
+.Dl # Nm zpool Cm create Ar pool Sy mirror Pa sda sdb Sy mirror Pa sdc sdd Sy log mirror Pa sde sdf
+.
+.Ss Пример 14 : Добавление кэширующих устройств в пул ZFS
+Следующая команда добавляет два диска для использования в качестве кэширующих устройств в пул хранения
+ZFS:
+.Dl # Nm zpool Cm add Ar pool Sy cache Pa sdc sdd
+.Pp
+После добавления кэширующие устройства постепенно заполняются содержимым из основной памяти.
+В зависимости от размера ваших кэширующих устройств их заполнение может занять более часа.
+Ёмкость и чтение можно отслеживать с помощью подкоманды
+.Cm iostat
+следующим образом:
+.Dl # Nm zpool Cm iostat Fl v Ar pool 5
+.
+.Ss Пример 15 : Удаление зеркального устройства верхнего уровня (журнала или данных)
+Следующие команды удаляют зеркальное устройство журнала
+.Sy mirror-2
+и зеркальное устройство данных верхнего уровня
+.Sy mirror-1 .
+.Pp
+Для данной конфигурации:
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+ scrub: none requested
+config:
+
+         NAME        STATE     READ WRITE CKSUM
+         tank        ONLINE       0     0     0
+           mirror-0  ONLINE       0     0     0
+             sda     ONLINE       0     0     0
+             sdb     ONLINE       0     0     0
+           mirror-1  ONLINE       0     0     0
+             sdc     ONLINE       0     0     0
+             sdd     ONLINE       0     0     0
+         logs
+           mirror-2  ONLINE       0     0     0
+             sde     ONLINE       0     0     0
+             sdf     ONLINE       0     0     0
+.Ed
+.Pp
+Команда для удаления зеркального журнала
+.Ar mirror-2 No is :
+.Dl # Nm zpool Cm remove Ar tank mirror-2
+.Pp
+На этом этапе устройство журнала больше не существует
+(обе стороны зеркала удалены):
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        tank        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sda     ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+          mirror-1  ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+            sdd     ONLINE       0     0     0
+.Ed
+.Pp
+Команда для удаления зеркальных данных
+.Ar mirror-1 No is :
+.Dl # Nm zpool Cm remove Ar tank mirror-1
+.Pp
+После того как
+.Ar mirror-1 No
+будет эвакуирован, пул остаётся избыточным, но
+общий объём пространства уменьшается:
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        tank        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sda     ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+.Ed
+.
+.Ss Пример 16 : Отображение расширенного пространства на устройстве
+Следующая команда показывает подробную информацию для пула
+.Ar data .
+Этот пул состоит из одного vdev raidz, в котором одно из его устройств
+увеличило свою ёмкость на 10 GiB.
+В этом примере пул не сможет использовать эту дополнительную ёмкость, пока
+все устройства в vdev raidz не будут расширены.
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm list Fl v Ar data
+NAME         SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+data        23.9G  14.6G  9.30G         -    48%    61%  1.00x  ONLINE  -
+  raidz1    23.9G  14.6G  9.30G         -    48%
+    sda         -      -      -         -      -
+    sdb         -      -      -       10G      -
+    sdc         -      -      -         -      -
+.Ed
+.
+.Ss Пример 17 : Добавление столбцов вывода
+Дополнительные столбцы можно добавить в вывод
+.Nm zpool Cm status No и Nm zpool Cm iostat No с помощью Fl c .
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm status Fl c Pa vendor , Ns Pa model , Ns Pa size
+   NAME     STATE  READ WRITE CKSUM vendor  model        size
+   tank     ONLINE 0    0     0
+   mirror-0 ONLINE 0    0     0
+   U1       ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U10      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U11      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U12      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U13      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U14      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+
+.No # Nm zpool Cm iostat Fl vc Pa size
+              capacity     operations     bandwidth
+pool        alloc   free   read  write   read  write  size
+----------  -----  -----  -----  -----  -----  -----  ----
+rpool       14.6G  54.9G      4     55   250K  2.69M
+  sda1      14.6G  54.9G      4     55   250K  2.69M   70G
+----------  -----  -----  -----  -----  -----  -----  ----
+.Ed
+.
+.Sh ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+.Bl -tag -width Ds
+.It Sy ZFS_ABORT
+Заставляет
+.Nm
+сбрасывать дамп памяти при завершении для запуска
+.Sy ::findleaks .
+.It Sy ZFS_COLOR
+Использовать ANSI-цвета в выводе
+.Nm zpool Cm status
+и
+.Nm zpool Cm iostat .
+.It Sy ZPOOL_AUTO_POWER_ON_SLOT
+Автоматически пытаться включить питание слота корпуса дисков для диска при
+выполнении команд
+.Nm zpool Cm online
+или
+.Nm zpool Cm clear .
+Это имеет тот же эффект, что и передача параметра
+.Fl -power
+этим командам.
+.It Sy ZPOOL_POWER_ON_SLOT_TIMEOUT_MS
+Максимальное время в миллисекундах для ожидания возврата правильного значения sysfs питания слота
+после его записи.
+Корпусу может потребоваться некоторое время, чтобы отключить питание слота и вернуть значение.
+По умолчанию 30 секунд (30000 мс), если не задано.
+.It Sy ZPOOL_IMPORT_PATH
+Путь поиска устройств или файлов для использования с пулом.
+Это разделённый двоеточиями список каталогов, в которых
+.Nm
+ищет узлы устройств и файлы.
+Аналогично параметру
+.Fl d
+в
+.Nm zpool import .
+.It Sy ZPOOL_IMPORT_UDEV_TIMEOUT_MS
+Максимальное время в миллисекундах, которое
+.Nm zpool import
+будет ожидать доступности ожидаемого устройства.
+.It Sy ZPOOL_STATUS_NON_NATIVE_ASHIFT_IGNORE
+Если задано, подавляет предупреждение о неродном ashift vdev в
+.Nm zpool Cm status .
+Значение не используется; важно только наличие или отсутствие переменной.
+.It Sy ZPOOL_VDEV_NAME_GUID
+Заставляет подкоманды
+.Nm
+по умолчанию выводить GUID vdev.
+Это поведение идентично параметру командной строки
+.Nm zpool Cm status Fl g .
+.It Sy ZPOOL_VDEV_NAME_FOLLOW_LINKS
+Заставляет подкоманды
+.Nm
+по умолчанию следовать по ссылкам для имён vdev.
+Это поведение идентично параметру командной строки
+.Nm zpool Cm status Fl L .
+.It Sy ZPOOL_VDEV_NAME_PATH
+Заставляет подкоманды
+.Nm
+по умолчанию выводить полные имена путей vdev.
+Это поведение идентично параметру командной строки
+.Nm zpool Cm status Fl P .
+.It Sy ZFS_VDEV_DEVID_OPT_OUT
+Более старые реализации OpenZFS имели проблемы при попытке отобразить имена
+vdev конфигурации пула, если в конфигурации пула присутствует значение NVP
+.Sy devid .
+.Pp
+Например, пул, созданный на платформе illumos, имел бы
+значение
+.Sy devid
+в конфигурации, и
+.Nm zpool Cm status
+завершался бы с ошибкой при выводе конфигурации.
+Это также было бы верно для будущих пулов на основе Linux.
+.Pp
+Пул можно очистить от любых значений
+.Sy devid
+при импорте или предотвратить их добавление при
+.Nm zpool Cm create
+или
+.Nm zpool Cm add
+, задав
+.Sy ZFS_VDEV_DEVID_OPT_OUT .
+.Pp
+.It Sy ZPOOL_SCRIPTS_AS_ROOT
+Разрешить привилегированному пользователю запускать
+.Nm zpool Cm status Ns / Ns Cm iostat Fl c .
+Обычно только непривилегированным пользователям разрешено запускать
+.Fl c .
+.It Sy ZPOOL_SCRIPTS_PATH
+Путь поиска скриптов при запуске
+.Nm zpool Cm status Ns / Ns Cm iostat Fl c .
+Это разделённый двоеточиями список каталогов, который переопределяет пути поиска
+по умолчанию
+.Pa ~/.zpool.d
+и
+.Pa /etc/zfs/zpool.d .
+.It Sy ZPOOL_SCRIPTS_ENABLED
+Разрешить пользователю запускать
+.Nm zpool Cm status Ns / Ns Cm iostat Fl c .
+Если
+.Sy ZPOOL_SCRIPTS_ENABLED
+не задана, предполагается, что пользователю разрешено запускать
+.Nm zpool Cm status Ns / Ns Cm iostat Fl c .
+.It Sy ZFS_MODULE_TIMEOUT
+Время в секундах для ожидания появления
+.Pa /dev/zfs .
+По умолчанию
+.Sy 10 ,
+максимум
+.Sy 600 Pq 10 минут .
+Если
+.Pf < Sy 0 ,
+ждать бесконечно; если
+.Sy 0 ,
+не ждать.
+.El
+.
+.Sh СТАБИЛЬНОСТЬ ИНТЕРФЕЙСА
+.Sy Развивающийся
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs 4 ,
+.Xr zpool-features 7 ,
+.Xr zpoolconcepts 7 ,
+.Xr zpoolprops 7 ,
+.Xr zed 8 ,
+.Xr zfs 8 ,
+.Xr zpool-add 8 ,
+.Xr zpool-attach 8 ,
+.Xr zpool-checkpoint 8 ,
+.Xr zpool-clear 8 ,
+.Xr zpool-create 8 ,
+.Xr zpool-ddtprune 8 ,
+.Xr zpool-destroy 8 ,
+.Xr zpool-detach 8 ,
+.Xr zpool-events 8 ,
+.Xr zpool-export 8 ,
+.Xr zpool-get 8 ,
+.Xr zpool-history 8 ,
+.Xr zpool-import 8 ,
+.Xr zpool-initialize 8 ,
+.Xr zpool-iostat 8 ,
+.Xr zpool-labelclear 8 ,
+.Xr zpool-list 8 ,
+.Xr zpool-offline 8 ,
+.Xr zpool-online 8 ,
+.Xr zpool-prefetch 8 ,
+.Xr zpool-reguid 8 ,
+.Xr zpool-remove 8 ,
+.Xr zpool-reopen 8 ,
+.Xr zpool-replace 8 ,
+.Xr zpool-resilver 8 ,
+.Xr zpool-scrub 8 ,
+.Xr zpool-set 8 ,
+.Xr zpool-split 8 ,
+.Xr zpool-status 8 ,
+.Xr zpool-sync 8 ,
+.Xr zpool-trim 8 ,
+.Xr zpool-upgrade 8 ,
+.Xr zpool-wait 8

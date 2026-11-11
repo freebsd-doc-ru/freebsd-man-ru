@@ -1,0 +1,227 @@
+.\" Copyright (c) 1999 Daniel C. Sobral
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/loader.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 77c00b031a6f4127e0b0a5f4b9f4129bfe1780411a4cb1ac9f1a08e1bb3bad30
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 13, 2013
+.Dt LOADER.4TH 8
+.Os
+.Sh ИМЯ
+.Nm loader.4th
+.Nd инструменты обработки loader.conf
+.Sh ОПИСАНИЕ
+Файл с именем
+.Nm
+представляет собой набор команд, предназначенных для работы с файлами
+.Xr loader.conf 5 .
+Стандартный
+.Pa /boot/loader.rc
+включает
+.Nm
+и использует одну из его команд для автоматического чтения и обработки
+стандартных файлов
+.Xr loader.conf 5 .
+Существуют другие команды, помогающие пользователю задать альтернативные
+конфигурации.
+.Pp
+Сами по себе команды
+.Nm
+недостаточны для большинства случаев использования.
+Обратитесь к
+примерам ниже для наиболее распространённых ситуаций и к
+.Xr loader 8
+для дополнительных команд.
+.Pp
+Перед использованием любой команды из
+.Nm
+необходимо включить его с помощью команды:
+.Pp
+.Dl include loader.4th
+.Pp
+Эта строка присутствует в стандартном файле
+.Pa /boot/loader.rc ,
+поэтому в обычной настройке она не нужна (и не должна повторяться).
+.Pp
+Предоставляемые им команды:
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic boot
+.It Ic boot Ar имя_ядра Op Cm ...
+.It Ic boot Ar каталог Op Cm ...
+.It Ic boot Fl flag Cm ...
+Загрузка в соответствии с прочитанными файлами
+.Xr loader.conf 5 .
+.Pp
+В зависимости от переданных аргументов она может переопределить флаги загрузки и
+либо имя ядра, либо путь поиска ядра и модулей.
+.Pp
+.It Ic boot-conf
+.It Ic boot-conf Ar имя_ядра Op Cm ...
+.It Ic boot-conf Ar каталог Op Cm ...
+.It Ic boot-conf Fl flag Cm ...
+Работает как описанная выше
+.Ic boot ,
+но вместо немедленной загрузки использует
+.Ic autoboot ,
+поэтому её можно остановить.
+.Pp
+.It Ic start
+Читает
+.Pa /boot/defaults/loader.conf ,
+все другие файлы
+.Xr loader.conf 5 ,
+указанные в нём, затем загружает нужное ядро и модули
+.Pq если они ещё не загружены .
+После этого можно использовать команды
+.Ic boot
+или
+.Ic autoboot
+либо просто выйти (при условии, что
+.Va autoboot_delay
+не установлена в NO), чтобы загрузить систему.
+.Ic start
+— это команда, используемая в стандартном файле
+.Pa /boot/loader.rc
+.Pq см. Xr loader 8 .
+.Pp
+.It Ic initialize
+Инициализирует библиотеку поддержки, чтобы команды можно было использовать без предварительного выполнения
+.Ic start .
+Как и
+.Ic start ,
+она читает
+.Pa /boot/defaults/loader.conf
+и все другие файлы
+.Xr loader.conf 5 ,
+указанные в нём
+.Pq но не загружает ядро или модули .
+Возвращает флаг в стеке, указывающий,
+были ли успешно загружены какие-либо файлы конфигурации.
+.Pp
+.It Ic read-conf Ar имя_файла
+Читает и обрабатывает файл
+.Xr loader.conf 5 .
+Не переходит к загрузке.
+.Pp
+.It Ic enable-module Ar модуль
+Включает загрузку
+.Ar модуль .
+.Pp
+.It Ic disable-module Ar модуль
+Отключает загрузку
+.Ar модуль .
+.Pp
+.It Ic toggle-module Ar модуль
+Переключает загрузку
+.Ar модуль
+между включённым и выключенным состояниями.
+.Pp
+.It Ic show-module Ar модуль
+Показывает информацию, собранную в файлах
+.Xr loader.conf 5 ,
+о модуле
+.Ar модуль .
+.Pp
+.It Ic retry
+Используется внутри файлов
+.Xr loader.conf 5
+для указания действия после неудачной загрузки модуля.
+.Pp
+.It Ic ignore
+Используется внутри файлов
+.Xr loader.conf 5
+для указания действия после неудачной загрузки модуля.
+.It Ic try-include Ar файл Op Ar
+Обрабатывает файлы сценариев, если они существуют.
+Каждый файл, в свою очередь, полностью считывается в память,
+а затем каждая его строка передаётся интерпретатору командной строки.
+Если интерпретатор возвращает какую-либо ошибку, команда try-include
+немедленно прерывается, не читая другие файлы, и
+молча возвращает управление без ошибки.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/loader.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/loader.4th
+.Nm
+сам.
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Xr loader 8 .
+.It Pa /boot/defaults/loader.conf
+Файл, загружаемый командой
+.Ic start .
+.El
+.Sh ПРИМЕРЫ
+Стандартный
+.Pa /boot/loader.rc :
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/loader.4th
+start
+.Ed
+.Pp
+Загрузить другое ядро со стандартной конфигурацией:
+.Pp
+.Bd -literal -offset indent -compact
+unload
+boot-conf
+.Ed
+.Pp
+Прочитать дополнительный файл конфигурации и затем перейти к загрузке:
+.Pp
+.Bd -literal -offset indent -compact
+unload
+read-conf /boot/special.conf
+boot-conf
+.Ed
+.Pp
+Отключить загрузку модуля экранной заставки и растрового изображения, а затем
+перейти к загрузке:
+.Pp
+.Bd -literal -offset indent -compact
+unload
+disable-module splash_bmp
+disable-module bitmap
+boot-conf
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 3.2 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An Daniel C. Sobral Aq Mt dcs@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Британский шпионский сериал.

@@ -1,0 +1,110 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-offline.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 b0e864f32ed6c563af9d57e555a84156bc6ace93acf8a995cb98f59dda68f258
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 21, 2023
+.Dt ZPOOL-OFFLINE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-offline
+.Nd переводит физические устройства в автономный режим в пуле хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm offline
+.Op Fl Sy -power Ns | Ns Op Fl Sy ft
+.Ar пул
+.Ar устройство Ns …
+.Nm zpool
+.Cm online
+.Op Fl Sy -power
+.Op Fl Sy e
+.Ar пул
+.Ar устройство Ns …
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zpool
+.Cm offline
+.Op Fl Sy -power Ns | Ns Op Fl Sy ft
+.Ar пул
+.Ar устройство Ns …
+.Xc
+Переводит указанное физическое устройство в автономный режим.
+Пока
+.Ar устройство
+находится в автономном режиме, попытки чтения или записи на устройство не предпринимаются.
+Эта команда не применима к резервным устройствам.
+.Bl -tag -width Ds
+.It Fl -power
+Выключает питание слота устройства в корпусе хранения.
+В настоящее время этот флаг работает только в Linux.
+.It Fl f
+Принудительно переводит в состояние сбоя.
+Вместо перевода диска в автономный режим переводит его в состояние сбоя.
+Сбой сохраняется при импортах, если флаг
+.Fl t
+не был указан.
+.It Fl t
+Временно.
+После перезагрузки указанное физическое устройство возвращается в предыдущее состояние.
+.El
+.It Xo
+.Nm zpool
+.Cm online
+.Op Fl Sy -power
+.Op Fl Sy e
+.Ar пул
+.Ar устройство Ns …
+.Xc
+Переводит указанное физическое устройство в рабочий режим.
+Эта команда не применима к резервным устройствам.
+.Bl -tag -width Ds
+.It Fl -power
+Включает питание слота устройства в корпусе хранения и ожидает появления устройства, прежде чем попытаться перевести его в рабочий режим.
+Кроме того, можно задать переменную окружения
+.Sy ZPOOL_AUTO_POWER_ON_SLOT
+для постоянного включения такого поведения.
+В настоящее время этот флаг работает только в Linux.
+.It Fl e
+Расширяет устройство, чтобы использовать все доступное пространство.
+Если устройство входит в зеркало или raidz, то все устройства должны быть расширены, прежде чем новое пространство станет доступно пулу.
+.El
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-detach 8 ,
+.Xr zpool-remove 8 ,
+.Xr zpool-reopen 8 ,
+.Xr zpool-resilver 8

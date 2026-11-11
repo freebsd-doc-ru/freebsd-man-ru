@@ -1,0 +1,142 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2003 Giorgos Keramidas
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/gstat/gstat.8
+.\" FRDP githash 0430faacb61d83ea6eaf3100b44e95de2b5f83ff
+.\" FRDP hash256 e5a8dca55a41af8e63d2f01338f0f4d81262d575c93834d28c2c375cf81752e5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 1, 2025
+.Dt GSTAT 8
+.Os
+.Sh ИМЯ
+.Nm gstat
+.Nd выводить статистику о дисках GEOM
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abBcCdops
+.Op Fl f Ar фильтр
+.Op Fl I Ar интервал
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для мониторинга операций ввода-вывода
+.Xr geom 4
+устройств.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Отображать только провайдеры, занятые не менее чем на 0,1%.
+.It Fl b
+Пакетный режим.
+Собрать числовые данные, вывести и выйти.
+Используется по умолчанию, если stdout не является tty.
+.It Fl B
+Бесконечный пакетный режим.
+То же, что и пакетный режим, но не завершает работу после сбора
+первого набора данных.
+.It Fl c
+Включить отображение также
+.Xr geom 4
+потребителей.
+По умолчанию статистика показывается только для
+.Xr geom 4
+производителей.
+.It Fl C
+Режим вывода CSV.
+Подразумевает бесконечный пакетный режим, но вывод представляет собой
+значения, разделённые запятыми, с временными метками в формате, подобном ISO 8601.
+.It Fl d
+Включить отображение статистики для операций удаления
+.Pq Dv BIO_DELETE
+.
+.It Fl f Ar фильтр
+Регулярное выражение, которое можно использовать, чтобы показывать статистику только для некоторых
+устройств.
+Будут отображаться только устройства, имена которых соответствуют
+.Ar фильтр
+.
+Формат регулярного выражения описан в
+.Xr re_format 7 .
+.It Fl I Ar интервал
+Обновлять вывод
+.Nm
+с интервалом
+.Ar интервал
+микросекунд.
+Добавление суффикса
+.Cm s , ms ,
+или
+.Cm us
+(по умолчанию) указывает, что интервал обновления задан в
+секундах, миллисекундах или микросекундах соответственно.
+.It Fl o
+Включить отображение статистики для других операций
+.Pq Dv BIO_FLUSH .
+.It Fl p
+Отображать только физические провайдеры (с рангом 1).
+.It Fl s
+Включить статистику размеров блоков.
+.El
+.Sh ИНТЕРАКТИВНЫЕ КОМАНДЫ
+Эти команды распознаются в настоящее время, если
+.Nm
+не работает в пакетном режиме:
+.Bl -tag -width indent
+.It Ic <
+Уменьшить интервал обновления вдвое.
+.It Ic >
+Увеличить интервал обновления вдвое.
+.It Ic c
+Переключить отображение
+.Xr geom 4
+потребителей.
+.It Ic f
+Показывать только устройства, имена которых соответствуют фильтру регулярного выражения
+(запрашивается фильтр).
+.It Ic F
+Удалить фильтр устройств.
+.It Ic q
+Выйти из
+.Nm .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы отфильтровать вывод только для физических дисков с именами от ada0 до ada4:
+.Dl # gstat -f ada[0-4]$
+.Sh СМ. ТАКЖЕ
+.Xr systat 1 ,
+.Xr geom 4 ,
+.Xr iostat 8 ,
+.Xr vmstat 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.0 .
