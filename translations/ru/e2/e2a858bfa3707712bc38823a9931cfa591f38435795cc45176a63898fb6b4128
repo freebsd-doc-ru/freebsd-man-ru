@@ -1,0 +1,310 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)environ.7	8.3 (Berkeley) 4/19/94
+.\"
+.\" FRDP path share/man/man7/environ.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 e2a858bfa3707712bc38823a9931cfa591f38435795cc45176a63898fb6b4128
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 5, 2020
+.Dt ENVIRON 7
+.Os
+.Sh ИМЯ
+.Nm environ
+.Nd окружение пользователя
+.Sh СИНТАКСИС
+.Ar extern char **environ ;
+.Sh ОПИСАНИЕ
+Массив строк, называемый
+.Ar окружением ,
+становится доступен каждому процессу посредством
+.Xr execve 2
+при запуске процесса.
+По соглашению эти строки имеют вид
+.Va name Ns No = Ns Ar value
+и называются
+.Dq переменными окружения .
+Процесс может запрашивать, обновлять и удалять эти строки с помощью функций
+.Xr getenv 3 ,
+.Xr setenv 3
+и
+.Xr unsetenv 3
+соответственно.
+Оболочки также предоставляют команды для работы с окружением;
+они описаны в соответствующих страницах руководства оболочек.
+.Pp
+Ниже приведён список переменных окружения, обычно встречающихся в системе
+.Ux .
+Он включает только те переменные, которые пользователь может ожидать увидеть
+в повседневной работе с системой, и далеко не полон.
+Переменные окружения, специфичные для конкретной программы или библиотечной
+функции, описаны в разделе
+.Sx ОКРУЖЕНИЕ
+соответствующей страницы руководства.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width LD_LIBRARY_PATH
+.It Ev BLOCKSIZE
+Размер блоков, используемый несколькими командами, связанными с дисками,
+в частности
+.Xr df 1 ,
+.Xr du 1
+и
+.Xr ls 1 .
+.Ev BLOCKSIZE
+может быть задан в байтах путём указания числа,
+в килобайтах — путём указания числа, за которым следует
+.Ql K
+или
+.Ql k ,
+в мегабайтах — путём указания числа, за которым следует
+.Ql M
+или
+.Ql m ,
+и в гигабайтах — путём указания числа, за которым следует
+.Ql G
+или
+.Ql g .
+Размеры меньше 512 байт или больше гигабайта игнорируются.
+Эта переменная обрабатывается функцией
+.Xr getbsize 3 .
+.It Ev COLUMNS
+Предпочитаемая пользователем ширина терминала в столбцах.
+Такие утилиты, как
+.Xr ls 1
+и
+.Xr who 1 ,
+используют её для форматирования вывода по столбцам.
+Если переменная не установлена или пуста, утилиты используют вызов
+.Xr ioctl 2 ,
+чтобы запросить у драйвера терминала ширину.
+.It Ev EDITOR
+Имя редактора по умолчанию.
+.It Ev EXINIT
+Начальный список команд, считываемый
+.Xr ex 1
+и
+.Xr vi 1 .
+.It Ev HOME
+Домашний каталог пользователя, устанавливаемый
+.Xr login 1
+из файла паролей
+.Xr passwd 5 .
+.It Ev LANG
+Эта переменная настраивает все программы, использующие
+.Xr setlocale 3 ,
+на использование указанной локали, если не установлены переменные
+.Ev LC_* .
+.It Ev LC_ALL
+Переопределяет значения
+.Ev LC_COLLATE ,
+.Ev LC_CTYPE ,
+.Ev LC_MESSAGES ,
+.Ev LC_MONETARY ,
+.Ev LC_NUMERIC ,
+.Ev LC_TIME
+и
+.Ev LANG .
+.It Ev LC_COLLATE
+Локаль, используемая для упорядочения строк.
+.It Ev LC_CTYPE
+Локаль, используемая для классификации символов
+(буква, пробел, цифра и т. п.) и для интерпретации последовательностей
+байтов как многобайтовых символов.
+.It Ev LC_MESSAGES
+Локаль, используемая для диагностических сообщений.
+.It Ev LC_MONETARY
+Локаль, используемая для интерпретации денежных входных данных
+и форматирования вывода.
+.It Ev LC_NUMERIC
+Локаль, используемая для интерпретации числовых входных данных и
+форматирования вывода.
+.It Ev LC_TIME
+Локаль, используемая для интерпретации вводимых дат и
+форматирования вывода.
+.It Ev MAIL
+Расположение почтового ящика пользователя вместо заданного по умолчанию
+в /var/mail; используется
+.Xr mail 1 ,
+.Xr sh 1
+и многими другими почтовыми клиентами.
+.It Ev MANPATH
+Последовательность каталогов, разделённых двоеточиями, в которых
+.Xr man 1
+ищет страницы руководства.
+.It Ev NLSPATH
+Список каталогов для поиска каталога сообщений, на который ссылается
+.Ev LC_MESSAGES .
+См.
+.Xr catopen 3 .
+.It Ev PAGER
+Программа постраничного вывода по умолчанию.
+Программа, указанная этой переменной, используется
+.Xr mail 1 ,
+.Xr man 1 ,
+.Xr ftp 1
+и т. д. для отображения информации, длина которой превышает текущий экран.
+.It Ev PATH
+Последовательность каталогов, разделённых двоеточиями, в которых
+.Xr csh 1 ,
+.Xr sh 1 ,
+.Xr system 3 ,
+.Xr execvp 3
+и т. д. ищут исполняемый файл.
+.Ev PATH
+изначально устанавливается в ``/usr/bin:/bin'' командой
+.Xr login 1 .
+.It Ev POSIXLY_CORRECT
+Если эта переменная окружения установлена в любое значение, она изменяет
+поведение некоторых команд так, чтобы они (в основном) выполнялись строго
+в соответствии с POSIX.
+.It Ev PRINTER
+Имя принтера по умолчанию, используемого
+.Xr lpr 1 ,
+.Xr lpq 1
+и
+.Xr lprm 1 .
+.It Ev PWD
+Путь к текущему каталогу.
+.It Ev SHELL
+Полный путь к регистрационной командной оболочке пользователя.
+.It Ev TERM
+Тип терминала, для которого подготавливается вывод.
+Эта информация используется командами, такими как
+.Xr nroff 1 Pq Pa ports/textproc/groff
+или
+.Xr plot 1 ,
+которые могут использовать специальные возможности терминала.
+См.
+.Pa /usr/share/misc/termcap
+.Pq Xr termcap 5
+для списка типов терминалов.
+.It Ev TERMCAP
+Строка, описывающая терминал в
+.Ev TERM ,
+или, если она начинается с '/', имя файла termcap.
+См.
+.Ev TERMPATH
+ниже и
+.Xr termcap 5 .
+.It Ev TERMPATH
+Последовательность путей к файлам termcap, разделённых двоеточиями или
+пробелами, в которых описания терминалов ищутся в указанном порядке.
+Отсутствие
+.Ev TERMPATH
+эквивалентно
+.Ev TERMPATH
+со значением
+.Pa $HOME/.termcap:/etc/termcap .
+.Ev TERMPATH
+игнорируется, если
+.Ev TERMCAP
+содержит полный путь.
+.It Ev TMPDIR
+Каталог для хранения временных файлов.
+Большинство приложений используют
+.Pa /tmp
+или
+.Pa /var/tmp .
+Установка этой переменной заставит их использовать другой каталог.
+.It Ev TZ
+Часовой пояс, используемый при отображении дат.
+Обычный формат — путь относительно
+.Pa /usr/share/zoneinfo .
+Например, команда
+.Pp
+.Dl env TZ=America/Los_Angeles date
+.Pp
+отображает текущее время в Калифорнии.
+См.
+.Xr tzset 3
+для получения дополнительной информации.
+.It Ev USER
+Имя пользователя для входа.
+Переносимым приложениям рекомендуется использовать вместо этого
+.Ev LOGNAME .
+.El
+.Pp
+Дополнительные имена можно поместить в окружение командой
+.Ic export
+и аргументами
+.Ar name=value
+в
+.Xr sh 1 ,
+или командой
+.Ic setenv ,
+если вы используете
+.Xr csh 1 .
+Неразумно изменять некоторые переменные
+.Xr sh 1 ,
+которые часто экспортируются файлами
+.Pa .profile ,
+такие как
+.Ev MAIL ,
+.Ev PS1 ,
+.Ev PS2
+и
+.Ev IFS ,
+если вы не знаете, что делаете.
+.Pp
+Текущие переменные окружения можно вывести с помощью
+.Xr env 1 ,
+.Xr set 1
+или
+.Xr printenv 1
+в
+.Xr sh 1
+и
+.Xr env 1 ,
+.Xr printenv 1
+или встроенной команды
+.Cm printenv
+в
+.Xr csh 1 .
+.Sh СМ. ТАКЖЕ
+.Xr cd 1 ,
+.Xr csh 1 ,
+.Xr env 1 ,
+.Xr ex 1 ,
+.Xr login 1 ,
+.Xr printenv 1 ,
+.Xr sh 1 ,
+.Xr execve 2 ,
+.Xr execle 3 ,
+.Xr getbsize 3 ,
+.Xr getenv 3 ,
+.Xr setenv 3 ,
+.Xr setlocale 3 ,
+.Xr system 3 ,
+.Xr termcap 3 ,
+.Xr termcap 5
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+появилась в
+.At v7 .

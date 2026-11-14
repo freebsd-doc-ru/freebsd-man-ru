@@ -1,0 +1,235 @@
+.\" Licensed under the OpenIB.org BSD license (FreeBSD Variant) - See COPYING.md
+.\" FRDP path contrib/ofed/librdmacm/man/rdma_cm.7
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 6a286633b29a4c6ab8c8599e446281c143b3c525b694069cee4a38da7fd183cd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.TH "RDMA_CM" 7 "2010-07-19" "librdmacm" "Руководство программиста librdmacm" librdmacm
+.SH НАЗВАНИЕ
+rdma_cm \- менеджер связи RDMA.
+.SH СИНТАКСИС
+.B "#include <rdma/rdma_cma.h>"
+.SH "ОПИСАНИЕ"
+Используется для установления связи через транспорты RDMA.
+.SH "ПРИМЕЧАНИЯ"
+RDMA CM — это менеджер связи, используемый для настройки надёжной, соединённой
+и ненадёжной датаграммной передачи данных.  Он предоставляет не зависящий от
+транспорта RDMA интерфейс для установления соединений.  Концепции API
+основаны на сокетах, но адаптированы к семантике на основе очередей пар (QP):
+связь должна осуществляться через конкретное устройство RDMA, а передача данных
+основана на сообщениях.
+.P
+RDMA CM может управлять как частью QP, так и частью управления связью (установка /
+разрыв соединения) API RDMA, или только частью управления связью.
+Он работает совместно с API verbs,
+определённым библиотекой libibverbs.  Библиотека libibverbs предоставляет
+базовые интерфейсы, необходимые для отправки и приёма данных.
+.P
+RDMA CM может работать асинхронно или синхронно.  Режим
+работы контролируется пользователем через параметр канала событий rdma_cm
+в конкретных вызовах.  Если канал событий предоставлен, идентификатор rdma_cm
+будет сообщать свои данные событий (например, результаты подключения) на этом канале.
+Если канал не предоставлен, то все операции rdma_cm для выбранного
+идентификатора rdma_cm будут блокироваться до их завершения.
+.SH "VERBS RDMA"
+rdma_cm поддерживает полный набор verbs, доступных через библиотеку
+libibverbs и интерфейсы.  Однако он также предоставляет функции-обёртки для некоторых
+из наиболее часто используемых функций verbs.  Полный набор абстрагированных
+вызовов verbs:
+.P
+rdma_reg_msgs  - зарегистрировать массив буферов для отправки и приёма
+.P
+rdma_reg_read  - зарегистрировать буфер для операций чтения RDMA
+.P
+rdma_reg_write - зарегистрировать буфер для операций записи RDMA
+.P
+rdma_dereg_mr  - дерегистрировать область памяти
+.P
+rdma_post_recv  - разместить буфер для приёма сообщения
+.P
+rdma_post_send  - разместить буфер для отправки сообщения
+.P
+rdma_post_read  - разместить операцию RDMA для чтения данных в буфер
+.P
+rdma_post_write - разместить операцию RDMA для отправки данных из буфера
+.P
+rdma_post_recvv  - разместить вектор буферов для приёма сообщения
+.P
+rdma_post_sendv  - разместить вектор буферов для отправки сообщения
+.P
+rdma_post_readv  - разместить вектор буферов для приёма RDMA-чтения
+.P
+rdma_post_writev - разместить вектор буферов для отправки RDMA-записи
+.P
+rdma_post_ud_send - разместить буфер для отправки сообщения на UD QP
+.P
+rdma_get_send_comp - получить статус завершения операции отправки или RDMA
+.P
+rdma_get_recv_comp - получить информацию о завершённом приёме
+.SH "РАБОТА КЛИЕНТА"
+В этом разделе приводится общий обзор базовой работы активной,
+или клиентской, стороны связи.  Этот поток предполагает асинхронную работу с
+показанными деталями низкоуровневых вызовов.  Для
+синхронной работы вызовы rdma_create_event_channel, rdma_get_cm_event,
+rdma_ack_cm_event и rdma_destroy_event_channel
+были бы исключены.  Абстрагированные вызовы, такие как rdma_create_ep, инкапсулируют
+несколько из этих вызовов в одном API.
+Пользователи также могут обратиться к примерам приложений для
+образцов кода.  Общий поток соединения был бы таким:
+.IP rdma_getaddrinfo
+получить информацию об адресе назначения
+.IP rdma_create_event_channel
+создать канал для приёма событий
+.IP rdma_create_id
+выделить rdma_cm_id, это концептуально аналогично сокету
+.IP rdma_resolve_addr
+получить локальное устройство RDMA для достижения удалённого адреса
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_ADDR_RESOLVED
+.IP rdma_ack_cm_event
+подтвердить событие
+.IP rdma_create_qp
+выделить QP для связи
+.IP rdma_resolve_route
+определить маршрут к удалённому адресу
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_ROUTE_RESOLVED
+.IP rdma_ack_cm_event
+подтвердить событие
+.IP rdma_connect
+подключиться к удалённому серверу
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_ESTABLISHED
+.IP rdma_ack_cm_event
+подтвердить событие
+.P
+Выполнить передачу данных через соединение
+.IP rdma_disconnect
+разорвать соединение
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_DISCONNECTED
+.IP rdma_ack_cm_event
+подтвердить событие
+.IP rdma_destroy_qp
+уничтожить QP
+.IP rdma_destroy_id
+освободить rdma_cm_id
+.IP rdma_destroy_event_channel
+освободить канал событий
+.P
+Почти идентичный процесс используется для настройки ненадёжной датаграммной (UD)
+связи между узлами.  Однако фактическое соединение между QP не образуется,
+поэтому разрыв соединения не нужен.
+.P
+Хотя этот пример показывает, что клиент инициирует разрыв соединения, любая сторона
+соединения может инициировать разрыв.
+.SH "РАБОТА СЕРВЕРА"
+В этом разделе приводится общий обзор базовой работы пассивной,
+или серверной, стороны связи.  Общий поток соединения был бы таким:
+.IP rdma_create_event_channel
+создать канал для приёма событий
+.IP rdma_create_id
+выделить rdma_cm_id, это концептуально аналогично сокету
+.IP rdma_bind_addr
+установить номер локального порта для прослушивания
+.IP rdma_listen
+начать прослушивание запросов на подключение
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_CONNECT_REQUEST с новым rdma_cm_id
+.IP rdma_create_qp
+выделить QP для связи на новом rdma_cm_id
+.IP rdma_accept
+принять запрос на подключение
+.IP rdma_ack_cm_event
+подтвердить событие
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_ESTABLISHED
+.IP rdma_ack_cm_event
+подтвердить событие
+.P
+Выполнить передачу данных через соединение
+.IP rdma_get_cm_event
+ждать события RDMA_CM_EVENT_DISCONNECTED
+.IP rdma_ack_cm_event
+подтвердить событие
+.IP rdma_disconnect
+разорвать соединение
+.IP rdma_destroy_qp
+уничтожить QP
+.IP rdma_destroy_id
+освободить подключённый rdma_cm_id
+.IP rdma_destroy_id
+освободить прослушивающий rdma_cm_id
+.IP rdma_destroy_event_channel
+освободить канал событий
+.SH "КОДЫ ВОЗВРАТА"
+.IP "=  0"
+успех
+.IP "= -1"
+ошибка — см. errno для подробностей
+.P
+Большинство функций librdmacm возвращают 0 для указания успеха и значение -1
+для указания сбоя.  Если функция работает асинхронно, возвращаемое значение 0
+означает, что операция была успешно запущена.  Операция всё ещё может
+завершиться с ошибкой; пользователи должны проверить статус связанного события.  Если
+возвращаемое значение равно -1, то errno будет содержать дополнительную информацию
+о причине сбоя.
+.P
+Предыдущие версии библиотеки возвращали -errno и не устанавливали errno в некоторых случаях,
+связанных с кодами ENOMEM, ENODEV, ENODATA, EINVAL и EADDRNOTAVAIL. Приложения,
+которые хотят проверить эти коды и иметь совместимость с предыдущими версиями библиотеки,
+должны вручную установить errno в отрицательное значение кода возврата, если оно < -1.
+.SH "СМ. ТАКЖЕ"
+rdma_accept(3),
+rdma_ack_cm_event(3),
+rdma_bind_addr(3),
+rdma_connect(3),
+rdma_create_ep(3),
+rdma_create_event_channel(3),
+rdma_create_id(3),
+rdma_create_qp(3),
+rdma_dereg_mr(3),
+rdma_destroy_ep(3),
+rdma_destroy_event_channel(3),
+rdma_destroy_id(3),
+rdma_destroy_qp(3),
+rdma_disconnect(3),
+rdma_event_str(3),
+rdma_free_devices(3),
+rdma_getaddrinfo(3),
+rdma_get_cm_event(3),
+rdma_get_devices(3),
+rdma_get_dst_port(3),
+rdma_get_local_addr(3),
+rdma_get_peer_addr(3),
+rdma_get_recv_comp(3),
+rdma_get_request(3),
+rdma_get_send_comp(3),
+rdma_get_src_port(3),
+rdma_join_multicast(3),
+rdma_leave_multicast(3),
+rdma_listen(3),
+rdma_migrate_id(3),
+rdma_notify(3),
+rdma_post_read(3)
+rdma_post_readv(3),
+rdma_post_recv(3),
+rdma_post_recvv(3),
+rdma_post_send(3),
+rdma_post_sendv(3),
+rdma_post_ud_send(3),
+rdma_post_write(3),
+rdma_post_writev(3),
+rdma_reg_msgs(3),
+rdma_reg_read(3),
+rdma_reg_write(3),
+rdma_reject(3),
+rdma_resolve_addr(3),
+rdma_resolve_route(3),
+rdma_set_option(3)
+mckey(1),
+rdma_client(1),
+rdma_server(1),
+rping(1),
+ucmatose(1),
+udaddy(1)

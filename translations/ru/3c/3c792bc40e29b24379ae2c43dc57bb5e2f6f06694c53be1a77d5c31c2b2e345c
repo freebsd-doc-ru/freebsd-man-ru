@@ -1,0 +1,492 @@
+.\" Copyright (c) 2016-2017 The FreeBSD Foundation.
+.\"
+.\" This documentation was created by Ed Maste under sponsorship of
+.\" The FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/arch.7
+.\" FRDP githash 64cfafee8dfe938b16f12bd8c7f5584d4321ef95
+.\" FRDP hash256 3c792bc40e29b24379ae2c43dc57bb5e2f6f06694c53be1a77d5c31c2b2e345c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 14, 2025
+.Dt ARCH 7
+.Os
+.Sh ИМЯ
+.Nm arch
+.Nd Детали, зависящие от архитектуры
+.Sh ОПИСАНИЕ
+Различия между архитектурами ЦП и платформами, поддерживаемыми
+.Fx .
+.Ss Введение
+Этот документ представляет собой краткий справочник по ключевым деталям ABI
+портов архитектур
+.Fx .
+Полные сведения см. в документации-приложении по ABI для конкретного процессора.
+.Pp
+Если явно не указано иное, размеры приведены в байтах.
+Детали архитектуры в этом документе относятся к
+.Fx 13.0
+и более поздним версиям, если не указано иное.
+.Pp
+.Fx
+использует плоское адресное пространство.
+Переменные типов
+.Vt unsigned long ,
+.Vt uintptr_t ,
+и
+.Vt size_t
+а также указатели имеют одинаковое представление.
+.Pp
+Чтобы максимально повысить совместимость с будущими механизмами целостности указателей,
+манипуляции с указателями как с целыми числами следует выполнять через
+.Vt uintptr_t
+или
+.Vt intptr_t
+и никакие другие типы.
+В частности,
+.Vt long
+и
+.Vt ptrdiff_t
+следует избегать.
+.Pp
+На некоторых архитектурах, например
+AIM-вариантах
+.Dv powerpc64 ,
+ядро использует отдельное адресное пространство.
+На других архитектурах ядро и процесс пользовательского режима совместно используют
+единое адресное пространство.
+Ядро расположено по самым старшим адресам.
+.Pp
+На каждой архитектуре стек основного потока пользовательского режима начинается около
+самого старшего пользовательского адреса и растёт вниз.
+.Pp
+Поддержка архитектур в
+.Fx
+зависит от выпуска.
+В следующей таблице показаны поддерживаемые в настоящее время архитектуры ЦП вместе с первым
+выпуском
+.Fx
+с поддержкой каждой архитектуры.
+.Bl -column "aarch64" "11.0"
+.It Sy Архитектура Ta Sy Первый выпуск
+.It aarch64     Ta 11.0
+.It amd64       Ta 5.1
+.It armv7       Ta 12.0
+.It powerpc64   Ta 9.0
+.It powerpc64le Ta 13.0
+.It riscv64     Ta 12.0
+.El
+.Pp
+Прекращённые архитектуры показаны в следующей таблице.
+.Bl -column "alpha" "3.2" "6.4"
+.It Sy Архитектура Ta Sy Первый выпуск Ta Sy Последний выпуск
+.It alpha       Ta 3.2   Ta 6.4
+.It arm         Ta 6.0   Ta 12.4
+.It armeb       Ta 8.0   Ta 11.4
+.It armv6       Ta 10.0  Ta 14.x
+.It ia64        Ta 5.0   Ta 10.4
+.It i386        Ta 1.0   Ta 14.x
+.It mips        Ta 8.0   Ta 13.5
+.It mipsel      Ta 9.0   Ta 13.5
+.It mipselhf    Ta 12.0  Ta 13.5
+.It mipshf      Ta 12.0  Ta 13.5
+.It mipsn32     Ta 9.0   Ta 13.5
+.It mips64      Ta 9.0   Ta 13.5
+.It mips64el    Ta 9.0   Ta 13.5
+.It mips64elhf  Ta 12.0  Ta 13.5
+.It mips64hf    Ta 12.0  Ta 13.5
+.It pc98        Ta 2.2   Ta 11.4
+.It powerpc     Ta 6.0   Ta 14.x
+.It powerpcspe  Ta 12.0  Ta 14.x
+.It riscv64sf   Ta 12.0  Ta 13.5
+.It sparc64     Ta 5.0   Ta 12.4
+.El
+.Ss Размеры типов
+Все
+.Fx
+архитектуры используют некоторый вариант ELF (см.
+.Xr elf 5 )
+.Sy Двоичный интерфейс приложений
+(ABI) для процессора машины.
+Все поддерживаемые ABI можно разделить на две группы:
+.Bl -tag -width "LP64"
+.It Dv ILP32
+машинные представления типов
+.Vt int ,
+.Vt long ,
+.Vt void *
+все имеют размер 4 байта.
+.It Dv LP64
+машинное представление типа
+.Vt int
+использует 4 байта,
+тогда как
+.Vt long
+и
+.Vt void *
+— 8 байт.
+.El
+.Pp
+Некоторые машины поддерживают более одного
+.Fx
+ABI.
+Обычно это 64-битные машины, где
+.Dq native
+.Dv LP64
+окружение выполнения сопровождается
+.Dq legacy
+.Dv ILP32
+окружением, которое было историческим 32-битным предшественником 64-битной эволюции.
+Примеры:
+.Bl -column "amd64" "i386"
+.It Sy LP64        Ta Sy Аналог ILP32
+.It Dv amd64       Ta Dv i386
+.It Dv powerpc64   Ta Dv powerpc
+.It Dv aarch64     Ta Dv armv7
+.El
+.Pp
+.Dv aarch64
+будет поддерживать выполнение двоичных файлов
+.Dv armv7
+если ЦП реализует
+.Dv AArch32
+состояние выполнения.
+Двоичные файлы, ориентированные на
+.Dv armv6
+и более ранние, больше не поддерживаются
+.Fx .
+.Pp
+На всех поддерживаемых архитектурах:
+.Bl -column "long long" "sizeof(void*)"
+.It Sy Тип Ta Sy Размер
+.It short Ta 2
+.It int Ta 4
+.It long Ta sizeof(void*)
+.It long long Ta 8
+.It float Ta 4
+.It double Ta 8
+.El
+.Pp
+Целые числа представляются в дополнительном коде.
+Выравнивание целочисленных типов и типов указателей естественное, то есть
+адрес переменной должен быть сравним с нулём по модулю размера типа.
+Большинство ABI ILP32, кроме
+.Dv arm ,
+требуют только 4-байтового выравнивания для 64-битных целых.
+.Pp
+Зависящие от машины размеры типов:
+.Bl -column "powerpc64le" "16" "16" "8"
+.It Sy Архитектура Ta Sy void * Ta Sy long double Ta Sy time_t
+.It aarch64     Ta 8 Ta 16 Ta 8
+.It amd64       Ta 8 Ta 16 Ta 8
+.It armv7       Ta 4 Ta  8 Ta 8
+.It i386        Ta 4 Ta 12 Ta 4
+.It powerpc     Ta 4 Ta  8 Ta 8
+.It powerpcspe  Ta 4 Ta  8 Ta 8
+.It powerpc64   Ta 8 Ta  8 Ta 8
+.It powerpc64le Ta 8 Ta  8 Ta 8
+.It riscv64     Ta 8 Ta 16 Ta 8
+.El
+.Pp
+.Sy time_t
+имеет размер 8 байт на всех поддерживаемых архитектурах, кроме i386.
+.Ss Порядок байтов и знаковость char
+.Bl -column "powerpc64le" "unsigned" "unsigned"
+.It Sy Архитектура Ta Sy Порядок байтов Ta Sy Знаковость char
+.It aarch64     Ta little Ta unsigned
+.It amd64       Ta little Ta   signed
+.It armv7       Ta little Ta unsigned
+.It i386        Ta little Ta   signed
+.It powerpc     Ta big    Ta unsigned
+.It powerpcspe  Ta big    Ta unsigned
+.It powerpc64   Ta big    Ta unsigned
+.It powerpc64le Ta little Ta unsigned
+.It riscv64     Ta little Ta   signed
+.El
+.Ss Размер страницы
+.Bl -column "powerpc64le" "4K, 2M, 1G"
+.It Sy Архитектура Ta Sy Размеры страниц
+.It aarch64     Ta 4K, 64K, 2M, 1G
+.It amd64       Ta 4K, 2M, 1G
+.It armv7       Ta 4K, 1M
+.It i386        Ta 4K, 2M (PAE), 4M
+.It powerpc     Ta 4K
+.It powerpcspe  Ta 4K
+.It powerpc64   Ta 4K
+.It powerpc64le Ta 4K
+.It riscv64     Ta 4K, 2M, 1G
+.El
+.Ss Раскладка адресного пространства пользователя
+.Bl -column "riscv64 (Sv39)" "0x0000004000000000" "256GiB"
+.It Sy Архитектура Ta Sy Максимальный адрес Ta Sy Размер адресного пространства
+.It aarch64        Ta 0x0001000000000000 Ta 256TiB
+.It amd64 (LA48)   Ta 0x0000800000000000 Ta 128TiB
+.It amd64 (LA57)   Ta 0x0100000000000000 Ta 64PiB
+.It armv7          Ta 0xbfc00000         Ta 3GiB
+.It i386           Ta 0xffc00000         Ta 4GiB
+.It powerpc        Ta 0xfffff000         Ta 4GiB
+.It powerpcspe     Ta 0x7ffff000         Ta 2GiB
+.It powerpc64      Ta 0x000fffffc0000000 Ta 4PiB
+.It powerpc64le    Ta 0x000fffffc0000000 Ta 4PiB
+.It riscv64 (Sv39) Ta 0x0000004000000000 Ta 256GiB
+.It riscv64 (Sv48) Ta 0x0000800000000000 Ta 128TiB
+.El
+.Pp
+Раскладку адресного пространства процесса можно запросить через MIB
+.Dv KERN_PROC_VM_LAYOUT
+.Xr sysctl 3 .
+.Pp
+Исторически ЦП amd64 были ограничены 48-битным виртуальным адресным пространством.
+Более новые ЦП поддерживают 5-уровневые таблицы страниц, которые расширяют
+значащие биты адресов до 57 бит (режим LA57).
+Раскладка адресного пространства определяется поддержкой LA57 в ЦП.
+Установка параметра
+.Sy vm.pmap.la57
+в 0 принудительно переводит систему в режим 4-уровневой страничной адресации даже
+на оборудовании, поддерживающем 5-уровневую страничную адресацию.
+В этом режиме все процессы получают 48-битное адресное пространство.
+Параметр
+.Sy vm.pmap.prefer_la48_uva
+определяет, ограничиваются ли процессы, работающие в системе LA57,
+48-битным адресным пространством по умолчанию.
+Некоторые приложения используют неиспользуемые старшие биты в значениях указателей для
+хранения информации и, таким образом, неявно предполагают, что работают в режиме LA48.
+Чтобы не нарушить совместимость, все процессы по умолчанию работают в режиме LA48.
+Утилиту
+.Xr elfctl 1
+можно использовать для запроса режима LA48 или LA57 для конкретных исполняемых файлов.
+Аналогично,
+.Xr proccontrol 1
+можно использовать для настройки раскладки адресного пространства при выполнении процесса.
+.Pp
+Спецификация RISC-V допускает 3-уровневые (Sv39), 4-уровневые (Sv48) и
+5-уровневые (Sv57) таблицы страниц.
+Оборудование обязано реализовывать только Sv39; реализации, поддерживающие
+Sv48, должны также поддерживать Sv39, а реализации, поддерживающие Sv57, должны также
+поддерживать Sv48.
+Параметр
+.Sy vm.pmap.mode
+можно использовать для выбора раскладки.
+.Fx
+в настоящее время поддерживает Sv39 и Sv48 и по умолчанию использует Sv39.
+.Ss Плавающая запятая
+.Bl -column "powerpc64le" "аппаратно" "аппаратно, двойная точность"
+.It Sy Архитектура Ta Sy float, double Ta Sy long double
+.It aarch64     Ta аппаратно Ta программно, четверная точность
+.It amd64       Ta аппаратно Ta аппаратно, 80 бит
+.It armv7       Ta аппаратно Ta аппаратно, двойная точность
+.It i386        Ta аппаратно Ta аппаратно, 80 бит
+.It powerpc     Ta аппаратно Ta аппаратно, двойная точность
+.It powerpcspe  Ta аппаратно Ta аппаратно, двойная точность
+.It powerpc64   Ta аппаратно Ta аппаратно, двойная точность
+.It powerpc64le Ta аппаратно Ta аппаратно, двойная точность
+.It riscv64     Ta аппаратно Ta аппаратно, четверная точность
+.El
+.Ss Цепочка инструментов по умолчанию
+.Fx
+использует
+.Xr clang 1
+в качестве компилятора по умолчанию на всех поддерживаемых архитектурах ЦП,
+.Xr ld.lld 1
+из LLVM в качестве компоновщика по умолчанию и
+двоичные утилиты LLVM, такие как
+.Xr objcopy 1
+и
+.Xr readelf 1 .
+.Ss MACHINE_ARCH, MACHINE_CPUARCH и MACHINE
+.Dv MACHINE_CPUARCH
+следует предпочитать в Makefile, когда проверяется общая
+архитектура.
+.Dv MACHINE_ARCH
+следует предпочитать, когда есть что-то специфичное для конкретного типа
+архитектуры, где есть выбор из многих или может быть выбор из многих.
+Используйте
+.Dv MACHINE
+когда речь идёт о ядре, интерфейсах, зависящих от конкретного типа ядра,
+или подобных вещах, таких как последовательности загрузки.
+.Bl -column "powerpc" "powerpc" "powerpc, powerpcspe, powerpc64, powerpc64le"
+.It Dv MACHINE Ta Dv MACHINE_CPUARCH Ta Dv MACHINE_ARCH
+.It arm64 Ta aarch64 Ta aarch64
+.It amd64 Ta amd64 Ta amd64
+.It arm Ta arm Ta armv7
+.It i386 Ta i386 Ta i386
+.It powerpc Ta powerpc Ta powerpc, powerpcspe, powerpc64, powerpc64le
+.It riscv Ta riscv Ta riscv64
+.El
+.Ss Предопределённые макросы
+Компилятор предоставляет ряд предопределённых макросов.
+Некоторые из них предоставляют архитектурно-зависимые детали и объясняются ниже.
+Другие макросы, включая требуемые стандартом языка, здесь не включены.
+.Pp
+Полный набор предопределённых макросов можно получить с помощью этой команды:
+.Bd -literal -offset indent
+cc -x c -dM -E /dev/null
+.Ed
+.Pp
+Общие макросы размера типов и порядка байтов:
+.Bl -column "__LP64__" "64-битные (8-байтовые) long и указатель, 32-битный (4-байтовый) int"
+.It Sy Макрос Ta Sy Значение
+.It Dv __LP64__ Ta 64-битные (8-байтовые) long и указатель, 32-битный (4-байтовый) int
+.It Dv __ILP32__ Ta 32-битные (4-байтовые) int, long и указатель
+.It Dv BYTE_ORDER Ta Либо Dv BIG_ENDIAN или Dv LITTLE_ENDIAN .
+.Dv PDP11_ENDIAN
+не используется в
+.Fx .
+.El
+.Pp
+Архитектурно-зависимые макросы:
+.Bl -column "powerpc64le" "__powerpc__ , __powerpc64__"
+.It Sy Архитектура Ta Sy Предопределённые макросы
+.It aarch64     Ta Dv __aarch64__
+.It amd64       Ta Dv __amd64__ , Dv __x86_64__
+.It armv7       Ta Dv __arm__ , Dv __ARM_ARCH >= 7
+.It i386        Ta Dv __i386__
+.It powerpc     Ta Dv __powerpc__
+.It powerpcspe  Ta Dv __powerpc__ , Dv __SPE__
+.It powerpc64   Ta Dv __powerpc__ , Dv __powerpc64__
+.It powerpc64le Ta Dv __powerpc__ , Dv __powerpc64__
+.It riscv64     Ta Dv __riscv , Dv __riscv_xlen == 64
+.El
+.Pp
+Компиляторы могут определять дополнительные варианты архитектурно-зависимых макросов.
+Указанные выше макросы предпочтительны для использования в
+.Fx .
+.Ss Важные переменные make 1
+Большинство переменных, которые можно задать извне, определены в странице руководства
+.Xr build 7 .
+Эти переменные иначе не документированы и широко используются
+в системе сборки.
+.Bl -tag -width "MACHINE_CPUARCH"
+.It Dv MACHINE
+Обозначает аппаратную платформу.
+Это совпадает с выводом
+.Xr uname 1
+.Fl m
+для родной платформы.
+Она определяет как интерфейс пользовательского пространства / ядра, так и
+интерфейс загрузчика / ядра.
+Её следует использовать только в этих контекстах.
+Каждая архитектура ЦП может поддерживать несколько аппаратных платформ, для которых
+.Dv MACHINE
+различается.
+Она используется для сбора всех файлов из
+.Xr config 8
+для сборки ядра.
+Она часто совпадает с
+.Dv MACHINE_ARCH
+точно так же, как одна архитектура ЦП может быть реализована многими различными
+аппаратными платформами, а одна аппаратная платформа может поддерживать несколько
+представителей семейства архитектур ЦП, хотя и с разными двоичными файлами.
+Например,
+.Dv MACHINE
+для i386 поддерживала аппаратную платформу IBM-AT, тогда как
+.Dv MACHINE
+для pc98 поддерживала аппаратные платформы PC-9801 и PC-9821
+японской компании NEC.
+Обе эти аппаратные платформы поддерживали только
+.Dv MACHINE_ARCH
+i386, при этом они разделяли общий ABI, за исключением некоторых интерфейсов
+ядра / пользовательского пространства, связанных с различиями нижележащих
+аппаратных платформ в архитектуре шины, перечислении устройств и загрузочном
+интерфейсе.
+Как правило,
+.Dv MACHINE
+следует использовать только в src/sys и src/stand или в программах создания
+образов системы или установщиках.
+.It Dv MACHINE_ARCH
+Обозначает архитектуру процессора.
+Это совпадает с выводом
+.Xr uname 1
+.Fl p
+для родных платформ.
+Она определяет поддерживаемое семейство инструкций ЦП.
+Она также может кодировать вариант порядка байтов многобайтовых целых (endian).
+Она также может кодировать вариант размера целого или указателя.
+Она также может кодировать ревизию ISA.
+Она также может кодировать аппаратный или программный ABI плавающей запятой и его использование.
+Она также может кодировать вариант ABI, когда другие факторы не определяют ABI однозначно.
+Она вместе с
+.Dv MACHINE
+определяет ABI, используемый системой.
+Как правило, простое имя ЦП указывает наиболее распространённый (или, по крайней мере,
+первый) вариант ЦП.
+Именно поэтому powerpc и powerpc64 подразумевают «big endian», а armv7 и aarch64
+подразумевают little endian.
+Если бы мы когда-либо стали поддерживать так называемый ABI x32 (с использованием 32-битных
+указателей в архитектуре amd64), он, скорее всего, кодировался бы как amd64-x32.
+Досадно, что amd64 обозначает 64-битную эволюцию платформы x86
+(это соответствует «первому правилу»), поскольку почти все остальные используют x86_64.
+Порт
+.Fx
+был настолько ранним, что появился до стандартизации названий процессоров после
+выхода Intel на рынок.
+В то время каждая ОС выбирала свои собственные соглашения.
+Обратная совместимость означает, что перейти на согласованное название непросто.
+.It Dv MACHINE_CPUARCH
+Обозначает расположение исходного кода для заданного
+.Dv MACHINE_ARCH .
+Обычно это общий префикс для всех MACHINE_ARCH, которые используют одну и ту же
+реализацию, хотя «riscv» нарушает это правило.
+Хотя amd64 и i386 тесно связаны, MACHINE_CPUARCH для них не x86.
+Исходная база
+.Fx
+поддерживает amd64 и i386 с двумя различными исходными базами, находящимися в
+подкаталогах с именами amd64 и i386 (хотя за кулисами есть некоторое совместное
+использование, которое вписывается в эту схему).
+.It Dv CPUTYPE
+Задаёт вариант
+.Dv MACHINE_ARCH
+для сборки.
+Используется для оптимизации сборки под конкретный ЦП / ядро, на котором
+выполняются двоичные файлы.
+Обычно это не меняет ABI, хотя грань между оптимизацией для конкретных случаев
+может быть тонкой.
+.It Dv TARGET
+Используется для установки
+.Dv MACHINE
+в Makefile верхнего уровня при кросс-сборке.
+Не используется вне этой области.
+Не передаётся остальной части сборки.
+Makefile вне верхнего уровня вообще не должны его использовать (хотя некоторые
+имеют собственную частную копию по историческим причинам).
+.It Dv TARGET_ARCH
+Используется для установки
+.Dv MACHINE_ARCH
+в Makefile верхнего уровня при кросс-сборке.
+Как и
+.Dv TARGET ,
+не используется вне этой области.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr elfctl 1 ,
+.Xr proccontrol 1 ,
+.Xr sysctl 3 ,
+.Xr src.conf 5 ,
+.Xr build 7 ,
+.Xr simd 7
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+появилась в
+.Fx 11.1 .

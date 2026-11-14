@@ -1,0 +1,427 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2025-2026 Mateusz Piotrowski <0mp@FreeBSD.org>
+.\"
+.\" FRDP path share/man/man7/d.7
+.\" FRDP githash d444d82ad831b3ce12cfd4980f3213b508342297
+.\" FRDP hash256 ca51f694caf20cbaa24c26895823c58eac22aff8880af2f7d8e53256c596989c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2026
+.Dt D 7
+.Os
+.Sh ИМЯ
+.Nm D
+.Nd Обзор языка сценариев DTrace
+.Sh СИНТАКСИС
+.Sm off
+.Ar провайдер Cm \&:
+.Ar модуль Cm \&:
+.Ar функция Cm \&:
+.Ar имя
+.Sm on
+.Sm off
+.Oo
+.Oo
+.Cm /
+.Ar предикат
+.Cm /
+.Sm on
+.Oc
+.Cm \&{ Ns Ar действие Ns Cm \&}
+.Oc
+.Sh ОПИСАНИЕ
+.Nm D
+— это язык сценариев
+.Xr dtrace 1 .
+В этом руководстве приведён краткий справочник по языку
+.Nm
+и сценариям.
+.Pp
+Эта страница руководства служит кратким справочником по языку.
+Полный справочник см. в книгах, перечисленных в
+.Sx СМ. ТАКЖЕ .
+.Sh ПЕРЕМЕННЫЕ МАКРОСОВ
+.Bl -column "Имя" "Описание"
+.It Sy Имя Ta Sy Описание
+.It  Va  $1 , $2 , $3 , .\&.\&.  Ta  Аргументы макроса
+.It  Va  $egid                   Ta  Эффективный ID группы .Pq Xr getegid 2
+.It  Va  $euid                   Ta  Эффективный ID пользователя .Pq Xr geteuid 2
+.It  Va  $gid                    Ta  Реальный ID группы .Pq Xr getgid 2
+.It  Va  $pid                    Ta  ID процесса .Pq Xr getpid 2
+.It  Va  $pgid                   Ta  ID группы процессов .Pq Xr getpgrp 2
+.It  Va  $ppid                   Ta  ID родительского процесса .Pq Xr getppid 2
+.It  Va  $sid                    Ta  ID сеанса .Pq Xr getsid 2
+.It  Va  $target                 Ta  Целевой ID процесса, указанного
+с помощью флага
+.Fl p
+или созданного с помощью флага
+.Fl c .
+.It  Va  $uid                    Ta  Реальный ID пользователя .Pq Xr getuid 2
+.El
+.Pp
+Аргументы макроса соответствуют операндам командной строки.
+В зависимости от контекста они раскрываются в целое число, идентификатор или строку.
+Добавление перед аргументом макроса дополнительного знака доллара
+.Pq Ql $
+принудительно вызывает строковое раскрытие.
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+dtrace -n 'syscall::fstatat: /execname == $$1/ {}' -- ls
+.Ed
+использует
+.Va $$1
+вместо
+.Va $1
+для раскрытия в строку, а не в идентификатор глобальной переменной.
+.Sh ОПИСАНИЕ ПРОБЫ
+Описание пробы состоит из четырёх элементов:
+.Sm off
+.D1 Ar провайдер Ns Cm \&: Ns Ar модуль Cm \&: Ar функция Cm \&: Ar имя
+.Sm on
+.Pp
+Точное значение
+.Ar модуль ,
+.Ar функция
+и
+.Ar имя
+зависит от
+.Ar провайдер .
+.Sh ТИПЫ ПЕРЕМЕННЫХ, ОПРЕДЕЛЯЕМЫХ ПОЛЬЗОВАТЕЛЕМ
+.Bl -column "Тип" "Синтаксис"
+.It Sy Тип Ta Sy Синтаксис
+.It global       Ta Va variable_name
+.It aggregate    Ta Sy @ Ns Va variable_name
+.It thread-local Ta Sy self-> Ns Va variable_name
+.It clause-local Ta Sy this-> Ns Va variable_name
+.El
+.Pp
+.Em Советы :
+.Bl -dash -compact
+.It
+Всегда используйте тип переменной с наименьшей областью видимости,
+чтобы минимизировать накладные расходы на обработку.
+.It
+По возможности используйте агрегирующие переменные вместо глобальных.
+Агрегирующие переменные, в отличие от глобальных, безопасны при работе
+на нескольких процессорах.
+.El
+.Sh ВСТРОЕННЫЕ ПЕРЕМЕННЫЕ
+.Ss Аргументы пробы
+.Bl -tag -width args[]
+.It Va args[]
+Массив типизированных аргументов пробы.
+.It Va arg0 , ... , arg9
+Нетипизированные аргументы пробы, представленные как 64-битные целые без знака.
+Таким способом доступны только первые десять аргументов.
+.El
+.Ss Информация о пробе
+.Bl -tag -width probeprov
+.It Va epid
+ID включённой пробы, который однозначно идентифицирует включённую пробу.
+Включённая проба определяется её ID пробы, её предикатами и её действиями.
+.It Va id
+ID пробы, который однозначно идентифицирует пробу, доступную DTrace.
+.It Va probeprov
+.Ar Провайдер
+в описании пробы
+.Sm off
+.Pq Ar провайдер Cm \&: Ar модуль Cm \&: Ar функция Cm \&: Ar имя
+.Sm on .
+.It Va probemod
+.Ar Модуль
+в описании пробы
+.Sm off
+.Pq Ar провайдер Cm \&: Ar модуль Cm \&: Ar функция Cm \&: Ar имя
+.Sm on .
+.It Va probefunc
+.Ar Функция
+в описании пробы
+.Sm off
+.Pq Ar провайдер Cm \&: Ar модуль Cm \&: Ar функция Cm \&: Ar имя
+.Sm on .
+.It Va probename
+.Ar Имя
+в описании пробы
+.Sm off
+.Pq Ar провайдер Cm \&: Ar модуль Cm \&: Ar функция Cm \&: Ar имя
+.Sm on .
+.El
+.Ss Информация о процессе
+.Bl -tag -width execname
+.It Va execargs
+Аргументы процесса.
+Фактически,
+.Ql curthread->td_proc->p_args .
+.It Va execname
+Имя текущего процесса.
+Фактически,
+.Ql curthread->td_proc->p_comm .
+.It Va gid
+ID группы текущего процесса.
+.It Va pid
+ID текущего процесса.
+.It Va ppid
+ID родительского процесса текущего процесса.
+.It Va uid
+ID пользователя текущего процесса.
+.El
+.Ss Информация о потоке
+.Bl -tag -width curlwpsinfo
+.It Va uregs[]
+Сохранённые значения регистров режима пользователя.
+.It Va cpu
+ID текущего процессора.
+.It Va stackdepth
+Глубина кадра стека ядра.
+.It Va ustackdepth
+Пользовательский аналог
+.Va stackdepth .
+.It Va tid
+ID потока.
+В зависимости от контекста это может быть ID потока ядра или потока в пользовательском процессе.
+.It Va errno
+Значение
+.Xr errno 2
+последнего системного вызова, выполненного текущим потоком.
+.It Va curlwpsinfo
+Указатель на представление
+.Vt lwpsinfo_t
+текущего потока.
+Подробности см. в
+.Xr dtrace_proc 4 .
+.It Va curpsinfo
+Указатель на представление
+.Vt psinfo_t
+текущего процесса.
+Подробности см. в
+.Xr dtrace_proc 4 .
+.It Va curthread
+Указатель на структуру потока, которая в данный момент выполняется на CPU.
+Например,
+.Ql curthread->td_name
+возвращает имя потока.
+Заголовочный файл
+.In sys/proc.h
+документирует все члены
+.Vt struct thread .
+.It Va caller
+Адрес инструкции потока ядра на момент выполнения текущей пробы.
+.It Va ucaller
+Пользовательский аналог
+.Va caller .
+.El
+.Ss Метки времени
+.Bl -tag -width walltimestamp
+.It Va timestamp
+Количество наносекунд с момента загрузки.
+Подходит для вычисления относительных разниц прошедшего времени и задержки.
+.It Va vtimestamp
+Количество наносекунд, которое текущий поток провёл на CPU.
+Счётчик не увеличивается во время обработки сработавшей пробы DTrace.
+Подходит для вычисления относительных разниц времени на CPU.
+.It Va walltimestamp
+Количество наносекунд с начала эпохи
+.Pq 1970-01-01T00+00:00 .
+Подходит для проставления меток времени в журналах.
+.El
+.Sh ВСТРОЕННЫЕ ФУНКЦИИ
+.Bl -tag
+Возвращает подстроку
+.Fa s
+начиная с первого вхождения
+.Fa c
+в
+.Fa s .
+Возвращает
+.Dv NULL
+если
+.Fa c
+не встречается в
+.Fa s .
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+и
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Dv NULL .
+Возвращает строку, полученную в результате объединения
+.Fa s1
+и
+.Fa s2 .
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Ql abcdef .
+Возвращает подстроку
+.Fa s
+начиная с последнего вхождения
+.Fa c
+в
+.Fa s .
+Аналогично
+.Fn strchr .
+Возвращает подстроку
+.Fa haystack
+начиная с первого вхождения
+.Fa needle .
+Возвращает
+.Dv NULL
+если
+.Fa needle
+не является подстрокой
+.Fa haystack .
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Ql bc1bc2
+и
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Dv NULL .
+Разбивает
+.Fa s
+на токены с помощью
+.Fa separators .
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Ql abc .
+Возвращает длину строки
+.Fa s .
+Возвращает
+подстроку строки
+.Fa s
+начиная с
+.Fa position .
+Длина подстроки будет не более
+.Fa length Ns .
+Если
+.Fa length
+не указана, используется остаток строки.
+Если
+.Fa position
+больше
+размера
+.Fa s ,
+возвращается пустая строка.
+.Pp
+Например,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Ql cd ,
+.Bd -literal -compact -offset indent
+.Ed
+возвращает
+.Ql c ,
+и
+.Bd -literal -compact -offset indent
+.Ed
+возвращает пустую строку.
+.El
+.Ss Агрегирующие функции
+.Bl -column "Функция" "Описание"
+.It Fn avg value Ta Среднее
+.It Fn count Ta Количество
+.It Fn llquantize value factor low high nsteps Ta Логарифмически-линейное квантование
+.It Fn lquantize value low high nsteps Ta Линейное квантование
+.It Fn max value Ta Максимум
+.It Fn min value Ta Минимум
+.It Fn quantize value Ta Частотное распределение по степеням двойки
+.It Fn stddev value Ta Стандартное отклонение
+.It Fn sum value Ta Сумма
+.El
+.Ss Деструктивные функции ядра
+По умолчанию
+.Xr dtrace 1
+не разрешает использование деструктивных действий.
+.Bl -tag -width breakpoint
+.It Fn breakpoint
+Установить точку останова в ядре и передать управление
+отладчику ядра
+.Xr ddb 4 .
+.It Fn chill nanoseconds
+Выполнять ожидание на CPU в течение указанного числа
+.Fa nanoseconds .
+.It Fn panic
+Вызвать панику ядра.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/dtrace
+.It Pa /usr/share/dtrace
+Сценарии DTrace, поставляемые с базовой системой
+.Fx .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr awk 1 ,
+.Xr dtrace 1 ,
+.Xr tracing 7
+.Rs
+.%B The illumos Dynamic Tracing Guide
+.%D 2008
+.%U https://illumos.org/books/dtrace/
+.Re
+.Rs
+.%A Brendan Gregg
+.%A Jim Mauro
+.%B DTrace: Dynamic Tracing in Oracle Solaris, Mac OS X and FreeBSD
+.%I Prentice Hall
+.%D 2011
+.%U https://www.brendangregg.com/dtracebook/
+.Re
+.Rs
+.%A George Neville-Neil
+.%A Jonathan Anderson
+.%A Graeme Jenkinson
+.%A Brian Kidney
+.%A Domagoj Stolfa
+.%A Arun Thomas
+.%A Robert N. M. Watson
+.%C Cambridge, United Kingdom
+.%D August 2018
+.%T University of Cambridge Computer Laboratory
+.%R OpenDTrace Specification version 1.0
+.%U https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-924.pdf
+.Re
+.Sh ИСТОРИЯ
+Эта страница руководства впервые появилась в
+.Fx 15.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была написана
+.An Mateusz Piotrowski Aq Mt 0mp@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Переменная
+.Va cwd
+которая обычно предоставляет текущий рабочий каталог,
+в настоящее время не поддерживается в
+.Fx .
+.Pp
+Макропеременные
+.Va $projid
+и
+.Va $taskid
+всегда равны 0 в
+.Fx .
+.Pp
+Функции
+.Fn ddi_pathname ,
+.Fn getmajor
+и
+.Fn getminor
+не поддерживаются в
+.Fx .

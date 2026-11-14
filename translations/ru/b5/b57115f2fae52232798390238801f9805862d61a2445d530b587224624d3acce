@@ -1,0 +1,734 @@
+.\" Copyright (c) 2002 Murray Stokely <murray@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/release.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 b57115f2fae52232798390238801f9805862d61a2445d530b587224624d3acce
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2023
+.Dt RELEASE 7
+.Os
+.Sh ИМЯ
+.Nm release
+.Sh ОПИСАНИЕ
+.Fx
+предоставляет полноценную среду сборки, подходящую для создания пользователями
+полных релизов операционной системы
+.Fx .
+Все инструменты, необходимые для сборки релиза, доступны из
+репозитория исходного кода
+.Fx
+в
+.Pa src/release .
+Полный релиз можно собрать всего одной командой,
+включая создание ISO-образов, подходящих для записи на CD-ROM,
+образов для флеш-накопителей и каталога для сетевой установки.
+Эта команда метко названа
+.Pp
+Некоторым пользователям может понадобиться обеспечить абсолютно чистую
+среду сборки без локальных изменений дерева исходного кода или
+.Xr make.conf 5
+и с чистыми копиями определённых версий деревьев doc, src и ports.
+Для этой цели предоставляется сценарий
+.Pq Pa src/release/release.sh
+для автоматизации этих выгрузок и последующего выполнения сборки в чистом
+.Xr chroot 8 .
+.Pp
+Перед попыткой собрать релиз предполагается, что пользователь знаком с
+содержимым
+.Xr build 7 ,
+и имеет опыт обновления систем из исходного кода.
+.Pp
+Процесс сборки релиза требует, чтобы
+.Pa /usr/obj
+был заполнен результатами сборки и
+Это необходимо, чтобы предоставить объектные файлы для релиза или, при
+использовании
+.Pa release.sh ,
+чтобы объектные файлы полной системы можно было установить в чистую
+среду
+.Xr chroot 8 .
+.Pp
+Если целевая сборка релиза предназначена для другой архитектуры или типа машины,
+необходимо использовать переменные
+.Va TARGET
+и
+.Va TARGET_ARCH .
+Дополнительные сведения см. в описании поддерживаемых
+переменных
+.Fa release.conf .
+.Pp
+Процедура сборки релиза на некоторых архитектурах также может требовать наличия
+в ядре драйвера устройства
+.Xr md 4
+(диска в памяти)
+.Pq либо вкомпилированного, либо доступного в виде модуля .
+.Pp
+В этом документе не рассматриваются управление исходным кодом, обеспечение
+качества и другие аспекты процесса инженерии релизов.
+.Sh СОЗДАНИЕ ЧИСТОГО РЕЛИЗА
+Официальные релизы
+.Fx
+создаются в чистой среде, чтобы
+обеспечить согласованность версий деревьев src, ports и doc
+и избежать загрязнения со стороны хост-системы
+.Po например, локальных исправлений, изменений
+в
+.Xr make.conf 5 ,
+и т. п.
+.Pc .
+Это достигается с помощью скрипта-обёртки
+.Pa src/release/release.sh .
+.Pp
+.Ic release.sh
+.Op Fl c Ar release.conf
+.Pp
+.Ic release.sh
+извлекает деревья
+.Li src/ ,
+.Li ports/
+и
+.Li doc/
+в
+.Va CHROOTDIR ,
+затем вызывает необходимые цели для создания
+среды
+.Xr chroot 8 .
+Затем в среде
+.Xr chroot 8
+выполняется сборка, которая помещает результат в
+.Pa $CHROOTDIR/R .
+.Pp
+Необязательный файл конфигурации
+.Fa release.conf
+поддерживает следующие переменные:
+.Bl -tag -width Ev
+.It Va CHROOTDIR
+Каталог, в котором будет собираться релиз.
+.It Va CHROOT_MAKEENV
+Дополнительные аргументы
+.Xr make 1 ,
+которые нужно передать; они напрямую влияют на
+настройку сборочного chroot.
+.It Va NOGIT
+Не требовать явно установки порта
+.Xr git 1 .
+.It Va GITROOT
+Хост
+.Xr git 1 ,
+используемый для извлечения различных деревьев.
+По умолчанию —
+.Pa https://git.FreeeBSD.org .
+.It Va SRCBRANCH
+Ветка
+.Li src/ ,
+которую нужно использовать.
+По умолчанию используется
+.Fl b Va main .
+.It Va PORTBRANCH
+Ветка
+.Li ports/ ,
+которую нужно использовать.
+По умолчанию —
+.Va head/@rHEAD .
+.It Va TARGET
+Целевой тип машины для кросс-сборки релиза.
+.It Va TARGET_ARCH
+Целевая архитектура машины для кросс-сборки релиза.
+.Pp
+Список поддерживаемых комбинаций
+.Va TARGET
+и
+.Va TARGET_ARCH
+см. в выводе
+.Dq make targets
+как описано в
+.Xr build 7 .
+.It Va KERNEL
+Целевая конфигурация ядра.
+По умолчанию —
+.Va GENERIC .
+Можно указать несколько
+записей
+.Va KERNEL .
+.It Va MAKE_CONF
+Файл
+.Xr make.conf 5 ,
+используемый для сборки релиза.
+По умолчанию —
+.Fa /dev/null ,
+чтобы не загрязнять релиз локальными изменениями системы.
+.It Va SRC_CONF
+Файл
+.Xr src.conf 5 ,
+используемый для сборки релиза.
+По умолчанию —
+.Fa /dev/null ,
+чтобы не загрязнять релиз локальными изменениями системы.
+.It Va MAKE_FLAGS
+Дополнительные флаги для передачи
+.Xr make 1 .
+.It Va WORLD_FLAGS
+Дополнительные флаги для передачи
+.Xr make 1
+на этапе
+.Dq buildworld .
+По умолчанию число заданий
+.Xr make 1
+.Pq Ar -j
+устанавливается равным числу доступных CPU в системе с поддержкой SMP.
+.It Va KERNEL_FLAGS
+Дополнительные флаги для передачи
+.Xr make 1
+на этапе
+.Dq buildkernel .
+По умолчанию число заданий
+.Xr make 1
+.Pq Ar -j
+устанавливается равным половине числа доступных CPU в системе с поддержкой SMP.
+.It Va NOPORTS
+Установите непустое значение, чтобы пропустить извлечение дерева
+.Li ports/ .
+Если задано,
+.Va NOPORTS
+предотвращает создание пакета дистрибутива
+.Fa ports.txz .
+.It Va WITH_DVD
+Установите непустое значение, чтобы включить цель
+.Cm dvdrom .
+.It Va WITH_COMPRESSED_IMAGES
+Установите непустое значение, чтобы сжимать образы релиза с помощью
+.Xr xz 1 .
+Исходные
+.Pq несжатые
+образы не удаляются.
+.It Va XZ_THREADS Pq Vt int
+Установите число потоков, которое
+.Xr xz 1
+должен использовать при сжатии образов.
+По умолчанию
+.Va XZ_THREADS
+равно
+.Va 0 ,
+что означает использование всех доступных ядер системы.
+.It Va VCSCMD
+Команда, выполняемая для получения деревьев исходного кода.
+По умолчанию —
+.Qq Cm git clone Fl q .
+.It Va CHROOTBUILD_SKIP
+Если определена, этапы
+.Li buildworld ,
+.Li installworld
+и
+.Li distribution
+настройки среды сборки
+.Xr chroot 8
+пропускаются.
+Это предназначено исключительно для случаев, когда пользовательское окружение
+.Xr chroot 8
+предоставляется альтернативными способами.
+.It Va SRC_UPDATE_SKIP
+Установите непустое значение, чтобы запретить извлечение или обновление
+.Fa /usr/src
+внутри
+.Xr chroot 8 .
+Это предназначено только для использования, когда предполагается, что
+.Fa /usr/src
+существует, будучи предоставленным альтернативными способами.
+.It Va PORTS_UPDATE_SKIP
+Установите непустое значение, чтобы запретить извлечение или обновление
+.Fa /usr/ports
+внутри
+.Xr chroot 8 .
+Это предназначено только для использования, когда предполагается, что
+.Fa /usr/ports
+существует, будучи предоставленным альтернативными способами.
+.El
+.Sh СБОРКИ ДЛЯ ВСТРОЕННЫХ СИСТЕМ
+Следующие переменные
+.Fa release.conf
+относятся только к сборкам релизов для встроенных систем:
+.Bl -tag -width Ev
+.It Va EMBEDDEDBUILD
+Установите ненулевое значение, чтобы включить функциональность для сборок
+релизов встроенных устройств.
+.Pp
+Если задано,
+.Va WITH_DVD
+сбрасывается.
+Кроме того, должны быть также определены
+.Va EMBEDDED_TARGET
+и
+.Va EMBEDDED_TARGET_ARCH .
+При создании среды сборки
+.Fa release.sh
+запускает отдельный сценарий сборки, расположенный в каталоге для конкретной
+архитектуры в
+.Pa src/release/${EMBEDDED_TARGET}/ .
+.It Va EMBEDDEDPORTS
+Установите список портов, необходимых для целевого устройства,
+в формате
+.Fa category/port .
+.It Va EMBEDDED_TARGET
+Если задана, её значение передаётся
+.Xr make 1
+для установки
+.Va TARGET
+.Pq значение Cm uname Fl m
+при кросс-сборке целевого пользовательского окружения.
+.It Va EMBEDDED_TARGET_ARCH
+Если задана, её значение передаётся
+.Xr make 1
+для установки
+.Va TARGET_ARCH
+.Pq значение Cm uname Fl p
+при кросс-сборке целевого пользовательского окружения.
+.El
+.Sh ДИСКОВЫЕ ОБРАЗЫ ВИРТУАЛЬНЫХ МАШИН
+Следующие переменные
+.Fa release.conf
+относятся только к сборке дисковых образов виртуальных машин:
+.Bl -tag -width Ev
+.It Va WITH_VMIMAGES
+Установите ненулевое значение, чтобы создавать дисковые образы виртуальных
+машин в рамках сборки релиза.
+.Va WITH_VMIMAGES
+также можно указать как переменную окружения, передаваемую
+.Xr make 1 .
+.It Va WITH_COMPRESSED_VMIMAGES
+Установите ненулевое значение, чтобы сжимать дисковые образы виртуальных машин
+с помощью
+.Xr xz 1
+в рамках цели
+.Cm install
+.Xr make 1 .
+Обратите внимание, что сжатие дисковых образов виртуальных машин на некоторых
+системах может занимать очень много времени.
+.It Va VMBASE
+Установите, чтобы изменить имя итогового файла дискового образа виртуальной машины.
+Значение по умолчанию —
+.Va vm .
+.It Va VMSIZE
+Установите, чтобы изменить размер ёмкости диска виртуальной машины.
+Значение по умолчанию —
+.Va 20g .
+Допустимые значения см. в
+.Xr makefs 8 .
+.Pp
+Дисковые образы виртуальных машин по умолчанию создаются как разреженные образы.
+При использовании
+.Va WITH_COMPRESSED_VMIMAGES
+итоговые файлы, сжатые с помощью
+.Xr xz 1 ,
+сжимаются примерно до одного и того же размера независимо от указанного
+размера дискового образа.
+.It Va VMFS
+(Устарело.)
+Установите, чтобы указать, какая из файловых систем, перечисленных в
+.Va VMFSLIST ,
+связана с историческим именем файла без метки файловой системы.
+Допустимые значения —
+.Va ufs
+и
+.Va zfs .
+Значение по умолчанию —
+.Va ufs .
+.It Va VMFSLIST
+Установите, чтобы указать список типов файловых систем, для которых нужно
+создавать образы.
+Допустимые значения — одна или обе из
+.Va ufs
+и
+.Va zfs .
+Значение по умолчанию —
+.Va ufs zfs .
+.It Va VMFORMATS
+Установите целевой формат(ы) создаваемых образов виртуальных дисков.
+По умолчанию создаются форматы
+.Va vhdf , Va vmdk , Va qcow2 ,
+и
+.Va raw .
+Допустимые значения форматов см. в
+.Xr mkimg 1 .
+.El
+.Pp
+Чтобы получить список поддерживаемых значений
+.Va VMFORMATS
+.Pq включая форматы облачных хостинг-провайдеров вместе с кратким описанием , выполните:
+.Bd -literal -offset indent
+cd /usr/src
+make -C release list-vmtargets
+.Ed
+.Sh ОБРАЗЫ МАШИН ДЛЯ ОБЛАЧНЫХ ПРОВАЙДЕРОВ
+Инструменты сборки релизов
+.Fx
+поддерживают создание образов виртуальных машин для различных
+облачных хостинг-провайдеров, каждый из которых имеет собственную
+конфигурацию, по умолчанию включающую поддержку соответствующего провайдера.
+.Pp
+Поддерживаются следующие переменные окружения
+.Xr make 1 :
+.Bl -tag -width Ev
+.It Va CLOUDWARE
+Установите список одного или нескольких облачных хостинг-провайдеров,
+заключённый в кавычки.
+Требует также установки
+.Va WITH_CLOUDWARE .
+.It Va WITH_CLOUDWARE
+Установите непустое значение, чтобы включить создание образов виртуальных
+машин для различных облачных хостинг-провайдеров.
+Требует также установки
+.Va CLOUDWARE .
+.El
+.Pp
+Кроме того, переменные
+.Va CLOUDWARE
+и
+.Va WITH_CLOUDWARE
+можно добавить в
+.Pa release.conf
+и использовать вместе с
+.Pa release.sh .
+.Pp
+Чтобы получить список поддерживаемых значений
+.Va CLOUDWARE ,
+выполните:
+.Bd -literal -offset indent
+cd /usr/src
+make -C release list-cloudware
+.Ed
+.Sh ЦЕЛИ MAKEFILE
+Makefile релиза
+.Pq Pa src/release/Makefile
+довольно труден для понимания.
+Большинство разработчиков будут иметь дело только с целями
+.Cm release
+и
+.Cm install .
+.Bl -tag -width ".Cm list-vmtargets"
+.It Cm release
+Мета-цель для сборки всех носителей и дистрибутивов релиза, применимых к этой
+платформе.
+.It Cm install
+Копировать все созданные носители релиза в
+.Pa ${DESTDIR} .
+.It Cm cdrom
+Создаёт установочные образы CD-ROM.
+Это может требовать наличия в ядре драйвера устройства
+.Xr md 4
+(диска в памяти)
+(либо вкомпилированного, либо доступного в виде модуля).
+Эта цель создаёт в качестве результата файлы
+.Pa disc1.iso
+и
+.Pa bootonly.iso .
+.It Cm dvdrom
+Создаёт установочные образы DVD-ROM.
+Это может требовать наличия в ядре драйвера устройства
+.Xr md 4
+(диска в памяти)
+(либо вкомпилированного, либо доступного в виде модуля).
+Эта цель создаёт в качестве результата файл
+.Pa dvd1.iso .
+.It Cm memstick
+Создаёт установочный образ флеш-накопителя с именем
+.Pa memstick.img .
+Применимо не на всех платформах.
+Требует наличия в ядре драйвера устройства
+.Xr md 4
+.Pq диска в памяти
+.Pq либо вкомпилированного, либо доступного в виде модуля .
+.It Cm mini-memstick
+Аналогично
+.Cm memstick ,
+за исключением того, что наборы дистрибутива для установки
+не включены.
+.It Cm ftp
+Создаёт каталог с именем
+.Pa ftp ,
+содержащий файлы дистрибутива, используемые при сетевой установке
+и подходящие для загрузки на FTP-зеркало.
+.It Cm vm-image
+Создаёт дисковые образы виртуальных машин в различных форматах.
+Цель
+.Cm vm-image
+требует, чтобы переменная окружения
+.Va WITH_VMIMAGES
+.Xr make 1
+была установлена в ненулевое значение.
+.It Cm vm-cloudware
+Создаёт образы виртуальных машин
+.Fx
+для различных облачных хостинг-провайдеров.
+См.
+.Qq ОБРАЗЫ МАШИН ДЛЯ ОБЛАЧНЫХ ПРОВАЙДЕРОВ
+для получения сведений о реализации.
+.It Cm list-cloudware
+Показывает список допустимых значений
+.Va CLOUDWARE .
+.It Cm list-vmtargets
+Показывает список допустимых значений
+.Va VMFORMATS
+и
+.Va CLOUDWARE .
+.El
+.Pp
+Основные подцели, вызываемые вышеуказанными целями:
+.Bl -tag -width ".Cm packagesystem"
+.It Cm packagesystem
+Создаёт все архивы дистрибутива
+.Pq base, kernel, ports, doc
+применимые к этой платформе.
+.It Cm disc1
+Создаёт загрузочную установочную систему, содержащую все файлы дистрибутива,
+упакованные целью
+.Cm packagesystem ,
+и подходящую для записи образа целями
+.Cm cdrom ,
+.Cm dvdrom
+и
+.Cm memstick .
+.It Cm reldoc
+Создаёт документацию релиза.
+Она включает примечания к выпуску,
+руководство по оборудованию и инструкции по установке.
+Другая документация, например Handbook,
+создаётся во время цели
+.Cm base.txz ,
+вызываемой
+.Cm packagesystem .
+.El
+.Sh ОКРУЖЕНИЕ
+Необязательные переменные:
+.Bl -tag -width Ev
+.It Ev OSRELEASE
+Необязательное базовое имя для создаваемых образов носителей при вызове цели
+.Cm install
+.Pq например, FreeBSD-12.1-RELEASE-amd64 .
+По умолчанию используется вывод
+.Ic `uname -s`-`uname -r`-`uname -p`
+внутри chroot.
+.It Ev WORLDDIR
+Расположение каталога, содержащего дерево src.
+По умолчанию — каталог над каталогом, содержащим makefile
+.Pq Pa src .
+.It Ev PORTSDIR
+Расположение каталога, содержащего дерево ports.
+По умолчанию —
+.Pa /usr/ports .
+Если она не задана или не может быть найдена, порты не будут включены в релиз.
+.It Ev NOPORTS
+Если определена, коллекция портов будет исключена из релиза.
+.It Ev NOSRC
+Если задана, не включать исходный код системы в релиз.
+.It Ev TARGET
+Целевая аппаратная платформа.
+Это аналогично выводу
+.Dq Nm uname Fl m
+.
+Это необходимо для кросс-сборки некоторых целевых архитектур.
+Например, кросс-сборка для машин ARM64 требует
+.Ev TARGET_ARCH Ns = Ns Li aarch64
+и
+.Ev TARGET Ns = Ns Li arm64 .
+Если не задана,
+.Ev TARGET
+по умолчанию равна текущей аппаратной платформе.
+.It Ev TARGET_ARCH
+Целевая архитектура процессора машины.
+Это аналогично выводу
+.Dq Nm uname Fl p
+.
+Установите её для кросс-сборки под другую архитектуру.
+Если не задана,
+.Ev TARGET_ARCH
+по умолчанию равна текущей архитектуре машины, если только
+.Ev TARGET
+также не задана; в этом случае она принимает соответствующее значение для этой
+платформы.
+Обычно достаточно задать только
+.Ev TARGET .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -compact -width Pa
+.It Pa /usr/doc/Makefile
+.It Pa /usr/doc/share/mk/doc.project.mk
+.It Pa /usr/ports/Mk/bsd.port.mk
+.It Pa /usr/ports/Mk/bsd.sites.mk
+.It Pa /usr/share/examples/etc/make.conf
+.It Pa /usr/src/Makefile
+.It Pa /usr/src/Makefile.inc1
+.It Pa /usr/src/release/Makefile
+.It Pa /usr/src/release/Makefile.vm
+.It Pa /usr/src/release/release.sh
+.It Pa /usr/src/release/release.conf.sample
+.It Pa /usr/src/release/tools/*.conf
+.It Pa /usr/src/release/tools/vmimage.subr
+.El
+.Sh ПРИМЕРЫ
+Следующую последовательность команд можно использовать для сборки релиза:
+.Bd -literal -offset indent
+cd /usr
+git clone -b main https://git.freebsd.org/src.git src
+cd src
+make buildworld buildkernel
+cd release
+make obj
+make release
+make install DESTDIR=/var/freebsd-snapshot
+.Ed
+.Pp
+После выполнения этих команд все созданные файлы дистрибутива (архивы tar
+для FTP, образы CD-ROM и т. п.) доступны в каталоге
+.Pa /var/freebsd-snapshot .
+.Pp
+Следующую последовательность команд можно использовать для сборки релиза
+в чистой среде, включая порты и документацию:
+.Bd -literal -offset indent
+cd /usr/src/release
+sh release.sh
+.Ed
+.Pp
+При необходимости для настройки сборки релиза можно использовать файл конфигурации:
+.Bd -literal -offset indent
+cd /usr/src/release
+sh release.sh -c $HOME/release.conf
+.Ed
+.Pp
+Файлы конфигурации для различных поддерживаемых встроенных систем, например
+Raspberry Pi, находятся в каталоге, соответствующем переменной
+.Va TARGET
+.Xr make 1 .
+Например, чтобы создать образ для Raspberry Pi:
+.Bd -literal -offset indent
+cd /usr/src/release
+sh release.sh -c arm/RPI-B.conf
+.Ed
+.Pp
+Чтобы создать образ для Raspberry Pi 3:
+.Bd -literal -offset indent
+cd /usr/src/release
+sh release.sh -c arm64/RPI3.conf
+.Ed
+.Pp
+После выполнения этих команд все подготовленные файлы релиза доступны в
+каталоге
+.Pa /scratch .
+Целевой каталог можно изменить, указав переменную
+.Va CHROOTDIR
+в
+.Li release.conf .
+.Sh СОВМЕСТИМОСТЬ
+Цель reldoc была удалена в коммите f61e92ca5a23, поэтому
+.Ev DOCDIR ,
+.Ev DOCBRANCH ,
+.Ev DOC_UPDATE_SKIP
+и
+.Ev NODOC
+больше не поддерживаются.
+.Sh СМ. ТАКЖЕ
+.Xr cc 1 ,
+.Xr git 1 Pq Pa ports/devel/git ,
+.Xr install 1 ,
+.Xr make 1 ,
+.Xr mkimg 1 ,
+.Xr uname 1 ,
+.Xr md 4 ,
+.Xr make.conf 5 ,
+.Xr build 7 ,
+.Xr ports 7 ,
+.Xr chroot 8 ,
+.Xr mtree 8 ,
+.Xr sysctl 8
+.Rs
+.%U https://docs.freebsd.org/en/articles/freebsd-releng/
+.Re
+.Rs
+.%U https://docs.freebsd.org/en/books/developers-handbook/
+.Re
+.Sh ИСТОРИЯ
+.Fx
+1.x
+использовала ручной контрольный список, составленный
+.An Rod Grimes ,
+для создания релиза.
+Помимо неполноты, список предъявлял множество специфических требований
+к доступным файловым системам и был довольно мучительным для выполнения.
+.Pp
+В рамках работ по инженерии релиза
+.Fx 2.0
+было затрачено значительное усилие, чтобы привести
+.Pa src/release/Makefile
+в вид, в котором он мог хотя бы автоматизировать большую часть утомительных
+операций при сборке релиза в стерильной среде.
+.Pp
+Для релиза
+.Fx 9.0
+файл
+.Pa src/release/Makefile
+был переработан, а скрипт-обёртка
+.Pa src/release/generate-release.sh
+был введён для поддержки внедрения нового установщика.
+.Pp
+Для релиза
+.Fx 9.2
+был введён
+.Pa src/release/release.sh
+для поддержки файлов конфигурации для каждой сборки.
+.Pa src/release/release.sh
+в значительной степени основан на сценарии
+.Pa src/release/generate-release.sh .
+.Pp
+При почти 1000 ревизиях, распределённых по нескольким ветвям, журнал
+.Xr git 1
+для
+.Pa src/release/Makefile
+содержит яркую историческую запись о некоторых
+трудностях, через которые проходят инженеры по релизам.
+.Sh АВТОРЫ
+.Pa src/release/Makefile
+изначально был написан
+.An -nosplit
+.An Rod Grimes ,
+.An Jordan Hubbard
+и
+.An Poul-Henning Kamp .
+.Pp
+Эта страница руководства была изначально написана
+.An Murray Stokely Aq Mt murray@FreeBSD.org .
+.Pp
+Она была обновлена
+.An Nathan Whitehorn Aq Mt nwhitehorn@FreeBSD.org
+чтобы включить сценарий
+.Fa generate-release.sh
+использовавшийся в цикле выпуска
+.Fx 9.0 .
+.Pp
+Позже она была обновлена
+.An Glen Barber Aq Mt gjb@FreeBSD.org
+чтобы включить сценарий
+.Fa release.sh
+использовавшийся в цикле выпуска
+.Fx 9.2 .

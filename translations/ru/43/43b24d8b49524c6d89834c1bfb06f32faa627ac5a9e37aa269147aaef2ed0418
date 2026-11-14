@@ -1,0 +1,281 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\" SPDX-License-Identifier: 0BSD
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man7/dracut.zfs.7
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 43b24d8b49524c6d89834c1bfb06f32faa627ac5a9e37aa269147aaef2ed0418
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 13, 2024
+.Dt DRACUT.ZFS 7
+.Os
+.
+.Sh ИМЯ
+.Nm dracut.zfs
+.Nd обзор хуков ZFS для dracut
+.
+.Sh СИНТАКСИС
+.Bd -literal -compact
+                      parse-zfs.sh \(-> dracut-cmdline.service
+                          |                     \(da
+                          |                     …
+                          |                     \(da
+                          \e\(em\(em\(em\(em\(em\(em\(em\(em\(-> dracut-initqueue.service
+                                                |                      zfs-import-opts.sh
+   zfs-load-module.service                      \(da                          |       |
+     |                  |                sysinit.target                    \(da       |
+     \(da                  |                       |        zfs-import-scan.service   \(da
+zfs-import-scan.service \(da                       \(da           | zfs-import-cache.service
+     |   zfs-import-cache.service         basic.target      |     |
+     \e__________________|                       |           \(da     \(da
+                        \(da                       |     zfs-load-key.sh
+     zfs-env-bootfs.service                     |         |
+                        \(da                       \(da         \(da
+                 zfs-import.target \(-> dracut-pre-mount.service
+                        |          \(ua            |
+                        | dracut-zfs-generator  |
+                        | _____________________/|
+                        |/                      \(da
+                        |                   sysroot.mount \(<-\(em\(em\(em dracut-zfs-generator
+                        |                       |
+                        |                       \(da
+                        |             initrd-root-fs.target \(<-\(em zfs-nonroot-necessities.service
+                        |                       |                                 |
+                        |                       \(da                                 |
+                        \(da             dracut-mount.service                        |
+       zfs-snapshot-bootfs.service              |                                 |
+                        |                       \(da                                 |
+                        \(da                       …                                 |
+       zfs-rollback-bootfs.service              |                                 |
+                        |                       \(da                                 |
+                        |          /sysroot/{usr,etc,lib,&c.} \(<-\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em\(em/
+                        |                       |
+                        |                       \(da
+                        |                initrd-fs.target
+                        \e______________________ |
+                                               \e|
+                                                \(da
+        export-zfs.sh                      initrd.target
+              |                                 |
+              \(da                                 \(da
+   dracut-shutdown.service                      …
+                                                |
+                                                \(da
+                 zfs-needshutdown.sh \(-> initrd-cleanup.service
+.Ed
+.Pp
+Сравните с
+.Xr dracut.bootup 7
+для полной блок-схемы.
+.
+.Sh ОПИСАНИЕ
+В dracut загрузка с
+.No ZFS-on- Ns Pa /
+обеспечивается рядом хуков в модуле
+.Nm 90zfs .
+.Pp
+Для загрузки в набор данных ZFS требуется, чтобы свойство
+.Sy mountpoint Ns = Ns Pa /
+.Sy bootfs
+было установлено на этот набор данных, либо аргумент командной строки ядра
+.Sy root=
+(или drop-in-файл dracut) указывал его.
+.Pp
+Все дочерние наборы данных загрузочного набора данных с
+.Sy canmount Ns = Ns Sy on
+и
+.Sy mountpoint Ns s
+, соответствующими шаблонам
+.Pa /etc , /bin , /lib , /lib?? , /libx32 , No и Pa /usr ,
+считаются необходимыми и также будут смонтированы.
+.Pp
+.Xr zfs-mount-generator 8
+рекомендуется для правильного последующего функционирования системы (корректные свойства
+монтирования, повторное монтирование и т. д.).
+.
+.Sh КОМАНДНАЯ СТРОКА
+.Ss Стандартные
+.Bl -tag -width Ds
+.It Sy root=zfs:\& Ns Ar набор , Sy root=ZFS= Ns Ar набор
+Использовать
+.Ar набор
+в качестве загрузочного набора данных.
+Все знаки плюс
+.Pq Sq +
+заменяются пробелами
+.Pq Sq \  .
+.
+.It Sy root=zfs:AUTO , root=zfs:\& , root=zfs , Op Sy root=
+После импорта выполняется поиск первого пула со свойством
+.Sy bootfs
+; его значение используется так, как если бы оно было указано выше как
+.Ar набор .
+.
+.It Sy rootfstype=zfs root= Ns Ar набор
+Эквивалентно
+.Sy root=zfs:\& Ns Ar набор .
+.
+.It Sy rootfstype=zfs Op Sy root=
+Эквивалентно
+.Sy root=zfs:AUTO .
+.
+.It Sy rootflags= Ns Ar параметры
+Смонтировать загрузочный набор данных с
+.Fl o Ar параметры ;
+см.\&
+.Sx Временные свойства точки монтирования
+в
+.Xr zfsprops 7 .
+Эти свойства не сохранятся, поскольку все файловые системы будут повторно
+смонтированы из реального корня.
+.
+.It Sy debug
+Если указан,
+.Nm dracut-zfs-generator
+пишет в журнал.
+.El
+.Pp
+Обратите внимание: если не задано ни
+.Sy rootfstype=zfs
+ни
+.Sy root=zfs:\& Ns Ar набор
+\(em другие методы автоматического выбора загрузки, такие как
+.Nm systemd-gpt-auto-generator
+и
+.Nm systemd-fstab-generator
+, могут иметь приоритет.
+.
+.Ss Специфичные для ZFS
+.Bl -tag -width Ds
+.It Sy bootfs.snapshot Ns Op Sy = Ns Ar имя-снимка
+Выполнить
+.Nm zfs Cm snapshot Ar загрузочный-набор Ns Sy @ Ns Ar имя-снимка
+перед переключением на реальный корень.
+.Ar имя-снимка
+по умолчанию равно текущей версии ядра.
+.
+.It Sy bootfs.rollback Ns Op Sy = Ns Ar имя-снимка
+Выполнить
+.Nm zfs Cm rollback Fl Rf Ar загрузочный-набор Ns Sy @ Ns Ar имя-снимка
+перед переключением на реальный корень.
+.Ar имя-снимка
+по умолчанию равно текущей версии ядра.
+.
+.It Sy spl_hostid= Ns Ar ID-хоста
+Использовать
+.Xr zgenhostid 8
+чтобы установить ID хоста в
+.Ar ID-хоста ;
+иначе используется
+.Pa /etc/hostid ,
+унаследованный из реального корня.
+.
+.It Sy zfs_force , zfs.force , zfsforce
+Добавляет
+.Fl f
+ко всем вызовам
+.Nm zpool Cm import
+; в основном полезно вместе с
+.Sy spl_hostid= ,
+или если ID хоста не был унаследован.
+.El
+.
+.Sh ФАЙЛЫ
+.Bl -tag -width 0
+.It Pa parse-zfs.sh Pq Sy cmdline
+Обрабатывает
+.Sy spl_hostid= .
+Если
+.Sy root=
+соответствует известному шаблону, указанному выше, предоставляет
+.Pa /dev/root
+и задерживает initqueue до загрузки
+.Xr zfs 4 ,
+.
+.It Pa zfs-import-opts.sh Pq Nm systemd No environment generator
+Преобразует
+.Sy zfs_force , zfs.force , No или Sy zfsforce
+в
+.Ev ZPOOL_IMPORT_OPTS Ns = Ns Fl f
+для
+.Pa zfs-import-scan.service
+или
+.Pa zfs-import-cache.service .
+.
+.It Pa zfs-load-key.sh Pq Sy pre-mount
+Загружает ключи шифрования для загрузочного набора данных и его необходимых потомков.
+.Bl -tag -width Ds
+.It Sy keylocation Ns = Ns Sy prompt
+Запрашивается через
+.Nm systemd-ask-password
+трижды.
+.It Sy keylocation Ns = Ns Sy https:// Ns Ar URL , Sy keylocation Ns = Ns Sy http:// Ns Ar URL
+.Pa network-online.target
+запускается перед загрузкой.
+.It Sy keylocation Ns = Ns Sy file:// Ns Ar путь
+Если
+.Ar путь
+не существует,
+выполняется
+.Nm udevadm No is Cm settle Ns d .
+Если он всё ещё отсутствует, его ожидают до
+.Sy 10 Ns s .
+.El
+.
+.It Pa zfs-env-bootfs.service Pq Nm systemd No service
+После импорта пула присваивает
+.Ev BOOTFS Ns =
+в окружении systemd первое непустое значение
+.Sy bootfs
+в порядке перебора.
+.
+.It Pa dracut-zfs-generator Pq Nm systemd No generator
+Генерирует
+.Pa sysroot.mount Pq используя Sy rootflags= , No если он задан .
+Если был явно указан загрузочный набор данных, также генерирует необходимые точки монтирования
+.Pq Pa sysroot-etc.mount , sysroot-bin.mount , No и т.\&д.\& ,
+иначе генерирует
+.Pa zfs-nonroot-necessities.service ,
+который явно монтирует их после
+.Pa /sysroot
+с использованием
+.Ev BOOTFS Ns = .
+.
+.It Pa zfs-snapshot-bootfs.service , zfs-rollback-bootfs.service Pq Nm systemd No services
+Используют
+.Sy bootfs.snapshot
+и
+.Sy bootfs.rollback
+как описано в
+.Sx КОМАНДНАЯ СТРОКА .
+Используют
+.Ev BOOTFS Ns = ,
+если явный загрузочный набор данных не был указан.
+.
+.It Pa zfs-needshutdown.sh Pq Sy cleanup
+Если были импортированы какие-либо пулы, сигнализирует о необходимости хуков завершения работы.
+.
+.It Pa export-zfs.sh Pq Sy shutdown
+Принудительно экспортирует все пулы.
+.
+.It Pa /etc/hostid , /etc/zfs/zpool.cache , /etc/zfs/vdev_id.conf Pq обычные файлы
+Включаются без изменений, hostonly.
+.
+.It Pa mount-zfs.sh Pq Sy mount
+Ничего не делает в системах
+.Nm systemd
+.Pq если Pa dracut-zfs-generator No успешно выполнился .
+Иначе загружает ключ шифрования для загрузочного набора данных с консоли или через
+plymouth.
+Может вообще не работать!
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr dracut.bootup 7 ,
+.Xr zfsprops 7 ,
+.Xr zpoolprops 7 ,
+.Xr dracut-shutdown.service 8 ,
+.Xr systemd-fstab-generator 8 ,
+.Xr systemd-gpt-auto-generator 8 ,
+.Xr zfs-mount-generator 8 ,
+.Xr zgenhostid 8

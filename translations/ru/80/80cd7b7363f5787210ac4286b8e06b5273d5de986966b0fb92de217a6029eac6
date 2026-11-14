@@ -1,0 +1,145 @@
+.\" Copyright 2014 John-Mark Gurney
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/growfs.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 80cd7b7363f5787210ac4286b8e06b5273d5de986966b0fb92de217a6029eac6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 22, 2022
+.Dt GROWFS 7
+.Os
+.Sh ИМЯ
+.Nm growfs ,
+.Nm growfs_fstab
+.Nd сценарии запуска для увеличения корневой файловой системы и добавления подкачки
+.Sh ОПИСАНИЕ
+Сценарий
+.Nm
+обычно запускается при первой загрузке после установки системы.
+Если загрузочный диск больше корневой файловой системы и загрузочных разделов,
+и корневая файловая система находится в последнем разделе,
+.Nm
+может расширить корневую файловую систему.
+Он также может добавить раздел подкачки размером по умолчанию 10% от загрузочного диска.
+Размер подкачки ограничен удвоенным размером памяти до 4 ГБ,
+8 ГБ при объёме памяти до 8 ГБ и размером памяти при объёме памяти свыше 8 ГБ.
+Он также ограничен значением
+.Xr sysctl 8
+параметра
+.Li vm.swap_maxpages
+делённым на 2.
+По умолчанию раздел подкачки не создаётся, если обнаружен существующий раздел подкачки
+или он указан в
+.Pa /etc/fstab ,
+либо если диск меньше 15 ГБ.
+Сценарий
+.Nm growfs_fstab
+добавляет любой новый раздел подкачки в
+.Pa /etc/fstab
+после того, как корневая файловая система станет доступной для записи,
+и включает его использование в качестве раздела дампа, если переменная
+.Va dumpdev
+из
+.Xr rc.conf 5
+установлена в
+.Li AUTO .
+.Pp
+Следующие параметры в
+.Pa /etc/rc.conf
+управляют поведением
+.Nm :
+.Bl -tag -width "growfs_swap_size"
+.It Va growfs_enable
+.Pq Dq Li NO
+Если установлено в
+.Dq Li YES ,
+то при первой загрузке машины корневая файловая система будет автоматически
+расширена, если возможно, чтобы заполнить всё доступное пространство после неё,
+после необязательного добавления устройства подкачки в конце.
+.It Va growfs_swap_size
+.Pq Dq Li \&
+Если установлено в
+.Dq Li 0 ,
+добавление раздела подкачки отключено.
+Пустое значение
+.Pq Dq Li \&
+позволяет создать раздел подкачки размера по умолчанию.
+Если установлено другое значение,
+раздел подкачки будет создан указанного размера в байтах,
+даже если обнаружен другой раздел подкачки.
+.El
+.Pp
+Параметр
+.Va growfs_swap_size
+можно задать в окружении ядра; в этом случае он переопределяет
+значение из
+.Pa /etc/rc.conf .
+.Pp
+Чтобы расширить корневую файловую систему без перезагрузки, выполните следующую команду:
+.Dl % /etc/rc.d/growfs onestart
+Кроме того, если добавлен раздел подкачки, выполните команду:
+.Dl % /etc/rc.d/growfs_fstab onestart
+Учтите, что если диск снова расширяется,
+и если корневая файловая система ранее была расширена
+и был добавлен раздел подкачки, необходимо удалить раздел подкачки
+перед этой процедурой,
+чтобы расширить корневую файловую систему до нового размера.
+Новый раздел подкачки может быть создан во время расширения.
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Сценарий
+.Nm
+только пытается расширить корневую файловую систему,
+и свободное пространство должно быть доступно непосредственно после корневого раздела.
+Обычно он используется на образах, имеющих одну файловую систему.
+Сценарий требует, чтобы
+.Xr awk 1
+присутствовал и был в пути поиска.
+Обычно это означает, что
+.Pa /usr
+должен быть доступен до запуска сценария.
+.Sh ФАЙЛЫ
+.Bl -tag -compact -width Pa
+.It Pa /etc/fstab
+.It Pa /etc/rc.conf
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr fstab 5 ,
+.Xr rc.conf 5 ,
+.Xr growfs 8 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 10.1 .
+Возможность добавления раздела подкачки была добавлена в
+.Fx 14.0 .
+.Sh АВТОРЫ
+Страница руководства и сценарий были написаны
+.An John-Mark Gurney Aq Mt jmg@FreeBSD.org .
+Возможность создания раздела подкачки была добавлена
+.An Michael Karels Aq Mt karels@FreeBSD.org .

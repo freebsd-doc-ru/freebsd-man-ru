@@ -1,0 +1,764 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1997 David E. O'Brien
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/ports.7
+.\" FRDP githash 6db6755f742b73470d795c96f4343f7594240d87
+.\" FRDP hash256 7bd636f4b2520a4518e7aa5664f3d666df7b907c85568cb786bf395e167d6c61
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 7, 2026
+.Dt PORTS 7
+.Os
+.Sh ИМЯ
+.Nm ports
+.Nd приложения, предоставляемые сообществом
+.Sh ОПИСАНИЕ
+Коллекция портов
+.Fx
+предлагает простой способ компиляции и установки сторонних приложений.
+Она также используется для сборки пакетов, устанавливаемых с помощью
+.Xr pkg 8 .
+.Pp
+Дерево портов, обычно расположенное в
+.Pa /usr/ports ,
+состоит из подкаталогов, по одному на каждую категорию; они, в свою очередь, содержат
+отдельные порты.
+Каждый порт — это каталог с метаданными и патчами, необходимыми для того, чтобы
+исходный код исходного приложения компилировался и работал в
+.Fx .
+Компиляция приложения так же проста, как ввод
+в каталоге порта.
+.Pa Makefile
+автоматически загружает
+исходный код приложения, либо с локального диска, либо из сети, распаковывает его,
+применяет патчи и компилирует.
+Он также рекурсивно обрабатывает зависимости \(em другие программные компоненты,
+от которых зависит порт для сборки и работы.
+Затем
+устанавливает приложение.
+.Pp
+Коллекция портов
+.Fx
+ведётся в нескольких ветках, которые различаются в основном
+версиями предоставляемого программного обеспечения: ветка
+.Em main
+содержит все последние изменения и соответствует
+.Em latest
+набору пакетов, тогда как
+.Em quarterly
+ветки предоставляют только критически важные исправления.
+Ветку
+.Em main
+можно клонировать и обновлять из репозитория Git, расположенного по адресу:
+.Pp
+.Lk https://git.FreeBSD.org/ports.git
+.Pp
+например:
+.Pp
+.Cm git clone https://git.FreeBSD.org/ports.git
+.Pp
+Ветки
+.Em quarterly
+можно найти в Git как ветки вида
+.Pa yyyyQn
+, где
+.Em yyyy
+обозначает год, а
+.Em n
+обозначает квартал
+.Po с 1 по 4
+.Pc , например:
+.Pp
+.Cm git clone -b 2021Q2 https://git.FreeBSD.org/ports.git
+.Pp
+Обычно рекомендуется использовать ветку
+.Nm
+, соответствующую используемому репозиторию
+.Xr pkg 8 .
+По умолчанию для
+.Fx CURRENT
+.Xr pkg 8
+настроен на установку пакетов, собранных из ветки
+.Em main
+, а для версий
+.Fx STABLE
+или RELEASE он настроен на установку пакетов, собранных из
+последней ветки
+.Em quarterly
+.
+Проверить текущий настроенный репозиторий
+.Xr pkg 8
+можно, посмотрев на поле
+.Em url
+в выводе
+.Cm pkg -vv
+.
+.Pp
+Для получения дополнительных сведений об использовании портов см. в
+.Sm off
+.No \&:
+.Sm on
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/handbook/ports/
+.Pp
+Для получения сведений о создании новых портов см.
+.Sm off
+.No \&:
+.Sm on
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/porters-handbook/
+.Sh ЦЕЛИ
+Некоторые цели
+.Xr make 1
+работают рекурсивно по подкаталогам.
+Это позволяет, например, установить все порты
+.Dq Li biology
+одной командой.
+Цели, которые это делают:
+.Cm build , checksum , clean , configure ,
+.Cm depends , extract , fetch , install ,
+и
+.Cm package .
+.Pp
+Следующие цели будут автоматически запускаться каждой целью, идущей далее
+по порядку.
+То есть
+.Cm build
+будет запускаться (при необходимости) целью
+.Cm install ,
+и так далее вплоть до
+.Cm fetch .
+Обычно вы будете использовать только цель
+.Cm install .
+.Bl -tag -width indent
+.It Cm config
+Настроить
+.Va OPTIONS
+для этого порта с помощью
+.Xr portconfig 1 Pq Pa ports/ports-mgmt/portconfig .
+.It Cm fetch
+Загрузить все файлы, необходимые для сборки этого порта, с сайтов,
+перечисленных в
+.Va MASTER_SITES
+и
+.Va PATCH_SITES .
+См.
+.Va FETCH_CMD , MASTER_SITE_OVERRIDE
+и
+.Va MASTER_SITE_BACKUP .
+.It Cm checksum
+Проверить, что контрольная сумма загруженного distfile совпадает с той, с которой порт
+тестировался.
+Если контрольная сумма distfile не совпадает, также загружаются distfile,
+которые отсутствуют или не прошли вычисление контрольной суммы.
+Определение
+.Va NO_CHECKSUM
+пропускает этот шаг.
+.It Cm depends
+Установить
+(или скомпилировать, если необходима только компиляция)
+любые зависимости текущего порта.
+При вызове целью
+.Cm extract
+или
+.Cm fetch
+это выполняется по частям как
+.Cm fetch-depends , build-depends ,
+и т. п.
+Определение
+.Va NO_DEPENDS
+пропускает этот шаг.
+.It Cm extract
+Распаковать distfile в рабочий каталог.
+.It Cm patch
+Применить все патчи, необходимые для порта.
+.It Cm configure
+Настроить порт.
+Некоторые порты будут задавать вам вопросы на этом этапе.
+См.
+.Va INTERACTIVE
+и
+.Va BATCH .
+.It Cm build
+Собрать порт.
+Это то же самое, что вызвать цель
+.Cm all .
+.It Cm install
+Установить порт и зарегистрировать его в системе пакетов.
+Это всё, что действительно нужно сделать.
+.It Cm install-missing-packages
+Установить отсутствующие зависимости из пакетов вместо их сборки.
+.El
+.Pp
+Следующие цели не запускаются в ходе обычного процесса установки.
+.Bl -tag -width indent
+.It Cm showconfig
+Показать конфигурацию
+.Va OPTIONS
+для этого порта.
+.It Cm showconfig-recursive
+Показать конфигурацию
+.Va OPTIONS
+для этого порта и всех его зависимостей.
+.It Cm rmconfig
+Удалить конфигурацию
+.Va OPTIONS
+для этого порта.
+.It Cm rmconfig-recursive
+Удалить конфигурацию
+.Va OPTIONS
+для этого порта и всех его зависимостей.
+.It Cm config-conditional
+Пропустить порты, для которых
+.Va OPTIONS
+уже настроены.
+.It Cm config-recursive
+Настроить
+.Va OPTIONS
+для этого порта и всех его зависимостей с помощью
+.Xr portconfig 1 Pq Pa ports/ports-mgmt/portconfig .
+.It Cm fetch-list
+Показать список файлов, которые нужно загрузить для сборки порта (но не его
+зависимостей).
+.It Cm fetch-recursive
+Загрузить distfile порта и всех его зависимостей.
+.It Cm fetch-recursive-list
+Показать список файлов, которые будут получены с помощью
+.Cm fetch-recursive .
+.It Cm build-depends-list , run-depends-list
+Вывести список всех прямых зависимостей для сборки или выполнения для этого порта.
+.It Cm all-depends-list
+Вывести список всех рекурсивных зависимостей для этого порта.
+.It Cm pretty-print-build-depends-list , pretty-print-run-depends-list
+Вывести список всех рекурсивных зависимостей для сборки или выполнения для этого порта по
+имени и версии порта.
+.It Cm missing
+Вывести список отсутствующих зависимостей, которые нужно установить для порта.
+.It Cm clean
+Удалить распакованный исходный код.
+Это рекурсивно применяется к зависимостям, если не определена
+.Va NOCLEANDEPENDS .
+.It Cm distclean
+Удалить distfile порта и выполнить цель
+.Cm clean .
+Часть
+.Cm clean
+рекурсивно применяется к зависимостям, если не определена
+.Va NOCLEANDEPENDS ,
+но часть
+.Cm distclean
+никогда не рекурсирует
+(возможно, это ошибка).
+.It Cm reinstall
+Используйте это, чтобы восстановить порт после использования
+.Xr pkg-delete 8 ,
+когда следовало использовать
+.Cm deinstall .
+.It Cm deinstall
+Удалить установленный порт из системы, аналогично
+.Xr pkg-delete 8 .
+.It Cm deinstall-all
+Удалить из системы все установленные порты с одинаковым
+.Va PKGORIGIN .
+.It Cm package
+Создать двоичный пакет для порта.
+Порт будет установлен, если он ещё не установлен.
+Пакет — это файл
+.Pa .pkg
+, который можно использовать для
+установки порта на других машинах с помощью
+.Xr pkg-add 8 .
+Если каталог, указанный в
+.Va PACKAGES
+, не существует, пакет будет помещён в
+.Pa /usr/ports/category/port/work/pkg .
+См.
+.Va PKGREPOSITORY
+и
+.Va PKGFILE
+для получения дополнительной информации.
+.It Cm package-recursive
+Как
+.Cm package ,
+но также создаёт пакет для каждого порта, от которого есть зависимости.
+.It Cm package-name
+Выводит имя вместе с версией порта.
+.It Cm readmes
+Создать
+.Pa README.html
+для порта.
+Это можно использовать из
+.Pa /usr/ports
+, чтобы создать просматриваемую веб-структуру всех портов в вашей системе!
+.It Cm search
+Искать в файле
+.Pa INDEX
+шаблон, заданный переменными
+.Xr make 1
+.Va key
+(ищет имя порта, комментарий и зависимости),
+.Va name
+(ищет только имя порта),
+.Va path
+(ищет путь порта),
+.Va info
+(ищет информацию о порте),
+.Va maint
+(ищет сопровождающего порта),
+.Va cat
+(ищет категорию порта),
+.Va bdeps
+(ищет зависимость порта для сборки),
+.Va rdeps
+(ищет зависимость порта для выполнения),
+.Va www
+(ищет веб-сайт порта)
+.Xr make 1
+переменными и их аналогами для исключения:
+.Va xname , xkey
+и т. д.
+Например, можно ввести:
+.Pp
+.Pp
+чтобы найти все порты, имя которых совпадает с
+.Dq Li query .
+Результаты включают путь, комментарий, сопровождающего, зависимости для сборки
+и зависимости для выполнения найденных портов.
+.Bd -literal -offset indent
+cd /usr/ports && make search name=pear- \e
+    xbdeps=apache
+.Ed
+.Pp
+Чтобы найти все порты, имена которых содержат
+.Dq Li pear-
+и у которых apache не указан в зависимостях для сборки.
+.Bd -literal -offset indent
+cd /usr/ports && make search name=pear- \e
+    xname='ht(tp|ml)'
+.Ed
+.Pp
+Чтобы найти все порты, имена которых содержат
+.Dq Li pear- ,
+но не
+.Dq Li html
+или
+.Dq Li http .
+.Bd -literal -offset indent
+make search key=apache display=name,path,info keylim=1
+.Ed
+.Pp
+Чтобы найти порты, содержащие
+.Dq Li apache
+в любом из полей name, path, info, игнорируйте остальную часть записи.
+.Pp
+По умолчанию поиск не учитывает регистр.
+Чтобы сделать его учитывающим регистр, можно использовать переменную
+.Va icase :
+.Bd -literal -offset indent
+make search name=p5-R icase=0
+.Ed
+.It Cm quicksearch
+Сокращённый вывод
+.Cm search .
+Показывать только name, path и info.
+.It Cm describe
+Создать однострочное описание каждого порта для использования в файле
+.Pa INDEX .
+.It Cm maintainer
+Показать адрес электронной почты сопровождающего порта.
+.It Cm index
+Создать
+.Pa /usr/ports/INDEX ,
+который используется целями
+.Cm pretty-print-*
+и
+.Cm search .
+Запуск цели
+.Cm index
+гарантирует, что ваш файл
+.Pa INDEX
+актуален для вашего дерева портов.
+.It Cm fetchindex
+Загрузить файл
+.Pa INDEX
+из кластера
+.Fx .
+.El
+.Sh ОКРУЖЕНИЕ
+Вы можете изменить все эти переменные.
+.Bl -tag -width indent
+.It Va PORTSDIR
+Расположение дерева портов.
+По умолчанию —
+.Pa /usr/ports .
+.It Va WRKDIRPREFIX
+Где создавать временные файлы.
+Полезно, если
+.Va PORTSDIR
+доступен только для чтения (например, смонтирован с CD-ROM).
+.It Va DISTDIR
+Где искать и куда помещать distfile; обычно
+.Pa distfiles/
+в
+.Va PORTSDIR .
+.It Va SU_CMD
+Команда, используемая для повышения привилегий при настройке и установке порта.
+Непривилегированный пользователь должен иметь доступ на запись к
+.Va WRKDIRPREFIX
+и
+.Va DISTDIR .
+По умолчанию —
+.Ql /usr/bin/su root -c .
+Многие пользователи для удобства задают её как
+.Ql /usr/bin/mdo sh -c
+или
+.Ql /usr/local/bin/sudo -E sh -c .
+.It Va PACKAGES
+Используется только для цели
+.Cm package ;
+базовый каталог дерева пакетов, обычно
+.Pa packages/
+в
+.Va PORTSDIR .
+Если этот каталог существует, дерево пакетов будет (частично) построено.
+Этот каталог не обязан существовать; если его нет, пакеты будут
+помещены в текущий каталог, или можно определить одну из
+.It Va PKGREPOSITORY
+Каталог для размещения пакета.
+.It Va PKGFILE
+Полный путь к пакету.
+.It Va LOCALBASE
+Где установлены существующие компоненты и где искать файлы при
+разрешении зависимостей (обычно
+.Pa /usr/local ) .
+.It Va PREFIX
+Куда устанавливать этот порт (обычно совпадает с
+.Va LOCALBASE ) .
+.It Va MASTER_SITES
+Основные сайты для файлов дистрибутива, если они не найдены локально.
+.It Va PATCH_SITES
+Основные расположения файлов патчей дистрибутива, если они не найдены
+локально.
+.It Va MASTER_SITE_FREEBSD
+Если задано, обращаться к главному сайту
+.Fx
+для всех файлов.
+.It Va MASTER_SITE_OVERRIDE
+Сначала пытаться обращаться к этим сайтам для всех файлов и патчей.
+.It Va MASTER_SITE_BACKUP
+В последнюю очередь пытаться обращаться к этим сайтам для всех файлов и патчей.
+.It Va RANDOMIZE_MASTER_SITES
+Пробовать места загрузки в случайном порядке.
+.It Va MASTER_SORT
+Сортировать места загрузки в соответствии с шаблоном, заданным пользователем.
+Пример:
+.Dl .dk .sunet.se .se dk.php.net .no .de heanet.dl.sourceforge.net
+.It Va MASTER_SITE_INDEX
+Откуда брать исходный
+.Pa INDEX
+, построенный в кластере
+.Fx
+(для цели
+.Cm fetchindex ).
+По умолчанию —
+.Pa https://download.FreeBSD.org/ports/index/ .
+.It Va FETCHINDEX
+Команда для получения
+.Pa INDEX
+(для цели
+.Cm fetchindex ).
+По умолчанию —
+.It Va NOCLEANDEPENDS
+Если определена, не позволять
+.Cm clean
+рекурсивно обрабатывать зависимости.
+.It Va FETCH_CMD
+Команда для загрузки файлов.
+Обычно
+.Xr fetch 1 .
+.It Va FORCE_PKG_REGISTER
+Если задана, перезаписывать любую существующую регистрацию пакета в системе.
+.It Va INTERACTIVE
+Если определена, работать с портом только если он требует взаимодействия.
+.It Va BATCH
+Если определена, работать с портом только если он может быть установлен на 100% автоматически.
+.It Va DISABLE_VULNERABILITIES
+Если определена, отключить проверку уязвимостей безопасности с помощью
+.Xr pkg-audit 8
+при установке новых портов.
+.It Va NO_IGNORE
+Если определена, разрешить установку портов, помеченных как
+.Aq Va FORBIDDEN .
+По умолчанию инфраструктура портов прерывает работу при попытке
+установки запрещённого порта.
+Конечно, такие порты могут работать не так, как ожидается, но если вы действительно понимаете,
+что делаете, и уверены в установке запрещённого порта, то
+.Va NO_IGNORE
+позволяет это сделать.
+.It Va NO_CHECKSUM
+Если определена, пропускать проверку контрольной суммы порта.
+.It Va TRYBROKEN
+Если определена, пытаться собрать порт, даже если он помечен как
+.Aq Va BROKEN .
+.It Va PORT_DBDIR
+Каталог, где хранятся результаты настройки
+.Va OPTIONS .
+По умолчанию —
+.Pa /var/db/ports .
+Для каждого порта, в котором настраивались
+.Va OPTIONS
+, будет создан подкаталог с уникальным именем, содержащий один файл
+.Pa options .
+.El
+.Sh ПЕРЕМЕННЫЕ MAKE
+Следующий список содержит имя и краткое описание многих переменных,
+используемых при сборке портов.
+Дополнительную информацию об этих и других связанных переменных можно найти в
+.Pa ${PORTSDIR}/Mk/*
+и в Руководстве портировщика
+.Fx .
+.Bl -tag -width indent
+.It Va WITH_DEBUG
+.Pq Vt bool
+Если задана, для двоичных файлов портов устанавливаются отладочные символы.
+.It Va WITH_DEBUG_PORTS
+Список origin, для которых нужно задать
+.Va WITH_DEBUG .
+.It Va DEBUG_FLAGS
+.Pq По умолчанию: Ql -g
+Дополнительные
+.Va CFLAGS
+, задаваемые при установке
+.Va WITH_DEBUG .
+.It Va DEFAULT_VERSIONS
+Переопределить вариант по умолчанию, используемый для портов
+с несколькими одновременно поддерживаемыми версиями в дереве,
+например версиями баз данных или компиляторов.
+.It Va WITH_CCACHE_BUILD
+.Pq Vt bool
+Если задана, включает использование
+.Xr ccache 1
+для сборки портов.
+.It Va CCACHE_DIR
+Какой каталог использовать для данных
+.Xr ccache 1 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa ports/CHANGES
+ВАЖНЫЕ НОВОСТИ, которые нужно прочитать перед созданием портов!
+.It Pa ports/CONTRIBUTING.md
+Инструкции по внесению вклада в дерево портов.
+.It Pa ports/Mk/bsd.port.mk
+Внутреннее устройство инфраструктуры портов.
+.It Pa ports/Tools/scripts/
+Набор инструментов для сопровождения портов.
+.It Pa ports/UPDATING
+ВАЖНЫЕ НОВОСТИ, которые нужно прочитать перед обновлением портов!
+.It Pa ports/distfiles/
+Каталог, где хранятся загруженные файлы.
+.Pp
+.It Pa ${PORT}/Makefile
+Спецификация для сборки порта.
+.It Pa ${PORT}/distinfo
+Контрольные суммы, создаваемые с помощью
+.Ql make makesum .
+.It Pa ${PORT}/files/
+Каталог для патчей или любых дополнительных файлов.
+.It Pa ${PORT}/pkg-descr
+Подробное описание порта.
+.It Pa ${PORT}/pkg-plist
+Список всех файлов, устанавливаемых портом.
+.It Pa ${PORT}/work/
+Каталог сборки и промежуточной компоновки порта.
+.Pp
+.It Pa /etc/make.conf
+Настройки инфраструктуры сборки портов.
+.It Pa /usr/ports/
+Каноническое расположение дерева портов.
+.It Pa /var/db/ports/
+Каталог для хранения настроенных
+.Va OPTIONS .
+.El
+.Sh ПРИМЕРЫ
+.Bl -tag -width 0n
+.It Sy Пример 1\&: No Сборка и установка порта
+.Pp
+Следующая команда собирает и устанавливает Emacs.
+.Bd -literal -offset 2n
+.Li # Ic cd /usr/ports/editors/emacs
+.Li # Ic make install
+.Ed
+.It Sy Пример 2\&: No Установка зависимостей с помощью Xr pkg 8
+.Pp
+Следующий пример показывает, как собрать и установить порт, не собирая его
+зависимости.
+Вместо этого зависимости загружаются через
+.Xr pkg 8 .
+.Bd -literal -offset 2n
+.Li # Ic make install-missing-packages
+.Li # Ic make install
+.Ed
+.Pp
+Это особенно полезно, когда зависимости требуют много времени и ресурсов
+для сборки
+.Pq например Pa lang/rust .
+Недостаток в том, что
+.Xr pkg 8
+предлагает только пакеты, собранные с набором
+.Va OPTIONS
+по умолчанию.
+.It Sy Пример 3\&: No Сборка нестандартного варианта порта
+.Pp
+Следующая команда собирает нестандартный вариант (flavor) порта.
+(В этом случае
+.Pa devel/py-pip
+будет собран с поддержкой Python 3.7.)
+.Bd -literal -offset 2n
+.Li # Ic cd /usr/ports/devel/py-pip
+.Li # Ic env FLAVOR=py37 make build
+.Ed
+.It Sy Пример 4\&: No Настройка параметров портов через Xr make.conf 5
+.Pp
+Следующие строки показывают различные способы настройки параметров портов через
+.Xr make.conf 5
+(как альтернативу, например, запуску
+.Dq Li make config ) :
+.Bd -literal -offset 2n
+# Включить NLS для всех портов, если не настроено иначе
+# с помощью диалога параметров.
+OPTIONS_SET=		NLS
+# Отключить DOCS для всех портов, переопределяя настройки,
+# заданные через диалог параметров.
+OPTIONS_UNSET_FORCE=	DOCS
+# Отключить DOCS и EXAMPLES для порта shells/zsh.
+shells_zsh_UNSET=	DOCS EXAMPLES
+.Ed
+.Pp
+Эти и другие переменные, связанные с параметрами, документированы в
+.Pa /usr/ports/Mk/bsd.options.mk .
+.It Sy Пример 5\&: No Настройка переменных Xr make 1 для конкретных портов через Xr make.conf 5
+.Pp
+Следующий пример показывает, как задать произвольные
+.Xr make 1
+переменные только для конкретных портов:
+.Bd -literal -offset 2n
+# Задать DISABLE_MAKE_JOBS для порта lang/rust:
+\&.if ${.CURDIR:M*/lang/rust}
+DISABLE_MAKE_JOBS=	yes
+TRYBROKEN=		yes
+\&.endif
+.Ed
+.It Sy Пример 6\&: No Отладка портов
+По умолчанию порты собираются и упаковываются без поддержки отладки (например,
+отладочные символы удаляются из двоичных файлов, при компиляции используются флаги
+оптимизации, подробное журналирование отключено).
+То, будут ли порты собираться с отладочными символами, можно управлять с помощью
+настроек в
+.Xr make.conf 5 ,
+например:
+.Bd -literal -offset 2n
+# Включить отладку для всех портов.
+WITH_DEBUG=		yes
+# Включить отладку для выбранных портов.
+WITH_DEBUG_PORTS=	mail/dovecot security/krb5
+.Ed
+.Pp
+Также можно использовать отладочные переменные в командной строке:
+.Bd -literal -offset 2n
+.Ed
+.Pp
+См. раздел
+.Sx ПЕРЕМЕННЫЕ MAKE
+, чтобы узнать больше об отладочных переменных.
+.Pp
+Чтобы понять подробности того, что происходит при установке отладочных переменных,
+лучше всего обратиться к файлам, расположенным в
+.Pa ${PORTSDIR}/Mk/*
+.Pq Pa bsd.port.mk
+в частности .
+.Pp
+Если для конкретного порта включена отладка, инфраструктура портов:
+.Bl -bullet
+.It
+Добавит
+.Va DEBUG_FLAGS
+(по умолчанию
+.Ql -g )
+к
+.Va CFLAGS .
+.It
+Попытается предотвратить удаление отладочных символов из двоичных файлов (включая проверку цели
+install, чтобы заменить
+.Ql install-strip
+на
+.Ql install ) .
+Проверить, были ли удалены символы из двоичного файла, можно с помощью
+.Xr file 1 .
+.It
+Попытается включить другие функции отладки, такие как тип сборки debug или подробное журналирование.
+Однако это зависит от порта, и инфраструктура портов может не знать о
+каждой поддерживаемой функции отладки, которую может предложить данное программное обеспечение).
+.El
+.El
+.Sh СМ. ТАКЖЕ
+.Xr make 1 ,
+.Xr make.conf 5 ,
+.Xr development 7 ,
+.Xr pkg 7
+.Pp
+Дополнительная документация для разработчиков:
+.Bl -item
+.It
+.Xr portlint 1
+.It
+.Pa /usr/ports/Mk/bsd.port.mk
+.El
+.Pp
+Дополнительная документация для пользователей:
+.Bl -item
+.It
+.Xr pkg 8
+.It
+.El
+.Sh ИСТОРИЯ
+Коллекция портов
+появилась в
+.Fx 1.0 .
+С тех пор она распространилась на
+.Nx ,
+.Ox ,
+и macOS.
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была создана
+.An David O'Brien .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Документация по портам разделена между четырьмя местами \(em
+.Pa /usr/ports/Mk/bsd.port.mk ,
+главой ... из
+и этой страницей руководства.

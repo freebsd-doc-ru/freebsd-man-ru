@@ -1,0 +1,329 @@
+.\" Copyright (c) 2013 Bryan Drewery <bdrewery@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pkg/pkg.7
+.\" FRDP githash be61deae0aa2923bb9908fc5b37b35712603e622
+.\" FRDP hash256 2a168b43a6ae39894a5af4012dd611cdf351edbfc50889f4f59e25112419111a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 29, 2025
+.Dt PKG 7
+.Os
+.Sh ИМЯ
+.Nm pkg
+.Nd утилита для управления пакетами
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Ar command ...
+.Nm
+.Op Fl d
+.Cm add
+.Op Fl fy
+.Op Fl r Ar reponame
+.Ar pkg.pkg
+.Nm
+.Fl N
+.Nm
+.Op Fl 46d
+.Cm bootstrap
+.Op Fl fy
+.Op Fl r Ar reponame
+.Sh ОПИСАНИЕ
+.Nm
+— это инструмент управления пакетами.
+Он используется для управления локальными пакетами, установленными из
+.Xr ports 7 ,
+а также для установки и обновления пакетов из удалённых репозиториев.
+.Pp
+Чтобы избежать проблем с обратной совместимостью, сам инструмент
+.Xr pkg 8
+не устанавливается в базовую систему.
+При первом вызове
+.Nm
+выполнит начальную загрузку настоящего
+.Xr pkg 8
+из удалённого репозитория.
+.Bl -tag
+.It Nm Ar command ...
+Если
+.Xr pkg 8
+ещё не установлен, он будет загружен, его подпись будет проверена,
+он будет установлен, а затем ему будет передана исходная команда.
+Если он уже установлен, запрошенная команда будет передана настоящему
+.Xr pkg 8 .
+.It Nm Cm add Oo Fl fy Oc Oo Fl r Ar reponame Oc Ar pkg.pkg
+Установить
+.Xr pkg 8
+из локального пакета вместо загрузки из удалённого репозитория.
+Если проверка подписи включена, то перед установкой пакета должен
+существовать правильный файл подписи, а подпись должна быть действительной.
+Если указан флаг
+.Fl f ,
+то
+.Xr pkg 8
+будет установлен независимо от того, установлен ли он уже.
+Если указан флаг
+.Fl y ,
+при начальной загрузке
+.Xr pkg 8
+подтверждение не запрашивается.
+.Pp
+Если был указан
+.Ar reponame ,
+то будет использоваться конфигурация подписи для этого репозитория.
+.It Nm Fl N
+Не выполнять начальную загрузку, только определить, установлен ли
+.Xr pkg 8
+на самом деле.
+Возвращает 0 и количество установленных пакетов, если он установлен, иначе 1.
+.It Nm Oo Fl 46 Oc Cm bootstrap Oo Fl fy Oc \
+Oo Fl r Ar reponame Oc
+Попытаться выполнить начальную загрузку и не передавать ничего в
+.Xr pkg 8
+после его установки.
+С
+.Fl 4
+и
+.Fl 6 ,
+.Nm
+будет принудительно использовать IPv4 или IPv6 соответственно для загрузки
+.Xr pkg 8
+и его подписей по мере необходимости.
+Если указан флаг
+.Fl f ,
+то
+.Xr pkg 8
+будет загружен и установлен независимо от того, установлен ли он уже.
+Если указан флаг
+.Fl y ,
+при начальной загрузке
+.Xr pkg 8
+подтверждение не запрашивается.
+.Pp
+Если был указан
+.Ar reponame ,
+то будет использоваться конфигурация для этого репозитория.
+.El
+.Sh ОПЦИИ
+Следующие опции поддерживаются
+.Nm :
+.Bl -tag -width indent
+.It Fl d, Fl -debug
+Показывать отладочную информацию.
+Можно указывать более одного раза для повышения уровня детализации.
+При указании дважды включается отладочный вывод
+.Xr fetch 3 .
+.El
+.Sh КОНФИГУРАЦИЯ
+Конфигурация может находиться либо в файле конфигурации репозитория,
+либо в глобальном файле конфигурации.
+Конфигурация репозитория по умолчанию для
+.Fx
+хранится в
+.Pa /etc/pkg/FreeBSD.conf ,
+а дополнительные файлы конфигурации репозиториев будут искаться в
+.Ev REPOS_DIR
+или, если она не задана, в
+.Pa /usr/local/etc/pkg/repos .
+.Pp
+При начальной загрузке
+.Nm
+обработает все найденные репозитории и по умолчанию будет использовать
+последний включённый репозиторий.
+.Pp
+Конфигурация репозитория хранится в следующем формате:
+.Bd -literal -offset indent
+FreeBSD: {
+  enabled: yes
+}
+.Ed
+.Pp
+.Bl -tag -width signature_type -compact
+.It url
+См.
+.Dv PACKAGESITE
+в
+.Sx ОКРУЖЕНИЕ
+.It mirror_type
+См.
+.Dv MIRROR_TYPE
+в
+.Sx ОКРУЖЕНИЕ
+.It signature_type
+См.
+.Dv SIGNATURE_TYPE
+в
+.Sx ОКРУЖЕНИЕ
+.It fingerprints
+См.
+.Dv FINGERPRINTS
+в
+.Sx ОКРУЖЕНИЕ
+.It enabled
+Определяет, следует ли использовать этот репозиторий.
+Допустимые значения:
+.Dv yes ,
+.Dv true ,
+.Dv 1 ,
+.Dv no ,
+.Dv false ,
+.Dv 0 .
+.El
+.Pp
+Глобальная конфигурация может храниться в
+.Pa /usr/local/etc/pkg.conf
+в следующем формате:
+.Bd -literal -offset indent
+.Ed
+.Pp
+См.
+.Sx ОКРУЖЕНИЕ
+для каждой переменной.
+.Sh ОКРУЖЕНИЕ
+Следующие переменные окружения могут быть заданы для переопределения
+настроек из используемого файла
+.Pa pkg.conf .
+.Bl -tag -width indent
+.It Ev MIRROR_TYPE
+Определяет, какой тип зеркала следует использовать.
+Допустимые значения:
+.Dv SRV ,
+.Dv HTTP ,
+.Dv NONE .
+.It Ev ABI
+Определяет ABI для устанавливаемого пакета.
+ABI по умолчанию определяется из
+.Pa /bin/sh .
+.It Ev ASSUME_ALWAYS_YES
+Если задана, при начальной загрузке
+.Xr pkg 8
+подтверждение не запрашивается.
+.It Ev SIGNATURE_TYPE
+Если установлено в
+.Dv FINGERPRINTS ,
+то при начальной загрузке
+.Xr pkg 8
+потребуется подпись, которая будет проверена по известным отпечаткам
+сертификатов.
+.It Ev FINGERPRINTS
+Если
+.Sy SIGNATURE_TYPE
+установлено в
+.Dv FINGERPRINTS ,
+это значение должно быть установлено в путь к каталогу, где находятся
+известные отпечатки.
+.It Ev PACKAGESITE
+URL, из которого будут загружаться
+.Xr pkg 8
+и другие пакеты.
+.It Ev REPOS_DIR
+Разделённый запятыми список каталогов, в которых следует искать файлы
+конфигурации репозиториев.
+.El
+.Sh ФАЙЛЫ
+Конфигурация читается из файлов в указанном порядке.
+Этот путь можно изменить, задав
+.Ev REPOS_DIR .
+Последний включённый репозиторий используется для начальной загрузки
+.Xr pkg 8 .
+.Bl -tag -width indent
+.It Pa /usr/local/etc/pkg.conf
+.It Pa /etc/pkg/FreeBSD.conf
+.It Pa /usr/local/etc/pkg/repos/*.conf
+.El
+.Sh ПРИМЕРЫ
+Некоторые примеры перечислены здесь.
+Полный список доступных команд доступен в
+.Xr pkg 8
+после его начальной загрузки.
+.Pp
+Поиск пакета:
+.Dl $ pkg search perl
+.Pp
+Установка пакета:
+.Dl % pkg install perl
+.Pp
+Список установленных пакетов:
+.Dl $ pkg info
+.Pp
+Обновление из удалённого репозитория:
+.Dl % pkg upgrade
+.Pp
+Список неавтоматических пакетов:
+.Dl $ pkg query -e '%a = 0' %o
+.Pp
+Список автоматических пакетов:
+.Dl $ pkg query -e '%a = 1' %o
+.Pp
+Удаление установленного пакета:
+.Dl % pkg delete perl
+.Pp
+Удаление ненужных зависимостей:
+.Dl % pkg autoremove
+.Pp
+Изменить пакет с автоматического на неавтоматический, что предотвратит
+его удаление с помощью
+.Xr pkg-autoremove 8 :
+.Dl % pkg set -A 0 perl
+.Pp
+Изменить пакет с неавтоматического на автоматический, что позволит
+.Xr pkg-autoremove 8
+удалить его, как только от него ничего не будет зависеть:
+.Dl % pkg set -A 1 perl
+.Pp
+Создать файл пакета из установленного пакета:
+.Dl % pkg create -o /usr/ports/packages/All perl
+.Pp
+Определить, какой пакет установил файл:
+.Dl $ pkg which /usr/local/bin/perl
+.Pp
+Проверить установленные пакеты на наличие уведомлений безопасности:
+.Dl $ pkg audit
+.Pp
+Проверить установленные пакеты на несоответствия контрольных сумм:
+.Dl # pkg check -s -a
+.Pp
+Проверить отсутствующие зависимости:
+.Dl # pkg check -d -a
+.Pp
+Загрузить пакет для другой версии
+.Fx
+вместе со всеми его зависимостями:
+.Dl # pkg -o ABI=FreeBSD:15:amd64 -o IGNORE_OSVERSION=yes fetch -o destdir -d perl
+.Sh СМ. ТАКЖЕ
+.Xr ports 7 ,
+.Xr pkg 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 9.1 .
+Она стала инструментом управления пакетами по умолчанию в
+.Fx 10.0 ,
+заменив набор инструментов pkg_install:
+.Xr pkg_add 1 ,
+.Xr pkg_info 1
+и
+.Xr pkg_create 1 .

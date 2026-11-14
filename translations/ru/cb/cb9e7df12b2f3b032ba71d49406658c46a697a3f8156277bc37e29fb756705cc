@@ -1,0 +1,637 @@
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)hier.7	8.1 (Berkeley) 6/5/93
+.\"
+.\" FRDP path share/man/man7/hier.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 cb9e7df12b2f3b032ba71d49406658c46a697a3f8156277bc37e29fb756705cc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 6, 2023
+.Dt HIER 7
+.Os
+.Sh NAME
+.Nm hier
+.Nd структура файловых систем
+.Sh SYNOPSIS
+Обзор иерархии файловой системы.
+.Sh DESCRIPTION
+.Bl -tag -width "/" -compact
+.It Pa /
+корневой каталог
+.It Pa /bin/
+пользовательские утилиты, необходимые для однопользовательского и многопользовательского режимов
+.It Pa /boot/
+программы и файлы конфигурации, используемые при начальной загрузке операционной системы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa defaults/
+файлы конфигурации начальной загрузки по умолчанию; см.
+.Xr loader.conf 5
+.It Pa dtb/
+скомпилированные файлы flattened device tree (FDT); см.
+.Xr fdt 4
+и
+.Xr dtc 1
+.Pp
+.It Pa overlays/
+скомпилированные оверлеи flattened device tree (FDT); их можно применить с помощью
+.Va fdt_overlays
+параметра в
+.Xr loader.conf 5
+.El
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa efi/
+точка монтирования для EFI System Partition (ESP) в системах UEFI
+.It Pa firmware/
+загружаемые модули ядра, содержащие двоичную прошивку, для оборудования, которому
+требуется загрузка прошивки
+.It Pa kernel/
+исполняемый файл чистого ядра (операционная система, загружаемая в память при загрузке)
+и модули ядра
+.It Pa modules/
+сторонние загружаемые модули ядра, например, связанные с
+.Xr ports 7
+.It Pa zfs/
+.Xr zfs 8
+файлы кеша пула
+.El
+.It Pa /compat/
+файлы, поддерживающие двоичную совместимость с другими операционными системами
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa linux/
+расположение по умолчанию для
+.Xr linux 4
+среды выполнения совместимости
+.El
+.Pp
+.It Pa /dev/
+обычная точка монтирования для
+.Xr devfs 5
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa fd/
+файлы файловых дескрипторов; см.
+.Xr fd 4
+.El
+.It Pa /etc/
+системные файлы конфигурации и скрипты
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa bluetooth/
+файлы конфигурации bluetooth
+.It Pa defaults/
+системные файлы конфигурации по умолчанию; см.
+.Xr rc 8
+.It Pa localtime
+информация о местном часовом поясе; см.
+.Xr ctime 3
+.It Pa mail/
+.Xr sendmail 8
+управляющие файлы
+.It Pa mtree/
+.Xr mtree 8
+файлы конфигурации
+.It Pa pam.d/
+файлы конфигурации для библиотеки Pluggable Authentication Modules (PAM); см.
+.Xr pam 3
+.It Pa periodic/
+скрипты, запускаемые ежедневно, еженедельно или ежемесячно с помощью
+.Xr cron 8 ;
+см.
+.Xr periodic 8
+.It Pa ppp/
+файлы конфигурации PPP; см.
+.Xr ppp 8
+.It Pa rc.d/
+скрипты запуска/управления системой и демонами; см.
+.Xr rc 8
+.It Pa security/
+файлы конфигурации аудита OpenBSM; см.
+.Xr audit 8
+.It Pa ssh/
+файлы конфигурации OpenSSH; см.
+.Xr ssh 1
+.It Pa ssl/
+файлы конфигурации OpenSSL
+.El
+.It Pa /home/
+домашние каталоги пользователей; хотя структура не стандартизирована, типичный домашний каталог для интерактивного пользователя
+.Dv beastie
+будет
+.Pa /home/beastie/
+.It Pa /lib/
+системные библиотеки, критически важные для двоичных файлов в
+.Pa /bin
+и
+.Pa /sbin
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa casper/
+специфичные для служб
+.Xr libcasper 3
+библиотеки поддержки Capsicum
+.It Pa geom/
+библиотеки, специфичные для классов, для
+.Xr geom 8
+утилиты
+.It Pa nvmecontrol/
+библиотеки, специфичные для производителей, для расширения
+.Xr nvmecontrol 8
+утилиты
+.El
+.It Pa /libexec/
+системные утилиты, критически важные для двоичных файлов в
+.Pa /bin
+и
+.Pa /sbin
+.It Pa /media/
+пустой каталог, обычно содержащий точки монтирования для съемных носителей, таких как
+USB-накопители, компакт-диски и DVD-диски
+.It Pa /mnt/
+пустой каталог, обычно используемый системными администраторами как временная
+точка монтирования
+.It Pa /net/
+автоматически монтируемые общие ресурсы NFS; см.
+.Xr auto_master 5
+.It Pa /nonexistent/
+несуществующий каталог; традиционно домашний каталог для специальных пользовательских
+учетных записей, которым не требуется домашний каталог.  См. также
+.Pa /var/empty/
+.It Pa /proc/
+файловая система процессов; см.
+.Xr procfs 5
+.It Pa /rescue/
+статически скомпонованные программы для аварийного восстановления; см.
+.Xr rescue 8
+.It Pa /root/
+домашний каталог пользователя root
+.It Pa /sbin/
+системные программы и административные утилиты, фундаментальные для
+однопользовательского и многопользовательского режимов
+.It Pa /tmp/
+временные файлы, которые могут быть удалены с помощью
+.Xr rc 8 ;
+см. переменную
+.Va clear_tmp_enable
+в
+.Xr rc.conf 5
+.It Pa /usr/
+содержит большинство пользовательских утилит и приложений
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa bin/
+общие утилиты, инструменты программирования и приложения
+.It Pa freebsd-dist/
+файлы дистрибутива
+.Pq например, base.txz ; см.
+.Xr release 7
+и
+.Xr bsdinstall 8
+.It Pa include/
+стандартные включаемые файлы C
+.It Pa lib/
+общие и архивные
+.Xr ar 1 Ns -type
+библиотеки
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa compat/
+общие библиотеки для совместимости
+.It Pa debug/
+отдельные отладочные данные для ядра и базовых системных библиотек и двоичных файлов
+.It Pa dtrace/
+скрипты библиотеки DTrace
+.It Pa engines/
+динамически загружаемые движки OpenSSL (набор инструментов криптографии/SSL)
+.El
+.Pp
+.It Pa libdata/
+разные файлы данных утилит
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa gcc/
+данные конфигурации GCC
+.It Pa ldscripts/
+скрипты компоновщика; см.
+.Xr ld 1
+.It Pa pkgconfig/
+.Xr pc 5 Pq Pa ports/devel/pkgconf
+файлы; наборы флагов компилятора, флагов компоновщика и другой информации,
+относящейся к использованию библиотек
+.El
+.Pp
+.It Pa libexec/
+системные демоны и системные утилиты, которые выполняются другими программами
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa aout/
+утилиты для работы с исполняемыми файлами a.out
+.It Pa elf/
+утилиты для работы с исполняемыми файлами ELF
+.It Pa lpr/
+утилиты и фильтры для системы печати LP; см.
+.Xr lpr 1
+.It Pa sendmail/
+двоичный файл
+.Xr sendmail 8
+; см.
+.Xr mailwrapper 8
+.It Pa sm.bin/
+ограниченная оболочка для
+.Xr sendmail 8 ;
+см.
+.Xr smrsh 8
+.El
+.Pp
+.It Pa local/
+локальные исполняемые файлы, библиотеки и т.д.
+Также используется как место назначения по умолчанию для
+.Xr ports 7
+фреймворка.
+Внутри
+.Pa local/ ,
+общая структура, описанная в
+.Nm
+для
+.Pa /usr
+должна использоваться.
+Исключениями являются документация портов
+.Po в
+.Pa share/doc/<port>/ Ns Pc ,
+и
+.Pa /usr/local/etc
+.Po повторяет
+.Pa /etc Ns Pc .
+.It Pa obj/
+дерево целей, специфичное для архитектуры, создаваемое при сборке
+.Fx
+из исходного кода; см.
+.Xr build 7
+.It Pa ports/
+.Fx
+коллекция портов; см.
+.Xr ports 7
+.It Pa sbin/
+системные демоны и системные утилиты, которые выполняются пользователями
+.It Pa share/
+файлы, независимые от архитектуры
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa calendar/
+общесистемные файлы календаря; см.
+.Xr calendar 1
+.It Pa dict/
+списки слов; см.
+.Xr look 1
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa freebsd
+.Fx Ns -specific
+термины, имена собственные и жаргон
+.It Pa web2
+слова из Webster's Second International
+.El
+.Pp
+.It Pa doc/
+разная документация
+.It Pa examples/
+различные примеры для пользователей и программистов
+.It Pa firmware/
+образы прошивок, загружаемые программами пользовательского пространства
+.It Pa games/
+используется различными играми
+.It Pa keys/
+известные доверенные и отозванные ключи
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa pkg/
+отпечатки для
+.Xr pkg 7
+и
+.Xr pkg 8
+.El
+.Pp
+.It Pa locale/
+файлы локализации; см.
+.Xr setlocale 3
+.It Pa man/
+страницы руководства
+.It Pa misc/
+разные общесистемные файлы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa termcap
+база данных характеристик терминалов; см.
+.Xr termcap 5
+.El
+.Pp
+.It Pa mk/
+шаблоны для make; см.
+.Xr make 1
+.It Pa nls/
+файлы поддержки национальных языков
+.It Pa security/
+файлы данных для политик безопасности, таких как
+.Xr mac_lomac 4
+.It Pa sendmail/
+.Xr sendmail 8
+файлы конфигурации
+.It Pa skel/
+пример
+.Pa .\&
+(точечных) файлов для новых учетных записей
+.It Pa snmp/
+MIBs, примеры файлов и определения деревьев для демона SNMP
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa defs/
+файлы определения деревьев для использования с
+.Xr gensnmptree 1
+.It Pa mibs/
+файлы MIB
+.El
+.Pp
+.It Pa syscons/
+.Xr syscons 4
+файлы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa fonts/
+консольные шрифты; см.
+.Xr vidcontrol 1
+и
+.Xr vidfont 1
+.It Pa keymaps/
+раскладки клавиатуры консоли; см.
+.Xr kbdcontrol 1
+и
+.Xr kbdmap 1
+.It Pa scrnmaps/
+карты экрана консоли
+.El
+.Pp
+.It Pa sysroot/
+файлы, необходимые для аргумента компилятора/компоновщика -sysroot при сборке неродных
+двоичных файлов
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa VERSION/
+файлы для
+.Fx
+выпуска VERSION.
+По соглашению,
+.Dq VERSION
+соответствует
+.Xr uname 1
+.Fl r .
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa MACHINE.MACHINE_ARCH/
+представляют двоичный ABI для этих файлов.
+.Dq MACHINE
+соответствует
+.Xr uname 1
+.Fl m .
+.Dq MACHINE_ARCH
+соответствует
+.Xr uname 1
+.Fl p .
+.El
+.El
+.Pp
+.It Pa tabset/
+файлы описания табуляции для различных терминалов; используются в файле termcap;
+см.
+.Xr termcap 5
+.It Pa vi/
+поддержка локализации и утилиты для
+.Xr vi 1
+.It Pa vt/
+.Xr vt 4
+файлы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa fonts/
+консольные шрифты; см.
+.Xr vidcontrol 1
+и
+.Xr vidfont 1
+.It Pa keymaps/
+раскладки клавиатуры консоли; см.
+.Xr kbdcontrol 1
+и
+.Xr kbdmap 1
+.El
+.Pp
+.It Pa zoneinfo/
+информация о конфигурации часового пояса; см.
+.Xr tzfile 5
+.El
+.Pp
+.It Pa src/
+.Fx
+исходный код; см.
+.Xr development 7 .
+Структура дерева исходного кода описана в файле верхнего уровня
+.Pa README.md
+.
+.Pp
+.It Pa tests/
+набор тестов
+.Fx
+; см.
+.Xr tests 7
+.El
+.It Pa /var/
+файлы журналов, временные, переходные и спулинговые файлы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa account/
+файлы системного учета
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa acct
+файл учета выполнения; см.
+.Xr acct 5
+.El
+.Pp
+.It Pa at/
+файлы планирования команд по времени; см.
+.Xr at 1
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa jobs/
+файлы заданий
+.It Pa spool/
+файлы спулинга вывода
+.El
+.Pp
+.It Pa backups/
+разные файлы резервных копий
+.It Pa cache/
+разные файлы кеша
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa pkg/
+кешированные пакеты для
+.Xr pkg 8
+.El
+.Pp
+.It Pa crash/
+каталог по умолчанию для дампов краха ядра; см.
+.Xr crash 8
+и
+.Xr savecore 8
+.It Pa cron/
+.Xr cron 8
+файлы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa tabs/
+.Xr crontab 5
+файлы
+.El
+.Pp
+.It Pa db/
+разные автоматически генерируемые системно-зависимые файлы базы данных
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa freebsd-update/
+временные файлы и загрузки для
+.Xr freebsd-update 8
+.El
+.Pp
+.It Pa empty/
+для использования программами, которым требуется пустой каталог.
+Используется, в частности, для разделения привилегий в
+.Xr sshd 8
+.It Pa games/
+разные файлы состояния и счета игр
+.It Pa heimdal/
+базы данных сервера Kerberos; см.
+.Xr kdc 8
+.It Pa log/
+разные системные файлы журналов
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa utx.lastlogin
+журнал последних входов; см.
+.Xr getutxent 3
+.It Pa utx.log
+журнал входов/выходов; см.
+.Xr getutxent 3
+.El
+.Pp
+.It Pa mail/
+файлы почтовых ящиков пользователей
+.It Pa msgs/
+база данных системных сообщений; см.
+.Xr msgs 1
+.It Pa preserve/
+не используется, присутствует по историческим причинам
+.It Pa quotas/
+файлы информации о квотах файловой системы
+.It Pa run/
+файлы, содержащие информацию об операционной системе с момента ее загрузки
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa bhyve/
+.Xr bhyve 8
+сокеты виртуальной машины
+.Xr unix 4 Ns -domain sockets
+.It Pa ppp/
+доступен для записи группе
+.Dq network
+для сокетов командного соединения; см.
+.Xr ppp 8
+.It Pa utx.active
+база данных текущих пользователей; см.
+.Xr getutxent 3
+.El
+.Pp
+.It Pa rwho/
+файлы данных rwho; см.
+.Xr rwhod 8 ,
+.Xr rwho 1 ,
+и
+.Xr ruptime 1
+.It Pa spool/
+разные каталоги спулинга принтера и почтовой системы
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa clientmqueue/
+очередь недоставленной отправляемой почты; см.
+.Xr sendmail 8
+.It Pa ftp/
+корневой каталог ftp; см.
+.Xr ftpd 8
+.It Pa mqueue/
+очередь недоставленной почты; см.
+.Xr sendmail 8
+.It Pa output/
+каталоги спулинга построчного принтера
+.El
+.Pp
+.It Pa tmp/
+временные файлы, которые не удаляются с помощью
+.Xr rc 8
+.Pp
+.Bl -tag -width Fl -compact
+.It Pa vi.recover/
+.Xr vi 1
+файлы восстановления
+.El
+.Pp
+.It Pa yp/
+карты NIS; см.
+.Xr yp 8
+.El
+.El
+.Sh ПРИМЕЧАНИЯ
+Эта страница руководства описывает структуру файловой системы по умолчанию
+.Fx
+.
+Фактическая иерархия в данной системе определяется на усмотрение системного
+администратора.
+Хорошо поддерживаемая установка будет включать настроенную версию
+этого документа.
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr find 1 ,
+.Xr grep 1 ,
+.Xr ls 1 ,
+.Xr whereis 1 ,
+.Xr which 1
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+появилась в
+.At v7 .

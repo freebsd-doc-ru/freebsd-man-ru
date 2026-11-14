@@ -1,0 +1,176 @@
+.\"
+.\" Copyright (c) 1996 Joerg Wunsch
+.\"
+.\" All rights reserved.
+.\"
+.\" This program is free software.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\" "
+.\" FRDP path share/man/man7/clocks.7
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 db10c34625a129148b45b13c91692507b3f863ccc4dae84a425c34ef1e93feca
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 18, 2008
+.Dt CLOCKS 7
+.Os
+.Sh ИМЯ
+.Nm clocks
+.Nd различные системные таймеры
+.Sh СИНТАКСИС
+.In time.h
+.Sh ОПИСАНИЕ
+.Dv HZ
+не является частью интерфейса приложений в
+.Bx .
+.Pp
+Существует множество различных реальных и виртуальных (для учёта времени) часов с
+разными частотами:
+.Bl -bullet
+.It
+Часы планировщика.
+Это реальные часы с частотой, составляющей 100.
+Они недоступны приложениям.
+.It
+Статистические часы.
+Это реальные часы с частотой, составляющей 128.
+Они напрямую недоступны приложениям.
+.It
+Часы, возвращаемые
+.Xr clock 3 .
+Это виртуальные часы с частотой, составляющей 128.
+Их фактическая частота задаётся макросом
+.Dv CLOCKS_PER_SEC .
+Обратите внимание, что
+.Dv CLOCKS_PER_SEC
+может быть числом с плавающей запятой.
+Не используйте
+.Xr clock 3
+в новых программах в
+.Fx .
+Они слабы по сравнению с
+.Xr getrusage 2 .
+Они предоставлены для соответствия
+.Tn ANSI .
+Они реализованы путём вызова
+.Xr getrusage 2
+с отбрасыванием информации и разрешающей способности.
+.It
+Часы, возвращаемые
+.Xr times 3 .
+Это виртуальные часы с частотой, составляющей 128.
+Их фактическая частота задаётся макросом
+.Dv CLK_TCK
+(устаревшим; не используйте) и с помощью
+.Fn sysconf _SC_CLK_TCK
+и
+.Xr sysctl 3 .
+Обратите внимание, что их частота может отличаться от
+.Dv CLOCKS_PER_SEC .
+Не используйте
+.Xr times 3
+в новых программах в
+.Fx .
+Они слабы по сравнению с
+.Xr gettimeofday 2
+вместе с
+.Xr getrusage 2 .
+Они предоставлены для соответствия
+.Tn POSIX .
+Они реализованы путём вызова
+.Xr gettimeofday 2
+и
+.Xr getrusage 2
+с отбрасыванием информации и разрешающей способности.
+.It
+Часы профилирования.
+Это реальные часы с частотой 1024.
+Они используются в основном
+.Xr moncontrol 3
+и
+.Xr gprof 1 .
+Приложения должны определять их фактическую частоту с помощью
+.Xr sysctl 3
+или путём чтения её из заголовка файла данных профилирования.
+.It
+Часы mc146818a.
+Это реальные часы с номинальной частотой 32768.
+Их частота делится, чтобы получить статистические часы и часы профилирования.
+Они недоступны приложениям.
+.It
+Микросекундные часы.
+Это виртуальные часы с частотой 1000000.
+Они используются для большей части учёта времени в
+.Bx
+и экспортируются приложениям в
+.Xr getrusage 2 ,
+.Xr gettimeofday 2 ,
+.Xr select 2 ,
+.Xr getitimer 2
+и т. д.
+Это те часы, которые обычно должны использоваться приложениями
+.Bx .
+.It
+Часы i8254.
+Это реальные часы/таймер с номинальной частотой 1193182.
+Они имеют три независимых счётчика времени для использования.
+Их частота делится, чтобы получить часы планировщика.
+Они недоступны приложениям.
+.It
+Часы TSC (64-битный регистр) в x86-системах пятого поколения или более поздних.
+Это реальные часы с частотой, эквивалентной числу циклов в секунду процессора(ов).
+Их частоту можно найти с помощью sysctl
+.Va machdep.tsc_freq ,
+если он доступен.
+Они используются для интерполяции между значениями часов планировщика.
+К ним можно получить доступ с помощью запроса
+.Dv PMIOTSTAMP
+к
+.Xr perfmon 4 .
+.It
+Часы ACPI.
+Это реальные часы/таймер с номинальной частотой 3579545.
+Доступ к ним осуществляется через 24- или 32-битный регистр.
+В отличие от часов TSC, они поддерживают постоянную частоту тиков, даже когда процессор
+спит или его тактовая частота изменяется.
+Они недоступны приложениям.
+.El
+.Pp
+Итог: если
+.Dv HZ
+не равно 1000000, то приложение, вероятно, использует неправильные часы.
+.Sh СМ. ТАКЖЕ
+.Xr gprof 1 ,
+.Xr clock_gettime 2 ,
+.Xr getitimer 2 ,
+.Xr getrusage 2 ,
+.Xr gettimeofday 2 ,
+.Xr select 2 ,
+.Xr clock 3 ,
+.Xr moncontrol 3 ,
+.Xr times 3
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была написана
+.An J\(:org Wunsch
+по описанию, опубликованному
+.An Bruce Evans .

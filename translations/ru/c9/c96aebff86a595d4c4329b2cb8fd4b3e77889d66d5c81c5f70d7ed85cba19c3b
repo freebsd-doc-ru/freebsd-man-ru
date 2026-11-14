@@ -1,0 +1,138 @@
+.\" Copyright (c) 2002 Mike Barcroft <mike@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/stdint.7
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c96aebff86a595d4c4329b2cb8fd4b3e77889d66d5c81c5f70d7ed85cba19c3b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 15, 2002
+.Dt STDINT 7
+.Os
+.Sh ИМЯ
+.Nm stdint
+.Sh СИНТАКСИС
+.In stdint.h
+.Sh ОПИСАНИЕ
+Заголовочный файл
+.In stdint.h
+предоставляет переносимые на уровне исходного кода целочисленные типы заданного
+размера, с наименьшим объёмом памяти при минимальном размере, с наибольшей
+скоростью доступа при минимальном размере, наибольшего целочисленного размера,
+а также типы, способные хранить указатели.
+.Pp
+Типы
+.Vt int8_t ,
+.Vt int16_t ,
+.Vt int32_t
+и
+.Vt int64_t
+предоставляют знаковый целочисленный тип шириной 8, 16, 32 или 64 бита соответственно.
+Типы
+.Vt uint8_t ,
+.Vt uint16_t ,
+.Vt uint32_t
+и
+.Vt uint64_t
+предоставляют беззнаковый целочисленный тип шириной 8, 16, 32 или 64 бита соответственно.
+Эти целочисленные типы следует использовать, когда требуется конкретный размер.
+.Pp
+Типы
+.Vt int_fast8_t ,
+.Vt int_fast16_t ,
+.Vt int_fast32_t
+и
+.Vt int_fast64_t
+предоставляют наиболее быстрый знаковый целочисленный тип шириной
+не менее 8, 16, 32 или 64 бит соответственно.
+Типы
+.Vt uint_fast8_t ,
+.Vt uint_fast16_t ,
+.Vt uint_fast32_t
+и
+.Vt uint_fast64_t
+предоставляют наиболее быстрый беззнаковый целочисленный тип шириной
+не менее 8, 16, 32 или 64 бит соответственно.
+Эти типы следует использовать, когда скорость доступа имеет
+первостепенное значение и когда конкретный размер не требуется.
+.Pp
+Типы
+.Vt int_least8_t ,
+.Vt int_least16_t ,
+.Vt int_least32_t
+и
+.Vt int_least64_t
+предоставляют знаковый целочисленный тип с наименьшим объёмом памяти и
+шириной не менее 8, 16, 32 или 64 бит соответственно.
+Типы
+.Vt uint_least8_t ,
+.Vt uint_least16_t ,
+.Vt uint_least32_t
+и
+.Vt uint_least64_t
+предоставляют беззнаковый целочисленный тип с наименьшим объёмом памяти и
+шириной не менее 8, 16, 32 или 64 бит соответственно.
+Эти типы следует использовать, когда важна экономия памяти
+и когда конкретный размер не требуется.
+.Pp
+Тип
+.Vt intmax_t
+предоставляет знаковый целочисленный тип, достаточно большой,
+чтобы вместить любой другой знаковый целый тип.
+Тип
+.Vt uintmax_t
+предоставляет беззнаковый целочисленный тип, достаточно большой,
+чтобы вместить любой другой беззнаковый целый тип.
+Эти типы, как правило, являются наибольшими знаковыми и беззнаковыми
+целочисленными типами, доступными на конкретной архитектуре.
+.Pp
+Тип
+.Vt intptr_t
+предоставляет знаковый целочисленный тип, способный хранить указатель на
+.Vt void ,
+который впоследствии может быть преобразован обратно в указатель на
+.Vt void .
+.Pp
+Тип
+.Vt uintptr_t
+предоставляет беззнаковый целочисленный тип, способный хранить указатель на
+.Vt void ,
+который впоследствии может быть преобразован обратно в указатель на
+.Vt void .
+.Pp
+Кроме того, заголовочный файл
+.In stdint.h
+определяет некоторые макросы, но ни один из них здесь не документирован.
+.Sh СТАНДАРТЫ
+Заголовочный файл
+.In stdint.h
+соответствует
+.St -isoC-99
+и
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Заголовочный файл
+.In stdint.h
+впервые появился в
+.Fx 5.0 .

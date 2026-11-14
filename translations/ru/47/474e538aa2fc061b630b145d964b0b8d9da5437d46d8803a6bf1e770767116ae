@@ -1,0 +1,209 @@
+.\" Copyright (c) 2018 Edward Tomasz Napierala <trasz@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/development.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 474e538aa2fc061b630b145d964b0b8d9da5437d46d8803a6bf1e770767116ae
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 1, 2022
+.Dt DEVELOPMENT 7
+.Os
+.Sh ИМЯ
+.Nm development
+.Nd введение в процесс разработки
+.Fx
+.Sh ОПИСАНИЕ
+Разработка
+.Fx
+разделена на три основных подпроекта: doc, ports и src.
+Doc — это документация, такая как
+.Fx
+Handbook.
+Чтобы узнать больше, см.:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/fdp-primer/
+.Pp
+Ports, более подробно описанные в
+.Xr ports 7 ,
+представляют собой способ сборки, упаковки и установки стороннего программного
+обеспечения.
+Чтобы узнать больше, см.:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/porters-handbook/
+.Pp
+Последний, src, связан с исходным кодом базовой системы,
+состоящей из ядра, а также библиотек и утилит, обычно называемых
+world.
+.Pp
+Руководство коммиттера, описывающее темы, относящиеся ко всем коммиттерам,
+можно найти по адресу:
+.Pp
+.Lk https://docs.freebsd.org/en/articles/committers-guide/
+.Pp
+Разработка src в
+.Fx
+ведётся в размещённом на проекте
+репозитории Git, расположенном по адресу:
+.Pp
+.Lk https://git.FreeBSD.org/src.git
+.Pp
+URL для отправки:
+.Pp
+.Lk ssh://git@gitrepo.FreeBSD.org/src.git
+.Pp
+Также имеется список публичных Git-зеркал только для чтения по адресу:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/handbook/mirrors/#external-mirrors
+.Pp
+Ветка Git
+.Ql main
+представляет CURRENT;
+все изменения сначала коммитятся в CURRENT, а затем обычно
+переносятся с помощью cherry-pick обратно в STABLE, что относится к таким
+веткам Git, как
+.Ql stable/13 .
+Каждые несколько лет от CURRENT ответвляется новая STABLE
+с увеличенным номером основной версии.
+Затем от STABLE ответвляются релизы, нумеруемые последовательными номерами
+минорных версий.
+.Pp
+Структура дерева исходного кода описана в его файле
+.Pa README.md .
+Инструкции по сборке можно найти в
+.Xr build 7
+и
+.Xr release 7 .
+Интерфейсы программирования ядра (KPI) документированы на страницах
+руководства раздела 9; для получения списка используйте их.
+Набор регрессионных тестов описан в
+.Xr tests 7 .
+Соглашения по написанию кода см. в
+.Xr style 9 .
+.Pp
+Чтобы задать вопросы о разработке, используйте списки рассылки,
+такие как freebsd-arch@ и freebsd-hackers@:
+.Pp
+.Lk https://lists.FreeBSD.org
+.Pp
+Для включения ваших патчей в основной репозиторий
+.Fx
+используйте Phabricator;
+это инструмент проверки кода, который позволяет другим разработчикам
+просматривать изменения, предлагать улучшения и в конечном счёте забирать
+изменение и коммитить его:
+.Pp
+.Lk https://reviews.FreeBSD.org
+.Pp
+Чтобы проверить последние результаты сборки и тестирования
+.Fx
+для веток CURRENT и STABLE,
+система непрерывной интеграции находится по адресу:
+.Pp
+.Lk https://ci.FreeBSD.org
+.Pp
+.Sh ПРИМЕРЫ
+Получите ветку CURRENT, соберите её и установите, перезаписав текущую
+систему:
+.Bd -literal -offset indent
+git clone https://git.FreeBSD.org/src.git src
+cd src
+make -sj8 buildworld buildkernel installkernel
+shutdown -r now
+.Ed
+.Pp
+После перезагрузки:
+.Bd -literal -offset indent
+cd src
+make -j8 installworld
+reboot
+.Ed
+.Pp
+Пересоберите и переустановите отдельный компонент пользовательского
+пространства, в данном случае
+.Xr ls 1 :
+.Bd -literal -offset indent
+cd src/bin/ls
+make clean all install
+.Ed
+.Pp
+Быстро пересоберите и переустановите ядро, перекомпилировав только файлы,
+изменённые с момента последней сборки; учтите, что это сработает, только если
+полная сборка ядра уже выполнялась ранее, а не на новом дереве исходного кода:
+.Bd -literal -offset indent
+cd src
+make -sj8 kernel KERNFAST=1
+.Ed
+.Pp
+Чтобы пересобрать части
+.Fx
+для другой архитектуры CPU,
+сначала подготовьте дерево исходного кода, собрав кросс-инструментарий:
+.Bd -literal -offset indent
+cd src
+make -sj8 toolchain TARGET_ARCH=aarch64
+.Ed
+.Pp
+Затем, чтобы собрать и установить отдельный компонент пользовательского
+пространства, используйте:
+.Bd -literal -offset indent
+cd src/bin/ls
+make buildenv TARGET_ARCH=aarch64
+make clean all install DESTDIR=/clients/arm
+.Ed
+.Pp
+Аналогично, чтобы быстро пересобрать и переустановить ядро, используйте:
+.Bd -literal -offset indent
+cd src
+make buildenv TARGET_ARCH=aarch64
+make -sj8 kernel KERNFAST=1 DESTDIR=/clients/arm
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr git 1 ,
+.Xr witness 4 ,
+.Xr build 7 ,
+.Xr hier 7 ,
+.Xr ports 7 ,
+.Xr release 7 ,
+.Xr tests 7 ,
+.Xr locking 9 ,
+.Xr style 9
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+была первоначально написана
+.An Matthew Dillon Aq Mt dillon@FreeBSD.org
+и впервые появилась
+в
+.Fx 5.0 ,
+декабрь 2002.
+Впоследствии она была существенно изменена
+.An Eitan Adler Aq Mt eadler@FreeBSD.org
+для отражения перехода репозитория с
+.Lk https://www.nongnu.org/cvs/ CVS
+на
+.Lk https://subversion.apache.org/ Subversion .
+Она была переписана с нуля
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+для
+.Fx 12.0 .
