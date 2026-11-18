@@ -1,0 +1,118 @@
+.\"
+.\" Copyright (c) 2005,2008
+.\"	Hartmut Brandt.
+.\" 	All rights reserved.
+.\"
+.\" Author: Hartmut Brandt <harti@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/bsd.snmpmod.mk.7
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 ceb25b99750ac59101c51978d1a90695de69a6dc4edf4604e36ad52230de92e7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 8, 2008
+.Dt BSD.SNMPMOD.MK 7
+.Os
+.Sh ИМЯ
+.Nm bsd.snmpmod.mk
+.Nd сборка модулей для
+.Xr bsnmpd 1
+.Sh СИНТАКСИС
+.Sh ОПИСАНИЕ
+Файл
+.In bsd.snmpmod.mk
+упрощает сборку модулей для демона SNMP Begemot,
+.Xr bsnmpd 1 .
+Он предоставляет некоторые общие функции для сборки модуля и
+полагается на
+.In bsd.lib.mk ,
+который включается из
+.In bsd.snmpmod.mk
+для непосредственной сборки разделяемой библиотеки.
+.Pp
+Следующие переменные
+.Xr make 1
+управляют специальными функциями:
+.Bl -tag -width Ds
+.It Va MOD
+Короткое имя модуля.
+Имя разделяемой библиотеки будет
+.Pa snmp_${MOD}.so .
+Должен существовать файл
+.Pa ${MOD}_tree.def
+для компиляции с
+.Xr gensnmptree 1 ,
+который содержит определение дерева MIB, реализуемого модулем.
+.It Va EXTRAMIBDEFS
+Список дополнительных файлов определений MIB для
+.Xr gensnmptree 1 .
+Это необязательно.
+Этот список файлов передаётся обоим вызовам
+.Xr gensnmptree 1 No \(em
+тому, который извлекает символы в
+.Va XSYM
+из определений MIB, и тому, который
+генерирует таблицу с OID, обслуживаемыми этим модулем.
+.It Va EXTRAMIBSYMS
+Список дополнительных файлов определений MIB для
+.Xr gensnmptree 1 .
+Это необязательно.
+Этот список файлов передаётся только тому вызову
+.Xr gensnmptree 1 ,
+который извлекает символы из файлов определений MIB.
+Он полезен при наличии зависимостей от других MIB или для извлечения глобальных
+определений для констант перечисления.
+.It Va XSYM
+Список символов, которые должны быть извлечены из файлов определений MIB с помощью
+.Xr gensnmptree 1 .
+Это необязательно.
+.It Va DEFS
+Список файлов определений MIB, которые должны быть установлены.
+Это необязательно.
+.It Va BMIBS
+Список текстовых MIB, которые должны быть установлены.
+Это необязательно.
+.El
+.Pp
+Три файла автоматически создаются из файлов определений MIB и
+переменной
+.Va XSYM :
+.Bl -tag -width Ds
+.It Pa ${MOD}_tree.c
+Он содержит таблицу с деревом, реализуемым модулем.
+Он автоматически включается в
+переменную
+.Va SRCS .
+.It Pa ${MOD}_tree.h
+Он содержит определения препроцессора для всех OID, определяемых модулем,
+и может быть включён в исходный код модуля.
+.It Pa ${MOD}_oid.h
+Определения препроцессора для OID всех символов, перечисленных в
+.Va XSYM .
+Его следует включить в исходный код модуля.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bsnmpd 1 ,
+.Xr gensnmptree 1 ,
+.Xr snmpmod 3

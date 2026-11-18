@@ -1,0 +1,504 @@
+.\" Copyright (c) 1983, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)telnetd.8	8.4 (Berkeley) 6/1/94
+.\"
+.\" FRDP path crypto/heimdal/appl/telnet/telnetd/telnetd.8
+.\" FRDP githash c19800e8cd5640693f36f2040db4ab5e8d738146
+.\" FRDP hash256 079f8e523ee7fdd54547c229fd8774340bd6930702919774e9a59530ced8f4fc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 19, 2006
+.Dt TELNETD 8
+.Os BSD 4.2
+.Sh ИМЯ
+.Nm telnetd
+.Nd DARPA
+.Tn TELNET
+сервер протокола
+.Sh СИНТАКСИС
+.Nm telnetd
+.Op Fl BeUhkln
+.Op Fl D Ar debugmode
+.Op Fl S Ar tos
+.Op Fl X Ar authtype
+.Op Fl a Ar authmode
+.Op Fl r Ns Ar lowpty-highpty
+.Op Fl u Ar len
+.Op Fl debug
+.Op Fl L Ar /bin/login
+.Op Fl y
+.Op Ar port
+.Sh ОПИСАНИЕ
+Команда
+.Nm telnetd
+— это сервер, который поддерживает
+.Tn DARPA
+стандартный
+.Tn TELNET
+протокол виртуального терминала.
+.Nm Telnetd
+обычно запускается интернет-сервером (см.
+.Xr inetd 8 )
+по запросам на подключение к порту
+.Tn TELNET
+, как указано в файле
+.Pa /etc/services
+(см.
+.Xr services 5 ) .
+Параметр
+.Fl debug
+может использоваться для запуска
+.Nm telnetd
+вручную, а не через
+.Xr inetd 8 .
+Если запуск выполняется таким образом,
+.Ar port
+можно указать, чтобы запустить
+.Nm telnetd
+на альтернативном номере порта
+.Tn TCP .
+.Pp
+Команда
+.Nm telnetd
+принимает следующие параметры:
+.Bl -tag -width Ds
+.It Fl a Ar authmode
+Этот параметр может использоваться для указания режима,
+который следует использовать для аутентификации.
+Учтите, что этот параметр полезен только если
+.Nm telnetd
+был скомпилирован с поддержкой параметра
+.Dv AUTHENTICATION .
+Для
+.Ar authmode
+имеется несколько допустимых значений:
+.Bl -tag -width debug
+.It debug
+Включает код отладки аутентификации.
+.It user
+Разрешать подключения только когда удалённый пользователь
+может предоставить действительную информацию аутентификации
+для идентификации удалённого пользователя
+и ему разрешён доступ к указанной учётной записи
+без предоставления пароля.
+.It valid
+Разрешать подключения только когда удалённый пользователь
+может предоставить действительную информацию аутентификации
+для идентификации удалённого пользователя.
+Команда
+.Xr login 1
+обеспечит любую дополнительную проверку пользователя,
+необходимую, если удалённому пользователю не разрешён автоматический
+доступ к указанной учётной записи.
+.It other
+Разрешать только подключения, предоставляющие некоторую информацию аутентификации.
+Этот параметр в настоящее время не поддерживается
+ни одним из существующих механизмов аутентификации
+и, следовательно, совпадает с указанием
+.Fl a
+.Cm valid .
+.It otp
+Разрешать только аутентифицированные подключения (как с
+.Fl a
+.Cm user )
+, а также входы с одноразовыми паролями (OTP). Этот параметр вызовет
+login с параметром, чтобы принимались только OTP. Пользователь может, конечно,
+по-прежнему вводить секретную информацию в приглашении.
+.It none
+Это состояние по умолчанию.
+Информация аутентификации не требуется.
+Если информация аутентификации не предоставлена или недостаточна,
+то программа
+.Xr login 1
+обеспечит необходимую проверку пользователя.
+.It off
+Это отключает код аутентификации.
+Вся проверка пользователя будет происходить через программу
+.Xr login 1 .
+.El
+.It Fl B
+Игнорируется.
+.It Fl D Ar debugmode
+Этот параметр может использоваться для отладки.
+Он позволяет
+.Nm telnetd
+выводить отладочную информацию
+в соединение, позволяя пользователю видеть, что
+.Nm telnetd
+делает.
+Для
+.Ar debugmode
+имеется несколько возможных значений:
+.Bl -tag -width exercise
+.It Cm options
+Выводит информацию о согласовании параметров
+.Tn TELNET .
+.It Cm report
+Выводит информацию
+.Cm options
+, а также дополнительную информацию
+о происходящей обработке.
+.It Cm netdata
+Отображает поток данных, получаемый
+.Nm telnetd .
+.It Cm ptydata
+Отображает данные, записываемые в pty.
+.It Cm exercise
+Ещё не реализовано.
+.El
+.It Fl e
+требовать, чтобы клиент включил шифрование (в обоих направлениях),
+и разрывает соединение, если клиент пытается отключить шифрование
+(в любом направлении).
+.It Fl h
+Отключает вывод информации, специфичной для узла, до
+завершения входа в систему.
+.It Fl k
+.It Fl l
+Игнорируется.
+.It Fl n
+Отключить
+.Dv TCP
+проверки активности. Обычно
+.Nm telnetd
+включает механизм проверки активности
+.Tn TCP
+для проверки соединений,
+которые были неактивны в течение некоторого времени, чтобы определить,
+там ли ещё клиент, так что неактивные соединения
+от машин, которые аварийно завершились или больше
+недоступны, могут быть очищены.
+.It Fl r Ar lowpty-highpty
+Этот параметр включён только когда
+.Nm telnetd
+скомпилирован для
+.Dv UNICOS .
+Он задаёт включающий диапазон используемых устройств
+псевдотерминалов. Если в системе настроена переменная sysconf
+.Dv _SC_CRAY_NPTY ,
+диапазон поиска pty по умолчанию — от 0 до
+.Dv _SC_CRAY_NPTY ;
+иначе диапазон по умолчанию — от 0 до 128. Можно опустить
+.Ar lowpty
+или
+.Ar highpty
+, чтобы изменить
+любой конец диапазона поиска. Если
+.Ar lowpty
+опущен, символ - всё ещё требуется, чтобы
+.Nm telnetd
+мог отличить
+.Ar highpty
+от
+.Ar lowpty .
+.It Fl S Ar tos
+.It Fl u Ar len
+Этот параметр используется для указания размера поля
+в структуре
+.Dv utmp
+, которое содержит имя удалённого узла.
+Если разрешённое имя узла длиннее
+.Ar len ,
+то вместо него будет использоваться точечно-десятичное значение.
+Это позволяет узлам с очень длинными именами, которые
+переполняют это поле, по-прежнему однозначно идентифицироваться.
+Указание
+.Fl u0
+означает, что в файл
+.Pa utmp
+следует помещать только адреса в точечно-десятичной записи.
+.It Fl U
+Этот параметр заставляет
+.Nm telnetd
+отказывать в подключениях с адресов, которые
+не могут быть обратно преобразованы в символьное имя
+с помощью функции
+.Xr gethostbyaddr 3 .
+.It Fl X Ar authtype
+Этот параметр допустим только если
+.Nm telnetd
+был собран с поддержкой параметра аутентификации.
+Он отключает использование аутентификации
+.Ar authtype
+и может использоваться для временного отключения
+конкретного типа аутентификации без необходимости перекомпилировать
+.Nm telnetd .
+.It Fl L Ar pathname
+Указать путь к альтернативной программе входа в систему.
+.It Fl y
+Заставляет
+.Nm
+не предупреждать, когда пользователь пытается войти с паролем в открытом виде.
+.El
+.Pp
+.Nm Telnetd
+работает, выделяя устройство псевдотерминала (см.
+.Xr pty 4 )
+для клиента, затем создаёт процесс входа в систему, у которого
+ведомая сторона псевдотерминала является
+.Dv stdin ,
+.Dv stdout
+и
+.Dv stderr .
+.Nm Telnetd
+управляет ведущей стороной псевдотерминала,
+реализуя протокол
+.Tn TELNET
+и передавая символы
+между удалённым клиентом и процессом входа в систему.
+.Pp
+Когда начинается сеанс
+.Tn TELNET ,
+.Nm telnetd
+отправляет на сторону клиента параметры
+.Tn TELNET
+, указывая готовность выполнить
+следующие параметры
+.Tn TELNET
+, которые более подробно описаны ниже:
+.Bd -literal -offset indent
+DO AUTHENTICATION
+WILL ENCRYPT
+DO TERMINAL TYPE
+DO TSPEED
+DO XDISPLOC
+DO NEW-ENVIRON
+DO ENVIRON
+WILL SUPPRESS GO AHEAD
+DO ECHO
+DO LINEMODE
+DO NAWS
+WILL STATUS
+DO LFLOW
+DO TIMING-MARK
+.Ed
+.Pp
+Псевдотерминал, выделенный клиенту, настраивается
+на работу в
+.Dq cooked
+режиме, и с включёнными
+.Dv XTABS и
+.Dv CRMOD
+(см.
+.Xr tty 4 ) .
+.Pp
+.Nm Telnetd
+поддерживает локальное включение следующих параметров
+.Tn TELNET :
+Когда параметр
+.Dv LINEMODE
+включён, клиенту будет отправлено
+.Dv WILL ECHO
+или
+.Dv WONT ECHO
+, чтобы указать текущее состояние эха терминала.
+Когда эхо терминала нежелательно, отправляется
+.Dv WILL ECHO
+, чтобы указать, что
+.Tn telnetd
+позаботится об эхе любых данных, которые нужно
+отразить на терминал, и тогда ничего не отражается.
+Когда эхо терминала желательно, отправляется
+.Dv WONT ECHO
+, чтобы указать, что
+.Tn telnetd
+не будет выполнять никакого эха терминала, поэтому
+клиент должен выполнять необходимое эхо терминала.
+Указывает, что клиент готов отправить
+8 бит данных, а не обычные 7 бит
+сетевого виртуального терминала.
+Указывает, что он не будет отправлять команды
+.Dv IAC GA ,
+go ahead.
+Указывает готовность отправить клиенту по
+запросу текущее состояние всех параметров
+.Tn TELNET .
+Всякий раз, когда получена команда
+.Dv DO TIMING-MARK ,
+на неё всегда отвечают
+.Dv WILL TIMING-MARK
+Когда получена
+.Dv DO LOGOUT ,
+в ответ отправляется
+.Dv WILL LOGOUT ,
+и сеанс
+.Tn TELNET
+завершается.
+Отправляется только если
+.Nm telnetd
+скомпилирован с поддержкой шифрования данных, и
+указывает готовность расшифровать
+поток данных.
+.Pp
+.Nm Telnetd
+поддерживает удалённое включение следующих параметров
+.Tn TELNET :
+Отправляется, чтобы указать, что
+.Tn telnetd
+готов принимать 8-битный поток данных.
+Запрашивает, чтобы клиент обрабатывал символы
+управления потоком удалённо.
+На самом деле это не поддерживается, но отправляется для идентификации
+клиента
+.Xr telnet 1
+4.2BSD, который неправильно ответит
+.Dv WILL ECHO .
+Если получен
+.Dv WILL ECHO ,
+в ответ будет отправлен
+.Dv DONT ECHO .
+Указывает желание иметь возможность запросить
+имя типа терминала, подключённого
+к стороне клиента соединения.
+Указывает, что нет необходимости получать
+.Dv IAC GA ,
+команду go ahead.
+Запрашивает, чтобы клиент сообщал серверу,
+когда изменяется размер окна (дисплея).
+Указывает желание иметь возможность запрашивать информацию
+о скорости последовательной линии, к которой
+подключён клиент.
+Указывает желание иметь возможность запрашивать имя
+дисплея X windows, связанного с
+клиентом telnet.
+Указывает желание иметь возможность запрашивать информацию
+о переменных окружения, как описано в RFC 1572.
+Указывает желание иметь возможность запрашивать информацию
+о переменных окружения, как описано в RFC 1408.
+Отправляется только если
+.Nm telnetd
+скомпилирован с поддержкой linemode, и
+запрашивает, чтобы клиент выполнял построчную обработку.
+Отправляется только если
+.Nm telnetd
+скомпилирован с поддержкой как linemode, так и
+kludge linemode, и клиент ответил
+.Dv WONT LINEMODE .
+Если клиент отвечает
+.Dv WILL TM ,
+то предполагается, что клиент поддерживает
+kludge linemode.
+Учтите, что параметр
+.Op Fl k
+можно использовать для отключения этого.
+Отправляется только если
+.Nm telnetd
+скомпилирован с поддержкой аутентификации, и
+указывает готовность принимать информацию аутентификации
+для автоматического входа в систему.
+Отправляется только если
+.Nm telnetd
+скомпилирован с поддержкой шифрования данных, и
+указывает готовность расшифровать
+поток данных.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/services -compact
+.It Pa /etc/services
+.It Pa /etc/inittab
+(только системы UNICOS)
+.It Pa /etc/iptos
+(если поддерживается)
+.El
+.Xr telnet 1 ,
+.Xr login 1
+.Sh СТАНДАРТЫ
+.Bl -tag -compact -width RFC-1572
+.It Cm RFC-854
+.Tn TELNET
+СПЕЦИФИКАЦИЯ ПРОТОКОЛА
+.It Cm RFC-855
+СПЕЦИФИКАЦИИ ПАРАМЕТРОВ TELNET
+.It Cm RFC-856
+ДВОИЧНАЯ ПЕРЕДАЧА TELNET
+.It Cm RFC-857
+ПАРАМЕТР ЭХА TELNET
+.It Cm RFC-858
+ПАРАМЕТР ПОДАВЛЕНИЯ GO AHEAD TELNET
+.It Cm RFC-859
+ПАРАМЕТР СОСТОЯНИЯ TELNET
+.It Cm RFC-860
+ПАРАМЕТР МЕТКИ ВРЕМЕНИ TELNET
+.It Cm RFC-861
+РАСШИРЕННЫЕ ПАРАМЕТРЫ TELNET - ПАРАМЕТР СПИСКА
+.It Cm RFC-885
+ПАРАМЕТР КОНЦА ЗАПИСИ TELNET
+.It Cm RFC-1073
+Параметр размера окна Telnet
+.It Cm RFC-1079
+Параметр скорости терминала Telnet
+.It Cm RFC-1091
+Параметр типа терминала Telnet
+.It Cm RFC-1096
+Параметр расположения X-дисплея Telnet
+.It Cm RFC-1123
+Требования к интернет-узлам -- приложения и поддержка
+.It Cm RFC-1184
+Параметр linemode Telnet
+.It Cm RFC-1372
+Параметр удалённого управления потоком Telnet
+.It Cm RFC-1416
+Параметр аутентификации Telnet
+.It Cm RFC-1411
+Аутентификация Telnet: Kerberos версии 4
+.It Cm RFC-1412
+Аутентификация Telnet: SPX
+.It Cm RFC-1571
+Вопросы взаимодействия параметра окружения Telnet
+.It Cm RFC-1572
+Параметр окружения Telnet
+.El
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Некоторые команды
+.Tn TELNET
+реализованы лишь частично.
+.Pp
+Из-за ошибок в оригинальном
+.Xr telnet 1
+4.2 BSD,
+.Nm telnetd
+выполняет некоторые сомнительные обмены протокола, чтобы попытаться выяснить, является ли удалённый
+клиент на самом деле
+.Xr telnet 1
+4.2 BSD.
+.Pp
+Двоичный режим
+не имеет общего толкования, кроме как между похожими операционными системами
+(в данном случае Unix).
+.Pp
+Имя типа терминала, полученное от удалённого клиента, преобразуется в
+нижний регистр.
+.Pp
+.Nm Telnetd
+никогда не отправляет команды
+.Tn TELNET
+.Dv IAC GA
+(go ahead).

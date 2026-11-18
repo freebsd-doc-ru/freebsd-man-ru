@@ -1,0 +1,89 @@
+.\" #
+.\" # Copyright (c) 2014, Juniper Networks, Inc.
+.\" # All rights reserved.
+.\" # This SOFTWARE is licensed under the LICENSE provided in the
+.\" # ../Copyright file. By downloading, installing, copying, or 
+.\" # using the SOFTWARE, you agree to be bound by the terms of that
+.\" # LICENSE.
+.\" # Phil Shafer, July 2014
+.\" 
+.\" FRDP path ./contrib/libxo/xolint/xolint.1
+.\" FRDP githash fd5e3f3ec6c6248e892c9e7b2f17da3bfe7b6837
+.\" FRDP hash256 5dc9e607257af8ac133c17d946f5741dfac644de14714668acfc6e3f0d7549b0
+.Dd 4 декабря 2014
+.Dt XOLINT 1
+.Os
+.Sh ИМЯ
+.Nm xolint
+.Nd обнаружение ошибок в программах, использующих
+.Xr xo_emit 3
+.Sh СИНТАКСИС
+.Nm xolint
+.Op Fl c
+.Op Fl "C <flags>"
+.Op Fl "d"
+.Op Fl "D"
+.Op Fl "I"
+.Op Fl "p"
+.Op Fl "V"
+.Op Fl "X"
+.Op Ar файлы...
+.Sh ОПИСАНИЕ
+.Nm
+— это инструмент для сообщения о распространённых ошибках в строках формата
+в исходном коде, который вызывает
+.Xr xo_emit 3 .
+Он позволяет диагностировать эти ошибки
+во время сборки, а не ждать времени выполнения.
+.Pp
+.Nm
+принимает один или несколько файлов на языке C в качестве аргументов и выводит
+сообщения об ошибках, предупреждения или информационные сообщения по мере необходимости.
+.Bl -tag -width "C <flags>"
+.It Fl c
+Вызвать 'cpp' для входного файла
+.It Fl "C <flags>"
+Флаги, передаваемые в 'cpp'
+.It Fl "d"
+Включить отладочный вывод
+.It Fl "D"
+Сгенерировать документацию для всех
+.Nm
+сообщений
+.It Fl "I"
+Сгенерировать таблицу структур
+.Dv xo_info_t .
+.It Fl "p"
+Выводить проблемные строки после отображения сообщения об ошибке
+.It Fl "V"
+Не сообщать об ошибках, а вместо этого выводить полный список
+всех имён полей, отсортированных по алфавиту.
+Вывод может помочь выявить
+несоответствия и орфографические ошибки.
+.It Fl "X"
+Извлечь образцы из
+.Nm ,
+подходящие для внутреннего тестирования.
+.El
+.Pp
+Выходное сообщение содержит имя исходного файла и номер строки,
+класс сообщения, само сообщение и, если задан
+.Fl p ,
+строку, содержащую ошибку:
+.Bd -literal -offset indent
+    % xolint -t xolint.c
+    xolint.c: 16: error: anchor format should be "%d"
+    16         xo_emit("{[:/%s}");
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_emit 3
+.Sh ИСТОРИЯ
+Библиотека
+.Nm libxo
+впервые появилась в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.Nm libxo
+была написана
+.An Phil Shafer Aq Mt phil@freebsd.org .

@@ -1,0 +1,129 @@
+.\" Copyright (c) 2001-2002 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: hcsecd.conf.5,v 1.1 2003/05/26 22:49:23 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/hcsecd/hcsecd.conf.5
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 bb2fa329a1dfcc5e94b648ab7ce0fe09836f2883ac6715068349b103a4ea1f77
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2003
+.Dt HCSECD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm hcsecd.conf
+.Nd
+.Xr hcsecd 8
+файл конфигурации
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+является файлом конфигурации для
+.Xr hcsecd 8
+— демона управления ключами связи и PIN-кодами Bluetooth.
+.Pp
+Файл
+.Nm
+представляет собой текстовый файл
+.Tn ASCII
+произвольного формата.
+Он разбирается парсером рекурсивного спуска, встроенным в
+.Xr hcsecd 8 .
+Файл может содержать дополнительные табуляции и переводы строк для форматирования.
+Ключевые слова в файле чувствительны к регистру.
+Комментарии могут размещаться в любом месте файла (кроме строк в кавычках).
+Комментарии начинаются с символа
+.Ql #
+и заканчиваются в конце строки.
+.Sh ФОРМАТ ФАЙЛА
+Файл
+.Nm
+состоит из списка записей
+.Cm device .
+Каждая запись
+.Cm device
+определяет ключ связи или PIN-код для удалённого устройства Bluetooth.
+Каждое удалённое устройство Bluetooth идентифицируется по своему уникальному BD_ADDR.
+.Pp
+Запись
+.Cm device
+.Pp
+.Cm device
+{
+.Cm option Ar argument ;
+.Oo
+.Cm option Ar argument ;
+.Oc
+}
+.Pp
+В следующем разделе описаны все поддерживаемые параметры и аргументы.
+.Bl -tag -width indent
+.It Cm bdaddr Ar BD_ADDR
+Указывает BD_ADDR удалённого устройства для записи.
+.It Cm name Ar имя_устройства
+Указывает понятное пользователю имя для записи.
+Имя — строка в прямых двойных кавычках.
+.It Cm key Ar ключ_связи
+Указывает ключ связи для записи.
+Ключ связи — шестнадцатеричная строка длиной до 32 символов, начинающаяся с
+.Ql 0x .
+.It Cm key nokey
+Указывает отсутствие ключа связи для записи.
+.It Cm pin Ar PIN-код
+Указывает PIN-код для записи.
+PIN-код — строка длиной до 16 символов в прямых двойных кавычках.
+.It Cm pin nopin
+Указывает отсутствие PIN-кода для записи.
+.El
+.Sh ПРИМЕРЫ
+Пример файла
+.Nm
+:
+.Bd -literal
+# Запись по умолчанию применяется, если не найдено более подходящего совпадения
+# В ней ДОЛЖЕН быть указан 00:00:00:00:00:00 в качестве bdaddr
+device {
+        bdaddr  00:00:00:00:00:00;
+        key     nokey;
+        pin     nopin;
+}
+
+# Телефон Ericsson T68
+device {
+        bdaddr  00:80:37:5e:4d:d4;
+        key     nokey;
+}
+
+# Фиктивное устройство
+device {
+        bdaddr  00:11:22:33:44:55;
+        key     0x00112233445566778899aabbccddeeff; # 16-байтовый ключ
+        pin     nopin;
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr hcsecd 8
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com

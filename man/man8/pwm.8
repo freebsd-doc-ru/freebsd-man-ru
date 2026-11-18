@@ -1,0 +1,130 @@
+.\" Copyright (c) 2018 Emmanuel Vadot <manu@freebsd.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pwm/pwm.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 160fe7f2f0ea93d68f37cefed6dabdc77296998082d11f45432e93d8e9572e33
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 17, 2019
+.Dt PWM 8
+.Os
+.Sh ИМЯ
+.Nm pwm
+.Nd настройка аппаратного обеспечения ШИМ (широтно-импульсной модуляции)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar устройство
+.Fl C
+.Nm
+.Op Fl f Ar устройство
+.Op Fl D | Fl E
+.Op Fl I
+.Op Fl p Ar период
+.Op Fl d Ar заполнение
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для настройки аппаратного обеспечения ШИМ.
+.Nm
+использует устройство
+.Xr pwmc 4
+для связи с аппаратным обеспечением.
+Некоторое оборудование ШИМ поддерживает несколько выходных каналов в одном
+блоке контроллера; каждый
+экземпляр
+.Xr pwmc 4
+управляет одним каналом ШИМ.
+.Pp
+Устройства
+.Xr pwmc 4
+имеют имена
+.Pa /dev/pwm/pwmcX.Y ,
+где
+.Va X
+— номер блока контроллера, а
+.Va Y
+— номер канала в этом блоке.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl f Ar устройство
+Устройство, с которым выполняется работа.
+Если не указано,
+используется
+.Pa /dev/pwm/pwmc0.0 .
+Если указано имя без пути,
+.Pa /dev/pwm
+автоматически добавляется в начало.
+.It Fl C
+Показать конфигурацию канала ШИМ.
+.It Fl D
+Отключить канал ШИМ.
+.It Fl d Ar заполнение
+Настроить коэффициент заполнения (в наносекундах или процентах) канала ШИМ.
+Заполнение — это часть
+.Ar период
+, в течение которой сигнал активен.
+.It Fl E
+Включить канал ШИМ.
+.It Fl p Ar период
+Настроить период (в наносекундах) канала ШИМ.
+.It Fl I
+Инвертировать полярность сигнала ШИМ
+.El
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Показать конфигурацию канала ШИМ:
+.Bd -literal
+pwm -f /dev/pwm/pwmc0.1 -C
+.Ed
+.It
+Настроить период 50000 нс и коэффициент заполнения 25000 нс
+и включить канал:
+.Bd -literal
+pwm -f pwmc1.1 -E -p 50000 -d 25000
+.Ed
+.It
+Настроить коэффициент заполнения 50% на устройстве и канале, которые
+были сконфигурированы в
+.Xr pwmc 4
+с меткой
+.Pa backlight :
+.Bd -literal
+pwm -f backlight -d 50%
+.Ed
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pwm 9 ,
+.Xr pwmbus 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 13.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Emmanuel Vadot Aq Mt manu@FreeBSD.org .

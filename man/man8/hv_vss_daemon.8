@@ -1,0 +1,93 @@
+.\" Copyright (c) 2016 Microsoft Corp.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $FreeBSD$
+.\" FRDP path contrib/hyperv/tools/hv_vss_daemon.8
+.\" FRDP githash 168fce73b59d6023cab45d063a452551a1f2103e
+.\" FRDP hash256 cbb50cc28cd86a74bad71fc8454880e5cb856c209531e8437456bf5b1e696656
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 12, 2016
+.Dt HV_VSS_DAEMON 8
+.Os
+.Sh ИМЯ
+.Nm hv_vss_daemon
+.Nd Демон службы теневого копирования томов Hyper-V
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dn
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+предоставляет возможность замораживать и размораживать файловую систему для
+.Fx
+гостевых разделов, работающих на Hyper-V.
+.Pp
+Hyper-V позволяет администраторам создавать резервные копии или восстанавливать
+.Fx
+гостевой раздел.
+Администраторы могут
+использовать сценарии Windows PowerShell для создания резервной копии или восстановления
+.Fx
+виртуальной машины.
+.Pp
+.Nm
+принимает запросы на замораживание и размораживание файловой системы от драйвера
+.Xr hv_utils 4
+и выполняет фактическую операцию с файловой системой.
+.Pp
+Функциональность замораживания и размораживания файловой системы
+полезна, когда хост Hyper-V хочет выполнить резервное копирование на лету
+.Fx
+гостя. Хост Hyper-V отправляет запрос на замораживание файловой системы
+.Nm ,
+который выполняет реальную операцию. После успешного замораживания файловой
+системы хост Hyper-V создаёт снимок виртуальной машины. В дальнейшем
+хост Hyper-V может восстановить
+.Fx
+виртуальную машину с помощью этого снимка.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl d
+Запускать как обычный процесс, а не как демон, для отладки.
+.It Fl n
+Выводить отладочную информацию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hv_vmbus 4 ,
+.Xr hv_utils 4 ,
+.Xr hv_netvsc 4 ,
+.Xr hv_storvsc 4 ,
+.Xr hv_kvp 4
+.Sh ИСТОРИЯ
+Демон был представлен в октябре 2016 года и разработан корпорацией Microsoft.
+.Sh АВТОРЫ
+.An -nosplit
+Поддержка
+.Fx
+для
+.Nm
+была впервые добавлена
+.An Microsoft BSD Integration Services Team Aq Mt bsdic@microsoft.com .

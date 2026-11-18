@@ -1,0 +1,116 @@
+.\"
+.\" Copyright (c) 1995 Joerg Wunsch
+.\"
+.\" All rights reserved.
+.\"
+.\" This program is free software.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Joerg Wunsch
+.\" 4. The name of the developer may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.sbin/lpr/lp/lp.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e01b345d06467e2e94a95fd60eee44989a6f4a424243ef462cd500a22c49a394
+.Dd 22 января 1995
+.Dt LP 1
+.Os
+.Sh ИМЯ
+.Nm lp
+.Nd интерфейс для системы буферизованной печати
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cs
+.Op Fl o Ar опция
+.Op Fl d Ar принтер
+.Op Fl n Ar число
+.Op Ar имя ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является интерфейсом для системы буферизованной печати, как того требует спецификация
+.St -p1003.2 .
+По сути, она вызывает
+.Xr lpr 1
+с соответствующим набором аргументов.
+.Pp
+Обычно она печатает указанные файлы на целевом принтере.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl c
+Заставляет команду
+.Nm
+завершиться только после того, как дальнейший доступ к любым входным файлам больше не требуется.
+Приложение может затем безопасно удалить или изменить файлы, не влияя на операцию вывода.
+.It Fl d Ar назначение
+Указать конкретный принтер.
+Если
+.Fl d
+не указана в командной строке, содержимое переменных окружения
+.Ev LPDEST
+или
+.Ev PRINTER
+(в указанном порядке приоритета) принимается в качестве целевого принтера.
+.It Fl m
+Отправить почту по завершении.
+.It Fl n Ar число
+Указать, что должно быть напечатано
+.Ar число
+копий каждого из указанных файлов.
+.It Fl o Ar опция
+Специфичные для принтера опции.
+Не поддерживается, предоставляется только для совместимости с SVR.
+.It Fl s
+Тихий режим работы.
+Не поддерживается, предоставляется только для совместимости с
+.St -susv2 .
+.It Fl t Ar заголовок
+Установить заголовок задания в
+.Ar заголовок .
+.El
+.Sh ОКРУЖЕНИЕ
+Как описано выше, переменные
+.Ev LPDEST
+и
+.Ev PRINTER
+проверяются для выбора целевого принтера.
+.Sh СМ. ТАКЖЕ
+.Xr lpr 1
+.Sh СТАНДАРТЫ
+Ожидается, что команда
+.Nm
+соответствует спецификации
+.St -p1003.2 .
+.Sh АВТОРЫ
+Данная реализация команды
+.Nm
+была написана
+.An J\(:org Wunsch .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Спецификация
+.St -p1003.2
+не предоставляет никаких средств для печати нетекстовых файлов.
+Она, скорее, требует, чтобы печатаемые файлы были текстовыми, ограниченными разумной длиной строк и печатаемыми символами.

@@ -1,0 +1,96 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_self.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 0f54d19da02410ef5fb1e2bc15c37d5b6efc1cbfde0b993123c2f47e42bdfc16
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_SELF 2
+.Os
+.Sh ИМЯ
+.Nm thr_self
+.Nd возвращает идентификатор потока для вызывающего потока
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_self "long *id"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn thr_self
+сохраняет общесистемный идентификатор текущего потока,
+планируемого ядром, в переменной, на которую указывает аргумент
+.Va id .
+.Pp
+Идентификатор потока — это целое число в диапазоне от
+.Dv PID_MAX + 2
+(100001) до
+.Dv INT_MAX .
+Идентификатор потока гарантированно уникален в любой момент времени
+для каждого работающего потока в системе.
+После завершения потока идентификатор может быть использован повторно.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха
+.Fn thr_self
+вернёт ноль, иначе возвращается \-1, а
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Операция
+.Fn thr_self
+может вернуть следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Память, на которую указывает аргумент
+.Fa id ,
+недопустима.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr _umtx_op 2 ,
+.Xr thr_exit 2 ,
+.Xr thr_kill 2 ,
+.Xr thr_kill2 2 ,
+.Xr thr_new 2 ,
+.Xr thr_set_name 2 ,
+.Xr pthread_getthreadid_np 3 ,
+.Xr pthread_self 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn thr_self
+не является стандартным и используется
+.Lb libthr
+для реализации функциональности
+.St -p1003.1-2001
+.Xr pthread 3 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn thr_self
+впервые появился в
+.Fx 5.2 .

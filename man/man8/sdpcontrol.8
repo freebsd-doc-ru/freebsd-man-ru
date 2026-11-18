@@ -1,0 +1,122 @@
+.\" Copyright (c) 2003 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: sdpcontrol.8,v 1.1 2003/09/08 02:27:27 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/sdpcontrol/sdpcontrol.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 bbd08346c3acc2bb32ee55d7dcedb060ae34506339338ea6a2ab60a3fb3ab539
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 7, 2015
+.Dt SDPCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm sdpcontrol
+.Nd утилита запроса служб Bluetooth по протоколу обнаружения служб
+.Sh СИНТАКСИС
+.Nm
+.Fl h
+.Nm
+.Fl a Ar адрес
+.Ar команда
+.Op Ar параметры ...
+.Nm
+.Fl l
+.Op Fl c Ar путь
+.Ar команда
+.Op Ar параметры ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+пытается опросить указанный сервер протокола обнаружения служб (SDP).
+Удалённые SDP-серверы идентифицируются по их адресу.
+Подключение к локальному SDP-серверу выполняется через управляющий сокет.
+Утилита
+.Nm
+использует запросы поиска атрибутов служб и выводит результаты в
+стандартный вывод, а сообщения об ошибках — в стандартный поток ошибок.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl a Ar адрес
+Подключиться к удалённому устройству с указанным адресом.
+Адрес можно задать как BD_ADDR или как имя.
+Если было указано имя, утилита
+.Nm
+пытается разрешить имя с помощью
+.Xr bt_gethostbyname 3 .
+.It Fl c Ar путь
+Указать путь к управляющему сокету.
+По умолчанию используется путь
+.Pa /var/run/sdp .
+.It Fl h
+Вывести сообщение об использовании и завершить работу.
+.It Fl l
+Запросить локальный SDP-сервер через управляющий сокет.
+.It Ar команда
+Одна из поддерживаемых команд (см. ниже).
+Специальная команда
+.Cm help
+может использоваться для получения списка всех поддерживаемых команд.
+Чтобы получить дополнительную информацию о конкретной команде, используйте
+.Cm help Ar команда .
+.It Ar параметры
+Один или несколько необязательных параметров команды, разделённых пробелами.
+.El
+.Sh КОМАНДЫ
+В настоящее время в
+.Nm
+поддерживаются следующие команды узла:
+.Pp
+.Bl -tag -width indent
+.It Cm Browse
+.It Cm Search
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr bluetooth 3 ,
+.Xr sdp 3
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Утилита
+.Nm
+реализует только функциональность клиентской стороны.
+.Pp
+Утилита
+.Nm
+запрашивает у SDP-сервера только следующие атрибуты:
+.Pp
+.Bl -enum -offset indent -compact
+.It
+Дескриптор записи службы
+.It
+Список идентификаторов класса службы
+.It
+Список дескрипторов протокола
+.It
+Список дескрипторов профиля Bluetooth
+.El

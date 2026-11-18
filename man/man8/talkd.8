@@ -1,0 +1,77 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/talkd/talkd.8
+.\" FRDP githash 43581d7b6617959e4452094d9330ef020034a6c9
+.\" FRDP hash256 97c170902b9f460faf60830920c41e223adc82fbf37cf7a872b0b4fb08960f0e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 11, 1993
+.Dt TALKD 8
+.Os
+.Sh ИМЯ
+.Nm talkd
+.Nd сервер связи с удалёнными пользователями
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является сервером, который уведомляет пользователя о том, что кто-то другой хочет
+начать разговор.
+Он действует как хранилище приглашений, отвечая на запросы
+клиентов, желающих встретиться, чтобы провести разговор.
+В обычном режиме работы клиент, вызывающий,
+инициирует встречу, отправляя
+.Tn CTL_MSG
+серверу
+типа
+.Tn LOOK_UP
+(см.
+.In protocols/talkd.h ) .
+Это заставляет сервер просматривать свои таблицы
+приглашений, чтобы проверить, существует ли в данный момент приглашение для вызывающего
+(чтобы поговорить с вызываемым, указанным в сообщении).
+.Pp
+Если поиск не удался,
+вызывающий затем отправляет
+.Tn ANNOUNCE
+сообщение, заставляя сервер
+широковещательно передать объявление на порты входа вызываемого с запросом контакта.
+.Pp
+Когда вызываемый отвечает, локальный сервер использует
+записанное приглашение, чтобы ответить соответствующим адресом встречи,
+а клиентские программы вызывающего и вызываемого устанавливают
+потоковое соединение, через которое происходит разговор.
+.Sh СМ. ТАКЖЕ
+.Xr talk 1 ,
+.Xr write 1
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.3 .

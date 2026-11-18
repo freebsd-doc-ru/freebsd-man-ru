@@ -1,0 +1,131 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/chdir.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 315a9ccd28c7691566d6a2d47fdb654f436b5d24b9f144315ed6f761230229e2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt CHDIR 2
+.Os
+.Sh ИМЯ
+.Nm chdir ,
+.Nm fchdir
+.Nd изменение текущего рабочего каталога
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn chdir "const char *path"
+.Ft int
+.Fn fchdir "int fd"
+.Sh ОПИСАНИЕ
+Аргумент
+.Fa path
+указывает на путь к каталогу.
+Системный вызов
+.Fn chdir
+делает указанный каталог
+текущим рабочим каталогом, то есть
+начальной точкой для поиска путей,
+не начинающихся с косой черты,
+.Ql / .
+.Pp
+Системный вызов
+.Fn fchdir
+делает каталог, на который ссылается
+.Fa fd ,
+текущим рабочим каталогом,
+начальной точкой для поиска путей,
+не начинающихся с косой черты,
+.Ql / .
+.Pp
+Чтобы каталог стал текущим каталогом,
+процесс должен иметь доступ на выполнение (поиск) к этому каталогу.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn chdir
+завершится с ошибкой, а текущий рабочий каталог останется неизменным,
+если выполняется одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент пути превысил 255 символов,
+или весь путь превысил 1023 символа.
+.It Bq Er ENOENT
+Указанный каталог не существует.
+.It Bq Er ELOOP
+При разборе пути встретилось слишком много символических ссылок.
+.It Bq Er EACCES
+Доступ на поиск запрещён для любого компонента
+пути.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EIO
+Произошла ошибка ввода/вывода при чтении из файловой системы или записи в неё.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+Системный вызов
+.Fn fchdir
+завершится с ошибкой, а текущий рабочий каталог останется неизменным,
+если выполняется одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Доступ на поиск запрещён для каталога, на который ссылается
+файловый дескриптор.
+.It Bq Er ENOTDIR
+Файловый дескриптор не ссылается на каталог.
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым файловым дескриптором.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chroot 2
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn chdir
+соответствует
+.St -p1003.1-90 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn chdir
+появился в
+.At v1 .
+Системный вызов
+.Fn fchdir
+появился в
+.Bx 4.2 .

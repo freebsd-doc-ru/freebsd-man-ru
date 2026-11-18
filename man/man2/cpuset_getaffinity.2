@@ -1,0 +1,182 @@
+.\" Copyright (c) 2008 Christian Brueffer
+.\" Copyright (c) 2008 Jeffrey Roberson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cpuset_getaffinity.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 f84f997a995d1883b7b7db4d51381f74ba2d4224000d32e0e0992cb7e69fc1ab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 27, 2022
+.Dt CPUSET_GETAFFINITY 2
+.Os
+.Sh ИМЯ
+.Nm cpuset_getaffinity ,
+.Nm cpuset_setaffinity
+.Nd управление привязкой к процессорам
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/cpuset.h
+.Ft int
+.Fn cpuset_getaffinity "cpulevel_t level" "cpuwhich_t which" "id_t id" "size_t setsize" "cpuset_t *mask"
+.Ft int
+.Fn cpuset_setaffinity "cpulevel_t level" "cpuwhich_t which" "id_t id" "size_t setsize" "const cpuset_t *mask"
+.Sh ОПИСАНИЕ
+.Fn cpuset_getaffinity
+и
+.Fn cpuset_setaffinity
+позволяют манипулировать наборами процессоров, доступных процессам, потокам,
+прерываниям, клеткам и другим ресурсам.
+Эти функции могут манипулировать наборами процессоров, содержащими множество
+процессов, или анонимными масками для каждого объекта, которые действуют только
+на один объект.
+.Pp
+Допустимые значения аргументов
+.Fa level
+и
+.Fa which
+описаны в
+.Xr cpuset 2 .
+Эти аргументы определяют, на какой объект и на какой набор объекта мы
+ссылаемся.
+Не все возможные комбинации допустимы.
+Например, только процессы могут принадлежать нумерованному набору, доступному
+через аргумент
+.Fa level
+со значением
+.Dv CPU_LEVEL_CPUSET .
+Однако все ресурсы имеют маску, которой можно манипулировать с помощью
+.Dv CPU_LEVEL_WHICH .
+.Pp
+Маски типа
+.Ft cpuset_t
+составляются с использованием макросов
+.Dv CPU_SET .
+Если предоставленная пользователем маска недостаточно велика, чтобы вместить
+все соответствующие процессоры,
+.Fn cpuset_getaffinity
+завершается с ошибкой
+.Er ERANGE .
+Вызовы
+.Fn cpuset_setaffinity
+допускают маски любого размера без ограничений.
+Ядро использует значимую часть маски, где верхней границей является
+максимальный идентификатор процессора, присутствующего в системе.
+Если установлены биты для несуществующих процессоров, вызовы
+.Fn cpuset_setaffinity
+завершаются с ошибкой
+.Er EINVAL .
+.Pp
+Предоставленная маска должна иметь размер
+.Fa setsize
+байт.
+Этот размер обычно получается вызовом
+.Li sizeof(mask) ,
+который в конечном итоге определяется значением
+.Dv CPU_SETSIZE
+как определено в
+.In sys/cpuset.h .
+.Pp
+.Fn cpuset_getaffinity
+извлекает маску из объекта, заданного аргументами
+.Fa level ,
+.Fa which
+и
+.Fa id ,
+и сохраняет её в пространстве, предоставленном
+.Fa mask .
+.Pp
+.Fn cpuset_setaffinity
+пытается установить маску для объекта, заданного аргументами
+.Fa level ,
+.Fa which
+и
+.Fa id ,
+в значение из
+.Fa mask .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+В
+.Va errno
+могут быть установлены следующие коды ошибок:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa level
+или
+.Fa which
+не являлся допустимым значением.
+.It Bq Er EINVAL
+Аргумент
+.Fa mask ,
+указанный при вызове
+.Fn cpuset_setaffinity ,
+не являлся допустимым значением.
+.It Bq Er EDEADLK
+Вызов
+.Fn cpuset_setaffinity
+оставил бы поток без допустимого процессора для выполнения, поскольку набор
+не пересекается с анонимной маской потока.
+.It Bq Er EFAULT
+Переданный указатель на маску был недействительным.
+.It Bq Er ESRCH
+Объект, заданный аргументами
+.Fa id
+и
+.Fa which ,
+не может быть найден.
+.It Bq Er ERANGE
+Значение
+.Fa cpusetsize
+было меньше, чем необходимо для вмещения всех соответствующих процессоров.
+.It Bq Er EPERM
+У вызывающего процесса не было учетных данных, необходимых для завершения
+операции.
+.It Bq Er ECAPMODE
+Вызывающий процесс пытался воздействовать на процесс, отличный от себя, находясь
+в режиме возможностей.
+См.
+.Xr capsicum 4 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cpuset 1 ,
+.Xr cpuset 2 ,
+.Xr cpuset_getdomain 2 ,
+.Xr cpuset_getid 2 ,
+.Xr cpuset_setdomain 2 ,
+.Xr cpuset_setid 2 ,
+.Xr pthread_affinity_np 3 ,
+.Xr pthread_attr_affinity_np 3 ,
+.Xr capsicum 4 ,
+.Xr cpuset 9
+.Sh ИСТОРИЯ
+Семейство системных вызовов
+.Nm
+впервые появилось в
+.Fx 7.1 .
+.Sh АВТОРЫ
+.An Jeffrey Roberson Aq Mt jeff@FreeBSD.org

@@ -1,0 +1,103 @@
+.\"-
+.\" Copyright (c) 2011 Edward Tomasz Napierala
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getloginclass.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 cf0b218b676fd8abe80c74641ceb6ba19b498de64fb52ee4ad312cdb67da5df4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 12, 2016
+.Dt GETLOGINCLASS 2
+.Os
+.Sh ИМЯ
+.Nm getloginclass ,
+.Nm setloginclass
+.Nd получить/установить класс входа в систему
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn getloginclass "char *name" "size_t len"
+.Ft int
+.Fn setloginclass "const char *name"
+.Sh ОПИСАНИЕ
+Функция
+.Fn getloginclass
+возвращает имя класса входа в систему, связанное с вызывающим процессом,
+ранее установленное с помощью
+.Fn setloginclass .
+Вызывающая сторона должна предоставить буфер
+.Fa name
+длиной
+.Fa len
+байт для хранения результата.
+Буфер должен иметь длину не менее
+.Dv MAXLOGNAME
+байт.
+.Pp
+Системный вызов
+.Fn setloginclass
+устанавливает класс входа в систему вызывающего процесса в
+.Fa name .
+Этот системный вызов доступен только суперпользователю и обычно используется
+только при создании нового сеанса от имени указанного пользователя
+(например, во время входа в систему или при запуске удалённой оболочки).
+Процессы наследуют класс входа в систему от своих родителей.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Эти вызовы могут возвращать следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa name
+содержит недопустимый адрес.
+.It Bq Er EINVAL
+Аргумент
+.Fa name
+указывает на слишком длинную строку.
+Имена классов входа в систему ограничены
+.Dv MAXLOGNAME
+(из
+.In sys/param.h )
+символами, в настоящее время 33, включая нулевой символ.
+.It Bq Er EPERM
+Вызывающая сторона попыталась установить класс входа в систему, не являясь
+суперпользователем.
+.It Bq Er ENAMETOOLONG
+Размер буфера меньше возвращаемого результата.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr setusercontext 3 ,
+.Xr login.conf 5 ,
+.Xr rctl 8
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn getloginclass
+и
+.Fn setloginclass
+впервые появились в
+.Fx 9.0 .

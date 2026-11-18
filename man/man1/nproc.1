@@ -1,0 +1,57 @@
+.\" FRDP path bin/nproc/nproc.1
+.\" FRDP githash 1e078fb6021ebb5ccfb092fe9e5befcf4054ac0b
+.\" FRDP hash256 c4503df6517aa66a7698c62b79a480901f2980548bde7c50f6be437f253ad583
+.Dd June 2, 2023
+.Dt NPROC 1
+.Os
+.Sh ИМЯ
+.Nm nproc
+.Nd вывести количество процессоров
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -all
+.Op Fl -ignore Ns = Ns Ar количество
+.Nm Fl -help
+.Nm Fl -version
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для вывода количества процессоров, ограниченного
+.Xr cpuset 2
+текущего процесса, если только не указан флаг
+.Fl -all .
+.Pp
+Доступны следующие флаги:
+.Bl -tag -width Ds
+.It Fl -all
+Подсчитать все процессоры, работающие в данный момент.
+.It Fl -ignore Ns = Ns Ar количество
+Результат уменьшается на
+.Ar количество ,
+но никогда не ниже 1.
+.It Fl -version
+Вывести текущую версию программы и выйти.
+Не используйте эту опцию.
+.It Fl -help
+Вывести информацию об использовании и выйти.
+.El
+.Sh СОВМЕСТИМОСТЬ
+Эта программа предназначена для совместимости с nproc из GNU coreutils.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если HyperThreading включён в BIOS и отключён в ядре, опция
+.Fl -all
+в Linux всё равно сообщит обо всех возможных потоках CPU.
+В FreeBSD будут показаны только активные потоки.
+.Sh СМ. ТАКЖЕ
+.Xr cpuset 1
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 13.2 .
+.Sh АВТОРЫ
+.An -nosplit
+.An Mateusz Guzik Aq Mt mjg@FreeBSD.org
+написал программу, а
+.An Piotr Paweł Stefaniak Aq Mt pstef@FreeBSD.org
+написал эту страницу.

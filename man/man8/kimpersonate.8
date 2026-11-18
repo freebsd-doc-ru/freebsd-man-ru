@@ -1,0 +1,112 @@
+.\" Copyright (c) 2002 - 2007 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kuser/kimpersonate.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 ca3627854d50f60f2b9c005fb4d6dc25269ad189d738f89fa94d7e49686c4402
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 18, 2006
+.Dt KIMPERSONATE 8
+.Os Heimdal
+.Sh ИМЯ
+.Nm kimpersonate
+.Nd выдавать себя за пользователя, когда существует srvtab, keyfile или KeyFile
+.Sh СИНТАКСИС
+.Nm
+.Op Fl s Ar строка \*(Ba Fl Fl server= Ns Ar строка
+.Op Fl c Ar строка \*(Ba Fl Fl client= Ns Ar строка
+.Op Fl k Ar строка \*(Ba Fl Fl keytab= Ns Ar строка
+.Op Fl 5 | Fl Fl krb5
+.Op Fl e Ar целое \*(Ba Fl Fl expire-time= Ns Ar целое
+.Op Fl a Ar строка \*(Ba Fl Fl client-address= Ns Ar строка
+.Op Fl t Ar строка \*(Ba Fl Fl enc-type= Ns Ar строка
+.Op Fl f Ar строка \*(Ba Fl Fl ticket-flags= Ns Ar строка
+.Op Fl Fl verbose
+.Op Fl Fl version
+.Op Fl Fl help
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+Сервисный ключ может быть прочитан из Kerberos 5 keytab, AFS KeyFile или
+(если скомпилировано с поддержкой Kerberos 4) Kerberos 4 srvtab.
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl s Ar строка Ns , Fl Fl server= Ns Ar строка
+имя серверного принципала
+.It Fl c Ar строка Ns , Fl Fl client= Ns Ar строка
+имя клиентского принципала
+.It Fl k Ar строка Ns , Fl Fl keytab= Ns Ar строка
+имя файла keytab
+.It Fl 5 Ns , Fl Fl krb5
+создать билет Kerberos 5
+.It Fl e Ar целое Ns , Fl Fl expire-time= Ns Ar целое
+время жизни билета в секундах
+.It Fl a Ar строка Ns , Fl Fl client-address= Ns Ar строка
+адрес клиента
+.It Fl t Ar строка Ns , Fl Fl enc-type= Ns Ar строка
+тип шифрования
+.It Fl f Ar строка Ns , Fl Fl ticket-flags= Ns Ar строка
+флаги билета для билета krb5
+.It Fl Fl verbose
+Подробный вывод
+.It Fl Fl version
+Показать версию
+.It Fl Fl help
+.El
+.Sh ФАЙЛЫ
+Использует
+.Pa /etc/krb5.keytab,
+.Pa /etc/srvtab
+и
+.Pa /usr/afs/etc/KeyFile,
+когда они доступны, и если
+параметр
+.Fl k
+используется с соответствующим префиксом.
+.Sh ПРИМЕРЫ
+.Nm
+может использоваться в составе
+.Nm samba
+в параметре root preexec
+или для отладки.
+.Nm
+-s host/hummel.e.kth.se@E.KTH.SE -c lha@E.KTH.SE -5
+создаст билет Kerberos 5 для lha@E.KTH.SE для хоста
+hummel.e.kth.se, если существует запись keytab для него в
+.Pa /etc/krb5.keytab .
+.Sh СМ. ТАКЖЕ
+.Xr kinit 1 ,
+.Xr klist 1
+.Sh АВТОРЫ
+Love Hornquist Astrand <lha@kth.se>

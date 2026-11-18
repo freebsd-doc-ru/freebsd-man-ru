@@ -1,0 +1,169 @@
+.\"-
+.\" Copyright (c) 2003 Nate Lawson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/acpi/acpidb/acpidb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 76f68a1b4ce0f3d9207c885702b2aab7c5dd7a1cd28e1a97862c55a5bb27db54
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 7, 2003
+.Dt ACPIDB 8
+.Os
+.Sh ИМЯ
+.Nm acpidb
+.Nd отладчик ACPI DSDT
+.Sh СИНТАКСИС
+.Nm
+.Ar входной файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является отладчиком для ACPI DSDT.
+Она может анализировать и выполнять различные
+методы AML и отображать результат.
+.Sh КОМАНДЫ
+.Ss Команды общего назначения
+.Bl -tag -width indent
+.It Ic Allocations
+Отобразить список текущих выделений памяти
+.It Ic Dump Ar Адрес | Путь имени Op Cm Byte | Word | Dword | Qword
+Отобразить объекты ACPI или память
+.It Ic EnableAcpi
+Включить режим ACPI (аппаратный)
+.It Ic Help
+Показать различные экраны справки
+.It Ic History
+Отобразить буфер истории команд
+.It Ic Level Ar Уровень отладки Op Cm console
+Получить/установить уровень отладки для файла или консоли
+.It Ic Locks
+Текущее состояние внутренних мьютексов
+.It Ic Quit No или Ic Exit
+Выйти из отладчика
+.It Ic Stats Op Cm Allocations | Memory | Misc | Objects | Tables
+Отобразить статистику пространства имён и памяти
+.It Ic Tables
+Отобразить информацию о загруженных таблицах ACPI
+.It Ic Unload Ar Сигнатура таблицы Op Ar Экземпляр
+Выгрузить таблицу ACPI
+.It Ic !\& Ar Номер команды
+Выполнить команду из буфера истории
+.It Ic !!
+Повторить выполнение последней команды
+.El
+.Ss Команды доступа к пространству имён
+.Bl -tag -width indent
+.It Ic Event Cm F | G Ar Значение
+Сгенерировать AcpiEvent (Fixed/GPE)
+.It Ic Find Ar Имя
+Найти имя (имена) ACPI с подстановочными знаками
+.Ql ( ?\&
+является подстановочным знаком)
+.It Ic Method
+Отобразить список загруженных управляющих методов
+.It Ic Namespace Oo Ar Адрес | Путь Oc Op Ar Глубина
+Отобразить загруженное дерево/поддерево пространства имён
+.It Ic Notify Ar Путь имени Значение
+Отправить уведомление
+.It Ic Objects Ar Тип объекта
+Отобразить все объекты заданного типа
+.It Ic Owner Ar Идентификатор владельца Op Ar Глубина
+Отобразить загруженное пространство имён по владельцу объекта
+.It Ic Prefix Op Ar Путь имени
+Установить или получить текущий префикс выполнения
+.It Ic References Ar Адрес
+Найти все ссылки на объект по адресу
+.It Ic Resources
+Получить и отобразить ресурсы
+.It Ic Terminate
+Удалить пространство имён и все внутренние объекты
+.It Ic Thread Ar Потоки Циклы Путь имени
+Создать потоки для выполнения метода (методов)
+.El
+.Ss Команды выполнения управляющих методов
+.Bl -tag -width indent
+.It Ic Arguments
+.Pq Ic Args
+Отобразить аргументы метода
+.It Ic Breakpoint Ar Смещение AML
+Установить точку останова выполнения AML
+.It Ic Call
+Выполнять до следующего вызова управляющего метода
+.It Ic Debug Ar Путь имени Op Ar Аргументы
+Выполнить управляющий метод по шагам
+.It Ic Execute Ar Путь имени Op Аргументы
+Выполнить управляющий метод
+.It Ic Go
+Разрешить методу выполняться до завершения
+.It Ic Information
+Отобразить информацию о текущем методе
+.It Ic Into
+Войти внутрь (а не перешагнуть) вызова метода
+.It Ic List Op Количество опкодов
+Отобразить операторы ASL метода
+.It Ic Locals
+Отобразить локальные переменные метода
+.It Ic Results
+Отобразить стек результатов метода
+.It Ic Set Cm A | L Ar # Значение
+Установить данные метода (аргументы/локальные переменные)
+.It Ic Stop
+Завершить управляющий метод
+.It Ic Tree
+Отобразить дерево вызовов управляющих методов
+.It Ic <Enter>
+Выполнить следующий опкод AML по шагам (перешагивая вызовы)
+.El
+.Ss Команды файлового ввода-вывода
+.Bl -tag -width indent
+.It Ic Close
+Закрыть файл вывода отладочной информации
+.It Ic Open Ar Имя файла
+Открыть файл для вывода отладочной информации
+.It Ic Load Ar Имя файла
+Загрузить таблицу ACPI из файла
+.El
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr acpidump 8 ,
+.Xr iasl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в порту
+.Nm acpicatools .
+Она была импортирована для
+.Fx 5.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Mitsuru Iwasaki Aq Mt iwasaki@FreeBSD.org
+и использует Intel ACPI-CA в качестве бэкенда.
+Эта страница Справочника была написана
+.An Nate Lawson .

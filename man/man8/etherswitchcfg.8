@@ -1,0 +1,202 @@
+.\" Copyright (c) 2011-2012 Stefan Bethke.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/etherswitchcfg/etherswitchcfg.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a6d73a54d0a327393cae8eed4436a13d6b09ff100ae0f589450a2ee9e0b38c01
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 23, 2021
+.Dt ETHERSWITCHCFG 8
+.Os
+.Sh ИМЯ
+.Nm etherswitchcfg
+.Nd настроить встроенный коммутатор Ethernet
+.Sh СИНТАКСИС
+.Nm
+.Cm info
+.Nm
+.Cm config
+.Ar команда параметр
+.Nm
+.Cm phy
+.Ar phy.register[=value]
+.Nm
+.Cm port%d
+.Ar [флаги] команда параметр
+.Nm
+.Cm reg
+.Ar register[=value]
+.Nm
+.Cm vlangroup%d
+.Ar команда параметр
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для настройки встроенного в систему коммутатора Ethernet.
+.Nm
+принимает ряд параметров:
+.Pp
+Задаёт управляющий файл
+.Xr etherswitch 4
+, представляющий настраиваемый коммутатор.
+По умолчанию используется
+.Pa /dev/etherswitch0 .
+.Bl -tag -width ".Fl v"
+.It Fl m
+При выводе информации о порте также перечислять доступные параметры среды для этого порта.
+.It Fl v
+Выводить более подробные сообщения.
+Без этого флага строки, представляющие неактивные или пустые параметры конфигурации, опускаются.
+.El
+.Ss config
+Команда config предоставляет доступ к глобальным параметрам конфигурации коммутатора.
+Она поддерживает следующие команды:
+.Pp
+.Bl -tag -width ".Cm vlan_mode Ar режим"
+.It Cm vlan_mode Ar режим
+Устанавливает режим VLAN коммутатора (зависит от оборудования).
+.El
+.Ss phy
+Команда phy предоставляет доступ к регистрам PHY, подключённых к контроллеру коммутатора или встроенных в него.
+Регистры PHY задаются как phy.register,
+где
+.Ar phy
+обычно является номером порта, а
+.Ar register
+— номером регистра.
+Оба могут быть заданы как десятичные, восьмеричные или шестнадцатеричные числа в любом из форматов,
+понимаемых
+.Xr strtol 3 .
+Чтобы задать значение регистра, используйте форму instance.register=value.
+.Ss port
+Команда port выбирает один из портов коммутатора.
+Она поддерживает следующие команды:
+.Pp
+.Bl -tag -width ".Cm mediaopt Ar опция_среды"
+.It Cm pvid Ar номер
+Устанавливает VID порта по умолчанию, используемый для обработки входящих кадров без тега.
+.It Cm media Ar спецификация_среды
+Задаёт физическую конфигурацию среды для порта.
+.It Cm mediaopt Ar опция_среды
+Задаёт список опций среды для порта.
+См.
+.Xr ifconfig 8
+для получения сведений о
+.Cm media
+и
+.Cm mediaopt .
+.It Cm led Ar номер стиль
+Устанавливает стиль отображения для заданного светодиода.
+Доступные стили:
+.Cm default
+(обычно мигает при активности),
+.Cm on ,
+.Cm off
+и
+.Cm blink .
+Не все коммутаторы поддерживают все стили.
+.El
+.Pp
+И следующие флаги (обратите внимание, что не все флаги
+поддерживаются всеми драйверами коммутаторов):
+.Pp
+.Bl -tag -width ".Fl striptagingress"
+.It Cm addtag
+Добавлять тег VLAN к каждому пакету, отправляемому портом.
+.It Fl addtag
+Отключить параметр добавления тега VLAN.
+.It Cm striptag
+Удалять теги VLAN из пакетов, отправляемых портом.
+.It Fl striptag
+Отключить параметр удаления тега VLAN.
+.It Cm striptagingress
+Удалять теги VLAN из пакетов, принимаемых портом.
+.It Fl striptagingress
+Отключить параметр удаления тега VLAN на входе.
+.It Cm firstlock
+Этот параметр заставляет порт коммутатора зафиксироваться на первом увиденном MAC-адресе.
+После этого обычно требуется сбросить коммутатор, чтобы изучить другие
+MAC-адреса.
+.It Fl firstlock
+Отключить параметр первой фиксации.
+Обратите внимание, что иногда для действительного отключения этого параметра требуется сбросить
+коммутатор.
+.It Cm droptagged
+Отбрасывать пакеты с тегом VLAN.
+.It Fl droptagged
+Отключить параметр отбрасывания пакетов с тегом.
+.It Cm dropuntagged
+Отбрасывать пакеты без тега VLAN.
+.It Fl dropuntagged
+Отключить параметр отбрасывания пакетов без тега.
+.It Cm doubletag
+Включить QinQ для порта.
+.It Fl doubletag
+Отключить QinQ для порта.
+.It Cm ingress
+Включить входной фильтр на порту.
+.It Fl ingress
+Отключить входной фильтр.
+.El
+.Ss reg
+Команда reg предоставляет доступ к регистрам контроллера коммутатора.
+.Ss vlangroup
+Команда vlangroup выбирает одну из групп VLAN для настройки.
+Она поддерживает следующие команды:
+.Pp
+.Bl -tag -width ".Cm members Ar порт,..."
+.It Cm vlan Ar VID
+Устанавливает идентификатор VLAN (VID 802.1q) для этой группы VLAN.
+Кадры, передаваемые через тегированные порты-члены этой группы, будут помечены
+этим VID.
+Входящие кадры с этим тегом будут перенаправляться в соответствии с
+конфигурацией этой группы VLAN.
+.It Cm members Ar порт,...
+Настраивает, какие порты должны быть членами этой группы VLAN.
+Номера портов задаются списком через запятую.
+После каждого порта необязательно может следовать
+.Dq t
+, чтобы указать, что кадры на этом порту тегируются.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /dev/etherswitch? -compact
+.It Pa /dev/etherswitch?
+Управляющий файл драйвера коммутатора Ethernet.
+.El
+.Sh ПРИМЕРЫ
+Настройте группу VLAN 1 с VID 2 и сделайте порты 0 и 5 её членами,
+исключив все остальные порты.
+Порт 5 будет отправлять и принимать тегированные кадры, а порт 0 — нетегированные.
+Входящие нетегированные кадры на порту 0 назначаются vlangroup1.
+.Pp
+.Dl # etherswitchcfg vlangroup1 vlan 2 members 0,5t port0 pvid 2
+.Sh СМ. ТАКЖЕ
+.Xr etherswitch 4
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+.An Stefan Bethke

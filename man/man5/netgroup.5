@@ -1,0 +1,204 @@
+.\" Copyright (c) 1992, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mountd/netgroup.5
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 55f0c95008eeb9b51a5f0afe42a864eeac803cb9692189077209bbc09ce809bd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 11, 1993
+.Dt NETGROUP 5
+.Os
+.Sh ИМЯ
+.Nm netgroup
+.Nd определяет сетевые группы
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+задаёт ``netgroups'', которые являются наборами
+.Sy (host, user, domain)
+кортежей, которым должен предоставляться одинаковый сетевой доступ.
+.Pp
+Каждая строка файла
+состоит из имени netgroup, за которым следует список членов
+netgroup.
+Каждый член может быть либо именем другого netgroup, либо спецификацией
+кортежа следующим образом:
+.Bd -literal -offset indent
+(host, user, domain)
+.Ed
+.Pp
+где
+.Sy host ,
+.Sy user ,
+и
+.Sy domain
+— имена в виде символьных строк для соответствующего компонента.
+Любое из полей, разделённых запятыми, может быть пустым, чтобы задать значение ``wildcard'',
+или может состоять из строки ``-'', чтобы задать ``нет допустимого значения''.
+Члены списка могут разделяться пробельными символами и/или запятыми;
+символ ``\e'' может использоваться в конце строки для указания
+продолжения строки.
+Длина строк ограничена 1024 символами.
+Функции, указанные в
+.Xr getnetgrent 3 ,
+обычно следует использовать для доступа к
+базе данных
+.Nm .
+.Pp
+Строки, начинающиеся с #, рассматриваются как комментарии.
+.Sh ВЗАИМОДЕЙСТВИЕ С NIS/YP
+На большинстве других платформ
+.Nm Ns s
+используются только вместе с
+.Tn NIS ,
+а локальные файлы
+.Pa /etc/netgroup
+игнорируются.
+В
+.Fx
+.Nm Ns s
+можно использовать либо с
+.Tn NIS ,
+либо с локальными файлами, но есть некоторые
+оговорки, которые следует учитывать.
+Существующая
+система
+.Nm
+крайне неэффективна в отношении
+поиска
+.Fn innetgr 3 ,
+поскольку членство в
+.Nm
+вычисляется на лету.
+Напротив,
+база данных
+.Tn NIS
+для
+.Nm
+состоит из трёх отдельных карт (netgroup, netgroup.byuser
+и netgroup.byhost), индексированных так, чтобы
+поиск
+.Fn innetgr 3
+выполнялся быстро.
+Система
+.Fx
+.Nm
+может взаимодействовать с
+картами
+.Tn NIS
+.Nm
+следующими способами:
+.Bl -bullet -offset indent
+.It
+Если файл
+.Pa /etc/netgroup
+не существует, либо существует и пуст, либо
+существует и содержит только
+.Sq + ,
+и
+.Tn NIS
+запущен,
+поиск
+.Nm
+будет выполняться исключительно через
+.Tn NIS ,
+при этом
+.Fn innetgr 3
+будет использовать карты netgroup.byuser и
+netgroup.byhost для ускорения поиска.
+(Это
+более или менее совместимо с поведением SunOS и
+подобных платформ.)
+.It
+Если
+.Pa /etc/netgroup
+существует и содержит только локальную
+информацию
+.Nm
+(без токена
+.Tn NIS
+.Sq +
+), то будет обрабатываться только локальная
+информация
+.Nm
+(а
+.Tn NIS
+будет игнорироваться).
+.It
+Если
+.Pa /etc/netgroup
+существует и содержит как локальные данные netgroup,
+.Pa и
+токен
+.Tn NIS
+.Sq + ,
+локальные данные и
+карта
+.Tn NIS
+netgroup
+будут обрабатываться как единая объединённая
+база данных
+.Nm .
+Хотя эта конфигурация является наиболее гибкой, она
+также наименее эффективна: в частности,
+поиск
+.Fn innetgr 3
+будет особенно медленным, если
+база данных велика.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/netgroup -compact
+.It Pa /etc/netgroup
+база данных netgroup
+.El
+.Sh СОВМЕСТИМОСТЬ
+Формат файла совместим с форматом различных поставщиков, однако, по-видимому,
+не все поставщики используют идентичный формат.
+.Sh СМ. ТАКЖЕ
+.Xr getnetgrent 3 ,
+.Xr exports 5
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Интерпретация ограничений доступа, основанных на кортежах членов
+netgroup, оставляется на усмотрение различных сетевых приложений.
+Кроме того, не очевидно, как спецификация домена
+применяется к
+окружению
+.Bx .
+.Pp
+База данных
+.Nm
+должна храниться в виде
+хешированной
+базы данных
+.Xr db 3
+так же, как
+база данных
+.Xr passwd 5
+для ускорения обратного поиска.

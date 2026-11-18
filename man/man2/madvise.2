@@ -1,0 +1,186 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/madvise.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 458ff2ceec0a9296bd95e96c51064ad102eb73707b9692186a1b31f5d1d6eb4e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 12, 2015
+.Dt MADVISE 2
+.Os
+.Sh NAME
+.Nm madvise , posix_madvise
+.Nd дать рекомендации по использованию памяти
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn madvise "void *addr" "size_t len" "int behav"
+.Ft int
+.Fn posix_madvise "void *addr" "size_t len" "int behav"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn madvise
+позволяет процессу, который знает особенности поведения своей памяти,
+описать их системе.
+Интерфейс
+.Fn posix_madvise
+идентичен, за исключением того, что он возвращает номер ошибки при ошибке и
+не изменяет
+.Va errno ,
+и предоставляется для соответствия стандартам.
+.Pp
+Известные варианты поведения:
+.Bl -tag -width MADV_SEQUENTIAL
+.It Dv MADV_NORMAL
+Указывает системе вернуться к поведению подкачки по умолчанию.
+.It Dv MADV_RANDOM
+Это подсказка о том, что страницы будут доступны в произвольном порядке, и
+упреждающая выборка, вероятно, не даст преимуществ.
+.It Dv MADV_SEQUENTIAL
+Заставляет систему виртуальной памяти понижать приоритет
+страниц, непосредственно предшествующих данной странице, при её подкачке.
+.It Dv MADV_WILLNEED
+Заставляет страницы в заданном диапазоне виртуальных адресов
+временно иметь более высокий приоритет, а если они находятся в
+памяти, снижает вероятность их освобождения.
+Кроме того, страницы, уже находящиеся в памяти, будут немедленно отображены в
+процесс, тем самым устраняя ненужные накладные расходы на прохождение
+всего процесса подкачки страниц.
+Это НЕ вызовет подкачку
+страниц из вторичного хранилища, но быстро отобразит страницы, уже находящиеся в памяти,
+в вызывающий процесс.
+.It Dv MADV_DONTNEED
+Позволяет системе виртуальной памяти снизить приоритет в памяти
+страниц в указанном диапазоне адресов.
+Следовательно, будущие обращения к этому диапазону адресов с большей вероятностью
+приведут к ошибке страницы.
+.It Dv MADV_FREE
+Даёт системе виртуальной памяти свободу освобождать страницы
+и сообщает системе, что информация в указанном диапазоне страниц
+больше не важна.
+Это эффективный способ позволить
+.Xr malloc 3
+освобождать страницы в любом месте адресного пространства, сохраняя адресное пространство
+действительным.
+При следующем обращении к странице она может быть обнулена по требованию
+или может содержать данные, которые были там до вызова
+.Dv MADV_FREE .
+Обращения к этому диапазону адресного пространства не заставят систему виртуальной памяти
+подкачать информацию обратно из вторичного хранилища, пока страница не будет
+снова изменена.
+.It Dv MADV_NOSYNC
+Запросить, чтобы система не сбрасывала данные, связанные с этим отображением, на
+физическое вторичное хранилище, если в этом нет необходимости.
+Обычно это предотвращает
+запись демоном обновления файловой системы страниц, загрязнённых
+системой виртуальной памяти, на физический диск без необходимости.
+Обратите внимание, что согласованность виртуальной памяти и файловой системы
+всегда поддерживается; эта возможность просто гарантирует, что отображённые данные
+сбрасываются только тогда, когда это необходимо, обычно системным пейджером.
+.Pp
+Эта возможность обычно используется, когда вы хотите использовать область разделяемой памяти,
+подкреплённую файлом, для взаимодействия между процессами (IPC) и не особенно
+нуждаетесь в том, чтобы данные, хранящиеся в этой области, физически записывались на диск.
+С этой возможностью вы получаете эквивалентную производительность с mmap, которую вы
+ожидали бы получить с вызовами разделяемой памяти SysV, но более контролируемым
+и менее ограничивающим образом.
+Однако учтите, что эта возможность не является переносимой
+между платформами UNIX (хотя некоторые могут по умолчанию делать правильные вещи).
+Для получения дополнительной информации см. раздел MAP_NOSYNC в
+.Xr mmap 2
+.It Dv MADV_AUTOSYNC
+Отменяет действие MADV_NOSYNC для любых будущих страниц, загрязнённых в
+диапазоне адресов.
+Эффект для уже загрязнённых страниц не определён — они
+могут быть или не быть возвращены в исходное состояние.
+Вы можете гарантировать возврат, используя
+.Xr msync 2
+или
+.Xr fsync 2
+системные вызовы.
+.It Dv MADV_NOCORE
+Область не включается в файл дампа памяти.
+.It Dv MADV_CORE
+Включить область в файл дампа памяти.
+.It Dv MADV_PROTECT
+Сообщает системе виртуальной памяти, что этот процесс не должен быть убит при
+исчерпании пространства подкачки.
+Процесс должен иметь привилегии суперпользователя.
+Это следует использовать разумно в процессах, которые должны оставаться запущенными
+для надлежащего функционирования системы.
+.El
+.Pp
+Переносимые программы, вызывающие
+интерфейс
+.Fn posix_madvise
+должны использовать псевдонимы
+.Dv POSIX_MADV_NORMAL , POSIX_MADV_SEQUENTIAL ,
+.Dv POSIX_MADV_RANDOM , POSIX_MADV_WILLNEED ,
+и
+.Dv POSIX_MADV_DONTNEED
+вместо флагов, описанных выше.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std madvise
+.Sh ОШИБКИ
+Системный вызов
+.Fn madvise
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa behav
+недопустим.
+.It Bq Er ENOMEM
+Диапазон виртуальных адресов, заданный аргументами
+.Fa addr
+и
+.Fa len
+недопустим.
+.It Bq Er EPERM
+Был указан
+.Dv MADV_PROTECT
+и процесс не имеет привилегий суперпользователя.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mincore 2 ,
+.Xr mprotect 2 ,
+.Xr msync 2 ,
+.Xr munmap 2 ,
+.Xr posix_fadvise 2
+.Sh СТАНДАРТЫ
+Интерфейс
+.Fn posix_madvise
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn madvise
+впервые появился в
+.Bx 4.4 .

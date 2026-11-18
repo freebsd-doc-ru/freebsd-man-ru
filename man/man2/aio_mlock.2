@@ -1,0 +1,140 @@
+.\" Copyright (c) 2013 Gleb Smirnoff <glebius@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_mlock.2
+.\" FRDP githash e24279e0f9e28ba0c1920cb539fc357568790c0a
+.\" FRDP hash256 61388e682257275e7db90f8482889878d49dad82e809c993f2d0563404e6ee53
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 19, 2016
+.Dt AIO_MLOCK 2
+.Os
+.Sh ИМЯ
+.Nm aio_mlock
+.Nd асинхронная операция
+.Xr mlock 2
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fn aio_mlock "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn aio_mlock
+позволяет вызывающему процессу заблокировать в памяти физические
+страницы, связанные с диапазоном виртуальных адресов, начинающимся с
+.Fa iocb->aio_buf
+и имеющим длину
+.Fa iocb->aio_nbytes
+байт.
+Вызов возвращается сразу после того, как запрос на блокировку
+поставлен в очередь; к моменту возврата из вызова операция может быть
+как завершена, так и не завершена.
+.Pp
+Указатель
+.Fa iocb
+может впоследствии использоваться в качестве аргумента функций
+.Fn aio_return
+и
+.Fn aio_error
+для определения статуса возврата или ошибки поставленной в очередь
+операции, пока она выполняется.
+.Pp
+Если запрос не удалось поставить в очередь (обычно из-за ограничений
+.Xr aio 4 ) ,
+то вызов возвращается, не поставив запрос в очередь.
+.Pp
+Структура
+.Fa iocb->aio_sigevent
+может использоваться для запроса уведомления о завершении операции,
+как описано в
+.Xr aio 4 .
+.Sh ОГРАНИЧЕНИЯ
+Структура блока управления асинхронным вводом-выводом, на которую
+указывает
+.Fa iocb ,
+и буфер, на который ссылается член
+.Fa iocb->aio_buf
+этой структуры, должны оставаться действительными до завершения
+операции.
+.Pp
+Буфер управления асинхронным вводом-выводом
+.Fa iocb
+следует обнулить перед вызовом
+.Fn aio_mlock ,
+чтобы не передавать в ядро ложную контекстную информацию.
+.Pp
+Изменения структуры блока управления асинхронным вводом-выводом или
+отображения памяти, описываемого диапазоном виртуальных адресов, не
+допускаются, пока запрос находится в очереди.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std aio_mlock
+.Sh ОШИБКИ
+Системный вызов
+.Fn aio_mlock
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Запрос не был поставлен в очередь из-за ограничений системных ресурсов.
+.It Bq Er EINVAL
+Метод асинхронного уведомления в
+.Fa iocb->aio_sigevent.sigev_notify
+недопустим или не поддерживается.
+.El
+.Pp
+Если запрос успешно поставлен в очередь, но впоследствии отменён или
+произошла ошибка, значение, возвращаемое системным вызовом
+.Fn aio_return ,
+соответствует системному вызову
+.Xr mlock 2 ,
+а значение, возвращаемое системным вызовом
+.Fn aio_error ,
+является одним из кодов ошибок системного вызова
+.Xr mlock 2 ,
+или
+.Er ECANCELED ,
+если запрос был явно отменён посредством вызова
+.Fn aio_cancel .
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_return 2 ,
+.Xr mlock 2 ,
+.Xr sigevent 3 ,
+.Xr aio 4
+.Sh ПЕРЕНОСИМОСТЬ
+Системный вызов
+.Fn aio_mlock
+является расширением
+.Fx
+и не должен использоваться в переносимом коде.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_mlock
+впервые появился в
+.Fx 10.0 .
+.Sh АВТОРЫ
+Системный вызов был введён
+.An Gleb Smirnoff Aq Mt glebius@FreeBSD.org .

@@ -1,0 +1,180 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mlock.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 6cffa5bfafcf2055beb687377d6c8fc4b55e54a1eeb71ee3242844971cb00a32
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 13, 2019
+.Dt MLOCK 2
+.Os
+.Sh ИМЯ
+.Nm mlock ,
+.Nm munlock
+.Nd блокировка (разблокировка) физических страниц в памяти
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn mlock "const void *addr" "size_t len"
+.Ft int
+.Fn munlock "const void *addr" "size_t len"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mlock
+блокирует в памяти физические страницы, связанные с диапазоном
+виртуальных адресов, начинающимся с
+.Fa addr
+и имеющим длину
+.Fa len
+байт.
+Системный вызов
+.Fn munlock
+разблокирует страницы, ранее заблокированные одним или несколькими
+вызовами
+.Fn mlock .
+В обоих случаях аргумент
+.Fa addr
+должен быть выровнен по кратности размеру страницы.
+Если аргумент
+.Fa len
+не кратен размеру страницы, он будет округлён вверх
+до кратного.
+Весь диапазон должен быть выделен.
+.Pp
+После системного вызова
+.Fn mlock
+указанные страницы не будут вызывать ни ошибку отсутствия страницы,
+ни ошибку трансляции адреса, пока они не будут разблокированы.
+Они по-прежнему могут вызывать ошибки нарушения защиты или промаха TLB
+на архитектурах с программно управляемыми TLB.
+Физические страницы остаются в памяти, пока все заблокированные
+отображения этих страниц не будут удалены.
+Несколько процессов могут иметь одни и те же физические страницы
+заблокированными через свои собственные отображения виртуальных адресов.
+Один процесс также может иметь страницы, заблокированные несколько раз
+через различные виртуальные отображения одних и тех же физических страниц.
+Разблокировка выполняется явно с помощью
+.Fn munlock
+или неявно вызовом
+.Fn munmap ,
+который освобождает отображённый диапазон адресов.
+Заблокированные отображения не наследуются дочерним процессом после
+.Xr fork 2 .
+.Pp
+Поскольку физическая память является потенциально ограниченным ресурсом,
+процессы ограничены в том, сколько они могут заблокировать.
+Объём памяти, который один процесс может
+.Fn mlock ,
+ограничен как ресурсным лимитом
+.Dv RLIMIT_MEMLOCK
+на процесс, так и
+общесистемным лимитом
+.Dq фиксированных страниц
+.Va vm.max_user_wired .
+.Va vm.max_user_wired
+применяется к системе в целом, поэтому объём, доступный одному
+процессу в любой момент времени, представляет собой разность между
+.Va vm.max_user_wired
+и
+.Va vm.stats.vm.v_user_wire_count .
+.Pp
+Если
+.Va security.bsd.unprivileged_mlock
+установлено в 0, эти вызовы доступны только суперпользователю.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Pp
+При успешном вызове все страницы в диапазоне становятся заблокированными
+(разблокированными); в противном случае состояние блокировки всех страниц
+в диапазоне остаётся неизменным.
+.Sh ОШИБКИ
+Системный вызов
+.Fn mlock
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+.Va security.bsd.unprivileged_mlock
+установлено в 0 и вызывающий процесс не является суперпользователем.
+.It Bq Er EINVAL
+Заданный диапазон адресов переполняется через ноль.
+.It Bq Er ENOMEM
+Некоторая часть указанного диапазона адресов не выделена.
+Произошла ошибка при обращении к странице или её отображении.
+Блокировка указанного диапазона превысит лимиты на процесс или
+общесистемные лимиты на заблокированную память.
+.El
+Системный вызов
+.Fn munlock
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+.Va security.bsd.unprivileged_mlock
+установлено в 0 и вызывающий процесс не является суперпользователем.
+.It Bq Er EINVAL
+Заданный диапазон адресов переполняется через ноль.
+.It Bq Er ENOMEM
+Некоторая часть или весь диапазон адресов, заданный аргументами addr и len,
+не соответствует допустимым отображённым страницам в адресном пространстве
+процесса.
+.It Bq Er ENOMEM
+Блокировка страниц, отображённых в указанном диапазоне, превысит лимит
+на объём памяти, который процесс может заблокировать.
+.El
+.Sh "СМ. ТАКЖЕ"
+.Xr fork 2 ,
+.Xr mincore 2 ,
+.Xr minherit 2 ,
+.Xr mlockall 2 ,
+.Xr mmap 2 ,
+.Xr munlockall 2 ,
+.Xr munmap 2 ,
+.Xr setrlimit 2 ,
+.Xr getpagesize 3
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn mlock
+и
+.Fn munlock
+впервые появились в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Выделение слишком большого объёма фиксированной памяти может привести
+к взаимоблокировке при выделении памяти, для выхода из которой требуется
+перезагрузка.
+.Pp
+Ресурсные лимиты на заблокированную память на процесс и общесистемные
+применяются к объёму заблокированной виртуальной памяти, а не к объёму
+заблокированных физических страниц.
+Следовательно, два различных заблокированных отображения одной и той же
+физической страницы учитываются как 2 страницы против системного лимита,
+а также против лимита на процесс, если оба отображения принадлежат одному
+и тому же физическому отображению.
+.Pp
+Ресурсный лимит на процесс в настоящее время не поддерживается.

@@ -1,0 +1,74 @@
+.\" Copyright (c) 2004  Poul-Henning Kamp <phk@FreeBSD.org>
+.\" Copyright (c) 2003  Sean M. Kelly <smkelly@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/watchdogd/watchdog.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e593c621f82d8f4783cc6aceb6d7f91dff6a0267f8daaac46c6c08399df988f0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 18, 2014
+.Dt WATCHDOG 8
+.Os
+.Sh ИМЯ
+.Nm watchdog
+.Nd программа управления сторожевым таймером
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl t Ar таймаут
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для управления механизмом сторожевого таймера ядра.
+.Pp
+Опция
+.Fl d
+включает отладку.
+.Pp
+Опция
+.Fl t Ar таймаут
+задаёт желаемый период таймаута в секундах; значение
+ноль отключает сторожевой таймер.
+Таймаут по умолчанию — 128 секунд.
+.Sh СМ. ТАКЖЕ
+.Xr watchdog 4 ,
+.Xr watchdogd 8 ,
+.Xr watchdog 9
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и страница Справочника были написаны
+.An Sean Kelly Aq Mt smkelly@FreeBSD.org
+и
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org .
+.Pp
+Некоторые дополнения внесены
+.An Jeff Roberson Aq Mt jeff@FreeBSD.org .

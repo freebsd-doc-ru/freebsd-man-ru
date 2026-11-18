@@ -1,0 +1,157 @@
+.\" Copyright (c) 2002
+.\"	Nate Lawson.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the author nor the names of any co-contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Nate Lawson AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/examples/scsi_target/scsi_target.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 9083270226e7a84c9386cbecbbd39af7561822b5a27c4c7e84ded82c71586dbd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 15, 2002
+.Dt SCSI_TARGET 8
+.Os
+.Sh ИМЯ
+.Nm scsi_target
+.Nd эмулятор SCSI-диска в пользовательском режиме
+.Sh СИНТАКСИС
+.Nm
+.Op Fl AdST
+.Op Fl b Ar размер
+.Op Fl c Ar размер
+.Op Fl s Ar размер
+.Op Fl W Ar число
+.Ar шина : Ns Ar цель : Ns Ar LUN
+.Ar имя_файла
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+эмулирует устройство-цель SCSI, используя драйвер устройства
+.Xr targ 4 .
+Она поддерживает основные команды устройства прямого доступа, такие как
+.Xr da 4 .
+При типичной работе она открывает управляющее устройство и
+включает режим цели для указанного LUN.
+Затем она взаимодействует с
+SIM, используя CCB, обмен которыми осуществляется через
+.Xr read 2
+и
+.Xr write 2 .
+CDB-команды READ и WRITE выполняются с помощью указанного файла-носителя.
+.Pp
+Для повышения производительности все обращения к файлу-носителю используют
+.Xr aio 4 .
+Таким образом,
+.Nm
+требует ядро, скомпилированное с
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl A
+Включает 16 адресов, если поддерживается SIM.
+По умолчанию 8.
+.It Fl S
+Включает синхронные передачи, если поддерживается SIM.
+По умолчанию отключено.
+.It Fl T
+Включает тегированную очередь, если поддерживается SIM.
+По умолчанию тегированная очередь не используется.
+.It Fl W Cm 8 | 16 | 32
+Включает 16- или 32-битные передачи, если поддерживается SIM.
+По умолчанию 8.
+.It Fl b Ar размер_буфера
+Устанавливает размер буфера для передач.
+Передачи, размер которых больше этого, будут разбиты на несколько передач.
+.It Fl c Ar размер_сектора
+Устанавливает размер сектора для эмулируемого тома.
+По умолчанию 512.
+.It Fl d
+Включает вывод отладочной информации в
+.Nm
+и связанном с ним управляющем устройстве.
+.It Fl s Ar размер_тома
+Использовать другой размер для эмулируемого тома.
+Должен быть меньше или равен размеру
+.Ar имя_файла .
+Если число заканчивается на
+.Dq Li k ,
+.Dq Li m ,
+.Dq Li g ,
+.Dq Li t ,
+.Dq Li p ,
+или
+.Dq Li e ,
+число умножается на 2^10 (1K), 2^20 (1M), 2^30 (1G), 2^40 (1T),
+2^50 (1P) и 2^60 (1E)
+соответственно.
+.El
+.Pp
+Обязательные аргументы:
+.Bl -tag -width indent
+.It Ar шина : Ns Ar цель : Ns Ar LUN
+Подключиться к указанному ID шины, ID цели и LUN.
+.It Ar имя_файла
+Файл, используемый в качестве файла-носителя.
+.El
+.Pp
+Все параметры по умолчанию соответствуют минимальной функциональности SCSI-1.
+Для безопасности
+.Nm
+проверяет SIM на наличие запрошенной возможности перед включением режима цели.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /dev/targ*
+Управляющие устройства.
+.It Pa /usr/share/examples/scsi_target
+Каталог с исходным кодом.
+.El
+.Sh ПРИМЕРЫ
+Создать файл-носитель размером 5 мегабайт.
+.Pp
+.Pp
+Включить режим цели на шине 0, ID цели 1, LUN 0, используя
+.Pa vol
+в качестве файла-носителя для команд READ6/10 и WRITE6/10.
+Только первые 1000 байт
+.Pa vol
+будут использованы.
+Будет выводиться отладочная информация.
+Будут использоваться 16-битные передачи, если SIM их поддерживает.
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr scsi 4 ,
+.Xr targ 4
+.Sh АВТОРЫ
+.An -nosplit
+Пример
+.Nm
+впервые появился в
+.Fx 3.0
+и был написан
+.An Justin T. Gibbs .
+Он был переписан для
+.Fx 5.0
+автором
+.An Nate Lawson Aq Mt nate@root.org .

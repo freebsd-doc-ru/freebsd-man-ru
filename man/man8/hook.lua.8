@@ -1,0 +1,91 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Kyle Evans <kevans@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/lua/hook.lua.8
+.\" FRDP githash 5d59c1b4f14e2fa6388b1d75ee3243085f1c69f2
+.\" FRDP hash256 322bc34091e5111e72fe47a419dce7de607a5f7d6a7d94336798e397221e02c4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 29, 2025
+.Dt HOOK.LUA 8
+.Os
+.Sh ИМЯ
+.Nm hook.lua
+.Nd модуль перехватчиков загрузчика
+.Sh ОПИСАНИЕ
+.Nm
+содержит функциональность для определения типов перехватчиков и присоединения перехватчиков.
+Перехватчики — это функции, используемые для присоединения пользовательского поведения в предопределённых точках выполнения загрузчика.
+Эти предопределённые точки — это то, что мы называем
+.Dq типы перехватчиков .
+Перехватчики также могут принимать необязательный параметр data, который может быть или не быть заполнен вызывающей стороной.
+.Pp
+Перед использованием функциональности, предоставляемой
+.Nm ,
+её необходимо включить с помощью оператора наподобие следующего:
+.Pp
+.Ss Экспортируемые функции
+Следующие функции экспортируются из
+.Nm :
+.Bl -tag -width hook.registerType -offset indent
+.It Fn hook.registerType hooktype
+Добавляет
+.Ev hooktype
+как распознанный тип перехватчиков.
+Это позволяет добавлять функции для выполнения, когда перехватчики этого типа вызываются
+с помощью
+.Fn hook.runAll hooktype .
+.It Fn hook.register hooktype hookfunc
+Регистрирует
+.Ev hookfunc
+для выполнения, когда вызываются перехватчики типа
+.Ev hooktype .
+.It Fn hook.runAll hooktype
+Вызывает все перехватчики, зарегистрированные для типа
+.Ev hooktype .
+Перехватчики вызываются в порядке их регистрации.
+.El
+.Ss Рекомендации по именованию перехватчиков
+Имена перехватчиков должны состоять из имени модуля, в котором они определены, а также глагола, описывающего, когда перехватчик выполняется, разделённых точкой.
+Например,
+.Dq config.reloaded
+определён в модуле
+.Xr config.lua 8
+и выполняется при перезагрузке конфигурации.
+.Sh ПРИМЕРЫ
+Чтобы зарегистрировать перехватчик, выполняемый при перезагрузке конфигурации:
+.Pp
+.Bd -literal -offset indent -compact
+
+local function configuration_was_reloaded()
+end
+
+.Ed
+.Sh АВТОРЫ
+Файл
+.Nm
+изначально был написан
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

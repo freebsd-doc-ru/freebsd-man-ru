@@ -1,0 +1,175 @@
+.\"
+.\" Copyright (c) Baptiste Daroussin <bapt@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mpsutil/mpsutil.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4beb37388c42c3363625db33bc84b45da1ec12f95e49b5fd437860dac49885d1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 7, 2021
+.Dt MPSUTIL 8
+.Os
+.Sh ИМЯ
+.Nm mpsutil ,
+.Nm mprutil
+.Nd Утилита для управления контроллерами LSI Fusion-MPT 2/3
+.Sh СИНТАКСИС
+.Nm
+.Cm version
+.Nm
+.Op Fl u Ar unit
+.Cm show adapter
+.Nm
+.Op Fl u Ar unit
+.Cm show adapters
+.Nm
+.Op Fl u Ar unit
+.Cm show all
+.Nm
+.Op Fl u Ar unit
+.Cm show cfgpage page
+.Op Ar num
+.Op Ar addr
+.Nm
+.Op Fl u Ar unit
+.Cm show devices
+.Nm
+.Op Fl u Ar unit
+.Cm show enclosures
+.Nm
+.Op Fl u Ar unit
+.Cm show expanders
+.Nm
+.Op Fl u Ar unit
+.Cm show iocfacts
+.Nm
+.Op Fl u Ar unit
+.Cm set ncq
+.Op Ar enable Ns | Ns Ar disable
+.Nm
+.Op Fl u Ar unit
+.Cm flash save
+.Op Ar firmware Ns | Ns Ar bios
+.Op Ar file
+.Nm
+.Op Fl u Ar unit
+.Cm flash update
+.Op Ar firmware Ns | Ns Ar bios
+.Ar file
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для отображения или изменения различных параметров на контроллерах LSI
+Fusion-MPS 2.
+.Pp
+Утилита
+.Nm mprutil
+может использоваться для отображения или изменения различных параметров на контроллерах LSI
+Fusion-MPS 3.
+.Pp
+Обе команды
+.Nm mprutil
+и
+.Nm
+работают одинаково.
+.Pp
+Каждый вызов
+.Nm
+состоит из нуля или более глобальных опций, за которыми следует команда.
+Команды могут поддерживать дополнительные необязательные или обязательные аргументы после
+команды.
+.Pp
+В настоящее время поддерживается одна глобальная опция:
+.Bl -tag -width indent
+.It Fl u Ar unit
+.Ar unit
+указывает номер устройства контроллера, с которым нужно работать.
+Если номер устройства не указан,
+то используется устройство 0.
+.El
+.Pp
+Утилита
+.Nm
+поддерживает несколько различных групп команд.
+Первая группа команд предоставляет информацию о контроллере.
+Вторая группа команд используется для управления операциями, общими для всего контроллера.
+.Pp
+Информационные команды включают:
+.Bl -tag -width indent
+.It Cm version
+Отображает версию
+.Nm .
+.It Cm show adapter
+Отображает информацию о контроллере, такую как номер модели или версия прошивки.
+.It Cm show adapters
+Отображает сводку по всем адаптерам.
+.It Cm show all
+Отображает все устройства, экспандеры и корпуса.
+.It Cm show devices
+Отображает все устройства.
+.It Cm show expanders
+Отображает все экспандеры.
+.It Cm show enclosures
+Отображает все корпуса.
+.It Cm show iocfacts
+Отображает сообщения IOC Facts.
+.It Cm show cfgpage page Oo Ar num Oc Op Ar addr
+Выводит необработанную страницу конфигурации в шестнадцатеричном виде.
+.El
+.Pp
+Команды управления контроллером включают:
+.Bl -tag -width indent
+.It Cm set ncq Oo Ar enable Ns | Ns Ar disable Oc
+Включает или отключает NCQ в NVRAM карты.
+.It Cm flash save Oo Ar firmware Ns | Ns Ar bios Oc Op Ar file
+Сохраняет
+.Ar firmware
+или
+.Ar bios
+из контроллера в локальный
+.Ar file .
+Если
+.Ar file
+не указан, то файл будет назван
+.Pa firmware
+или
+.Pa bios .
+.It Cm flash update Oo Ar firmware Ns | Ns Ar bios Oc Ar file
+Заменяет
+.Ar firmware
+или
+.Ar bios
+в контроллере на указанный через
+.Ar file .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mpr 4 ,
+.Xr mps 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.0 .
+.Sh ЗАДАЧИ
+Операции с флеш-памятью (сохранение/обновление) не поддерживаются на архитектурах big-endian.

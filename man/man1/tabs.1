@@ -1,0 +1,162 @@
+.\" Copyright (c) 2002 Tim J. Robbins.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/tabs/tabs.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 76fde693007ef41f5a7c8290888f24b42a582965620d863da580d58250a0b2b9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 9, 2021
+.Dt TABS 1
+.Os
+.Sh ИМЯ
+.Nm tabs
+.Nd установить табуляцию терминала
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Ar n | Fl a | a2 | c | c2 | c3 | f | p | s | u
+.Op Cm +m Ns Op Ar n
+.Op Fl T Ar type
+.Nm
+.Op Fl T Ar type
+.Op Cm + Ns Op Ar n
+.Ar n1 Ns Op Ns , Ns Ar n2 , Ns ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает серию символов, которые сбрасывают аппаратные установки табуляции терминала, затем инициализирует позиции табуляции в указанных местах и, необязательно, корректирует отступ.
+.Pp
+В первой форме синтаксиса устанавливаемые позиции табуляции зависят от используемых параметров командной строки и могут быть одним из предопределённых форматов или задаваться через равные интервалы.
+.Pp
+Во второй форме синтаксиса позиции табуляции устанавливаются в позициях
+.Ar n1 , n2
+и т.д.
+Если перед позицией стоит
+.Ql + ,
+она задаётся относительно предыдущей установленной позиции.
+Можно указать не более 20 позиций.
+.Pp
+Если позиции табуляции не указаны, используется
+.Dq стандартная
+.Ux
+ширина табуляции, равная 8.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl Ar n
+Устанавливать позицию табуляции через каждые
+.Ar n
+столбцов.
+Если
+.Ar n
+равно 0, позиции табуляции сбрасываются, но новые не устанавливаются.
+.It Fl a
+Формат ассемблера (столбцы 1, 10, 16, 36, 72).
+.It Fl a2
+Формат ассемблера (столбцы 1, 10, 16, 40, 72).
+.It Fl c
+.Tn COBOL
+в обычном формате (столбцы 1, 8, 12, 16, 20, 55)
+.It Fl c2
+.Tn COBOL
+в компактном формате (столбцы 1, 6, 10, 14, 49)
+.It Fl c3
+.Tn COBOL
+в компактном формате (столбцы 1, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46,
+50, 54, 58, 62, 67).
+.It Fl f
+.Tn FORTRAN
+формат (столбцы 1, 7, 11, 15, 19, 23).
+.It Fl p
+.Tn PL/1
+формат (столбцы 1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53,
+57, 61).
+.It Fl s
+.Tn SNOBOL
+формат (столбцы 1, 10, 55).
+.It Fl u
+Формат ассемблера (столбцы 1, 12, 20, 44).
+.It Xo
+.Cm +m Ns Op Ar n ,
+.Cm + Ns Op Ar n
+.Xc
+Установить левый отступ в
+.Ar n
+символов или 10, если
+.Ar n
+опущено.
+.It Fl T Ar type
+Вывести escape-последовательность для типа терминала
+.Ar type .
+.El
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL , LC_CTYPE
+и
+.Ev TERM
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Pp
+Параметр
+.Fl T
+переопределяет значение переменной окружения
+.Ev TERM .
+Если отсутствуют и
+.Ev TERM ,
+и параметр
+.Fl T ,
+.Nm
+завершится с ошибкой.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr expand 1 ,
+.Xr stty 1 ,
+.Xr tput 1 ,
+.Xr unexpand 1 ,
+.Xr termcap 5
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+.Pa /etc/tabs
+появился в
+.At v1
+который устанавливал табуляцию через каждые 8 символов на Teletype model 37 и совместимых печатающих терминалах
+при печати.
+Утилита
+.Nm ,
+работавшая на многих терминалах, появилась в PWB UNIX.
+Эта реализация была представлена в
+.Fx 5.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Текущая база данных
+.Xr termcap 5
+не определяет возможность
+.Ql ML
+(установка левого мягкого отступа) ни для каких терминалов.

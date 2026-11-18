@@ -1,0 +1,123 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Donn Seeley of BSDI.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/profil.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 0e72f2744fa023608a6a04838bd22b81eb0a907d5f5bb97d277044e62efa7ebd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 1, 2017
+.Dt PROFIL 2
+.Os
+.Sh ИМЯ
+.Nm profil
+.Nd управление профилированием процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn profil "char *samples" "size_t size" "vm_offset_t offset" "int scale"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn profil
+включает или выключает
+профилирование счётчика команд текущего процесса.
+Если профилирование включено,
+то при каждом тике часов профилирования
+ядро обновляет соответствующий счётчик в буфере
+.Fa samples .
+Частота часов профилирования записывается
+в заголовке выходного файла профилирования.
+.Pp
+Буфер
+.Fa samples
+содержит
+.Fa size
+байт и разделён на
+последовательность 16-битных ячеек.
+Каждая ячейка подсчитывает число раз, когда счётчик команд
+находился в определённом диапазоне адресов процесса
+при возникновении тика часов профилирования во время включённого профилирования.
+Для заданного адреса счётчика команд
+номер соответствующей ячейки задаётся
+соотношением:
+.Bd -literal -offset indent
+[(pc - offset) / 2] * scale / 65536
+.Ed
+.Pp
+Аргумент
+.Fa offset
+— это наименьший адрес, по которому
+ядро снимает показания счётчика команд.
+Аргумент
+.Fa scale
+находится в диапазоне от 1 до 65536 и
+может использоваться для изменения диапазона ячеек.
+Масштаб 65536 отображает каждую ячейку на 2 байта диапазона адресов;
+масштаб 32768 даёт 4 байта, 16384 — 8 байт и так далее.
+Промежуточные значения обеспечивают приблизительные промежуточные диапазоны.
+Значение
+.Fa scale ,
+равное 0, отключает профилирование.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std profil
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/lib/gcrt0.o -compact
+.It Pa /usr/lib/gcrt0.o
+файл инициализации среды выполнения C для профилирования
+.It Pa gmon.out
+общепринятое имя выходного файла профилирования
+.El
+.Sh ОШИБКИ
+Может быть сообщена следующая ошибка:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Буфер
+.Fa samples
+содержит недопустимый адрес.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr gprof 1
+.Sh ИСТОРИЯ
+Функциональность
+.Fn profil
+впервые появилась в
+.At v3 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эту процедуру следовало бы назвать
+.Fn profile .
+.Pp
+Аргумент
+.Fa samples
+в действительности должен быть вектором типа
+.Fa "unsigned short" .
+.Pp
+Формат файла gmon.out не документирован.

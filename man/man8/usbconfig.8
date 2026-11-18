@@ -1,0 +1,208 @@
+.\"
+.\" Copyright (c) 2008-2019 Hans Petter Selasky. All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/usbconfig/usbconfig.8
+.\" FRDP githash c66308d7bcc3931b60a096bfe6ba0f50105e77de
+.\" FRDP hash256 3d9d96d2fd29d067386c15be96c0e799f8863f281325da28a6f48b8b63806df9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 12, 2025
+.Dt USBCONFIG 8
+.Os
+.Sh ИМЯ
+.Nm usbconfig
+.Nd настройка подсистемы USB
+.Sh СИНТАКСИС
+.Nm
+.Op Fl l
+.Op Fl v
+.Op Fl a Ar addr
+.Op Fl i Ar interface_index
+.Op Fl u Ar unit
+.Op Ar cmds ...
+.Nm
+.Fl d
+.Sm off
+.Oo Oo Cm /dev/ Oc Cm ugen Oc Ar unit Cm \&. Ar addr
+.Sm on
+.Op Fl l
+.Op Fl v
+.Op Fl i Ar interface_index
+.Op Ar cmds ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для настройки подсистемы USB и вывода информации о ней.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl a Ar addr
+Ограничить диапазон устройств заданным индексом USB-устройства.
+Следует использовать только вместе с аргументом unit.
+.It Xo
+.Fl d
+.Sm off
+.Oo Oo Cm /dev/ Oc Cm ugen Oc Ar unit Cm \&. Ar addr
+.Sm on
+.Xc
+Ограничить диапазон устройств USB-устройствами, подключёнными к заданным unit и адресу.
+Координаты unit и адреса могут иметь в качестве префикса слово
+.Cm ugen
+в нижнем регистре
+или полное имя пути
+.Cm /dev/ugen .
+.It Fl h
+Показать справку и доступные команды.
+.It Fl i Ar interface_index
+Указать индекс интерфейса, как описано в описании команды.
+Если этот аргумент не указан,
+для индекса интерфейса будет использоваться значение ноль.
+.It Fl l Cm dump_device_desc
+Показывать вывод key=value только в числовом виде одной длинной строкой.
+.It Fl u Ar unit
+Ограничить диапазон устройств USB-устройствами, подключёнными к заданному unit USBUS.
+.It Fl v
+Активировать команды
+.Cm dump_device_desc ,
+.Cm dump_curr_config_desc
+и
+.Cm show_ifdrv
+.Pq Dq подробный режим .
+.El
+.Pp
+Следующие команды могут использоваться с
+.Nm :
+.Bl -tag -width indent
+.It Cm set_config Ar cfg_index
+Выбрать конфигурацию для USB-устройства.
+Допустимые значения — от нуля до числа, указанного как
+.Ar bNumConfigurations
+в выводе
+.Cm dump_device_desc .
+Специальное значение 255 снимает конфигурацию устройства, отсоединяя
+драйверы интерфейсов и снижая энергопотребление до минимума,
+но без перехода в режим энергосбережения или отсоединения от шины.
+В некоторых случаях это не позволяет устройству заряжаться.
+.It Cm set_alt Ar alt_index
+Выбрать альтернативный интерфейс для выбранного интерфейса и USB-устройства.
+Альтернативные настройки для текущей конфигурации доступны как
+.Ar bAlternateSetting
+в выводе
+.Cm dump_curr_config_desc .
+Обычно нет необходимости изменять эту настройку.
+Эта команда использует параметр
+.Fl i Ar interface_index .
+.It Cm set_template Ar template
+Установить глобальный шаблон стороны USB-устройства.
+См.
+.Xr usb_template 4
+для получения дополнительной информации.
+.It Cm get_template
+Получить текущий шаблон стороны USB-устройства.
+.It Cm add_dev_quirk_vplh Ar vid Ar pid Ar lo_rev Ar hi_rev Ar quirk_name
+Добавить quirk, указав Vendor ID, Product ID, младший и старший
+номера ревизий и имя quirk.
+См.
+.Xr usb_quirk 4
+для получения дополнительной информации.
+.It Cm remove_dev_quirk_vplh Ar vid Ar pid Ar lo_rev Ar hi_rev Ar quirk_name
+Удалить quirk.
+.It Cm add_quirk Ar quirk_name
+Добавить quirk для выбранного в данный момент USB-устройства.
+.It Cm remove_quirk Ar quirk_name
+Удалить quirk для выбранного в данный момент USB-устройства.
+.It Cm dump_all_desc
+Показать дескрипторы устройства и конфигурации.
+.It Cm dump_quirk_names
+Показать список поддерживаемых имён quirk.
+.It Cm dump_device_quirks
+Показать список текущих quirk устройства.
+.It Cm dump_device_desc
+Показать дескриптор устройства.
+.It Cm dump_curr_config_desc
+Показать дескриптор текущей конфигурации.
+.It Cm dump_all_config_desc
+Показать все дескрипторы конфигурации.
+.It Cm dump_string Ar index
+Показать строковый дескриптор по выбранному индексу.
+.It Cm dump_info
+Показать сводную информацию об устройстве.
+.It Cm dump_stats
+Показать статистику передач USB.
+.It Cm show_ifdrv
+Показать список драйверов интерфейсов (таких как
+.Xr ukbd 4
+или
+.Xr u3g 4 ),
+подключённых в данный момент к устройству.
+.It Cm detach_kernel_driver
+Отсоединить драйвер ядра для выбранного интерфейса и USB-устройства.
+Эта команда использует параметр
+.Fl i Ar interface_index .
+.It Cm suspend
+Принудительно приостановить устройство.
+.It Cm resume
+Принудительно возобновить работу устройства.
+.It Cm power_off
+Выключить устройство.
+.It Cm power_save
+Включить автоматическое приостановление и возобновление работы.
+Это значение по умолчанию для USB-концентраторов.
+.It Cm power_on
+Включить устройство и отключить автоматическое приостановление и возобновление работы.
+Это значение по умолчанию для устройств, не являющихся концентраторами.
+.It Cm reset
+Сбросить устройство.
+Это заставляет стек USB повторно перечислить устройства на шине.
+.It Cm list
+Перечислить все доступные USB-устройства.
+Это действие по умолчанию, если
+.Nm
+вызывается без указания команды.
+.It Cm do_request Ar bmReqTyp Ar bReq Ar wVal Ar wIdx Ar wLen Ar data...
+Выполнить синхронный управляющий запрос к указанному устройству.
+См.
+.Xr libusb20_dev_request_sync 3
+для получения дополнительной информации.
+.El
+.Sh ПРИМЕРЫ
+Перечислить все подключённые USB-устройства и подключённые к ним драйверы интерфейсов:
+.Pp
+.Dl usbconfig show_ifdrv
+.Pp
+Показать дескрипторы устройства и конфигурации для устройства на шине USB 1 с адресом 2:
+.Pp
+.Dl usbconfig -d ugen1.2 dump_all_desc
+.Pp
+Показать дескриптор HID для устройства на шине USB 1 с адресом 2:
+.Pp
+.Dl usbconfig -d ugen1.2 do_request 0x81 0x06 0x2200 0 0x100
+.Pp
+Выключить устройство на шине USB 1 с адресом 2:
+.Pp
+.Dl usbconfig -d ugen1.2 power_off
+.Sh СМ. ТАКЖЕ
+.Xr usb 4 ,
+.Xr usb_quirk 4 ,
+.Xr usb_template 4

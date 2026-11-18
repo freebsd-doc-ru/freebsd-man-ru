@@ -1,0 +1,262 @@
+.\" Copyright (c) 2002 - 2003 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	$Id$
+.\"
+.\" FRDP path ./crypto/heimdal/appl/rsh/rsh.1
+.\" FRDP githash fc55c20355d889bf3d3f81d94b3614a0c4253fa0
+.\" FRDP hash256 b8771833db5254092416ed4d1a02b3708ae1662b41d7f514be1fcf53c45ce492
+.Dd 20 февраля 2004
+.Dt RSH 1
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm rsh
+.Nd удалённая оболочка
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 45FGKdefnuxz
+.Op Fl U Pa строка
+.Op Fl p Ar порт
+.Op Fl l Ar имя_пользователя
+.Op Fl P Ar N|O
+.Ar хост [команда]
+.Sh ОПИСАНИЕ
+.Nm
+аутентифицируется в демоне
+.Xr rshd 8
+на удалённом
+.Ar хосте ,
+а затем выполняет указанную
+.Ar команду .
+.Pp
+.Nm
+копирует свой стандартный ввод в удалённую команду, а стандартный вывод и ошибку удалённой команды — в свои.
+.Pp
+Допустимые опции:
+.Bl -tag -width Ds
+.It Xo
+.Fl 4 ,
+.Fl Fl krb4
+.Xc
+Опция
+.Fl 4
+запрашивает аутентификацию Kerberos 4. Обычно будут опробованы все поддерживаемые механизмы аутентификации, но в некоторых случаях желателен более явный контроль.
+.It Xo
+.Fl 5 ,
+.Fl Fl krb5
+.Xc
+Опция
+.Fl 5
+запрашивает аутентификацию Kerberos 5. Это аналог опции
+.Fl 4 .
+.It Xo
+.Fl K ,
+.Fl Fl broken
+.Xc
+Опция
+.Fl K
+отключает всю аутентификацию Kerberos. Безопасность в этом режиме полагается на привилегированные порты. Длинное название указывает на то, насколько это хорошо.
+.It Xo
+.Fl n ,
+.Fl Fl no-input
+.Xc
+Опция
+.Fl n
+направляет ввод с устройства
+.Pa /dev/null
+(см. раздел
+.Sx ИЗВЕСТНЫЕ ОШИБКИ
+данной справочной страницы).
+.It Fl d
+Включить отладку сокетов
+.Xr setsockopt 2 .
+.It Xo
+.Fl e ,
+.Fl Fl no-stderr
+.Xc
+Не использовать отдельный сокет для потока stderr. Это может быть необходимо при использовании rsh через NAT.
+.It Xo
+.Fl x ,
+.Fl Fl encrypt
+.Xc
+Опция
+.Fl x
+включает шифрование для всего обмена данными. Это допустимо только для соединений, аутентифицированных через Kerberos (см. раздел
+.Sx ИЗВЕСТНЫЕ ОШИБКИ
+для ограничений).
+.It Xo
+.Fl z
+.Xc
+Противоположность
+.Fl x .
+Это поведение по умолчанию и в основном полезно, если шифрование было включено по умолчанию, например, в секции
+.Li appdefaults
+файла
+.Pa /etc/krb5.conf
+при использовании Kerberos 5.
+.It Xo
+.Fl f ,
+.Fl Fl forward
+.Xc
+Переслать учётные данные Kerberos 5 на удалённый хост.
+Также может быть установлено через
+.Li appdefaults
+(см.
+.Xr krb5.conf ) .
+.It Xo
+.Fl F ,
+.Fl Fl forwardable
+.Xc
+Сделать пересланные учётные данные пересылаемыми повторно.
+Также может быть установлено через
+.Li appdefaults
+(см.
+.Xr krb5.conf ) .
+.It Xo
+.Fl l Ar строка ,
+.Fl Fl user= Ns Ar строка
+.Xc
+По умолчанию удалённое имя пользователя совпадает с локальным. Опция
+.Fl l
+или формат
+.Pa имя_пользователя@хост
+позволяют указать удалённое имя.
+.It Xo
+.Fl n ,
+.Fl Fl no-input
+.Xc
+Направлять ввод из
+.Pa /dev/null
+(см. раздел
+.Sx ИЗВЕСТНЫЕ ОШИБКИ
+).
+.It Xo
+.Fl p Ar число-или-служба ,
+.Fl Fl port= Ns Ar число-или-служба
+.Xc
+Подключиться к этому порту вместо порта по умолчанию (который равен 514 при использовании старой аутентификации на основе портов, 544 для Kerberos 5 и незашифрованного Kerberos 4, и 545 для зашифрованного Kerberos 4; естественно, с учётом содержимого
+.Pa /etc/services ) .
+.It Xo
+.Fl P Ar N|O|1|2 ,
+.Fl Fl protocol= Ns Ar N|O|1|2
+.Xc
+Определяет версию протокола для использования с Kerberos 5.
+.Ar N
+и
+.Ar 2
+выбирают версию протокола 2, а
+.Ar O
+и
+.Ar 1
+выбирают версию 1. Версия 2 считается более безопасной и используется по умолчанию. Если не запрошена конкретная версия,
+.Nm
+попробует обе. Это поведение может измениться в будущем.
+.It Xo
+.Fl u ,
+.Fl Fl unique
+.Xc
+Убедиться, что удалённый кэш учётных данных уникален, то есть не использовать любой существующий кэш. Взаимоисключающе с
+.Fl U .
+.It Xo
+.Fl U Pa строка ,
+.Fl Fl tkfile= Ns Pa строка
+.Xc
+Имя удалённого кэша учётных данных. Взаимоисключающе с
+.Fl u .
+.It Xo
+.Fl x ,
+.Fl Fl encrypt
+.Xc
+Опция
+.Fl x
+включает шифрование для всего обмена данными. Это допустимо только для соединений, аутентифицированных через Kerberos (см. раздел
+.Sx ИЗВЕСТНЫЕ ОШИБКИ
+для ограничений).
+.It Fl z
+Противоположность
+.Fl x .
+Это поведение по умолчанию, но шифрование может быть включено при использовании Kerberos 5, установкой опции
+.Li libdefaults/encrypt
+в
+.Xr krb5.conf 5 .
+.El
+.Sh ПРИМЕРЫ
+Следует соблюдать осторожность при выполнении команд, содержащих специальные символы оболочки. Без экранирования они будут раскрыты на локальной машине.
+.Pp
+Следующая команда:
+.Pp
+.Dl rsh другой_хост cat удалённый_файл \*[Gt] локальный_файл
+.Pp
+запишет содержимое удалённого файла
+.Pa удалённый_файл
+в локальный файл
+.Pa локальный_файл ,
+но:
+.Pp
+.Dl rsh другой_хост 'cat удалённый_файл \*[Gt] удалённый_файл2'
+.Pp
+запишет его в удалённый файл
+.Pa удалённый_файл2 .
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/hosts -compact
+.It Pa /etc/hosts
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rlogin 1 ,
+.Xr krb_realmofhost 3 ,
+.Xr krb_sendauth 3 ,
+.Xr hosts.equiv 5 ,
+.Xr krb5.conf 5 ,
+.Xr rhosts 5 ,
+.Xr kerberos 8
+.Xr rshd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh АВТОРЫ
+Данная реализация
+.Nm
+была написана как часть реализации Heimdal Kerberos 5.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Некоторые оболочки (особенно
+.Xr csh 1 )
+приведут к блокировке
+.Nm
+при запуске в фоновом режиме, если стандартный ввод не перенаправлен с терминала. Для этого и предназначена опция
+.Fl n .
+.Pp
+Опция
+.Fl x
+включает шифрование для сеанса, но как для Kerberos 4, так и для 5 фактическая команда отправляется в незашифрованном виде, поэтому не следует передавать какую-либо секретную информацию в командной строке (что, вероятно, в любом случае плохая идея, поскольку командную строку обычно можно прочитать с помощью таких инструментов, как
+.Xr ps 1 ) .
+Кроме того, в Kerberos 4 команда даже не защищена от изменений, поэтому любой, у кого есть нужные инструменты, может её изменить.

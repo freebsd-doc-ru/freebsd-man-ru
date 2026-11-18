@@ -1,0 +1,82 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_deny/pam_deny.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 2ed7e670987b0fbd3a59102380d2247e8284c44a961e61a79c2df3bba3290c48
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 7, 2001
+.Dt PAM_DENY 8
+.Os
+.Sh ИМЯ
+.Nm pam_deny
+.Nd Запрещающий модуль PAM
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar управляющий-флаг
+.Pa pam_deny
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Запрещающий модуль службы аутентификации для PAM,
+.Nm
+предоставляет функциональность для всех категорий PAM:
+аутентификация,
+управление учётными записями,
+управление сеансами и
+управление паролями.
+В терминах параметра
+.Ar тип-модуля
+это возможности
+.Dq Li auth ,
+.Dq Li account ,
+.Dq Li session
+и
+.Dq Li password .
+.Pp
+Запрещающий модуль
+будет безусловно отклонять все запросы.
+Он в основном используется во время тестирования
+и для
+.Dq обнуления
+нежелательной функциональности.
+.Pp
+Модулю можно передать следующие параметры:
+.Bl -tag -width ".Cm no_warn"
+.It Cm debug
+Отладочная информация в
+.Xr syslog 3
+на уровне
+.Dv LOG_DEBUG .
+.It Cm no_warn
+подавлять предупреждающие сообщения пользователю.
+Эти сообщения включают
+причины, по которым
+попытка аутентификации пользователя была отклонена.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pam 3 ,
+.Xr syslog 3 ,
+.Xr pam.conf 5
