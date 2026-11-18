@@ -1,0 +1,260 @@
+.\"	$NetBSD: utimes.2,v 1.13 1999/03/22 19:45:11 garbled Exp $
+.\"
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/utimes.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 ef6c9db8a9241b3812289026570aac86f1cf7ffeb697a8268b8a4d67c6e4b42d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt UTIMES 2
+.Os
+.Sh ИМЯ
+.Nm utimes ,
+.Nm lutimes ,
+.Nm futimes ,
+.Nm futimesat
+.Nd установка времени доступа и модификации файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/time.h
+.Ft int
+.Fn utimes "const char *path" "const struct timeval *times"
+.Ft int
+.Fn lutimes "const char *path" "const struct timeval *times"
+.Ft int
+.Fn futimes "int fd" "const struct timeval *times"
+.Ft int
+.Fn futimesat "int fd" "const char *path" "const struct timeval times[2]"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Эти интерфейсы устарели и заменены на
+.Xr futimens 2
+и
+.Xr utimensat 2
+поскольку они не обеспечивают точность до наносекунд.
+.Ef
+.Pp
+Время доступа и модификации файла, указанного в
+.Fa path
+или на который ссылается
+.Fa fd ,
+изменяется в соответствии с аргументом
+.Fa times .
+.Pp
+Если
+.Fa times
+равен
+.Dv NULL ,
+время доступа и модификации устанавливается в текущее время.
+Вызывающий процесс должен быть владельцем файла, иметь право на
+запись в файл или быть суперпользователем.
+.Pp
+Если
+.Fa times
+не равен
+.No non- Ns Dv NULL ,
+предполагается, что он указывает на массив из двух структур timeval.
+Время доступа устанавливается в значение первого элемента, а
+время модификации устанавливается в значение второго элемента.
+Для файловых систем, поддерживающих время рождения (создания) файла (таких как
+.Dv UFS2 ) ,
+время рождения будет установлено в значение второго элемента,
+если второй элемент старше текущего установленного времени рождения.
+Для установки как времени рождения, так и времени модификации
+требуется два вызова: первый для установки времени рождения
+и второй для установки (предположительно более нового) времени модификации.
+В идеале будет добавлен новый системный вызов, позволяющий установить
+все три времени одновременно.
+Вызывающий процесс должен быть владельцем файла или быть суперпользователем.
+.Pp
+В любом случае время изменения inode файла устанавливается в текущее
+время.
+.Pp
+Системный вызов
+.Fn lutimes
+аналогичен
+.Fn utimes ,
+за исключением случая, когда указанный файл является символической ссылкой,
+и в этом случае
+.Fn lutimes
+изменяет время доступа и модификации ссылки,
+в то время как
+.Fn utimes
+изменяет времена файла, на который ссылается ссылка.
+.Pp
+Системный вызов
+.Fn futimesat
+эквивалентен
+.Fn utimes ,
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае время доступа и модификации
+устанавливается для файла относительно каталога, связанного с файловым
+дескриптором
+.Fa fd
+вместо текущего рабочего каталога.
+Если
+.Fn futimesat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог и поведение
+идентично вызову
+.Fn utimes .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Все системные вызовы завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути.
+.It Bq Er EACCES
+Аргумент
+.Fa times
+равен
+.Dv NULL
+и эффективный идентификатор пользователя процесса не
+совпадает с владельцем файла, и процесс не является суперпользователем, и доступ
+на запись запрещён.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+или
+.Fa times
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EFAULT
+Аргумент
+.Fa times
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Компонент
+.Va tv_usec
+по крайней мере одного из значений, заданных аргументом
+.Fa times ,
+имеет значение меньше 0 или больше 999999.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при чтении или записи затронутого inode.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er ELOOP
+При разборе имени пути встречено слишком много символических ссылок.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил
+.Dv NAME_MAX
+символов, или полное имя пути превысило
+.Dv PATH_MAX
+символов.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er EPERM
+Аргумент
+.Fa times
+не равен
+.Dv NULL
+и эффективный идентификатор пользователя вызывающего процесса
+не совпадает с владельцем файла и процесс не является суперпользователем.
+.It Bq Er EPERM
+Для указанного файла установлены флаги immutable или append-only.
+См. руководство
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EROFS
+Файловая система, содержащая файл, смонтирована только для чтения.
+.El
+.Pp
+Системный вызов
+.Fn futimes
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не ссылается на допустимый дескриптор.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn utimes ,
+.Fn futimesat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь и аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым файловым дескриптором, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём и
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни файловым дескриптором, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr stat 2 ,
+.Xr utimensat 2 ,
+.Xr utime 3
+.Sh СТАНДАРТЫ
+Ожидается, что функция
+.Fn utimes
+соответствует
+.St -xpg4.2 .
+Системный вызов
+.Fn futimesat
+следует спецификации The Open Group Extended API Set 2,
+но был заменён на
+.Fn utimensat
+в
+.St -p1003.1-2008 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn utimes
+появился в
+.Bx 4.2 .
+Системные вызовы
+.Fn futimes
+и
+.Fn lutimes
+впервые появились в
+.Fx 3.0 .
+Системный вызов
+.Fn futimesat
+появился в
+.Fx 8.0 .

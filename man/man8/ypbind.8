@@ -1,0 +1,202 @@
+.\" Copyright (c) 1991, 1993, 1995
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ypbind/ypbind.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 cc5ff337962bc9a82a11fea53d09b5293a4f580f384cd38b33df961938fad7de
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 9, 1995
+.Dt YPBIND 8
+.Os
+.Sh ИМЯ
+.Nm ypbind
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ypset
+.Op Fl ypsetme
+.Op Fl s
+.Op Fl m
+.Oo
+.Fl S
+.Sm off
+.Ar domainname , server1 , server2 , ...
+.Sm on
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+представляет собой процесс, который поддерживает информацию о привязке NIS.
+При запуске
+она ищет NIS-сервер, отвечающий за обслуживание домена системы
+по умолчанию (заданного командой
+.Xr domainname 1 )
+с помощью широковещательных запросов.
+После получения ответа
+она сохраняет адрес сервера и другую
+информацию в специальном файле, расположенном в
+.Pa /var/yp/binding .
+Затем процедуры NIS в стандартной библиотеке C могут использовать этот файл
+при обработке запросов NIS.
+Таких файлов может быть несколько,
+поскольку NIS-клиент может быть привязан более чем к
+одному домену.
+.Pp
+После установления привязки
+.Nm
+будет отправлять запросы DOMAIN_NONACK на NIS-сервер с интервалом
+в одну минуту.
+Если она не получит ответ на один из этих запросов,
+.Nm
+предполагает, что сервер больше не работает, и возобновляет свои
+широковещательные запросы, пока не будет установлена другая привязка.
+Утилита
+.Nm
+также будет записывать предупреждающие сообщения с помощью
+.Xr syslog 3
+каждый раз, когда обнаруживает, что сервер перестал отвечать,
+а также когда она привязалась к новому серверу.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl ypset
+Можно заставить
+.Nm
+привязаться к конкретному хосту NIS-сервера для заданного домена с помощью
+команды
+.Xr ypset 8 .
+Однако
+.Nm
+по умолчанию отклоняет запросы YPBINDPROC_SETDOM, поскольку у неё нет способа
+точно знать, кто их отправляет.
+Использование флага
+.Fl ypset
+заставляет
+.Nm
+принимать запросы YPBINDPROC_SETDOM от любого хоста.
+Этот параметр следует использовать только
+для диагностических целей и только в течение ограниченных периодов, поскольку
+разрешение произвольным пользователям сбрасывать привязку NIS-клиента создаёт
+серьёзный риск для безопасности.
+.It Fl ypsetme
+Это аналогично флагу
+.Fl ypset ,
+за исключением того, что он разрешает обработку запросов YPBINDPROC_SETDOM
+только в том случае, если они исходят от локального хоста.
+.It Fl s
+Заставляет
+.Nm
+работать в безопасном режиме: она откажется привязываться к любому NIS-серверу,
+который не работает от имени root (т.е. не использует привилегированные
+TCP-порты).
+.It Fl S Xo
+.Sm off
+.Ar domainname , server1 , server2 , server3 , ...
+.Sm on
+.Xc
+Позволяет системному администратору зафиксировать
+.Nm
+на определённом
+домене и группе NIS-серверов.
+Можно указать до десяти серверов.
+В спецификации домена/серверов не должно быть пробелов между запятыми.
+Этот параметр используется, чтобы гарантировать, что система привязывается
+только к одному домену и только к одному из указанных серверов, что
+полезно для систем, которые одновременно являются и NIS-серверами, и NIS-клиентами:
+он даёт способ ограничить, к каким машинам система может
+привязываться, без необходимости указывать
+.Fl ypset
+или
+.Fl ypsetme
+— параметры, которые часто считаются дырами в безопасности.
+Указанные
+серверы должны иметь допустимые записи в локальном файле
+.Pa /etc/hosts .
+Вместо имён хостов можно указывать IP-адреса.
+Если
+.Nm
+не может разобрать аргументы, она проигнорирует
+флаг
+.Fl S
+и продолжит нормальную работу.
+.Pp
+Обратите внимание, что
+.Nm
+будет считать доменное имя, указанное с флагом
+.Fl S ,
+системным доменом по умолчанию.
+.It Fl m
+Заставляет
+.Nm
+использовать «many-cast» вместо широковещательной рассылки для выбора сервера
+из списка серверов ограниченного режима.
+В режиме many-cast
+.Nm
+будет передавать напрямую процедуре YPPROC_DOMAIN_NONACK
+серверов, указанных в ограниченном списке, и привязываться к серверу,
+который ответит быстрее всех.
+Этот режим работы полезен для NIS-клиентов в удалённых подсетях,
+где нет доступных локальных NIS-серверов.
+Флаг
+.Fl m
+можно использовать только вместе с флагом
+.Fl S
+выше (если использовать его без
+.Fl S
+он не даёт эффекта).
+.El
+.Sh ПРИМЕЧАНИЯ
+Утилита
+.Nm
+не будет постоянно пытаться удерживать привязанными вторичные домены.
+Если сервер для вторичного домена не отвечает на ping,
+.Nm
+выполнит широковещательный поиск нового сервера только один раз, прежде чем сдаться.
+Если
+клиентская программа попытается обратиться к непривязанному домену,
+.Nm
+попробует снова выполнить широковещательную рассылку.
+Напротив,
+.Nm
+будет автоматически поддерживать привязку для домена по умолчанию,
+независимо от того, обращаются ли к нему клиентские программы.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/rc.conf -compact
+.It Pa /var/yp/binding/[domainname].[version]
+файлы, используемые для хранения информации о привязке для каждого домена NIS
+.It Pa /etc/rc.conf
+системный конфигурационный файл, в котором задаются домен системы по умолчанию и
+параметры запуска ypbind
+.El
+.Sh СМ. ТАКЖЕ
+.Xr domainname 1 ,
+.Xr syslog 3 ,
+.Xr yp 8 ,
+.Xr ypserv 8 ,
+.Xr ypset 8
+.Sh АВТОРЫ
+.An Theo de Raadt Aq Mt deraadt@fsa.ca

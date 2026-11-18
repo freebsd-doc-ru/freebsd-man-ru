@@ -1,0 +1,81 @@
+.\" Copyright (c) 2004 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR
+.\" ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/audit_event.5
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 77ec10ceb46233e10fe45a2da4aaa05c4e23ca954b0fa8a07e2adb95074671c6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 24, 2004
+.Dt AUDIT_EVENT 5
+.Os
+.Sh ИМЯ
+.Nm audit_event
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит описания событий, подлежащих аудиту в системе.
+Каждая строка сопоставляет номер события аудита с именем, описанием и классом.
+Записи имеют следующий вид:
+.Pp
+.Sm off
+.D1 Ar eventnum : eventname : description : eventclass
+.Sm on
+.Pp
+Каждый
+.Ar eventclass
+должен иметь соответствующую запись в файле
+.Xr audit_class 5 .
+.Pp
+Примеры записей в этом файле:
+.Bd -literal -offset indent
+0:AUE_NULL:indir system call:no
+1:AUE_EXIT:exit(2):pc
+2:AUE_FORK:fork(2):pc
+3:AUE_OPEN:open(2):fa
+.Ed
+.Sh ФАЙЛЫ
+.Bl -tag -width "/etc/security/audit_event" -compact
+.It Pa /etc/security/audit_event
+.El
+.Sh СМ. ТАКЖЕ
+.Xr audit 4 ,
+.Xr audit_class 5 ,
+.Xr audit_control 5 ,
+.Xr audit_user 5
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока событий аудита были определены Sun Microsystems.

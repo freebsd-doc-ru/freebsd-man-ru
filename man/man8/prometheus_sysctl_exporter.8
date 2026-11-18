@@ -1,0 +1,130 @@
+.\" Copyright (c) 2016 Nuxi, https://nuxi.nl/
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.sbin/prometheus_sysctl_exporter/prometheus_sysctl_exporter.8
+.\" FRDP githash 4f42ec2f38ee4a4eba8f3298e7968f0523f87aa0
+.\" FRDP hash256 89def5cd43363b510a5d4f4a9ee4594f9fea79f1486392708893af6ab63d297c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2026
+.Dt PROMETHEUS_SYSCTL_EXPORTER 8
+.Os
+.Sh ИМЯ
+.Nm prometheus_sysctl_exporter
+.Nd выводит состояние ядра в виде метрик Prometheus
+.Sh СИНТАКСИС
+.Nm prometheus_sysctl_exporter
+.Op Fl dgh
+.Op Fl e Ar шаблон
+.Op Fl i Ar шаблон
+.Op Ar префикс ...
+.Sh ОПИСАНИЕ
+Prometheus — система мониторинга, которая собирает метрики со своих целей,
+получая их через HTTP GET-запросы.
+Метрики идентифицируются по имени и необязательному набору меток.
+Значения выборок должны быть числовыми.
+.Pp
+Утилита
+.Nm
+выводит значения узлов sysctl в стандартный вывод,
+отформатированные так, что Prometheus может собирать их напрямую.
+По умолчанию
+она выводит метрики для всех узлов пространства имён sysctl,
+представимых в числовом виде.
+Также можно ограничить вывод меньшим числом метрик,
+указав в качестве аргументов один или несколько префиксов.
+.Pp
+Метрики, выводимые этой утилитой, имеют имя
+.Ql sysctl_ ,
+за которым следует имя узла sysctl, в котором его разделители
+.Ql .\&
+заменены на
+.Ql _ .
+Компоненты, по которым желательно агрегировать (например,
+имена устройств), опускаются из имени метрики,
+но вместо этого добавляются в качестве меток.
+.Pp
+Существуют два различных способа экспорта вывода
+.Nm
+в Prometheus.
+Первый способ — периодически запускать эту утилиту через
+.Xr cron 8
+и сохранять её вывод в текстовый файл.
+Метрики из этого текстового файла затем можно отдавать по HTTP с помощью
+коллектора текстовых файлов экспортёра узла Prometheus.
+Второй способ — запускать эту утилиту через
+.Xr inetd 8 .
+Для этой цели выделен TCP-порт 9124.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Выводить описания метрик, когда они доступны.
+.It Fl e Ar шаблон
+То же, что и
+.Fl i ,
+но исключает метрики, соответствующие
+.Ar шаблон .
+.It Fl g
+Gzip сжимает тело HTTP-ответа.
+.It Fl h
+Предваряет вывод заголовком HTTP-ответа.
+Этот флаг необходим при запуске этой утилиты через
+.Xr inetd 8 .
+.It Fl i Ar шаблон
+Если указан, включает метрики, соответствующие
+.Ar шаблон .
+Формат
+.Ar шаблон
+должен быть регулярным выражением, как описано в
+.Xr re_format 7 .
+Предоставленное регулярное выражение проверяется на соответствие
+имени метрики Prometheus.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и >0, если при обработке меток метрик
+возникает ошибка.
+.Sh СМ. ТАКЖЕ
+.Xr cron 8 ,
+.Xr inetd 8 ,
+.Xr sysctl 8 ,
+.Xr SYSCTL_ADD_NODE_WITH_LABEL 9
+.Pp
+Проект Prometheus:
+.Pa https://prometheus.io/ .
+.Pp
+Форматы экспонирования Prometheus:
+.Pa https://prometheus.io/docs/instrumenting/exposition_formats/ .
+.Pp
+Экспортёр узла Prometheus:
+.Pa https://github.com/prometheus/node_exporter .
+.Pp
+Выделение портов Prometheus по умолчанию:
+.Pa https://github.com/prometheus/prometheus/wiki/Default-port-allocations .
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 12.0 .
+.Sh АВТОРЫ
+.An Nuxi : Pa https://nuxi.nl/ .

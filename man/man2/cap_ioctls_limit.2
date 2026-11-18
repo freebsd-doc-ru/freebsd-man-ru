@@ -1,0 +1,162 @@
+.\"
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cap_ioctls_limit.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 8788e947f06d63f9da8cfbc1e1826cf877097a07116cf1de173a509105be7051
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 9, 2023
+.Dt CAP_IOCTLS_LIMIT 2
+.Os
+.Sh ИМЯ
+.Nm cap_ioctls_limit ,
+.Nm cap_ioctls_get
+.Nd управление разрешёнными командами ioctl
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/capsicum.h
+.Ft int
+.Fn cap_ioctls_limit "int fd" "const unsigned long *cmds" "size_t ncmds"
+.Ft ssize_t
+.Fn cap_ioctls_get "int fd" "unsigned long *cmds" "size_t maxcmds"
+.Sh ОПИСАНИЕ
+Если дескриптору файла предоставлено право возможности
+.Dv CAP_IOCTL ,
+список разрешённых команд
+.Xr ioctl 2
+может быть выборочно сокращён (но никогда не расширен) с помощью
+системного вызова
+.Fn cap_ioctls_limit .
+Аргумент
+.Fa cmds
+представляет собой массив команд
+.Xr ioctl 2 ,
+а аргумент
+.Fa ncmds
+задаёт количество элементов в массиве.
+В массиве может быть до
+.Va 256
+элементов.
+Включение элемента, который был ранее отозван, приведёт к ошибке.
+После успешного вызова могут использоваться только те команды, которые перечислены в массиве.
+.Pp
+Список разрешённых команд ioctl для заданного дескриптора файла можно получить
+с помощью системного вызова
+.Fn cap_ioctls_get .
+Аргумент
+.Fa cmds
+указывает на память, которая может вместить до
+.Fa maxcmds
+значений.
+Функция заполняет предоставленный буфер максимум
+.Fa maxcmds
+элементами, но всегда возвращает общее количество команд ioctl, разрешённых для
+заданного дескриптора файла.
+Общее количество команд ioctl для заданного дескриптора файла можно
+получить, передав
+.Dv NULL в качестве
+.Fa cmds
+argument and
+.Va 0
+в качестве
+.Fa maxcmds .
+Если разрешены все команды ioctl
+.Dv ( CAP_IOCTL
+право возможности назначено дескриптору файла и
+системный вызов
+.Fn cap_ioctls_limit
+никогда не вызывался для этого дескриптора файла), системный вызов
+.Fn cap_ioctls_get
+вернёт
+.Dv CAP_IOCTLS_ALL
+и не изменит буфер, на который указывает
+.Fa cmds .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std cap_ioctls_limit
+.Pp
+Функция
+.Fn cap_ioctls_get
+в случае успеха возвращает общее количество разрешённых команд ioctl или
+значение
+.Dv CAP_IOCTLS_ALL
+если разрешены все команды ioctl.
+В случае ошибки возвращается значение
+.Va -1
+и глобальной переменной errno присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn cap_ioctls_limit
+и
+.Fn cap_ioctls_get
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором.
+.It Bq Er EFAULT
+Аргумент
+.Fa cmds
+указывает на недопустимый адрес.
+.It Bq Er ENOSYS
+Работающее ядро было скомпилировано без
+.Cd "options CAPABILITY_MODE" .
+.El
+.Pp
+Системный вызов
+.Fn cap_ioctls_limit
+может также возвращать следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa ncmds
+больше
+.Va 256 .
+.It Bq Er ENOTCAPABLE
+.Fa cmds
+расширил бы список разрешённых команд
+.Xr ioctl 2 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cap_fcntls_limit 2 ,
+.Xr cap_rights_limit 2 ,
+.Xr ioctl 2
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn cap_ioctls_get
+и
+.Fn cap_ioctls_limit
+впервые появились в
+.Fx 8.3 .
+Поддержка возможностей и режима возможностей была разработана в рамках проекта
+.Tn TrustedBSD .
+.Sh АВТОРЫ
+Эта функция была создана
+.An Pawel Jakub Dawidek Aq Mt pawel@dawidek.net
+при спонсорской поддержке FreeBSD Foundation.

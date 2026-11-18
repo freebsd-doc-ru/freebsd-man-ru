@@ -1,0 +1,198 @@
+.\"	$OpenBSD: tcpdrop.8,v 1.5 2004/05/24 13:57:31 jmc Exp $
+.\"
+.\" Copyright (c) 2009 Juli Mallett <jmallett@FreeBSD.org>
+.\" Copyright (c) 2004 Markus Friedl <markus@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path usr.sbin/tcpdrop/tcpdrop.8
+.\" FRDP githash cb2711b163ba729d33051b66ac28f6cceaa1986e
+.\" FRDP hash256 de7357474939e89fe8dfb190b9e6d48e83460a323e76dad9f3aee1f2b7a831cf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 1, 2026
+.Dt TCPDROP 8
+.Os
+.Sh ИМЯ
+.Nm tcpdrop
+.Nd сбрасывать TCP-соединения
+.Sh СИНТАКСИС
+.Nm tcpdrop
+.Ar локальный-адрес
+.Ar локальный-порт
+.Ar внешний-адрес
+.Ar внешний-порт
+.Nm tcpdrop
+.Op Fl l
+.Fl a
+.Nm tcpdrop
+.Op Fl l
+.Fl C Ar cc-algo
+.Op Fl S Ar stack
+.Op Fl s Ar состояние
+.Nm tcpdrop
+.Op Fl l
+.Op Fl C Ar cc-algo
+.Fl S Ar stack
+.Op Fl s Ar состояние
+.Nm tcpdrop
+.Op Fl l
+.Op Fl C Ar cc-algo
+.Op Fl S Ar stack
+.Fl s Ar состояние
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+может использоваться для сброса TCP-соединений из командной строки.
+.Pp
+Если указан
+.Fl a ,
+то
+.Nm
+попытается сбросить все TCP-соединения.
+.Pp
+Если указан
+.Fl C Ar cc-algo ,
+то
+.Nm
+попытается сбросить все соединения, использующие алгоритм управления перегрузкой TCP
+.Ar cc-algo .
+.Pp
+Если указан
+.Fl S Ar stack ,
+то
+.Nm
+попытается сбросить все соединения, использующие TCP-стек
+.Ar stack .
+.Pp
+Если указан
+.Fl s Ar состояние ,
+то
+.Nm
+попытается сбросить все TCP-соединения, находящиеся в состоянии
+.Ar состояние .
+.Ar состояние
+является одним из
+.Dv SYN_SENT ,
+.Dv SYN_RCVD ,
+.Dv ESTABLISHED ,
+.Dv CLOSE_WAIT ,
+.Dv FIN_WAIT_1 ,
+.Dv CLOSING ,
+.Dv LAST_ACK ,
+.Dv FIN_WAIT_2 , или
+.Dv TIME_WAIT .
+.Pp
+Если указано несколько из
+.Fl C Ar cc-algo ,
+.Fl S Ar stack
+и
+.Fl s Ar состояние ,
+.Nm
+попытается сбросить все TCP-соединения, использующие алгоритм управления перегрузкой
+.Ar cc-algo ,
+находящиеся в состоянии
+.Ar состояние
+и использующие TCP-стек
+.Ar stack ,
+если он указан.
+Поскольку TCP-соединения в состоянии
+.Dv TIME_WAIT
+не привязаны ни к какому TCP-стеку, использование параметра
+.Fl s Dv TIME_WAIT
+в сочетании с параметром
+.Fl S Ar stack
+приводит к тому, что
+.Nm
+не сбрасывает ни одного TCP-соединения.
+.Pp
+Флаг
+.Fl l
+может быть указан дополнительно к параметрам
+.Fl a ,
+.Fl C ,
+.Fl S
+или
+.Fl s ,
+чтобы вывести вызов tcpdrop для сброса всех соответствующих TCP-соединений по одному.
+.Pp
+Если ни один из параметров
+.Fl a ,
+.Fl C ,
+.Fl S
+или
+.Fl s
+не указан, то будет сброшено только соединение между заданным локальным адресом
+.Ar локальный-адрес ,
+портом
+.Ar локальный-порт
+и внешним адресом
+.Ar внешний-адрес ,
+портом
+.Ar внешний-порт .
+.Pp
+Адреса и порты могут задаваться по имени или числовому значению.
+Поддерживаются оба формата адресов: IPv4 и IPv6.
+.Pp
+Адреса и порты могут разделяться точками или двоеточиями вместо пробелов.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Если соединение с
+.Xr httpd 8
+вызывает перегрузку на сетевом канале, можно сбросить эту TCP-сессию:
+.Bd -literal -offset indent
+# sockstat -c | grep httpd
+www      httpd      16525 3  tcp4 \e
+	192.168.5.41:80      192.168.5.1:26747
+.Ed
+.Pp
+Следующая команда сбросит соединение:
+.Bd -literal -offset indent
+# tcpdrop 192.168.5.41 80 192.168.5.1 26747
+.Ed
+.Pp
+Следующая команда сбросит все соединения, кроме тех, которые идут к порту 22 или от него — порту, используемому
+.Xr sshd 8 :
+.Bd -literal -offset indent
+# tcpdrop -l -a | grep -vw 22 | sh
+.Ed
+.Pp
+Чтобы сбросить все TCP-соединения, использующие алгоритм управления перегрузкой NewReno, используйте:
+.Bd -literal -offset indent
+# tcpdrop -C newreno
+.Ed
+.Pp
+Следующая команда сбросит все соединения, использующие TCP-стек rack:
+.Bd -literal -offset indent
+# tcpdrop -S rack
+.Ed
+.Pp
+Чтобы сбросить все TCP-соединения в состоянии LAST_ACK, используйте:
+.Bd -literal -offset indent
+# tcpdrop -s LAST_ACK
+.Ed
+.Pp
+Чтобы сбросить все TCP-соединения, использующие алгоритм управления перегрузкой NewReno, TCP-стек rack и находящиеся в состоянии LAST_ACK, используйте:
+.Bd -literal -offset indent
+# tcpdrop -C newreno -S rack -s LAST_ACK
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr sockstat 1 ,
+.Xr mod_cc 4 ,
+.Xr tcp 4 ,
+.Xr tcp_functions 9
+.Sh АВТОРЫ
+.An Markus Friedl Aq Mt markus@openbsd.org
+.An Juli Mallett Aq Mt jmallett@FreeBSD.org

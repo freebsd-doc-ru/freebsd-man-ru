@@ -1,0 +1,93 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-replace.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 0e13298220202374110dfe08c3d9196ff533728e444b91794b669467c3092614
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-REPLACE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-replace
+.Nd заменяет одно устройство другим в пуле хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm replace
+.Op Fl fsw
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc
+.Ar пул Ar устройство Op Ar новое-устройство
+.
+.Sh ОПИСАНИЕ
+Заменяет
+.Ar устройство
+на
+.Ar новое-устройство .
+Это эквивалентно тому, чтобы присоединить
+.Ar новое-устройство ,
+дождаться его пересинхронизации, а затем отсоединить
+.Ar устройство .
+Любая выполняющаяся проверка (scrub) будет отменена.
+.Pp
+.Ar Новое-устройство
+должно иметь размер больше или равный минимальному размеру всех устройств в
+конфигурации mirror или raidz.
+.Pp
+Если пул не является избыточным, требуется
+.Ar новое-устройство .
+Если
+.Ar новое-устройство
+не указано, по умолчанию используется
+.Ar устройство .
+Эта форма замены полезна после отказа существующего диска и его физической
+замены.
+В этом случае новый диск может иметь тот же путь
+.Pa /dev ,
+что и старое устройство, даже если на самом деле это другой диск.
+ZFS распознаёт это.
+.Bl -tag -width Ds
+.It Fl f
+Принудительно использовать
+.Ar новое-устройство ,
+даже если оно, судя по всему, используется.
+Не все устройства можно переопределить таким образом.
+.It Fl o Ar свойство Ns = Ns Ar значение
+Устанавливает заданные свойства пула.
+Список допустимых свойств, которые можно установить, см. на странице Справочника
+.Xr zpoolprops 7 .
+На данный момент поддерживается только свойство
+.Sy ashift .
+.It Fl s
+.Ar Новое-устройство
+реконструируется последовательно, чтобы как можно быстрее восстановить
+избыточность.
+Во время последовательной реконструкции контрольные суммы не проверяются,
+поэтому проверка (scrub) запускается после завершения пересинхронизации.
+Последовательная реконструкция не поддерживается для конфигураций raidz.
+.It Fl w
+Ожидает завершения замены, прежде чем вернуть управление.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-detach 8 ,
+.Xr zpool-initialize 8 ,
+.Xr zpool-online 8 ,
+.Xr zpool-resilver 8

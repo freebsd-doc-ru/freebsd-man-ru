@@ -1,0 +1,102 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_set_name.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 a0c9b015d924f294f262635443aa368dcd110c20ac9cf789b858bde284019673
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_SET_NAME 2
+.Os
+.Sh ИМЯ
+.Nm thr_set_name
+.Nd установить видимое пользователю имя потока
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_set_name "long id" "const char *name"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn thr_set_name
+устанавливает видимое пользователю имя для потока с идентификатором
+.Va id
+в текущем процессе в строку
+.Va name , завершающуюся NUL.
+Имя будет молча усечено, чтобы поместиться в буфер размером
+.Dv MAXCOMLEN + 1
+байт.
+Имя потока можно увидеть в выводе команд
+.Xr ps 1
+и
+.Xr top 1 ,
+в отладочных средствах ядра и в выводе средств трассировки ядра,
+а также в отладчиках пользовательского уровня и в файлах дампа памяти
+программ, в виде заметок.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+В случае успеха
+.Fn thr_set_name
+возвращает ноль; в противном случае возвращается \-1, и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn thr_set_name
+может вернуть следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Память, на которую указывает аргумент
+.Fa name ,
+недействительна.
+.It Bq Er ESRCH
+Поток с идентификатором
+.Fa id
+не существует в текущем процессе.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr _umtx_op 2 ,
+.Xr thr_exit 2 ,
+.Xr thr_kill 2 ,
+.Xr thr_kill2 2 ,
+.Xr thr_new 2 ,
+.Xr thr_self 2 ,
+.Xr pthread_set_name_np 3 ,
+.Xr ddb 4 ,
+.Xr ktr 9
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn thr_set_name
+является нестандартным и используется
+.Lb libthr .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn thr_set_name
+впервые появился в
+.Fx 5.2 .

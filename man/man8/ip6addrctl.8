@@ -1,0 +1,128 @@
+.\"	$KAME: ip6addrctl.8,v 1.3 2003/03/22 05:56:41 jinmei Exp $
+.\"
+.\" Copyright (C) 2001 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ip6addrctl/ip6addrctl.8
+.\" FRDP githash 6dcdd79a251b5e62ff9ce562ad451e92dec39408
+.\" FRDP hash256 22e013bcfd47f96c4ca85d4eae4d7ec58d0f45b9fc98071e946791b6398c37bb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 29, 2025
+.Dt IP6ADDRCTL 8
+.Os
+.Sh ИМЯ
+.Nm ip6addrctl
+.Nd настраивает политику выбора адресов для IPv6 и IPv4
+.Sh СИНТАКСИС
+.Nm
+.Op Fl j Ar клетка
+.Op Cm show
+.Nm
+.Op Fl j Ar клетка
+.Cm add
+.Ar префикс приоритет метка
+.Nm
+.Op Fl j Ar клетка
+.Cm delete
+.Ar префикс
+.Nm
+.Op Fl j Ar клетка
+.Cm flush
+.Nm
+.Op Fl j Ar клетка
+.Cm install
+.Ar файл_конфигурации
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+управляет таблицей политики выбора адресов источника и назначения
+для исходящих пакетов IPv4 и IPv6.
+Когда
+.Nm
+вызывается без аргумента или с единственным аргументом
+.Cm show ,
+она выводит содержимое таблицы политики, установленной в ядре.
+.Pp
+Для работы внутри клетки параметр
+.Op Fl j Ar клетка
+должен предшествовать другим параметрам.
+.Pp
+Для изменения таблицы доступны следующие операции:
+.Bl -tag -width indent
+.It Cm add Ar префикс приоритет метка
+Добавить запись политики.
+Аргумент
+.Ar префикс
+является префиксом IPv6, который служит ключом для записи.
+Префикс IPv4 должен быть задан в виде префикса IPv6 с использованием
+IPv4-отображённого IPv6-адреса.
+Аргументы
+.Ar приоритет
+и
+.Ar метка
+— десятичные числа, которые задают значения приоритета и метки
+для записи соответственно.
+Эту операцию следует выполнять при отсутствии существующей записи для
+префикса.
+.It Cm delete Ar префикс
+Удалить запись политики, указанную
+.Ar префикс ,
+которая должна быть префиксом IPv6.
+Соответствующая запись для префикса уже должна быть
+установлена.
+.It Cm flush
+Удалить все существующие записи политики в ядре.
+.It Cm install Ar файл_конфигурации
+Установить записи политики из файла конфигурации с именем
+.Ar файл_конфигурации .
+Файл конфигурации должен содержать набор записей политики.
+Каждая запись задаётся в одной строке, содержащей префикс IPv6,
+десятичное значение приоритета и десятичное значение метки,
+разделённые пробельными символами или символами табуляции.
+В файле конфигурации строки, начинающиеся со знака решётки
+.Pq Ql #
+являются
+комментариями и игнорируются.
+Обратите внимание, что файл конфигурации будет обработан перед присоединением к клетке.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr getaddrinfo 1 ,
+.Xr getaddrinfo 3
+.Rs
+.%R RFC 6724
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в комплекте протокольного стека IPv6 KAME.
+Первоначальное имя команды было
+.Nm addrselect ,
+но затем оно было изменено на текущее, чтобы имя хорошо описывало
+её функцию.

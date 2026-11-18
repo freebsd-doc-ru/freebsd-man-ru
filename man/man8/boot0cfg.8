@@ -1,0 +1,224 @@
+.\" Copyright (c) 1999 Robert Nordier
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+.\" OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+.\" OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/boot0cfg/boot0cfg.8
+.\" FRDP githash 4007d914e7973bca8ac488ab50aca56964eed90f
+.\" FRDP hash256 2c77940b806831a1cc40f861ca33c46f74fe8c47b171adc6c59cd7d481095708
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 29, 2026
+.Dt BOOT0CFG 8
+.Os
+.Sh ИМЯ
+.Nm boot0cfg
+.Nd утилита установки и настройки менеджера загрузки
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Bv
+.Op Fl b Ar boot0
+.Op Fl d Ar накопитель
+.Op Fl e Ar символ звонка
+.Op Fl f Ar файл
+.Op Fl i Ar volume-id
+.Op Fl m Ar маска
+.Op Fl o Ar параметры
+.Op Fl s Ar слайс
+.Op Fl t Ar тики
+.Ar диск | файл
+.Sh ОПИСАНИЕ
+Менеджер загрузки
+.Fx
+.Sq boot0
+позволяет оператору выбрать, с какого диска и слайса загружается машина i386 (ПК).
+.Pp
+Обратите внимание, что то, что здесь обозначено как
+.Dq слайсы ,
+обычно называется
+.Dq разделами
+в
+.No non- Ns Bx
+документации, относящейся к ПК.
+.Pp
+Обычно только несменные диски разбиваются на слайсы.
+.Pp
+Утилита
+.Nm
+при необходимости устанавливает менеджер загрузки
+.Sq boot0
+на указанный
+.Ar диск
+или
+.Ar файл ;
+и позволяет настроить различные рабочие параметры.
+.Pp
+Если в качестве целевого аргумента указан файл, все операции
+выполняются полностью на месте.
+Это позволяет подготавливать полезную нагрузку в автономном режиме.
+.Pp
+На ПК менеджер загрузки обычно занимает сектор 0 диска, который
+известен как главная загрузочная запись (Master Boot Record, MBR).
+MBR содержит как код (на который передаётся управление BIOS ПК),
+так и данные (встроенную таблицу определённых слайсов).
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl B
+Установить менеджер загрузки
+.Sq boot0 .
+Этот параметр приводит к замене кода MBR без
+изменения встроенной таблицы слайсов.
+.It Fl b Ar boot0
+Указать, какой образ
+.Sq boot0
+использовать.
+По умолчанию используется
+.Pa /boot/boot0
+, который выводит на видеокарту; в качестве альтернативы
+.Pa /boot/boot0sio
+можно использовать для вывода в порт COM1.
+(Учтите, что в порт COM1 ничего не будет выводиться, если
+сигналы DSR и CTS модема не активны.)
+.It Fl d Ar накопитель
+Указать номер накопителя, используемый BIOS ПК при обращении к
+накопителю, содержащему указанный
+.Ar диск .
+Обычно это 0x80 для первого жёсткого диска, 0x81 для
+второго жёсткого диска, и так далее; однако здесь допустимо
+любое целое число от 0 до 0xff.
+.It Fl e Ar символ звонка
+Задать символ, который будет напечатан в случае ошибки ввода.
+.It Fl f Ar файл
+Указать, что резервная копия существующей MBR должна быть записана в
+.Ar файл .
+Этот файл создаётся, если он не существует, и заменяется, если он
+существует.
+.It Fl i Ar volume-id
+Указывает volume-id (в формате XXXX-XXXX), который должен быть сохранён по адресу
+0x1b8 в MBR.
+Эта информация иногда используется NT, XP и Vista для идентификации
+дискового накопителя.
+Параметр совместим только с версией 2.00
+512-байтного загрузочного блока.
+.It Fl m Ar маска
+Указать слайсы, которые должны быть включены/отключены, где
+.Ar маска
+— целое число от 0 (ни один слайс не включён) до 0xf (все четыре слайса
+включены).
+Каждый бит маски включает соответствующий слайс, если установлен в 1.
+Младший бит маски соответствует слайсу 1,
+старший бит маски соответствует слайсу 4.
+.It Fl o Ar параметры
+Можно указать строку из следующих параметров, разделённых запятыми
+(при необходимости с добавлением
+.Dq no
+в начале):
+.Bl -tag -width indent
+.It packet
+Использовать интерфейс дисковых пакетов (расширения BIOS INT 0x13),
+а не устаревший интерфейс (CHS), при выполнении дискового ввода-вывода.
+Это позволяет загружаться выше цилиндра 1023, но требует специальной
+поддержки BIOS.
+По умолчанию —
+.Sq packet .
+.It setdrv
+Заставляет обращаться к накопителю, содержащему диск, с использованием
+номера накопителя, определяемого с помощью параметра -d.
+По умолчанию —
+.Sq nosetdrv .
+.It update
+Разрешить менеджеру загрузки обновлять MBR.
+(MBR может обновляться, чтобы помечать слайсы как
+.Sq active ,
+и сохранять информацию о выборе слайса.)
+Это значение по умолчанию; параметр
+.Sq noupdate
+заставляет рассматривать MBR как доступную только для чтения.
+.El
+.It Fl s Ar слайс
+Установить выбор загрузки по умолчанию в
+.Ar слайс .
+Значения от 1 до 4 относятся к слайсам; значение 5 относится к
+варианту загрузки со второго диска.
+Специальная строка
+.Dq PXE
+или значение 6 могут использоваться для загрузки через PXE.
+.It Fl t Ar тики
+Установить значение тайм-аута в
+.Ar тики .
+(Примерно 18,2 тика в секунду.)
+.It Fl v
+Подробный режим: отображать информацию об определённых слайсах и т.д.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/boot0sio -compact
+.It Pa /boot/boot0
+Образ
+.Sq boot0
+по умолчанию
+.It Pa /boot/boot0sio
+Образ для последовательных консолей (COM1,9600,8,N,1,MODEM)
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы загрузить слайс 2 при следующей загрузке:
+.Pp
+.Pp
+Чтобы включить в меню только слайсы 1 и 3:
+.Pp
+.Pp
+Создайте копию
+.Sq boot0
+с включёнными в меню только слайсами 1 и 3 и установите её на диск с помощью
+.Xr gpart 8 :
+.Pp
+.Bd -literal -offset indent -compact
+cp /boot/boot0 /boot/boot0.custom
+boot0cfg -m 0x5 /boot/boot0.custom
+gpart bootcode -b /boot/boot0.custom ada0
+.Ed
+.Pp
+Чтобы вернуться к неинтерактивной загрузке, используйте
+.Xr gpart 8
+для установки MBR по умолчанию:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr boot 8 ,
+.Xr gpart 8
+.Sh АВТОРЫ
+.An Robert Nordier Aq Mt rnordier@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Использование параметра
+.Sq packet
+может привести к сбою
+.Sq boot0
+в зависимости от характера поддержки BIOS.
+.Pp
+Использование параметра
+.Sq setdrv
+с неправильным операндом -d может привести к тому, что код boot0
+запишет MBR на неправильный диск, тем самым уничтожив его предыдущее
+содержимое.
+Будьте осторожны.

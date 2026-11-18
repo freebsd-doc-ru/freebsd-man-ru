@@ -1,0 +1,146 @@
+.\" $Id$
+.\"
+.\" Copyright (c) 2005 - 2007 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	$Id$
+.\"
+.\" FRDP path crypto/heimdal/lib/kadm5/iprop-log.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 1a90edb2fabe7868ea4c89141dde259d6de6c77ac5968de0a35d1095a6c01b66
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 18, 2007
+.Dt IPROP-LOG 8
+.Os Heimdal
+.Sh ИМЯ
+.Nm iprop-log
+.Nd обслуживать файл журнала iprop
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Fl version
+.Op Fl h | Fl Fl help
+.Ar команда
+.Pp
+.Nm iprop-log truncate
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Oo Fl r Ar строка \*(Ba Xo
+.Fl Fl realm= Ns Ar строка
+.Xc
+.Oc
+.Op Fl h | Fl Fl help
+.Pp
+.Nm iprop-log dump
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Oo Fl r Ar строка \*(Ba Xo
+.Fl Fl realm= Ns Ar строка
+.Xc
+.Oc
+.Op Fl h | Fl Fl help
+.Pp
+.Nm iprop-log replay
+.Op Fl Fl start-version= Ns Ar номер-версии
+.Op Fl Fl end-version= Ns Ar номер-версии
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Oo Fl r Ar строка \*(Ba Xo
+.Fl Fl realm= Ns Ar строка
+.Xc
+.Oc
+.Op Fl h | Fl Fl help
+.Sh ОПИСАНИЕ
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl Fl version
+.It Fl h , Fl Fl help
+.El
+.Pp
+команда может быть одной из следующих:
+.Bl -tag -width truncate
+.It truncate
+.Bl -tag -width Ds
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+файл конфигурации
+.It Fl r Ar строка , Fl Fl realm= Ns Ar строка
+область
+.El
+.Pp
+Усекает журнал. Устанавливает номер версии нового журнала равным
+последней записи старого журнала. Если журнал усечён путём опустошения
+файла, журнал начнётся заново с первой версии (0).
+.It dump
+.Bl -tag -width Ds
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+файл конфигурации
+.It Xo
+.Fl r Ar строка ,
+.Fl Fl realm= Ns Ar строка
+.Xc
+область
+.El
+.Pp
+Выводит все записи журнала в стандартный вывод.
+.It replay
+.Bl -tag -width Ds
+.It Fl Fl start-version= Ns Ar номер-версии
+начать воспроизведение с этой версии
+.It Xo
+.Fl Fl end-version= Ns Ar номер-версии
+.Xc
+завершить воспроизведение на этой версии
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+файл конфигурации
+.It Fl r Ar строка , Fl Fl realm= Ns Ar строка
+область
+.El
+.Pp
+Воспроизводит изменения из указанных записей (или все, если ни одна не
+указана) журнала транзакций в базе данных.
+.It last-version
+.Bl -tag -width Ds
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+файл конфигурации
+.It Fl r Ar строка , Fl Fl realm= Ns Ar строка
+область
+.El
+.Pp
+выводит версию последней записи журнала.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr iprop 8

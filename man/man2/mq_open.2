@@ -1,0 +1,367 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form
+.\" from IEEE Std 1003.1, 2004 Edition, Standard for Information Technology --
+.\" Portable Operating System Interface (POSIX), The Open Group Base
+.\" Specifications Issue 6, Copyright (C) 2001-2004 by the Institute of
+.\" Electrical and Electronics Engineers, Inc and The Open Group.  In the
+.\" event of any discrepancy between this version and the original IEEE and
+.\" The Open Group Standard, the original IEEE and The Open Group Standard is
+.\" the referee document.  The original Standard can be obtained online at
+.\"	http://www.opengroup.org/unix/online.html.
+.\"
+.\" FRDP path lib/libsys/mq_open.2
+.\" FRDP githash 3e9f4fd6fc50300d052d5619d82a14d3488483d5
+.\" FRDP hash256 23ab399310b446e867494a539b25f1de8273bfc8e0b0a989c8a0830f29d91e1c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 2, 2026
+.Dt MQ_OPEN 2
+.Os
+.Sh ИМЯ
+.Nm mq_open
+.Nd "открыть очередь сообщений (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb librt
+.Sh SYNOPSIS
+.In mqueue.h
+.Ft mqd_t
+.Fn mq_open "const char *name" "int oflag" "..."
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mq_open
+устанавливает соединение между процессом и очередью сообщений
+с помощью дескриптора очереди сообщений.
+Он создаёт открытое описание очереди сообщений,
+которое ссылается на очередь сообщений, и дескриптор очереди сообщений,
+который ссылается на это открытое описание очереди сообщений.
+Дескриптор очереди сообщений
+используется другими функциями для ссылки на эту очередь сообщений.
+Аргумент
+.Fa name
+указывает на строку, задающую имя очереди сообщений.
+Аргумент
+.Fa name
+должен соответствовать правилам построения путевого имени.
+.Fa name
+должно начинаться с символа косой черты.
+Процессы, вызывающие
+.Fn mq_open
+с одним и тем же значением
+.Fa name ,
+ссылаются на один и тот же объект очереди сообщений, пока это имя не было
+удалено.
+Если аргумент
+.Fa name
+не является именем существующей очереди сообщений и создание не
+запрошено,
+.Fn mq_open
+завершится с ошибкой и вернёт код ошибки.
+.Pp
+Аргумент
+.Fa oflag
+запрашивает желаемый доступ к очереди сообщений для приёма и/или отправки.
+Запрошенное разрешение на приём сообщений или отправку сообщений
+будет предоставлено, если вызывающему процессу был бы предоставлен доступ
+на чтение или запись, соответственно, к эквивалентно защищённому файлу.
+.Pp
+Значение
+.Fa oflag
+является побитовым включающим ИЛИ значений из следующего списка.
+Приложения должны указать ровно одно из первых трёх значений (режимов доступа)
+ниже в значении
+.Fa oflag :
+.Bl -tag -width ".Dv O_NONBLOCK"
+.It Dv O_RDONLY
+Открыть очередь сообщений для приёма сообщений.
+Процесс может использовать
+возвращённый дескриптор очереди сообщений с
+.Fn mq_receive ,
+но не с
+.Fn mq_send .
+Очередь сообщений может быть открыта несколько раз в одном или разных процессах
+для приёма сообщений.
+.It Dv O_WRONLY
+Открыть очередь для отправки сообщений.
+Процесс может использовать возвращённый
+дескриптор очереди сообщений с
+.Fn mq_send ,
+но не с
+.Fn mq_receive .
+Очередь сообщений может быть открыта несколько раз в одном или разных процессах
+для отправки сообщений.
+.It Dv O_RDWR
+Открыть очередь как для приёма, так и для отправки сообщений.
+Процесс может использовать
+любую из функций, разрешённых для
+.Dv O_RDONLY
+и
+.Dv O_WRONLY .
+Очередь сообщений может быть открыта несколько раз в одном или разных процессах
+для отправки сообщений.
+.El
+.Pp
+В значении
+.Fa oflag
+может быть указана любая комбинация остальных флагов:
+.Bl -tag -width ".Dv O_NONBLOCK"
+.It Dv O_CREAT
+Создать очередь сообщений.
+Требуются два дополнительных аргумента:
+.Fa mode ,
+имеющий тип
+.Vt mode_t ,
+и
+.Fa attr ,
+являющийся указателем на структуру
+.Vt mq_attr .
+Если путевое имя
+.Fa name
+уже использовалось для создания очереди сообщений, которая всё ещё существует,
+то этот флаг не оказывает действия, за исключением отмеченного в разделе
+.Dv O_EXCL .
+В противном случае будет создана очередь сообщений без каких-либо сообщений
+в ней.
+Идентификатор пользователя очереди сообщений будет установлен в эффективный
+идентификатор пользователя процесса, а идентификатор группы очереди сообщений
+будет установлен в эффективный идентификатор группы процесса.
+Биты разрешений очереди сообщений
+будут установлены в значение аргумента
+.Fa mode ,
+за исключением тех, что установлены в маске создания режима файла процесса.
+Когда в
+.Fa mode
+указаны биты, отличные от битов разрешений файла, эффект
+не определён.
+Если
+.Fa attr
+равен
+.Dv NULL ,
+очередь сообщений создаётся с определяемыми реализацией атрибутами очереди
+сообщений по умолчанию.
+Если attr не равен
+.Pf non- Dv NULL
+и вызывающий процесс обладает
+соответствующими привилегиями для name, атрибуты очереди сообщений
+.Va mq_maxmsg
+и
+.Va mq_msgsize
+будут установлены в значения соответствующих членов структуры
+.Vt mq_attr ,
+на которую ссылается
+.Fa attr .
+Если
+.Fa attr
+не равен
+.Pf non- Dv NULL ,
+но вызывающий процесс не обладает соответствующими привилегиями
+для name, функция
+.Fn mq_open
+завершится с ошибкой и вернёт код ошибки, не создав очередь сообщений.
+.It Dv O_EXCL
+Если установлены
+.Dv O_EXCL
+и
+.Dv O_CREAT ,
+.Fn mq_open
+завершится с ошибкой, если имя очереди сообщений существует.
+.It Dv O_NONBLOCK
+Определяет, будет ли
+.Fn mq_send
+или
+.Fn mq_receive
+ожидать ресурсов или сообщений, которые в настоящее время недоступны, или
+завершится с ошибкой,
+установив
+.Va errno
+в
+.Er EAGAIN ;
+см.
+.Xr mq_send 2
+и
+.Xr mq_receive 2
+для подробностей.
+.El
+.Pp
+Системный вызов
+.Fn mq_open
+не добавляет и не удаляет сообщения из очереди.
+.Sh ПРИМЕЧАНИЯ
+.Fx
+реализует очередь сообщений на основе файлового дескриптора.
+Дескриптор
+наследуется потомком после
+.Xr fork 2 .
+Дескриптор закрывается в новом образе после
+.Xr exec 3 .
+Системные вызовы
+.Xr select 2
+и
+.Xr kevent 2
+поддерживаются для дескриптора очереди сообщений.
+.Pp
+Пожалуйста, обратитесь к странице руководства
+.Xr mqueuefs 4
+для инструкций по загрузке модуля или компиляции службы в
+ядро.
+.Pp
+Количество доступных очередей, максимальное количество сообщений на очередь
+и максимальный размер сообщения являются настраиваемыми
+параметрами
+.Xr sysctl 8 .
+Их значения по умолчанию следующие.
+.Bl -column kern.mqueue.maxmsgsize integerxxx
+.It Sy "Имя	Тип	По умолчанию"
+.It "kern.mqueue.maxmq	integer	100"
+.It "kern.mqueue.maxmsgsize	integer	16384"
+.It "kern.mqueue.maxmsg	integer	100"
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении функция возвращает дескриптор очереди сообщений;
+в противном случае функция возвращает
+.Po Vt mqd_t Pc Ns \-1
+и устанавливает глобальную переменную
+.Va errno
+для указания ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn mq_open
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Очередь сообщений существует и разрешения, указанные в
+.Fa oflag ,
+отказаны, или очередь сообщений не существует и разрешение на создание
+очереди сообщений отказано.
+.It Bq Er EEXIST
+Установлены
+.Dv O_CREAT
+и
+.Dv O_EXCL ,
+и именованная очередь сообщений уже существует.
+.It Bq Er EINTR
+Функция
+.Fn mq_open
+была прервана сигналом.
+.It Bq Er EINVAL
+Функция
+.Fn mq_open
+не поддерживается для заданного имени.
+.It Bq Er EINVAL
+В
+.Fa oflag
+был указан
+.Dv O_CREAT ,
+значение
+.Fa attr
+не равно
+.Dv NULL ,
+и либо
+.Va mq_maxmsg ,
+либо
+.Va mq_msgsize
+было меньше или равно нулю.
+.It Bq Er EINVAL
+В
+.Fa oflag
+был указан
+.Dv O_CREAT ,
+значение
+.Fa attr
+не равно
+.Dv NULL ,
+и либо
+.Va mq_maxmsg
+превышает предел sysctl
+.Va kern.mqueue.maxmsg ,
+либо
+.Va mq_msgsize
+превышает предел sysctl
+.Va kern.mqueue.maxmsgsize .
+.It Bq Er EMFILE
+Слишком много дескрипторов очередей сообщений или файловых дескрипторов
+в настоящее время используется этим процессом.
+.It Bq Er ENAMETOOLONG
+Длина аргумента
+.Fa name
+превышает
+.Brq Dv PATH_MAX ,
+или компонент путевого имени
+длиннее
+.Brq Dv NAME_MAX .
+.It Bq Er ENFILE
+Слишком много очередей сообщений в настоящее время открыто в системе.
+Системный предел управляется параметром sysctl
+.Va kern.mqueue.maxmq .
+.It Bq Er ENOENT
+.Dv O_CREAT
+не установлен и именованная очередь сообщений не существует.
+.It Bq Er ENOSPC
+Недостаточно места для создания новой очереди сообщений.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mq_close 2 ,
+.Xr mq_getattr 2 ,
+.Xr mq_receive 2 ,
+.Xr mq_send 2 ,
+.Xr mq_setattr 2 ,
+.Xr mq_unlink 2 ,
+.Xr mq_timedreceive 3 ,
+.Xr mq_timedsend 3 ,
+.Xr mqueuefs 4
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn mq_open
+соответствует
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Поддержка очередей сообщений POSIX впервые появилась в
+.Fx 7.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Данная реализация предъявляет строгие требования к значению
+.Fa name :
+оно может начинаться с косой черты
+.Pq Ql /
+и не содержать других символов косой черты.
+.Pp
+Аргументы
+.Fa mode
+и
+.Fa attr
+являются вариативными (variadic) и могут привести к иным соглашениям
+о вызове, чем можно было бы ожидать.
+.Sh АВТОРСКОЕ ПРАВО
+Части этого текста перепечатаны и воспроизведены в электронной форме
+из IEEE Std 1003.1, издание 2004 года, Стандарт для информационных технологий --
+Интерфейс переносимой операционной системы (POSIX), Базовые спецификации
+The Open Group, выпуск 6, Copyright (C) 2001-2004 Институт инженеров
+по электротехнике и электронике, Inc. и The Open Group.  В
+случае любых расхождений между этой версией и оригинальным стандартом IEEE и
+The Open Group, оригинальный стандарт IEEE и The Open Group является
+арбитражным документом.  Оригинальный стандарт может быть получен онлайн по
+адресу http://www.opengroup.org/unix/online.html.

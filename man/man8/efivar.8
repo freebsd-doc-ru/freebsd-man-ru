@@ -1,0 +1,204 @@
+.\"
+.\" Copyright (c) 2017-2021 Netflix, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/efivar/efivar.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 580f217ffdebac9358808e7ce171502abf8fb7716a6ab93f2755c74d440a1b7b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 7, 2021
+.Dt EFIVAR 8
+.Os
+.Sh ИМЯ
+.Nm efivar
+.Nd взаимодействие с переменными окружения UEFI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl abdDHlLNpqRtuw
+.Op Fl n Ar имя
+.Op Fl f Ar файл
+.Op Fl -append
+.Op Fl -ascii
+.Op Fl -attributes
+.Op Fl -binary
+.Op Fl -delete
+.Op Fl -device-path
+.Op Fl -fromfile Ar файл
+.Op Fl -guid
+.Op Fl -hex
+.Op Fl -list-guids
+.Op Fl -list
+.Op Fl -load-option
+.Op Fl -name Ar имя
+.Op Fl -no-name
+.Op Fl -print
+.Op Fl -print-decimal
+.Op Fl -quiet
+.Op Fl -raw-guid
+.Op Fl -utf8
+.Op Fl -write
+.Sh ОПИСАНИЕ
+Эта программа управляет
+.Dq Unified Extensible Firmware Interface
+.Pq UEFI
+переменными окружения.
+Переменные UEFI состоят из трёх частей: пространства имён, имени и значения.
+Пространство имён — это GUID, самостоятельно назначаемый группой, определяющей
+эти переменные.
+Имя — это имя переменной в Unicode.
+Значение — это двоичные данные.
+Все данные Unicode представляются пользователю как UTF-8.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width 20m
+.It Fl n Ar имя Fl -name Ar имя
+Указать имя переменной, с которой нужно работать.
+Аргумент
+.Ar имя
+— это GUID переменной, за которым следует дефис, за которым следует
+имя переменной UEFI.
+GUID может быть в числовом формате или может быть одним из общеизвестных
+символических имён (полный список см. в
+.Fl -list-guids ) .
+.It Fl f Ar файл Fl -fromfile Ar файл
+При записи или добавлении к переменной брать данные для
+значения переменной из
+.Ar файл
+вместо командной строки.
+Этот флаг подразумевает
+.Fl -write
+если не указаны флаги
+.Fl -append
+или
+.Fl -print .
+Такое поведение недостаточно понятно и в настоящее время не реализовано
+для записей.
+Когда указан
+.Fl -print ,
+содержимое файла используется как значение для
+вывода с использованием любых других указанных флагов.
+Это используется в основном для целей тестирования более сложного
+декодирования переменных.
+.It Fl a Fl -append
+Добавить указанное значение к переменной UEFI, а не заменять
+её.
+.It Fl t Ar атрибут Fl -attributes Ar атрибут
+Указать в шестнадцатеричном виде атрибуты для этой
+переменной.
+См. раздел 7.2 (подраздел GetVariable, Related Definitions) спецификации
+UEFI для используемых шестнадцатеричных значений.
+.It Fl A Fl -ascii
+Отображать данные переменной как модифицированный ASCII: все печатные символы
+выводятся, а непечатные символы представляются как двузначное
+шестнадцатеричное число, перед которым стоит символ %.
+.It Fl b Fl -binary
+Отображать данные переменной как двоичные данные.
+Обычно используется с флагом
+.Fl N
+или
+.Fl -no-name .
+Полезно в сценариях.
+.It Fl D Fl -delete
+Удалить указанную переменную.
+Не может использоваться ни с флагом
+.Fl -write ,
+ни с флагом
+.Fl -append .
+Нельзя указывать
+.Ar значение .
+.It Fl d Fl -device Fl -device-path
+Интерпретировать выводимые переменные как пути устройств UEFI и выводить
+стандартное строковое представление UEFI.
+.It Fl g Fl -guid
+Преобразовывать GUID в имена, если они известны
+.Po и показывать их в
+.Fl -list-guids
+.Pc .
+.It Fl H Fl -hex
+Выводить данные переменной в виде шестнадцатеричного дампа.
+.It Fl L Fl -list-guids
+Выводит список общеизвестных GUID.
+Перечисленные здесь имена можно использовать вместо числовых значений GUID.
+Эти имена заменят числовые значения GUID, если не указан
+флаг
+.Fl -raw-guid .
+.It Fl l Fl -list
+Вывести список всех переменных.
+Если также указан флаг
+.Fl -print ,
+будут отображены их значения.
+.It Fl -load-option
+Декодировать переменную так, как если бы она была загрузочной опцией UEFI,
+включая информацию о том, во что декодируются устройство и/или пути
+UEFI DevicePaths.
+.It Fl N Fl -no-name
+Не отображать имя переменной.
+.It Fl p Fl -print
+Вывести значение переменной.
+.It Fl q Fl -quiet
+При возникновении ошибки завершиться с ненулевым кодом, не выводя
+никаких сообщений об ошибках.
+В противном случае выдать обычный вывод и завершиться с нулевым статусом.
+.It Fl R Fl -raw-guid
+Не подставлять общеизвестные имена вместо числовых значений GUID в выводе.
+.It Fl u Fl -utf8
+Обрабатывать значение переменной как UCS2, преобразовать его в UTF8 и
+вывести результат.
+.It Fl w Fl -write
+Записать (заменить) указанную переменную значением, указанным из
+стандартного ввода.
+Опция командной строки для этого недоступна, поскольку переменные UEFI
+являются двоичными структурами, а не строками.
+.Xr echo 1
+.Fl n
+можно использовать для указания простых строк.
+.It Ar имя
+Отобразить переменную окружения
+.Ar имя .
+.El
+.Sh СОВМЕСТИМОСТЬ
+Программа
+.Nm
+предназначена быть совместимой (строгим надмножеством) с программой
+с тем же именем, включённой в пакет libefivar Red Hat,
+но флаги
+.Fl d
+и
+.Fl -print-decimal
+не реализованы и никогда не будут.
+.Pp
+Флаг
+.Fl d
+— сокращение для
+.Fl -device-path .
+.Sh СМ. ТАКЖЕ
+Приложение A спецификации UEFI содержит формат GUID.
+Все GUID
+.Dq Globally Unique Identifiers
+имеют формат, описанный в RFC 4122.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.1 .

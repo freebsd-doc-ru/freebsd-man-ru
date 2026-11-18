@@ -1,0 +1,122 @@
+.\" Copyright 2019 The FreeBSD Foundation.
+.\"
+.\" This software was developed by Bora Ozarslan under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS''
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/elfctl/elfctl.1
+.\" FRDP githash 6e8f4f422fea2cfc1a7b524b69be7ee090bdac06
+.\" FRDP hash256 78448df37464410ad5cca39d6ef018e2de5943044ae3a8de28483a09d88f2344
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 5, 2023
+.Dt ELFCTL 1
+.Os
+.Sh ИМЯ
+.Nm elfctl
+.Nd изменение заметки управления возможностями ELF-двоичного файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h | Fl -help
+.Op Fl i
+.Op Fl l
+.Op Fl e Ar список_возможностей
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет флаги возможностей в заметке управления возможностями в ELF-двоичном файле.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl h | Fl -help
+Вывести сообщение об использовании и выйти.
+.It Fl i
+Игнорировать неизвестные флаги возможностей в
+.Ar список_возможностей .
+.It Fl l
+Показать известные флаги возможностей ELF.
+.It Fl e Ar список_возможностей
+Редактировать возможности из заданного списка, разделённого запятыми,
+.Ar список_возможностей .
+.Ar список_возможностей
+начинается с одной из трёх операций:
+.Dq Li +
+для включения возможностей,
+.Dq Li -
+для выключения возможностей,
+.Dq Li =
+чтобы включить только указанные возможности.
+После операции следует разделённый запятыми список имён возможностей или числовых значений.
+.El
+.Pp
+Если
+.Fl e
+не указан,
+.Nm
+отображает состояние каждой возможности в заметке ELF для каждого
+.Ar .
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается неудачно, когда файл не существует, слишком короток, или не удаётся найти или изменить заметку управления возможностями.
+.Sh ПРИМЕРЫ
+Ниже приведён пример типичного использования команды
+.Nm :
+.Bd -literal -offset indent
+elfctl file
+elfctl -e +noaslr file
+.Ed
+.Pp
+Возможности могут быть заданы как числовые значения:
+.Bd -literal -offset indent
+elfctl -e =0x0001,0x0004 file
+.Ed
+.Pp
+Возможности также могут быть заданы одним объединённым значением:
+.Bd -literal -offset indent
+elfctl -e =0x5 file
+.Ed
+.Sh ПРИМЕЧАНИЯ
+На amd64, на машине, где поддерживается и включён режим LA57 (5-уровневая страничная адресация), если указаны оба флага возможностей
+.Va la57
+и
+.Va la48 ,
+возможность
+.Va la57
+имеет приоритет над
+.Va la48 .
+MIB sysctl
+.Va vm.pmap.prefer_uva_la48
+определяет размер адресного пространства пользователя по умолчанию для двоичных файлов, в которых не установлен ни один из этих флагов.
+.Sh СМ. ТАКЖЕ
+.Xr mitigations 7
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 12.2 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+была написана
+.An Bora Ozarslan Aq Mt borako.ozarslan@gmail.com
+при спонсорской поддержке
+.An FreeBSD Foundation .

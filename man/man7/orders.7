@@ -1,0 +1,117 @@
+.\" $NetBSD: orders.7,v 1.6 2011/08/06 11:07:18 jruoho Exp $
+.\"
+.\" Copyright (c) 2010 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Jukka Ruohonen.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/orders.7
+.\" FRDP githash 8b92fa1ceb95bbe80b473fc35d4276146201e802
+.\" FRDP hash256 40ef5e7e5ee5c95caa8ad327bf597137350f75d6251281ff9e0f6ce763e10465
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 20, 2022
+.Dt ORDERS 7
+.Os
+.Sh ИМЯ
+.Nm orders
+.Nd порядки величины
+.Sh ОПИСАНИЕ
+В следующей таблице перечислены распространённые кратные байту.
+.Bl -column -offset 2n \
+.It Sy Название Ta Sy Префикс Ta Sy Степень 2 Ta Sy Степень 10
+.It Килобайт Ta kB Ta 2^10 Ta 10^3
+.It Мегабайт Ta MB Ta 2^20 Ta 10^6
+.It Гигабайт Ta GB Ta 2^30 Ta 10^9
+.It Терабайт Ta TB Ta 2^40 Ta 10^12
+.It Петабайт Ta PB Ta 2^50 Ta 10^15
+.It Эксабайт Ta EB Ta 2^60 Ta 10^18
+.It Зеттабайт Ta ZB Ta 2^70 Ta 10^21
+.It Йоттабайт Ta YB Ta 2^80 Ta 10^24
+.It Роннабайт Ta RB Ta 2^90 Ta 10^27
+.It Кветтабайт Ta QB Ta 2^100 Ta 10^30
+.El
+.Pp
+В следующей таблице перечислены распространённые битовые скорости в виде степеней десяти.
+.Bl -column -offset 2n \
+.It Sy Название Ta Sy Префикс Ta Sy Бит в секунду Ta Sy Байт в секунду
+.It Бит в секунду Ta bit/s Ta 1 Ta 0.125
+.It Байт в секунду Ta B/s Ta 8 Ta 1
+.It Килобит в секунду Ta kbit/s Ta 10^3 Ta 125
+.It Килобайт в секунду Ta kB/s Ta 8 * 10^3 Ta 1000
+.It Мегабит в секунду Ta Mbit/s Ta 10^6 Ta 125000
+.It Мегабайт в секунду Ta MB/s Ta 8 * 10^6 Ta 1000000
+.It Гигабит в секунду Ta Gbit/s Ta 10^9 Ta 125000000
+.It Гигабайт в секунду Ta GB/s Ta 8 * 10^9 Ta 1000000000
+.It Терабит в секунду Ta Tbit/s Ta 10^12 Ta 125000000000
+.It Терабайт в секунду Ta TB/s Ta 8 * 10^12 Ta 1000000000000
+.El
+.Pp
+В следующей таблице перечислены распространённые порядки величины в виде степеней десяти.
+.Bl -column -offset 2n \
+.It Sy Название Ta Sy Порядок Ta Sy Префикс Ta Sy Символ Ta Sy Десятичное значение
+.It Нониллионная Ta 10^-30 Ta квекто Ta q Ta 0.000000000000000000000000000001
+.It Октиллионная Ta 10^-27 Ta ронто Ta r Ta 0.000000000000000000000000001
+.It Септиллионная Ta 10^-24 Ta иокто Ta y Ta 0.000000000000000000000001
+.It Секстиллионная Ta 10^-21 Ta зепто Ta z Ta 0.000000000000000000001
+.It Квинтиллионная Ta 10^-18 Ta атто Ta a Ta 0.000000000000000001
+.It Квадриллионная Ta 10^-15 Ta фемто Ta f Ta 0.000000000000001
+.It Триллионная Ta 10^-12 Ta пико Ta p Ta 0.000000000001
+.It Миллиардная Ta 10^-9 Ta нано Ta n Ta 0.000000001
+.It Миллионная Ta 10^-6 Ta микро  Ta mu Ta 0.000001
+.It Тысячная Ta 10^-3 Ta милли Ta m Ta 0.001
+.It Сотая Ta 10^-2 Ta санти Ta c Ta 0.01
+.It Десятая Ta 10^-1 Ta деци Ta d Ta 0.1
+.It Единица Ta 10^0 Ta - Ta - Ta 1
+.It Десять Ta 10^1 Ta дека Ta da Ta 10
+.It Сто Ta 10^2 Ta гекто Ta h Ta 100
+.It Тысяча Ta 10^3 Ta кило Ta k Ta 1000
+.It Миллион Ta 10^6 Ta мега Ta M Ta 1000000
+.It Миллиард Ta 10^9 Ta гига Ta G Ta 1000000000
+.It Триллион Ta 10^12 Ta тера Ta T Ta 1000000000000
+.It Квадриллион Ta 10^15 Ta пета Ta P Ta 1000000000000000
+.It Квинтиллион Ta 10^18 Ta экса Ta E Ta 1000000000000000000
+.It Секстиллион Ta 10^21 Ta зетта Ta Z Ta 1000000000000000000000
+.It Септиллион Ta 10^24 Ta йотта Ta Y Ta 1000000000000000000000000
+.It Октиллион Ta 10^27 Ta ронна Ta R Ta 1000000000000000000000000000
+.It Нониллион Ta 10^30 Ta кветта Ta Q Ta 1000000000000000000000000000000
+.El
+.Sh СМ. ТАКЖЕ
+.Xr units 1 ,
+.Xr number 6
+.Sh СТАНДАРТЫ
+Предпринимались различные попытки стандартизировать набор двоичных префиксов.
+Организации наподобие Международной электротехнической комиссии
+.Pq Tn IEC
+предложили новые префиксы, такие как
+.Dq киби ,
+.Dq меби ,
+.Dq гиби
+и
+.Dq йоби ,
+но их внедрение шло в лучшем случае медленно.
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Jukka Ruohonen Aq Mt jruoho@netbsd.org .

@@ -1,0 +1,65 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/check_lft_balance.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 205d39b56899691e432d82553415497c189fea2895de2adc1891d571e9d8af88
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+CHECK_LFT_BALANCE \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ПРОВЕРКА БАЛАНСИРОВКИ ТАБЛИЦ ОДНОАДРЕСНОЙ ПЕРЕСЫЛКИ INFINIBAND
+.SS СИНТАКСИС
+.sp
+check_lft_balance.sh [\-hRv]
+.SS ОПИСАНИЕ
+.sp
+check_lft_balance.sh — это сценарий, который проверяет балансировку в таблицах одноадресной пересылки Infiniband. Он анализирует вывод
+\fBdump_lfts(8)\fP и \fBiblinkinfo(8)\fP
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-h\fP
+показать справку
+.TP
+.B \fB\-R\fP
+Пересчитать информацию dump_lfts, то есть не использовать кэшированную
+информацию. Этот параметр работает медленнее, но его следует использовать, если диагностические
+инструменты не использовались некоторое время или если есть другие причины
+полагать, что фабрика изменилась.
+.TP
+.B \fB\-v\fP
+подробный вывод
+.UNINDENT
+.SS СМ. ТАКЖЕ
+.sp
+\fBdump_lfts(8)\fP
+\fBiblinkinfo(8)\fP
+.SS АВТОРЫ
+.INDENT 0.0
+.TP
+.B Albert Chu
+< \fI\%chu11@llnl.gov\fP >
+.UNINDENT
+.

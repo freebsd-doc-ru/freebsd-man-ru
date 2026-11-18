@@ -1,0 +1,172 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/dup.2
+.\" FRDP githash 6cc99baea607255859ee958608e4db6e2ff24793
+.\" FRDP hash256 6d67bbac2c3c3bd5229048283b24780710f7748a195eb8a58a0f255827bffdae
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 1, 2017
+.Dt DUP 2
+.Os
+.Sh ИМЯ
+.Nm dup ,
+.Nm dup2
+.Nd дублирование существующего файлового дескриптора
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn dup "int oldd"
+.Ft int
+.Fn dup2 "int oldd" "int newd"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn dup
+дублирует существующий дескриптор объекта и возвращает его значение
+вызывающему процессу
+.Fa ( newd
+=
+.Fn dup oldd ) .
+Аргумент
+.Fa oldd
+представляет собой небольшой неотрицательный целочисленный индекс в
+таблице дескрипторов процесса.
+Новый дескриптор, возвращаемый вызовом,
+является дескриптором с наименьшим номером,
+который в данный момент не используется процессом.
+.Pp
+Объект, на который ссылается дескриптор, никак не различает
+.Fa oldd
+и
+.Fa newd .
+Таким образом, если
+.Fa newd
+и
+.Fa oldd
+являются дублирующими ссылками на открытый
+файл,
+вызовы
+.Xr read 2 ,
+.Xr write 2
+и
+.Xr lseek 2
+все перемещают единственный указатель в файле,
+а режим добавления, неблокирующий ввод-вывод и асинхронный ввод-вывод
+разделяются между ссылками.
+Если требуется отдельный указатель в файле, необходимо получить
+другую ссылку на объект файла, выполнив дополнительный
+системный вызов
+.Xr open 2 .
+Флаги close-on-exec и close-on-fork на новом файловом дескрипторе
+сбрасываются.
+Флаг resolve-beneath на новом файловом дескрипторе устанавливается в то же
+состояние, что и на старом файловом дескрипторе.
+.Pp
+В
+.Fn dup2
+значение нового дескриптора
+.Fa newd
+задаётся явно.
+Если этот дескриптор уже используется и
+.Fa oldd
+\*(Ne
+.Fa newd ,
+то дескриптор сначала освобождается, как если бы был использован
+системный вызов
+.Xr close 2 .
+Если
+.Fa oldd
+не является допустимым дескриптором, то
+.Fa newd
+не закрывается.
+Если
+.Fa oldd
+==
+.Fa newd
+и
+.Fa oldd
+является допустимым дескриптором, то
+.Fn dup2
+завершается успешно и ничего не делает.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном выполнении эти вызовы возвращают новый файловый дескриптор;
+в противном случае возвращается значение -1 и
+внешняя переменная
+.Va errno
+устанавливается для указания причины ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn dup
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa oldd
+не является допустимым активным дескриптором
+.It Bq Er EMFILE
+Активно слишком много дескрипторов.
+.El
+.Pp
+Системный вызов
+.Fn dup2
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa oldd
+не является допустимым активным дескриптором, либо аргумент
+.Fa newd
+отрицателен или превышает максимально допустимый номер дескриптора
+.El
+.Sh СМ. ТАКЖЕ
+.Xr accept 2 ,
+.Xr close 2 ,
+.Xr fcntl 2 ,
+.Xr getdtablesize 2 ,
+.Xr open 2 ,
+.Xr pipe 2 ,
+.Xr socket 2 ,
+.Xr socketpair 2 ,
+.Xr dup3 3
+.Sh СТАНДАРТЫ
+Ожидается, что системные вызовы
+.Fn dup
+и
+.Fn dup2
+соответствуют
+.St -p1003.1-90 .
+.Sh ИСТОРИЯ
+Функция
+.Fn dup
+появилась в
+.At v3 .
+Функция
+.Fn dup2
+появилась в
+.At v7 .

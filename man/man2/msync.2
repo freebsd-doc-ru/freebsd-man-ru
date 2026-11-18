@@ -1,0 +1,124 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/msync.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 4675cb8a4ae4c47d02ebfa0684c5cdb4cd012735564939bc705a9cd989334d61
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 18, 2012
+.Dt MSYNC 2
+.Os
+.Sh ИМЯ
+.Nm msync
+.Nd синхронизировать отображённую область
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn msync "void *addr" "size_t len" "int flags"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn msync
+записывает любые изменённые страницы обратно в файловую систему и обновляет
+время модификации файла.
+Если
+.Fa len
+равен 0, все изменённые страницы в области, содержащей
+.Fa addr ,
+будут сброшены на диск;
+если
+.Fa len
+не равен нулю, будут проверены только те страницы, которые содержат
+.Fa addr
+и
+.Fa len-1
+последующих местоположений.
+Аргумент
+.Fa flags
+может быть задан следующим образом:
+.Pp
+.Bl -tag -width ".Dv MS_INVALIDATE" -compact
+.It Dv MS_ASYNC
+Немедленный возврат
+.It Dv MS_SYNC
+Выполнить синхронную запись
+.It Dv MS_INVALIDATE
+Аннулировать все кэшированные данные
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std msync
+.Sh ОШИБКИ
+Системный вызов
+.Fn msync
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBUSY
+Некоторые или все страницы в указанной области заблокированы и
+указан
+.Dv MS_INVALIDATE .
+.It Bq Er EINVAL
+Аргумент
+.Fa addr
+не кратен размеру аппаратной страницы.
+.It Bq Er ENOMEM
+Адреса в диапазоне, начинающемся с
+.Fa addr
+и продолжающемся
+.Fa len
+байт, находятся вне диапазона, разрешённого для адресного пространства
+процесса, или указывают на одну или несколько несопоставленных страниц.
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+содержал одновременно MS_ASYNC и MS_INVALIDATE.
+Разрешён только один из этих флагов.
+.It Bq Er EIO
+Произошла ошибка при записи хотя бы одной из страниц в
+указанной области.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr madvise 2 ,
+.Xr mincore 2 ,
+.Xr mlock 2 ,
+.Xr mprotect 2 ,
+.Xr munmap 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn msync
+впервые появился в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Системный вызов
+.Fn msync
+обычно не нужен, поскольку
+.Bx
+реализует когерентный кэш буферов файловой системы.
+Однако он может использоваться для связи «грязных» страниц виртуальной памяти с буферами
+файловой системы и, таким образом, для того, чтобы вызвать их сброс на физический носитель
+раньше, а не позже.

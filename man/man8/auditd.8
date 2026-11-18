@@ -1,0 +1,141 @@
+.\" Copyright (c) 2004 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\" 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+.\"     its contributors may be used to endorse or promote products derived
+.\"     from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/bin/auditd/auditd.8
+.\" FRDP githash 72a600a7a1908f1e778f54e08bd60a93be87dd33
+.\" FRDP hash256 cee950467ab1f1926c52b0addba31fba52e4e57ec74d9d5696708696ffd72d95
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 18, 2020
+.Dt AUDITD 8
+.Os
+.Sh ИМЯ
+.Nm auditd
+.Nd демон управления журналом аудита
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d | l
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отвечает на запросы утилиты
+.Xr audit 8
+и уведомления
+от ядра.
+Он управляет создаваемыми файлами журнала аудита и указанными
+местами расположения файлов журнала.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl d
+Запускает демон в режиме отладки \[em] он не переходит в фоновый режим.
+.It Fl l
+Этот параметр предназначен для случая, когда
+.Nm
+настроен на запуск по требованию с помощью
+.Xr launchd 8 .
+.El
+.Pp
+Непривилегированные
+пользователи, входящие в эту группу, могут читать файлы журнала аудита.
+.Sh ПРИМЕЧАНИЕ
+Чтобы обеспечить непрерывную поддержку аудита, демон
+.Nm
+не следует запускать и останавливать вручную.
+Вместо этого следует использовать команду
+.Xr audit 8 ,
+чтобы сообщить демону о необходимости изменить состояние/конфигурацию после изменения
+файла
+.Pa audit_control .
+.Pp
+Если
+.Nm
+запускается по требованию с помощью
+.Xr launchd 8 ,
+то аудит следует запускать и останавливать только с помощью
+.Xr audit 8 .
+.Pp
+В Mac OS X,
+.Nm
+использует API
+.Xr asl 3
+для записи сообщений системного журнала.
+Поэтому только администратор аудита
+и члены группы проверки аудита смогут читать
+записи системного журнала.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /var/audit
+Каталог по умолчанию для хранения файлов журнала аудита.
+.Pp
+.It Pa /etc/security
+Каталог, содержащий файлы конфигурации аудита
+.Xr audit_class 5 ,
+.Xr audit_control 5 ,
+.Xr audit_event 5 ,
+и
+.Xr audit_warn 5 .
+.El
+.Sh СОВМЕСТИМОСТЬ
+Исторические флаги
+.Fl h
+и
+.Fl s
+теперь настраиваются в
+.Xr audit_control 5
+с помощью флагов политики
+.Cm ahlt
+и
+.Cm cnt ,
+и больше не доступны в качестве аргументов для
+.Nm .
+.Sh СМ. ТАКЖЕ
+.Xr asl 3 ,
+.Xr audit 4 ,
+.Xr audit_class 5 ,
+.Xr audit_control 5 ,
+.Xr audit_event 5 ,
+.Xr audit_warn 5 ,
+.Xr audit 8 ,
+.Xr auditdistd 8 ,
+.Xr launchd 8 (Mac OS X)
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана компанией McAfee Research, подразделением безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано компанией McAfee Research, подразделением
+исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока
+событий аудита были определены компанией Sun Microsystems.

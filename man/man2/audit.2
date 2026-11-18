@@ -1,0 +1,104 @@
+.\"-
+.\" Copyright (c) 2005 Tom Rhodes
+.\" Copyright (c) 2005 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/audit.2
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 76412c5b27fb22470f1c8e821b24dfa76fe38a63d0e7fe369568cdec6cbfe4a0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2005
+.Dt AUDIT 2
+.Os
+.Sh ИМЯ
+.Nm audit
+.Nd "запись BSM-записи аудита в журнал аудита"
+.Sh SYNOPSIS
+.In bsm/audit.h
+.Ft int
+.Fn audit "const char *record" "u_int length"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn audit
+передаёт сформированную BSM-запись аудита в системный журнал аудита.
+.Pp
+Аргумент
+.Fa record
+представляет собой указатель на конкретное событие, подлежащее записи, а
+.Fa length
+— это размер записываемых данных в байтах.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn audit
+завершится с ошибкой, и данные не будут записаны, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa record
+находится за пределами выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Идентификатор токена недействителен или
+.Va length
+превышает
+.Dv MAXAUDITDATA .
+.It Bq Er EPERM
+У процесса недостаточно прав для завершения операции.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr auditon 2 ,
+.Xr getaudit 2 ,
+.Xr getaudit_addr 2 ,
+.Xr getauid 2 ,
+.Xr setaudit 2 ,
+.Xr setaudit_addr 2 ,
+.Xr setauid 2 ,
+.Xr libbsm 3
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением
+исследований в области безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Другие авторы включают
+.An Wayne Salamon ,
+.An Robert Watson
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока
+событий аудита были определены Sun Microsystems.
+.Pp
+Эта страница руководства была написана
+.An Tom Rhodes Aq trhodes@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ядро
+.Fx
+не полностью проверяет, что переданный аргумент синтаксически
+является корректным BSM.
+Передача недействительных записей аудита может повредить журнал аудита.

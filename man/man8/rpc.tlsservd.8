@@ -1,0 +1,329 @@
+.\" Copyright (c) 2008 Isilon Inc http://www.isilon.com/
+.\" Authors: Doug Rabson <dfr@rabson.org>
+.\" Developed with Red Inc: Alfred Perlstein <alfred@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Modified from gssd.8 for rpc.tlsservd.8 by Rick Macklem.
+.\" FRDP path usr.sbin/rpc.tlsservd/rpc.tlsservd.8
+.\" FRDP githash 8e5f80da89d74a5ef429b34bb9c3f8b589f8da9a
+.\" FRDP hash256 213b5364dbcb5cf74899f3c264ac2b0f916112f69e246efaafe402cdbddf465d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 25, 2025
+.Dt RPC.TLSSERVD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.tlsservd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 2
+.Op Fl C Ar available_ciphers
+.Op Fl D Ar certdir
+.Op Fl d
+.Op Fl h
+.Op Fl l Ar CAfile
+.Op Fl m
+.Op Fl N Ar max_threads
+.Op Fl n Ar domain
+.Op Fl p Ar CApath
+.Op Fl r Ar CRLfile
+.Op Fl u
+.Op Fl v
+.Op Fl W
+.Op Fl w
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+обеспечивает поддержку серверной стороны реализации Sun RPC поверх TLS в ядре.
+Этот демон должен быть запущен, чтобы RPC в ядре мог выполнить TLS-рукопожатие после того, как TCP-клиент отправил серверу запрос STARTTLS Null RPC.
+Этот демон требует, чтобы ядро было собрано с
+.Dq options KERNEL_TLS
+и работало на архитектуре, такой как
+.Dq amd64
+, которая поддерживает direct map (не i386) с включённым
+.Xr ktls 4 .
+Обратите внимание, что опция
+.Fl tls
+в файле
+.Xr exports 5
+указывает, что клиент должен использовать RPC поверх TLS.
+Опция
+.Fl tlscert
+в файле
+.Xr exports 5
+указывает, что клиент должен предоставить сертификат, который успешно проверяется.
+Опция
+.Fl tlscertuser
+в файле
+.Xr exports 5
+указывает, что клиент должен предоставить сертификат, который успешно проверяется и имеет поле otherName:1.3.6.1.4.1.2238.1.1.1;UTF8: в subjectAltName вида
+.Dq user@domain
+, где
+.Dq domain
+совпадает с доменом этого сервера, а
+.Dq user
+— допустимое имя пользователя, которое сопоставляется с <uid, gid_list>.
+Для двух последних случаев должны быть указаны опция
+.Fl m
+и либо
+.Fl l
+, либо
+.Fl p .
+Опция
+.Fl tlscertuser
+также требует, чтобы для этого демона была указана опция
+.Fl u .
+.Pp
+Кроме того, если IP-адресу, используемому клиентом, нельзя доверять, правила в
+.Xr exports 5
+не могут быть безопасно применены.
+Поэтому опцию
+.Fl h
+можно использовать вместе с
+.Fl m
+и либо
+.Fl l
+, либо
+.Fl p
+, чтобы потребовать, чтобы сертификат клиента содержал правильное полное доменное имя (FQDN).
+.Pp
+Сертификат и связанный с ним ключ должны находиться в /etc/rpc.tlsservd
+(или в
+.Dq certdir
+, указанном опцией
+.Fl D )
+в файлах с именами
+.Dq cert.pem
+и
+.Dq certkey.pem .
+.Pp
+Если демону отправлен сигнал SIGHUP, он перечитает
+.Dq CRLfile
+и закроет все существующие соединения, которые во время TLS-рукопожатия предъявили сертификаты, которые были отозваны.
+Если опция
+.Fl r
+не была указана, сигнал SIGHUP будет проигнорирован.
+.Pp
+Демон будет записывать неудачные проверки сертификатов через
+.Xr syslogd 8
+с использованием LOG_INFO | LOG_DAEMON, когда указана опция
+.Fl m .
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl 2 , Fl Fl allowtls1_2
+Разрешить клиентам монтировать с использованием TLS версии 1.2.
+По умолчанию демон будет разрешать монтирования только с использованием TLS версии 1.3, как требуется в RFC.
+Однако ранние клиенты
+.Fx
+.Pq 13.0 и 13.1
+требуют эту опцию, поскольку они используют TLS версии 1.2.
+.It Fl C Ar available_ciphers , Fl Fl ciphers= Ns Ar available_ciphers
+Указать, какие шифры доступны во время TLS-рукопожатия.
+Если эта опция указана,
+.Dq SSL_CTX_set_ciphersuites()
+будет вызвана с
+.Dq available_ciphers
+в качестве аргумента.
+Если эта опция не указана, шифр будет выбран
+.Xr ssl 7 ,
+что должно подходить для большинства случаев.
+Формат доступных шифров — это простой список, разделённый
+.So
+:
+.Sc
+в порядке предпочтения.
+Команда
+.Dq openssl ciphers -s -tls1_3
+выводит список доступных шифров.
+.It Fl D Ar certdir , Fl Fl certdir= Ns Ar certdir
+Использовать
+.Dq certdir
+вместо /etc/rpc.tlsservd как место расположения сертификата в файле с именем
+.Dq cert.pem
+и связанного ключа в
+.Dq certkey.pem .
+.It Fl d , Fl Fl debuglevel
+Запустить в режиме отладки.
+В этом режиме
+.Nm
+не будет выполнять fork при запуске.
+.It Fl h , Fl Fl checkhost
+Эта опция указывает, что клиент должен предоставить сертификат, который как успешно проверяется, так и имеет FQDN, совпадающее с обратным DNS-именем для IP-адреса, который клиент использует для подключения к серверу.
+FQDN должно находиться в поле DNS subjectAltName, но также допускается в поле CN subjectName сертификата.
+При этой опции неудача проверки сертификата клиента или сопоставления FQDN приведёт к тому, что сервер будет отправлять ответы AUTH_REJECTEDCRED на все RPC клиента.
+Эта опция требует
+.Fl m
+и либо
+.Fl l
+, либо
+.Fl p .
+.It Fl l Ar CAfile , Fl Fl verifylocs= Ns Ar CAfile
+Эта опция задаёт имя пути к файлу сертификатов CA в формате PEM, который используется для проверки сертификатов клиентов и для установки списка CA, отправляемого клиенту, чтобы он знал, какой сертификат отправить серверу во время TLS-рукопожатия.
+Это имя пути используется в вызовах библиотеки openssl
+.Dq SSL_CTX_load_verify_locations(ctx,CAfile,NULL)
+и
+.Dq SSL_CTX_set_client_CA_list(ctx,SSL_load_client_CA_file(CAfile)) .
+Обратите внимание, что это имя пути к файлу и не предполагается, что он находится в
+.Dq certdir .
+Либо эта опция, либо опция
+.Fl p
+должна быть указана, когда указана опция
+.Fl m
+, чтобы демон мог проверить сертификат клиента.
+.It Fl m , Fl Fl mutualverf
+Эта опция указывает, что сервер должен запросить сертификат у клиента во время TLS-рукопожатия.
+Она не требует, чтобы клиент предоставил сертификат.
+Её следует указывать, за исключением случая, когда ни от одного клиента, выполняющего RPC поверх TLS, не требуется наличие сертификата.
+Для NFS можно использовать либо опцию
+.Fl tlscert
+, либо
+.Fl tlscertuser
+в
+.Xr exports 5
+, чтобы потребовать от клиента предоставить сертификат, который успешно проверяется.
+См.
+.Xr exports 5 .
+.It Fl N Ar max_threads , Fl Fl maxthreads= Ns Ar max_threads
+Для сервера с большим числом клиентских монтирований NFS-over-TLS этот демон может быть перегружен после перезагрузки, когда многие клиенты пытаются выполнить TLS-рукопожатие одновременно.
+Чтобы ускорить восстановление после перезагрузки, демон всегда обрабатывает TLS-рукопожатие в отдельном порождённом потоке.
+По умолчанию максимальное число одновременных потоков (и, следовательно, параллельных рукопожатий) ограничено
+.Va 1/2
+доступных CPU в системе.
+Эту опцию можно использовать для переопределения этого значения по умолчанию.
+.It Fl n Ar domain , Fl Fl domain= Ns Ar domain
+Эта опция задаёт, что такое
+.Dq domain
+для использования с опцией
+.Fl u
+, переопределяя домен, взятый из
+.Xr gethostname 2
+сервера, на котором работает этот демон.
+Если вы указали опцию командной строки
+.Fl domain
+для
+.Xr nfsuserd 8
+, то вам следует указать эту опцию с тем же
+.Dq domain
+, который был указан для
+.Xr nfsuserd 8 .
+Эта опция имеет смысл только при использовании с опцией
+.Fl u .
+.It Fl p Ar CApath , Fl Fl verifydir= Ns Ar CApath
+Эта опция похожа на опцию
+.Fl l
+, но задаёт путь к каталогу с сертификатами CA в нём.
+Когда используется эта опция,
+.Dq SSL_CTX_set_client_CA_list(ctx,SSL_load_client_CA_file())
+не вызывается, поэтому список имён CA может не передаваться клиенту во время TLS-рукопожатия.
+.It Fl r Ar CRLfile , Fl Fl crl= Ns Ar CRLfile
+Эта опция задаёт файл списка отзыва сертификатов (CRL), который должен быть загружен в хранилище проверяемых сертификатов и проверяться во время проверки.
+Эта опция имеет смысл только когда указана либо
+.Fl l
+, либо
+.Fl p .
+.It Fl u , Fl Fl certuser
+Эта опция указывает, что если клиент предоставляет сертификат, который как успешно проверяется, так и имеет subjectAltName с компонентом otherName вида
+.Dq otherName:1.3.6.1.4.1.2238.1.1.1;UTF8:user@domain
+, где
+.Dq domain
+совпадает с доменом этого сервера, то демон попытается сопоставить
+.Dq user
+из вышеуказанного с учётными данными пользователя <uid, gid_list>.
+Для каждого
+.Dq domain
+должен быть только один такой компонент otherName.
+Если
+.Dq user
+является допустимым именем пользователя в базе данных паролей, то <uid, gid_list> для
+.Dq user
+будет использоваться для всех RPC на монтировании вместо учётных данных в заголовке RPC-запроса.
+Эта опция требует
+.Fl m
+и либо
+.Fl l
+, либо
+.Fl p .
+Использование этой опции может не соответствовать RFC-9289, который не разрешает использование сертификатов для аутентификации пользователей.
+.It Fl v , Fl Fl verbose
+Запустить в подробном режиме.
+В этом режиме
+.Nm
+будет записывать сообщения об активности в
+.Xr syslogd 8
+с использованием LOG_INFO | LOG_DAEMON или в stderr, если также указана опция
+.Fl d .
+.It Fl W , Fl Fl multiwild
+Эта опция используется с опцией
+.Fl h
+, чтобы разрешить использование подстановочного символа
+.Dq *
+, который совпадает с несколькими компонентами обратного DNS-имени для IP-адреса клиента.
+Например, FQDN
+.Dq *.uoguelph.ca
+совпал бы как с
+.Dq laptop21.uoguelph.ca
+, так и с
+.Dq laptop3.cis.uoguelph.ca .
+.It Fl w , Fl Fl singlewild
+Похожа на
+.Fl W
+, но позволяет подстановочному символу
+.Dq *
+совпадать с одним компонентом обратного DNS-имени.
+Например, FQDN
+.Dq *.uoguelph.ca
+совпал бы с
+.Dq laptop21.uoguelph.ca
+, но не с
+.Dq laptop3.cis.uoguelph.ca .
+Разрешается использовать только одну из опций
+.Fl W
+и
+.Fl w .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr openssl 1 ,
+.Xr ktls 4 ,
+.Xr exports 5 ,
+.Xr ssl 7 ,
+.Xr mount_nfs 8 ,
+.Xr nfsuserd 8 ,
+.Xr rpc.tlsclntd 8 ,
+.Xr syslogd 8
+.Sh СТАНДАРТЫ
+Реализация основана на спецификации в
+.Rs
+.Re
+.Sh ИСТОРИЯ
+Страница Справочника
+.Nm
+впервые появилась в
+.Fx 13.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Этот демон нельзя безопасно остановить и перезапустить, если есть активные соединения RPC-over-TLS.
+Это приведёт к тому, что соединения KERNEL_TLS останутся осиротевшими, так что они больше не смогут успешно выполнять upcall, поскольку
+.Dq SSL *
+структуры в пространстве пользователя были потеряны.

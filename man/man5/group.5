@@ -1,0 +1,149 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/group.5
+.\" FRDP githash 2c4190609c78c532e0a667eba1ffb4b5c98ea532
+.\" FRDP hash256 e1e3b96c6189819d4ffdecf69cbfecac20172134ca770b1156a973f597ac6f27
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt GROUP 5
+.Os
+.Sh ИМЯ
+.Nm group
+.Nd формат файла прав доступа группы
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+является локальным источником информации о группах.
+Его можно использовать вместе с доменом Hesiod
+`group', и картами NIS `group.byname' и `group.bygid',
+как определено в
+.Xr nsswitch.conf 5 .
+.Pp
+Файл
+.Nm
+состоит из разделённых символами новой строки
+.Tn ASCII
+записей, по одной на группу, содержащих четыре поля, разделённых двоеточием
+.Ql \&:.
+Эти поля перечислены ниже:
+.Bl -tag -width password -offset indent -compact
+.It group
+Имя группы.
+.It passwd
+.Em Зашифрованный
+пароль группы.
+.It gid
+Десятичный идентификатор группы.
+.It member
+Члены группы.
+.El
+.Pp
+Строки, первый непробельный символ которых — знак решётки (#),
+являются комментариями и игнорируются.
+Пустые строки, состоящие
+только из пробелов, табуляций или символов новой строки, также игнорируются.
+.Pp
+Поле
+.Ar group
+— это имя группы, используемое для предоставления доступа к файлам пользователям,
+являющимся членами группы.
+Поле
+.Ar gid
+— это номер, связанный с именем группы.
+Оба они должны быть уникальными в пределах системы (и часто
+в пределах группы систем), поскольку они управляют доступом к файлам.
+Поле
+.Ar passwd
+— это необязательный
+.Em зашифрованный
+пароль.
+Это поле используется редко,
+и обычно в него помещают звёздочку, а не оставляют пустым.
+Поле
+.Ar member
+содержит имена пользователей, которым предоставлены привилегии
+.Ar group .
+Имена членов разделяются запятыми без пробелов или символов новой строки.
+Пользователь автоматически входит в группу, если эта группа была указана
+в его записи
+.Pa /etc/passwd
+и его не нужно добавлять в эту группу в файле
+.Nm .
+.Sh ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Команда
+.Xr passwd 1
+не изменяет пароли
+.Nm .
+Вместо неё следует использовать имеющуюся в утилите
+.Xr pw 8
+команду
+.Cm groupmod .
+.Sh ОГРАНИЧЕНИЯ
+Существуют различные ограничения, которые объясняются
+в функции, где они возникают; см. раздел
+.Sx СМ. ТАКЖЕ .
+.Pp
+В старых реализациях
+группа не может иметь более 200 членов.
+Максимальная длина строки
+.Pa /etc/group
+составляет 1024 символа.
+Более длинные строки будут пропущены.
+Это ограничение исчезло в
+.Fx 3.0 .
+Старые двоичные файлы, которые статически слинкованы, зависят от старых
+разделяемых библиотек, или двоичные файлы
+.No не- Ns Fx
+в режиме совместимости
+могут всё ещё иметь это ограничение.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/group -compact
+.It Pa /etc/group
+.El
+.Sh СМ. ТАКЖЕ
+.Xr newgrp 1 ,
+.Xr passwd 1 ,
+.Xr setcred 2 ,
+.Xr setgroups 2 ,
+.Xr crypt 3 ,
+.Xr getgrent 3 ,
+.Xr initgroups 3 ,
+.Xr nsswitch.conf 5 ,
+.Xr passwd 5 ,
+.Xr groups 7 ,
+.Xr chkgrp 8 ,
+.Xr pw 8 ,
+.Xr yp 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.At v6 .
+Поддержка комментариев впервые появилась в
+.Fx 3.0 .

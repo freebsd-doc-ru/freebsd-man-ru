@@ -1,0 +1,1068 @@
+.\"
+.\" Copyright (c) 2003 Silicon Graphics International Corp.
+.\" Copyright (c) 2015-2021 Alexander Motin <mav@FreeBSD.org>
+.\" Copyright (c) 2018 Marcelo Araujo <araujo@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions, and the following disclaimer,
+.\"    without modification.
+.\" 2. Redistributions in binary form must reproduce at minimum a disclaimer
+.\"    substantially similar to the "NO WARRANTY" disclaimer below
+.\"    ("Disclaimer") and any redistribution must be conditioned upon
+.\"    including a substantially similar Disclaimer requirement for further
+.\"    binary redistribution.
+.\"
+.\" NO WARRANTY
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" HOLDERS OR CONTRIBUTORS BE LIABLE FOR SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGES.
+.\"
+.\" ctladm utility man page.
+.\"
+.\" Author: Ken Merry <ken@FreeBSD.org>
+.\"
+.\" $Id: //depot/users/kenm/FreeBSD-test2/usr.sbin/ctladm/ctladm.8#3 $
+.\"
+.\" FRDP path usr.sbin/ctladm/ctladm.8
+.\" FRDP githash 8206fcc5ef82a0e0518ed5e3a011ef38893b3eb6
+.\" FRDP hash256 4c6f0b6fd420df0339cb93cbe3a5c5dcd7a5bd42beb87169cabf411b15f053ab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 20, 2025
+.Dt CTLADM 8
+.Os
+.Sh ИМЯ
+.Nm ctladm
+.Nd утилита управления целевым слоем CAM
+.Sh СИНТАКСИС
+.Nm
+.Aq Ar команда
+.Op lun
+.Op общие аргументы
+.Op аргументы команды
+.Nm
+.Ic tur
+.Aq lun
+.Op общие параметры
+.Nm
+.Ic inquiry
+.Aq lun
+.Op общие параметры
+.Nm
+.Ic reqsense
+.Aq lun
+.Op общие параметры
+.Nm
+.Ic reportluns
+.Aq lun
+.Op общие параметры
+.Nm
+.Ic read
+.Aq lun
+.Op общие параметры
+.Aq Fl l Ar lba
+.Aq Fl d Ar datalen
+.Aq Fl f Ar file|-
+.Aq Fl b Ar blocksize_bytes
+.Op Fl c Ar cdbsize
+.Op Fl N
+.Nm
+.Ic write
+.Aq lun
+.Op общие параметры
+.Aq Fl l Ar lba
+.Aq Fl d Ar datalen
+.Aq Fl f Ar file|-
+.Aq Fl b Ar blocksize_bytes
+.Op Fl c Ar cdbsize
+.Op Fl N
+.Nm
+.Ic readcap
+.Aq lun
+.Op общие параметры
+.Op Fl c Ar cdbsize
+.Nm
+.Ic modesense
+.Aq lun
+.Aq Fl m Ar page | Fl l
+.Op Fl P Ar pc
+.Op Fl d
+.Op Fl S Ar subpage
+.Op Fl c Ar size
+.Nm
+.Ic start
+.Aq lun
+.Op общие параметры
+.Op Fl i
+.Op Fl o
+.Nm
+.Ic stop
+.Aq lun
+.Op общие параметры
+.Op Fl i
+.Op Fl o
+.Nm
+.Ic synccache
+.Aq lun
+.Op общие параметры
+.Op Fl l Ar lba
+.Op Fl b Ar blockcount
+.Op Fl r
+.Op Fl i
+.Op Fl c Ar cdbsize
+.Nm
+.Ic lunlist
+.Nm
+.Ic delay
+.Aq lun
+.Aq Fl l Ar datamove|done
+.Aq Fl t Ar secs
+.Op Fl T Ar oneshot|cont
+.Nm
+.Ic inject
+.Aq Fl i Ar action
+.Aq Fl p Ar pattern
+.Op Fl r Ar lba,len
+.Op Fl s Ar len fmt Op Ar args
+.Op Fl c
+.Op Fl d Ar delete_id
+.Nm
+.Ic create
+.Aq Fl b Ar backend
+.Op Fl B Ar blocksize
+.Op Fl d Ar device_id
+.Op Fl l Ar lun_id
+.Op Fl o Ar name=value
+.Op Fl s Ar size_bytes
+.Op Fl S Ar serial_num
+.Op Fl t Ar device_type
+.Nm
+.Ic remove
+.Aq Fl b Ar backend
+.Aq Fl l Ar lun_id
+.Op Fl o Ar name=value
+.Nm
+.Ic modify
+.Aq Fl b Ar backend
+.Aq Fl l Ar lun_id
+.Op Fl o Ar name=value
+.Aq Fl s Ar size_bytes
+.Nm
+.Ic devlist
+.Op Fl b Ar backend
+.Op Fl v
+.Op Fl x
+.Nm
+.Ic port
+.Op Fl c
+.Op Fl d Ar driver
+.Op Fl o Ar on|off
+.Op Fl w Ar wwpn
+.Op Fl W Ar wwnn
+.Op Fl O Ar name=value
+.Op Fl p Ar targ_port
+.Op Fl r
+.Op Fl t Ar fe_type
+.Nm
+.Ic portlist
+.Op Fl f Ar frontend
+.Op Fl i
+.Op Fl l
+.Op Fl p Ar targ_port
+.Op Fl q
+.Op Fl v
+.Op Fl x
+.Nm
+.Ic lunmap
+.Aq Fl p Ar targ_port
+.Op Fl l Ar pLUN
+.Op Fl L Ar cLUN
+.Nm
+.Ic dumpooa
+.Nm
+.Ic dumpstructs
+.Nm
+.Ic islist
+.Op Fl v
+.Op Fl x
+.Nm
+.Ic islogout
+.Aq Fl a | Fl c Ar connection-id | Fl i Ar name | Fl p Ar portal
+.Nm
+.Ic isterminate
+.Aq Fl a | Fl c Ar connection-id | Fl i Ar name | Fl p Ar portal
+.Nm
+.Ic nvlist
+.Op Fl v
+.Op Fl x
+.Nm
+.Ic nvterminate
+.Aq Fl a | Fl c Ar controller-id | Fl h Ar name
+.Nm
+.Ic help
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для предоставления способа доступа и управления целевым слоем CAM (CTL).
+Она предоставляет способ отправки команд
+.Tn SCSI
+в слой CTL, а также предоставляет
+некоторые метакоманды, использующие
+.Tn SCSI
+команды.
+(Например, команда
+.Ic lunlist
+реализована с использованием команд
+.Tn SCSI
+REPORT LUNS и INQUIRY.)
+.Pp
+Утилита
+.Nm
+имеет ряд основных функций, многие из которых требуют идентификатор устройства.
+Идентификатор устройства имеет следующий вид:
+.Bl -tag -width 14n
+.It lun
+Укажите номер LUN для работы.
+.El
+Многие из основных функций утилиты
+.Nm
+принимают следующие необязательные аргументы:
+.Bl -tag -width 10n
+.It Fl C Ar retries
+Укажите количество повторных попыток выполнения команды в случае сбоя.
+.It Fl D Ar device
+Укажите устройство для открытия.
+Это позволяет открыть устройство, отличное от устройства по умолчанию,
+.Pa /dev/cam/ctl ,
+для отправки команд.
+.It Fl I Ar id
+Укажите номер инициатора для использования.
+По умолчанию
+.Nm
+использует 7 в качестве номера инициатора.
+.El
+.Pp
+Основные команды:
+.Bl -tag -width 11n
+.It Ic tur
+Отправляет команду
+.Tn SCSI
+TEST UNIT READY устройству и сообщает, готово ли оно.
+.It Ic inquiry
+Отправляет команду
+.Tn SCSI
+INQUIRY устройству и отображает часть возвращённых данных опроса.
+.It Ic reqsense
+Отправляет команду
+.Tn SCSI
+REQUEST SENSE устройству и отображает возвращённую информацию sense.
+.It Ic reportluns
+Отправляет команду
+.Tn SCSI
+REPORT LUNS устройству и отображает поддерживаемые LUN.
+.It Ic read
+Отправляет команду
+.Tn SCSI
+READ устройству и записывает запрошенные данные в файл или stdout.
+.Bl -tag -width 12n
+.It Fl l Ar lba
+Укажите начальный логический адрес блока (LBA) для READ.
+Это можно указать в десятичной, восьмеричной (начиная с 0),
+шестнадцатеричной (начиная с 0x) или любой другой системе счисления, поддерживаемой
+.Xr strtoull 3 .
+.It Fl d Ar datalen
+Укажите длину запроса READ в 512-байтовых блоках.
+.It Fl f Ar file
+Укажите назначение для данных, прочитанных командой READ.
+Можно указать имя файла или
+.Sq -
+для stdout.
+.It Fl c Ar cdbsize
+Укажите минимальный размер
+.Tn SCSI
+CDB (Command Data Block), используемый для запроса READ.
+Допустимые значения: 6, 10, 12 и 16.
+В зависимости от LBA и запрошенного объёма данных для удовлетворения запроса может использоваться больший размер CDB. (Например, для LBA выше 0xffffffff для удовлетворения запроса необходимо использовать READ(16).)
+.It Fl b Ar blocksize
+Укажите размер блока нижележащего устройства
+.Tn SCSI ,
+чтобы можно было точно вычислить длину передачи.
+Размер блока можно получить с помощью команды
+.Tn SCSI
+READ CAPACITY.
+.It Fl N
+Не копировать данные в
+.Nm
+из ядра при выполнении чтения, просто выполнить команду без копирования данных.
+Это следует использовать для тестирования производительности.
+.El
+.It Ic write
+Читает данные из файла или stdin и записывает данные на устройство с помощью команды
+.Tn SCSI
+WRITE.
+.Bl -tag -width 12n
+.It Fl l Ar lba
+Укажите начальный логический адрес блока (LBA) для WRITE.
+Это можно указать в десятичной, восьмеричной (начиная с 0), шестнадцатеричной (начиная с 0x) или любой другой системе счисления, поддерживаемой
+.Xr strtoull 3 .
+.It Fl d Ar atalen
+Укажите длину запроса WRITE в 512-байтовых блоках.
+.It Fl f Ar file
+Укажите источник данных, которые должны быть записаны командой WRITE.
+Можно указать имя файла или
+.Sq -
+для stdin.
+.It Fl c Ar cdbsize
+Укажите минимальный размер
+.Tn SCSI
+CDB (Command Data Block), используемый для запроса READ.
+Допустимые значения: 6, 10, 12 и 16.
+В зависимости от LBA и запрошенного объёма данных для удовлетворения запроса может использоваться больший размер CDB. (Например, для LBA выше 0xffffffff для удовлетворения запроса необходимо использовать READ(16).)
+.It Fl b Ar blocksize
+Укажите размер блока нижележащего устройства
+.Tn SCSI ,
+чтобы можно было точно вычислить длину передачи.
+Размер блока можно получить с помощью команды
+.Tn SCSI
+READ CAPACITY.
+.It Fl N
+Не копировать данные в
+.Nm
+в ядро при выполнении записи, просто выполнить команду без копирования данных.
+Это следует использовать для тестирования производительности.
+.El
+.It Ic readcap
+Отправляет команду
+.Tn SCSI
+READ CAPACITY устройству и отображает размер устройства и размер блока устройства.
+По умолчанию используется READ CAPACITY(10).
+Однако, если устройство возвращает максимальный LBA 0xffffffff,
+.Nm
+автоматически выдаст READ CAPACITY(16), которая реализована как service action опкода SERVICE ACTION IN(16).
+Пользователь может указать минимальный размер CDB с помощью аргумента
+.Fl c .
+Допустимые значения для параметра
+.Fl c :
+10 и 16.
+Если указан 10-байтовый CDB, запрос будет автоматически повторно выдан с 16-байтовым CDB, если возвращённый максимальный LBA равен 0xffffffff.
+.It Ic modesense
+Отправляет команду
+.Tn SCSI
+MODE SENSE устройству и отображает запрошенные страницы режима или список страниц.
+.Bl -tag -width 10n
+.It Fl m Ar page
+Укажите страницу режима для отображения.
+Этот параметр и параметр
+.Fl l
+взаимоисключающие.
+Однако должен быть указан один из двух.
+Номера страниц режима можно указывать в десятичном или шестнадцатеричном формате.
+.It Fl l
+Запросить возврат списка страниц режима, поддерживаемых устройством.
+Этот параметр и параметр
+.Fl m
+взаимоисключающие.
+Однако должен быть указан один из двух.
+.It Fl P Ar pc
+Укажите значение управления страницей режима.
+Возможные значения:
+.Bl -tag -width 2n -compact
+.It 0
+Текущие значения.
+.It 1
+Битовая маска изменяемых значений.
+.It 2
+Значения по умолчанию.
+.It 3
+Сохранённые значения.
+.El
+.It Fl d
+Отключить дескрипторы блоков при отправке запроса mode sense.
+.It Fl S Ar subpage
+Укажите подстраницу, используемую с запросом mode sense.
+.It Fl c Ar cdbsize
+Укажите размер CDB, используемый для запроса mode sense.
+Поддерживаемые значения: 6 и 10.
+.El
+.It Ic start
+Отправляет команду
+.Tn SCSI
+START STOP UNIT указанному LUN с установленным битом start.
+.Bl -tag -width 4n
+.It Fl i
+Установить бит immediate в CDB.
+Обратите внимание, что CTL не поддерживает бит immediate, поэтому это в основном полезно для проверки того, что CTL возвращает правильную ошибку.
+.El
+.It Ic stop
+Отправляет команду
+.Tn SCSI
+START STOP UNIT указанному LUN с снятым битом start.
+Мы используем упорядоченный тег для остановки LUN, чтобы гарантировать, что все ожидающие операции ввода-вывода выполнятся до его остановки.
+(CTL в любом случае это гарантирует, но
+.Nm
+отправляет упорядоченный тег для полноты.)
+.Bl -tag -width 4n
+.It Fl i
+Установить бит immediate в CDB.
+Обратите внимание, что CTL не поддерживает бит immediate, поэтому это в основном полезно для проверки того, что CTL возвращает правильную ошибку.
+.El
+.It Ic synccache
+Отправляет команду
+.Tn SCSI
+SYNCHRONIZE CACHE устройству.
+По умолчанию используется SYNCHRONIZE CACHE(10).
+Однако, если указанный начальный LBA больше 0xffffffff или длина больше 0xffff, будет использоваться SYNCHRONIZE CACHE(16).
+16-байтовая команда также будет использоваться, если пользователь укажет 16-байтовый CDB с помощью аргумента
+.Fl c .
+.Bl -tag -width 14n
+.It Fl l Ar lba
+Укажите начальный LBA области кэша для синхронизации.
+Для CTL этот параметр ничего не делает.
+Если вы отправите команду SYNCHRONIZE CACHE, она синхронизирует кэш для всего LUN.
+.It Fl b Ar blockcount
+Укажите длину области кэша для синхронизации.
+Для CTL этот параметр ничего не делает.
+Если вы отправите команду SYNCHRONIZE CACHE, она синхронизирует кэш для всего LUN.
+.It Fl r
+Укажите относительную адресацию для начального LBA.
+CTL не поддерживает относительную адресацию, так как она работает только для связанных команд, а CTL не поддерживает связанные команды.
+.It Fl i
+Указать цели возвращать статус сразу после выдачи команды SYNCHRONIZE CACHE, не дожидаясь завершения синхронизации кэша.
+CTL не поддерживает этот бит.
+.It Fl c Ar cdbsize
+Укажите минимальный размер CDB.
+Допустимые значения: 10 и 16 байт.
+.El
+.It Ic lunlist
+Выводит список всех LUN, зарегистрированных в CTL.
+Поскольку эта команда использует порт ioctl, она будет работать только когда включены FETD (Front End Target Drivers).
+Эта команда эквивалентна выполнению REPORT LUNS для одного LUN и затем INQUIRY для каждого LUN в системе.
+.It Ic delay
+Задерживает команды в заданном месте.
+В настоящее время есть два места, где команды могут быть задержаны: перед передачей данных
+.Pq Dq datamove
+и непосредственно перед отправкой статуса хосту
+.Pq Dq done .
+Одно из двух должно быть передано как аргумент параметра
+.Fl l .
+Также должен быть указан параметр
+.Fl t .
+.Bl -tag -width 12n
+.It Fl l Ar delayloc
+Задерживать команду(ы) в указанном месте.
+Это может быть либо на этапе перемещения данных (datamove), либо перед завершением команды (done).
+.It Fl t Ar delaytime
+Задерживать команду(ы) на указанное количество секунд.
+Это должно быть указано.
+Если установлено 0, это очистит любую ранее установленную задержку для этого конкретного места (datamove или done).
+.It Fl T Ar delaytype
+Укажите тип задержки.
+По умолчанию параметр
+.Ic delay
+задерживает следующую команду, отправленную на указанный LUN.
+С параметром
+.Fl T Ar cont
+каждая команда будет задержана на указанный период времени.
+С
+.Fl T Ar oneshot
+следующая команда, отправленная на указанный LUN, будет задержана, а все последующие команды будут завершены нормально.
+Это значение по умолчанию.
+.El
+.It Ic inject
+Внедряет указанный тип ошибки для указанного LUN, когда встречается команда, соответствующая заданному шаблону.
+Возвращаемые данные sense имеют либо фиксированный, либо дескрипторный формат, в зависимости от состояния бита D_SENSE на странице режима control (страница 0xa) для LUN.
+.Pp
+Ошибки внедряются только для команд, которые ещё не завершились ошибкой по другим причинам.
+По умолчанию только первая команда, соответствующая указанному шаблону, возвращается с заданной ошибкой.
+.Pp
+Если указан флаг
+.Fl c ,
+все команды, соответствующие шаблону, будут возвращаться с указанной ошибкой до тех пор, пока команда внедрения ошибки не будет удалена с помощью флага
+.Fl d .
+.Bl -tag -width 17n
+.It Fl i Ar action
+Укажите ошибку для возврата:
+.Bl -tag -width 10n
+.It aborted
+Вернуть следующую подходящую команду на указанном LUN с ключом sense
+.It mediumerr
+Вернуть следующую подходящую команду на указанном LUN с ключом sense для ошибок записи.
+.It ua
+Вернуть следующую подходящую команду на указанном LUN с ключом sense
+.It custom
+Вернуть следующую подходящую команду на указанном LUN с заданными данными sense.
+Аргумент
+.Fl s
+должен быть указан.
+.El
+.It Fl p Ar pattern
+Укажите, какие команды должны возвращаться с заданной ошибкой.
+.Bl -tag -width 10n
+.It read
+Ошибка должна применяться к READ(6), READ(10), READ(12), READ(16) и т.д.
+.It write
+Ошибка должна применяться к WRITE(6), WRITE(10), WRITE(12), WRITE(16), WRITE AND VERIFY(10) и т.д.
+.It rw
+Ошибка должна применяться как к командам чтения, так и к командам записи.
+.It readcap
+Ошибка должна применяться к командам READ CAPACITY(10) и READ CAPACITY(16).
+.It tur
+Ошибка должна применяться к командам TEST UNIT READY.
+.It any
+Ошибка должна применяться к любой команде.
+.El
+.It Fl r Ar lba,len
+Укажите начальный lba и длину диапазона LBA, который должен вызывать ошибку.
+Этот параметр применяется только когда указаны шаблоны read и/или write.
+При использовании с другими типами команд ошибка никогда не будет вызвана.
+.It Fl s Ar len fmt Op Ar args
+Укажите данные sense, которые должны возвращаться для пользовательских действий.
+Если формат —
+.Sq - ,
+len байт данных sense будут прочитаны из стандартного ввода и записаны в буфер sense.
+Если len больше 252 байт (максимально допустимая длина данных sense
+.Tn SCSI ),
+они будут усечены до этой длины.
+Формат данных sense описан в
+.Xr cam_cdbparse 3 .
+.It Fl c
+Внедрение ошибки должно быть постоянным, а не однократным.
+Постоянные ошибки должны быть удалены с помощью аргумента
+.Fl d .
+.It Fl d Ar delete_id
+Удалить указанный серийный номер внедрения ошибки.
+Серийный номер возвращается при внедрении ошибки.
+.El
+.It Ic port
+Выполняет одну из нескольких операций с портом frontend CTL.
+Либо создать новый порт frontend
+.Pq Fl c ,
+уничтожить порт frontend
+.Pq Fl r ,
+включить или выключить один или несколько frontend
+.Pq Fl o Ar on|off ,
+либо установить World Wide Node Name
+.Pq Fl w Ar wwnn
+или World Wide Port Name
+.Pq Fl W Ar wwpn
+для заданного порта.
+Должен быть указан один из
+.Fl c ,
+.Fl r ,
+.Fl o ,
+или
+.Fl w
+или
+.Fl W .
+WWNN и WWPN могут быть указаны одновременно, но не могут сочетаться с включением/выключением или выводом списка портов.
+.Bl -tag -width 12n
+.It Fl c
+Создать новый порт frontend.
+.It Fl d Ar driver
+Укажите имя драйвера frontend, используемого подкомандами
+.Pq Fl c
+или
+.Pq Fl r .
+Допустимые имена драйверов включают
+.Dq ioctl ,
+.Dq iscsi ,
+и
+.Dq nvmf ,
+но другие могут быть добавлены внешними модулями ядра.
+.It Fl o Ar on|off
+Включить или выключить указанные порты frontend CTL.
+Если номер порта или тип порта не указан, все порты включаются или выключаются.
+.It Fl O Ar pp|vp
+Укажите общие параметры для порта frontend ioctl.
+Список распознаваемых параметров зависит от драйвера.
+Драйвер
+.Dq ioctl
+распознаёт
+.Dq pp
+и
+.Dq vp .
+Драйвер
+.Dq iscsi
+распознаёт
+.Dq cfiscsi_portal_group_tag ,
+.Dq cfiscsi_target
+и
+.Dq cfiscsi_target_alias .
+Драйвер
+.Dq nvmf
+распознаёт
+.Dq subnqn ,
+.Dq portid ,
+.Dq max_io_qsize ,
+.Dq enable_timeout ,
+.Dq ioccsz ,
+.Dq nn
+и
+.Dq serial .
+.It Fl p Ar targ_port
+Укажите номер порта frontend.
+Номера портов можно найти в списке портов frontend.
+.It Fl r
+Удалить порт.
+.It Fl t Ar fe_type
+Укажите тип frontend, используемый подкомандами
+.Pq Fl o ,
+.Pq Fl w
+и
+.Pq Fl W .
+В настоящее время определены следующие типы портов:
+.Dq fc
+(Fibre Channel),
+.Dq scsi
+(Parallel SCSI),
+.Dq ioctl
+(интерфейс CTL ioctl)
+и
+.Dq internal
+(CTL CAM SIM).
+.It Fl w Ar wwnn
+Установить World Wide Node Name для заданного порта.
+Аргумент
+.Fl p
+должен быть указан, так как это можно реализовать только на одном порту.
+Как правило, WWNN должен быть одинаковым для всех портов в системе.
+.It Fl W Ar wwpn
+Установить World Wide Port Name для заданного порта.
+Аргумент
+.Fl p
+должен быть указан, так как это можно реализовать только на одном порту.
+Как правило, WWPN должен быть разным для каждого порта в системе.
+.El
+.It Ic portlist
+Выводит список портов frontend CTL.
+.Bl -tag -width 12n
+.It Fl f Ar frontend
+Укажите тип frontend.
+.It Fl i
+Сообщить имена цели и подключённых инициаторов.
+.It Fl l
+Сообщить отображение LUN.
+.It Fl p Ar targ_port
+Укажите номер порта frontend.
+.It Fl q
+Пропустить заголовок в выводе списка портов.
+.It Fl v
+Включить подробный вывод (сообщать все параметры порта).
+.It Fl x
+Выводить список портов в формате XML.
+.El
+.It Ic lunmap
+Изменяет отображение LUN для указанного порта.
+Если указаны и
+.Ar pLUN ,
+и
+.Ar cLUN
+-- LUN будет отображён.
+Если указан
+.Ar pLUN ,
+но
+.Ar cLUN
+не указан -- LUN будет разотображён.
+Если не указаны ни
+.Ar pLUN ,
+ни
+.Ar cLUN
+-- отображение LUN будет отключено, открывая все LUN CTL.
+.Bl -tag -width 12n
+.It Fl p Ar targ_port
+Укажите номер порта frontend.
+.It Fl l Ar pLUN
+Номер LUN, видимый указанным портом.
+.It Fl L Ar cLUN
+Номер LUN CTL.
+.El
+.It Ic dumpooa
+Выгружает очередь OOA (Order Of Arrival) для каждого LUN, зарегистрированного в CTL.
+.It Ic dumpstructs
+Выгружает структуры CTL в консоль.
+.It Ic create
+Создаёт новый LUN.
+Необходимо указать backend, и в зависимости от запрошенного backend некоторые другие параметры могут быть обязательными.
+Если LUN успешно создан, будет отображена конфигурация LUN.
+Если создание LUN не удалось, будет отображено сообщение с описанием сбоя.
+.Bl -tag -width 14n
+.It Fl b Ar backend
+Флаг
+.Fl b
+обязателен.
+Он указывает имя backend, используемого при создании LUN.
+Примеры:
+.Dq ramdisk
+и
+.Dq block .
+.It Fl B Ar blocksize
+Укажите размер блока backend в байтах.
+.It Fl d Ar device_id
+Укажите строку, связанную с LUN, для использования в данных страницы 0x83
+.Tn SCSI
+INQUIRY VPD.
+.It Fl l Ar lun_id
+Запросить назначение определённого номера LUN.
+Если запрошенный номер LUN недоступен, запрос завершится ошибкой.
+.It Fl o Ar name=value
+Укажите пару имя/значение, специфичную для backend.
+Можно указать несколько аргументов
+.Fl o .
+Обратитесь к документации backend для аргументов, которые могут использоваться.
+.It Fl s Ar size_bytes
+Укажите размер LUN в байтах.
+Некоторые backend'ы могут позволять задавать размер (например, backend ramdisk), а для других размер может быть неявным (например, backend block).
+.It Fl S Ar serial_num
+Укажите серийный номер, используемый в данных страницы 0x80
+.Tn SCSI
+INQUIRY VPD.
+.It Fl t Ar device_type
+Укажите числовой тип устройства SCSI, используемый при создании LUN.
+Если этот флаг не используется, тип создаваемого LUN зависит от backend.
+Не все типы LUN поддерживаются.
+В настоящее время CTL поддерживает LUN с прямым доступом (тип 0), процессорные (тип 3) и CD/DVD (тип 5).
+Запрошенный backend может поддерживать или не поддерживать все типы LUN, которые поддерживает CTL.
+.El
+.It Ic remove
+Удаляет LUN.
+Необходимо указать backend и номер LUN.
+Специфичные для backend параметры также можно указать с помощью флага
+.Fl o .
+.Bl -tag -width 14n
+.It Fl b Ar backend
+Укажите backend, которому принадлежит удаляемый LUN.
+Примеры:
+.Dq ramdisk
+и
+.Dq block .
+.It Fl l Ar lun_id
+Укажите номер LUN для удаления.
+.It Fl o Ar name=value
+Укажите пару имя/значение, специфичную для backend.
+Можно указать несколько аргументов
+.Fl o .
+Обратитесь к документации backend для аргументов, которые могут использоваться.
+.El
+.It Ic modify
+Изменяет размер LUN.
+Необходимо указать backend, номер LUN и размер.
+.Bl -tag -width 14n
+.It Fl b Ar backend
+Укажите backend, которому принадлежит изменяемый LUN.
+Примеры:
+.Dq ramdisk
+и
+.Dq block .
+.It Fl l Ar lun_id
+Укажите номер LUN для изменения.
+.It Fl o Ar name=value
+Укажите пару имя/значение, специфичную для backend.
+Можно указать несколько аргументов
+.Fl o .
+Обратитесь к документации backend для аргументов, которые могут использоваться.
+.It Fl s Ar size_bytes
+Укажите размер LUN в байтах.
+Для backend
+.Dq block
+вместо этого можно передать ключевое слово
+.Dq auto ;
+это заставит CTL использовать размер файла или устройства хранения.
+.El
+.It Ic devlist
+Получает список всех настроенных LUN.
+Он также включает размер и размер блока LUN, серийный номер и идентификатор устройства.
+.Bl -tag -width 11n
+.It Fl b Ar backend
+Укажите backend.
+Это ограничивает список LUN указанным backend.
+Примеры:
+.Dq ramdisk
+и
+.Dq block .
+.It Fl v
+Подробный вывод.
+Это также отобразит любые специфичные для backend атрибуты LUN в дополнение к стандартной информации о каждом LUN.
+.It Fl x
+Выгружает необработанный XML.
+Информация о списке LUN из ядра поступает в формате XML, и этот параметр позволяет отобразить необработанные данные XML.
+Этот параметр и параметры
+.Fl v
+и
+.Fl b
+взаимоисключающие.
+Если указан
+.Fl x ,
+вся база данных LUN отображается в формате XML.
+.El
+.It Ic islist
+Получает список текущих запущенных сеансов iSCSI.
+Он включает имена инициатора и цели и уникальные идентификаторы соединений.
+.Bl -tag -width 11n
+.It Fl v
+Подробный режим.
+.It Fl x
+Выгружает необработанный XML.
+Информация о списке сеансов из ядра поступает в формате XML, и этот параметр позволяет отобразить необработанные данные XML.
+.El
+.It Ic islogout
+Попросить инициатор выйти из сеансов iSCSI, соответствующих критериям.
+.Bl -tag -width 11n
+.It Fl a
+Выйти из всех сеансов.
+.It Fl c
+Укажите идентификатор соединения.
+.It Fl i
+Укажите имя инициатора.
+.It Fl p
+Укажите портал инициатора (имя хоста или IP-адрес).
+.El
+.It Ic isterminate
+Принудительно завершить сеансы iSCSI, соответствующие критериям.
+.Bl -tag -width 11n
+.It Fl a
+Завершить все сеансы.
+.It Fl c
+Укажите идентификатор соединения.
+.It Fl i
+Укажите имя инициатора.
+.It Fl p
+Укажите портал инициатора (имя хоста или IP-адрес).
+.El
+.It Ic nvlist
+Получает список текущих запущенных ассоциаций NVMeoF.
+Он включает имена хоста и контроллера и уникальные идентификаторы контроллеров.
+.Bl -tag -width 11n
+.It Fl v
+Подробный режим.
+.It Fl x
+Выгружает необработанный XML.
+Информация о списке сеансов из ядра поступает в формате XML, и этот параметр позволяет отобразить необработанные данные XML.
+.El
+.It Ic nvterminate
+Принудительно завершить ассоциации NVMeoF, соответствующие критериям.
+.Bl -tag -width 11n
+.It Fl a
+Завершить все ассоциации.
+.It Fl c
+Укажите идентификатор контроллера.
+.It Fl h
+Укажите имя хоста.
+.El
+.It Ic help
+Отображает информацию об использовании
+.Nm .
+.El
+.Sh ПАРАМЕТРЫ
+Для LUN можно указать ряд дополнительных параметров конфигурации.
+Некоторые параметры являются глобальными, другие зависят от backend.
+.Pp
+Глобальные параметры:
+.Bl -tag -width 12n
+.It Va vendor
+Задаёт строку производителя LUN длиной до 8 символов.
+.It Va product
+Задаёт строку продукта LUN длиной до 16 символов.
+.It Va revision
+Задаёт строку ревизии LUN длиной до 4 символов.
+.It Va scsiname
+Задаёт строку имени SCSI LUN.
+.It Va eui
+Задаёт идентификатор EUI-64 LUN.
+.It Va naa
+Задаёт идентификатор NAA LUN.
+.It Va uuid
+Задаёт локально назначенный идентификатор RFC 4122 UUID для LUN.
+Идентификатор EUI, NAA или UUID должен быть установлен в УНИКАЛЬНОЕ значение, чтобы команда EXTENDED COPY могла получить доступ к LUN.
+Неуникальные идентификаторы LUN могут привести к повреждению данных.
+Некоторые инициаторы могут не поддерживать позднее введённые идентификаторы UUID.
+.It Va ident_info
+Заданная идентификационная информация LUN (строка или 0x + hex).
+.It Va text_ident_info
+Заданная текстовая идентификационная информация LUN (строка UTF-8).
+.It Va ha_role
+в кластере HA, задаётся через sysctl kern.cam.ctl.ha_role.
+.It Va insecure_tpc
+другие LUN на этом хосте, иначе недоступные.
+Это позволяет разгрузить копирование между разными целями iSCSI, находящимися на одном хосте, в доверенных средах.
+.It Va readcache
+.It Va readonly
+как защищённый от записи.
+.It Va removable
+.It Va reordering
+атрибут в произвольном порядке.
+Любые риски целостности данных, связанные с порядком последовательности команд, должны явно обрабатываться клиентом приложения путём выбора соответствующих команд и атрибутов задач.
+Это улучшает целостность данных, но может внести дополнительные задержки.
+.It Va serseq
+Параллельная выдача последовательных операций может запутать логику
+файловой системы хранения, ухудшая производительность; но это может улучшить производительность
+хранилищ без prefetch/write-back.
+.It Va pblocksize
+.It Va pblockoffset
+Укажите физический размер блока и смещение устройства.
+.It Va ublocksize
+.It Va ublockoffset
+Укажите размер блока и смещение UNMAP устройства.
+.It Va rpm
+Задаёт скорость вращения носителя устройства: 0 -- не сообщается,
+1 -- не вращающийся (SSD), >1024 -- значение в оборотах в минуту.
+.It Va formfactor
+.It Va temperature
+.It Va reftemperature
+Укажите текущую и эталонную (максимальную) температуры устройства.
+.It Va provisioning_type
+Когда поддержка UNMAP включена, этот параметр задаёт тип выделения:
+Логические устройства без поддержки UNMAP сообщаются как полностью выделенные.
+.It Va unmap
+.It Va unmap_max_lba
+.It Va unmap_max_descr
+Укажите максимально допустимое количество LBA и дескрипторов блоков на команду UNMAP
+для отчёта на странице Block Limits VPD.
+.It Va write_same_max_lba
+Укажите максимально допустимое количество LBA на команду WRITE SAME для отчёта
+на странице Block Limits VPD.
+.It Va avail-threshold
+.It Va used-threshold
+.It Va pool-avail-threshold
+.It Va pool-used-threshold
+Установите мягкие пороги тонкого выделения для каждого LUN/пула.
+LUN установит состояние UNIT ATTENTION, если его доступное пространство или доступное пространство пула
+опустится ниже настроенных значений avail, или его использованное пространство или использованное пространство пула поднимется выше
+настроенных значений used.
+Пороговые значения пула работают только для LUN на основе ZVOL.
+.It Va writecache
+.El
+.Pp
+Параметры, специфичные для backend block:
+.Bl -tag -width 12n
+.It Va file
+Задаёт имя файла или устройства для использования в качестве хранилища.
+.It Va num_threads
+Задаёт количество потоков backend для использования этим LUN.
+.El
+.Pp
+Параметры, специфичные для backend ramdisk:
+.Bl -tag -width 12n
+.It Va capacity
+Задаёт ёмкость хранилища (максимальный объём RAM для данных).
+Значение по умолчанию — ноль, что полностью отключает хранилище,
+заставляя все записи уходить в никуда, а все чтения возвращать нули.
+.El
+.Sh ПРИМЕРЫ
+.Pp
+Отправить команду
+.Tn SCSI
+TEST UNIT READY на LUN 1.
+.Pp
+.Dl ctladm tur 1
+.Pp
+Отобразить список страниц режима, поддерживаемых LUN 1.
+.Pp
+.Dl ctladm modesense 1 -l
+.Pp
+Отобразить сохранённую версию страницы режима Control (страница 10) на LUN 0.
+Отключить получение дескрипторов блоков и использовать 10-байтовую команду MODE SENSE
+вместо 6-байтовой команды по умолчанию.
+.Pp
+.Dl ctladm modesense 0 -m 10 -P 3 -d -c 10
+.Pp
+Прочитать первый 512-байтовый блок с LUN 2 и выгрузить его в файл
+.Bd -literal
+.Dl ctladm read 2 -l 0 -d 1 -b 512 -f - > foo
+.Ed
+.Pp
+Прочитать 10240 байт из файла
+.Pa /tmp/bar
+и записать их на LUN 3.
+начиная с LBA 0xff432140.
+.Pp
+.Bd -literal
+.Dl ctladm write 3 -l 0xff432140 -d 20 -b 512 -f /tmp/bar
+.Ed
+.Pp
+Создать LUN с
+.Dq fake
+ramdisk в качестве хранилища.
+LUN будет заявлять размер примерно 10 терабайт,
+при этом не имея реального хранилища данных (все записанные данные теряются).
+.Pp
+.Dl ctladm create -b ramdisk -s 10485760000000000
+.Pp
+Создать тонко выделенный LUN с ramdisk в качестве хранилища.
+LUN будет иметь максимальную ёмкость хранилища 10 гигабайт,
+при этом сообщая размер 10 терабайт,
+.Pp
+.Dl ctladm create -b ramdisk -s 10T -o capacity=10G
+.Pp
+Создать LUN с использованием backend block, указать том ZFS
+.Pa tank/example
+в качестве хранилища и указать серийный номер
+.Fl ( S )
+и идентификатор устройства
+.Fl ( d )
+для страниц 0x80 и 0x83
+.Tn SCSI
+VPD.
+Размер LUN будет производным от размера ZVOL.
+.Pp
+.Dl ctladm create -b block -o file=/dev/zvol/tank/example -S MYSERIAL321 -d MYDEVID123
+.Pp
+Используется для указания общих параметров на порту frontend ioctl, сейчас
+можно установить только номер порта pp и/или vp.
+.Pp
+.Dl ctladm port -c -O pp=11 -O vp=12
+.Pp
+Удалить указанный targ_port.
+.Pp
+.Dl ctladm port -r -p 4
+.Pp
+.Pp
+Удалить LUN 12, обрабатываемый backend block, из системы.
+.Pp
+.Dl ctladm remove -b block -l 12
+.Pp
+Вывести список настроенных LUN в системе вместе с их backend и серийным номером.
+Это работает как при включённых, так и при отключённых Front End Target Drivers.
+.Pp
+.Dl ctladm devlist
+.Pp
+Вывести список всех LUN в системе вместе с их данными inquiry и типом устройства.
+Это работает только когда FETD включены, так как команды идут через порт ioctl.
+.Pp
+.Dl ctladm lunlist
+.Pp
+Внедрить ошибку носителя на LUN 6 для каждого чтения, охватывающего первые 512 блоков LUN.
+.Pp
+.Dl ctladm inject 6 -i mediumerr -p read -r 0,512 -c
+.Pp
+Внедрить пользовательскую ошибку на LUN 6 только для следующей команды TEST UNIT READY.
+Это приведёт к ключу sense NOT READY (0x02) и ASC/ASCQ
+.Pp
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr cam 3 ,
+.Xr cam_cdbparse 3 ,
+.Xr cam 4 ,
+.Xr ctl 4 ,
+.Xr xpt 4 ,
+.Xr camcontrol 8 ,
+.Xr ctld 8 ,
+.Xr ctlstat 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была изначально написана зимой/весной 2003 года как интерфейс к CTL.
+.Sh АВТОРЫ
+.An Ken Merry Aq Mt ken@FreeBSD.org

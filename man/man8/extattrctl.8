@@ -1,0 +1,180 @@
+.\"-
+.\" Copyright (c) 2000-2001 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" This software was developed by Robert Watson for the TrustedBSD Project.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Developed by the TrustedBSD Project.
+.\" Support for file system extended attribute.
+.\"
+.\" FRDP path usr.sbin/extattrctl/extattrctl.8
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 6fcf7e4284614a9647052ca45fd5c79bb1504e7a3475118da2661a6281dff5eb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2000
+.Dt EXTATTRCTL 8
+.Os
+.Sh ИМЯ
+.Nm extattrctl
+.Nd управление расширенными атрибутами UFS1
+.Sh СИНТАКСИС
+.Nm
+.Cm start
+.Ar путь
+.Nm
+.Cm stop
+.Ar путь
+.Nm
+.Cm initattr
+.Op Fl f
+.Op Fl p Ar путь
+.Ar размер_атрибута
+.Ar файл_атрибута
+.Nm
+.Cm showattr
+.Ar файл_атрибута
+.Nm
+.Cm enable
+.Ar путь
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Ar файл_атрибута
+.Nm
+.Cm disable
+.Ar путь
+.Ar пространство_имён_атрибутов
+.Ar имя_атрибута
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для управления расширенными атрибутами в файловой системе UFS1.
+Она позволяет запускать и останавливать расширенные атрибуты на файловой системе,
+а также инициализировать файлы атрибутов и включать или отключать конкретные
+расширенные атрибуты на файловой системе.
+.Pp
+Первый аргумент в командной строке указывает операцию, которую необходимо
+выполнить.
+Операция должна быть одной из следующих:
+.Bl -tag -width indent
+.It Cm start Ar путь
+Запустить поддержку расширенных атрибутов на файловой системе, указанной с помощью
+.Ar путь .
+Файловая система должна быть файловой системой UFS1, и должен быть включён
+параметр ядра UFS_EXTATTR.
+.It Cm stop Ar путь
+Остановить поддержку расширенных атрибутов на файловой системе, указанной с помощью
+.Ar путь .
+Поддержка расширенных атрибутов должна быть предварительно запущена.
+.It Xo
+.Cm initattr
+.Op Fl f
+.Op Fl p Ar путь
+.Ar размер_атрибута файл_атрибута
+.Xc
+Создать и инициализировать файл для использования в качестве файла атрибутов.
+Необходимо указать максимальный размер атрибута на inode в байтах в
+.Ar размер_атрибута ,
+а также файл, в котором будет храниться атрибут, с помощью
+.Ar файл_атрибута .
+.Pp
+Аргумент
+.Fl f
+может использоваться, чтобы указать, что можно перезаписать
+существующий файл атрибутов; в противном случае, если целевой файл существует,
+будет возвращена ошибка.
+.Pp
+Аргумент
+.Fl p Ar путь
+может использоваться для предварительного выделения места для всех атрибутов вместо
+использования разреженных файлов для экономии места.
+Это имеет преимущество, гарантируя, что место будет доступно
+для атрибутов, когда они записываются, предотвращая нехватку места на диске,
+которая могла бы привести к отказу в обслуживании атрибутов.
+.Pp
+Этот файл не должен существовать перед запуском
+.Cm initattr .
+.It Cm showattr Ar файл_атрибута
+Показать значения заголовка атрибута в файле атрибутов, указанном как
+.Ar файл_атрибута .
+.It Cm enable Ar путь пространство_имён_атрибутов имя_атрибута файл_атрибута
+Включить атрибут с именем
+.Ar имя_атрибута
+в пространстве имён
+.Ar пространство_имён_атрибутов
+на файловой системе, идентифицируемой с помощью
+.Ar путь ,
+и поддерживаемый инициализированным файлом атрибутов
+.Ar файл_атрибута .
+Файл атрибутов должен быть инициализирован с помощью
+.Cm initattr
+перед первым использованием.
+Атрибуты должны быть запущены на файловой системе до включения любых атрибутов.
+.It Cm disable Ar путь пространство_имён_атрибутов имя_атрибута
+Отключить атрибут с именем
+.Ar имя_атрибута
+в пространстве имён
+.Ar пространство_имён_атрибутов
+на файловой системе, идентифицируемой по
+.Ar путь .
+На файловой системе должны быть запущены атрибуты, и атрибут
+должен быть включён с помощью
+.Cm enable .
+.El
+.Sh ПРИМЕРЫ
+.Dl extattrctl start /
+.Pp
+Запустить расширенные атрибуты на корневой файловой системе.
+.Pp
+.Dl extattrctl initattr 17 /.attribute/system/md5
+.Pp
+Создать файл атрибутов в /.attribute/system/md5 и установить максимальный
+размер каждого атрибута равным 17 байтам, используя разреженный файл для хранения
+атрибутов.
+.Pp
+.Dl extattrctl enable / system md5 /.attribute/system/md5
+.Pp
+Включить атрибут с именем md5 на корневой файловой системе, поддерживаемый файлом
+/.attribute/system/md5.
+.Pp
+.Dl extattrctl disable / md5
+.Pp
+Отключить атрибут с именем md5 на корневой файловой системе.
+.Pp
+.Dl extattrctl stop /
+.Pp
+Остановить расширенные атрибуты на корневой файловой системе.
+.Sh СМ. ТАКЖЕ
+.Xr ffs 4 ,
+.Xr getextattr 8 ,
+.Xr setextattr 8 ,
+.Xr extattr 9
+.Sh ИСТОРИЯ
+Поддержка расширенных атрибутов была разработана в рамках проекта TrustedBSD
+и представлена в
+.Fx 5.0 .
+Она была разработана для поддержки расширений безопасности, требующих дополнительных
+меток, связанных с каждым файлом или каталогом.
+.Sh АВТОРЫ
+.An Robert N M Watson

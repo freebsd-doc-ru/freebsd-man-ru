@@ -1,0 +1,135 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_suspend.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 eb20ca274d0100ac35865720f23fc899804fe349d30ddc9837e395aa8fc3f61d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_SUSPEND 2
+.Os
+.Sh ИМЯ
+.Nm thr_suspend
+.Nd приостановить вызывающий поток
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_suspend "struct timespec *timeout"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Эта функция предназначена для реализации многопоточности.
+Обычные приложения должны вместо неё использовать
+.Xr pthread_cond_timedwait 3
+вместе с
+.Xr pthread_cond_broadcast 3
+для типичной безопасной приостановки с сотрудничеством
+приостанавливаемого потока, или
+.Xr pthread_suspend_np 3
+и
+.Xr pthread_resume_np 3
+в некоторых специфических ситуациях.
+.Ef
+.Pp
+Системный вызов
+.Fn thr_suspend
+переводит вызывающий поток в приостановленное состояние, в котором он
+не получает процессорное время.
+Выход из этого состояния осуществляется другим потоком, вызывающим
+.Xr thr_wake 2 ,
+по истечении интервала времени, заданного в
+.Fa timeout ,
+или доставкой сигнала приостановленному потоку.
+.Pp
+Если аргумент
+.Fa timeout
+равен
+.Dv NULL ,
+приостановленное состояние может быть завершено только явным
+.Fn thr_wake
+или сигналом.
+.Pp
+Если пробуждение от
+.Xr thr_wake 2
+было доставлено до вызова
+.Nm ,
+поток не переводится в приостановленное состояние.
+Вместо этого вызов
+возвращается немедленно без ошибки.
+.Pp
+Если поток ранее вызвал
+.Xr thr_wake 2
+со своим собственным идентификатором потока, что привело к установке
+внутреннего флага ядра для немедленного прерывания прерываемых
+снов с ошибкой
+.Er EINTR
+.Po
+см.
+.Xr thr_wake 2
+.Pc ,
+флаг сбрасывается.
+Как и в случае с
+.Xr thr_wake 2 ,
+вызванным из другого потока, следующий вызов
+.Nm
+не приводит к приостановке.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std thr_suspend
+.Sh ОШИБКИ
+Операция
+.Fn thr_suspend
+возвращает следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Память, на которую указывает аргумент
+.Fa timeout ,
+недопустима.
+.It Bq Er ETIMEDOUT
+Указанный тайм-аут истёк.
+.It Bq Er ETIMEDOUT
+Аргумент
+.Fa timeout
+задаёт нулевой интервал времени.
+.It Bq Er EINTR
+Сон был прерван сигналом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr thr_wake 2 ,
+.Xr pthread_resume_np 3 ,
+.Xr pthread_suspend_np 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn thr_suspend
+не является стандартным.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn thr_suspend
+впервые появился в
+.Fx 5.2 .

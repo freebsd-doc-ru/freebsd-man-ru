@@ -1,0 +1,88 @@
+.\" Copyright (c) 2009 Rick Macklem, University of Guelph
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nfscbd/nfscbd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 2b6b0047012248086e37c9df1f1d86b0fcaa26ef1f2b5ed3d1f357ff3be63f98
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 25, 2009
+.Dt NFSCBD 8
+.Os
+.Sh ИМЯ
+.Nm nfscbd
+.Nd
+.Tn NFSv4
+клиентский демон обратного вызова
+.Sh СИНТАКСИС
+.Nm nfscbd
+.Op Fl p Ar port_number
+.Op Fl P Ar client_principal
+.Sh ОПИСАНИЕ
+.Nm
+работает на клиенте, использующем
+.Tn NFSv4
+для обработки запросов обратного вызова от сервера NFSv4.
+Если
+.Nm
+не запущен, монтирования NFSv4 всё ещё будут работать, но сервер никогда не будет выдавать
+открытые делегирования клиенту.
+.Pp
+Один сервер обратного вызова и один главный сервер
+запускаются всегда.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl p Ar port_number
+Задаёт номер порта, который должен использовать сервер обратного вызова.
+.It Fl P Ar client_principal
+Задаёт основанное на хосте имя принципала, которое будет использоваться в качестве цели для
+обратных вызовов через RPCSEC_GSS. Для KerberosV оно должно находиться в файле keytab
+клиента по умолчанию.
+Этот client_principal должен совпадать с тем, который указан в
+аргументе
+.Cm gssname
+используемом при монтированиях nfsv4.
+Если вы не укажете этот аргумент, обратные вызовы всё ещё будут работать через AUTH_SYS,
+что используют многие существующие серверы даже для монтирований RPCSEC_GSS, по состоянию на 2009 год.
+.El
+.Pp
+Например,
+запускает демон для обработки обратных вызовов на порту № 7654 и использует основанное на хосте
+имя принципала root@<client-host>.<dns-domain> в качестве цели обратного вызова.
+.Pp
+.Nm
+прослушивает запросы на обслуживание на порту,
+определённом NFSV4_CBPORT в /usr/include/fs/nfs/nfs.h, если только
+.Fl p
+не был указан.
+Для получения дополнительной информации о том, что делают обратные вызовы и открытые делегирования, см.
+RFC3530.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr nfsv4 4 ,
+.Xr mount_nfs 8
+.Sh ИСТОРИЯ
+Впервые представлен в экспериментальном клиенте nfs для поддержки NFSv4 в 2009 году.

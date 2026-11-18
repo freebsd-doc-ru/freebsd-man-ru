@@ -1,0 +1,242 @@
+.\" Copyright (c) 1985, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/tcopy/tcopy.1
+.\" FRDP githash 4f766afc1ca0595fcabafe4dbc61974bb81bfbfe
+.\" FRDP hash256 526354577f710a913c2d538ed3cba54a73c5010052b33174ec8f511ac7bd267e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 20, 2006
+.Dt TCOPY 1
+.Os
+.Sh ИМЯ
+.Nm tcopy
+.Nd чтение, запись, копирование и проверка лент
+.Sh СИНТАКСИС
+.Nm
+.Op Fl crvx
+.Op Fl l Ar файл_журнала
+.Op Fl s Ar максблок
+.Oo Ar источник Op Ar назначение
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для чтения, записи и копирования лент.
+.Pp
+Единственное предположение, делаемое о разметке ленты, состоит в том, что в конце находятся два последовательных маркера EOF.
+.Pp
+Аргумент
+.Ar источник
+может быть ленточным устройством и по умолчанию равен
+.Pa /dev/sa0
+либо это могут быть данные в формате SIMH-TAP.
+Если
+.Ar источник
+—
+.Dq Cm -
+читается стандартный ввод.
+.Pp
+Если также указан аргумент
+.Ar назначение ,
+копия
+.Ar источник
+будет сделана на
+.Ar назначение .
+Если
+.Ar назначение
+—
+.Dq Cm -
+запись будет вестись в стандартный вывод.
+.Pp
+Если
+.Ar назначение
+является ленточным устройством, структура файлов и записей будет такой же.
+.Pp
+Если
+.Ar назначение
+— имя файла, оканчивающееся на
+.Dq Cm .000
+содержимое каждого файла на
+.Ar источник
+будет записано в последовательно нумерованные файлы
+.Dq Cm .000 ,
+.Dq Cm .001 ,
+.Dq Cm .002
+и т.д.
+Информация о размерах записей будет потеряна.
+.Pp
+Если указан флаг
+.Fl r ,
+записываются только данные; информация о разметке файлов и записей теряется.
+.Pp
+В противном случае данные и структура файлов и записей
+.Ar источник
+будут записаны в формате SIMH-TAP.
+.Pp
+Утилита
+.Nm
+будет выводить информацию о разметке
+.Ar источник
+в стандартный вывод следующим образом:
+.Bd -literal -offset indent
+file 0: block size 80: 6 records
+file 0: eof after 6 records: 480 bytes
+file 1: block size 3072: records 0 to 262
+file 1: block size 612: record 262
+file 1: eof after 263 records: 805476 bytes
+[…]
+eot
+total length: 972851280 bytes time: 41 s rate: 22934.8 kB/s
+.Ed
+.Pp
+Если
+.Ar назначение
+—
+.Dq Cm -
+или если указан
+.Fl x ,
+вывод идёт в стандартный поток ошибок вместо стандартного вывода; его также можно перенаправить с помощью
+.Fl l Ar файл_журнала ,
+и в этом случае итоговая строка также будет выведена в стандартный поток ошибок.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO ,
+текущие счётчики выводятся в стандартный поток ошибок.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width Ds
+.It Fl c
+Перемотать обе ленты, скопировать
+.Ar источник
+в
+.Ar назначение ,
+снова перемотать и проверить, что обе ленты теперь идентичны.
+.It Fl l Ar файл_журнала
+Выводить все информационные сообщения в
+.Ar файл_журнала .
+.It Fl r
+Записывать в вывод только содержимое всех блоков данных.
+Структура файлов и записей входных данных будет потеряна.
+.It Fl s Ar максблок
+Задать максимальный размер блока,
+.Ar максблок .
+По умолчанию используется
+.Va kern.maxphys .
+.It Fl v
+Проверить, что
+.Ar источник
+и
+.Ar назначение
+идентичны.
+Учтите, что ленты не перематываются перед сравнением.
+.It Fl x
+Выводить все информационные сообщения в стандартный поток ошибок
+вместо стандартного вывода.
+Эта опция применяется автоматически, если
+.Ar назначение
+указано как
+.Dq Cm - .
+.El
+.Sh СТАТУС ВЫХОДА
+К сожалению, значения могут быть самыми разными, но ноль всегда означает успех.
+.Sh ПРИМЕРЫ
+Проверить, что лента в /dev/sa0 читается, и посмотреть разметку её содержимого:
+.Bd -literal -offset indent
+tcopy
+.Ed
+.Pp
+Скопировать ленту, используя два ленточных устройства:
+.Bd -literal -offset indent
+tcopy  /dev/sa0 /dev/sa1
+.Ed
+.Pp
+Скопировать ленту, используя только одно ленточное устройство, и проверить результат:
+.Bd -literal -offset indent
+tcopy /dev/sa0 /tmp/temp.tapfile
+# сменить ленту
+tcopy -c /tmp/temp.tapfile /dev/sa0
+.Ed
+.Pp
+Создать криптографический хеш как содержимого, так и разметки ленты в
+/dev/sa1:
+.Pp
+.Bd -literal -offset indent
+tcopy /dev/sa1 - | sha256
+.Ed
+.Pp
+Скопировать ленту на ленточное устройство на другой машине:
+.Bd -literal -offset indent
+tcopy /dev/sa0 - | ssh otherhost tcopy - /dev/sa0
+.Ed
+.Pp
+Извлечь файлы с ленты в отдельные файлы:
+.Bd -literal -offset indent
+tcopy /dev/sa0 /tmp/_.tape.000
+.Ed
+.Pp
+Игнорировать всю структуру на ленте и передать все данные в
+.Xr tar 1 :
+.Bd -literal -offset indent
+tcopy -l /dev/null -r /dev/sa0 - | tar tvf -
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr mt 1 ,
+.Xr sa 4 ,
+.Xr mtio 4
+.Sh СТАНДАРТЫ
+Формат SIMH-TAP документирован в репозиториях open-simh на github:
+.Pa https://github.com/open-simh/simh/blob/master/doc/simh_magtape.doc
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Bl -item
+.It
+При каждом чтении с размером блока, отличным от того, что на ленте, это сильно замедляет
+.Nm .
+Это можно отключить командой
+.Xr mt 1 :
+.Bd -literal -offset indent
+mt param sili -s 1
+.Ed
+.It
+Конец данных (EOD) определяется двумя последовательными маркерами EOF
+без данных между ними.
+Раньше существовали старые системы, которые обычно записывали три EOF между файлами на ленте.
+В этом случае утилита
+.Nm
+ошибочно прекратит копирование раньше времени.
+.It
+При использовании
+.Fl c
+ленточные устройства перематываются не одновременно, а одно за другим.
+.El

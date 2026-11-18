@@ -1,0 +1,173 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-remove.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 0dbbcabfb49ed13bf7b78516b15ffb93ff374337f8f7f948787dd0334374b703
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 19, 2024
+.Dt ZPOOL-REMOVE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-remove
+.Nd удаление устройств из пула хранения ZFS
+.
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm remove
+.Op Fl npw
+.Ar пул Ar устройство Ns …
+.Nm zpool
+.Cm remove
+.Fl s
+.Ar пул
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zpool
+.Cm remove
+.Op Fl npw
+.Ar пул Ar устройство Ns …
+.Xc
+Удаляет указанное устройство из пула.
+Эта команда поддерживает удаление горячего резерва, кэша, журнала, а также как зеркальных, так и нерезервированных первичных vdev верхнего уровня, включая dedup и специальные vdev.
+.Pp
+Vdev верхнего уровня можно удалить только если основное хранилище пула не содержит vdev верхнего уровня raidz или draid, все vdev верхнего уровня имеют одинаковый размер ashift, и загружены ключи для всех зашифрованных наборов данных.
+.Pp
+Удаление vdev верхнего уровня уменьшает общий объём пространства в пуле хранения.
+Указанное устройство будет эвакуировано путём копирования всего выделенного пространства с него на другие устройства в пуле.
+В этом случае команда
+.Nm zpool Cm remove
+инициирует удаление и возвращает управление, пока эвакуация продолжается в фоновом режиме.
+За ходом удаления можно следить с помощью
+.Nm zpool Cm status .
+Если во время процесса удаления возникает ошибка ввода-вывода, он будет отменён.
+Флаг функции
+.Sy device_removal
+должен быть включён, чтобы удалить vdev верхнего уровня, см.
+.Xr zpool-features 7 .
+.Pp
+Зеркальное устройство верхнего уровня (журнала или данных) можно удалить, указав зеркало верхнего уровня для него.
+Устройства, не являющиеся журнальными, или устройства данных, входящие в зеркальную конфигурацию, можно удалить с помощью
+команды
+.Nm zpool Cm detach .
+.Bl -tag -width Ds
+.It Fl n
+Не выполнять удаление на самом деле
+.Pq Qq Без операции .
+Вместо этого вывести оценку объёма памяти, которая будет использоваться таблицей отображения после завершения удаления.
+Это значение ненулевое только для vdev верхнего уровня.
+.El
+.Bl -tag -width Ds
+.It Fl p
+Используется вместе с флагом
+.Fl n
+; выводит числа как значения, пригодные для разбора (точные).
+.It Fl w
+Ожидает завершения удаления перед возвратом.
+.El
+.It Xo
+.Nm zpool
+.Cm remove
+.Fl s
+.Ar пул
+.Xc
+Останавливает и отменяет выполняемое удаление vdev верхнего уровня.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Удаление зеркального устройства верхнего уровня (журнала или данных)
+Следующие команды удаляют зеркальное устройство журнала
+.Sy mirror-2
+и зеркальное устройство данных верхнего уровня
+.Sy mirror-1 .
+.Pp
+При такой конфигурации:
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+ scrub: none requested
+config:
+
+         NAME        STATE     READ WRITE CKSUM
+         tank        ONLINE       0     0     0
+           mirror-0  ONLINE       0     0     0
+             sda     ONLINE       0     0     0
+             sdb     ONLINE       0     0     0
+           mirror-1  ONLINE       0     0     0
+             sdc     ONLINE       0     0     0
+             sdd     ONLINE       0     0     0
+         logs
+           mirror-2  ONLINE       0     0     0
+             sde     ONLINE       0     0     0
+             sdf     ONLINE       0     0     0
+.Ed
+.Pp
+Команда для удаления зеркального журнала
+.Ar mirror-2 No :
+.Dl # Nm zpool Cm remove Ar tank mirror-2
+.Pp
+На этом этапе журнальное устройство больше не существует
+(обе стороны зеркала были удалены):
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        tank        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sda     ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+          mirror-1  ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+            sdd     ONLINE       0     0     0
+.Ed
+.Pp
+Команда для удаления зеркальных данных
+.Ar mirror-1 No :
+.Dl # Nm zpool Cm remove Ar tank mirror-1
+.Pp
+После того как
+.Ar mirror-1 No был эвакуирован, пул остаётся избыточным, но
+общий объём пространства уменьшается:
+.Bd -literal -compact -offset Ds
+  pool: tank
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        tank        ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sda     ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-add 8 ,
+.Xr zpool-detach 8 ,
+.Xr zpool-labelclear 8 ,
+.Xr zpool-offline 8 ,
+.Xr zpool-replace 8 ,
+.Xr zpool-split 8

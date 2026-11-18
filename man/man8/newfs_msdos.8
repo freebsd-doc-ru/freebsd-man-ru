@@ -1,0 +1,264 @@
+.\" Copyright (c) 1998 Robert Nordier
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/newfs_msdos/newfs_msdos.8
+.\" FRDP githash 5c13952f167dc80aae3cfe879ca33f76a3da610e
+.\" FRDP hash256 21b6afb0df4f5af2f7a699083a7de22f1d14e4dee5a358bf4e713e4b095e83e3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 2024
+.Dt NEWFS_MSDOS 8
+.Os
+.Sh ИМЯ
+.Nm newfs_msdos
+.Nd создать новую файловую систему MS-DOS (FAT)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl N
+.Op Fl @ Ar смещение
+.Op Fl A
+.Op Fl B Ar загрузка
+.Op Fl C Ar размер-создания
+.Op Fl F Ar тип-FAT
+.Op Fl I Ar VolumeID
+.Op Fl L Ar метка
+.Op Fl O Ar OEM
+.Op Fl S Ar размер-сектора
+.Op Fl T Ar отметка-времени
+.Op Fl a Ar размер-FAT
+.Op Fl b Ar размер-блока
+.Op Fl c Ar размер-кластера
+.Op Fl e Ar DirEnts
+.Op Fl f Ar формат
+.Op Fl h Ar головки
+.Op Fl i Ar информация
+.Op Fl k Ar резервная
+.Op Fl m Ar носитель
+.Op Fl n Ar FATs
+.Op Fl o Ar скрытые
+.Op Fl r Ar резервные
+.Op Fl s Ar общий
+.Op Fl u Ar размер-дорожки
+.Ar special
+.Op Ar disktype
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создает файловую систему FAT12, FAT16 или FAT32 на устройстве или файле с именем
+.Ar special ,
+используя
+.Xr disktab 5
+запись
+.Ar disktype
+для определения геометрии, если это необходимо.
+.Pp
+Если
+.Ar special
+не содержит
+.Ar /
+и
+.Fl C
+не используется, предполагается, что это имя устройства, и
+.Ar /dev/
+добавляется к имени для формирования фактического имени устройства.
+Для работы с файлом в текущем каталоге используйте
+.Ar ./filename
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl N
+Не создавать файловую систему: только вывести параметры.
+.It Fl @ Ar смещение
+Создать файловую систему по указанному смещению в байтах на устройстве или в файле.
+Суффикс s, k, m, g (в нижнем или верхнем регистре),
+добавленный к смещению, указывает, что
+число выражено в секторах, килобайтах, мегабайтах или гигабайтах соответственно.
+.It Fl A
+Попытаться выровнять область данных по кластерам, полезно для флеш-накопителей.
+Этот параметр включен по умолчанию, если только не указано число резервных секторов
+с помощью параметра
+.Fl r .
+.It Fl B Ar загрузка
+Получить загрузчик из файла.
+.It Fl C Ar размер-создания
+Создать файл образа указанного размера.
+Символ суффикса, добавленный к размеру, интерпретируется так же, как для
+параметра
+.Fl @ .
+Файл создается путем усечения любого существующего файла с тем же именем и
+изменения его размера до запрошенного.
+Если файловая система поддерживает разреженные файлы, занимаемое на диске пространство может быть
+меньше указанного размера.
+.It Fl F Ar тип-FAT
+Тип FAT (один из 12, 16 или 32).
+.It Fl I Ar VolumeID
+Идентификатор тома, 32-битное число в десятичном или шестнадцатеричном (0x...) формате.
+.It Fl L Ar метка
+Метка тома (до 11 символов).
+Метка должна состоять
+только из символов, допустимых в обычных именах файлов DOS (8+3).
+.It Fl O Ar OEM
+Строка OEM (до 8 символов).
+По умолчанию
+.It Fl S Ar размер-сектора
+Количество байт на сектор.
+Допустимые значения — степени 2
+в диапазоне от 512 до 32768 включительно.
+.It Fl T Ar отметка-времени
+Создать файловую систему, как если бы текущее время было
+.Ar отметка-времени .
+Идентификатор тома файловой системы по умолчанию выводится из времени.
+.Ar отметка-времени
+может быть именем пути (где отметка времени берется из
+этого файла) или целочисленным значением, интерпретируемым
+как количество секунд с начала эпохи.
+.It Fl a Ar размер-FAT
+Количество секторов на FAT.
+.It Fl b Ar размер-блока
+Размер блока файловой системы (байт на кластер).
+Это должно соответствовать
+допустимому количеству секторов на кластер (см. ниже).
+.It Fl c Ar размер-кластера
+Секторов на кластер, также называемый размером выделения.
+Допустимые значения — степени 2 в диапазоне
+от 1 до 128.
+Если размер блока или кластера не указан, код
+использует кластер от 512 байт до 32K в зависимости от
+размера файловой системы.
+.It Fl e Ar DirEnts
+Количество записей корневого каталога (только FAT12 и FAT16).
+.It Fl f Ar формат
+Указать стандартный формат (гибкого диска).
+Стандартные форматы
+(емкости в килобайтах): 160, 180, 320, 360, 640, 720, 1200,
+1232, 1440, 2880.
+.It Fl h Ar головки
+Количество головок дисковода.
+.It Fl i Ar информация
+Расположение информационного сектора файловой системы (только FAT32).
+Значение 0xffff означает отсутствие информационного сектора.
+.It Fl k Ar резервная
+Расположение резервного загрузочного сектора (только FAT32).
+Значение
+0xffff означает отсутствие резервного сектора.
+.It Fl m Ar носитель
+Дескриптор носителя (допустимый диапазон от 0xf0 до 0xff).
+.It Fl n Ar FATs
+Количество FAT.
+Допустимые значения от 1 до 16 включительно.
+По умолчанию
+2.
+.It Fl o Ar скрытые
+Количество скрытых секторов.
+.It Fl r Ar резервные
+Количество резервных секторов.
+Если параметр
+.Fl r
+не используется, количество резервных секторов устанавливается таким образом, чтобы
+выровнять начало области данных по кратному размеру кластера.
+.It Fl s Ar общий
+Размер файловой системы.
+.It Fl u Ar размер-дорожки
+Количество секторов на дорожку.
+.El
+.Sh ПРИМЕЧАНИЯ
+Если некоторые параметры (например, размер, количество секторов и т.д.) не указаны
+через параметры или disktype, программа пытается сгенерировать их автоматически.
+В частности, размер определяется как размер устройства или файла минус
+смещение, указанное с помощью параметра
+.Fl @ .
+Когда геометрия недоступна, предполагается 63 сектора, 255 головок.
+Затем размер округляется до кратного размера дорожки, чтобы избежать
+жалоб со стороны некоторого кода файловой системы.
+.Pp
+файловая система.
+Для справки эта структура представлена
+ниже.
+.Bd -literal
+struct bsbpb {
+    uint16_t	bpbBytesPerSec;		/* [-S] байт на сектор */
+    uint8_t	bpbSecPerClust;		/* [-c] секторов на кластер */
+    uint16_t	bpbResSectors;		/* [-r] резервных секторов */
+    uint8_t	bpbFATs;		/* [-n] количество FAT */
+    uint16_t	bpbRootDirEnts;		/* [-e] записей корневого каталога */
+    uint16_t	bpbSectors;		/* [-s] всего секторов */
+    uint8_t	bpbMedia;		/* [-m] дескриптор носителя */
+    uint16_t	bpbFATsecs;		/* [-a] секторов на FAT */
+    uint16_t	bpbSecPerTrack;		/* [-u] секторов на дорожку */
+    uint16_t	bpbHeads;		/* [-h] головок дисковода */
+    uint32_t	bpbHiddenSecs;		/* [-o] скрытых секторов */
+    uint32_t	bpbHugeSectors;		/* [-s] больших всего секторов */
+};
+/* расширения FAT32 */
+struct bsxbpb {
+    uint32_t	bpbBigFATsecs;		/* [-a] больших секторов на FAT */
+    uint16_t	bpbExtFlags;		/* управляющие флаги */
+    uint16_t	bpbFSVers;		/* версия файловой системы */
+    uint32_t	bpbRootClust;		/* начальный кластер корневого каталога */
+    uint16_t	bpbFSInfo;		/* [-i] информационный сектор файловой системы */
+    uint16_t	bpbBackup;		/* [-k] резервный загрузочный сектор */
+};
+.Ed
+.Sh ОГРАНИЧЕНИЕ
+Максимальный размер файла — 4GB, даже если сама файловая система больше.
+.Sh СТАТУС ВЫХОДА
+Статус выхода — 0 при успехе и 1 при ошибке.
+.Sh ПРИМЕРЫ
+Создать файловую систему, используя параметры по умолчанию, на
+.Pa /dev/ada0s1 :
+.Bd -literal -offset indent
+newfs_msdos /dev/ada0s1
+.Ed
+.Pp
+Создать файловую систему FAT32 с размером выделения 32K на
+.Pa /dev/mmcsd0s1 :
+.Bd -literal -offset indent
+newfs_msdos -F 32 -A -c 64 /dev/mmcsd0s1
+.Ed
+.Pp
+Создать стандартную файловую систему 1.44M с меткой тома
+.Ar foo ,
+на
+.Pa /dev/fd0 :
+.Bd -literal -offset indent
+newfs_msdos -f 1440 -L foo fd0
+.Ed
+.Pp
+Создать файл образа 30MB с разделом FAT, начинающимся
+через 63 сектора внутри файла образа:
+.Bd -literal -offset indent
+newfs_msdos -C 30M -@63s ./somefile
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr msdosfs 4 ,
+.Xr gpart 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An Robert Nordier Aq Mt rnordier@FreeBSD.org

@@ -1,0 +1,184 @@
+.\" Copyright (c) 1983, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/connect.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 6afa397e77f07253c4966edb8f8d65ae574efdcbbb5de67d97ab90c79630fa13
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 18, 2016
+.Dt CONNECT 2
+.Os
+.Sh ИМЯ
+.Nm connect
+.Nd установить соединение на сокете
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/socket.h
+.Ft int
+.Fn connect "int s" "const struct sockaddr *name" "socklen_t namelen"
+.Sh ОПИСАНИЕ
+Аргумент
+.Fa s
+является сокетом.
+Если он имеет тип
+.Dv SOCK_DGRAM ,
+этот вызов указывает партнёра, с которым должен быть связан сокет;
+этот адрес является адресом, на который должны отправляться датаграммы,
+и единственным адресом, с которого должны приниматься датаграммы.
+Если сокет имеет тип
+.Dv SOCK_STREAM ,
+этот вызов пытается установить соединение с
+другим сокетом.
+Другой сокет задаётся аргументом
+.Fa name ,
+который является адресом в коммуникационном пространстве сокета.
+.Fa namelen
+указывает объём памяти, на который указывает
+.Fa name ,
+в байтах; член
+.Fa sa_len
+структуры
+.Fa name
+игнорируется.
+Каждое коммуникационное пространство интерпретирует аргумент
+.Fa name
+по-своему.
+Как правило, потоковые сокеты могут успешно вызывать
+.Fn connect
+только один раз; сокеты датаграмм могут использовать
+.Fn connect
+несколько раз для изменения своей ассоциации.
+Сокеты датаграмм могут разорвать ассоциацию,
+подключившись к недопустимому адресу, например к нулевому адресу.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std connect
+.Sh ОШИБКИ
+Системный вызов
+.Fn connect
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa s
+не является допустимым дескриптором.
+.It Bq Er EINVAL
+Аргумент
+.Fa namelen
+не является допустимой длиной для семейства адресов.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+является дескриптором файла, а не сокета.
+.It Bq Er EADDRNOTAVAIL
+Указанный адрес недоступен на этой машине.
+.It Bq Er EAFNOSUPPORT
+Адреса в указанном семействе адресов не могут использоваться с этим сокетом.
+.It Bq Er EISCONN
+Сокет уже подключён.
+.It Bq Er ETIMEDOUT
+Время установления соединения истекло без установления соединения.
+.It Bq Er ECONNREFUSED
+Попытка подключения была принудительно отклонена.
+.It Bq Er ECONNRESET
+Соединение было сброшено удалённым хостом.
+.It Bq Er ENETUNREACH
+Сеть недостижима с этого хоста.
+.It Bq Er EHOSTUNREACH
+Удалённый хост недостижим с этого хоста.
+.It Bq Er EADDRINUSE
+Адрес уже используется.
+.It Bq Er EFAULT
+Аргумент
+.Fa name
+указывает на область вне
+адресного пространства процесса.
+.It Bq Er EINPROGRESS
+Сокет является неблокирующим,
+и соединение не может
+быть завершено немедленно.
+Можно использовать
+.Xr select 2
+для ожидания завершения, выбрав сокет для записи.
+.It Bq Er EINTR
+Попытка подключения была прервана доставкой сигнала.
+Соединение будет установлено в фоновом режиме,
+как в случае
+.Er EINPROGRESS .
+.It Bq Er EALREADY
+Предыдущая попытка подключения ещё не завершена.
+.It Bq Er EACCES
+Предпринята попытка подключения к широковещательному адресу (полученному через
+константу
+.Dv INADDR_BROADCAST
+или возвращаемое значение
+.Dv INADDR_NONE )
+через сокет, который не обеспечивает функциональность широковещания.
+.It Bq Er EAGAIN
+Был запрошен автоматически назначенный номер порта, но автоматически
+назначенные порты недоступны.
+Увеличение диапазона портов, заданного переменными MIB
+.Xr sysctl 3
+.Va net.inet.ip.portrange.first
+и
+.Va net.inet.ip.portrange.last
+может смягчить проблему.
+.El
+.Pp
+Следующие ошибки специфичны для подключения имён в домене UNIX.
+Эти ошибки могут не применяться в будущих версиях домена UNIX IPC.
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или всё имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Указанный сокет не существует.
+.It Bq Er EACCES
+Разрешение на поиск для компонента префикса пути запрещено.
+.It Bq Er EACCES
+Доступ на запись к указанному сокету запрещён.
+.It Bq Er ELOOP
+При преобразовании имени пути обнаружено слишком много символьных ссылок.
+.It Bq Er EPERM
+Доступ на запись к указанному сокету запрещён.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr accept 2 ,
+.Xr getpeername 2 ,
+.Xr getsockname 2 ,
+.Xr select 2 ,
+.Xr socket 2 ,
+.Xr sysctl 3 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn connect
+появился в
+.Bx 4.2 .

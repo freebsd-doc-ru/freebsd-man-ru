@@ -1,0 +1,573 @@
+Source file has mandoc errors:
+mandoc: /Users/vladlenpopolitov/freebsd-src//lib/libsys/jail.2:311:2: ERROR: skipping unknown macro: .Fm jail_get
+.\" Copyright (c) 1999 Poul-Henning Kamp.
+.\" Copyright (c) 2009 James Gritton.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/jail.2
+.\" FRDP githash 0140dc4a68ac25c70300ed2a418e7ca441638bdb
+.\" FRDP hash256 4023eb7d791dc4a4d93aeab419bccb846ad18b19a308661f4ccbd55f25f2b3d2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd 15 сентября 2025
+.Dt JAIL 2
+.Os
+.Sh ИМЯ
+.Nm jail ,
+.Nm jail_get ,
+.Nm jail_set ,
+.Nm jail_remove ,
+.Nm jail_attach ,
+.Nm jail_remove_jd ,
+.Nm jail_attach_jd
+.Nd создание и управление системными jail
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/jail.h
+.Ft int
+.Fn jail "struct jail *jail"
+.Ft int
+.Fn jail_attach "int jid"
+.Ft int
+.Fn jail_remove "int jid"
+.Ft int
+.Fn jail_attach_jd "int fd"
+.Ft int
+.Fn jail_remove_jd "int fd"
+.In sys/uio.h
+.Ft int
+.Fn jail_get "struct iovec *iov" "u_int niov" "int flags"
+.Ft int
+.Fn jail_set "struct iovec *iov" "u_int niov" "int flags"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn jail
+настраивает jail и запирает в нём текущий процесс.
+.Pp
+Аргумент — указатель на структуру, описывающую «тюрьму»:
+.Bd -literal -offset indent
+struct jail {
+	uint32_t	version;
+	char		*path;
+	char		*hostname;
+	char		*jailname;
+	unsigned int	ip4s;
+	unsigned int	ip6s;
+	struct in_addr	*ip4;
+	struct in6_addr	*ip6;
+};
+.Ed
+.Pp
+.Dq Li version
+определяет версию используемого API.
+.Dv JAIL_API_VERSION
+определена для текущей версии.
+.Pp
+Указатель
+.Dq Li path
+должен быть установлен на каталог, который должен стать корнем
+«тюрьмы».
+.Pp
+Указатель
+.Dq Li hostname
+может быть установлен на имя хоста «тюрьмы».
+Его можно изменить
+изнутри «тюрьмы».
+.Pp
+Указатель
+.Dq Li jailname
+— это необязательное имя, которое можно присвоить jail,
+например, для целей управления.
+.Pp
+.Dq Li ip4s
+и
+.Dq Li ip6s
+задают количество IPv4- и IPv6-адресов, которые будут переданы
+через соответствующие указатели.
+.Pp
+Указатели
+.Dq Li ip4
+и
+.Dq Li ip6
+могут быть установлены на массивы IPv4- и IPv6-адресов, назначаемых
+«тюрьме», или NULL, если таковых нет.
+IPv4-адреса должны быть в сетевом порядке байтов.
+.Pp
+Это эквивалентно (и устарело в пользу) системному вызову
+.Fn jail_set
+(см. ниже) с параметрами
+.Va path ,
+.Va host.hostname ,
+.Va name ,
+.Va ip4.addr
+и
+.Va ip6.addr
+и с флагом
+.Dv JAIL_ATTACH .
+.Pp
+Системный вызов
+.Fn jail_set
+создаёт новый jail или изменяет существующий и, возможно,
+запирает в нём текущий процесс.
+Параметры jail передаются как массив пар имя-значение в массиве
+.Fa iov ,
+содержащем
+.Fa niov
+элементов.
+Имена параметров — строка с завершающим нулём, а значения могут быть строками,
+целыми числами или другими произвольными данными.
+Некоторые параметры логические и не имеют значения (их длина равна нулю),
+а устанавливаются только по имени с префиксом
+.Dq no
+или без него, например
+.Va persist
+или
+.Va nopersist .
+Любым неустановленным параметрам будут присвоены значения по умолчанию, обычно основанные
+на текущем окружении.
+.Pp
+Jail имеют набор основных параметров, а модули могут добавлять свои собственные
+параметры jail.
+Текущий набор доступных параметров и их форматы можно
+получить через запись MIB sysctl
+.Va security.jail.param .
+К заметным параметрам относятся упомянутые в
+описании
+.Fn jail
+выше, а также
+.Va jid
+и
+.Va name ,
+которые идентифицируют создаваемый или изменяемый jail.
+См.
+.Xr jail 8
+для получения дополнительной информации об основных параметрах jail.
+.Pp
+Аргумент
+.Fa flags
+состоит из одного или нескольких следующих флагов:
+.Bl -tag -width indent
+.It Dv JAIL_CREATE
+Создать новый jail.
+Если параметр
+.Va jid
+или
+.Va name
+существует, он не должен ссылаться на существующий jail.
+.It Dv JAIL_UPDATE
+Изменить существующий jail.
+Один из параметров
+.Va jid
+или
+.Va name
+должен существовать и должен ссылаться на существующий jail.
+Если установлены оба флага
+.Dv JAIL_CREATE
+и
+.Dv JAIL_UPDATE
+, jail будет создан, если его ещё нет, и изменён, если он
+существует.
+.It Dv JAIL_ATTACH
+В дополнение к созданию или изменению jail прикрепить текущий процесс к
+нему, как при системном вызове
+.Fn jail_attach .
+.It Dv JAIL_DYING
+Устарел в
+.Fn jail_set
+и не имеет эффекта.
+.It Dv JAIL_USE_DESC
+Идентифицировать jail по дескриптору в параметре
+.Va desc .
+.It Dv JAIL_AT_DESC
+Работать в контексте jail, описанного параметром
+.Va desc ,
+вместо текущего jail.
+Может быть указан только один из флагов
+.Dv JAIL_USE_DESC
+или
+.Dv JAIL_AT_DESC .
+.It Dv JAIL_GET_DESC
+Вернуть новый дескриптор jail для jail в параметре
+.Va desc .
+.It Dv JAIL_OWN_DESC
+Вернуть «владеющий» дескриптор jail в параметре
+.Va desc .
+.El
+.Pp
+Системный вызов
+.Fn jail_get
+извлекает параметры jail, используя тот же список имя-значение, что и
+.Fn jail_set
+в аргументах
+.Fa iov
+и
+.Fa niov .
+Читаемый jail можно указать с помощью
+.Va jid
+или
+.Va name
+, включив эти параметры в список.
+Если они включены, но не предназначены быть ключом поиска, их
+следует очистить (ноль и пустая строка соответственно).
+.Pp
+Специальный параметр
+.Va lastjid
+может использоваться для получения списка всех jail.
+Он извлечёт jail с jid выше и ближайшим к переданному значению.
+Первый jail (обычно, но не всегда jid 1) можно найти, передав
+.Va lastjid
+равным нулю.
+.Pp
+Аргумент
+.Fa flags
+состоит из одного или нескольких следующих флагов:
+.Bl -tag -width indent
+.It Dv JAIL_DYING
+Разрешить получение jail, который находится в процессе удаления.
+.It Dv JAIL_USE_DESC , Dv JAIL_AT_DESC , Dv JAIL_GET_DESC , Dv JAIL_OWN_DESC
+Имеют то же значение, что и в
+.Fn jail_set .
+.El
+.Pp
+Системный вызов
+.Fn jail_attach
+прикрепляет текущий процесс к существующему jail,
+идентифицированному по
+.Fa jid .
+Он изменяет корневой и текущий каталоги процесса на каталог
+.Va path
+jail.
+.Pp
+Системный вызов
+.Fn jail_remove
+удаляет jail, идентифицированный по
+.Fa jid .
+Он завершит все процессы, принадлежащие jail, и удалит всех потомков
+этого jail.
+.Pp
+Системные вызовы
+.Fn jail_attach_fd
+и
+.Fn jail_remove_fd
+работают так же, как
+.Fn jail_attach
+и
+.Fn jail_remove ,
+за исключением того, что они работают с jail, идентифицированным дескриптором jail
+.Fa fd .
+.Ss Дескрипторы Jail
+Помимо идентификатора jail,
+jail можно адресовать с помощью дескриптора jail —
+разновидности файлового дескриптора, привязанного к конкретному jail.
+Дескрипторы jail создаются вызовом
+.Fn jail_set
+или
+.Fn jail_get
+со специальным параметром
+.Va desc
+и установленным флагом
+.Dv JAIL_GET_DESC
+или
+.Dv JAIL_OWN_DESC .
+Разница между двумя флагами в том, что дескрипторы, созданные с
+.Dv JAIL_OWN_DESC
+.Po
+называемые «владеющими»
+дескрипторами
+.Pc ,
+автоматически удалят jail при закрытии дескриптора.
+.Pp
+Дескрипторы jail можно передать обратно в
+.Fn jail_set
+или
+.Fm jail_get
+с параметром
+.Va desc
+и установленным флагом
+.Dv JAIL_USE_DESC
+или
+.Dv JAIL_AT_DESC .
+С
+.Dv JAIL_USE_DESC
+дескриптор идентифицирует jail, с которым нужно работать,
+вместо параметра
+.Va jid
+или
+.Va name .
+С
+.Dv JAIL_AT_DESC
+дескриптор используется вместо текущего jail,
+что позволяет получать доступ к jail, являющимся дочерними для
+jail дескриптора, или создавать их.
+.Pp
+Системные вызовы
+.Fn jail_attach_jd
+и
+.Fn jail_remove_jd
+работают так же, как
+.Fn jail_attach
+и
+.Fn jail_remove ,
+за исключением того, что они работают с jail, на который ссылается переданный дескриптор.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успехе
+.Fn jail ,
+.Fn jail_set
+и
+.Fn jail_get
+возвращают неотрицательное целое число, называемое идентификатором jail (JID).
+При неудаче они возвращают \-1 и устанавливают
+.Va errno
+для указания ошибки.
+.Pp
+.Rv -std jail_attach jail_remove jail_attach_jd jail_remove_jd
+.Sh ОШИБКИ
+Системный вызов
+.Fn jail
+завершится неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Этому процессу не разрешено создавать jail, либо потому что он не
+является суперпользователем, либо потому что это превысит предел
+.Va children.max
+jail.
+.It Bq Er EFAULT
+.Fa jail
+указывает на адрес вне выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Номер версии аргумента неверен.
+.It Bq Er EAGAIN
+Не удалось найти свободный JID.
+.El
+.Pp
+Системный вызов
+.Fn jail_set
+завершится неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Этому процессу не разрешено создавать jail, либо потому что он не
+является суперпользователем, либо потому что это превысит предел
+.Va children.max
+jail.
+.It Bq Er EPERM
+Дескриптор jail в параметре
+.Va desc
+был создан пользователем, отличным от суперпользователя,
+и был установлен флаг
+.Dv JAIL_USE_DESC .
+.It Bq Er EPERM
+Параметр jail был установлен в менее строгое значение, чем текущее
+окружение.
+.It Bq Er EFAULT
+.Fa Iov
+или один из содержащихся в нём адресов
+указывает на адрес вне выделенного адресного пространства процесса.
+.It Bq Er ENOENT
+Jail, на который ссылается параметр
+.Va jid
+или
+.Va name
+, не существует, и флаг
+.Dv JAIL_CREATE
+не установлен.
+.It Bq Er ENOENT
+Jail, на который ссылается параметр
+.Va jid
+, недоступен процессу, потому что процесс находится в
+другом jail.
+.It Bq Er ENOENT
+Jail, на который ссылается параметр
+.Va desc
+, был удалён.
+.It Bq Er EEXIST
+Jail, на который ссылается параметр
+.Va jid
+или
+.Va name
+, существует, и флаг
+.Dv JAIL_UPDATE
+не установлен.
+.It Bq Er EINVAL
+Предоставленный параметр имеет неверный размер.
+.It Bq Er EINVAL
+Предоставленный параметр выходит за допустимый диапазон.
+.It Bq Er EINVAL
+Предоставленный строковый параметр не завершается нулём.
+.It Bq Er EINVAL
+Предоставленное имя параметра не соответствует ни одному известному параметру.
+.It Bq Er EINVAL
+Один из флагов
+.Dv JAIL_CREATE
+или
+.Dv JAIL_UPDATE
+не установлен.
+.It Bq Er ENAMETOOLONG
+Предоставленный строковый параметр длиннее допустимого.
+.It Bq Er EAGAIN
+Не осталось идентификаторов jail.
+.It Bq Er EMFILE
+Не удалось создать дескриптор jail для параметра
+.Va desc
+с установленным флагом
+.Dv JAIL_GET_DESC
+или
+.Dv JAIL_OWN_DESC ,
+потому что процесс уже достиг своего предела открытых файловых дескрипторов.
+.It Bq Er ENFILE
+Не удалось создать дескриптор jail для параметра
+.Va desc
+с установленным флагом
+.Dv JAIL_GET_DESC
+или
+.Dv JAIL_OWN_DESC ,
+потому что системная таблица файлов заполнена.
+.El
+.Pp
+Системный вызов
+.Fn jail_get
+завершится неудачно, если:
+.Bl -tag -width Er
+.It Bq Er ENOENT
+Jail, на который ссылается параметр
+.Va jid
+или
+.Va name
+, не существует.
+.It Bq Er ENOENT
+Jail, на который ссылается
+.Va jid
+, недоступен процессу, потому что процесс находится в другом
+jail.
+.It Bq Er ENOENT
+Параметр
+.Va lastjid
+больше наибольшего текущего идентификатора jail.
+.It Bq Er ENOENT
+Jail, на который ссылается параметр
+.Va desc
+, был удалён
+.Pq даже если установлен флаг Dv JAIL_CREATE .
+.It Bq Er EINVAL
+Предоставленный параметр имеет неверный размер.
+.It Bq Er EINVAL
+Предоставленный параметр выходит за допустимый диапазон.
+.It Bq Er EINVAL
+Предоставленный строковый параметр не завершается нулём.
+.It Bq Er EINVAL
+Предоставленное имя параметра не соответствует ни одному известному параметру.
+.It Bq Er EMFILE
+Не удалось создать дескриптор jail для параметра
+.Va desc
+с установленным флагом
+.Dv JAIL_GET_DESC
+или
+.Dv JAIL_OWN_DESC ,
+потому что процесс уже достиг своего предела открытых файловых дескрипторов.
+.It Bq Er ENFILE
+Не удалось создать дескриптор jail для параметра
+.Va desc
+с установленным флагом
+.Dv JAIL_GET_DESC
+или
+.Dv JAIL_OWN_DESC ,
+потому что системная таблица файлов заполнена.
+.El
+.Pp
+Системные вызовы
+.Fn jail_attach
+и
+.Fn jail_remove
+завершатся неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Пользователь, отличный от суперпользователя, попытался прикрепиться к jail или удалить его.
+.It Bq Er EINVAL
+Jail, указанный в
+.Fa jid
+, не существует.
+.El
+.Pp
+Системные вызовы
+.Fn jail_attach_jd
+и
+.Fn jail_remove_jd
+завершатся неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+не является допустимым дескриптором jail.
+.It Bq Er EPERM
+Дескриптор jail был создан пользователем, отличным от суперпользователя.
+.It Bq Er EINVAL
+Jail, указанный в
+.Fa jid
+, был удалён.
+.El
+.Pp
+Кроме того,
+.Fn jail ,
+.Fn jail_set ,
+.Fn jail_attach
+и
+.Fn jail_attach_jd
+внутренне вызывают
+.Xr chroot 2
+, поэтому они могут завершиться неудачно по всем тем же причинам.
+В частности, они возвращают ошибку
+.Bq Er EPERM
+, когда процесс, присоединяемый к jail, имеет открытые каталоги.
+Пожалуйста, обратитесь к странице руководства
+.Xr chroot 2
+для подробностей.
+.Sh СМ. ТАКЖЕ
+.Xr chdir 2 ,
+.Xr chroot 2 ,
+.Xr jail 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn jail
+появился в
+.Fx 4.0 .
+Системный вызов
+.Fn jail_attach
+появился в
+.Fx 5.1 .
+Системные вызовы
+.Fn jail_set ,
+.Fn jail_get
+и
+.Fn jail_remove
+появились в
+.Fx 8.0 .
+.Sh АВТОРЫ
+Функция jail была написана
+.An Poul-Henning Kamp
+для R&D Associates,
+который передал её в
+.Fx .
+.An James Gritton
+добавил расширяемые параметры jail и иерархические jail.

@@ -1,0 +1,24 @@
+.\" FRDP path sys/contrib/zstd/programs/zstdgrep.1
+.\" FRDP githash c0d9a07101a1e72769ee0619a583f63a078fb391
+.\" FRDP hash256 48f849487660645500f3082c9371984b6248772b6e3af2650be59c7f30bc549d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.
+\fBzstdgrep\fR \- выводит строки, соответствующие шаблону, в файлах, сжатых zstandard
+.
+\fBzstdgrep\fR [\fIфлаги\-grep\fR] [\-\-] \fIшаблон\fR [\fIфайлы\fR \.\.\.]
+.
+\fBzstdgrep\fR запускает \fBgrep\fR(1) для файлов или \fBstdin\fR, если аргумент файлов не задан, после их распаковки с помощью \fBzstdcat\fR(1)\.
+.
+.P
+Аргументы \fIфлаги\-grep\fR и \fIшаблон\fR передаются в \fBgrep\fR(1)\. Если в \fIфлаги\-grep\fR обнаружен флаг \fB\-e\fR, \fBzstdgrep\fR не будет искать аргумент \fIшаблон\fR\.
+.
+.P
+Обратите внимание, что современные альтернативы \fBgrep\fR, такие как \fBripgrep\fR (\fBrg\fR(1)), поддерживают файлы, сжатые \fBzstd\fR, без дополнительной настройки и могут оказаться лучшими альтернативами, чем \fBzstdgrep\fR, особенно при поиске сложных шаблонов, которые не поддерживаются\. Однако учтите, что такие альтернативы также могут иметь некоторые незначительные различия в командной строке\.
+.
+В случае отсутствия аргументов или отсутствия шаблона будет возвращено 1, иначе 0\.
+.
+\fBzstd\fR(1)
+.
+Thomas Klausner \fIwiz@NetBSD\.org\fR

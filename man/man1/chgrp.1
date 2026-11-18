@@ -1,0 +1,161 @@
+.\" Copyright (c) 1983, 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/chown/chgrp.1
+.\" FRDP githash e09104dfb76a36b65a64bd315bd1520941c4beed
+.\" FRDP hash256 7a9fbbe727b5c7f0abb6cd24243c59df3f60d9d6e905bf71f3547073b39a6be3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt CHGRP 1
+.Os
+.Sh ИМЯ
+.Nm chgrp
+.Nd изменение группы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fhvx
+.Oo
+.Fl R
+.Op Fl H | Fl L | Fl P
+.Oc
+.Ar группа
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+устанавливает идентификатор группы файла, указанного каждым
+.Ar файл
+операндом, в
+.Ar группа
+ID, указанный операндом группы.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl H
+Если указана опция
+.Fl R ,
+символические ссылки в командной строке разыменовываются
+и, следовательно, не изменяются командой.
+(Символические ссылки, встречаемые при обходе, не разыменовываются.)
+.It Fl L
+Если указана опция
+.Fl R ,
+выполняется переход по всем символическим ссылкам.
+.It Fl P
+Если указана опция
+.Fl R ,
+переход по символическим ссылкам не выполняется.
+Это поведение по умолчанию.
+.It Fl R
+Изменяет идентификатор группы иерархий файлов, берущих начало в файлах,
+а не только самих файлов.
+Остерегайтесь непреднамеренного совпадения
+жёсткой ссылки на родительский каталог при использовании подстановочных знаков, подобных
+.It Fl f
+Принудительная опция игнорирует ошибки, кроме ошибок использования, и не
+запрашивает о странных режимах (если у пользователя нет соответствующих прав).
+.It Fl h
+Если файл является символической ссылкой, изменяется идентификатор группы самой ссылки,
+а не файла, на который она указывает.
+.It Fl v
+Заставляет
+.Nm
+выводить подробности, показывая файлы по мере изменения группы.
+Если флаг
+.Fl v
+указан более одного раза,
+.Nm
+выведет имя файла, за которым следуют старый и новый числовой идентификатор группы.
+.It Fl x
+Точки монтирования файловых систем не обходятся.
+.El
+.Pp
+Опции
+.Fl H ,
+.Fl L
+и
+.Fl P
+игнорируются, если не указана опция
+.Fl R .
+Кроме того, эти опции переопределяют друг друга, и
+действия команды определяются последней указанной из них.
+.Pp
+Операнд
+.Ar группа
+может быть либо именем группы из базы данных групп,
+либо числовым идентификатором группы.
+Если имя группы также является числовым идентификатором группы, операнд используется как
+имя группы.
+.Pp
+Вызывающий
+.Nm
+пользователь должен принадлежать указанной группе и быть владельцем файла,
+или быть суперпользователем.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент
+.Cm status
+для
+.Xr stty 1 ) ,
+то текущее имя файла, а также старое и новое имена группы
+отображаются.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/group -compact
+.It Pa /etc/group
+файл идентификаторов групп
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СОВМЕСТИМОСТЬ
+В предыдущих версиях этой системы символические ссылки не имели групп.
+.Pp
+Опции
+.Fl v
+и
+.Fl x
+не являются стандартными, и их использование в сценариях не рекомендуется.
+.Sh СМ. ТАКЖЕ
+.Xr chown 2 ,
+.Xr fts 3 ,
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr groups 7 ,
+.Xr symlink 7 ,
+.Xr chown 8
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+совместима с
+.St -p1003.2
+.

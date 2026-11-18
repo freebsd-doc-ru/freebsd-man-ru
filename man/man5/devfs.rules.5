@@ -1,0 +1,131 @@
+.\" Copyright (c) 2004 Roland Smith <rsmith@xs4all.nl>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/devfs.rules.5
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 8ceacc56cfd609dc91041ebc6782e481646d1d27e826ae82ae3625f4390b0a79
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 1, 2020
+.Dt DEVFS.RULES 5
+.Os
+.Sh ИМЯ
+.Nm devfs.rules
+.Nd информация о конфигурации devfs
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+предоставляет простой способ создавать и применять правила
+.Xr devfs 8 ,
+даже для устройств, недоступных при загрузке.
+.Pp
+Для устройств, доступных при загрузке, см.
+.Xr devfs.conf 5 .
+.Pp
+Формат этого файла прост.
+Пустые строки и строки, начинающиеся с символа решётки
+.Pq Ql #
+игнорируются.
+Строка между квадратными скобками обозначает начало набора правил.
+В скобках должны быть имя набора правил и его номер,
+разделённые знаком равенства.
+.Pp
+Другие строки — это спецификации правил, как описано в
+.Xr devfs 8 ,
+в разделе
+Эти строки снабжаются префиксом
+.Dq Li rule
+и передаются в
+.Xr devfs 8
+сценариями запуска системы.
+Важно заключать в кавычки элементы пути, содержащие
+.Xr glob 3
+специальные символы.
+.Pp
+Наборы правил должны иметь уникальные имя и номер.
+.Pp
+Все правила, следующие за объявлением набора правил, принадлежат этому набору, пока не
+начат новый набор правил.
+.Pp
+Один пользовательский набор правил должен быть включён в
+.Pa /etc/rc.conf ,
+иначе он не будет применён к
+.Pa /dev
+файловой системе процессом запуска системы по умолчанию.
+Например, чтобы включить набор правил
+.Dq Li localrules
+для файловой системы
+.Pa /dev ,
+вам нужно использовать примерно следующее в вашем файле
+.Pa rc.conf :
+.Bd -literal -offset indent
+.Ed
+.Pp
+Правила загружаются при загрузке через службу devfs.
+Чтобы загрузить изменённые правила после загрузки системы, выполните команду:
+.Bd -literal -offset indent
+service devfs restart
+.Ed
+.Sh ФАЙЛЫ
+.Bl -tag -compact -width Pa
+.It Pa /etc/defaults/devfs.rules
+Файл конфигурации
+.Nm
+по умолчанию.
+.It Pa /etc/devfs.rules
+Локальный файл конфигурации
+.Nm .
+Наборы правил здесь переопределяют наборы в
+.Pa /etc/defaults/devfs.rules
+с тем же номером набора правил; в противном случае два файла фактически объединяются.
+.El
+.Sh ПРИМЕРЫ
+Чтобы сделать все разделы устройств
+.Xr da 4
+доступными для чтения и записи их владельцу и группе
+.Dq Li usb ,
+можно использовать следующее правило:
+.Pp
+.Pp
+Первая строка объявляет и запускает новый набор правил с именем
+.Va localrules
+и номером 10.
+.Pp
+Чтобы предоставить приложениям, использующим
+.Xr usbconfig 8
+и
+.Xr libusb 3 ,
+разрешение на все USB-устройства для их владельца и группы
+.Dq Li usb ,
+можно использовать аналогичное правило:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr glob 3 ,
+.Xr devfs 4 ,
+.Xr devfs.conf 5 ,
+.Xr devfs 8 ,
+.Xr service 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Roland Smith Aq Mt rsmith@xs4all.nl .

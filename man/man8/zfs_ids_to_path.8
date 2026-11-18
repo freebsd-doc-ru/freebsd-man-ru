@@ -1,0 +1,47 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2020 by Delphix. All rights reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs_ids_to_path.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 0ad6f3f774049c61a144ecc080466f3e67bc93eef1080e5d5202a3704e887a65
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS_IDS_TO_PATH 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs_ids_to_path
+.Nd преобразовать идентификаторы objset и объекта в имена и пути
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Ar пул
+.Ar идентификатор-objset
+.Ar идентификатор-объекта
+.
+.Sh ОПИСАНИЕ
+Утилита
+.Sy zfs_ids_to_path
+преобразует предоставленные идентификаторы objset и объекта
+в путь к файлу, на который они указывают.
+.Bl -tag -width Ds
+.It Fl v
+Подробный вывод.
+Выводить имя набора данных и путь к файлу внутри набора данных отдельно.
+Это будет работать правильно, даже если набор данных не смонтирован.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zdb 8 ,
+.Xr zfs 8

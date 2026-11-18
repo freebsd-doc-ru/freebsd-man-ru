@@ -1,0 +1,106 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\" All rights reserved.
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $FreeBSD$
+.\"
+.\" FRDP path contrib/openbsm/bin/auditdistd/auditdistd.8
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 802cf89e68f3b7c8d780b01ee8ee6ea12ba985ae5e3c71b0d7b54caa98f9c32d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 5, 2012
+.Dt AUDITDISTD 8
+.Os
+.Sh ИМЯ
+.Nm auditdistd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dFhl
+.Op Fl c Ar конфигурация
+.Op Fl P Ar pid-файл
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+отвечает за распространение файлов журнала аудита по сети TCP/IP
+безопасным и надёжным способом.
+.Pp
+Демон
+.Nm
+можно запустить со следующими аргументами командной строки:
+.Bl -tag -width indent
+.It Fl c Ar конфигурация
+Указывает альтернативное расположение файла конфигурации.
+Расположение по умолчанию:
+.Pa /etc/security/auditdistd.conf .
+Примечание: файл конфигурации может содержать пароли.
+Следует позаботиться о настройке правильных прав доступа к этому файлу
+.Li ( например 0600 ) .
+.It Fl d
+Выводит или записывает в журнал отладочную информацию.
+Эту опцию можно указать несколько раз, чтобы повысить уровень подробности.
+.It Fl F
+Запускает демон
+.Nm
+на переднем плане.
+По умолчанию
+.Nm
+запускается в фоновом режиме.
+.It Fl h
+Выводит сообщение об использовании
+.Nm .
+.It Fl l
+Запускает в режиме, дружественном launchd, то есть не использует
+.Xr daemon 3 .
+.It Fl P Ar pid-файл
+Указывает альтернативное расположение файла, в котором будет храниться
+PID главного процесса.
+Расположение по умолчанию:
+.Pa /var/run/auditdistd.pid .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/security/auditdistd.conf
+Файл конфигурации для
+.Nm .
+.It Pa /var/run/auditdistd.pid
+Расположение по умолчанию для PID-файла
+.Nm .
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе или одному из значений, описанных в
+.Xr sysexits 3 ,
+при ошибке.
+.Sh СМ. ТАКЖЕ
+.Xr sysexits 3 ,
+.Xr audit 4 ,
+.Xr auditdistd.conf 5 ,
+.Xr auditd 8
+.Sh АВТОРЫ
+.Nm
+был разработан
+.An Pawel Jakub Dawidek Aq pawel@dawidek.net
+при спонсорской поддержке FreeBSD Foundation.

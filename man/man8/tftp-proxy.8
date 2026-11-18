@@ -1,0 +1,140 @@
+.\"	$OpenBSD: tftp-proxy.8,v 1.1 2005/12/28 19:07:07 jcs Exp $
+.\"
+.\" Copyright (c) 2005 joshua stein <jcs@openbsd.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/pf/tftp-proxy/tftp-proxy.8
+.\" FRDP githash 67ecd4f3a477a0ca5b76a1694f89755df27a8679
+.\" FRDP hash256 360088481509cf312226e5c52d2f8e0e1e276abf46f1a9032aa23c19fd256b71
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 28, 2005
+.Dt TFTP-PROXY 8
+.Os
+.Sh ИМЯ
+.Nm tftp-proxy
+.Nd Прокси-сервер Internet Trivial File Transfer Protocol
+.Sh СИНТАКСИС
+.Nm tftp-proxy
+.Op Fl v
+.Op Fl w Ar transwait
+.Sh ОПИСАНИЕ
+.Nm
+является прокси-сервером для Internet Trivial File Transfer Protocol, запускаемым
+интернет-сервером
+.Xr inetd 8 .
+Соединения TFTP должны перенаправляться на прокси-сервер с помощью команды
+.Xr pf 4
+.Ar rdr ,
+после чего прокси-сервер подключается к серверу от имени клиента.
+.Pp
+Прокси-сервер устанавливает правило
+.Xr pf 4
+.Ar rdr
+с использованием механизма
+.Ar anchor
+для перезаписи пакетов между клиентом и сервером.
+Как только правило установлено,
+.Nm
+пересылает первоначальный запрос от клиента серверу, чтобы начать
+передачу.
+Через
+.Ar transwait
+секунд предполагается, что NAT-состояние
+.Xr pf 4
+установлено, правило
+.Ar rdr
+удаляется, и программа завершает работу.
+После завершения передачи между клиентом и сервером
+NAT-состояние естественным образом истечёт.
+.Pp
+Если предположить, что запрос команды TFTP идёт от $client к $server,
+прокси-сервер подключился к серверу, используя исходный адрес $proxy,
+и согласован $port,
+.Nm
+добавляет следующее правило в якорь:
+.Bd -literal -offset indent
+rdr proto udp from $server to $proxy port $port -\*(Gt $client
+.Ed
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl v
+Записывать информацию о соединении и запросе в
+.Xr syslogd 8 .
+.It Fl w Ar transwait
+Количество секунд ожидания начала передачи данных до
+удаления правила
+.Xr pf 4
+.Ar rdr .
+По умолчанию 2 секунды.
+.El
+.Sh НАСТРОЙКА
+Чтобы использовать прокси-сервер,
+.Xr pf.conf 5
+требует следующих правил.
+Якоря обязательны.
+Настройте правила в соответствии с вашей конфигурацией.
+.Pp
+В разделе NAT:
+.Bd -literal -offset indent
+nat on $ext_if from $int_if -\*(Gt ($ext_if:0)
+
+no nat on $ext_if to port tftp
+
+rdr on $int_if proto udp from $lan to any port tftp -\*(Gt \e
+    127.0.0.1 port 6969
+.Ed
+.Pp
+В разделе фильтрации необходимо добавить якорь для хранения правил pass:
+.Bd -literal -offset indent
+.Ed
+.Pp
+.Xr inetd 8
+должен быть настроен на запуск прокси-сервера на порту, на который пакеты
+перенаправляются с помощью
+.Xr pf 4 .
+Пример записи в
+.Xr inetd.conf 5
+приведён ниже:
+.Bd -literal -offset indent
+127.0.0.1:6969	dgram	udp	wait	root \e
+	/usr/libexec/tftp-proxy	tftp-proxy
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr tftp 1 ,
+.Xr pf 4 ,
+.Xr pf.conf 5 ,
+.Xr ftp-proxy 8 ,
+.Xr inetd 8 ,
+.Xr syslogd 8 ,
+.Xr tftpd 8
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+.Nm
+выполняет chroot в
+.Pa /var/empty
+и переключается на пользователя
+.Dq proxy
+для сброса привилегий.

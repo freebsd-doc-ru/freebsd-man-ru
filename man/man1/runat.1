@@ -1,0 +1,69 @@
+.\"
+.\" Copyright (c) 2025 Rick Macklem
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path usr.bin/runat/runat.1
+.\" FRDP githash 0660de8172cd5a03affb9e87a1007cac5ba30425
+.\" FRDP hash256 a36ecaad8f621eb4c8eba9dbd757536a762990fa4583cf7a1c9895f13cd524f3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 15, 2025
+.Dt RUNAT 1
+.Os
+.Sh ИМЯ
+.Nm runat
+.Nd выполнить команду оболочки в каталоге именованных атрибутов
+.Sh СИНТАКСИС
+.Nm
+.Op Ar файл
+.Op Ar команда оболочки
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет команду оболочки в каталоге именованных атрибутов для
+аргумента
+.Ar файл .
+Она выполняет системный вызов
+.Xr fchdir 2
+для смены текущего рабочего каталога на
+каталог именованных атрибутов для
+аргумента
+.Ar файл
+и затем выполняет команду оболочки через
+.Xr sh 1 .
+.Pp
+Если каталог именованных атрибутов не существует для
+.Ar файл ,
+будет создан пустой.
+Если приложению нужно определить, существует ли именованный атрибут
+для
+.Ar файл ,
+можно использовать
+.Xr pathconf 2
+с именем
+.Fa _PC_HAS_NAMEDATTR .
+Это не создаст пустой каталог именованных атрибутов,
+если он не существует для
+.Ar файл .
+.Sh ПРИМЕРЫ
+Для
+.Ar файл
+с именем
+.Dq myfile :
+.Bd -literal
+$ runat myfile ls -l			# перечисляет атрибуты для myfile
+$ runat myfile cp /etc/hosts attrhosts	# создаёт attrhosts
+$ runat myfile cat attrhosts		# отображает содержимое attrhosts
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr sh 1 ,
+.Xr fchdir 2 ,
+.Xr pathconf 2 ,
+.Xr open 2 ,
+.Xr named_attribute 7
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 15.0 .

@@ -1,0 +1,105 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2013, 2016 Adrian Chadd <adrian@freebsd.org>
+.\" Copyright (c) 2019 Vladimir Kondratyev <wulf@FreeBSD.org>
+.\" Copyright (c) 2021 Philippe Michaud-Boudreault <pitwuu@gmail.com>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bluetooth/iwmbtfw/iwmbtfw.8
+.\" FRDP githash 84488787f42bc62b428da37793ac45d1411f2b74
+.\" FRDP hash256 cdb3b2f58194d3a4761b1a9bcdf5c3387bf7f9e8f2b59e506d09f28034e586ad
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 2, 2026
+.Dt IWMBTFW 8
+.Os
+.Sh ИМЯ
+.Nm iwmbtfw
+.Nd загрузка прошивки для USB-устройств Bluetooth Intel Wireless AC
+.Sh СИНТАКСИС
+.Nm
+.Op Fl DI
+.Fl d Ar device_name
+.Op Fl f Ar firmware_path
+.Nm
+.Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+загружает указанный файл прошивки в указанное
+.Xr ugen 4
+устройство.
+.Pp
+Эта утилита будет
+.Em только
+работать с USB-устройствами Bluetooth на базе чипов Intel Wireless 7260/8260/9260 и новее, включая беспроводные адаптеры серий AX и BE.
+Идентификация в настоящее время основана на паре USB-идентификаторов производителя и продукта и результате запросов HCI.
+Идентификатор производителя должен быть равен 0x8087
+.Pq Dv USB_VENDOR_INTEL2
+а идентификатор продукта должен соответствовать одному из поддерживаемых устройств.
+.Pp
+Файлы прошивки доступны в порте
+.Pa comms/iwmbt-firmware
+.
+.Pp
+Утилита
+.Nm
+опросит устройство, чтобы определить, какой образ прошивки и конфигурацию платы загружать во время выполнения.
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width Ds
+.It Fl I
+Включить информационную отладку.
+.It Fl D
+Включить подробную отладку.
+.It Fl d Ar device_name
+Указать имя устройства
+.Xr ugen 4
+.
+.It Fl f Ar firmware_path
+Указать каталог, содержащий файлы прошивки для поиска и загрузки.
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl p
+Использовать только пару USB-идентификаторов производителя и продукта для идентификации модели устройства.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr libusb 3 ,
+.Xr ugen 4 ,
+.Xr devd 8
+.Sh АВТОРЫ
+.Nm
+основана на утилите
+.Xr ath3kfw 8
+использованной в качестве шаблона загрузчика прошивки, и на исходном коде драйвера btintel из Linux.
+Она написана
+.An Vladimir Kondratyev Aq Mt wulf@FreeBSD.org .
+.Pp
+Поддержка карты 7260 добавлена
+.An Philippe Michaud-Boudreault Aq Mt pitwuu@gmail.com .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Скорее всего.
+Пожалуйста, сообщите, если обнаружите.

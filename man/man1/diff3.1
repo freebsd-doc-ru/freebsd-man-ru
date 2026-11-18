@@ -1,0 +1,238 @@
+.\" $OpenBSD: diff3.1,v 1.7 2007/05/31 19:20:09 jmc Exp $
+.\"
+.\" Copyright (c) 1990, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/diff3/diff3.1
+.\" FRDP githash fe5341287c6c9bacc18879b25ed72ceb42e1c811
+.\" FRDP hash256 3f8184133ff26c165243cf3db2499d6a73385b7df1d1ebdbeb51ebf7ffeeaa64
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd 1 марта 2026 г.
+.Dt DIFF3 1
+.Os
+.Sh ИМЯ
+.Nm diff3
+.Nd трёхстороннее сравнение файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 3AaEeimTXx
+.Op Fl Fl diff-program Ar программа
+.Op Fl Fl strip-trailing-cr
+.Op Fl L | Fl Fl label Ar метка1
+.Op Fl L | Fl Fl label Ar метка2
+.Op Fl L | Fl Fl label Ar метка3
+.Ar файл1 файл2 файл3
+.Nm
+.Op Fl Fl help
+.Op Fl Fl version
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сравнивает содержимое трёх различных версий файла:
+.Ar файл1 ,
+.Ar файл2
+и
+.Ar файл3 ,
+записывая результат в стандартный вывод.
+Параметры описывают различные способы объединения и
+удаления
+отдельных версий в новый файл.
+.Nm
+используется
+.Xr rcs 1
+для объединения определённых версий или создания
+новых версий.
+.Pp
+Параметры:
+.Bl -tag -width "-E, -X"
+.It Fl 3 , Fl Fl easy-only
+Создаёт выходной сценарий, подходящий для
+.Xr ed 1 ,
+с изменениями,
+относящимися только к
+.Ar файл3 .
+.It Fl A Fl Fl show-all
+Выводит все изменения, заключая конфликты в скобки.
+.It Fl a , Fl Fl text
+Обрабатывать все файлы как ASCII.
+.It Fl E , Fl Fl show-overlap
+.It Fl X
+Аналогично
+.Fl e
+и
+.Fl x
+соответственно, но обрабатывает перекрывающиеся изменения (т.е. изменения, которые
+были бы отмечены с помощью ==== в обычном листинге) иначе.
+Перекрывающиеся строки из обоих файлов будут вставлены сценарием редактирования,
+заключёнными в строки "<<<<<<" и ">>>>>>".
+.It Fl e , Fl Fl ed
+Создаёт вывод в форме, подходящей в качестве входного сценария для
+утилиты
+.Xr ed 1 .
+Сценарий может затем использоваться для объединения различий, общих для всех
+трёх файлов, и различий, относящихся только к
+.Ar файл1
+и
+.Ar файл3 .
+Другими словами,
+параметр
+.Fl e
+игнорирует различия, относящиеся только к
+.Ar файл1
+и
+.Ar файл2 ,
+а также те, что относятся только к
+.Ar файл2
+и
+.Ar файл3 .
+Это полезно для отката изменений, относящихся только к
+.Ar файл2 .
+.It Fl Fl help
+Выводит информацию об использовании и завершает работу.
+.It Fl i
+Добавляет команды 'w' и 'q'
+.Xr ed 1 .
+.It Fl L , Fl Fl label
+Определяет метки, которые выводятся вместо имён файлов
+.Ar файл1 ,
+.Ar файл2
+и
+.Ar файл3 .
+.It Fl m, Fl Fl merge
+Объединяет вывод вместо генерации сценария ed.
+.It Fl T, Fl Fl initial-tab
+В обычном листинге
+использовать табуляцию вместо двух пробелов
+в начале каждой строки.
+В режимах, создающих сценарий
+.Xr ed 1 ,
+этот параметр ничего не меняет.
+.It Fl x, Fl Fl overlap-only
+Создаёт выходной сценарий, подходящий для
+.Xr ed 1 ,
+с изменениями,
+относящимися только ко всем трём версиям.
+.It Fl Fl diff-program Ar программа
+Использовать
+.Ar программа
+вместо
+.Xr diff 1
+по умолчанию
+для сравнения файлов.
+.It Fl Fl strip-trailing-cr
+Удалять завершающий символ возврата каретки во входных файлах.
+.It Fl Fl version
+Выводит информацию о версии и завершает работу.
+.El
+.Pp
+Параметр
+.Fl E
+используется
+.Tn RCS
+.Xr merge 1
+для того, чтобы гарантировать сохранение перекрывающихся изменений в объединённых
+файлах и привлечение к ним внимания.
+.Pp
+Например, предположим, что строки 7-8 изменены как в
+.Ar файл1 ,
+так и в
+.Ar файл2 .
+Применение сценария редактирования, созданного командой
+.Pp
+.Dl $ diff3 -E файл1 файл2 файл3
+.Pp
+к
+.Ar файл1
+даёт файл:
+.Bd -literal -offset indent
+строки 1-6
+файла1
+<<<<<<< файл1
+строки 7-8
+файла1
+=======
+строки 7-8
+файла3
+>>>>>>> файл3
+остаток файла1
+.Ed
+.Pp
+Вывод
+.Nm
+по умолчанию обозначает различия между всеми файлами и те
+различия, которые относятся только к каждой паре файлов.
+Изменения описываются командами, необходимыми для
+.Xr ed 1 ,
+чтобы создать желаемый целевой файл из различных версий.
+См.
+.Xr diff 1
+для описания команд.
+.Bl -tag -width "====="
+.It Li \&====
+Строки под этим обозначением — это диапазоны строк, которые различаются
+между всеми файлами.
+.It \&==== Ns Va n
+Строки под этим обозначением — это диапазоны строк, которые различаются
+исключительно в файле
+.Va n .
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается со статусом 0 при успехе
+и >1, если произошла ошибка.
+Кроме того, если были указаны флаги
+.Fl A ,
+.Fl E ,
+.Fl L ,
+.Fl m
+или
+.Fl X ,
+она завершается со статусом 1, если были обнаружены конфликты.
+.Sh СМ. ТАКЖЕ
+.Xr diff 1 ,
+.Xr ed 1 ,
+.Xr merge 1 ,
+.Xr rcs 1 ,
+.Xr sdiff 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v7 .
+.Sh ОШИБКИ
+Параметр
+.Fl e
+не может перехватывать и изменять строки, в которых
+.Ql \&.
+является первым и единственным символом в строке.
+Полученный сценарий не сможет обработать эту строку,
+поскольку
+.Ql \&.
+является командой редактирования
+.Xr ed 1 .

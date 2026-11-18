@@ -1,0 +1,153 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/ioctl.2
+.\" FRDP githash e2afbc45258f2fa4bdcf126e959ac660e76fc802
+.\" FRDP hash256 089c0a5115c4495de2d85ac2323908a7f2412419c384c038654324c5ea001484
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 29, 2025
+.Dt IOCTL 2
+.Os
+.Sh NAME
+.Nm ioctl
+.Nd управление устройством
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/ioctl.h
+.Ft int
+.Fn ioctl "int fd" "unsigned long request" ...
+.Sh DESCRIPTION
+Системный вызов
+.Fn ioctl
+управляет базовыми параметрами устройств специальных файлов.
+В частности, многие рабочие
+характеристики символьных специальных файлов (например, терминалов)
+могут управляться с помощью
+запросов
+.Fn ioctl .
+Аргумент
+.Fa fd
+должен быть открытым файловым дескриптором.
+.Pp
+Третий аргумент
+.Fn ioctl
+традиционно называется
+.Va "char *argp" .
+Однако большинство использований
+.Fn ioctl
+требуют, чтобы третий аргумент был типа
+.Vt caddr_t
+или
+.Vt int .
+.Pp
+В
+.Fn ioctl
+.Fa request
+закодировано, является ли аргумент
+.Dq входным
+аргументом
+или
+.Dq выходным
+аргументом, а также размер аргумента
+.Fa argp
+в байтах.
+Макросы и определения, используемые при указании
+.Fa request
+ioctl, находятся в файле
+.In sys/ioctl.h .
+.Sh ОБЩИЕ IOCTL
+Некоторые общие ioctl не реализованы для всех типов файловых
+дескрипторов.
+К ним относятся:
+.Bl -tag -width "xxxxxx"
+.It Dv FIONREAD int
+Получить количество байтов, которые немедленно доступны для чтения.
+.It Dv FIONWRITE int
+Получить количество байтов в очереди отправки дескриптора.
+Эти байты — данные, которые были записаны в дескриптор, но
+удерживаются ядром для дальнейшей обработки.
+Характер требуемой обработки зависит от базового устройства.
+Для TCP-сокетов эти байты ещё не были подтверждены
+другой стороной соединения.
+.It Dv FIONSPACE int
+Получить свободное пространство в очереди отправки дескриптора.
+Это значение равно размеру очереди отправки минус количество байтов,
+удерживаемых в очереди.
+Примечание: хотя это значение представляет количество байтов, которые могут быть
+добавлены в очередь, другие ограничения ресурсов могут привести к тому, что запись
+не больше размера пространства очереди отправки будет заблокирована.
+Одним из таких ограничений может быть нехватка сетевых буферов для записи
+в сетевое соединение.
+.El
+.Sh RETURN VALUES
+Если произошла ошибка, возвращается значение -1 и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ERRORS
+Системный вызов
+.Fn ioctl
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+У процесса нет разрешения на вызов этого
+.Nm .
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором.
+.It Bq Er ENOTTY
+Аргумент
+.Fa fd
+не связан с символьным
+специальным устройством.
+.It Bq Er ENOTTY
+Указанный запрос не применим к типу
+объекта, на который ссылается дескриптор
+.Fa fd .
+.It Bq Er EINVAL
+Аргумент
+.Fa request
+или
+.Fa argp
+недопустим.
+.It Bq Er EFAULT
+Аргумент
+.Fa argp
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr execve 2 ,
+.Xr fcntl 2 ,
+.Xr intro 4 ,
+.Xr tty 4
+.Sh ИСТОРИЯ
+Функция
+.Fn ioctl
+появилась в
+.At v7 .

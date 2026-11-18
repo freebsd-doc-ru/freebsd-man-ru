@@ -1,0 +1,211 @@
+.\" Copyright (c) 2002 Hidetoshi Shimokawa
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/fwcontrol/fwcontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5d4b3d921b1c094b46762230bfe7b7dc6d5e00f508aa663599eba2773f6da588
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 12, 2008
+.Dt FWCONTROL 8
+.Os
+.Sh NAME
+.Nm fwcontrol
+.Nd утилита управления FireWire
+.Sh СИНТАКСИС
+.Nm
+.Op Fl u Ar bus_num
+.Op Fl prt
+.Op Fl c Ar узел
+.Op Fl d Ar узел
+.Op Fl o Ar узел
+.Op Fl s Ar узел
+.Op Fl l Ar файл
+.Op Fl f Ar узел
+.Op Fl g Ar gap_count
+.Op Fl b Ar pri_req
+.Op Fl M Ar режим
+.Op Fl R Ar имя_файла
+.Op Fl S Ar имя_файла
+.Op Fl m Ar EUI64 | имя_узла
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для предоставления пользователям возможности доступа и управления подсистемой FireWire
+.Fx .
+Без параметров
+.Nm
+выводит список устройств, которые подключены или были подключены к шине.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl u Ar bus_num
+Задать номер шины FireWire, с которой нужно работать.
+По умолчанию используется шина 0.
+.It Fl r
+Инициировать сброс шины.
+.It Fl t
+Показать карту топологии.
+.It Fl p
+Вывести дамп регистров PHY.
+.It Fl c Ar узел
+Показать configuration ROM на узле.
+.It Fl d Ar узел
+Вывести шестнадцатеричный дамп configuration ROM.
+.It Fl o Ar узел
+Отправить пакет link-on PHY на узел.
+.It Fl s Ar узел
+Записать в регистр
+.Dv RESET_START
+на узле.
+.It Fl l Ar файл
+Загрузить файл шестнадцатеричного дампа configuration ROM и разобрать его.
+.It Fl f Ar узел
+Принудительно сделать указанный
+.Ar узел
+корневым узлом при следующем сбросе шины, отправив пакет PHY config.
+Допустимые значения: 0 - 63.
+.It Fl g Ar gap_count
+Широковещательно передать новый
+.Ar gap_count
+путём отправки пакета PHY_config.
+По умолчанию это значение равно 63 на всех узлах.
+Допустимые значения: 0 - 63.
+.It Fl i Ar pri_req
+Установить регистр
+.Dv PRIORITY_BUDGET
+на всех поддерживаемых узлах.
+.It Fl M Ar режим
+Явно указать режим
+.Ar dv
+или
+.Ar mpeg
+для входящего потока.
+Имеет смысл только в этом случае и должен предшествовать параметру
+.Fl R .
+Если не указан, программа попытается угадать.
+В случае ошибки
+.Dq format 0x20
+попробуйте принудительно установить режим
+.Dq mpeg .
+.It Fl R Ar имя_файла
+Принимать поток DV или MPEG TS и записывать его в файл.
+Для остановки приёма используйте ^C.
+Некоторые DV-камеры, по-видимому, не отправляют поток, если существует менеджер шины.
+Если получить поток невозможно, попробуйте следующие команды:
+.Bd -literal -offset indent
+sysctl hw.firewire.try_bmr=0
+fwcontrol -r
+.Ed
+.Pp
+Полученный файл содержит необработанные данные DV, исключая изохронный заголовок
+и заголовок CIP.
+Его можно обрабатывать с помощью
+.Nm libdv
+из коллекции портов
+.Fx .
+Полученный поток MPEG TS можно воспроизводить и передавать по сети
+с помощью инструмента VideoLAN
+.Nm vlc
+из коллекции портов
+.Fx .
+Поток можно направлять напрямую в
+.Nm vlc ,
+см.
+.Sx ПРИМЕРЫ .
+.It Fl S Ar имя_файла
+Отправить файл DV как изохронный поток.
+.It Fl m Ar EUI64 | имя_узла
+Установить цель fwmem по умолчанию.
+Имя узла будет преобразовано в EUI64 с помощью
+.Xr eui64 5 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /dev/fw0.0"
+.It Pa /dev/fw0.0
+.El
+.Sh ПРИМЕРЫ
+Каждый кадр DV имеет фиксированный размер, и порядок кадров легко редактировать.
+.Pp
+.Pp
+Приём потока DV с подключённой DV-камерой.
+.Pp
+.Pp
+Получить первые 30 кадров (NTSC).
+.Pp
+.Pp
+Получить вторые 30 кадров (NTSC).
+.Pp
+.Pp
+Поменять местами первые и вторые 30 кадров и отправить их на DV-рекордер.
+.Pp
+Для PAL замените
+.Dq Li bs=120000
+на
+.Dq Li bs=144000 .
+.Pp
+.Pp
+Приём потока MPEG TS с камеры, создающей транспортный поток MPEG.
+Это было протестировано с камерой SONY HDR-FX1E, которая создаёт поток HD MPEG-2
+с полосой пропускания 25 Мбит/с.
+.Pp
+Чтобы отправить поток с камеры по сети с использованием TCP (что,
+как ни странно, лучше работает с vlc), можно использовать
+с
+.Nm netcat
+из портов, а для приёма потока используйте
+.Dl nc -l -p 9000 | vlc -
+.Pp
+Для сетевого вещания через UDP нужно использовать программу
+.Nm buffer
+из портов, так как vlc недостаточно быстр для чтения UDP-пакетов из
+буферов и поэтому при прямом запуске наблюдаются пропуски.
+Отправляющая сторона может использовать,
+а для приёма потока используйте
+.Dl nc -l -u -p 9000 | buffer -s 10k -b 1000 -m 20m -p 5 | vlc -
+.Pp
+Для получения дополнительной информации о том, как работать с
+.Nm vlc
+см. её документацию.
+.Sh СМ. ТАКЖЕ
+.Xr mplayer 1 ,
+.Xr vlc 1 ,
+.Xr firewire 4 ,
+.Xr fwe 4 ,
+.Xr fwip 4 ,
+.Xr fwohci 4 ,
+.Xr sbp 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An Hidetoshi Shimokawa Aq Mt simokawa@FreeBSD.org
+.An Petr Holub Aq Mt hopet@ics.muni.cz
+(режим MPEG TS)
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эта утилита всё ещё находится в разработке и предоставляется для отладки.
+Особенно поддержка приёма MPEG TS очень рудиментарна и поддерживает только
+высокоскоростные потоки MPEG-2 (поле fn в заголовке CIP равно 3).

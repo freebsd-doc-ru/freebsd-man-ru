@@ -1,0 +1,152 @@
+.\"
+.\" Copyright (c) 2010 Silicon Graphics International Corp.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions, and the following disclaimer,
+.\"    without modification.
+.\" 2. Redistributions in binary form must reproduce at minimum a disclaimer
+.\"    substantially similar to the "NO WARRANTY" disclaimer below
+.\"    ("Disclaimer") and any redistribution must be conditioned upon
+.\"    including a substantially similar Disclaimer requirement for further
+.\"    binary redistribution.
+.\"
+.\" NO WARRANTY
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" HOLDERS OR CONTRIBUTORS BE LIABLE FOR SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGES.
+.\"
+.\" ctlstat utility man page.
+.\"
+.\" Author: Ken Merry <ken@FreeBSD.org>
+.\"
+.\" $Id: //depot/users/kenm/FreeBSD-test2/usr.bin/ctlstat/ctlstat.8#2 $
+.\"
+.\" FRDP path usr.bin/ctlstat/ctlstat.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 d4d65080c3619ecddc6e916e49d9f38467629d79f2e802a107d5599f80745019
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 22, 2021
+.Dt CTLSTAT 8
+.Os
+.Sh ИМЯ
+.Nm ctlstat
+.Nd утилита статистики CAM Target Layer
+.Sh СИНТАКСИС
+.Nm
+.Op Fl t
+.Op Fl c Ar count
+.Op Fl C
+.Op Fl d
+.Op Fl D
+.Op Fl j
+.Op Fl P
+.Op Fl l Ar lun
+.Op Fl n Ar numdevs
+.Op Fl p Ar port
+.Op Fl w Ar wait
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет статистическую информацию для CAM Target Layer.
+Первый вывод (кроме режимов дампа и JSON) показывает среднюю статистику
+с момента запуска системы.
+Последующие выводы показывают среднюю статистику за интервал
+измерения.
+.Pp
+Опции следующие:
+.Bl -tag -width 10n
+.It Fl t
+Режим суммарных значений.
+Отображает отдельные столбцы с общим объёмом чтения и записи,
+а также объединённый итоговый столбец, который также включает операции,
+не связанные с вводом-выводом.
+.It Fl c Ar count
+Отображать статистику указанное число раз.
+.It Fl C
+Отключить отображение статистики ЦП.
+.It Fl d
+Отображать время (задержку) операций DMA вместо общего времени (задержки)
+ввода-вывода.
+.It Fl D
+Режим текстового дампа.
+Сбрасывать статистику каждые 30 секунд в текстовом формате, пригодном
+для разбора.
+В этом режиме статистика не вычисляется, отображаются только
+необработанные числа.
+.It Fl h
+Подавлять отображение заголовка.
+.It Fl j
+Режим дампа JSON.
+Сбрасывать статистику каждые 30 секунд в формате JavaScript Object
+Notation (JSON).
+В этом режиме статистика не вычисляется, отображаются только
+необработанные числа.
+.It Fl P
+Режим дампа Prometheus.
+Сбрасывать статистику в формате, пригодном для приёма в Prometheus.
+При вызове с этой опцией
+.Nm
+выполняет сброс один раз, независимо от опции
+.Fl t .
+Эта опция особенно полезна при вызове из
+.Xr inetd 8 .
+См. комментарии в
+.Pa /etc/inetd.conf
+для примера конфигурации.
+.It Fl l Ar lun
+Запрашивать статистику для указанного LUN.
+.It Fl n Ar numdevs
+Отображать статистику для такого количества устройств.
+.It Fl p Ar port
+Запрашивать статистику для указанного порта.
+.It Fl w Ar wait
+Ждать указанное число секунд между отображениями.
+Если эта опция не указана,
+.Nm
+по умолчанию использует интервал в 1 секунду.
+.El
+.Sh ПРИМЕРЫ
+.Dl ctlstat -t
+.Pp
+Отобразить суммарную статистику системы с интервалом в одну секунду.
+.Pp
+.Dl ctlstat -d -l 5 -C
+.Pp
+Отобразить среднее время DMA для LUN 5 и не выводить загрузку ЦП.
+.Pp
+.Dl ctlstat -n 7 -w 10
+.Pp
+Отобразить статистику для первых 7 LUN и выводить среднюю статистику
+каждые 10 секунд.
+.Sh СМ. ТАКЖЕ
+.Xr cam 3 ,
+.Xr cam 4 ,
+.Xr ctl 4 ,
+.Xr xpt 4 ,
+.Xr camcontrol 8 ,
+.Xr ctladm 8 ,
+.Xr ctld 8 ,
+.Xr iostat 8 ,
+.Lk
+Проект Prometheus:
+.Pa https://prometheus.io/ .
+.Pp
+Форматы экспонирования Prometheus:
+.Lk https://prometheus.io/docs/instrumenting/exposition_formats/ .
+.Sh АВТОРЫ
+.An Ken Merry Aq Mt ken@FreeBSD.org
+.An Will Andrews Aq Mt will@FreeBSD.org
+.An Alexander Motin Aq Mt mav@FreeBSD.org

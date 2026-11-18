@@ -1,0 +1,367 @@
+.\" $OpenBSD: ssh-agent.1,v 1.89 2026/09/18 12:06:46 jsg Exp $
+.\"
+.\" Author: Tatu Ylonen <ylo@cs.hut.fi>
+.\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+.\"                    All rights reserved
+.\"
+.\" As far as I am concerned, the code I have written for this software
+.\" can be used freely for any purpose.  Any derived versions of this
+.\" software must be clearly marked as such, and if the derived work is
+.\" incompatible with the protocol description in the RFC file, it must be
+.\" called by a name other than "ssh" or "Secure Shell".
+.\"
+.\" Copyright (c) 1999,2000 Markus Friedl.  All rights reserved.
+.\" Copyright (c) 1999 Aaron Campbell.  All rights reserved.
+.\" Copyright (c) 1999 Theo de Raadt.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path crypto/openssh/ssh-agent.1
+.\" FRDP githash d8fa89d4b4bba3c47dd02eae7952b852c91ae351
+.\" FRDP hash256 bd15f9dad4f84cd37072c83914b433e1f90fbe91aa74ffe1cfa050748682eb44
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: September 18 2026 $
+.Dt SSH-AGENT 1
+.Os
+.Sh ИМЯ
+.Nm ssh-agent
+.Nd агент аутентификации OpenSSH
+.Sh SYNOPSIS
+.Nm ssh-agent
+.Op Fl c | s
+.Op Fl \&DdUx
+.Op Fl T | A Ar directory | Fl a Ar bind_address
+.Op Fl E Ar fingerprint_hash
+.Op Fl O Ar option
+.Op Fl P Ar allowed_providers
+.Op Fl t Ar life
+.Nm ssh-agent
+.Op Fl U
+.Op Fl T | A Ar directory | Fl a Ar bind_address
+.Op Fl E Ar fingerprint_hash
+.Op Fl O Ar option
+.Op Fl P Ar allowed_providers
+.Op Fl t Ar life
+.Ar command Op Ar arg ...
+.Nm ssh-agent
+.Op Fl c | s
+.Fl k
+.Nm ssh-agent
+.Fl u
+.Nm ssh-agent
+.Fl V
+.Sh ОПИСАНИЕ
+.Nm
+— это программа для хранения закрытых ключей, используемых при аутентификации по открытому ключу.
+Благодаря использованию переменных окружения агент может быть найден
+и автоматически использован для аутентификации при входе на другие
+машины с помощью
+.Xr ssh 1 .
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a Ar bind_address
+Привязать агент к
+.Ux Ns -доменному
+сокету
+.Ar bind_address .
+По умолчанию создаётся сокет в каталоге
+.Pa $HOME/.ssh/agent
+со случайным путём, соответствующим
+.Pa s.* .
+.It Fl A Ar socket_path
+Указать другой путь к каталогу, в котором следует создать сокет.
+Сокеты могут создаваться как в общем расположении, так и в
+каталоге, специфичном для пользователя.
+Каталоги, специфичные для пользователя, задаются путём с префиксом
+.Cm user: .
+.Nm
+обеспечит существование каталога и создаст прослушивающий сокет
+непосредственно в нём.
+Относительные пути каталогов, специфичных для пользователя, будут созданы относительно
+.Ev $HOME
+пользователя.
+.Pp
+Общие каталоги могут быть указаны путём с абсолютным путём с префиксом
+.Cm shared: .
+В этом случае в указанном каталоге будет создан временный подкаталог,
+и прослушивающий сокет агента будет создан в нём.
+.Pp
+Этот параметр принимает токены, описанные в разделе
+.Sx TOKENS
+.Xr sshd_config 5 .
+.It Fl c
+Генерировать команды для C-shell в стандартный вывод.
+Это значение по умолчанию, если
+.Ev SHELL
+похоже на оболочку в стиле csh.
+.It Fl D
+Режим переднего плана.
+При указании этого параметра
+.Nm
+не будет порождать дочерних процессов.
+.It Fl d
+Режим отладки.
+При указании этого параметра
+.Nm
+не будет порождать дочерних процессов и будет записывать отладочную информацию
+в стандартный поток ошибок.
+.It Fl E Ar fingerprint_hash
+Задаёт хеш-алгоритм, используемый при отображении отпечатков ключей.
+Допустимые значения:
+.Dq md5
+и
+.Dq sha256 .
+По умолчанию —
+.Dq sha256 .
+.It Fl k
+Завершить текущий агент (заданный переменной окружения
+.Ev SSH_AGENT_PID ).
+.It Fl O Ar option
+Указать параметр при запуске
+.Nm .
+Поддерживаемые параметры:
+.Cm allow-remote-pkcs11 ,
+.Cm no-restrict-websafe
+и
+.Cm websafe-allow .
+.Pp
+Параметр
+.Cm allow-remote-pkcs11
+позволяет клиентам перенаправленного
+.Nm
+загружать библиотеки провайдеров PKCS#11 или FIDO.
+По умолчанию эту операцию могут выполнять только локальные клиенты.
+Обратите внимание, что признак удалённости клиента
+.Nm
+устанавливается с помощью
+.Xr ssh 1 ,
+и использование других инструментов для перенаправления доступа к сокету агента
+может обойти это ограничение.
+.Pp
+Параметр
+.Cm no-restrict-websafe
+указывает
+.Nm
+разрешать подписи с использованием ключей FIDO, которые могут быть
+запросами веб-аутентификации.
+По умолчанию
+.Nm
+отклоняет запросы подписи для ключей FIDO, у которых строка приложения ключа
+не начинается с
+.Dq ssh:
+и когда данные, которые должны быть подписаны, не выглядят как
+запрос аутентификации пользователя
+.Xr ssh 1
+или подпись
+.Xr ssh-keygen 1 .
+Поведение по умолчанию предотвращает перенаправление доступа к ключу FIDO,
+которое неявно перенаправляет также возможность аутентификации на веб-сайтах.
+.Pp
+В качестве альтернативы параметр
+.Cm websafe-allow
+позволяет указать список шаблонов строк приложения ключа, который
+заменяет список разрешённых приложений по умолчанию, например:
+.Dq websafe-allow=ssh:*,example.org,*.example.com
+.Pp
+См. PATTERNS в
+.Xr ssh_config 5
+для описания синтаксиса списков шаблонов.
+.It Fl P Ar allowed_providers
+Указать список шаблонов допустимых путей для разделяемых библиотек провайдеров PKCS#11
+и промежуточного ПО аутентификаторов FIDO, которые могут использоваться с
+параметрами
+.Fl S
+или
+.Fl s
+команды
+.Xr ssh-add 1 .
+Библиотеки, не соответствующие списку шаблонов, будут отклонены.
+Список по умолчанию —
+.Dq /usr/lib*/*,/usr/local/lib*/* .
+.Pp
+См. PATTERNS в
+.Xr ssh_config 5
+для описания синтаксиса списков шаблонов.
+.It Fl s
+Генерировать команды для Bourne shell в стандартный вывод.
+Это значение по умолчанию, если
+.Ev SHELL
+не похоже на оболочку в стиле csh.
+.It Fl T
+Привязать сокет агента в рандомизированном подкаталоге вида
+.Pa $TMPDIR/ssh-XXXXXXXXXX/agent.\*(Ltppid\*(Gt ,
+вместо поведения по умолчанию, при котором используется рандомизированное имя,
+соответствующее
+.Pa $HOME/.ssh/agent/s.* .
+.It Fl t Ar life
+Установить значение по умолчанию для максимального времени жизни идентификаторов,
+добавленных в агент.
+Время жизни может быть указано в секундах или в формате времени, описанном в
+.Xr sshd_config 5 .
+Время жизни, указанное для идентификатора с помощью
+.Xr ssh-add 1 ,
+переопределяет это значение.
+Без этого параметра максимальное время жизни по умолчанию не ограничено.
+.It Fl U
+Указывает
+.Nm
+не удалять устаревшие сокеты агента в
+.Pa $HOME/.ssh/agent/ .
+.It Fl u
+Указывает
+.Nm
+удалить только устаревшие сокеты агента в
+.Pa $HOME/.ssh/agent/
+и затем немедленно завершиться.
+Если этот параметр указан дважды,
+.Nm
+удалит устаревшие сокеты агента независимо от имени хоста, который их создал.
+.It Fl x
+Завершиться после отключения последнего клиента.
+.It Ar command Op Ar arg ...
+Если задана команда (и необязательные аргументы),
+она выполняется как подпроцесс агента.
+Агент автоматически завершается, когда команда, заданная в командной
+строке, завершается.
+.It Fl V
+Показать номер версии и выйти.
+.El
+.Pp
+Существует три основных способа настройки агента.
+Первый — в начале сеанса X,
+когда все остальные окна или программы запускаются как дочерние процессы
+программы
+.Nm .
+Агент запускает команду, в окружение которой экспортируются его переменные
+окружения, например
+.Cm ssh-agent xterm & .
+Когда команда завершается, агент также завершается.
+.Pp
+Второй способ используется для сеанса входа.
+Когда
+.Nm
+запускается,
+он выводит команды оболочки, необходимые для установки его переменных окружения,
+которые, в свою очередь, могут быть вычислены в вызывающей оболочке, например
+.Cm eval `ssh-agent -s` .
+.Pp
+В обоих этих случаях
+.Xr ssh 1
+просматривает эти переменные окружения
+и использует их для установления соединения с агентом.
+.Pp
+Третий способ запуска
+.Nm
+— через активацию сокета из управляющего процесса, такого как systemd.
+В этом режиме управляющий процесс создаёт прослушивающий сокет и
+отвечает за запуск
+.Nm
+по мере необходимости, а также за передачу информации о расположении прослушивателя сокета
+другим программам в сеансе пользователя.
+Активация сокета используется, когда
+.Nm
+запускается с любым из флагов
+.Fl d
+или
+.Fl D , без адреса прослушивания сокета, указанного флагом
+.Fl a , и при условии, что обе переменные окружения
+.Ev LISTEN_FDS
+и
+.Ev LISTEN_PID
+корректно переданы управляющим процессом.
+.Pp
+Изначально агент не имеет закрытых ключей.
+Ключи добавляются с помощью
+.Xr ssh-add 1
+или
+.Xr ssh 1 ,
+когда в
+.Xr ssh_config 5
+установлен
+.Cm AddKeysToAgent .
+Несколько идентификаторов могут храниться в
+.Nm
+одновременно, и
+.Xr ssh 1
+будет автоматически использовать их, если они присутствуют.
+.Xr ssh-add 1
+также используется для удаления ключей из
+.Nm
+и для запроса ключей, хранящихся в нём.
+.Pp
+Соединения с
+.Nm
+могут перенаправляться с других удалённых хостов с помощью параметра
+.Fl A
+команды
+.Xr ssh 1
+(но см. предупреждения, описанные там),
+что избавляет от необходимости хранить данные аутентификации на других машинах.
+Парольные фразы аутентификации и закрытые ключи никогда не передаются по сети:
+соединение с агентом перенаправляется через удалённые SSH-соединения,
+а результат возвращается запрашивающей стороне,
+позволяя пользователю безопасно получать доступ к своим идентификаторам
+в любом месте сети.
+.Pp
+.Nm
+удалит все загруженные ключи при получении
+.Dv SIGUSR1 .
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width "SSH_AGENT_PID"
+.It Ev SSH_AGENT_PID
+При запуске
+.Nm
+сохраняет имя идентификатора процесса (PID) агента в этой переменной.
+.It Ev SSH_AUTH_SOCK
+При запуске
+.Nm
+создаёт
+.Ux Ns -доменный
+сокет и сохраняет его путь в этой переменной.
+Он доступен только текущему пользователю,
+но легко может быть использован root или другим экземпляром того же пользователя.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa $HOME/.ssh/agent/s.*
+.Ux Ns -доменные
+сокеты, используемые для соединения с агентом аутентификации.
+Эти сокеты должны быть доступны для чтения только владельцу.
+Сокеты должны автоматически удаляться при завершении агента.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr sshd 8
+.Sh АВТОРЫ
+.An -nosplit
+OpenSSH является производной от оригинального и свободного выпуска ssh 1.2.12
+.An Tatu Ylonen .
+.An Aaron Campbell , Bob Beck , Markus Friedl , Niels Provos , Theo de Raadt
+и
+.An Dug Song
+исправили множество ошибок, повторно добавили новые возможности и создали OpenSSH.
+.An Markus Friedl
+внёс поддержку версий протокола SSH 1.5 и 2.0.

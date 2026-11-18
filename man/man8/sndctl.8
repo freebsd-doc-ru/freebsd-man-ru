@@ -1,0 +1,203 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2024-2025 The FreeBSD Foundation
+.\"
+.\" Portions of this software were developed by Christos Margiolis
+.\" <christos@FreeBSD.org> under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/sndctl/sndctl.8
+.\" FRDP githash 65029fee78371398e0d978a0f08307c1dd23f7b8
+.\" FRDP hash256 8b9847fe3e53550d1bec702720b7bb211066ddd6a35cc0a6e835570c7e5796d5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 17, 2026
+.Dt SNDCTL 8
+.Os
+.Sh ИМЯ
+.Nm sndctl
+.Nd вывод и изменение свойств звуковой карты
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl f Ar device
+.Op Fl hov
+.Op Ar control Ns Oo = Ns Ar value Oc Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для установки и отображения свойств звуковой карты через
+интерфейс, управляемый элементами управления, чтобы фильтровать и/или
+задавать конкретные свойства.
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl -libxo
+Формировать вывод через
+.Xr libxo 3
+в одном из различных форматов, удобочитаемых человеком и машиной.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl f Ar device
+Выбрать конкретное звуковое устройство
+.Pq см. Sx ФАЙЛЫ .
+Пользовательские устройства (например, зарегистрированные
+.Xr virtual_oss 8
+также можно выбрать.
+.It Fl h
+Вывести справочное сообщение.
+.It Fl o
+Выводить значения в формате, пригодном для использования в скриптах.
+.It Fl v
+Работать в подробном режиме.
+Эта опция выведет все свойства каналов устройства.
+.El
+.Pp
+Элементы управления устройства следующие:
+.Bl -column xxxxxxxxxxxxxxx xxxxx xxxxxxxx xxxxxxxxxxxxxxxxxxx -offset indent
+.It Sy Имя Ta Sy Тип Ta Sy Чтение/Запись Ta Sy Действие
+.It name Ta Строка Ta Чтение Ta Имя устройства
+.It desc Ta Строка Ta Чтение Ta Описание устройства
+.It status Ta Строка Ta Чтение Ta Состояние устройства
+.It devnode Ta Строка Ta Чтение Ta Узел устройства
+.It from_user Ta Логическое Ta Чтение Ta Пользовательское устройство
+.It unit Ta Число Ta Чтение Ta Номер устройства
+.It caps Ta Строка Ta Чтение Ta Возможности OSS устройства
+.It bitperfect Ta Логическое Ta Чтение/Запись Ta Режим bit-perfect включён
+.It autoconv Ta Логическое Ta Чтение/Запись Ta Автопреобразования включены
+.It realtime Ta Логическое Ta Чтение/Запись Ta Режим реального времени включён
+.It eq Ta Логическое Ta Чтение/Запись Ta Эквализация включена
+.It eq_preamp Ta Строка Ta Чтение/Запись Ta Значение предусиления эквализации (в дБ)
+.It play Ta Группа Ta Чтение Ta Свойства воспроизведения
+.It play.format Ta Строка Ta Чтение/Запись Ta Формат воспроизведения
+.It play.rate Ta Число Ta Чтение/Запись Ta Частота дискретизации воспроизведения
+.It play.vchans Ta Логическое Ta Чтение/Запись Ta VCHANs (виртуальные каналы) воспроизведения включены
+.It play.min_rate Ta Число Ta Чтение Ta Минимальная частота дискретизации воспроизведения
+.It play.max_rate Ta Число Ta Чтение Ta Максимальная частота дискретизации воспроизведения
+.It play.min_chans Ta Число Ta Чтение Ta Минимальное число каналов воспроизведения, поддерживаемое нативно
+.It play.max_chans Ta Число Ta Чтение Ta Максимальное число каналов воспроизведения, поддерживаемое нативно
+.It play.formats Ta Строка Ta Чтение Ta Нативно поддерживаемые форматы воспроизведения
+.It rec Ta Группа Ta Чтение Ta Свойства записи
+.It rec.format Ta Строка Ta Чтение/Запись Ta Формат записи
+.It rec.rate Ta Число Ta Чтение/Запись Ta Частота дискретизации записи
+.It rec.vchans Ta Логическое Ta Чтение/Запись Ta VCHANs (виртуальные каналы) записи включены
+.It rec.min_rate Ta Число Ta Чтение Ta Минимальная частота дискретизации записи
+.It rec.max_rate Ta Число Ta Чтение Ta Максимальная частота дискретизации записи
+.It rec.min_chans Ta Число Ta Чтение Ta Минимальное число каналов записи, поддерживаемое нативно
+.It rec.max_chans Ta Число Ta Чтение Ta Максимальное число каналов записи, поддерживаемое нативно
+.It rec.formats Ta Строка Ta Чтение Ta Нативно поддерживаемые форматы записи
+.El
+.Pp
+Элементы управления
+.Pa play.format ,
+.Pa play.rate ,
+.Pa rec.format
+и
+.Pa rec.rate
+будут доступны только для чтения, если VCHANs отключены.
+.Pp
+Элементы управления каналами устройства следующие:
+.Bl -column xxxxxxxxxxxxxxx xxxxx xxxxxxxx xxxxxxxxxxxxxxxxxxx -offset indent
+.It Sy Имя Ta Sy Тип Ta Sy Чтение/Запись Ta Sy Действие
+.It name Ta Строка Ta Чтение Ta Имя канала
+.It parentchan Ta Строка Ta Чтение Ta Имя родительского (основного) канала
+.It unit Ta Число Ta Чтение Ta Номер канала
+.It caps Ta Строка Ta Чтение Ta Возможности OSS канала
+.It latency Ta Число Ta Чтение Ta Задержка канала
+.It format Ta Строка Ta Чтение Ta Формат канала
+.It rate Ta Число Ta Чтение Ta Частота дискретизации канала
+.It pid Ta Число Ta Чтение Ta PID процесса, использующего канал
+.It proc Ta Строка Ta Чтение Ta Имя процесса, использующего канал
+.It interrupts Ta Число Ta Чтение Ta Число прерываний с момента открытия канала
+.It xruns Ta Число Ta Чтение Ta Число недозаполнений при воспроизведении/переполнений при записи
+.It feedcount Ta Число Ta Чтение Ta Число байтов, поданных в канал
+.It volume Ta Громкость Ta Чтение Ta Громкость левого и правого каналов в нормализованной форме (от 0.00 до 1.00).
+.It hwbuf Ta Группа Ta Чтение Ta Свойства аппаратного буфера
+.It hwbuf.format Ta Строка Ta Чтение Ta Формат аппаратного буфера
+.It hwbuf.rate Ta Строка Ta Чтение Ta Частота дискретизации аппаратного буфера
+.It hwbuf.size_bytes Ta Число Ta Чтение Ta Размер аппаратного буфера в байтах
+.It hwbuf.size_frames Ta Число Ta Чтение Ta Размер аппаратного буфера в кадрах
+.It hwbuf.blksz Ta Число Ta Чтение Ta Размер блока аппаратного буфера
+.It hwbuf.blkcnt Ta Число Ta Чтение Ta Число блоков аппаратного буфера
+.It hwbuf.free Ta Число Ta Чтение Ta Свободное место аппаратного буфера в байтах
+.It hwbuf.ready Ta Число Ta Чтение Ta Объём готовых данных аппаратного буфера в байтах
+.It swbuf Ta Группа Ta Чтение Ta Свойства программного буфера
+.It swbuf.format Ta Строка Ta Чтение Ta Формат программного буфера
+.It swbuf.rate Ta Строка Ta Чтение Ta Частота дискретизации программного буфера
+.It swbuf.size_bytes Ta Число Ta Чтение Ta Размер программного буфера в байтах
+.It swbuf.size_frames Ta Число Ta Чтение Ta Размер программного буфера в кадрах
+.It swbuf.blksz Ta Число Ta Чтение Ta Размер блока программного буфера
+.It swbuf.blkcnt Ta Число Ta Чтение Ta Число блоков программного буфера
+.It swbuf.free Ta Число Ta Чтение Ta Свободное место программного буфера в байтах
+.It swbuf.ready Ta Число Ta Чтение Ta Объём готовых данных программного буфера в байтах
+.It feederchain Ta Строка Ta Чтение Ta Цепочка фидеров канала
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /dev/dspX -compact
+.It Pa /dev/dsp
+Аудиоустройство по умолчанию.
+.It Pa /dev/dspX
+Файл аудиоустройства, где X — номер устройства, например
+.Ar /dev/dsp0 .
+.El
+.Sh ПРИМЕРЫ
+Отключите автопреобразования и включите режим реального времени, чтобы получить как можно меньшие задержки:
+.Bd -literal -offset indent
+$ sndctl autoconv=0 realtime=1
+.Ed
+.Pp
+Установите формат дискретизации воспроизведения в 2-канальный знаковый 24-битный little-endian, а частоту дискретизации — в 48000 Гц:
+.Bd -literal -offset indent
+$ sndctl play.format=s24le:2.0 play.rate=48000
+.Ed
+.Pp
+Выведите PID и имена процессов всех каналов для
+.Pa /dev/dsp1 :
+.Bd -literal -offset indent
+$ sndctl -f /dev/dsp1 pid proc
+.Ed
+.Pp
+Сохраните информацию
+.Pa /dev/dsp0
+в файл и восстановите её позже:
+.Bd -literal -offset indent
+$ sndctl -f /dev/dsp0 -o > info
+\&...
+$ sndctl -f /dev/dsp0 `cat info`
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr sndstat 4 ,
+.Xr sound 4 ,
+.Xr xo_options 7 ,
+.Xr mixer 8 ,
+.Xr sysctl 8
+.Sh АВТОРЫ
+Утилита
+.Nm
+была реализована
+.An Christos Margiolis Aq Mt christos@FreeBSD.org
+при поддержке
+.Fx
+Foundation.

@@ -1,0 +1,108 @@
+.\" Copyright (c) 1994
+.\"	Jan-Simon Pendry
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/undelete.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 6c21a64aa31337cb23d4a6bb7d11bd662a6074dc8bd1f0c091092cbf92329c8b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt UNDELETE 2
+.Os
+.Sh ИМЯ
+.Nm undelete
+.Nd попытка восстановить удалённый файл
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn undelete "const char *path"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn undelete
+пытается восстановить удалённый файл с именем
+.Fa path .
+В настоящее время это работает только тогда, когда именованный объект
+является whiteout в объединённой файловой системе.
+Системный вызов удаляет whiteout, благодаря чему
+объекты в нижнем слое
+объединённого стека снова становятся видимыми.
+.Pp
+В дальнейшем функциональность
+.Fn undelete
+может быть расширена на другие файловые системы, способные восстанавливать
+удалённые файлы, такие как журналируемая файловая система.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std undelete
+.Sh ОШИБКИ
+Вызов
+.Fn undelete
+завершается успешно, если не возникает следующая ситуация:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превышает 255 символов,
+или полное имя пути превышает 1023 символа.
+.It Bq Er EEXIST
+Путь не ссылается на whiteout.
+.It Bq Er ENOENT
+Указанный whiteout не существует.
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути.
+.It Bq Er EACCES
+Доступ на запись запрещён для каталога, содержащего имя,
+которое должно быть восстановлено.
+.It Bq Er ELOOP
+При преобразовании имени пути встречено слишком много символических ссылок.
+.It Bq Er EPERM
+Каталог, содержащий имя, помечен как sticky,
+и содержащий каталог не принадлежит эффективному идентификатору пользователя.
+.It Bq Er EINVAL
+Последний компонент пути —
+.Ql .. .
+.It Bq Er EIO
+При обновлении записи каталога произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EROFS
+Имя находится в файловой системе, доступной только для чтения.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr unlink 2 ,
+.Xr mount_unionfs 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn undelete
+впервые появился в
+.Bx 4.4 Lite .

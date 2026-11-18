@@ -1,0 +1,103 @@
+.\"	$KAME: rrenumd.8,v 1.6 2001/01/22 02:06:24 itojun Exp $
+.\"
+.\" Copyright (C) 1995, 1996, 1997, and 1998 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rrenumd/rrenumd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 990f6ac764499c1ca86bed8856f40ddf1946be161f323ceaaf2d6c161d52f9fe
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 7, 1998
+.Dt RRENUMD 8
+.Os
+.Sh ИМЯ
+.Nm rrenumd
+.Nd демон перенумерации маршрутизаторов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl df
+.Oo
+.Fl c Ar conf_file | Fl s
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+передаёт пакеты запросов перенумерации маршрутизаторов,
+чтобы перенумеровать маршрутизаторы в сети сайта.
+.Pp
+В системах на базе KAME
+запросы перенумерации маршрутизаторов принимаются и обрабатываются
+.Xr rtadvd 8 .
+Для других систем обратитесь к соответствующим документам.
+.Pp
+Программа при запуске становится демоном.
+Она читает конфигурационную информацию из стандартного ввода, если
+указан
+.Fl s ,
+или из
+.Ar conf_file ,
+если
+указан
+.Fl c Ar conf_file .
+.Pp
+Содержимое конфигурационной информации описано в
+.Xr rrenumd.conf 5 .
+.Pp
+После успешной настройки
+.Nm
+периодически отправляет сообщения перенумерации маршрутизаторов
+в настроенные пункты назначения.
+Сообщения содержат префиксы, настроенные для перенумерации.
+.Bl -tag -width indent
+.It Fl d
+Режим отладки.
+.It Fl f
+Режим переднего плана.
+Не становиться демоном.
+.It Fl s
+Режим сценария.
+Конфигурационная информация считывается из стандартного ввода.
+.It Fl c Ar conf_file
+Указать файл конфигурации, в котором хранится конфигурационная информация.
+.El
+.Sh СТАТУС ВЫХОДА
+Программа завершается с 0 при успехе и с ненулевым кодом при сбоях.
+.Sh СМ. ТАКЖЕ
+.Xr rrenumd.conf 5 ,
+.Xr rtadvd 8
+.Sh СТАНДАРТЫ
+.Rs
+.%A Matt Crawford
+.%R RFC
+.%N 2894
+.%D August 2000
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в наборе протоколов KAME IPv6.

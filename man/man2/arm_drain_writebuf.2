@@ -1,0 +1,78 @@
+.\" Copyright (c) 2019 Ian Lepore <ian@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/arm/gen/arm_drain_writebuf.2
+.\" FRDP githash 53da09369c42333820762415cb6b829b10362389
+.\" FRDP hash256 bc5d3a0c27208153715e6f51ef2462eaaabaf5d060ecf0e5dd8a025b3f060253
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 10, 2019
+.Dt ARM_DRAIN_WRITEBUF 2
+.Os
+.Sh ИМЯ
+.Nm arm_drain_writebuf
+.Nd сброс отложенных записей из ядер и кэшей
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In machine/sysarch.h
+.Ft int
+.Fn arm_drain_writebuf void
+.Sh ОПИСАНИЕ
+Системный вызов
+.Nm
+вызывает запись всех отложенных записей из ядер и кэшей ARM в основную
+память или в регистры ввода-вывода с отображением в память.
+Не всё оборудование поддерживает буферизованные записи; в таких системах
+функция
+.Nm
+не выполняет никаких действий.
+.Pp
+Выполняется барьер синхронизации
+.Dq DSB SY
+с последующим сбросом кэша L2 в системах, где DSB не охватывает L2
+автоматически.
+.Pp
+.Nm
+пытается дождаться завершения операции сброса, но не может гарантировать,
+что записи достигли конечного пункта назначения на всём оборудовании.
+Например, в системе ARMv7
+.Nm
+дает указание контроллеру кэша L2 сбросить свои буферы и ожидает, пока
+контроллер не сообщит о завершении операции.
+Однако всё, что известно контроллеру L2, это то, что данные были приняты
+к доставке шиной AXI.
+Если конечным пунктом назначения записи является устройство на
+подчиненной шине, подключенной к шине AXI, на этой подчиненной шине может
+произойти дополнительная буферизация или другие задержки.
+Единственный способ убедиться, что отложенная запись достигла конечного
+пункта назначения, — выполнить чтение из этого пункта назначения после
+возврата из
+.Nm .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Nm
+не может завершиться с ошибкой и всегда возвращает 0.
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Ian Lepore .

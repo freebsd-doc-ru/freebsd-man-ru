@@ -1,0 +1,201 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/timer_create.2
+.\" FRDP githash 7b7ba7857ce8be0bf6ab905d936d8ba1363e4ec2
+.\" FRDP hash256 df7c0566e7cbb011638fa34699296821a081e4d5b5693b76aa1a3f6782fb9ba4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 15, 2016
+.Dt TIMER_CREATE 2
+.Os
+.Sh ИМЯ
+.Nm timer_create
+.Nd "создать таймер процесса (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb librt
+.Sh SYNOPSIS
+.In time.h
+.In signal.h
+.Ft int
+.Fo timer_create
+.Fa "clockid_t clockid" "struct sigevent *restrict evp"
+.Fa "timer_t *restrict timerid"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn timer_create
+создаёт таймер процесса, используя указанные часы
+.Fa clock_id
+в качестве базы отсчёта времени.
+Системный вызов
+.Fn timer_create
+возвращает по адресу, на который указывает
+.Fa timerid ,
+идентификатор таймера типа
+.Vt timer_t
+используемый для идентификации таймера в запросах к таймеру.
+Этот идентификатор таймера уникален в пределах вызывающего процесса до тех пор, пока таймер не будет удалён.
+Конкретные часы
+.Fa clock_id
+определены в
+.In time.h .
+Таймер, идентификатор которого возвращается, находится в невзведённом состоянии при возврате из
+.Fn timer_create .
+.Pp
+Аргумент
+.Fa evp ,
+если он
+.Pf non- Dv NULL ,
+указывает на структуру
+.Vt sigevent .
+Эта структура,
+выделенная приложением, определяет асинхронное уведомление, которое должно произойти
+при истечении срока таймера.
+.Pp
+Если
+.Fa evp->sigev_notify
+равен
+.Dv SIGEV_SIGNO
+или
+.Dv SIGEV_THREAD_ID ,
+сигнал, указанный в
+.Fa evp->sigev_signo
+будет отправлен вызывающему процессу
+.Pq Dv SIGEV_SIGNO
+или потоку, LWP ID которого равен
+.Fa evp->sigev_notify_thread_id
+.Pq Dv SIGEV_THREAD_ID .
+Информация для помещённого в очередь сигнала будет включать:
+.Bl -column ".Va si_value"
+.It Sy Элемент Ta Sy Значение
+.It Va si_code Ta Dv SI_TIMER
+.It Va si_value Ta
+значение, хранящееся в
+.Fa evp->sigev_value
+.It Va si_timerid Ta идентификатор таймера
+.It Va si_overrun Ta счётчик переполнений таймера
+.It Va si_errno Ta
+если переполнение таймера равно
+.Brq Dv DELAYTIMER_MAX ,
+код ошибки, определённый в
+.In errno.h
+.El
+.Pp
+Если аргумент
+.Fa evp
+равен
+.Dv NULL ,
+эффект такой, как если бы аргумент
+.Fa evp
+указывал на структуру
+.Vt sigevent
+член
+.Va sigev_notify
+которой имеет значение
+.Dv SIGEV_SIGNAL ,
+.Va sigev_signo
+имеет номер сигнала по умолчанию
+.Pq Dv SIGALRM ,
+а член
+.Va sigev_value
+имеет
+значение идентификатора таймера.
+.Pp
+Данная реализация поддерживает
+.Fa clock_id
+со значениями
+.Dv CLOCK_REALTIME ,
+.Dv CLOCK_TAI
+или
+.Dv CLOCK_MONOTONIC .
+.Pp
+Если
+.Fa evp->sigev_notify
+равен
+.Dv SIGEV_THREAD
+и
+.Fa sev->sigev_notify_attributes
+не равен
+.Dv NULL ,
+если атрибут, на который указывает
+.Fa sev->sigev_notify_attributes
+имеет
+адрес стека потока, заданный вызовом
+.Fn pthread_attr_setstack
+или
+.Fn pthread_attr_setstackaddr ,
+результаты не определены, если сигнал генерируется более одного раза.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном вызове
+.Fn timer_create
+возвращает ноль и обновляет значение по адресу, на который указывает
+.Fa timerid ,
+на
+.Vt timer_t ,
+который может быть передан вызовам таймера процесса.
+При возникновении ошибки
+системный вызов возвращает значение \-1
+и глобальной переменной
+.Va errno
+присваивается значение, указывающее на
+ошибку.
+Значение
+.Fa timerid
+не определено, если происходит ошибка.
+.Sh ОШИБКИ
+Системный вызов
+.Fn timer_create
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Вызывающий процесс уже создал все таймеры, разрешённые
+данной реализацией.
+.It Bq Er EINVAL
+Указанный идентификатор часов не поддерживается.
+.It Bq Er EINVAL
+Указанный метод асинхронного уведомления не поддерживается.
+.It Bq Er EFAULT
+Какой-либо из аргументов указывает за пределы выделенного адресного пространства или
+произошла ошибка защиты памяти.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr clock_getres 2 ,
+.Xr timer_delete 2 ,
+.Xr timer_getoverrun 2 ,
+.Xr sigevent 3 ,
+.Xr siginfo 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn timer_create
+соответствует
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Поддержка
+.Tn POSIX
+таймеров процесса впервые появилась в
+.Fx 7.0 .

@@ -1,0 +1,139 @@
+.\" Copyright (c) 1999 Christopher M Sedore.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_waitcomplete.2
+.\" FRDP githash 1b37af092211f9947d9f089f452232b791b9eafc
+.\" FRDP hash256 c093ad6f5d6a1b94be6ab1db66da83f9b6b66e832e1f69f5e0a3813f313041b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 27, 2025
+.Dt AIO_WAITCOMPLETE 2
+.Os
+.Sh ИМЯ
+.Nm aio_waitcomplete
+.Nd ожидание следующего завершения запроса асинхронного ввода-вывода
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft ssize_t
+.Fn aio_waitcomplete "struct aiocb **iocbp" "struct timespec *timeout"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn aio_waitcomplete
+ожидает завершения запроса асинхронного ввода-вывода.
+По завершении
+.Fn aio_waitcomplete
+возвращает результат функции и устанавливает
+.Fa iocbp
+так, чтобы он указывал на структуру, связанную с исходным запросом.
+Если запрос асинхронного ввода-вывода завершился до вызова
+.Fn aio_waitcomplete ,
+он немедленно возвращает завершённый запрос.
+.Pp
+Если
+.Fa timeout
+является ненулевым указателем, он задаёт максимальный интервал ожидания
+завершения запроса асинхронного ввода-вывода.
+Если
+.Fa timeout
+является нулевым указателем,
+.Fn aio_waitcomplete
+ожидает бесконечно.
+Для выполнения опроса аргумент
+.Fa timeout
+должен быть ненулевым указателем на структуру timeval с нулевым значением.
+.Pp
+Системный вызов
+.Fn aio_waitcomplete
+также выполняет функцию
+.Fn aio_return ,
+поэтому
+.Fn aio_return
+не следует вызывать для блока управления, возвращённого в
+.Fa iocbp .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если запрос асинхронного ввода-вывода завершился,
+.Fa iocbp
+устанавливается так, чтобы указывать на блок управления, переданный
+с исходным запросом, и статус возвращается, как описано в
+.Xr read 2 ,
+.Xr write 2
+или
+.Xr fsync 2 .
+В случае ошибки
+.Fn aio_waitcomplete
+возвращает
+.Dv -1 ,
+устанавливает iocbp в
+.Dv NULL
+и устанавливает
+.Va errno
+для указания условия ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn aio_waitcomplete
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Процесс ещё не вызвал
+.Fn aio_read
+или
+.Fn aio_write .
+.It Bq Er EINTR
+Сигнал был доставлен до истечения тайм-аута и до завершения
+каких-либо запросов асинхронного ввода-вывода.
+.It Bq Er EINVAL
+Указанный предельный срок является недопустимым.
+.It Bq Er EWOULDBLOCK
+.It Bq Er EINPROGRESS
+Указанный предельный срок истёк до завершения каких-либо запросов
+асинхронного ввода-вывода.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_read 2 ,
+.Xr aio_return 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_write 2 ,
+.Xr fsync 2 ,
+.Xr read 2 ,
+.Xr write 2 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn aio_waitcomplete
+является расширением, специфичным для
+.Fx .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_waitcomplete
+впервые появился в
+.Fx 4.0 .
+.Sh АВТОРЫ
+Системный вызов
+.Fn aio_waitcomplete
+и эта страница руководства были написаны
+.An Christopher M Sedore Aq Mt cmsedore@maxwell.syr.edu .

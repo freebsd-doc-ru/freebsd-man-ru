@@ -1,0 +1,148 @@
+.\" Copyright (c) 2019 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/proccontrol/proccontrol.1
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 8f5c08cfc1ec6976080123fd3e788351d7a80ab28a7f93ac11ac5e207d848ef9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 14, 2024
+.Dt PROCCONTROL 1
+.Os
+.Sh ИМЯ
+.Nm proccontrol
+.Nd Управление некоторыми аспектами выполнения процессов
+.Sh СИНТАКСИС
+.Nm
+.Fl m Ar mode
+.Fl s Ar control
+.Fl p Ar pid | command
+.Nm
+.Fl m Ar mode
+.Fl q
+.Op Fl p Ar pid | command
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+изменяет параметр выполнения существующего процесса,
+заданного аргументом
+.Ar pid ,
+или запускает выполнение новой программы
+.Ar command
+с установленным для неё параметром выполнения.
+.Pp
+Изменяемый параметр выполнения выбирается обязательным
+параметром
+.Ar mode .
+Возможные значения для
+.Ar mode :
+.Bl -tag -width logsigexit
+.It Ar aslr
+Управление рандомизацией раскладки адресного пространства.
+Применимо только к вновь порождённому процессу.
+.It Ar trace
+Управление разрешением отладчикам подключаться.
+Обратите внимание, что процесс может включить трассировку только для себя,
+но не для любого другого процесса.
+.It Ar trapcap
+Управляет сигнализированием о нарушениях доступа в режиме возможностей.
+.It Ar protmax
+Управляет неявным применением PROT_MAX для
+.Xr mmap 2 .
+.It Ar nonewprivs
+Управляет отключением битов setuid и sgid для
+.Xr execve 2 .
+.It Ar wxmap
+Управляет режимом отображений с исключением одновременной записи и выполнения.
+.It Ar kpti
+Управляет включением KPTI, только для AMD64.
+.It Ar la48
+Управляет ограничением адресного пространства пользовательского процесса
+48 битами адреса, только для AMD64, на машинах, поддерживающих 57-битную
+адресацию.
+.It Ar logsigexit
+Управляет журналированием завершений по сигналу, который обычно вызывает
+создание дампа памяти.
+.El
+.Pp
+Параметр
+.Ar control
+указывает, должен ли выбранный
+.Ar mode
+быть включён или отключён.
+Возможные значения —
+.Ar enable
+и
+.Ar disable ,
+значение по умолчанию —
+.Ar enable ,
+если не указано иное.
+Подробное описание эффектов каждого режима и взаимодействия с другими
+средствами управления процессами приведено в
+.Xr procctl 2 .
+.Pp
+Ключ
+.Fl q
+заставляет утилиту запросить и напечатать текущую настройку для
+выбранного режима.
+Для
+.Fl q
+требуется указание целевого процесса запроса с помощью
+.Fl p .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Чтобы запретить отладчикам подключаться к процессу 1020, выполните
+.It
+Чтобы запустить программу
+.Xr uniq 1
+в режиме, когда нарушения доступа в режиме возможностей вызывают
+доставку
+.Dv SIGTRAP ,
+выполните
+.It
+Чтобы запросить текущий режим включения ASLR для работающего
+процесса 1020, выполните
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr procctl 2 ,
+.Xr ptrace 2 ,
+.Xr mitigations 7
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+Команда
+.Nm
+и эта страница руководства были написаны
+.An Konstantin Belousov Aq Mt kib@FreeBSD.org
+при поддержке The FreeBSD Foundation.

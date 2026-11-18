@@ -1,0 +1,129 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/acct.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 0b37a64eb2948f9551eca1ddd2d03a5fb231df329cfe8fa794bc9164deee8bab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 13, 2017
+.Dt ACCT 5
+.Os
+.Sh ИМЯ
+.Nm acct
+.Nd файл учёта выполнения
+.Sh СИНТАКСИС
+.In sys/types.h
+.In sys/acct.h
+.Sh ОПИСАНИЕ
+Ядро поддерживает следующую
+.Fa acct
+информационную структуру для всех
+процессов.
+Если процесс завершается и учёт включён,
+ядро вызывает системный вызов
+.Xr acct 2
+чтобы подготовить и добавить запись
+в файл учёта.
+.Bd -literal
+#define AC_COMM_LEN 16
+
+/*
+ * Структура учёта версии 3 (текущая).
+ * Первый байт всегда равен нулю.
+ * Единицы времени — микросекунды.
+ */
+
+struct acctv3 {
+	uint8_t  ac_zero;		/* ноль идентифицирует новую версию */
+	uint8_t  ac_version;		/* номер версии записи */
+	uint16_t ac_len;		/* длина записи */
+
+	char	  ac_comm[AC_COMM_LEN];	/* имя команды */
+	float	  ac_utime;		/* пользовательское время */
+	float	  ac_stime;		/* системное время */
+	float	  ac_etime;		/* прошедшее время */
+	time_t	  ac_btime;		/* время начала */
+	uid_t	  ac_uid;		/* идентификатор пользователя */
+	gid_t	  ac_gid;		/* идентификатор группы */
+	float	  ac_mem;		/* среднее использование памяти */
+	float	  ac_io;		/* количество блоков ввода-вывода */
+	__dev_t   ac_tty;		/* управляющий tty */
+
+	uint16_t ac_len2;		/* длина записи */
+	union {
+		uint32_t  ac_align;	/* принудительное выравнивание, совместимое с v1 */
+
+#define	AFORK	0x01			/* порождён, но не запущен через exec */
+/* ASU больше не поддерживается */
+#define	ASU	0x02			/* использованы права суперпользователя */
+#define	ACOMPAT	0x04			/* использован режим совместимости */
+#define	ACORE	0x08			/* создан дамп памяти */
+#define	AXSIG	0x10			/* убит сигналом */
+#define ANVER	0x20			/* новая версия записи */
+
+		uint8_t  ac_flag;	/* флаги учёта */
+	} ac_trailer;
+
+#define ac_flagx ac_trailer.ac_flag
+};
+.Ed
+.Pp
+Если завершённый процесс был создан посредством
+.Xr execve 2 ,
+имя исполняемого файла (не более десяти символов из него)
+сохраняется в поле
+.Fa ac_comm
+а его статус сохраняется установкой одного или нескольких из следующих флагов в
+.Fa ac_flag :
+.Dv AFORK ,
+.Dv ACOMPAT ,
+.Dv ACORE
+и
+.Dv ASIG .
+.Dv ASU
+больше не поддерживается.
+.Dv ANVER
+всегда устанавливается в вышеуказанной структуре.
+.Sh СМ. ТАКЖЕ
+.Xr lastcomm 1 ,
+.Xr acct 2 ,
+.Xr execve 2 ,
+.Xr sa 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.At v7 .
+Текущий формат записи был введён в мае 2007 года.
+Он обратно совместим с предыдущим форматом,
+который по-прежнему документирован в
+.In sys/acct.h
+и поддерживается
+.Xr lastcomm 1
+и
+.Xr sa 8 .

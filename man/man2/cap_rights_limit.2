@@ -1,0 +1,168 @@
+.\"
+.\" Copyright (c) 2008-2010 Robert N. M. Watson
+.\" Copyright (c) 2012-2013 The FreeBSD Foundation
+.\" All rights reserved.
+.\"
+.\" This software was developed at the University of Cambridge Computer
+.\" Laboratory with support from a grant from Google, Inc.
+.\"
+.\" Portions of this documentation were written by Pawel Jakub Dawidek
+.\" under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cap_rights_limit.2
+.\" FRDP githash d289382897e7ded566a3aa10ae535235149c4056
+.\" FRDP hash256 1bfdc0339092f0a12e601c8f879f1673578c82c0ed9c851591ef634d088a16b8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 27, 2024
+.Dt CAP_RIGHTS_LIMIT 2
+.Os
+.Sh ИМЯ
+.Nm cap_rights_limit
+.Nd ограничение прав возможностей
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/capsicum.h
+.Ft int
+.Fn cap_rights_limit "int fd" "const cap_rights_t *rights"
+.Sh ОПИСАНИЕ
+Когда файловый дескриптор создаётся такой функцией, как
+.Xr fhopen 2 ,
+.Xr kqueue 2 ,
+.Xr mq_open 2 ,
+.Xr open 2 ,
+.Xr pdfork 2 ,
+.Xr pipe 2 ,
+.Xr shm_open 2 ,
+.Xr socket 2
+или
+.Xr socketpair 2 ,
+ему назначаются все права возможностей; для
+.Xr accept 2 ,
+.Xr accept4 2
+или
+.Xr openat 2
+он наследует права возможностей от "родительского" файлового дескриптора.
+Эти права можно уменьшить (но никогда не расширить), используя системный
+вызов
+.Fn cap_rights_limit .
+После уменьшения прав возможностей операции над файловым дескриптором будут
+ограничены теми, которые разрешены
+.Fa rights .
+.Pp
+Аргумент
+.Fa rights
+должен быть подготовлен с использованием семейства функций
+.Xr cap_rights_init 3 .
+.Pp
+Права возможностей, назначенные файловому дескриптору, можно получить с
+помощью функции
+.Xr cap_rights_get 3 .
+.Pp
+Полный список прав возможностей можно найти в странице руководства
+.Xr rights 4 .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ПРИМЕРЫ
+Следующий пример демонстрирует, как ограничить права возможностей файлового
+дескриптора, разрешив только чтение.
+.Bd -literal
+cap_rights_t setrights;
+char buf[1];
+int fd;
+
+fd = open("/tmp/foo", O_RDWR);
+if (fd < 0)
+	err(1, "open() failed");
+
+if (cap_enter() < 0)
+	err(1, "cap_enter() failed");
+
+cap_rights_init(&setrights, CAP_READ);
+if (cap_rights_limit(fd, &setrights) < 0)
+	err(1, "cap_rights_limit() failed");
+
+buf[0] = 'X';
+
+if (write(fd, buf, sizeof(buf)) > 0)
+	errx(1, "write() succeeded!");
+
+if (read(fd, buf, sizeof(buf)) < 0)
+	err(1, "read() failed");
+.Ed
+.Sh ОШИБКИ
+.Fn cap_rights_limit
+завершается успешно, если не возникает следующее:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым активным дескриптором.
+.It Bq Er EINVAL
+В
+.Fa rights
+запрошено недопустимое право.
+.It Bq Er ENOSYS
+Работающее ядро было скомпилировано без
+.Cd "options CAPABILITY_MODE" .
+.It Bq Er ENOTCAPABLE
+Аргумент
+.Fa rights
+содержит права возможностей, отсутствующие для данного файлового дескриптора.
+Список прав возможностей можно только уменьшать, но никогда не расширять.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr accept 2 ,
+.Xr accept4 2 ,
+.Xr cap_enter 2 ,
+.Xr fhopen 2 ,
+.Xr kqueue 2 ,
+.Xr mq_open 2 ,
+.Xr open 2 ,
+.Xr openat 2 ,
+.Xr pdfork 2 ,
+.Xr pipe 2 ,
+.Xr read 2 ,
+.Xr shm_open 2 ,
+.Xr socket 2 ,
+.Xr socketpair 2 ,
+.Xr write 2 ,
+.Xr cap_rights_get 3 ,
+.Xr cap_rights_init 3 ,
+.Xr err 3 ,
+.Xr capsicum 4 ,
+.Xr rights 4
+.Sh ИСТОРИЯ
+Функция
+.Fn cap_rights_limit
+впервые появилась в
+.Fx 8.3 .
+Поддержка возможностей и режима возможностей была разработана в рамках
+проекта
+.Tn TrustedBSD .
+.Sh АВТОРЫ
+Эта функция была создана
+.An Pawel Jakub Dawidek Aq Mt pawel@dawidek.net
+при спонсорской поддержке FreeBSD Foundation.

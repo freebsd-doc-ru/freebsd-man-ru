@@ -1,0 +1,219 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/chroot.2
+.\" FRDP githash aff8d265fa1c4b6d5c7a5220e328bcb7b62585f2
+.\" FRDP hash256 af8883b1fe592b5764fb9c14f0797e6ba4d31c693c7b4fd054f13ab954103e85
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 27, 2026
+.Dt CHROOT 2
+.Os
+.Sh ИМЯ
+.Nm chroot ,
+.Nm fchroot
+.Nd изменение корневого каталога
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn chroot "const char *dirname"
+.Ft int
+.Fn fchroot "int fd"
+.Sh ОПИСАНИЕ
+Аргумент
+.Fa dirname
+является адресом пути к каталогу, завершённого ASCII NUL.
+Системный вызов
+.Fn chroot
+делает
+.Fa dirname
+корневым каталогом,
+то есть начальной точкой для поиска путей,
+начинающихся с
+.Ql / .
+.Pp
+Чтобы каталог стал корневым,
+процесс должен иметь право на выполнение (поиск) для этого каталога.
+.Pp
+Следует отметить, что
+.Fn chroot
+не влияет на текущий каталог процесса.
+.Pp
+Этот вызов доступен только суперпользователю, если только
+переменная sysctl
+.Ql Va security.bsd.unprivileged_chroot
+не установлена в 1
+и процесс не включил
+.Dv PROC_NO_NEW_PRIVS_CTL
+.Xr procctl 2 .
+.Pp
+В зависимости от значения переменной sysctl
+.Ql kern.chroot_allow_open_directories ,
+открытые файловые дескрипторы, ссылающиеся на каталоги,
+приведут к сбою
+.Fn chroot
+следующим образом:
+.Pp
+Если
+.Ql kern.chroot_allow_open_directories
+установлена в ноль,
+.Fn chroot
+всегда будет завершаться с ошибкой
+.Er EPERM
+при наличии открытых каталогов.
+.Pp
+Если
+.Ql kern.chroot_allow_open_directories
+установлена в единицу (по умолчанию),
+.Fn chroot
+завершится с ошибкой
+.Er EPERM
+при наличии открытых каталогов и если
+процесс уже подвергнут
+системному вызову
+.Fn chroot .
+.Pp
+Любое другое значение
+.Ql kern.chroot_allow_open_directories
+обойдёт проверку открытых каталогов,
+воспроизводя историческое небезопасное поведение
+.Fn chroot ,
+всё ещё присутствующее в других системах.
+.Pp
+Системный вызов
+.Fn fchroot
+идентичен
+.Fn chroot ,
+за исключением того, что он принимает файловый дескриптор вместо пути.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы
+.Fn chroot
+и
+.Fn fchroot
+завершатся с ошибкой, и корневой каталог останется неизменным, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не является суперпользователем и
+.Ql Va security.bsd.unprivileged_chroot
+sysctl равен 0.
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не является суперпользователем и
+процесс не включил
+.Dv PROC_NO_NEW_PRIVS_CTL
+.Xr procctl 2 .
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не является суперпользователем и
+текущее/корневое состояние каталога процесса разделяется
+с другим процессом, см.
+.Xr rfork 2 .
+.It Bq Er EPERM
+Один или несколько файловых дескрипторов являются открытыми каталогами и
+.Ql Va kern.chroot_allow_open_directories
+sysctl не установлена так, чтобы это разрешить.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при чтении или записи в файловую систему.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+Системный вызов
+.Fn chroot
+завершится с ошибкой, и корневой каталог останется неизменным, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Длина компонента пути превысила 255 символов,
+или длина полного пути превысила 1023 символа.
+.It Bq Er ENOENT
+Указанный каталог не существует.
+.It Bq Er EACCES
+В разрешении на поиск для любого компонента пути отказано.
+.It Bq Er ELOOP
+При разборе пути встречено слишком много символических ссылок.
+.It Bq Er EFAULT
+Аргумент
+.Fa dirname
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Pp
+Системный вызов
+.Fn fchroot
+завершится с ошибкой, и корневой каталог останется неизменным, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+В разрешении на поиск для каталога, на который ссылается
+файловый дескриптор, отказано.
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым файловым дескриптором.
+.It Bq Er ENOTDIR
+Файловый дескриптор не ссылается на каталог.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chdir 2 ,
+.Xr jail 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn chroot
+появился в
+.At v7 .
+Он был помечен как
+.Dq устаревший
+в
+.St -susv2 ,
+и был удалён в последующих стандартах.
+Системный вызов
+.Fn fchroot
+впервые появился в
+.Fx 15.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если процесс может изменить свой рабочий каталог на целевой
+каталог, но другая проверка контроля доступа завершается неудачей (например, проверка
+открытых каталогов или проверка MAC), возможно, что этот системный
+вызов вернёт ошибку, оставив рабочий каталог процесса
+изменённым.
+.Sh ВОПРОСЫ БЕЗОПАСНОСТИ
+Система содержит множество жёстко заданных путей к файлам, которые она может загрузить после
+запуска процесса.
+Обычно рекомендуется сбросить привилегии сразу после
+успешного вызова
+.Nm
+и ограничить доступ на запись для ограниченного поддерева
+корневого каталога
+.Nm .
+Например,
+настройте песочницу так, чтобы пользователь в песочнице не имел доступа на запись
+к каким-либо общеизвестным системным каталогам.
+.Pp
+Для полной изоляции от остальной системы используйте вместо этого
+.Xr jail 2 .

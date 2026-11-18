@@ -1,0 +1,102 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/bintrans/uuencode.format.5
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 d6377c5c06129e4d7551776d1de81e318205da0808d07be372c9cd3a407f4363
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 12, 1994
+.Dt UUENCODE 5
+.Os
+.Sh ИМЯ
+.Nm uuencode
+.Nd формат закодированного файла uuencode
+.Sh ОПИСАНИЕ
+Файлы, выводимые командой
+.Xr uuencode 1 ,
+состоят из строки заголовка,
+за которой следует несколько строк тела
+и завершающая строка.
+Команда
+.Xr uudecode 1
+будет игнорировать любые строки, предшествующие заголовку или
+следующие за завершающей строкой.
+Строки, предшествующие заголовку, разумеется, не должны
+выглядеть как заголовок.
+.Pp
+Строка заголовка отличается тем, что первые
+6 символов
+.Dq begin\ \&
+(обратите внимание на завершающий пробел).
+За словом
+.Em begin
+следуют режим (в восьмеричной системе)
+и строка, задающая имя удалённого файла.
+Три элемента в строке заголовка разделяются пробелом.
+.Pp
+Тело состоит из нескольких строк, каждая длиной не более 62 символов
+(включая завершающий символ новой строки).
+Эти строки состоят из счётчика символов,
+за которым следуют закодированные символы,
+а затем символ новой строки.
+Счётчик символов — это один печатный символ,
+представляющий целое число — количество байтов,
+представленных остальной частью строки.
+Такие целые числа всегда находятся в диапазоне от 1 до 45 или 64 и могут
+быть определены вычитанием кода пробела (восьмеричное 40)
+из кода символа.
+Символ 64 представляет счётчик, равный нулю.
+.Pp
+Группы из 3 байтов хранятся в 4 символах, по 6 битов на символ.
+Все символы всегда находятся в диапазоне от 1 до 64 и смещаются на
+пробел (восьмеричное 40), чтобы символы были печатными.
+Символ
+64 представляет счётчик, равный нулю.
+Последняя строка может быть короче обычных 45 байтов.
+Если размер не кратен 3, это можно определить
+по значению счётчика в последней строке.
+Дополнительные нулевые символы будут включены, чтобы число символов стало кратным
+4.
+Тело завершается строкой со счётчиком, равным нулю.
+Эта строка состоит из одного
+.Tn ASCII
+символа обратной кавычки (восьмеричное 140).
+.Pp
+Завершающая строка состоит из
+.Dq end
+на отдельной строке.
+.Sh СМ. ТАКЖЕ
+.Xr mail 1 ,
+.Xr uucp 1 ,
+.Xr uudecode 1 ,
+.Xr uuencode 1
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.Bx 4.0 .

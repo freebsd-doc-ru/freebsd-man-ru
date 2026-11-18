@@ -1,0 +1,125 @@
+.\" Copyright (c) 2006 Niclas Zeising <zeising@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ipfwpcap/ipfwpcap.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e27ea13791887038c821be64702119c0181b34fd2da822165dde35be2cba3b9b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 22, 2006
+.Dt IPFWPCAP 8
+.Os
+.Sh ИМЯ
+.Nm ipfwpcap
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dr
+.Op Fl b Ar maxbytes
+.Op Fl p Ar maxpkts
+.Op Fl P Ar pidfile
+.Ar portnum
+.Ar dumpfile
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для копирования перенаправленных пакетов в файл в формате
+.Xr tcpdump 1 .
+Интересующие пакеты перенаправляются
+.Xr ipfw 8
+на порт, который
+.Nm
+прослушивает.
+Затем пакеты отбрасываются, если не используется
+.Fl r .
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl d
+Включает дополнительные отладочные сообщения.
+.It Fl r
+Записывает пакеты обратно в сокет
+.Xr divert 4 .
+.It Fl rr
+Указывает, что можно завершить работу, если достигнуты
+.Ar maxbytes
+или
+.Ar maxpkts .
+Перенаправленные пакеты будут молча исчезать, если никто не прослушивает сокет
+.Xr divert 4 .
+.It Fl b Ar maxbytes
+Прекратить запись после
+.Ar maxbytes
+байт.
+.It Fl p Ar maxpkts
+Прекратить запись после
+.Ar maxpkt
+пакетов.
+.It Fl P Ar pidfile
+Файл для хранения номера PID.
+По умолчанию:
+.Pa /var/run/ipwfpcap.portnr.pid .
+.El
+.Pp
+Аргумент
+.Ar portnum
+задаёт порт сокета
+.Xr divert 4 ,
+который нужно прослушивать.
+Аргумент
+.Ar dumpfile
+— путь к файлу, в который записываются захваченные пакеты.
+Укажите
+.Sq Fl
+для записи в стандартный вывод.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Pp
+Запускает
+.Nm
+как фоновое задание, прослушивающее порт 8091 и отражающее пакеты
+обратно в сокет.
+.Pp
+.Pp
+Пример правила
+.Xr ipfw 8
+для перенаправления всех пакетов с 192.0.2.101 на порт 8091.
+Подробности см. в
+.Xr ipfw 8 .
+.Sh СМ. ТАКЖЕ
+.Xr tcpdump 1 ,
+.Xr pcap 3 ,
+.Xr divert 4 ,
+.Xr ipfw 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+была написана
+.An P. Kern Aq Mt pkern@cns.utoronto.ca .
+Эта страница Справочника была написана
+.An Niclas Zeising Aq Mt zeising@FreeBSD.org .

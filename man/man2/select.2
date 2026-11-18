@@ -1,0 +1,226 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/select.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 d5ec5948aba042bc9563fd79bc6e9a6e223f200f0fd15f2cee80e306c22e08cb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 25, 2020
+.Dt SELECT 2
+.Os
+.Sh ИМЯ
+.Nm select
+.Nd синхронное мультиплексирование ввода-вывода
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/select.h
+.Ft int
+.Fn select "int nfds" "fd_set *readfds" "fd_set *writefds" "fd_set *exceptfds" "struct timeval *timeout"
+.Fn FD_SET fd &fdset
+.Fn FD_CLR fd &fdset
+.Fn FD_ISSET fd &fdset
+.Fn FD_ZERO &fdset
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn select
+исследует наборы дескрипторов ввода-вывода, адреса которых переданы в
+.Fa readfds ,
+.Fa writefds
+и
+.Fa exceptfds ,
+чтобы определить, готовы ли некоторые из их дескрипторов
+к чтению, готовы к записи или имеют ожидающее исключительное
+условие соответственно.
+Единственное обнаруживаемое исключительное условие — это
+внеполосные данные, полученные на сокете.
+Проверяются первые
+.Fa nfds
+дескрипторов в каждом наборе;
+то есть исследуются дескрипторы с 0 по
+.Fa nfds Ns No -1
+в наборах дескрипторов.
+При возврате
+.Fn select
+заменяет заданные наборы дескрипторов
+подмножествами, состоящими из тех дескрипторов, которые готовы
+для запрошенной операции.
+Системный вызов
+.Fn select
+возвращает общее число готовых дескрипторов во всех наборах.
+.Pp
+Наборы дескрипторов хранятся как битовые поля в массивах целых чисел.
+Для манипулирования такими наборами дескрипторов предоставляются
+следующие макросы:
+.Fn FD_ZERO &fdset
+инициализирует набор дескрипторов
+.Fa fdset
+пустым множеством.
+.Fn FD_SET fd &fdset
+включает конкретный дескриптор
+.Fa fd
+в
+.Fa fdset .
+.Fn FD_CLR fd &fdset
+удаляет
+.Fa fd
+из
+.Fa fdset .
+.Fn FD_ISSET fd &fdset
+возвращает ненулевое значение, если
+.Fa fd
+является членом
+.Fa fdset ,
+и ноль в противном случае.
+Поведение этих макросов не определено, если
+значение дескриптора меньше нуля или больше либо равно
+.Dv FD_SETSIZE ,
+которое обычно по крайней мере равно
+максимальному числу дескрипторов, поддерживаемых системой.
+.Pp
+Если
+.Fa timeout
+не является нулевым указателем, он задаёт максимальный интервал ожидания
+завершения выбора.
+Системная активность может увеличить этот интервал на
+неопределённую величину.
+.Pp
+Если
+.Fa timeout
+является нулевым указателем, select блокируется на неопределённый срок.
+.Pp
+Для реализации опроса аргумент
+.Fa timeout
+не должен быть нулевым указателем,
+но должен указывать на структуру timeval с нулевым значением.
+.Pp
+Любой из
+.Fa readfds ,
+.Fa writefds
+и
+.Fa exceptfds
+может быть задан как нулевой указатель, если никакие дескрипторы не представляют интереса.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Системный вызов
+.Fn select
+возвращает число готовых дескрипторов, содержащихся в
+наборах дескрипторов,
+или -1, если произошла ошибка.
+Если время ожидания истекло,
+.Fn select
+возвращает 0.
+Если
+.Fn select
+возвращается с ошибкой,
+включая ошибку из-за прерванного системного вызова,
+наборы дескрипторов остаются неизменными.
+.Sh ОШИБКИ
+Возврат ошибки из
+.Fn select
+указывает на:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Один из наборов дескрипторов указал недопустимый дескриптор.
+.It Bq Er EFAULT
+Один из аргументов
+.Fa readfds , writefds , exceptfds
+или
+.Fa timeout
+указывает на недопустимый адрес.
+.It Bq Er EINTR
+Сигнал был доставлен до истечения времени ожидания и
+до того, как произошло какое-либо из выбранных событий.
+.It Bq Er EINVAL
+Указанный предел времени недопустим.
+Один из его компонентов
+отрицателен или слишком велик.
+.It Bq Er EINVAL
+Аргумент
+.Fa nfds
+был недопустимым.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr accept 2 ,
+.Xr connect 2 ,
+.Xr getdtablesize 2 ,
+.Xr gettimeofday 2 ,
+.Xr kqueue 2 ,
+.Xr poll 2 ,
+.Xr pselect 2 ,
+.Xr read 2 ,
+.Xr recv 2 ,
+.Xr send 2 ,
+.Xr write 2 ,
+.Xr clocks 7
+.Sh ПРИМЕЧАНИЯ
+Размер
+.Dv FD_SETSIZE
+по умолчанию в настоящее время равен 1024.
+Чтобы accommodate программы, которые потенциально могут
+использовать большее число открытых файлов с
+.Fn select ,
+можно
+увеличить этот размер, если программа определит
+.Dv FD_SETSIZE
+перед включением любого заголовочного файла, который включает
+.In sys/types.h .
+.Pp
+Если
+.Fa nfds
+больше числа открытых файлов,
+.Fn select
+не гарантирует проверку неиспользуемых файловых дескрипторов.
+По историческим
+причинам
+.Fn select
+всегда будет проверять первые 256 дескрипторов.
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn select
+и
+.Fn FD_CLR ,
+.Fn FD_ISSET ,
+.Fn FD_SET ,
+и
+.Fn FD_ZERO
+макросы соответствуют
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn select
+появился в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.St -susv2
+позволяет системам изменять исходное значение timeout на месте.
+Таким образом, неразумно предполагать, что значение timeout останется неизменным
+системным вызовом
+.Fn select .
+.Fx
+не изменяет возвращаемое значение, что может вызвать проблемы для приложений,
+перенесённых из других систем.

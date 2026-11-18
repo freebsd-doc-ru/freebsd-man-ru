@@ -1,0 +1,176 @@
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" "
+.\" FRDP path libexec/getty/ttys.5
+.\" FRDP githash 43581d7b6617959e4452094d9330ef020034a6c9
+.\" FRDP hash256 4c46d0ac708d7f2c82cafa64750a60ac46634267ae4ef55e5f650cd134af74b7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 26, 2023
+.Dt TTYS 5
+.Os
+.Sh ИМЯ
+.Nm ttys
+.Nd информация для инициализации терминалов
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит информацию, которая используется различными подпрограммами для инициализации
+и управления использованием специальных файлов терминалов.
+Псевдотерминалы (см.
+.Xr pts 4 )
+не перечислены.
+Эта информация читается с помощью
+библиотечных подпрограмм
+.Xr getttyent 3 .
+В файле
+.Nm
+одна строка на каждый специальный файл устройства.
+Поля разделяются табуляциями и/или пробелами.
+Поля, состоящие более чем из одного слова, следует заключать в двойные
+кавычки.
+Пустые строки и комментарии могут появляться в любом месте файла; комментарии
+ограничиваются символами решётки (``#'') и переводами строк.
+Любые неуказанные поля по умолчанию будут пустыми.
+.Pp
+Первое поле обычно является
+именем специального файла терминала, как оно присутствует в
+.Pa /dev .
+Однако оно может быть любой произвольной строкой,
+если связанная команда не относится к tty.
+.Pp
+Второе поле файла — это команда, выполняемая для линии,
+обычно
+.Xr getty 8 ,
+которая инициализирует и открывает линию, устанавливая скорость, ожидая
+имя пользователя и выполняя
+программу
+.Xr login 1 .
+Однако это может быть любая нужная команда, например
+запуск эмулятора терминала оконной системы или какого-либо другого
+демон-процесса, и она может содержать несколько слов, если заключена в кавычки.
+.Pp
+Третье поле — это тип терминала, обычно подключаемого к этой
+линии tty, обычно тот, который указан в
+файле базы данных
+.Xr termcap 5 .
+Переменная окружения
+.Ev TERM
+инициализируется этим значением
+либо
+.Xr getty 8 ,
+либо
+.Xr login 1 .
+.Pp
+Остальные поля устанавливают флаги в записи
+.Fa ty_status
+(см.
+.Xr getttyent 3 ) ,
+задают процесс оконной системы, который
+.Xr init 8
+будет поддерживать для линии терминала, необязательно определяют
+тип tty (dialin, network или иной)
+или задают имя группы
+tty, которое позволяет базе данных классов входа (см.
+.Xr login.conf 5 )
+ссылаться на множество tty как на группу, чтобы выборочно разрешать или
+запрещать доступ или включать или отключать средства учёта для
+tty как группы.
+.Pp
+В качестве значений флагов строки ``on'' и ``off'' указывают, что
+.Xr init 8
+должен (не должен) выполнять команду, заданную во втором поле.
+``onifconsole'' включает эту линию тогда и только тогда, когда она
+является активным устройством консоли ядра (в этом случае она эквивалентна ``on'').
+Флаг ``onifexists'' включает эту линию тогда и только
+тогда, когда имя существует.
+Если имя начинается с ``/'', оно считается абсолютным
+путём.
+В противном случае оно считается путём относительно
+.Pa /dev .
+Флаг ``secure'' (если консоль включена) позволяет пользователям с
+uid 0 входить в систему на этой линии.
+Флаг ``insecure'', а также отсутствие флага ``secure''
+запрещают пользователям с uid 0 входить в систему на этой линии.
+Флаг ``dialup'' указывает, что запись tty описывает коммутируемую
+линию, а ``network'' устарел и ничего не делает.
+Любая из этих строк также может быть указана в поле типа
+терминала.
+За строкой ``window='' может следовать заключённая в кавычки командная
+строка, которую
+.Xr init 8
+выполнит
+.Em перед
+запуском команды, заданной во втором поле.
+.Pp
+За строкой ``group='' может следовать имя группы, состоящее из
+буквенно-цифровых символов, которое может использоваться
+.Xr login.conf 5
+для ссылки на множество линий tty как на группу, чтобы включать или отключать доступ
+и средства учёта.
+Если группа не указана, tty становится членом группы
+``none''.
+Для обратной совместимости ``group='' должно стоять последним в
+строке, непосредственно перед необязательным комментарием.
+.Pp
+Как второе поле, так и любая команда, заданная с помощью ``window='',
+разбиваются на слова и выполняются с помощью
+.Xr execve 2 .
+Слова разделяются любыми комбинациями табуляций и пробелов.
+Аргументы, содержащие пробельные символы, следует заключать в одинарные кавычки
+.Pq Li ' .
+Обратите внимание, что не происходит подстановки шаблонов оболочки или иной подстановки переменных.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/ttys -compact
+.It Pa /etc/ttys
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+# вход root на консоли на скорости 1200 бод
+# коммутируемая линия на 1200 бод, вход root запрещён
+# терминал Майка: hp2621
+# терминал Джона: vt100
+# эмулятор терминала/оконная система
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr login 1 ,
+.Xr getttyent 3 ,
+.Xr nmdm 4 ,
+.Xr uart 4 ,
+.Xr ucom 4 ,
+.Xr gettytab 5 ,
+.Xr login.conf 5 ,
+.Xr termcap 5 ,
+.Xr getty 8 ,
+.Xr init 8 ,
+.Xr pam_securetty 8 ,
+.Xr pstat 8
+.Sh ИСТОРИЯ
+Файл
+.Nm
+появился в
+.At v6 .
