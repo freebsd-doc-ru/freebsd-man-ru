@@ -1,0 +1,255 @@
+.\"	$NetBSD: nanosleep.2,v 1.23 2016/11/14 10:40:59 wiz Exp $
+.\"
+.\" Copyright (c) 1986, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/nanosleep.2
+.\" FRDP githash 7b7ba7857ce8be0bf6ab905d936d8ba1363e4ec2
+.\" FRDP hash256 5ff0c9e917a9f4a9d3426131b00ad90af081893a9ff702918dd1e355efeac952
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 3, 2025
+.Dt NANOSLEEP 2
+.Os
+.Sh ИМЯ
+.Nm nanosleep
+.Nd сон с высоким разрешением
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In time.h
+.Ft int
+.Fo clock_nanosleep
+.Fa "clockid_t clock_id"
+.Fa "int flags"
+.Fa "const struct timespec *rqtp"
+.Fa "struct timespec *rmtp"
+.Fc
+.Ft int
+.Fo nanosleep
+.Fa "const struct timespec *rqtp"
+.Fa "struct timespec *rmtp"
+.Fc
+.Sh ОПИСАНИЕ
+Если флаг
+.Dv TIMER_ABSTIME
+не установлен в аргументе
+.Fa flags ,
+то
+.Fn clock_nanosleep
+приостанавливает выполнение вызывающего потока до тех пор, пока либо
+интервал времени, заданный аргументом
+.Fa rqtp ,
+не истечёт,
+либо вызывающему процессу не будет доставлен сигнал, действие которого
+заключается в вызове функции обработки сигнала или в завершении
+процесса.
+Часы, используемые для измерения времени, задаются аргументом
+.Fa clock_id .
+.Pp
+Если флаг
+.Dv TIMER_ABSTIME
+установлен в аргументе
+.Fa flags ,
+то
+.Fn clock_nanosleep
+приостанавливает выполнение вызывающего потока до тех пор, пока либо значение
+часов, заданных аргументом
+.Fa clock_id ,
+не достигнет абсолютного времени, заданного аргументом
+.Fa rqtp ,
+либо вызывающему процессу не будет доставлен сигнал, действие которого
+заключается в вызове функции обработки сигнала или в завершении
+процесса.
+Если на момент вызова значение времени, заданное
+.Fa rqtp ,
+меньше или равно значению времени указанных часов, то
+.Fn clock_nanosleep
+возвращает управление немедленно, и вызывающий поток не приостанавливается.
+Незаблокированный сигнал досрочно прервёт сон, независимо от значения
+.Dv SA_RESTART
+прерывающего сигнала.
+Аргументы
+.Fa rqtp
+и
+.Fa rmtp
+могут указывать на один и тот же объект.
+.Pp
+Поддерживаются следующие значения
+.Fa clock_id :
+.Pp
+.Bl -item -compact -offset indent
+.It
+CLOCK_MONOTONIC
+.It
+CLOCK_MONOTONIC_FAST
+.It
+CLOCK_MONOTONIC_PRECISE
+.It
+CLOCK_REALTIME
+.It
+CLOCK_REALTIME_FAST
+.It
+CLOCK_REALTIME_PRECISE
+.It
+CLOCK_SECOND
+.It
+CLOCK_TAI
+.It
+CLOCK_UPTIME
+.It
+CLOCK_UPTIME_FAST
+.It
+CLOCK_UPTIME_PRECISE
+.El
+.Pp
+Время приостановки может быть больше запрошенного из-за
+планирования другой активности системой.
+Часы с суффиксом
+.Dv _FAST
+и
+.Dv CLOCK_SECOND
+подвержены допустимому отклонению интервала времени, задаваемому
+переменной
+.Va kern.timecounter.alloweddeviation
+.Xr sysctl 8 .
+Часы с суффиксом
+.Dv _PRECISE
+всегда настолько точны, насколько это возможно.
+.Dv CLOCK_MONOTONIC ,
+.Dv CLOCK_REALTIME
+и
+.Dv CLOCK_UPTIME
+по умолчанию точны.
+Установка
+.Va kern.timecounter.nanosleep_precise
+.Xr sysctl 8
+в ложное значение заставит эти часы вести себя как
+часы
+.Dv _FAST .
+.Pp
+Функция
+.Fn nanosleep
+ведёт себя как
+.Fn clock_nanosleep
+с аргументом
+.Fa clock_id ,
+равным
+.Dv CLOCK_REALTIME ,
+и без флага
+.Dv TIMER_ABSTIME
+в аргументе
+.Fa flags .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Эти функции возвращают ноль, когда запрошенное время истекло.
+.Pp
+Если эти функции возвращают управление по любой другой причине, то
+.Fn clock_nanosleep
+непосредственно вернёт номер ошибки, а
+.Fn nanosleep
+вернёт \-1, установив глобальную переменную
+.Va errno
+для указания ошибки.
+Если относительный сон был прерван сигналом и
+.Fa rmtp
+не
+.Pf non- Dv NULL ,
+то структура timespec, на которую он указывает, обновляется, чтобы содержать
+непроспанное количество (запрошенное время минус фактически проспанное время).
+.Sh ОШИБКИ
+Эти функции могут завершиться с ошибкой со следующими кодами.
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Либо
+.Fa rqtp ,
+либо
+.Fa rmtp
+указывает на память, не являющуюся допустимой частью адресного
+пространства процесса.
+.It Bq Er EINTR
+Функция была прервана доставкой сигнала.
+.It Bq Er EINVAL
+Аргумент
+.Fa rqtp
+задавал значение наносекунд меньше нуля
+или больше либо равное 1000 миллионов.
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+содержал недопустимый флаг.
+.It Bq Er EINVAL
+Аргумент
+.Fa clock_id
+был
+.Dv CLOCK_THREAD_CPUTIME_ID
+или нераспознанным значением.
+.It Bq Er ENOTSUP
+Аргумент
+.Fa clock_id
+был допустимым, но не поддерживается данной реализацией
+.Fn clock_nanosleep .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr clock_gettime 2 ,
+.Xr sigaction 2 ,
+.Xr sleep 3
+.Sh СТАНДАРТЫ
+Эти функции соответствуют
+.St -p1003.1-2008 .
+.Sh ИСТОРИЯ
+Предшественник этого системного вызова,
+.Fn sleep ,
+появился в
+.At v3 ,
+но был удалён, когда
+.Xr alarm 3
+был введён в
+.At v7 .
+Системный вызов
+.Fn nanosleep
+доступен начиная с
+.Nx 1.3
+и был перенесён в
+.Ox 2.1
+и
+.Fx 3.0 .
+Системный вызов
+.Fn clock_nanosleep
+доступен начиная с
+.Fx 11.1 .
+.Pp
+В
+.Fx 15.0
+поведение
+.Fn clock_nanosleep
+по умолчанию с часами
+.Dv CLOCK_MONOTONIC ,
+.Dv CLOCK_REALTIME ,
+.Dv CLOCK_UPTIME
+и
+.Fn nanosleep
+было переключено на использование точных часов.

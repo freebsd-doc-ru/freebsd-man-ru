@@ -1,0 +1,146 @@
+.\"
+.\" Copyright (c) 2003 Mike Barcroft <mike@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/jls/jls.8
+.\" FRDP githash 1d8590371049bb14a6410fa83cd03d9eca32f764
+.\" FRDP hash256 3f15f0f6145f12c789fccb229dcd0579cfe8ce110c934cb815fc89cb245428da
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2025
+.Dt JLS 8
+.Os
+.Sh ИМЯ
+.Nm jls
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl dhNnqsv
+.Op Fl j Ar клетка
+.Op Ar параметр ...
+.Nm
+.Fl c
+.Op Fl d
+.Fl j Ar клетка
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит список всех активных клеток или указанной клетки.
+Каждая клетка представлена значениями перечисленных
+.Ar параметров ,
+разделёнными пробелами,
+по одной клетке на строку (если только сами параметры не содержат символы новой строки).
+Псевдопараметр
+.Va all
+покажет все доступные параметры клетки.
+Список доступных параметров можно получить с помощью
+.Dq Nm sysctl Fl d Va security.jail.param .
+См.
+.Xr jail 8
+для описания некоторых основных параметров.
+.Pp
+Если не указаны
+.Ar параметры
+или какие-либо из опций
+.Fl chns ,
+будут выведены следующие четыре столбца:
+идентификатор клетки (jid), IP-адрес (ip4.addr), имя хоста (host.hostname)
+и путь (path).
+.Pp
+Когда используется опция
+.Fl c ,
+.Nm
+не будет выводить ничего, кроме ошибок использования.
+Этот режим предназначен исключительно для проверки существования одной клетки, и он
+не принимает никакие
+.Ar параметр
+или флаги вывода.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl -libxo
+Генерировать вывод через
+.Xr libxo 3
+в различных удобочитаемых и машинно-читаемых форматах.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl c
+Только проверить существование клетки.
+.It Fl d
+Выводить
+.Va dying
+а также активные клетки.
+.It Fl h
+Вывести строку заголовка, содержащую перечисленные параметры.
+Если параметры не заданы в командной строке,
+предполагается
+.Va all .
+.It Fl N
+В стандартном режиме отображения выводить имя каждой клетки вместо её
+числового ID.
+Если клетка не имеет имени, вместо него выводится числовой ID.
+.It Fl n
+Выводить параметры в формате
+.Dq имя=значение
+, где каждому параметру предшествует его имя.
+Если параметры не заданы в командной строке,
+предполагается
+.Va all .
+.It Fl q
+Заключать параметры в кавычки, если они содержат пробелы или кавычки, либо являются
+пустой строкой.
+.It Fl s
+Выводить параметры, подходящие для передачи в
+.Xr jail 8 ,
+пропуская параметры только для чтения и неиспользуемые параметры.
+Подразумевает
+.Fl nq .
+.It Fl v
+Расширить стандартный вывод многострочной сводкой по каждой клетке,
+содержащей следующие параметры:
+идентификатор клетки (jid), имя хоста (host.hostname), путь (path),
+имя клетки (name), состояние клетки (dying), ID cpuset (cpuset),
+IP-адрес(а) (ip4.addr и ip6.addr).
+.It Fl j Ar клетка
+jid или имя
+.Ar клетки
+для вывода.
+Без этой опции будут выведены все активные клетки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr jail_get 2 ,
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr jail 8 ,
+.Xr jexec 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была добавлена в
+.Fx 5.1 .
+Расширяемые параметры клетки были введены в
+.Fx 8.0 .
+Поддержка libxo была добавлена в
+.Fx 11.0 .

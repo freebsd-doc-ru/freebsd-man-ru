@@ -1,0 +1,183 @@
+.\" Copyright (c) 2013 Sergey Kandaurov
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_fsync.2
+.\" FRDP githash e24279e0f9e28ba0c1920cb539fc357568790c0a
+.\" FRDP hash256 9d36f63234bae9a3c694e923b106a0db41d778c52c2e131da45671577244fbc7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 15, 2023
+.Dt AIO_FSYNC 2
+.Os
+.Sh ИМЯ
+.Nm aio_fsync
+.Nd асинхронная синхронизация файлов (REALTIME)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fn aio_fsync "int op" "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn aio_fsync
+позволяет вызывающему процессу переместить все изменённые данные,
+связанные с дескриптором
+.Fa iocb->aio_fildes ,
+на устройство постоянного хранения.
+Вызов возвращает управление сразу после того, как запрос на синхронизацию
+помещён в очередь к дескриптору; синхронизация может быть завершена
+или не завершена к моменту возврата из вызова.
+.Pp
+Аргументу
+.Fa op
+может быть присвоено значение
+.Dv O_SYNC ,
+чтобы все текущие операции ввода-вывода, находящиеся в очереди, были завершены
+как при вызове
+.Xr fsync 2 ,
+или
+.Dv O_DSYNC
+для поведения
+.Xr fdatasync 2 .
+.Pp
+Указатель
+.Fa iocb
+впоследствии может использоваться как аргумент
+.Fn aio_return
+и
+.Fn aio_error
+для определения статуса возврата или ошибки для поставленной в очередь операции,
+пока она выполняется.
+.Pp
+Если запрос не удалось поместить в очередь (обычно из-за неверных аргументов),
+вызов возвращает управление, не поставив запрос в очередь.
+.Pp
+Структура
+.Fa iocb->aio_sigevent
+может использоваться для запроса уведомления о завершении операции,
+как описано в
+.Xr aio 4 .
+.Sh ОГРАНИЧЕНИЯ
+Структура блока управления асинхронным вводом-выводом, на которую указывает
+.Fa iocb ,
+должна оставаться действительной до завершения
+операции.
+.Pp
+Буфер управления асинхронным вводом-выводом
+.Fa iocb
+следует обнулить перед вызовом
+.Fn aio_fsync ,
+чтобы не передавать в ядро ложную контекстную информацию.
+.Pp
+Изменение структуры блока управления асинхронным вводом-выводом не допускается,
+пока запрос находится в очереди.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std aio_fsync
+.Sh ОШИБКИ
+Системный вызов
+.Fn aio_fsync
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Запрос не был помещён в очередь из-за ограничений системных ресурсов.
+.It Bq Er EINVAL
+Метод асинхронного уведомления в
+.Fa iocb->aio_sigevent.sigev_notify
+недействителен или не поддерживается.
+.It Bq Er EOPNOTSUPP
+Операции асинхронной синхронизации файлов для дескриптора
+.Fa iocb->aio_fildes
+небезопасны, а небезопасные операции асинхронного ввода-вывода отключены.
+.It Bq Er EINVAL
+Значение аргумента
+.Fa op
+не равно
+.Dv O_SYNC
+или
+.Dv O_DSYNC .
+.El
+.Pp
+Следующие условия могут быть обнаружены синхронно при выполнении
+системного вызова
+.Fn aio_fsync
+или асинхронно в любой момент после этого.
+Если они обнаруживаются во время вызова,
+.Fn aio_fsync
+возвращает -1 и соответствующим образом устанавливает
+.Va errno ;
+в противном случае необходимо вызвать системный вызов
+.Fn aio_return ,
+который вернёт -1, и
+.Fn aio_error
+для определения фактического значения, которое было бы возвращено в
+.Va errno .
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa iocb->aio_fildes
+не является допустимым дескриптором.
+.It Bq Er EINVAL
+Данная реализация не поддерживает синхронизированный ввод-вывод для этого файла.
+.El
+.Pp
+Если запрос успешно помещён в очередь, но впоследствии отменён
+или происходит ошибка, значение, возвращаемое системным вызовом
+.Fn aio_return ,
+соответствует системным вызовам
+.Xr read 2
+и
+.Xr write 2 ,
+а значение, возвращаемое системным вызовом
+.Fn aio_error ,
+является одним из кодов ошибок системных вызовов
+.Xr read 2
+или
+.Xr write 2 .
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_read 2 ,
+.Xr aio_return 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_waitcomplete 2 ,
+.Xr aio_write 2 ,
+.Xr fsync 2 ,
+.Xr sigevent 3 ,
+.Xr siginfo 3 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn aio_fsync
+соответствует стандарту
+.St -p1003.1 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_fsync
+впервые появился в
+.Fx 7.0 .
+Опция
+.Dv O_DSYNC
+появилась в
+.Fx 13.0 .

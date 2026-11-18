@@ -1,0 +1,292 @@
+.\"
+.\" Copyright (c) 2001 Dima Dorfman <dima@unixfreak.org>
+.\" Copyright (c) 2003 Robert Watson <rwatson@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/extattr_get_file.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 b0bdca3cb12c462b254fa451664b6ca856f46e78e4a3bdbc7e56b7db5f9cdef1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 11, 2021
+.Dt EXTATTR 2
+.Os
+.Sh NAME
+.Nm extattr_delete_fd ,
+.Nm extattr_delete_file ,
+.Nm extattr_delete_link ,
+.Nm extattr_get_fd ,
+.Nm extattr_get_file ,
+.Nm extattr_get_link ,
+.Nm extattr_list_fd ,
+.Nm extattr_list_file ,
+.Nm extattr_list_link ,
+.Nm extattr_set_fd ,
+.Nm extattr_set_file ,
+.Nm extattr_set_link
+.Nd системные вызовы для управления расширенными атрибутами VFS
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/extattr.h
+.Ft int
+.Fn extattr_delete_fd "int fd" "int attrnamespace" "const char *attrname"
+.Ft int
+.Fn extattr_delete_file "const char *path" "int attrnamespace" "const char *attrname"
+.Ft int
+.Fn extattr_delete_link "const char *path" "int attrnamespace" "const char *attrname"
+.Ft ssize_t
+.Fn extattr_get_fd "int fd" "int attrnamespace" "const char *attrname" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_get_file "const char *path" "int attrnamespace" "const char *attrname" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_get_link "const char *path" "int attrnamespace" "const char *attrname" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_list_fd "int fd" "int attrnamespace" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_list_file "const char *path" "int attrnamespace" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_list_link "const char *path" "int attrnamespace" "void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_set_fd "int fd" "int attrnamespace" "const char *attrname" "const void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_set_file "const char *path" "int attrnamespace" "const char *attrname" "const void *data" "size_t nbytes"
+.Ft ssize_t
+.Fn extattr_set_link "const char *path" "int attrnamespace" "const char *attrname" "const void *data" "size_t nbytes"
+.Sh DESCRIPTION
+Именованные расширенные атрибуты — это метаданные, связанные с vnode,
+представляющими файлы и каталоги.
+Они существуют в виде пар
+.Qq Li имя=значение
+внутри набора пространств имён.
+.Pp
+Системный вызов
+.Fn extattr_get_file
+извлекает значение указанного расширенного атрибута в буфер, на который
+указывает
+.Fa data
+размером
+.Fa nbytes .
+Системный вызов
+.Fn extattr_set_file
+устанавливает значение указанного расширенного атрибута в данные,
+описываемые
+.Fa data .
+Системный вызов
+.Fn extattr_delete_file
+удаляет указанный расширенный атрибут.
+.Fn extattr_list_file
+возвращает список атрибутов, присутствующих в запрошенном пространстве имён.
+Каждый элемент списка состоит из одного байта, содержащего длину
+имени атрибута, за которым следует имя атрибута.
+Имя атрибута не завершается ASCII 0 (nul).
+Вызовы
+.Fn extattr_get_file
+и
+.Fn extattr_list_file
+принимают аргументы
+.Fa data
+и
+.Fa nbytes
+в стиле
+.Xr read 2 ;
+.Fn extattr_set_file
+принимает эти аргументы в стиле
+.Xr write 2 .
+.Pp
+Если
+.Fa data
+равен
+.Dv NULL
+в вызове
+.Fn extattr_get_file
+и
+.Fn extattr_list_file ,
+то будет возвращён размер определённых данных расширенного атрибута, а не
+количество прочитанных данных, что позволяет приложениям проверять размер
+данных без выполнения чтения.
+Системные вызовы
+.Fn extattr_delete_link ,
+.Fn extattr_get_link ,
+и
+.Fn extattr_set_link
+ведут себя так же, как их аналоги с суффиксом _file, за исключением того,
+что они не следуют по символическим ссылкам.
+.Pp
+Вызовы
+.Fn extattr_get_fd ,
+.Fn extattr_delete_fd ,
+.Fn extattr_list_fd ,
+и
+.Fn extattr_set_fd
+идентичны своим аналогам с суффиксом
+.Qq Li _file ,
+за исключением первого аргумента.
+Функции с суффиксом
+.Qq Li _fd
+принимают файловый дескриптор, тогда как функции с суффиксом
+.Qq Li _file
+принимают путь.
+Оба аргумента описывают файл, связанный с расширенным атрибутом,
+которым следует управлять.
+Функции с суффиксом
+.Qq Li _fd
+могут использоваться с файловыми дескрипторами, открытыми с флагом
+.Dv O_PATH .
+.Pp
+Следующие аргументы являются общими для всех описанных здесь системных вызовов:
+.Bl -tag -width attrnamespace
+.It Fa attrnamespace
+пространство имён, в котором находится расширенный атрибут; см.
+.Xr extattr 9
+.It Fa attrname
+имя расширенного атрибута
+.El
+.Pp
+Семантика именованных расширенных атрибутов зависит от файловой системы,
+реализующей вызов.
+Не все операции могут поддерживаться для конкретного атрибута.
+Кроме того, формат данных в
+.Fa data
+зависит от атрибута.
+.Pp
+Для получения дополнительной информации об именованных расширенных атрибутах
+см.
+.Xr extattr 9 .
+.Sh RETURN VALUES
+В случае успеха вызовы
+.Fn extattr_get_fd ,
+.Fn extattr_get_file ,
+.Fn extattr_get_link ,
+.Fn extattr_list_fd ,
+.Fn extattr_list_file ,
+.Fn extattr_list_link ,
+.Fn extattr_set_fd ,
+.Fn extattr_set_file ,
+и
+.Fn extattr_set_link
+возвращают количество байтов, прочитанных или записанных из
+.Fa data
+соответственно.
+Если
+.Fa data
+был равен
+.Dv NULL ,
+то
+.Fn extattr_get_fd ,
+.Fn extattr_get_file ,
+.Fn extattr_get_link ,
+.Fn extattr_list_fd ,
+.Fn extattr_list_file ,
+и
+.Fn extattr_list_link
+возвращают количество байтов, доступных для чтения.
+Если какой-либо из вызовов завершается неудачно, возвращается значение \-1
+и глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Pp
+.Rv -std extattr_delete_file
+.Sh ERRORS
+Следующие ошибки могут быть возвращены самими системными вызовами.
+Кроме того, файловая система, реализующая вызов, может возвращать любые
+другие ошибки по своему усмотрению.
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргументы
+.Fa attrnamespace
+и
+.Fa attrname ,
+или диапазон памяти, определяемый
+.Fa data
+и
+.Fa nbytes ,
+указывают за пределы выделенного адресного пространства процесса.
+.It Bq Er ENAMETOOLONG
+Имя атрибута было длиннее
+.Dv EXTATTR_MAXNAMELEN .
+.El
+.Pp
+Системные вызовы
+.Fn extattr_get_fd ,
+.Fn extattr_set_fd ,
+.Fn extattr_delete_fd ,
+и
+.Fn extattr_list_fd
+могут также завершиться неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Файловый дескриптор, на который ссылается
+.Fa fd ,
+был недействительным.
+.El
+.Pp
+Кроме того, вызовы
+.Fn extattr_get_file ,
+.Fn extattr_set_file ,
+и
+.Fn extattr_delete_file
+могут также завершиться неудачно из-за следующих ошибок:
+.Bl -tag -width Er
+.It Bq Er ENOATTR
+Запрошенный атрибут не был определён для этого файла.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или полное имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Компонент имени пути, который должен существовать, не существует.
+.It Bq Er EACCES
+В поиске отказано для компонента префикса пути.
+.El
+.Sh SEE ALSO
+.Xr extattr 3 ,
+.Xr getextattr 8 ,
+.Xr setextattr 8 ,
+.Xr extattr 9 ,
+.Xr VOP_GETEXTATTR 9 ,
+.Xr VOP_SETEXTATTR 9
+.Sh HISTORY
+Поддержка расширенных атрибутов была разработана в рамках проекта
+.Tn TrustedBSD
+и представлена в
+.Fx 5.0 .
+Она была разработана для поддержки расширений безопасности, требующих
+дополнительных меток, связанных с каждым файлом или каталогом.
+.Sh CAVEATS
+Этот интерфейс активно развивается и, как таковой, может изменяться
+по мере адаптации приложений к его использованию.
+Разработчикам не рекомендуется полагаться на его стабильность.
+.Sh BUGS
+В более ранних версиях этого API передача пустой строки в качестве
+имени атрибута в
+.Fn extattr_get_fd ,
+.Fn extattr_get_file ,
+или
+.Fn extattr_get_link
+возвращала список атрибутов, определённых для целевого объекта.
+Этот интерфейс устарел в пользу использования явного API списка
+и не должен использоваться.

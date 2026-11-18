@@ -1,0 +1,61 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-wait.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 b5d52a3c7d3a596a04db9f39e1a00795d99be6222df4f2a94af5c6adcb13034c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-WAIT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-wait
+.Nd ожидать прекращения активности в файловой системе ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm wait
+.Op Fl t Ar активность Ns Oo , Ns Ar активность Ns Oc Ns …
+.Ar "файловая система"
+.
+.Sh ОПИСАНИЕ
+Ожидает, пока вся фоновая активность заданных типов не прекратится в заданной
+файловой системе.
+Активность может прекратиться, поскольку она завершилась, или поскольку файловая
+система была уничтожена или размонтирована.
+Если не указана ни одна активность, команда ожидает, пока фоновая активность
+каждого типа, перечисленного ниже, не прекратится.
+Если ни одна из указанных активностей в данный момент не выполняется, команда
+немедленно возвращает управление.
+.Pp
+Ниже перечислены возможные значения параметра
+.Ar активность ,
+а также то, чего ожидает каждое из них:
+.Bl -tag -width "deleteq"
+.It Sy deleteq
+Опустошение внутренней очереди удаления файловой системы
+.El
+.Pp
+Обратите внимание, что внутренняя очередь удаления не завершает опустошение, пока
+все большие файлы не успеют полностью уничтожиться и все открытые дескрипторы файлов,
+ссылки на которые удалены, не будут закрыты.
+.
+.Sh СМ. ТАКЖЕ
+.Xr lsof 8

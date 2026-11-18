@@ -1,0 +1,137 @@
+.\"
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cap_fcntls_limit.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 1f5fb518c416a2af4784b034327c3069f28ed2393d13cc4de9cd565fbf259aaa
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 9, 2023
+.Dt CAP_FCNTLS_LIMIT 2
+.Os
+.Sh ИМЯ
+.Nm cap_fcntls_limit ,
+.Nm cap_fcntls_get
+.Nd управление разрешёнными командами fcntl
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/capsicum.h
+.Ft int
+.Fn cap_fcntls_limit "int fd" "uint32_t fcntlrights"
+.Ft int
+.Fn cap_fcntls_get "int fd" "uint32_t *fcntlrightsp"
+.Sh ОПИСАНИЕ
+Если дескриптору файла предоставлено право возможности
+.Dv CAP_FCNTL ,
+список разрешённых команд
+.Xr fcntl 2
+может быть выборочно сокращён (но никогда не расширен) с помощью
+системного вызова
+.Fn cap_fcntls_limit .
+.Pp
+Битовая маска разрешённых команд fcntl для данного дескриптора файла может быть получена
+с помощью
+системного вызова
+.Fn cap_fcntls_get .
+.Sh ФЛАГИ
+В аргументе
+.Fa fcntlrights
+могут быть указаны следующие флаги, или они могут быть возвращены в
+аргументе
+.Fa fcntlrightsp :
+.Bl -tag -width CAP_FCNTL_GETOWN
+.It Dv CAP_FCNTL_GETFL
+Разрешить
+команду
+.Dv F_GETFL .
+.It Dv CAP_FCNTL_SETFL
+Разрешить
+команду
+.Dv F_SETFL .
+.It Dv CAP_FCNTL_GETOWN
+Разрешить
+команду
+.Dv F_GETOWN .
+.It Dv CAP_FCNTL_SETOWN
+Разрешить
+команду
+.Dv F_SETOWN .
+.El
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+.Fn cap_fcntls_limit
+завершается успешно, если только:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором.
+.It Bq Er EINVAL
+В
+.Fa fcntlrights
+передан недопустимый флаг.
+.It Bq Er ENOTCAPABLE
+.Fa fcntlrights
+расширил бы список разрешённых команд
+.Xr fcntl 2 .
+.El
+.Pp
+.Fn cap_fcntls_get
+завершается успешно, если только:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором.
+.It Bq Er EFAULT
+Аргумент
+.Fa fcntlrightsp
+указывает на недопустимый адрес.
+.It Bq Er ENOSYS
+Работающее ядро было скомпилировано без
+.Cd "options CAPABILITY_MODE" .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cap_ioctls_limit 2 ,
+.Xr cap_rights_limit 2 ,
+.Xr fcntl 2
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn cap_fcntls_get
+и
+.Fn cap_fcntls_limit
+впервые появились в
+.Fx 8.3 .
+Поддержка возможностей и режима возможностей была разработана в рамках
+проекта
+.Tn TrustedBSD .
+.Sh АВТОРЫ
+Эта функция была создана
+.An Pawel Jakub Dawidek Aq Mt pawel@dawidek.net
+при спонсорстве FreeBSD Foundation.

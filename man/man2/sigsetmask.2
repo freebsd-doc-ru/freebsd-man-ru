@@ -1,0 +1,101 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/compat-43/sigsetmask.2
+.\" FRDP githash dc36d6f9bb1753f3808552f3afd30eda9a7b206a
+.\" FRDP hash256 75e2ad25e668a961a8f6062392de202d5ac612dac30b182f3a8b26b9ff3993a3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 1993
+.Dt SIGSETMASK 2
+.Os
+.Sh ИМЯ
+.Nm sigsetmask ,
+.Nm sigblock
+.Nd манипулировать текущей маской сигналов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sigsetmask "int mask"
+.Ft int
+.Fn sigblock "int mask"
+.Ft int
+.Fn sigmask "int signum"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Этот интерфейс устарел, его заменяет:
+.Ef
+.Xr sigprocmask 2 .
+.Pp
+Функция
+.Fn sigsetmask
+устанавливает текущую маску сигналов в указанную
+.Fa mask .
+Доставка сигналов блокируется, если соответствующий бит в
+.Fa mask
+равен 1.
+Функция
+.Fn sigblock
+добавляет сигналы из указанной
+.Fa mask
+к текущей маске сигналов,
+а не перезаписывает её, как это делает
+.Fn sigsetmask .
+Макрос
+.Fn sigmask
+предоставляется для построения маски для заданного
+.Fa signum .
+.Pp
+Система
+молча запрещает
+блокировку
+.Dv SIGKILL
+или
+.Dv SIGSTOP .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Функции
+.Fn sigblock
+и
+.Fn sigsetmask
+возвращают предыдущий набор заблокированных сигналов.
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr sigaction 2 ,
+.Xr sigprocmask 2 ,
+.Xr sigsuspend 2 ,
+.Xr sigvec 2 ,
+.Xr sigsetops 3
+.Sh ИСТОРИЯ
+Функции
+.Fn sigsetmask
+и
+.Fn sigblock
+впервые появились в
+.Bx 4.2
+и были объявлены устаревшими.

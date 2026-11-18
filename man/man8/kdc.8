@@ -1,0 +1,233 @@
+.\" Copyright (c) 2003 - 2004 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kdc/kdc.8
+.\" FRDP githash 53d908d6eb9dc5b40c2c0179eeb85e1d21e32577
+.\" FRDP hash256 c9a4c52fcf865f47f1b43eb319a101c4c7b11e7dea86e4fe74ac071276cee5a3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 24, 2006
+.Dt KDC 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kdc
+.Nd Сервер Kerberos 5
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Op Fl p | Fl Fl no-require-preauth
+.Op Fl Fl max-request= Ns Ar размер
+.Op Fl H | Fl Fl enable-http
+.Op Fl Fl no-524
+.Op Fl Fl kerberos4
+.Op Fl Fl kerberos4-cross-realm
+.Oo Fl r Ar строка \*(Ba Xo
+.Fl Fl v4-realm= Ns Ar строка
+.Xc
+.Oc
+.Oo Fl P Ar спецификация портов \*(Ba Xo
+.Fl Fl ports= Ns Ar спецификация портов
+.Xc
+.Oc
+.Op Fl Fl detach
+.Op Fl Fl disable-des
+.Op Fl Fl addresses= Ns Ar список адресов
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+обслуживает запросы на билеты.
+При запуске он сначала проверяет переданные флаги; любые параметры, не указанные
+флагом командной строки, берутся из файла конфигурации
+или из значения по умолчанию, вкомпилированного в программу.
+.Pp
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+Задаёт расположение файла конфигурации; по умолчанию —
+.Pa /var/heimdal/kdc.conf .
+Это единственное значение, которое нельзя указать в файле конфигурации.
+.It Fl p , Fl Fl no-require-preauth
+Отключает требование предварительной аутентификации в начальном AS-REQ
+для всех принципалов.
+Использование предварительной аутентификации затрудняет проведение
+офлайн-атак на пароли.
+Возможно, вы захотите отключить её, если у вас есть клиенты,
+не поддерживающие предварительную аутентификацию.
+Поскольку протокол версии 4 не поддерживает предварительную аутентификацию,
+обслуживание клиентов версии 4 почти равнозначно отказу от требования
+предварительной аутентификации.
+По умолчанию требуется предварительная аутентификация.
+Указание require-preauth для каждого принципала — более гибкий способ
+решения этой задачи.
+.It Fl Fl max-request= Ns Ar размер
+Задаёт верхний предел размера запросов, которые kdc
+готов обрабатывать.
+.It Fl H , Fl Fl enable-http
+Заставляет kdc прослушивать порт 80 и обрабатывать запросы, инкапсулированные в HTTP.
+.It Fl Fl no-524
+не отвечать на запросы 524
+.It Fl Fl kerberos4
+отвечать на запросы Kerberos 4
+.It Fl Fl kerberos4-cross-realm
+отвечать на запросы Kerberos 4 из других realm.
+Это известная дыра в безопасности; её не следует включать, если вы
+не понимаете последствий и не готовы с ними мириться.
+.It Fl r Ar строка , Fl Fl v4-realm= Ns Ar строка
+Какой realm этот сервер должен представлять при обработке запросов
+версии 4.
+База данных может содержать любое число realm, но поскольку протокол
+версии 4 не содержит realm для сервера, его необходимо явно
+указать.
+По умолчанию используется значение, возвращаемое
+.Fn krb_get_lrealm .
+Этот параметр доступен, только если KDC был скомпилирован с поддержкой
+версии 4.
+.It Fl P Ar спецификация портов , Fl Fl ports= Ns Ar спецификация портов
+Задаёт набор портов, которые KDC должен прослушивать.
+Он задаётся как
+разделённый пробелами список служб или номеров портов.
+.It Fl Fl addresses= Ns Ar список адресов
+Список адресов, на которых следует ожидать запросы.
+По умолчанию kdc прослушивает все локально настроенные
+адреса.
+Если нужен только поднабор или автоматическое определение не работает,
+можно использовать этот параметр.
+.It Fl Fl detach
+отсоединиться от pty и работать как демон.
+.It Fl Fl disable-des
+отключить типы шифрования DES, чтобы kdc их не использовал.
+.El
+.Pp
+Все действия записываются в журнал одного или нескольких назначений, см.
+.Xr krb5.conf 5 ,
+и
+.Xr krb5_openlog 3 .
+Для журналирования используется сущность
+.Nm kdc .
+.Sh ФАЙЛ КОНФИГУРАЦИИ
+Файл конфигурации имеет такой же синтаксис, как
+.Xr krb5.conf 5 ,
+но читается перед
+.Pa /etc/krb5.conf ,
+поэтому может переопределять найденные там настройки.
+Параметры, относящиеся только к KDC, находятся в разделе
+.Dq [kdc] .
+Все параметры командной строки предпочтительно можно добавлять в
+файл конфигурации.
+Единственное отличие — флаг предварительной аутентификации, который нужно
+указывать так:
+.Pp
+.Dl require-preauth = no
+.Pp
+(фактически можно указать параметр как
+.Fl Fl require-preauth=no ) .
+.Pp
+И есть некоторые параметры конфигурации, у которых нет
+эквивалентов в командной строке:
+.Bl -tag -width Ds
+.It Li enable-digest = Va boolean
+включить поддержку обработки digest в KDC.
+По умолчанию FALSE.
+.It Li check-ticket-addresses = Va boolean
+Проверять адреса в билете при обработке запросов TGS.
+По умолчанию TRUE.
+.It Li allow-null-ticket-addresses = Va boolean
+Разрешать билеты без адресов.
+Этот параметр имеет смысл только когда check-ticket-addresses имеет значение TRUE.
+.It Li allow-anonymous = Va boolean
+Разрешать анонимные билеты без адресов.
+.It Li max-kdc-datagram-reply-length = Va number
+Максимальный размер пакета, который KDC будет передавать в ответе UDP;
+вместо этого KDC отправляет обратно ответ, сообщающий клиенту использовать TCP.
+.It Li transited-policy = Li always-check \*(Ba \
+Li allow-per-principal | Li always-honour-request
+Это управляет тем, как обрабатываются запросы KDC с флагом
+.Li disable-transited-check
+; это может быть одно из:
+.It Li always-check
+Всегда проверять transited encoding; это значение по умолчанию.
+.It Li allow-per-principal
+В настоящее время это идентично
+.Li always-check .
+В будущем выпуске можно будет пометить принципал как способный
+обрабатывать непроверенные запросы.
+.It Li always-honour-request
+Всегда делать то, что запросил клиент.
+В будущем выпуске можно будет принудительно проверять для каждого
+принципала.
+.El
+.Bl -tag -width Ds
+.It encode_as_rep_as_tgs_rep = Va boolean
+Кодировать AS-Rep как TGS-Rep для совместимости с ошибками старого кода DCE.
+Клиенты Heimdal поддерживают оба.
+.It kdc_warn_pwexpire = Va time
+За какое время до истечения срока действия пароля/принципала KDC должен начать
+отправлять предупреждающие сообщения.
+.El
+.Pp
+Файл конфигурации читается только когда
+.Nm
+запускается.
+Если изменения, внесённые в файл конфигурации, должны вступить в силу,
+.Nm
+нужно перезапустить.
+.Pp
+Пример файла конфигурации:
+.Bd -literal -offset indent
+[kdc]
+	require-preauth = no
+	v4-realm = FOO.SE
+.Ed
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если на машине, где работает KDC, добавляются новые адреса, KDC
+придётся перезапустить, чтобы он начал их прослушивать.
+Причина, по которой он не просто прослушивает wildcard-адреса (как INADDR_ANY),
+в том, что ответы должны приходить с того же адреса, на который они
+были отправлены, а большинство ОС не передают эту информацию
+приложению.
+Если ваш обычный режим работы требует, чтобы вы добавляли и удаляли
+адреса, вероятно, лучший вариант — прослушивать wildcard TCP-сокет
+и убедиться, что ваши клиенты используют TCP для подключения.
+Например, так можно прослушивать только TCP-порт 88 IPv4:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Должен быть способ задавать тройки протокол, порт и адрес,
+а не только адреса и кортежи протокол, порт.
+.Sh СМ. ТАКЖЕ
+.Xr kinit 1 ,
+.Xr krb5.conf 5

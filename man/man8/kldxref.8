@@ -1,0 +1,104 @@
+.\"-
+.\" Copyright (c) 2001 Boris Popov
+.\" Copyright (c) 2001 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/kldxref/kldxref.8
+.\" FRDP githash 2b92b754f18ce86e11e56f91c73aae8d89be80cc
+.\" FRDP hash256 2115164d1354b67dbc5be8e2d3e518b566918a8d687288020aebb74a3dafce52
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 25, 2023
+.Dt KLDXREF 8
+.Os
+.Sh ИМЯ
+.Nm kldxref
+.Nd создание подсказок для загрузчика ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Rdv
+.Op Fl f Ar файл_подсказок
+.Ar путь ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания файлов подсказок, в которых перечислены модули, их
+номера версий и файлы, которые их содержат.
+Эти подсказки используются загрузчиком ядра для определения места поиска
+конкретного модуля KLD.
+.Pp
+Для каждого каталога, указанного в командной строке и содержащего модули,
+создаётся отдельный файл подсказок.
+Если для конкретного каталога не создано ни одной записи подсказок, файл
+подсказок не создаётся, а существовавший ранее файл подсказок (если он был в
+этом каталоге) удаляется.
+.Pp
+.Nm
+обрабатывает только файлы, которые либо не содержат точек в имени, как
+.Pa kernel ,
+либо оканчиваются на
+.Dq .ko ,
+как
+.Pa foo.ko .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl R
+Рекурсивно обходить подкаталоги.
+.It Fl d
+Не создавать файл подсказок, а выводить метаданные модуля в стандартный
+вывод.
+.It Fl f Ar файл_подсказок
+Указать другое имя для файлов подсказок, отличное от
+.Pa linker.hints .
+.It Fl v
+Работать в подробном режиме.
+.El
+.Sh ПРИМЕРЫ
+Чтобы создать файлы подсказок как для стандартных, так и для дополнительных модулей:
+.Pp
+.Pp
+Чтобы создать файлы подсказок для всех установленных ядер:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr kld 4 ,
+.Xr kldconfig 8 ,
+.Xr kldload 8 ,
+.Xr kldstat 8 ,
+.Xr kldunload 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была реализована
+.An Boris Popov Aq Mt bp@FreeBSD.org .
+Эта страница руководства была написана
+.An Boris Popov Aq Mt bp@FreeBSD.org
+и
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .

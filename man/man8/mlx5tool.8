@@ -1,0 +1,124 @@
+.\"
+.\" Copyright (c) 2018, 2019 Mellanox Technologies
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mlx5tool/mlx5tool.8
+.\" FRDP githash 2878d99dfcfbdd7a415a7f31cf95fbd53fc8e581
+.\" FRDP hash256 1d6ed71ac963cd6ddc336bc411dd496f6fe974b450b8a9a7f83ef159c0838f5f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 7, 2019
+.Dt mlx5tool 8
+.Os
+.Sh ИМЯ
+.Nm mlx5tool
+.Nd Утилита для управления сетевыми адаптерами Mellanox Connect-X 4/5/6
+.Sh СИНТАКСИС
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl E
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl e
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl f Ar file.mfa2
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl o Ar файл
+.Fl w
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl r
+.Nm
+.Fl d Ar domain:bus:slot:func
+.Fl z
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для управления сетевыми адаптерами Connect-X4, 5 и 6
+в вопросах, не охватываемых универсальной командой
+.Xr ifconfig 8 ,
+в основном связанных с подключением PCIe и внутренней работой карты.
+Утилита выполняет команды на конкретном адаптере, который адресуется с использованием
+.Em device:bus:slot:function
+соглашений шин PCIe.
+Вы можете сопоставить Ethernet-имя и адреса адаптеров с помощью утилиты
+.Xr pciconf 8 .
+Адрес передаётся как аргумент параметра
+.Fl d
+, который должен быть указан при каждом вызове.
+.Pp
+Когда драйвер обнаруживает неисправность оборудования, или по запросу пользователя,
+можно создать
+.Em дамп прошивки ,
+который содержит отладочную информацию о внутреннем состоянии устройства для
+анализа сбоя командой поддержки Mellanox.
+.Pp
+В настоящее время реализованы следующие команды:
+.Bl -tag -width indent
+.It Fl E
+Вывести информацию EEPROM
+.It Fl e
+Сделать снимок состояния регистров прошивки и сохранить его в
+буфере ядра.
+Буфер должен быть пустым, иными словами, ни один дамп не должен быть записан
+на данный момент, или существующий дамп очищен с помощью
+.It Fl f
+Прошивает образ прошивки
+.Fa file.mfa2
+в указанный адаптер.
+Образ должен быть в формате пакета MFA2 и содержать компонент, подходящий
+для аппаратного обеспечения адаптера.
+.Pp
+Обычно для активации только что прошитого образа требуется сброс на уровне канала PCIe,
+который можно выполнить перезагрузкой системы
+или с помощью
+.Fl z
+параметра.
+.Fl r
+команда для указанного устройства.
+.It Fl r
+Очистить сохранённый дамп прошивки, подготовив буфер ядра для
+следующего дампа.
+.It Fl w
+Извлекает сохранённый дамп прошивки и записывает его в файл, указанный
+в аргументе параметра
+.Fl o
+.
+.It Fl z
+Выполняет сброс на уровне канала PCIe для указанного устройства.
+.El
+.Sh ФАЙЛЫ
+Узел
+.Pa /dev/mlx5ctl
+.Xr devfs 4
+используется для передачи команд драйверу.
+.Sh СМ. ТАКЖЕ
+.Xr mlx5en 4 ,
+.Xr mlx5ib 4 ,
+.Xr mlx5io 4 ,
+.Xr ifconfig 8
+и
+.Xr pciconf 8 .

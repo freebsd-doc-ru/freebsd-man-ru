@@ -1,0 +1,187 @@
+.\"
+.\" Copyright (c) 1993 Paul Kranenburg
+.\" All rights reserved.
+.\" Copyright (c) 2021 The FreeBSD Foundation
+.\"
+.\" Portions of this documentation were written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed by Paul Kranenburg.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/ldconfig/ldconfig.8
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 9e117e23a305f892ffe3385544bec5ba400a5f17e6a793829948a846898609dd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 20, 2024
+.Dt LDCONFIG 8
+.Os
+.Sh ИМЯ
+.Nm ldconfig
+.Nd настраивает путь поиска разделяемых библиотек динамического компоновщика
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 32
+.Op Fl BRimr
+.Op Fl f Ar hints_file
+.Op Ar каталог | Ar
+.Sh ОПИСАНИЕ
+.Nm
+используется для настройки набора путей, используемых динамическим компоновщиком
+.Xr ld-elf.so.1 1
+при поиске разделяемых библиотек.
+Динамический компоновщик ищет библиотеки в наборе встроенных системных каталогов
+и любых каталогах, указанных в файле подсказок.
+Это избавляет от необходимости хранить пути поиска внутри исполняемого файла,
+см. параметр
+.Fl rpath
+статического компоновщика
+.Xr ld 1 .
+.Pp
+Файл подсказок поддерживается
+.Nm .
+Список
+.Ar каталогов
+для сохранения в файле подсказок задаётся в командной строке.
+.Pp
+Вместо списка
+.Ar каталогов
+в командной строке можно указать
+.Ar файлы
+; предполагается, что они содержат каталоги для поиска разделяемых библиотек.
+Путь к каждому каталогу должен начинаться с новой
+строки.
+Пустые строки и строки, начинающиеся с символа комментария
+.Ql \&#
+, игнорируются.
+.Pp
+По соображениям безопасности каталоги, доступные на запись для всех или для группы,
+либо не принадлежащие root, вызывают предупреждающие сообщения и пропускаются,
+если не указан параметр
+.Fl i .
+.Pp
+Переменная окружения
+.Ev LD_LIBRARY_PATH
+может использоваться для указания дополнительных
+каталогов поиска разделяемых библиотек.
+.Ev LD_LIBRARY_PATH
+— это разделённый символом
+.Sq \&:
+список путей к каталогам, которые просматриваются
+динамическим компоновщиком,
+когда ему нужно загрузить разделяемую библиотеку.
+Его можно рассматривать как эквивалент во время выполнения
+ключа
+.Fl L
+компоновщика
+.Xr ld 1 .
+.Pp
+Следующие параметры распознаются
+.Nm :
+.Bl -tag -width indent
+.It Fl 32
+Создаёт подсказки для разделяемых библиотек 32-битного ABI
+в 64-битных системах, поддерживающих запуск 32-битных исполняемых файлов.
+.It Fl elf
+Игнорируется для обратной совместимости.
+.It Fl B
+Принудительно записывает двоичные данные в файл подсказок с прямым порядком байтов.
+По умолчанию файлы подсказок создаются с обратным порядком байтов на всех
+архитектурах.
+Чтение и слияние с файлами подсказок сохраняет порядок байтов
+существующего файла подсказок.
+.It Fl R
+Добавляет пути из командной строки в список каталогов из
+файла подсказок.
+.Pp
+Это действие по умолчанию, когда не задано ни одного параметра.
+.It Fl f Ar hints_file
+Читает и/или обновляет указанный файл подсказок вместо стандартного файла.
+Этот параметр предназначен в основном для тестирования.
+.It Fl i
+Работать в небезопасном режиме.
+Проверки безопасности не выполняются.
+.It Fl m
+Вместо замены списка каталогов для поиска каталогами, указанными в
+командной строке, объединяет существующий список
+с указанными каталогами и записывает результат в файл подсказок.
+.It Fl r
+Выводит текущий список каталогов из файла подсказок
+в стандартный вывод.
+Файл подсказок не изменяется.
+.Pp
+Сканирует и выводит все библиотеки, найденные в списке каталогов.
+.El
+.Pp
+Исторические параметры
+.Fl elf ,
+.Fl s
+и
+.Fl v
+принимаются, но игнорируются.
+.Sh БЕЗОПАСНОСТЬ
+Следует проявлять особую осторожность при загрузке разделяемых библиотек в адресное
+пространство программ
+.Ev set-user-Id .
+Когда такая программа запускается любым пользователем, кроме владельца программы,
+динамический компоновщик будет загружать разделяемые библиотеки только из путей, найденных в
+файле подсказок.
+В частности,
+.Ev LD_LIBRARY_PATH
+не используется для поиска библиотек.
+Таким образом,
+.Nm
+служит для указания доверенного набора каталогов, из которых
+можно безопасно загружать разделяемые объекты.
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/local/libdata/ldconfig/* -compact
+.It Pa /var/run/ld-elf.so.hints
+Стандартный файл подсказок для динамического компоновщика ELF.
+.It Pa /var/run/ld-elf32.so.hints
+Файл подсказок для 32-битных библиотек на 64-битных архитектурах, обрабатываемый
+ldconfig при вызове с
+.Fl 32 .
+.It Pa /etc/ld-elf.so.conf
+Необязательный файл с именами каталогов, которые должны быть включены в стандартный
+файл подсказок при загрузке в многопользовательском режиме.
+.It Pa /usr/local/libdata/ldconfig/*
+Дополнительные файлы с именами каталогов, предоставляемые дополнительными портами
+или пакетами.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ld 1 ,
+.Xr ld-elf.so.1 1 ,
+.Xr link 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в SunOS 4.0, в текущем виде она появилась в
+.Fx 1.1 .
+.Pp
+Название «файл подсказок» исторически связано с тем, что файл также содержал
+подсказки для динамического компоновщика.
+Для ELF эта функциональность не предусмотрена.

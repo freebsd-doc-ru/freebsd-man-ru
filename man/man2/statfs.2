@@ -1,0 +1,270 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/statfs.2
+.\" FRDP githash 76e911dba5045b3aa39570d7da68a97213d2355b
+.\" FRDP hash256 f6ee8ec9f8377de77796be09e995cf381d6013a7de7dab3d47ef3a699e80a870
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 20, 2025
+.Dt STATFS 2
+.Os
+.Sh ИМЯ
+.Nm statfs
+.Nd получение статистики файловой системы
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/mount.h
+.Ft int
+.Fn statfs "const char *path" "struct statfs *buf"
+.Ft int
+.Fn fstatfs "int fd" "struct statfs *buf"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn statfs
+возвращает информацию о смонтированной файловой системе.
+Аргумент
+.Fa path
+является именем пути любого файла в пределах смонтированной файловой системы.
+Аргумент
+.Fa buf
+является указателем на структуру
+.Vt statfs
+, определённую следующим образом:
+.Bd -literal
+typedef struct fsid { int32_t val[2]; } fsid_t; /* file system id type */
+
+/*
+ * filesystem statistics
+ */
+
+#define	MFSNAMELEN	16		/* length of type name including null */
+#define	MNAMELEN	1024		/* size of on/from name bufs */
+#define	STATFS_VERSION	0x20140518	/* current version number */
+
+struct statfs {
+uint32_t f_version;		/* structure version number */
+uint32_t f_type;		/* type of filesystem */
+uint64_t f_flags;		/* copy of mount exported flags */
+uint64_t f_bsize;		/* filesystem fragment size */
+uint64_t f_iosize;		/* optimal transfer block size */
+uint64_t f_blocks;		/* total data blocks in filesystem */
+uint64_t f_bfree;		/* free blocks in filesystem */
+int64_t	 f_bavail;		/* free blocks avail to non-superuser */
+uint64_t f_files;		/* total file nodes in filesystem */
+int64_t	 f_ffree;		/* free nodes avail to non-superuser */
+uint64_t f_syncwrites;		/* count of sync writes since mount */
+uint64_t f_asyncwrites;		/* count of async writes since mount */
+uint64_t f_syncreads;		/* count of sync reads since mount */
+uint64_t f_asyncreads;		/* count of async reads since mount */
+uint64_t f_spare[10];		/* unused spare */
+uint32_t f_namemax;		/* maximum filename length */
+uid_t	  f_owner;		/* user that mounted the filesystem */
+fsid_t	  f_fsid;		/* filesystem id */
+char	  f_charspare[80];	    /* spare string space */
+char	  f_fstypename[MFSNAMELEN]; /* filesystem type name */
+char	  f_mntfromname[MNAMELEN];  /* mounted filesystem */
+char	  f_mntonname[MNAMELEN];    /* directory on which mounted */
+};
+.Ed
+.Pp
+Могут быть возвращены следующие флаги:
+.Bl -tag -width MNT_SYNCHRONOUS
+.It Dv MNT_ACLS
+Поддержка списков управления доступом (ACL) включена.
+.It Dv MNT_ASYNC
+Ввод-вывод файловой системы не выполняется синхронно.
+.It Dv MNT_AUTOMOUNTED
+Файловая система была автоматически смонтирована, см.
+.Xr autofs 4 .
+.It Dv MNT_DEFEXPORTED
+Файловая система экспортируется для чтения и записи любому хосту в Интернете.
+.It Dv MNT_GJOURNAL
+Включено журналирование с помощью gjournal (см.
+.Xr gjournal 8 ) .
+.It Dv MNT_EXKERB
+Файловая система экспортируется с отображением uid через Kerberos.
+.It Dv MNT_EXPORTANON
+Файловая система отображает все удалённые обращения на анонимного пользователя.
+.It Dv MNT_EXPORTED
+Файловая система экспортируется для чтения и записи.
+.It Dv MNT_EXPUBLIC
+Файловая система экспортируется публично (WebNFS).
+.It Dv MNT_EXRDONLY
+Файловая система экспортируется только для чтения.
+.It Dv MNT_IGNORE
+Файловая система не должна отображаться в списках, например,
+.Xr df 1 .
+.It Dv MNT_LOCAL
+Файловая система расположена локально.
+.It Dv MNT_MULTILABEL
+Поддержка мандатного управления доступом (MAC) для отдельных объектов
+(см.
+.Xr mac 4 ) .
+.It Dv MNT_NAMEDATTR
+Файловая система поддерживает именованные атрибуты, как описано в
+.Xr named_attribute 7 .
+.It Dv MNT_NFS4ACLS
+Поддерживаются ACL в варианте NFSv4.
+.It Dv MNT_NOATIME
+Обновление времён доступа к файлам отключено.
+.It Dv MNT_NOCLUSTERR
+Кластеризация чтения отключена.
+.It Dv MNT_NOCLUSTERW
+Кластеризация записи отключена.
+.It Dv MNT_NOEXEC
+Файлы не могут быть выполнены из файловой системы.
+.It Dv MNT_NOSUID
+Биты setuid и setgid на файлах не учитываются при их выполнении.
+.It Dv MNT_NOSYMFOLLOW
+Символические ссылки не разыменовываются.
+.It Dv MNT_SOFTDEP
+Выполняются мягкие обновления (см.
+.Xr ffs 4 ) .
+.It Dv MNT_SUIDDIR
+Специальная обработка бита SUID на каталогах.
+.It Dv MNT_SUJ
+Выполняются мягкие обновления с журналированием.
+.It Dv MNT_SYNCHRONOUS
+Весь ввод-вывод файловой системы выполняется синхронно.
+.It Dv MNT_QUOTA
+На файловой системе включены квоты.
+.It Dv MNT_RDONLY
+Файловая система смонтирована только для чтения;
+даже суперпользователь не может в неё записывать.
+.It Dv MNT_ROOTFS
+Идентифицирует корневую файловую систему.
+.It Dv MNT_UNION
+Объединение с нижележащей файловой системой.
+.It Dv MNT_UNTRUSTED
+Файловая система была смонтирована с опцией
+.Cm untrusted
+, что указывает на носитель неизвестного происхождения или целостности.
+В настоящее время учитывается в
+.Xr ffs 4 .
+.It Dv MNT_USER
+Файловая система была смонтирована пользователем.
+.It Dv MNT_VERIFIED
+Файловая система помечена как проверенная, проверка отпечатка при
+.Xr execve 2
+не требуется, см.
+.Xr mac_veriexec 4 .
+.El
+.Pp
+Поля, не определённые для конкретной файловой системы, устанавливаются в -1.
+Системный вызов
+.Fn fstatfs
+возвращает ту же информацию об открытом файле, на который ссылается дескриптор
+.Fa fd .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn statfs
+завершается с ошибкой, если выполняется одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути
+.Fa path
+не является каталогом.
+.It Bq Er ENAMETOOLONG
+Длина компонента
+.Fa path
+превышает 255 символов,
+или длина
+.Fa path
+превышает 1023 символа.
+.It Bq Er ENOENT
+Файл, на который ссылается
+.Fa path ,
+не существует.
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути
+.Fa path
+отказано.
+.It Bq Er ELOOP
+При обработке
+.Fa path
+встречено слишком много символических ссылок.
+.It Bq Er EFAULT
+Аргумент
+.Fa buf
+или
+.Fa path
+указывает на недопустимый адрес.
+.It Bq Er EIO
+Произошла ошибка
+.Tn I/O
+при чтении из файловой системы или записи в неё.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+Системный вызов
+.Fn fstatfs
+завершается с ошибкой, если выполняется одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым открытым файловым дескриптором.
+.It Bq Er EFAULT
+Аргумент
+.Fa buf
+указывает на недопустимый адрес.
+.It Bq Er EIO
+Произошла ошибка
+.Tn I/O
+при чтении из файловой системы или записи в неё.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh ПРИМЕЧАНИЯ
+Поля структуры
+.Vt statfs
+определены для предоставления параметров, актуальных для
+традиционных файловых систем UNIX.
+Для некоторых других файловых систем могут возвращаться значения
+со схожей, но не идентичной семантикой по сравнению с описанной выше.
+Примером является msdosfs, которая в случае файловых систем FAT12 или FAT16
+сообщает количество доступных и свободных записей корневого каталога
+вместо inode
+.Po
+где для хранения каждого имени файла или каталога либо метки диска
+требуется от 1 до 21 такой записи каталога
+.Pc .
+.Sh СМ. ТАКЖЕ
+.Xr fhstatfs 2 ,
+.Xr getfsstat 2 ,
+.Xr named_attribute 7
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn statfs
+впервые появился в
+.Bx 4.4 .

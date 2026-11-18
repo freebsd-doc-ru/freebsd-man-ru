@@ -1,0 +1,229 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rwhod/rwhod.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 1e0f8cfcd268847a8083aca62b49ddf96a40ee3664b39aae77e12881eaa7b18f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 8, 2017
+.Dt RWHOD 8
+.Os
+.Sh ИМЯ
+.Nm rwhod
+.Nd сервер состояния системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i
+.Op Fl p
+.Op Fl l
+.Op Fl m Op Ar ttl
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является сервером, который поддерживает базу данных, используемую программами
+.Xr rwho 1
+и
+.Xr ruptime 1 .
+Его работа основана на возможности
+.Em широковещательной
+или
+.Em многоадресной
+рассылки сообщений в сети.
+.Pp
+Утилита
+.Nm
+работает как производитель и потребитель информации о состоянии,
+если не указана опция
+.Fl l
+(режим прослушивания), в этом случае
+она действует только как потребитель.
+Как производитель информации, она периодически
+опрашивает состояние системы и создаёт
+сообщения о состоянии, которые широковещательно или многоадресно рассылаются по сети.
+Как потребитель информации, она прослушивает сообщения о состоянии других серверов
+.Nm
+, проверяет их, а затем записывает
+их в набор файлов, расположенных в каталоге
+.Pa /var/rwho .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl i
+Включает небезопасный режим, который заставляет
+.Nm
+игнорировать исходный порт во входящих пакетах.
+.It Fl p
+Игнорировать все
+.Dv POINTOPOINT
+интерфейсы.
+Это полезно, если вы не хотите, чтобы интерфейсы dial on demand
+постоянно оставались активными.
+.It Fl l
+Включает режим прослушивания, который заставляет
+.Nm
+не рассылать никакой информации.
+Это позволяет вам отслеживать информацию
+.Nm
+других машин, не рассылая свою собственную.
+.It Fl m Op Ar ttl
+Заставляет
+.Nm
+использовать IP многоадресную рассылку (вместо
+широковещательной) на всех интерфейсах, которые имеют
+(исключая интерфейс обратной петли).
+Многоадресные
+отчёты отправляются с временем жизни 1, чтобы предотвратить
+пересылку за пределы непосредственно подключённых подсетей.
+.Pp
+Если необязательный
+.Ar ttl
+аргумент указан с флагом
+.Fl m ,
+.Nm
+будет отправлять IP многоадресные датаграммы с
+временем жизни
+.Ar ttl ,
+через ЕДИНСТВЕННЫЙ интерфейс, а не
+через все интерфейсы.
+.Ar ttl
+должен быть между 0 и
+32 (или MAX_MULTICAST_SCOPE).
+Обратите внимание, что
+.Fl m Ar 1
+отличается от
+.Fl m ,
+тем что
+.Fl m Ar 1
+указывает передачу только на одном интерфейсе.
+.Pp
+Когда
+.Fl m
+используется без аргумента
+.Ar ttl ,
+программа принимает многоадресные отчёты
+.Nm
+со всех интерфейсов, поддерживающих многоадресную рассылку.
+Если аргумент
+.Ar ttl
+задан, она принимает многоадресные отчёты только с одного интерфейса,
+того, на который отправляются отчёты (который может управляться через таблицу маршрутизации
+хоста).
+Независимо от опции
+.Fl m ,
+программа принимает широковещательные или
+одноадресные отчёты со всех интерфейсов.
+Таким образом, эта программа будет слышать
+отчёты старых
+.Nm Ns s ,
+не поддерживающих многоадресную рассылку,
+но, если используется многоадресная рассылка,
+те старые
+.Nm Ns s
+не будут слышать отчёты, генерируемые этой программой.
+.El
+.Pp
+Сервер передаёт и принимает сообщения на порту, указанном
+в спецификации службы ``who''; см.
+.Xr services 5 .
+Отправляемые и принимаемые сообщения имеют следующий вид:
+.Bd -literal -offset indent
+struct	outmp {
+	char	out_line[8];		/* имя tty */
+	char	out_name[8];		/* идентификатор пользователя */
+	long	out_time;		/* время работы */
+};
+
+struct	whod {
+	char	wd_vers;
+	char	wd_type;
+	char	wd_fill[2];
+	int	wd_sendtime;
+	int	wd_recvtime;
+	char	wd_hostname[32];
+	int	wd_loadav[3];
+	int	wd_boottime;
+	struct	whoent {
+		struct	outmp we_utmp;
+		int	we_idle;
+	} wd_we[1024 / sizeof (struct whoent)];
+};
+.Ed
+.Pp
+Все поля преобразуются в сетевой порядок байтов перед
+передачей.
+Средние нагрузки вычисляются программой
+.Xr w 1
+и представляют собой средние нагрузки за 5, 10 и 15-минутные
+интервалы перед передачей сервером; они умножаются на 100
+для представления в виде целого числа.
+Включаемое имя хоста — это то, что возвращается
+системным вызовом
+.Xr gethostname 3
+, с опущенным конечным доменным именем.
+Массив в конце сообщения содержит информацию о
+пользователях, вошедших в систему на отправляющей машине.
+Эта информация
+включает содержимое записи из базы данных учёта пользователей
+для каждой небездействующей линии терминала и значение, указывающее
+время в секундах с момента последнего получения символа на линии терминала.
+.Pp
+Сообщения, полученные сервером
+.Nm rwho
+, отбрасываются, если они не пришли с порта сервера
+.Nm rwho
+или не была указана опция
+.Fl i .
+Кроме того, если имя хоста, указанное
+в сообщении, содержит любые непечатаемые
+.Tn ASCII
+символы,
+сообщение отбрасывается.
+Допустимые сообщения, полученные
+.Nm
+, помещаются в файлы с именем
+.Pa whod.hostname
+в каталоге
+.Pa /var/rwho .
+Эти файлы содержат только самое последнее сообщение в
+формате, описанном выше.
+.Pp
+Сообщения о состоянии генерируются примерно раз в
+3 минуты.
+.Sh СМ. ТАКЖЕ
+.Xr ruptime 1 ,
+.Xr rwho 1
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Информация о состоянии должна отправляться только по запросу, а не постоянно.
+Люди часто интерпретируют смерть сервера
+или сбои сетевой связи
+как выход машины из строя.

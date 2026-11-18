@@ -1,0 +1,136 @@
+.\" Copyright (c) 1998 Jonathan Lemon
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/i386/i386_vm86.2
+.\" FRDP githash 4bc66c0f9f2c349af86cbf4e77f000b49d819fea
+.\" FRDP hash256 d9da53a26d89a96206e2f28739a5bcb18048aab245663b2246a7c2efe73a8030
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 27, 1998
+.Dt I386_VM86 2
+.Os
+.Sh ИМЯ
+.Nm i386_vm86
+.Nd управление функциями, связанными с vm86
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In machine/sysarch.h
+.In machine/vm86.h
+.Ft int
+.Fn i386_vm86 "int function" "void *data"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn i386_vm86
+используется для вызова различных функций, связанных с vm86.
+Аргумент
+.Fa function
+может принимать одно из следующих значений:
+.Bl -tag -offset indent -width VM86_SET_VME
+.It Dv VM86_INIT
+Инициализирует область параметров vm86 ядра для
+процесса и разрешает процессу выполнять вызовы vm86.
+Аргумент
+.Fa data
+указывает на следующую структуру:
+.Bd -literal
+struct vm86_init_args {
+        int     debug;
+        int     cpu_type;
+        u_char  int_map[32];
+};
+.Ed
+.Pp
+Аргумент
+.Fa debug
+используется для включения отладочного кода.
+Аргумент
+.Fa cpu_type
+управляет типом эмулируемого процессора и в настоящее время не реализован.
+Аргумент
+.Fa int_map
+представляет собой битовую карту, которая определяет, должны ли прерывания vm86
+обрабатываться в режиме vm86 или передаваться обратно процессу.
+Если
+.Em N-й
+бит установлен, прерывание будет передано процессу, иначе
+оно будет обработано таблицей прерываний vm86.
+.It Dv VM86_INTCALL
+Позволяет процессу выполнять вызовы обработчиков прерываний vm86.
+Фактически имитирует инструкцию INT.
+.Fa data
+должен указывать на следующую структуру:
+.Bd -literal
+struct vm86_intcall_args {
+	int	intnum;
+	struct	vm86frame vmf;
+};
+.Ed
+.Pp
+.Fa intnum
+задаёт операнд INT для имитируемого вызова.
+Например, значение 0x10 часто используется для вызова VGA BIOS.
+.Fa vmf
+используется для инициализации регистров процессора в соответствии с соглашением о вызове
+для обработчика прерываний.
+.It Dv VM86_GET_VME
+Используется для получения текущего состояния флага
+VME (Virtual-8086 Mode Extensions) процессора Pentium(r), который является битом 0 регистра CR4.
+.Fa data
+должен быть инициализирован указателем на следующее:
+.Bd -literal
+struct vm86_vme_args {
+	int	state;			/* status */
+};
+.Ed
+.Pp
+.Fa state
+будет содержать состояние флага VME при возврате.
+.El
+.Pp
+Вход в режим vm86 осуществляется путём вызова
+.Xr sigreturn 2
+с правильным машинным контекстом для vm86 и с установленным
+битом
+.Dv PSL_VM .
+Управление возвращается процессу при доставке сигнала.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std i386_vm86
+.Sh ОШИБКИ
+Системный вызов
+.Fn i386_vm86
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Ядро не поддерживает vm86 или указана недопустимая функция.
+.It Bq Er ENOMEM
+Недостаточно памяти для инициализации структур данных ядра.
+.El
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была написана
+.An Jonathan Lemon
+и обновлена
+.An Bruce M Simpson .

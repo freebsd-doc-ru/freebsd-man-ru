@@ -1,0 +1,87 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getgid.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c1246da445a4bf35aaef4e0a74a6719161764c4e759bace97a975e38e607f5d2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 1, 2020
+.Dt GETGID 2
+.Os
+.Sh ИМЯ
+.Nm getgid ,
+.Nm getegid
+.Nd получение идентификатора группы процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft gid_t
+.Fn getgid void
+.Ft gid_t
+.Fn getegid void
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn getgid
+возвращает реальный идентификатор группы вызывающего процесса,
+.Fn getegid
+возвращает эффективный идентификатор группы вызывающего процесса.
+.Pp
+Реальный идентификатор группы задаётся во время входа в систему.
+.Pp
+Реальный идентификатор группы — это группа пользователя, запустившего программу.
+Поскольку эффективный идентификатор группы даёт процессу дополнительные права
+во время выполнения процессов с
+.Dq Em set-group-ID
+режимом,
+.Fn getgid
+используется для определения реального идентификатора пользователя вызывающего процесса.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn getgid
+и
+.Fn getegid
+всегда завершаются успешно, и никакое возвращаемое значение не зарезервировано
+для указания на ошибку.
+.Sh СМ. ТАКЖЕ
+.Xr getuid 2 ,
+.Xr issetugid 2 ,
+.Xr setgid 2 ,
+.Xr setregid 2
+.Sh СТАНДАРТЫ
+Ожидается, что системные вызовы
+.Fn getgid
+и
+.Fn getegid
+соответствуют
+.St -p1003.1-90 .
+.Sh ИСТОРИЯ
+Функция
+.Fn getgid
+появилась в
+.At v4 .

@@ -1,0 +1,108 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/socketpair.2
+.\" FRDP githash efadb5c2a908a08e98f917ef6e6e65c73e8d04af
+.\" FRDP hash256 ec6357152336c4b41c1ac33c9294eef1b5309e58e9041bc1f78a2416de2c4cd3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 17, 2025
+.Dt SOCKETPAIR 2
+.Os
+.Sh ИМЯ
+.Nm socketpair
+.Nd создать пару соединённых сокетов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.Ft int
+.Fn socketpair "int domain" "int type" "int protocol" "int *sv"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn socketpair
+создаёт безымянную пару соединённых сокетов в указанном домене связи
+.Fa domain ,
+указанного
+.Fa type
+и с использованием необязательно указанного
+.Fa protocol .
+Дескрипторы, используемые для ссылки на новые сокеты,
+возвращаются в
+.Fa sv Ns [0]
+и
+.Fa sv Ns [1] .
+Два сокета неразличимы.
+.Pp
+Флаги
+.Dv SOCK_CLOEXEC ,
+.Dv SOCK_CLOFORK
+и
+.Dv SOCK_NONBLOCK
+в аргументе
+.Fa type
+применяются к обоим дескрипторам.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std socketpair
+.Sh ОШИБКИ
+Вызов завершается успешно, если не возникает следующая ситуация:
+.Bl -tag -width Er
+.It Bq Er EMFILE
+Слишком много дескрипторов используется этим процессом.
+.It Bq Er EAFNOSUPPORT
+Указанное семейство адресов не поддерживается на этой машине.
+.It Bq Er EPROTONOSUPPORT
+Указанный протокол не поддерживается на этой машине.
+.It Bq Er EOPNOTSUPP
+Указанный протокол не поддерживает создание пар сокетов.
+.It Bq Er EFAULT
+Адрес
+.Fa sv
+не указывает на допустимую часть адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pipe 2 ,
+.Xr read 2 ,
+.Xr socket 2 ,
+.Xr write 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn socketpair
+соответствует
+.St -p1003.1-2001
+и
+.St -p1003.1-2008 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn socketpair
+появился в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+В настоящее время этот вызов реализован только для домена
+.Ux
+.

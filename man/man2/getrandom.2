@@ -1,0 +1,134 @@
+.\" Copyright 2020, 2018 Conrad Meyer <cem@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getrandom.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 055e8de3767c6251da5386b11d3a867e1e3b738af8613334f486ad9e5aca1b19
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 12, 2020
+.Dt GETRANDOM 2
+.Os
+.Sh ИМЯ
+.Nm getrandom
+.Nd получить случайные данные
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/random.h
+.Ft ssize_t
+.Fn getrandom "void *buf" "size_t buflen" "unsigned int flags"
+.Sh ОПИСАНИЕ
+.Fn getrandom
+заполняет
+.Fa buf
+объёмом до
+.Fa buflen
+байт случайных данных.
+.Pp
+Аргумент
+.Fa flags
+может включать ноль или более следующих значений:
+.Bl -tag -width _GRND_NONBLOCK_
+.It Ql GRND_NONBLOCK
+Вернуть
+.Er EAGAIN
+вместо блокировки, если устройство
+.Xr random 4
+ещё не инициализировано.
+По умолчанию
+.Fn getrandom
+будет блокироваться до инициализации устройства.
+.It Ql GRND_RANDOM
+Этот флаг ничего не делает во
+.Fx .
+.Pa /dev/random
+и
+.Pa /dev/urandom
+идентичны.
+.It Ql GRND_INSECURE
+Этот флаг рассматривается как альтернативное имя для
+.Dv GRND_NONBLOCK .
+Он предоставлен исключительно для совместимости API с Linux.
+.El
+.Pp
+Если устройство
+.Xr random 4
+инициализировано, чтение объёмом до 256 байт всегда вернёт столько
+байт, сколько запрошено, и не будет прервано сигналами.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном завершении возвращается количество фактически прочитанных
+байт.
+Для запросов больше 256 байт это может быть меньше запрошенного
+количества байт.
+В противном случае возвращается -1, а глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Операция
+.Fn getrandom
+возвращает следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Был установлен флаг
+.Ql GRND_NONBLOCK
+(или
+.Ql GRND_INSECURE ),
+а устройство
+.Xr random 4
+ещё не инициализировано.
+.It Bq Er EFAULT
+Параметр
+.Fa buf
+указывает на недопустимый адрес.
+.It Bq Er EINTR
+Ожидание было прервано сигналом.
+.It Bq Er EINVAL
+Указан недопустимый
+.Fa flags .
+.It Bq Er EINVAL
+Запрошенный
+.Fa buflen
+превышал
+.Dv IOSIZE_MAX .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr arc4random 3 ,
+.Xr getentropy 3 ,
+.Xr random 4
+.Sh СТАНДАРТЫ
+.Fn getrandom
+не является стандартной.
+Она присутствует в Linux.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getrandom
+впервые появился во
+.Fx 12.0 .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+В отличие от Linux, флаг
+.Dv GRND_INSECURE
+во
+.Fx
+не выдаёт никаких данных до инициализации устройства
+.Xr random 4 .

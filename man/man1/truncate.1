@@ -1,0 +1,264 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2000 Sheldon Hearn <sheldonh@FreeBSD.org>.
+.\" All rights reserved.
+.\" Copyright (c) 2021 The FreeBSD Foundation
+.\"
+.\" Portions of this manual page were written by Ka Ho Ng <khng@FreeBSD.org>
+.\" under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/truncate/truncate.1
+.\" FRDP githash 91ad27bcfc496393ba88f39ca13cdf1c59a7f487
+.\" FRDP hash256 5aa264cc1e3a1a49a1040849d51830b4eb0a3ff9a40df3ba2f3d01987391efeb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 9, 2025
+.Dt TRUNCATE 1
+.Os
+.Sh ИМЯ
+.Nm truncate
+.Nd изменение размера файлов или управление пространством файлов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl c
+.Bk -words
+.Fl s Xo
+.Sm off
+.Op Cm + | - | % | /
+.Ar размер
+.Op Cm SUFFIX
+.Sm on
+.Xc
+.Ek
+.Ar
+.Nm
+.Op Fl c
+.Bk -words
+.Fl r Ar rfile
+.Ek
+.Ar
+.Nm
+.Op Fl c
+.Bk -words
+.Fl d
+.Oo
+.Fl o Xo
+.Sm off
+.Ar смещение
+.Op Cm SUFFIX
+.Sm on
+.Xc
+.Oc
+.Fl l Xo
+.Sm off
+.Ar длина
+.Op Cm SUFFIX
+.Sm on
+.Xc
+.Ek
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет длину каждого обычного файла, заданного в командной строке, или
+выполняет управление пространством с заданными смещением и длиной над обычным
+файлом, заданным в командной строке.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl c
+Не создавать файлы, если они не существуют.
+Утилита
+.Nm
+не считает это ошибкой.
+Сообщения об ошибках не выводятся,
+и код завершения не изменяется.
+.It Fl r Ar rfile
+Усечь или расширить файлы до длины файла
+.Ar rfile .
+.It Fl s Xo
+.Sm off
+.Op Cm + | - | % | /
+.Ar размер
+.Op Cm SUFFIX
+.Sm on
+.Xc
+Если перед аргументом
+.Ar размер
+стоит знак плюс
+.Pq Cm + ,
+файлы будут расширены на это число байтов.
+Если перед аргументом
+.Ar размер
+стоит знак минус
+.Pq Cm - ,
+длины файлов будут уменьшены не более чем на это число байтов,
+до минимальной длины в ноль байтов.
+Если перед аргументом
+.Ar размер
+стоит знак процента
+.Pq Cm % ,
+файлы будут округлены вверх до значения, кратного этому числу байтов.
+Если перед аргументом
+.Ar размер
+стоит знак косой черты
+.Pq Cm / ,
+файлы будут округлены вниз до значения, кратного этому числу байтов,
+до минимальной длины в ноль байтов.
+В противном случае аргумент
+.Ar размер
+задаёт абсолютную длину, до которой все файлы
+должны быть расширены или уменьшены соответствующим образом.
+.It Fl d
+Обнулить область в указанном файле.
+Если нижележащая файловая система данного файла поддерживает пробивание дыр
+(hole-punching),
+в области операции может быть выполнено освобождение пространства файловой системы.
+.It Fl o Ar смещение
+Операция управления пространством выполняется в файле по заданному смещению
+.Ar смещение
+в байтах.
+Если эта опция не указана,
+операция выполняется в начале файла.
+.It Fl l Ar длина
+Длина диапазона операции в байтах.
+Эта опция должна всегда указываться, если указана опция
+.Fl d
+, и должна быть больше 0.
+.El
+.Pp
+Аргументы
+.Ar размер ,
+.Ar смещение
+и
+.Ar длина
+могут иметь суффикс одного из
+.Cm K ,
+.Cm M ,
+.Cm G
+или
+.Cm T
+(в верхнем или нижнем регистре), чтобы указать кратность
+килобайтам, мегабайтам, гигабайтам или терабайтам
+соответственно.
+.Pp
+Должна быть указана ровно одна из опций
+.Fl r ,
+.Fl s
+и
+.Fl d .
+.Pp
+Если файл уменьшается, его лишние данные теряются.
+Если файл увеличивается,
+он будет расширен так, как если бы были записаны байты со значением ноль.
+Если файл не существует,
+он создаётся, если не указана опция
+.Fl c .
+.Pp
+Заметьте, что
+хотя усечение файла приводит к освобождению места на диске,
+расширение файла не приводит к выделению места.
+Чтобы расширить файл и действительно выделить место,
+необходимо явно записать в него данные,
+используя (например) синтаксис перенаправления
+.Ql >>
+оболочки, или
+.Xr dd 1 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+Если операция для какого-либо аргумента завершается неудачно,
+.Nm
+выдаст диагностическое сообщение
+и продолжит обработку остальных аргументов.
+.Sh ПРИМЕРЫ
+Изменить размер файла
+.Pa test_file
+до 10 мегабайт, но не создавать его, если он не существует:
+.Bd -literal -offset indent
+truncate -c -s 10M test_file
+.Ed
+.Pp
+То же, что выше, но создать файл, если он не существует:
+.Bd -literal -offset indent
+truncate -s +10M test_file
+ls -lh test_file
+-rw-r--r--  1 root  wheel    10M Jul 22 18:48 test_file
+.Ed
+.Pp
+Изменить размер
+.Pa test_file
+до размера ядра и создать другой файл
+.Pa test_file2
+такого же размера:
+.Bd -literal -offset indent
+truncate -r /boot/kernel/kernel test_file test_file2
+ls -lh /boot/kernel/kernel test_file*
+-r--r--r--  1 root  wheel    30M May 15 14:18 /boot/kernel/kernel
+-rw-r--r--  1 root  wheel    30M Jul 22 19:15 test_file
+-rw-r--r--  1 root  wheel    30M Jul 22 19:15 test_file2
+.Ed
+.Pp
+Увеличить размер файла
+.Pa test_file
+на 5 мегабайт, но не создавать его, если он не существует:
+.Bd -literal -offset indent
+truncate -s +5M test_file
+ls -l test_file*
+-rw-r--r--  1 root  wheel    36595432 Sep 20 19:17 test_file
+-rw-r--r--  1 root  wheel    31352552 Sep 20 19:15 test_file2
+.Ed
+.Pp
+Уменьшить размер файла
+.Pa test_file
+на 5 мегабайт:
+.Bd -literal -offset indent
+truncate -s -5M test_file
+ls -lh test_file*
+-rw-r--r--  1 root  wheel    25M Jul 22 19:17 test_file
+-rw-r--r--  1 root  wheel    30M Jul 22 19:15 test_file2
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr dd 1 ,
+.Xr touch 1 ,
+.Xr fspacectl 2 ,
+.Xr truncate 2
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+не соответствует ни одному известному стандарту.
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 4.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Sheldon Hearn Aq Mt sheldonh@starjuice.net .
+Поддержка пробивания дыр в этой
+утилите была разработана
+.An Ka Ho Ng Aq Mt khng@FreeBSD.org .

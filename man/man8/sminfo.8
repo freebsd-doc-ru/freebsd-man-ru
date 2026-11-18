@@ -1,0 +1,194 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/sminfo.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 e60664ddcbb94b7a1da1cdf1d2faa2df200fecba247e1c2a6fccc74f7d9a46da
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+SMINFO \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС АТРИБУТА SMINFO INFINIBAND
+.SS СИНТАКСИС
+.sp
+sminfo [options] sm_lid | sm_dr_path [modifier]
+.SS ОПИСАНИЕ
+.sp
+Опционально задаёт и отображает вывод запроса sminfo в удобочитаемом
+формате. Целевой SM — это SM, указанный в информации локального порта, либо SM,
+заданный необязательным SM lid или прямым маршрутным путём SM.
+.sp
+Примечание: использование sminfo для любых целей, кроме простого запроса, может быть очень
+опасным и привести к сбою целевого SM.
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-s, \-\-state <state>\fP задать состояние SM
+0 не активен
+.sp
+1 обнаружение
+.sp
+2 резервный
+.sp
+3 мастер
+.UNINDENT
+.sp
+\fB\-p, \-\-priority <priority>\fP задать приоритет (0\-15)
+.sp
+\fB\-a, \-\-activity <val>\fP задать счётчик активности
+.SS Флаги адресации
+.
+.sp
+\fB\-D, \-\-Direct\fP     Указанный адрес является прямым маршрутом
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Примеры:
+
+   (Примечание: второе число в указанном пути должно совпадать с портом,
+   который используется.  Это можно указать с помощью флага выбора порта \(aq\-P\(aq или
+   порта, найденного в процессе автоматического выбора.)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес является GUID порта
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес является LID
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны,
+порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физическое соединение установлено).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершится неудачей, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт из первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показать ошибки отправки и приёма (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+увеличить уровень подробности приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрашиваемых mads.
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq),
+будет запрошено значение.
+.UNINDENT
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SS ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для задания некоторых общих параметров для всех
+инструментов.  Подробности см. в прилагаемом файле конфигурации.
+.SS ПРИМЕРЫ
+.INDENT 0.0
+.TP
+.B ::
+sminfo                  # sminfo локального порта
+sminfo 32               # показать sminfo для lid 32
+sminfo  \-G 0x8f1040023  # то же, но с использованием guid-адреса
+.UNINDENT
+.SS СМ. ТАКЖЕ
+.sp
+smpdump (8)
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

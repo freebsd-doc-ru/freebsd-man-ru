@@ -1,0 +1,96 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/modnext.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 3f206172bd986d28601788e8468cb48bd9c9f599264ba77fd1a04efc3bf0f2da
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 28, 2000
+.Dt MODNEXT 2
+.Os
+.Sh ИМЯ
+.Nm modnext
+.Nd возвращает modid следующего модуля ядра
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/module.h
+.Ft int
+.Fn modnext "int modid"
+.Ft int
+.Fn modfnext "int modid"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn modnext
+возвращает modid следующего модуля ядра (то есть того, который идёт после
+.Va modid )
+или 0, если
+.Va modid
+является последним модулем в списке.
+.Pp
+Если значение
+.Va modid
+равно 0, то
+.Fn modnext
+вернёт modid первого модуля.
+Системному вызову
+.Fn modfnext
+всегда должен передаваться допустимый modid.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn modnext
+возвращает modid следующего модуля (см.
+.Sx ОПИСАНИЕ )
+или 0.
+При возникновении ошибки
+.Va errno
+устанавливается для указания на ошибку.
+.Sh ОШИБКИ
+Единственная ошибка, устанавливаемая
+.Fn modnext
+\(em
+.Er ENOENT ,
+которая устанавливается, когда
+.Va modid
+ссылается на модуль ядра, который не существует (не загружен).
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

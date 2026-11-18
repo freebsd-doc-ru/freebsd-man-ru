@@ -1,0 +1,795 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\" Copyright (c) 2015 Alexander Motin <mav@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/ctld/ctl.conf.5
+.\" FRDP githash 66b5296f1b29083634e2875ff08c32e7b6b866a8
+.\" FRDP hash256 436d43e0494717e2566ee6a3231f8b89f0188a0d846af0e9c0729a7d8fbd28a8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2025
+.Dt CTL.CONF 5
+.Os
+.Sh ИМЯ
+.Nm ctl.conf
+.Nd Файл конфигурации демона CAM Target Layer / iSCSI target / NVMeoF controller
+.Sh ОПИСАНИЕ
+Файл конфигурации
+.Nm
+используется демоном
+.Xr ctld 8 .
+Строки, начинающиеся с
+.Ql #
+интерпретируются как комментарии.
+Общий синтаксис файла
+.Nm
+таков:
+.Bd -literal -offset indent
+.No pidfile Ar путь
+
+.No auth-group Ar имя No {
+.Dl chap Ar пользователь Ar секрет
+.Dl ...
+}
+
+.No portal-group Ar имя No {
+.Dl listen Ar адрес
+.Dl discovery-auth-group Ar имя
+.Dl ...
+}
+
+.No transport-group Ar имя No {
+.Dl listen Ar транспорт Ar адрес
+.Dl ...
+}
+
+.No target Ar имя {
+.Dl auth-group Ar имя
+.Dl portal-group Ar имя
+.Dl lun Ar номер No {
+.Dl 	path Ar путь
+.Dl }
+.Dl ...
+}
+
+.No controller Ar имя {
+.Dl auth-group Ar имя
+.Dl transport-group Ar имя
+.Dl namespace Ar номер No {
+.Dl 	path Ar путь
+.Dl }
+.Dl ...
+}
+.Ed
+.Ss Глобальный контекст
+.Bl -tag -width indent
+.It Ic auth-group Ar имя
+Создать контекст конфигурации
+.Sy auth-group ,
+определяющий новый auth-group,
+который затем можно назначить любому числу целей.
+.It Ic debug Ar уровень
+Уровень подробности отладочных сообщений.
+По умолчанию 0.
+.It Ic maxproc Ar номер
+Ограничение числа одновременно выполняемых дочерних процессов, обрабатывающих
+входящие соединения.
+По умолчанию 30.
+Значение 0 отключает ограничение.
+.It Ic pidfile Ar путь
+Путь к pidfile.
+По умолчанию
+.Pa /var/run/ctld.pid .
+.It Ic portal-group Ar имя
+Создать контекст конфигурации
+.Sy portal-group ,
+определяющий новый portal-group,
+который затем можно назначить любому числу целей.
+.It Ic transport-group Ar имя
+Создать контекст конфигурации
+.Sy transport-group ,
+определяющий новый transport-group,
+который затем можно назначить любому числу контроллеров NVMeoF.
+.It Ic lun Ar имя
+Создать контекст конфигурации
+.Sy lun ,
+определяющий LUN, экспортируемый любым числом целей
+или контроллеров.
+.It Ic target Ar имя
+Создать контекст конфигурации
+.Sy target ,
+который может необязательно содержать один или несколько
+контекстов
+.Sy lun .
+.It Ic controller Ar имя
+Создать контекст конфигурации
+.Sy controller ,
+который может необязательно содержать один или несколько
+контекстов
+.Sy namespace .
+.It Ic timeout Ar секунды
+Тайм-аут сеансов входа, по истечении которого соединение
+будет принудительно завершено.
+По умолчанию 60.
+Значение 0 отключает тайм-аут.
+.It Ic isns-server Ar адрес
+IPv4- или IPv6-адрес и, необязательно, порт сервера iSNS, на котором нужно зарегистрироваться.
+.It Ic isns-period Ar секунды
+Период регистрации iSNS.
+Зарегистрированный сетевой объект, не обновлённый в течение этого периода, будет разрегистрирован.
+По умолчанию 900.
+.It Ic isns-timeout Ar секунды
+Тайм-аут для запросов iSNS.
+По умолчанию 5.
+.El
+.Ss Контекст auth-group
+.Bl -tag -width indent
+.It Ic auth-type Ar тип
+Задаёт тип аутентификации.
+Тип может быть одним из:
+.Qq Ar none ,
+.Qq Ar deny ,
+.Qq Ar chap
+или
+.Qq Ar chap-mutual .
+В большинстве случаев задавать тип с помощью этой директивы не требуется;
+обычно она используется для отключения аутентификации для заданного
+.Sy auth-group .
+.It Ic chap Ar пользователь Ar секрет
+Набор учётных данных аутентификации CHAP.
+Обратите внимание, что для любого
+.Sy auth-group
+конфигурация может содержать только записи
+.Sy chap
+или
+.Sy chap-mutual ;
+смешивать их нельзя.
+.It Ic chap-mutual Ar пользователь Ar секрет Ar взаимный_пользователь Ar взаимный_секрет
+Набор учётных данных взаимной аутентификации CHAP.
+Обратите внимание, что для любого
+.Sy auth-group
+конфигурация может содержать только записи
+.Sy chap
+или
+.Sy chap-mutual ;
+смешивать их нельзя.
+.It Ic host-address Ar адрес Ns Op / Ns Ar длина_префикса
+Адрес хоста NVMeoF: IPv4- или IPv6-адрес, за которым необязательно
+следует буквальная косая черта и длина префикса.
+Подключаться смогут только хосты NVMeoF, адрес которых совпадает с одним из заданных
+адресов.
+Если не задано, ограничений по адресу хоста
+не будет.
+.It Ic host-nqn Ar имя
+Имя хоста NVMeoF.
+Подключаться смогут только хосты NVMeoF, имя которых совпадает с одним из заданных
+имён.
+Если не задано, ограничений по имени хоста NVMe
+не будет.
+.It Ic initiator-name Ar имя_инициатора
+Имя инициатора iSCSI.
+Подключаться смогут только инициаторы, имя которых совпадает с одним из заданных
+имён.
+Если не задано, ограничений по имени инициатора
+не будет.
+.It Ic initiator-portal Ar адрес Ns Op / Ns Ar длина_префикса
+Портал инициатора iSCSI: IPv4- или IPv6-адрес, за которым необязательно
+следует буквальная косая черта и длина префикса.
+Подключаться смогут только инициаторы, адрес которых совпадает с одним из заданных
+адресов.
+Если не задано, ограничений по адресу инициатора
+не будет.
+.El
+.Ss Контекст portal-group
+.Bl -tag -width indent
+.It Ic discovery-auth-group Ar имя
+Назначить ранее определённую группу аутентификации группе порталов,
+для использования при обнаружении целей.
+По умолчанию группам порталов назначается предопределённый
+.Sy auth-group
+.Qq Ar default ,
+который запрещает обнаружение.
+Другой предопределённый
+.Sy auth-group ,
+.Qq Ar no-authentication ,
+можно использовать,
+чтобы разрешить обнаружение без аутентификации.
+.It Ic discovery-filter Ar фильтр
+Определяет, какие цели возвращаются при обнаружении.
+Фильтр может быть одним из:
+.Qq Ar none ,
+.Qq Ar portal ,
+.Qq Ar portal-name
+или
+.Qq Ar portal-name-auth .
+Если задано
+.Qq Ar none ,
+при обнаружении будут возвращены все цели, назначенные этой группе порталов.
+Если задано
+.Qq Ar portal ,
+при обнаружении не будут возвращаться цели, к которым инициатор не может получить доступ
+из-за их
+.Sy initiator-portal .
+Если задано
+.Qq Ar portal-name ,
+проверка будет включать как
+.Sy initiator-portal ,
+так и
+.Sy initiator-name .
+Если задано
+.Qq Ar portal-name-auth ,
+проверка будет включать
+.Sy initiator-portal ,
+.Sy initiator-name
+и учётные данные аутентификации.
+Цель возвращается, если она не требует аутентификации CHAP
+или если пользователь и секрет CHAP, использованные при обнаружении, совпадают с
+используемыми целью.
+Обратите внимание, что при использовании
+.Qq Ar portal-name-auth
+цели, требующие аутентификации CHAP, будут возвращаться только в том случае, если
+.Sy discovery-auth-group
+требует CHAP.
+По умолчанию
+.Qq Ar none .
+.It Ic listen Ar адрес
+IPv4- или IPv6-адрес и порт для прослушивания входящих подключений.
+.It Ic offload Ar драйвер
+Определить драйвер аппаратного ускорения iSCSI, используемый для этого
+.Sy portal-group .
+По умолчанию
+.Qq Ar none .
+.It Ic option Ar имя Ar значение
+Специфичные для CTL параметры порта, передаваемые ядру.
+.It Ic redirect Ar адрес
+IPv4- или IPv6-адрес для перенаправления инициаторов.
+Если настроено, все инициаторы, пытающиеся подключиться к порталу,
+принадлежащему этому
+.Sy portal-group ,
+перенаправляются.
+Перенаправление происходит до аутентификации, и любые проверки
+.Sy initiator-name
+или
+.Sy initiator-portal
+пропускаются.
+.It Ic tag Ar значение
+Уникальное 16-битное значение тега этого
+.Sy portal-group .
+Если не указано, значение генерируется автоматически.
+.It Ic foreign
+Указывает, что этот
+.Sy portal-group
+прослушивается другим хостом.
+Этот хост будет объявлять его на этапе обнаружения, но не будет прослушивать.
+.It Ic dscp Ar значение
+Кодовая точка DiffServ, используемая для отправки данных. DSCP можно
+задать непосредственно числовым или шестнадцатеричным значением, а также
+с помощью определённых
+.Qq Ar CSx
+и
+.Qq Ar AFxx
+кодовых точек.
+.It Ic pcp Ar значение
+Кодовая точка приоритета 802.1Q, используемая для отправки пакетов.
+PCP можно задать значением в диапазоне от
+.Qq Ar 0
+до
+.Qq Ar 7 .
+Если не указано, используется значение по умолчанию для исходящего интерфейса.
+.El
+.Ss Контекст transport-group
+.Bl -tag -width indent
+.It Ic discovery-auth-group Ar имя
+См. описание этого параметра для контекстов
+.Sy portal-group .
+.It Ic discovery-filter Ar фильтр
+Фильтр может быть одним из:
+.Qq Ar none ,
+.Qq Ar address
+или
+.Qq Ar address-name .
+Если задано
+.Qq Ar none ,
+при обнаружении будут возвращены все контроллеры, назначенные этой группе транспортов.
+Если задано
+.Qq Ar address ,
+при обнаружении не будут возвращаться контроллеры, к которым хост не может получить доступ
+из-за их
+.Sy host-address .
+Если задано
+.Qq Ar address-name ,
+проверка будет включать как
+.Sy host-address ,
+так и
+.Sy host-nqn .
+По умолчанию
+.Qq Ar none .
+.It Ic listen Ar транспорт Ar адрес
+IPv4- или IPv6-адрес и порт для прослушивания входящих подключений
+с использованием указанного транспорта NVMeoF.
+Поддерживаются транспорты
+.Qq Ar tcp
+.Pq для контроллеров ввода-вывода NVMe/TCP
+и
+.Qq Ar discovery-tcp
+.Pq для контроллеров обнаружения NVMe/TCP .
+.It Ic option Ar имя Ar значение
+Один из следующих параметров:
+.Bl -column "MAXH2CDATA" "256KiB" "TCP" "Описание"
+.It Sy Имя Ta Sy По умолчанию Ta Sy Транспорты Ta Sy Описание
+.It MAXH2CDATA Ta 256KiB Ta TCP Ta
+Размер в байтах максимального размера полезной нагрузки данных для
+PDU данных, принимаемых от удалённых хостов.
+Значение должно быть не менее 4KiB и должно быть кратно 4.
+.It SQFC Ta false Ta любой Ta
+Всегда включать управление потоком SQ.
+.It HDGST Ta false Ta TCP Ta
+Включать дайджесты заголовков PDU, если это запрошено удалённым хостом.
+.It DDGST Ta false Ta TCP Ta
+Включать дайджесты данных PDU, если это запрошено удалённым хостом.
+.It max_admin_qsize Ta 4096 Ta любой Ta
+Максимальное число записей, которое удалённый хост может запросить для пары административных очередей.
+.It max_io_qsize Ta 65536 Ta любой Ta
+Максимальное число записей, которое удалённый хост может запросить для пары очередей ввода-вывода.
+.El
+.It Ic tag Ar значение
+Уникальный 16-битный ID порта для этого
+.Sy transport-group .
+Если не указано, значение генерируется автоматически.
+.It Ic dscp Ar значение
+См. описание этого параметра для контекстов
+.Sy portal-group .
+.It Ic pcp Ar значение
+См. описание этого параметра для контекстов
+.Sy portal-group .
+.El
+.Ss Контекст target
+.Bl -tag -width indent
+.It Ic alias Ar текст
+Назначить цели удобочитаемое описание.
+По умолчанию отсутствует.
+.It Ic auth-group Ar имя
+Назначить цели ранее определённую группу аутентификации.
+По умолчанию целям, которые не задают собственные параметры аутентификации
+с помощью таких директив, как
+.Sy chap
+или
+.Sy initiator-name ,
+назначается
+предопределённый
+.Sy auth-group
+.Qq Ar default ,
+который запрещает любой доступ.
+Другой предопределённый
+.Sy auth-group ,
+.Qq Ar no-authentication ,
+можно использовать, чтобы разрешить доступ
+без аутентификации.
+Обратите внимание, что эту директиву можно переопределить с помощью второго аргумента
+директивы
+.Sy portal-group .
+.It Ic auth-type Ar тип
+Задаёт тип аутентификации.
+Тип может быть одним из:
+.Qq Ar none ,
+.Qq Ar deny ,
+.Qq Ar chap
+или
+.Qq Ar chap-mutual .
+В большинстве случаев задавать тип с помощью этой директивы не требуется;
+обычно она используется для отключения аутентификации для заданного
+.Sy target .
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одной цели.
+.It Ic chap Ar пользователь Ar секрет
+Набор учётных данных аутентификации CHAP.
+Обратите внимание, что цели должны использовать только один из вариантов:
+.Sy auth-group , chap , No или Sy chap-mutual ;
+смешивание нескольких типов в одной цели является ошибкой конфигурации.
+.It Ic chap-mutual Ar пользователь Ar секрет Ar взаимный_пользователь Ar взаимный_секрет
+Набор учётных данных взаимной аутентификации CHAP.
+Обратите внимание, что цели должны использовать только один из вариантов:
+.Sy auth-group , chap , No или Sy chap-mutual ;
+смешивание нескольких типов в одной цели является ошибкой конфигурации.
+.It Ic initiator-name Ar имя_инициатора
+Имя инициатора iSCSI.
+Подключаться смогут только инициаторы, имя которых совпадает с одним из заданных
+имён.
+Если не задано, ограничений по имени инициатора
+не будет.
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одной цели.
+.It Ic initiator-portal Ar адрес Ns Op / Ns Ar длина_префикса
+Портал инициатора iSCSI: IPv4- или IPv6-адрес, за которым необязательно
+следует буквальная косая черта и длина префикса.
+Подключаться смогут только инициаторы, адрес которых совпадает с одним из заданных
+адресов.
+Если не задано, ограничений по адресу инициатора
+не будет.
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одной цели.
+.Pp
+Директивы
+.Sy auth-type ,
+.Sy chap ,
+.Sy chap-mutual ,
+.Sy initiator-name
+и
+.Sy initiator-portal
+в контексте target предоставляют альтернативу назначению отдельно определённого
+.Sy auth-group
+и удобны в распространённом случае, когда параметры аутентификации
+относятся к одной цели.
+.It Ic portal-group Ar имя Op Ar имя_ag
+Назначить цели ранее определённую группу порталов.
+Группа порталов по умолчанию —
+.Qq Ar default ,
+которая делает цель доступной
+на TCP-порту 3260 на всех настроенных IPv4- и IPv6-адресах.
+Необязательный второй аргумент задаёт
+.Sy auth-group
+для подключений к этой конкретной группе порталов.
+Если второй аргумент не указан, используется
+.Sy auth-group
+цели.
+.It Ic port Ar имя
+.It Ic port Ar имя/pp
+.It Ic port Ar имя/pp/vp
+Используется для экспорта цели через определённый физический — например, Fibre
+Channel — порт, в дополнение к группам порталов, настроенным для цели.
+Используйте команду, чтобы получить список доступных портов.
+При запуске
+.Xr ctld 8
+настраивает сопоставление LUN и включает все назначенные порты.
+Каждый порт можно назначить только одной цели.
+.It Ic redirect Ar адрес
+IPv4- или IPv6-адрес для перенаправления инициаторов.
+Если настроено, все инициаторы, пытающиеся подключиться к этой цели,
+перенаправляются.
+Перенаправление происходит после успешной аутентификации.
+.It Ic lun Ar номер Ar имя
+Экспортировать ранее определённый
+.Sy lun
+родительской целью.
+.It Ic lun Ar номер
+Создать контекст конфигурации
+.Sy lun ,
+определяющий LUN, экспортируемый родительской целью.
+.Pp
+Это альтернатива отдельному определению LUN; удобно в распространённом
+случае, когда LUN экспортируется одной целью.
+.El
+.Ss Контекст controller
+.Bl -tag -width indent
+.It Ic auth-group Ar имя
+Назначить контроллеру ранее определённую группу аутентификации.
+По умолчанию контроллерам, которые не задают собственные параметры аутентификации
+с помощью таких директив, как
+.Sy host-address
+или
+.Sy host-nqn ,
+назначается
+предопределённый
+.Sy auth-group
+.Qq Ar default ,
+который запрещает любой доступ.
+Другой предопределённый
+.Sy auth-group ,
+.Qq Ar no-authentication ,
+можно использовать, чтобы разрешить доступ
+без аутентификации.
+Обратите внимание, что эту директиву можно переопределить с помощью второго аргумента
+директивы
+.Sy transport-group .
+.It Ic auth-type Ar тип
+Задаёт тип аутентификации.
+Тип может быть либо
+.Qq Ar none ,
+либо
+.Qq Ar deny .
+В большинстве случаев задавать тип с помощью этой директивы не требуется;
+обычно она используется для отключения аутентификации для заданного
+.Sy controller .
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одном контроллере.
+.It Ic host-address Ar адрес Ns Op / Ns Ar длина_префикса
+Адрес хоста NVMeoF: IPv4- или IPv6-адрес, за которым необязательно
+следует буквальная косая черта и длина префикса.
+Подключаться смогут только хосты NVMeoF, адрес которых совпадает с одним из заданных
+адресов.
+Если не задано, ограничений по адресу хоста
+не будет.
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одном контроллере.
+.It Ic host-nqn Ar имя
+Имя хоста NVMeoF.
+Подключаться смогут только хосты NVMeoF, имя которых совпадает с одним из заданных
+имён.
+Если не задано, ограничений по имени хоста NVMe
+не будет.
+Эта директива является взаимоисключающей с
+.Sy auth-group ;
+нельзя использовать
+обе в одном контроллере.
+.Pp
+Директивы
+.Sy auth-type ,
+.Sy host-address
+и
+.Sy host-nqn
+в контексте controller предоставляют альтернативу назначению отдельно определённого
+.Sy auth-group
+и удобны в распространённом случае, когда параметры аутентификации
+относятся к одному контроллеру.
+.It Ic transport-group Ar имя Op Ar имя_ag
+Назначить контроллеру ранее определённую группу транспортов.
+Группа транспортов по умолчанию —
+.Qq Ar default ,
+которая делает контроллер доступным
+на TCP-порту 4420 на всех настроенных IPv4- и IPv6-адресах.
+Необязательный второй аргумент задаёт
+.Sy auth-group
+для подключений к этой конкретной группе транспортов.
+Если второй аргумент не указан, используется
+.Sy auth-group
+контроллера.
+.It Ic namespace Ar номер Ar имя
+Экспортировать ранее определённый
+.Sy lun
+как пространство имён NVMe из родительского контроллера.
+.It Ic namespace Ar номер
+Создать контекст конфигурации
+.Sy namespace ,
+определяющий пространство имён NVMe, экспортируемое родительским контроллером.
+.Pp
+Это альтернатива отдельному определению пространства имён;
+удобно в распространённом случае, когда пространство имён экспортируется одним контроллером.
+Контексты конфигурации
+.Sy namespace
+принимают те же свойства, что и
+контексты
+.Sy lun .
+.El
+.Ss Контекст lun
+.Bl -tag -width indent
+.It Ic backend Ar block No | Ar ramdisk
+Бэкенд CTL, используемый для заданного LUN.
+Допустимые варианты —
+.Qq Ar block
+и
+.Qq Ar ramdisk ;
+block используется для LUN, размещённых
+в файлах или узлах дисковых устройств; ramdisk — это устройство bitsink, используемое в основном для
+тестирования.
+Бэкенд по умолчанию — block.
+.It Ic blocksize Ar размер
+Размер блока, видимый инициатору.
+Размер блока по умолчанию — 512 для дисков и 2048 для CD/DVD.
+.It Ic ctl-lun Ar lun_id
+Глобальный числовой идентификатор, используемый для заданного LUN внутри CTL.
+По умолчанию CTL выделяет эти ID динамически, но явное указание
+может потребоваться для согласованности в конфигурациях HA.
+.It Ic device-id Ar строка
+Строка идентификации устройства SCSI, представляемая инициаторам iSCSI.
+.It Ic device-type Ar тип
+Указать тип устройства SCSI, используемый при создании LUN.
+В настоящее время CTL поддерживает LUN с прямым доступом (тип 0), процессором (тип 3)
+и CD/DVD (тип 5).
+.It Ic option Ar имя Ar значение
+Специфичные для CTL параметры, передаваемые ядру.
+Все специфичные для CTL параметры описаны в
+.Sx OPTIONS
+страницы
+.Xr ctladm 8 .
+.It Ic path Ar путь
+Путь к файлу, узлу устройства или тому
+.Xr zfs 8 ,
+используемому для размещения LUN.
+Для оптимальной производительности создавайте тома ZFS с установленным свойством
+.Qq Ar volmode=dev .
+.It Ic serial Ar строка
+Серийный номер SCSI, представляемый инициаторам iSCSI.
+.It Ic size Ar размер
+Размер LUN в байтах или числом с суффиксом
+.Sy K , M , G , T
+(для килобайт, мегабайт, гигабайт или терабайт).
+Если конфигурация в формате UCL, используйте формат суффикса
+.Sy kKmMgG Ns | Ns Sy bB ,
+(т. е. 4GB, 4gb и 4Gb эквивалентны).
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/ctl.conf
+Местоположение файла конфигурации
+.Xr ctld 8
+по умолчанию.
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+auth-group ag0 {
+	initiator-portal 192.168.1.1/16
+}
+
+auth-group ag1 {
+	auth-type none
+	initiator-portal 192.168.1.1/24
+	initiator-portal [2001:db8::de:ef]
+}
+
+portal-group pg0 {
+	discovery-auth-group no-authentication
+	listen 0.0.0.0:3260
+	listen [::]:3260
+	listen [fe80::be:ef]:3261
+}
+
+target iqn.2012-06.com.example:target0 {
+	auth-group no-authentication
+	lun 0 {
+		path /dev/zvol/tank/example_0
+		blocksize 4096
+		size 4G
+	}
+}
+
+lun example_1 {
+	path /dev/zvol/tank/example_1
+	option naa 0x50015178f369f093
+}
+
+target iqn.2012-06.com.example:target1 {
+	auth-group ag0
+	portal-group pg0
+	lun 0 example_1
+	lun 1 {
+		path /dev/zvol/tank/example_2
+	}
+}
+
+target naa.50015178f369f092 {
+	port isp0
+	port isp1
+	lun 0 example_1
+}
+
+controller nqn.2012-06.com.example:controller1 {
+	auth-group no-authentication;
+	namespace 1 example_1
+	namespace 2 {
+		backend ramdisk
+		size 1G
+		option capacity 1G
+	}
+}
+.Ed
+.Pp
+Эквивалентная конфигурация в формате UCL для использования с
+.Fl u :
+.Bd -literal
+auth-group {
+	ag0 {
+		chap-mutual = [
+			{
+			},
+			{
+			}
+		]
+	}
+
+	ag1 {
+		auth-type = none
+		initiator-name = [
+		]
+	}
+}
+
+portal-group {
+	pg0 {
+		discovery-auth-group = no-authentication
+		listen = [
+			0.0.0.0:3260,
+		]
+	}
+}
+
+lun {
+	example_1 {
+		path = /dev/zvol/tank/example_1
+		options {
+		}
+	}
+}
+
+target {
+		auth-group = no-authentication
+		lun = {
+			0 {
+				path = /dev/zvol/tank/example_0
+				blocksize = 4096
+				size = 4GB
+			}
+		}
+	}
+
+		auth-group = ag0
+		portal-group = pg0
+		lun {
+			0 = example_1
+			1 {
+				path = /dev/zvol/tank/example_2
+				options {
+				}
+			}
+		}
+	}
+
+	naa.50015178f369f092 {
+		port = isp0
+		lun {
+			0 = example_1
+		}
+	}
+}
+
+controller {
+		auth-group = no-authentication
+		namespace = {
+			1 = example_1,
+			2 {
+				backend = ramdisk
+				size = 1G
+				options {
+					capacity = 1G
+				}
+			}
+		}
+	}
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr ctl 4 ,
+.Xr ctladm 8 ,
+.Xr ctld 8 ,
+.Xr zfs 8
+.Sh АВТОРЫ
+Функциональность файла конфигурации
+.Nm
+для
+.Xr ctld 8
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

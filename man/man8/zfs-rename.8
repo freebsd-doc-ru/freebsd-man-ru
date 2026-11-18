@@ -1,0 +1,164 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-rename.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 d05e8d600deb8a075d53d05472a842285e04d79586c8f2921ccbfd981c931991
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-RENAME 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-rename
+.Nd переименовать набор данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm rename
+.Op Fl f
+.Ar файловая_система Ns | Ns Ar том Ns | Ns Ar снимок
+.Ar файловая_система Ns | Ns Ar том Ns | Ns Ar снимок
+.Nm zfs
+.Cm rename
+.Fl p
+.Op Fl f
+.Ar файловая_система Ns | Ns Ar том
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm rename
+.Fl u
+.Op Fl f
+.Ar файловая_система Ar файловая_система
+.Nm zfs
+.Cm rename
+.Fl r
+.Ar снимок Ar снимок
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width "zfs rename [-f] filesystem|volume|snapshot filesystem|volume|snapshot"
+.It Xo
+.Nm zfs
+.Cm rename
+.Op Fl f
+.Ar файловая_система Ns | Ns Ar том Ns | Ns Ar снимок
+.Ar файловая_система Ns | Ns Ar том Ns | Ns Ar снимок
+.Xc
+.It Xo
+.Nm zfs
+.Cm rename
+.Fl p
+.Op Fl f
+.Ar файловая_система Ns | Ns Ar том
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+.It Xo
+.Nm zfs
+.Cm rename
+.Fl u
+.Op Fl f
+.Ar файловая_система
+.Ar файловая_система
+.Xc
+Переименовывает заданный набор данных.
+Новая цель может находиться где угодно в иерархии ZFS, за исключением
+снимков.
+Снимки можно переименовывать только внутри родительской файловой системы или тома.
+При переименовании снимка родительскую файловую систему снимка не нужно
+указывать как часть второго аргумента.
+Переименованные файловые системы могут наследовать новые точки монтирования; в этом случае они
+размонтируются и монтируются заново в новой точке монтирования.
+.It Fl f
+Принудительно размонтировать любые файловые системы, которые нужно размонтировать в процессе.
+Этот флаг не действует при использовании вместе с флагом
+.Fl u .
+.It Fl p
+Создаёт все несуществующие родительские наборы данных.
+Наборы данных, созданные таким образом, автоматически монтируются в соответствии со
+свойством
+.Sy mountpoint ,
+унаследованным от родителя.
+.It Fl u
+Не перемонтировать файловые системы во время переименования.
+Если свойство
+.Sy mountpoint
+файловой системы установлено в
+.Sy legacy
+или
+.Sy none ,
+файловая система не размонтируется, даже если этот параметр не указан.
+.El
+.Bl -tag -width "zfs rename -r snapshot snapshot"
+.It Xo
+.Nm zfs
+.Cm rename
+.Fl r
+.Ar снимок Ar снимок
+.Xc
+Рекурсивно переименовать снимки всех дочерних наборов данных.
+Снимки — единственный набор данных, который можно переименовывать рекурсивно.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Продвижение клона ZFS
+Следующие команды показывают, как проверить изменения файловой системы, а
+затем заменить исходную файловую систему изменённой, используя клоны, продвижение
+клонов и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда устаревшая версия больше не нужна, её можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Ss Пример 2 : No Выполнение скользящего снимка
+Следующий пример показывает, как поддерживать историю снимков с
+согласованной схемой именования.
+Чтобы хранить недельный набор снимков, пользователь уничтожает самый старый снимок,
+переименовывает остальные снимки, а затем создаёт новый снимок следующим образом:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm destroy Fl r Ar pool/users@7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@6daysago No @ Ns Ar 7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@5daysago No @ Ns Ar 6daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@4daysago No @ Ns Ar 5daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@3daysago No @ Ns Ar 4daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@2daysago No @ Ns Ar 3daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@yesterday No @ Ns Ar 2daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@today No @ Ns Ar yesterday
+.No # Nm zfs Cm snapshot Fl r Ar pool/users Ns @ Ns Ar today
+.Ed

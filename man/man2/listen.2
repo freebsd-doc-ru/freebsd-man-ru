@@ -1,0 +1,204 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/listen.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 566abc01eabcd9d67adba1efde03f4cbf4891822524f4819e7eb1cdce56e4d93
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 30, 2023
+.Dt LISTEN 2
+.Os
+.Sh ИМЯ
+.Nm listen
+.Nd прослушивание соединений на сокете
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/socket.h
+.Ft int
+.Fn listen "int s" "int backlog"
+.Sh ОПИСАНИЕ
+Чтобы принимать соединения, сокет
+сначала создаётся с помощью
+.Xr socket 2 ,
+готовность принимать входящие соединения и
+предел очереди для входящих соединений задаются с помощью
+.Fn listen ,
+а затем соединения
+принимаются с помощью
+.Xr accept 2 .
+Системный вызов
+.Fn listen
+применим только к сокетам типа
+.Dv SOCK_STREAM
+или
+.Dv SOCK_SEQPACKET .
+.Pp
+Аргумент
+.Fa backlog
+определяет максимальную длину, до которой может вырасти очередь
+ожидающих соединений.
+Реальная максимальная длина очереди будет в 1.5 раза больше значения,
+указанного в аргументе
+.Fa backlog .
+Последующий
+системный вызов
+.Fn listen
+на прослушиваемом сокете позволяет вызывающему изменить максимальную
+длину очереди, используя новый
+аргумент
+.Fa backlog .
+Если запрос на соединение
+приходит при полной очереди, клиент может
+получить ошибку с указанием
+.Er ECONNREFUSED ,
+или, в случае TCP, соединение будет
+молча сброшено.
+.Pp
+Текущие длины очередей прослушиваемых сокетов можно запросить с помощью
+команды
+.Xr netstat 1 .
+.Pp
+Обратите внимание, что до
+.Fx 4.5
+и появления syncache,
+аргумент
+.Fa backlog
+также определял длину очереди незавершённых
+соединений, в которой хранились TCP-сокеты в процессе
+завершения трёхстороннего рукопожатия TCP.
+Эти незавершённые соединения
+теперь полностью хранятся в syncache, на который не влияют
+длины очередей.
+Завышенные
+значения
+.Fa backlog
+для помощи в обработке атак типа
+отказ в обслуживании больше не нужны.
+.Pp
+Переменная
+.Xr sysctl 3
+MIB
+.Va kern.ipc.soacceptqueue
+задаёт жёсткий предел для
+.Fa backlog ;
+если указано значение больше
+.Va kern.ipc.soacceptqueue
+или меньше нуля,
+.Fa backlog
+молча приводится к
+.Va kern.ipc.soacceptqueue .
+.Pp
+Если очередь прослушивания переполняется, ядро выдаёт сообщение syslog
+с приоритетом по умолчанию LOG_DEBUG (7).
+Переменная
+.Xr sysctl 3
+MIB
+.Va kern.ipc.sooverprio
+может использоваться для изменения этого приоритета на любое значение в диапазоне 0..7
+(LOG_EMERG..LOG_DEBUG).
+Подробности см. в
+.Xr syslog 3 .
+Её можно установить в -1, чтобы отключить эти сообщения.
+.Pp
+Переменная
+.Va kern.ipc.sooverinterval
+задаёт ограничение для каждого сокета на то, как часто ядро будет выдавать эти сообщения.
+.Sh ВЗАИМОДЕЙСТВИЕ С ФИЛЬТРАМИ ПРИЁМА
+Когда на сокете используется фильтрация приёма, вторая очередь
+используется для хранения сокетов, которые подключились, но ещё не
+удовлетворили критериям фильтрации приёма.
+Как только критерии
+выполнены, эти сокеты перемещаются в очередь завершённых соединений
+для
+.Xr accept 2 Ns ed .
+Если эта вторичная очередь полна и
+поступает новое соединение, самый старый сокет, который ещё не удовлетворил
+критериям фильтра приёма, будет завершён.
+.Pp
+Эта вторичная очередь, как и первичная очередь прослушивания, имеет размер
+в соответствии с
+аргументом
+.Fa backlog .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std listen
+.Sh ОШИБКИ
+Системный вызов
+.Fn listen
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa s
+не является допустимым дескриптором.
+.It Bq Er EDESTADDRREQ
+Сокет не привязан к локальному адресу, и протокол не
+поддерживает прослушивание на непривязанном сокете.
+.It Bq Er EINVAL
+Сокет уже подключён или находится в процессе подключения.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не является сокетом.
+.It Bq Er EOPNOTSUPP
+Сокет не относится к типу, поддерживающему операцию
+.Fn listen .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr accept 2 ,
+.Xr connect 2 ,
+.Xr socket 2 ,
+.Xr sysctl 3 ,
+.Xr syslog 3 ,
+.Xr sysctl 8 ,
+.Xr accept_filter 9
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn listen
+появился в
+.Bx 4.2 .
+Возможность настраивать максимальный
+.Fa backlog
+во время выполнения и использовать отрицательный
+.Fa backlog
+для запроса максимально допустимого значения была введена в
+.Fx 2.2 .
+.Xr sysctl 3
+.Va kern.ipc.somaxconn
+был заменён на
+.Va kern.ipc.soacceptqueue
+в
+.Fx 10.0
+во избежание путаницы относительно его фактической функциональности.
+Исходный
+.Xr sysctl 3
+.Va kern.ipc.somaxconn
+по-прежнему доступен, но скрыт из вывода
+.Xr sysctl 3
+-a, чтобы существующие приложения и скрипты продолжали работать.

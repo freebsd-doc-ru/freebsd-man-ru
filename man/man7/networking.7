@@ -1,0 +1,96 @@
+.\"
+.\" Copyright (c) 2024 Alexander Ziaee. Ohio.
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path share/man/man7/networking.7
+.\" FRDP githash 70b66cf804345902bb5baadd27448c4bf5251552
+.\" FRDP hash256 f47047d5dce8d89d4a1e92f82c92a12d264ebf66fe1992e31addb29409cdd0a8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 21, 2025
+.Dt NETWORKING 7
+.Os
+.Sh ИМЯ
+.Nm networking ,
+.Nm wifi
+.Nd краткое руководство по подключению к сети
+.Sh ОПИСАНИЕ
+В следующих примерах предполагается, что
+мы подключаемся к Ethernet через первый интерфейс, найденный драйвером
+.Xr ix 4
+, и к Wi-Fi через первый интерфейс, найденный драйвером
+.Xr iwlwifi 4
+, хотя ваше оборудование может отличаться.
+.Sh ПРИМЕРЫ
+.Bl -tag -width 0n
+.It Sy Пример 1: Подключение к сети Ethernet с помощью DHCP
+.Pp
+Запросите аренду DHCP на первом интерфейсе Ethernet Intel 10Gb:
+.Bd -literal -offset 2n
+.Ic # dhclient ix0
+.Ed
+.It Sy Пример 2: Подключение к сотовой сети через USB-тетеринг
+.Pp
+Запросите аренду DHCP на первом интерфейсе USB-тетеринга:
+.Bd -literal -offset 2n
+.Ic # dhclient ue0
+.Ed
+.It Sy Пример 3: Подключение к сети Wi-Fi
+.Pp
+Определите ваше оборудование Wi-Fi:
+.Bd -literal -offset 2n
+.Ic % sysctl net.wlan.devices
+.Ed
+.Pp
+Создайте интерфейс
+.Sy wlan0
+с первым адаптером Intel Wi-Fi:
+.Bd -literal -offset 2n
+.Ed
+.Pp
+Настройте этот интерфейс на запрос аренды DHCP с помощью
+.Xr wpa_supplicant 8 :
+.Bd -literal -offset 2n
+.Ed
+.Pp
+Введите параметры сети Wi-Fi:
+.Bd -literal -offset 2n
+.Ic # cd /etc/
+.Ic # wpa_passphrase \(dqmyssid\(dq \(dqmypassphrase\(dq >> wpa_supplicant.conf
+.Ed
+.Pp
+Перезапустите демон сетевых интерфейсов:
+.Bd -literal -offset 2n
+.Ic # service netif restart
+.Ed
+.It Sy Пример 4: Сканирование сетей Wi-Fi
+.Bd -literal -offset 2n
+.Ic % ifconfig wlan0 scan
+.Ed
+.It Sy Пример 5: Режим полета
+.Bd -literal -offset 2n
+.Ic # service netif stop
+.Ed
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bsdconfig 8 ,
+.Xr dhclient 8 ,
+.Xr ifconfig 8 ,
+.Xr wpa_passphrase 8
+.Pp
+Глава «Расширенная работа с сетью» книги
+.Fx
+Handbook.
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Специальные символы оболочки в
+.Ar SSID
+или
+.Ar passphrase
+должны быть экранированы для
+.Xr wpa_passphrase 8 ,
+обычно с помощью
+.Ql \e ,
+см. страницу руководства вашей оболочки для получения дополнительных сведений.
+.Pp
+Остановка службы сетевых интерфейсов также останавливает внутреннюю сеть.

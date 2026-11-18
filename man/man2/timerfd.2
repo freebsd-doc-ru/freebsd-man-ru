@@ -1,0 +1,349 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2023 Jake Freeland <jfree@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/timerfd.2
+.\" FRDP githash 172328c477b13458c5faa4cf81ad8669f6852aee
+.\" FRDP hash256 749bc6103628f01a47c4e9919d12f8ed7bcc0384d7063fe7345a7432d258da44
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 28, 2024
+.Dt TIMERFD 2
+.Os
+.Sh ИМЯ
+.Nm timerfd ,
+.Nm timerfd_create ,
+.Nm timerfd_gettime ,
+.Nm timerfd_settime
+.Nd таймеры с семантикой файловых дескрипторов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/timerfd.h
+.Ft int
+.Fo timerfd_create
+.Fa "int clockid"
+.Fa "int flags"
+.Fc
+.Ft int
+.Fo timerfd_gettime
+.Fa "int fd"
+.Fa "struct itimerspec *curr_value"
+.Fc
+.Ft int
+.Fo timerfd_settime
+.Fa "int fd"
+.Fa "int flags"
+.Fa "const struct itimerspec *new_value"
+.Fa "struct itimerspec *old_value"
+.Fc
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Nm
+оперируют таймерами, идентифицируемыми специальными
+.Nm
+файловыми дескрипторами.
+Эти вызовы аналогичны
+.Fn timer_create ,
+.Fn timer_gettime ,
+и
+.Fn timer_settime
+для процессных функций таймеров, но используют
+.Nm
+дескриптор вместо
+.Fa timerid .
+.Pp
+Все
+.Nm
+дескрипторы обладают традиционной семантикой файловых дескрипторов; они могут
+передаваться другим процессам, сохраняться при
+.Xr fork 2
+и контролироваться через
+.Xr kevent 2 ,
+.Xr poll 2
+или
+.Xr select 2 .
+Когда
+.Nm
+дескриптор больше не нужен, он может быть освобожден с помощью
+.Xr close 2 .
+.Bl -tag -width "Fn timerfd_settime"
+.It Fn timerfd_create
+Инициализирует
+.Nm
+объект и возвращает его файловый дескриптор.
+Аргумент
+.Fa clockid
+задает часы, используемые в качестве временной базы, и может быть:
+.Pp
+.Bl -tag -width "Dv CLOCK_MONOTONIC" -compact
+.It Dv CLOCK_REALTIME
+Увеличивается как настенные часы.
+.It Dv CLOCK_BOOTTIME
+.It Dv CLOCK_MONOTONIC
+Увеличивается монотонно в секундах СИ.
+.It Dv CLOCK_UPTIME
+Увеличивается монотонно в секундах СИ, но приостанавливается, пока система
+находится в спящем режиме.
+.El
+Более точные определения см. в
+.Xr clock_gettime 2 .
+.Pp
+Аргумент
+.Fa flags
+может содержать результат
+.Em or Ns 'ing
+следующих значений:
+.Pp
+.Bl -tag -width "Dv TFD_NONBLOCK" -compact
+.It Dv TFD_CLOEXEC
+Новый файловый дескриптор будет закрываться при exec.
+.It Dv TFD_NONBLOCK
+Не блокироваться на операциях чтения/записи.
+.El
+.It Fn timerfd_gettime
+Извлекает текущее состояние таймера, обозначенного через
+.Fa fd .
+Результат сохраняется в
+.Fa curr_value
+как
+.Dv struct itimerspec .
+Члены
+.Fa it_value
+и
+.Fa it_interval
+структуры
+.Fa curr_value
+представляют относительное время до следующего срабатывания и значение
+перезагрузки интервала, последним установленное
+.Fn timerfd_settime ,
+соответственно.
+.It Fn timerfd_settime
+Обновляет таймер, обозначенный через
+.Fa fd ,
+с помощью
+.Dv struct itimerspec
+в
+.Fa new_value .
+Член
+.Fa it_value
+структуры
+.Fa new_value
+должен содержать количество времени до срабатывания таймера или ноль, если
+таймер должен быть отключен.
+Член
+.Fa it_interval
+должен содержать время перезагрузки, если требуется интервальный таймер.
+.Pp
+Предыдущее состояние таймера будет сохранено в
+.Fa old_value
+при условии, что
+.Fa old_value
+не
+.Dv NULL .
+.Pp
+Аргумент
+.Fa flags
+может содержать результат
+.Em or Ns 'ing
+следующих значений:
+.Pp
+.Bl -tag -width TFD_TIMER_CANCEL_ON_SET -compact
+.It Dv TFD_TIMER_ABSTIME
+Срабатывание произойдет в абсолютное время, указанное в
+.Fa new_value .
+Обычно
+.Fa new_value
+представляет относительное время по сравнению с часами
+.Fa clockid
+таймера.
+.It Dv TFD_TIMER_CANCEL_ON_SET
+Если
+.Fa clockid
+установлен в
+.Dv CLOCK_REALTIME
+и часы реального времени испытали разрывный скачок,
+то таймер будет отменен и следующий
+.Xr read 2
+завершится с ошибкой
+.Dv ECANCELED .
+.El
+.El
+.Pp
+Файловые операции имеют следующую семантику:
+.Bl -tag -width ioctl
+.It Xr read 2
+Передает количество срабатываний таймера, произошедших с момента последнего
+успешного
+.Xr read 2
+или
+.Fn timerfd_settime ,
+в выходной буфер размером
+.Vt uint64_t .
+Если счетчик срабатываний равен нулю,
+.Xr read 2
+блокируется до наступления срабатывания таймера, если не установлен
+.Dv TFD_NONBLOCK ,
+в этом случае возвращается
+.Dv EAGAIN .
+.It Xr poll 2
+Файловый дескриптор доступен для чтения, когда его счетчик срабатываний
+таймера больше нуля.
+.It Xr ioctl 2
+.Bl -tag -width FIONREAD
+.It Dv FIOASYNC int
+Ненулевое значение устанавливает флаг FASYNC.
+Нулевое значение сбрасывает флаг FASYNC.
+.It Dv FIONBIO int
+Ненулевое значение устанавливает флаг FNONBLOCK.
+Нулевое значение сбрасывает флаг FNONBLOCK.
+.El
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn timerfd_create
+создает
+.Nm
+объект и возвращает его файловый дескриптор.
+При возникновении ошибки возвращается -1 и глобальной переменной
+.Fa errno
+присваивается значение, указывающее на ошибку.
+.Pp
+Системные вызовы
+.Fn timerfd_gettime
+и
+.Fn timerfd_settime
+возвращают 0 при успешном завершении.
+При возникновении ошибки возвращается -1 и глобальной переменной
+.Fa errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Системный вызов
+.Fn timerfd_create
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Указанный
+.Fa clockid
+не поддерживается.
+.It Bq Er EINVAL
+Предоставленные
+.Fa flags
+недопустимы.
+.It Bq Er EMFILE
+Таблица дескрипторов процесса заполнена.
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er ENOMEM
+Ядру не удалось выделить достаточно памяти для таймера.
+.El
+.Pp
+Оба системных вызова
+.Fn timerfd_gettime
+и
+.Fn timerfd_settime
+завершаются с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Предоставленный
+.Fa fd
+недопустим.
+.It Bq Er EFAULT
+Адреса, предоставленные
+.Fa curr_value ,
+.Fa new_value
+или
+.Fa old_value ,
+недопустимы.
+.It Bq Er EINVAL
+Предоставленный
+.Fa fd
+допустим, но не был создан
+.Fn timerfd_create .
+.El
+.Pp
+Следующие ошибки относятся только к
+.Fn timerfd_settime :
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Предоставленные
+.Fa flags
+недопустимы.
+.It Bq Er EINVAL
+Поле наносекунд в аргументе
+.Fa new_value
+содержит значение меньше нуля или больше либо равное 10^9.
+.It Bq Er ECANCELED
+Таймер был создан с идентификатором часов
+.Dv CLOCK_REALTIME ,
+настроен с флагом
+.Dv TFD_TIMER_CANCEL_ON_SET ,
+и системные часы реального времени испытали разрывное изменение без
+считывания.
+.El
+.Pp
+Чтение из
+.Nm
+объекта завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Счетчик срабатываний таймера равен нулю и
+.Nm
+объект настроен на неблокирующий ввод-вывод.
+.It Bq Er ECANCELED
+Таймер был создан с идентификатором часов
+.Dv CLOCK_REALTIME ,
+настроен с флагом
+.Dv TFD_TIMER_CANCEL_ON_SET ,
+и системные часы реального времени испытали разрывное изменение.
+.It Bq Er EINVAL
+Размер буфера чтения недостаточно велик для хранения счетчика срабатываний
+таймера размером
+.Vt uint64_t .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr eventfd 2 ,
+.Xr kqueue 2 ,
+.Xr poll 2 ,
+.Xr read 2 ,
+.Xr timer_create 2 ,
+.Xr timer_gettime 2 ,
+.Xr timer_settime 2
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Nm
+происходят из Linux и не являются стандартными.
+.Sh ИСТОРИЯ
+.An -nosplit
+Средство
+.Nm
+было первоначально портировано в слой совместимости с Linux
+.Fx Ns 's
+.An Dmitry Chagin Aq Mt dchagin@FreeBSD.org
+в
+.Fx 12.0 .
+Оно было переработано и адаптировано как штатное
+.An Jake Freeland Aq Mt jfree@FreeBSD.org
+в
+.Fx 14.0 .

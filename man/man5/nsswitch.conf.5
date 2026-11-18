@@ -1,0 +1,362 @@
+.\" $NetBSD: nsswitch.conf.5,v 1.14 1999/03/17 20:19:47 garbled Exp $
+.\"
+.\" Copyright (c) 1997, 1998, 1999 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Luke Mewburn.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"    This product includes software developed by Luke Mewburn.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+.\" OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+.\" TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+.\" USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/nsswitch.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 0aaaaf4527dd1506216f072eceb442dc95fb4dea00f1b409e8ecadcab0eb10c4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 6, 2020
+.Dt NSSWITCH.CONF 5
+.Os
+.Sh ИМЯ
+.Nm nsswitch.conf
+.Nd файл конфигурации переключателя служб имён
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+определяет, как должны работать процедуры
+.Xr nsdispatch 3
+(диспетчер переключения служб имён) в библиотеке C.
+.Pp
+Файл конфигурации управляет тем, как процесс выполняет поиск в различных базах данных, содержащих информацию о хостах, пользователях (паролях), группах и т. д.
+.Pp
+Каждая база данных поступает из источника (например, локальные файлы, DNS, NIS и кэш), а порядок поиска источников задаётся в
+.Nm .
+.Pp
+Каждая запись в
+.Nm
+состоит из имени базы данных и разделённого пробелами списка источников.
+.Pp
+Каждый источник может иметь необязательный завершающий критерий, который определяет, используется ли следующий указанный источник или поиск завершается на текущем источнике.
+.Pp
+Каждый критерий состоит из одного или нескольких кодов состояния и действий, которые нужно выполнить при возникновении этого кода состояния.
+.Ss Источники
+Следующие источники реализованы как часть базовой системы:
+.Pp
+.Bl -tag -width Source -compact
+.It Sy Источник
+.Sy Описание
+.It files
+Локальные файлы, такие как
+.Pa /etc/hosts ,
+и
+.Pa /etc/passwd .
+.It db
+Локальная база данных.
+.It dns
+Система доменных имён Интернета.
+.Dq hosts
+и
+.Sq networks
+используют записи класса
+.Sy IN ,
+все остальные базы данных используют записи класса
+.Sy HS
+(Hesiod).
+.It nis
+NIS (ранее YP)
+.It compat
+поддержка
+.Sq +/-
+в базах данных
+.Dq passwd
+и
+.Dq group .
+Если он присутствует, он должен быть единственным источником для этой записи.
+.It cache
+использует демон
+.Xr nscd 8 .
+.El
+.Pp
+Дополнительные источники могут предоставляться сторонним программным обеспечением.
+.Ss Базы данных
+Следующие базы данных используются следующими функциями библиотеки C:
+.Pp
+.Bl -tag -width networks -compact
+.It Sy База данных
+.It group
+.Xr getgrent 3 ,
+.Xr getgrent_r 3 ,
+.Xr getgrgid_r 3 ,
+.Xr getgrnam_r 3 ,
+.Xr setgrent 3 ,
+.Xr endgrent 3
+.It hosts
+.Xr getaddrinfo 3 ,
+.Xr gethostbyaddr 3 ,
+.Xr gethostbyaddr_r 3 ,
+.Xr gethostbyname 3 ,
+.Xr gethostbyname2 3 ,
+.Xr gethostbyname_r 3 ,
+.Xr getipnodebyaddr 3 ,
+.Xr getipnodebyname 3
+.It networks
+.Xr getnetbyaddr 3 ,
+.Xr getnetbyaddr_r 3 ,
+.Xr getnetbyname 3 ,
+.Xr getnetbyname_r 3
+.It passwd
+.Xr getpwent 3 ,
+.Xr getpwent_r 3 ,
+.Xr getpwnam_r 3 ,
+.Xr getpwuid_r 3 ,
+.Xr setpwent 3 ,
+.Xr endpwent 3
+.It shells
+.Xr getusershell 3
+.It services
+.Xr getservent 3
+.It rpc
+.Xr getrpcbyname 3 ,
+.Xr getrpcbynumber 3 ,
+.Xr getrpcent 3
+.It proto
+.Xr getprotobyname 3 ,
+.Xr getprotobynumber 3 ,
+.Xr getprotoent 3
+.It netgroup
+.Xr getnetgrent 3 ,
+.Xr getnetgrent_r 3 ,
+.Xr setnetgrent 3 ,
+.Xr endnetgrent 3 ,
+.Xr innetgr 3
+.El
+.Ss Коды состояния
+Доступны следующие коды состояния:
+.Pp
+.Bl -tag -width tryagain -compact
+.It Sy Статус
+.Sy Описание
+.It success
+Запрошенная запись найдена.
+.It notfound
+Запись отсутствует в этом источнике.
+.It tryagain
+Источник занят и может ответить на повторные попытки.
+.It unavail
+Источник не отвечает или запись повреждена.
+.El
+.Ss Действия
+Для каждого из кодов состояния возможно одно из двух действий:
+.Pp
+.Bl -tag -width continue -compact
+.It Sy Действие
+.Sy Описание
+.It continue
+Попробовать следующий источник
+.It return
+Вернуть текущий результат
+.El
+.Ss Формат файла
+BNF-описание синтаксиса
+.Nm
+:
+.Pp
+.Bl -tag -width <criterion> -compact
+.It <entry>
+::=
+.It <criteria>
+::=
+.It <criterion>
+::=
+.It <status>
+::=
+.It <action>
+::=
+.El
+.Pp
+Каждая запись начинается с новой строки в файле.
+Символ
+.Sq #
+ограничивает комментарий до конца строки.
+Пустые строки игнорируются.
+Символ
+.Sq \e
+в конце строки экранирует новую строку и делает следующую строку продолжением текущей.
+Все записи нечувствительны к регистру.
+.Pp
+Критерий по умолчанию — возвращать при
+.Dq success
+и продолжать при любом другом результате (т. е.
+.Ss Кэш
+Вы можете включить кэширование для конкретной базы данных, указав
+.Dq cache
+в файле
+.Nm .
+Он должен идти после
+.Dq files ,
+но перед удалёнными источниками, такими как
+.Dq nis .
+Вам также следует включить кэширование для этой базы данных в
+.Xr nscd.conf 5 .
+Если для конкретного запроса источник
+.Dq cache
+возвращает success, то дальнейшие источники не опрашиваются.
+С другой стороны, если ранее кэшированных данных нет, результат запроса будет помещён в кэш сразу после обработки всех остальных источников.
+Обратите внимание, что
+.Dq cache
+требует, чтобы демон
+.Xr nscd 8
+работал.
+.Ss Режим совместимости: синтаксис +/-
+В исторических реализациях с несколькими источниками символы
+.Sq +
+и
+.Sq -
+используются для указания импорта информации о паролях пользователей и группах из NIS.
+Хотя
+.Nm
+предоставляет альтернативные методы доступа к распределённым источникам, таким как NIS,
+указание единственного источника
+.Dq compat
+обеспечит историческое поведение.
+.Pp
+Альтернативный источник для информации, доступной через
+.Sq +/- ,
+можно использовать, указав
+.Dq passwd_compat: source .
+В этом случае
+.Dq source
+может быть
+.Sq dns ,
+.Sq nis
+или любым другим источником, кроме
+.Sq files
+и
+.Sq compat .
+.Ss Примечания
+Исторически многие базы данных имели функции перечисления, часто вида
+.Fn getXXXent .
+Они имели смысл, когда базы данных находились в локальных файлах, но не имеют смысла или менее актуальны, когда возможно наличие нескольких источников, каждый из которых имеет неизвестный размер.
+Интерфейсы всё ещё предоставляются для совместимости, но источник может не предоставить полные записи, или при указании нескольких источников со сходной информацией могут быть получены дубликаты записей.
+.Pp
+Чтобы обеспечить совместимость с предыдущими и текущими реализациями, источник
+.Dq compat
+должен быть единственным для данной базы данных.
+.Ss Списки источников по умолчанию
+Если по какой-либо причине
+.Nm
+не существует или содержит отсутствующие или повреждённые записи,
+.Xr nsdispatch 3
+по умолчанию будет использовать запись
+.Dq files
+для запрошенной базы данных.
+Исключения:
+.Pp
+.Bl -tag -width services_compat -compact
+.It Sy База данных
+.It group
+compat
+.It group_compat
+nis
+.It hosts
+files dns
+.It passwd
+compat
+.It passwd_compat
+nis
+.It services
+compat
+.It services_compat
+nis
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/nsswitch.conf -compact
+.It Pa /etc/nsswitch.conf
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh ПРИМЕРЫ
+Чтобы выполнять поиск хостов в
+.Pa /etc/hosts ,
+затем в кэше, а затем в DNS, и искать информацию о пользователях в NIS, а затем в files, используйте:
+.Pp
+.Bl -tag -width passwd: -compact
+.It hosts:
+files cache dns
+.It passwd:
+nis [notfound=return] files
+.It group:
+nis [notfound=return] files
+.El
+.Pp
+Критерий
+.Dq [notfound=return]
+рассматривает nis как авторитетный источник информации, за исключением
+случая, когда сервер недоступен.
+.Sh ПРИМЕЧАНИЯ
+Файл
+.Nm
+анализируется каждой программой только один раз.
+Последующие изменения не будут применены, пока программа не будет перезапущена.
+.Pp
+Если система была собрана с
+.Va WITHOUT_NIS ,
+необходимо удалить записи
+.Sq nis .
+.Pp
+.Fx Ns 's
+.Lb libc
+предоставляет заглушки для совместимости с модулями NSS,
+написанными для интерфейса
+.Nm nsswitch
+библиотеки GNU C.
+Однако эти заглушки поддерживают только использование баз данных
+.Dq Li passwd
+и
+.Dq Li group .
+.Sh СМ. ТАКЖЕ
+.Xr nsdispatch 3 ,
+.Xr nscd.conf 5 ,
+.Xr resolv.conf 5 ,
+.Xr nscd 8 ,
+.Xr ypbind 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+впервые появился в
+.Fx 5.0 .
+Он был импортирован из проекта
+.Nx ,
+где впервые появился в
+.Nx 1.4 .
+.Sh АВТОРЫ
+.An Luke Mewburn Aq Mt lukem@netbsd.org
+написал эту свободно распространяемую реализацию переключателя служб имён,
+используя идеи из руководств ULTRIX
+.Xr svc.conf 5
+и Solaris
+.Xr nsswitch.conf 4 .

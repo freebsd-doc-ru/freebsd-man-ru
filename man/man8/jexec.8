@@ -1,0 +1,133 @@
+.\"
+.\" Copyright (c) 2003 Mike Barcroft <mike@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/jexec/jexec.8
+.\" FRDP githash d56f3b051f6135b4a675fd75ccfcef0310368781
+.\" FRDP hash256 722cde8f734e59488bb6a9c5ef4c450d794a6dd6f38d24a5e073463934d832a0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 5, 2025
+.Dt JEXEC 8
+.Os
+.Sh ИМЯ
+.Nm jexec
+.Sh СИНТАКСИС
+.Nm
+.Op Fl l
+.Op Fl d Ar рабочий-каталог
+.Op Fl u Ar имя_пользователя | Fl U Ar имя_пользователя
+.Ar клетка Op Ar команда ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет
+.Ar команду
+внутри
+.Ar клетки ,
+идентифицируемой по её jid или имени.
+Если
+.Ar команда
+не указана, то используется оболочка пользователя.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl d Ar рабочий-каталог
+Рабочий каталог для выполнения команд внутри клетки.
+По умолчанию используется корневой каталог клетки.
+.It Fl l
+Выполнять в чистом окружении.
+Окружение отбрасывается, за исключением
+.Ev HOME , SHELL , TERM , USER ,
+и всего из базы данных возможностей класса входа для пользователя.
+.Ev PATH
+Если пользователь указан (через
+.Fl u
+или
+.Fl U ) ,
+а опция
+.Fl d
+отсутствует, команды выполняются из каталога этого пользователя (возможно, находящегося в клетке).
+.It Fl u Ar имя_пользователя
+Имя пользователя из окружения хоста, от имени которого должна выполняться
+.Ar команда .
+Это значение по умолчанию.
+.It Fl U Ar имя_пользователя
+Имя пользователя из окружения клетки, от имени которого должна выполняться
+.Ar команда .
+.El
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Открыть оболочку в клетке
+Следующая команда задаёт клетку по её имени и использует оболочку текущего пользователя:
+.Pp
+.Dl # jexec name
+.Pp
+Также можно задать клетку по её jid:
+.Pp
+.Dl # jexec JID
+.Ss Пример 2 : Выполнить одну команду без открытия оболочки
+Следующая команда выполняет
+.Ql uname -a
+в клетке с именем
+.Dq name .
+Поскольку команда указана явно,
+.Nm
+не запускает интерактивную оболочку.
+Вместо этого
+.Nm
+выполняет указанную команду напрямую.
+.Pp
+.Dl # jexec name uname -a
+.Ss Пример 3 : Открыть оболочку в клетке с чистым окружением
+Следующая команда открывает оболочку
+.Xr sh 1
+в клетке с чистым окружением:
+.Pp
+.Dl # jexec -l name sh
+.Ss Пример 4 : Открыть оболочку в клетке с помощью команды login
+Следующая команда использует
+.Xr login 1
+для доступа к клетке, отправки записи аудита и отображения последнего входа пользователя, системной информации об авторских правах и сообщения
+.Xr motd 5 :
+.Pp
+.Dl # jexec -l name login -f root
+.Sh СМ. ТАКЖЕ
+.Xr jail_attach 2 ,
+.Xr jail 8 ,
+.Xr jls 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была добавлена в
+.Fx 5.1 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Если клетка не идентифицирована с помощью
+.Ar jid ,
+возможно состояние гонки между поиском клетки
+и выполнением команды внутри клетки.
+Указание
+.Ar jid
+имеет аналогичное состояние гонки, поскольку другой процесс может остановить клетку и
+запустить другую после того, как пользователь нашёл
+.Ar jid .

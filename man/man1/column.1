@@ -1,0 +1,111 @@
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/column/column.1
+.\" FRDP githash 313713b24c6d2a3061972c4f431515c4f1b01c77
+.\" FRDP hash256 6b70eef6f99ca00f65cd00216c65aa3dcfdb2175f1b7a49509e64f617b728ff6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 13, 2025
+.Dt COLUMN 1
+.Os
+.Sh ИМЯ
+.Nm column
+.Nd форматирование списков в колонки
+.Sh СИНТАКСИС
+.Nm
+.Op Fl tx
+.Op Fl c Ar число_колонок
+.Op Fl l Ar число_колонок_таблицы
+.Op Fl s Ar разделитель
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+форматирует свой ввод в несколько колонок.
+Строки заполняются перед колонками.
+Ввод берётся из операндов
+.Ar файл
+или по умолчанию со стандартного ввода.
+Пустые строки игнорируются.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl c
+Вывод форматируется для экрана шириной в
+.Ar число_колонок
+.
+.It Fl l
+При использовании с
+.Fl t
+ограничивает ширину таблицы до
+.Ar число_колонок_таблицы
+колонок.
+Последняя колонка будет содержать остаток строки,
+включая любые разделители.
+.It Fl s
+Задаёт набор символов, используемых для разделения колонок для
+параметра
+.Fl t
+.
+.It Fl t
+Определяет количество колонок во вводе и создаёт таблицу.
+По умолчанию колонки разделяются пробельными символами, либо символами,
+заданными с помощью параметра
+.Fl s
+.
+Полезно для наглядного форматирования вывода.
+.It Fl x
+Заполняет колонки перед заполнением строк.
+.El
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev COLUMNS , LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Dl ls -l \&| sed 1d) \&| column -t
+.Sh СМ. ТАКЖЕ
+.Xr colrm 1 ,
+.Xr ls 1 ,
+.Xr paste 1 ,
+.Xr sort 1
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.3 Reno .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Входные строки ограничены длиной в
+.Dv LINE_MAX
+(2048) байт.

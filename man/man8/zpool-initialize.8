@@ -1,0 +1,92 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2025 Hewlett Packard Enterprise Development LP.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-initialize.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 31050d31b21e17c023c1f3d89808bb4578fc886648aa8011840b907b10c944f4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 30, 2025
+.Dt ZPOOL-INITIALIZE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-initialize
+.Nd запись в нераспределённые области пула хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm initialize
+.Op Fl c Ns | Ns Fl s | Ns Fl u
+.Op Fl w
+.Fl a Ns | Ns Ar pool
+.Oo Ar device Oc Ns …
+.
+.Sh ОПИСАНИЕ
+Начинает инициализацию, записывая во все нераспределённые области на указанных
+устройствах или на всех подходящих устройствах пула, если отдельные устройства не
+указаны.
+Инициализироваться могут только конечные устройства данных или журнальные устройства.
+.Bl -tag -width Ds
+.It Fl a , -all
+Начать, отменить, приостановить инициализацию на
+всех
+пулах.
+.It Fl c , -cancel
+Отменить инициализацию на указанных устройствах или на всех подходящих устройствах, если ни одного не
+указано.
+Если одно или несколько целевых устройств недействительны или в данный момент не
+инициализируются, команда завершится с ошибкой, и отмена не произойдёт ни на одном устройстве.
+.It Fl s , -suspend
+Приостановить инициализацию на указанных устройствах или на всех подходящих устройствах, если ни одного не
+указано.
+Если одно или несколько целевых устройств недействительны или в данный момент не
+инициализируются, команда завершится с ошибкой, и приостановка не произойдёт ни на одном устройстве.
+Затем инициализацию можно возобновить, выполнив
+.Nm zpool Cm initialize
+без флагов на соответствующих целевых устройствах.
+.It Fl u , -uninit
+Сбрасывает состояние инициализации на указанных устройствах или на всех подходящих
+устройствах, если ни одного не указано.
+Если устройства активно инициализируются, команда завершится с ошибкой.
+После сброса
+.Nm zpool Cm initialize
+без флагов можно использовать для повторной инициализации всех нераспределённых областей на
+соответствующих целевых устройствах.
+.It Fl w , -wait
+Ждать завершения инициализации устройств перед возвратом.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-add 8 ,
+.Xr zpool-attach 8 ,
+.Xr zpool-create 8 ,
+.Xr zpool-online 8 ,
+.Xr zpool-replace 8 ,
+.Xr zpool-trim 8

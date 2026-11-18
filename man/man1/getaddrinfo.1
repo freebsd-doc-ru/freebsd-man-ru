@@ -1,0 +1,183 @@
+.\"	$NetBSD: getaddrinfo.1,v 1.5 2014/04/22 06:02:06 wiz Exp $
+.\"
+.\" Copyright (c) 2013 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This documentation is derived from text contributed to The NetBSD
+.\" Foundation by Taylor R. Campbell.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/getaddrinfo/getaddrinfo.1
+.\" FRDP githash 9cb98ab7ceeb97b70a4891a4a3a21372158ccf24
+.\" FRDP hash256 2e396980257180ab5c6ed48913ce8083700f3b79c002ee468a792e8dab35056b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 20, 2017
+.Dt GETADDRINFO 1
+.Os
+.Sh ИМЯ
+.Nm getaddrinfo
+.Nd разрешает имена в адреса сокетов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cNnP
+.Op Fl f Ar семейство
+.Op Fl p Ar протокол
+.Op Fl s Ar служба Ns Op Ns / Ns Ar протокол
+.Op Fl t Ar тип_сокета
+.Op Ar имя_узла
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+преобразует имена узлов и служб в адреса сокетов с помощью
+.Xr getaddrinfo 3
+и выводит их в стандартный вывод в удобочитаемом формате.
+.Pp
+Вывод представляет собой последовательность строк с полями, разделёнными пробелами:
+.Pp
+.Dl socket-type address-family protocol [af-specific data ...]
+.Pp
+Для семейств адресов
+.Dq inet
+и
+.Dq inet6
+данные, зависящие от семейства адресов, — это IP/IPv6-адрес и номер порта.
+.Pp
+В зависимости от настроек в
+.Xr nsswitch.conf 5 ,
+.Nm
+может выполнять запросы к DNS для получения ответов.
+Однако он не предназначен для использования в качестве универсальной утилиты DNS-запросов.
+Для этого используйте
+.Xr drill 1 .
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl c
+Искать каноническое имя, как если бы был указан флаг
+.Dv AI_CANONNAME
+для
+.Xr getaddrinfo 3 ,
+и вывести его в первой строке перед адресами сокетов.
+.It Fl f Ar семейство
+Укажите семейство адресов.
+Семейства адресов именуются так же, как константы
+.Dv AF_...
+для номеров семейств адресов в заголовочном файле
+.Aq Pa sys/socket.h
+, но без префикса
+.Dv AF_
+и в нижнем регистре.
+Например,
+.Dq inet
+соответствует
+.Dv AF_INET .
+.It Fl N
+Рассматривать службу как числовую и не пытаться разрешать имя службы,
+как если бы был указан флаг
+.Dv AI_NUMERICSERV
+для
+.Xr getaddrinfo 3 .
+.It Fl n
+Рассматривать имя узла как числовой адрес и не пытаться разрешать имя,
+как если бы был указан флаг
+.Dv AI_NUMERICHOST
+для
+.Xr getaddrinfo 3 .
+.It Fl P
+Возвращать адреса сокетов, предназначенные для использования с
+.Xr bind 2 ,
+как если бы был указан флаг
+.Dv AI_PASSIVE
+для
+.Xr getaddrinfo 3 .
+По умолчанию адреса сокетов предназначены для использования с
+.Xr connect 2 ,
+.Xr sendto 2
+или
+.Xr sendmsg 2 .
+.It Fl p Ar протокол
+Укажите протокол.
+Протоколы могут быть числовыми или символьными, как перечислено в
+.Xr protocols 5 .
+.It Fl s Ar служба Ns Op Ns / Ns Ar протокол
+Укажите службу для поиска.
+Службы могут быть символьными или числовыми с необязательным
+суффиксом протокола, как перечислено в
+.Xr services 5 .
+Если служба не указана, требуется имя узла.
+.It Fl t Ar тип_сокета
+Укажите тип сокета.
+Типы сокетов именуются так же, как константы
+.Dv SOCK_...
+для номеров типов сокетов в заголовочном файле
+.Aq Pa sys/socket.h
+, но без префикса
+.Dv SOCK_
+и в нижнем регистре.
+Например,
+.Dq dgram
+соответствует
+.Dv SOCK_DGRAM .
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std getaddrinfo
+.Sh ПРИМЕРЫ
+Найдите
+.Dq www.NetBSD.org :
+.Bd -literal -offset indent
+$ getaddrinfo www.NetBSD.org
+dgram inet6 udp 2001:4f8:3:7:2e0:81ff:fe52:9ab6 0
+dgram inet udp 149.20.53.67 0
+stream inet6 tcp 2001:4f8:3:7:2e0:81ff:fe52:9ab6 0
+stream inet tcp 149.20.53.67 0
+.Ed
+.Pp
+Номер порта здесь равен нулю, так как служба не была указана.
+.Pp
+Найдите
+.Dq morden.NetBSD.org
+для потоковых сокетов на порту 80 и покажите каноническое имя:
+.Bd -literal -offset indent
+$ getaddrinfo -c -t stream -s 80 morden.NetBSD.org
+canonname ftp.NetBSD.org
+stream inet6 tcp 2001:470:1f05:3d::21 80
+stream inet tcp 199.233.217.249 80
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr drill 1 ,
+.Xr getent 1 ,
+.Xr getaddrinfo 3 ,
+.Xr getnameinfo 3 ,
+.Xr resolver 3 ,
+.Xr hosts 5 ,
+.Xr nsswitch.conf 5 ,
+.Xr protocols 5 ,
+.Xr resolv.conf 5 ,
+.Xr services 5 ,
+.Xr ip6addrctl 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Nx 7.0 .

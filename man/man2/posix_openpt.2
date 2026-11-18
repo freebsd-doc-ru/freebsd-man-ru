@@ -1,0 +1,143 @@
+.\" Copyright (c) 2008 Ed Schouten <ed@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Portions of this software were developed under sponsorship from Snow
+.\" B.V., the Netherlands.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form
+.\" from IEEE Std 1003.1, 2004 Edition, Standard for Information Technology --
+.\" Portable Operating System Interface (POSIX), The Open Group Base
+.\" Specifications Issue 6, Copyright (C) 2001-2004 by the Institute of
+.\" Electrical and Electronics Engineers, Inc and The Open Group.  In the
+.\" event of any discrepancy between this version and the original IEEE and
+.\" The Open Group Standard, the original IEEE and The Open Group Standard is
+.\" the referee document.  The original Standard can be obtained online at
+.\"	http://www.opengroup.org/unix/online.html.
+.\"
+.\" FRDP path lib/libsys/posix_openpt.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 a9b1878d27f7dacc41e0b86b9d6ae7a5b6c8ae8942573bd23310044c3bf60586
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 21, 2016
+.Dt POSIX_OPENPT 2
+.Os
+.Sh ИМЯ
+.Nm posix_openpt
+.Nd "открыть устройство псевдотерминала"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In fcntl.h
+.In stdlib.h
+.Ft int
+.Fn posix_openpt "int oflag"
+.Sh ОПИСАНИЕ
+Функция
+.Fn posix_openpt
+выделяет новый псевдотерминал и устанавливает соединение
+с его ведущим устройством.
+Ведомое устройство создаётся в
+.Pa /dev/pts .
+После выделения псевдотерминала ведомое устройство должно
+иметь надлежащие права доступа, прежде чем его можно будет использовать (см.
+.Xr grantpt 3 ) .
+Имя ведомого устройства можно определить, вызвав
+.Xr ptsname 3 .
+.Pp
+Флаги состояния файла и режимы доступа к файлу для открытого описания файла
+устанавливаются в соответствии со значением
+.Fa oflag .
+Значения
+.Fa oflag
+формируются побитовым включающим ИЛИ флагов из следующего
+списка, определённых в
+.In fcntl.h :
+.Bl -tag -width ".Dv O_CLOEXEC"
+.It Dv O_RDWR
+Открыть для чтения и записи.
+.It Dv O_NOCTTY
+Если установлен,
+.Fn posix_openpt
+не должен делать терминальное устройство управляющим терминалом
+для процесса.
+.It Dv O_CLOEXEC
+Установить флаг close-on-exec для нового файлового дескриптора.
+.El
+.Pp
+Функция
+.Fn posix_openpt
+должна завершаться с ошибкой, когда
+.Fa oflag
+содержит другие значения.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном завершении функция
+.Fn posix_openpt
+должна выделить новое устройство псевдотерминала и вернуть
+неотрицательное целое число, представляющее файловый дескриптор, который соединён
+с его ведущим устройством.
+В противном случае возвращается -1, а errno устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Функция
+.Fn posix_openpt
+должна завершаться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er EINVAL
+Значение
+.Fa oflag
+недопустимо.
+.It Bq Er EAGAIN
+Исчерпаны ресурсы псевдотерминалов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ptsname 3 ,
+.Xr pts 4 ,
+.Xr tty 4
+.Sh СТАНДАРТЫ
+Функция
+.Fn posix_openpt
+соответствует
+.St -p1003.1-2001 .
+Возможность использования
+.Dv O_CLOEXEC
+является расширением стандарта.
+.Sh ИСТОРИЯ
+Функция
+.Fn posix_openpt
+появилась в
+.Fx 5.0 .
+В
+.Fx 8.0
+эта функция была изменена на системный вызов.
+.Sh ПРИМЕЧАНИЯ
+Флаг
+.Dv O_NOCTTY
+включён для совместимости; в
+.Fx
+открытие терминала не приводит к тому, что он становится управляющим
+терминалом процесса.
+.Sh АВТОРЫ
+.An \&Ed Schouten Aq Mt ed@FreeBSD.org

@@ -1,0 +1,255 @@
+.\" Copyright (c) 1983, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Robert Elz at The University of Melbourne.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/quotactl.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 38399d09d066ffdcbfb2e7ae2977b20873489b5f29e3a54ff5dd8aa06c4022d5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt QUOTACTL 2
+.Os
+.Sh ИМЯ
+.Nm quotactl
+.Nd управление квотами файловой системы
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In ufs/ufs/quota.h
+.Ft int
+.Fn quotactl "const char *path" "int cmd" "int id" "void *addr"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn quotactl
+включает, выключает и
+управляет квотами файловой системы.
+Команда управления квотами,
+заданная в
+.Fa cmd ,
+действует на указанное имя файла
+.Fa path
+для заданного пользователя или группы
+.Fa id .
+(ПРИМЕЧАНИЕ: для формирования значения
+.Fa cmd
+следует использовать макрос QCMD, определённый в
+.In ufs/ufs/quota.h . )
+Может быть задан адрес необязательной структуры данных, специфичной для команды,
+.Fa addr ;
+его интерпретация
+обсуждается ниже для каждой команды.
+.Pp
+Для команд, использующих идентификатор
+.Fa id ,
+он должен быть либо -1, либо любым положительным значением.
+Значение -1 указывает, что следует использовать текущий UID или GID.
+Любое другое отрицательное значение приведёт к ошибке.
+.Pp
+В настоящее время квоты поддерживаются только для файловой системы
+.Dq ufs .
+Для
+.Dq ufs
+команда состоит из основной команды (см. ниже)
+и типа команды, используемого для интерпретации
+.Fa id .
+Поддерживаются типы для интерпретации идентификаторов пользователей (USRQUOTA)
+и идентификаторов групп (GRPQUOTA).
+Специфичные для
+.Dq ufs
+команды:
+.Bl -tag -width Q_GETQUOTASIZEx
+.It Dv Q_QUOTAON
+Включить дисковые квоты для файловой системы, заданной в
+.Fa path .
+Тип команды определяет тип включаемых квот.
+Аргумент
+.Fa addr
+задаёт файл, из которого берутся квоты.
+Файл квот должен существовать;
+обычно он создаётся программой
+.Xr quotacheck 8 .
+Аргумент
+.Fa id
+не используется.
+Только суперпользователь может включать квоты.
+.It Dv Q_QUOTAOFF
+Выключить дисковые квоты для файловой системы, заданной в
+.Fa path .
+Тип команды определяет тип выключаемых квот.
+Аргументы
+.Fa addr
+и
+.Fa id
+не используются.
+Только суперпользователь может выключать квоты.
+.It Dv Q_GETQUOTASIZE
+Получить размер слова, используемого для представления квот для пользователя или группы
+(определяется типом команды).
+Возможные значения — 32 для файла квот старого формата
+и 64 для файла квот нового формата.
+Аргумент
+.Fa addr
+является указателем на целое число, в которое записывается размер.
+Идентификатор
+.Fa id
+не используется.
+.It Dv Q_GETQUOTA
+Получить пределы дисковых квот и текущее использование для пользователя или группы
+(определяется типом команды) с идентификатором
+.Fa id .
+Аргумент
+.Fa addr
+является указателем на структуру
+.Fa struct dqblk
+(определённую в
+.In ufs/ufs/quota.h ) .
+.It Dv Q_SETQUOTA
+Установить пределы дисковых квот для пользователя или группы
+(определяется типом команды) с идентификатором
+.Fa id .
+Аргумент
+.Fa addr
+является указателем на структуру
+.Fa struct dqblk
+(определённую в
+.In ufs/ufs/quota.h ) .
+Поля использования структуры
+.Fa dqblk
+игнорируются.
+Этот системный вызов доступен только суперпользователю.
+.It Dv Q_SETUSE
+Установить пределы дискового использования для пользователя или группы
+(определяется типом команды) с идентификатором
+.Fa id .
+Аргумент
+.Fa addr
+является указателем на структуру
+.Fa struct dqblk
+(определённую в
+.In ufs/ufs/quota.h ) .
+Используются только поля использования.
+Этот системный вызов доступен только суперпользователю.
+.It Dv Q_SYNC
+Обновить копию использования квот на диске.
+Тип команды определяет, какой тип квот должен быть обновлён.
+Аргументы
+.Fa id
+и
+.Fa addr
+игнорируются.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std quotactl
+.Sh ОШИБКИ
+Системный вызов
+.Fn quotactl
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EOPNOTSUPP
+Ядро не было скомпилировано с опцией
+.Dv QUOTA .
+.It Bq Er EUSERS
+Таблица квот не может быть расширена.
+.It Bq Er EINVAL
+Аргумент
+.Fa cmd
+или тип команды недопустим.
+В
+.Dv Q_GETQUOTASIZE ,
+.Dv Q_GETQUOTA ,
+.Dv Q_SETQUOTA
+и
+.Dv Q_SETUSE
+квоты в настоящее время не включены для этой файловой системы.
+.Pp
+Аргумент
+.Fa id
+для
+.Dv Q_GETQUOTA ,
+.Dv Q_SETQUOTA
+или
+.Dv Q_SETUSE
+является отрицательным значением.
+.It Bq Er EACCES
+В
+.Dv Q_QUOTAON
+файл квот не является обычным файлом.
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути отказано.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент любого из имён путей превышает 255 символов,
+или общая длина любого из имён путей превышает 1023 символа.
+.It Bq Er ENOENT
+Имя файла не существует.
+.It Bq Er ELOOP
+При преобразовании имени пути встречено слишком много символических ссылок.
+.It Bq Er EROFS
+В
+.Dv Q_QUOTAON
+либо файловая система, на которой должны быть включены квоты, смонтирована только для чтения,
+либо файл квот находится на файловой системе, смонтированной только для чтения.
+.It Bq Er EIO
+При чтении или записи
+файла, содержащего квоты, произошла ошибка
+.Tn I/O .
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EFAULT
+Был передан недопустимый
+.Fa addr ;
+связанная структура не может быть скопирована в ядро или из него.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EPERM
+Вызов требует привилегий, а вызывающий не является суперпользователем.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr quota 1 ,
+.Xr fstab 5 ,
+.Xr edquota 8 ,
+.Xr quotacheck 8 ,
+.Xr quotaon 8 ,
+.Xr repquota 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn quotactl
+появился в
+.Bx 4.3 Reno .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Должен существовать какой-либо способ интегрировать этот вызов с интерфейсом
+ограничения ресурсов, предоставляемым
+.Xr setrlimit 2
+и
+.Xr getrlimit 2 .

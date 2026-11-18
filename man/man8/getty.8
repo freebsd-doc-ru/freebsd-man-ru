@@ -1,0 +1,122 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" "
+.\" FRDP path libexec/getty/getty.8
+.\" FRDP githash 43581d7b6617959e4452094d9330ef020034a6c9
+.\" FRDP hash256 872bb6ee580e68a66ccafca13d54bdb96f590d5eb3c9d7c6f66e1d9eb3c40cdf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 21, 2020
+.Dt GETTY 8
+.Os
+.Sh ИМЯ
+.Nm getty
+.Nd установка режима терминала
+.Sh СИНТАКСИС
+.Nm
+.Oo
+.Ar тип
+.Op Ar tty
+.Oc
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+вызывается
+.Xr init 8
+для открытия и инициализации линии tty, чтения имени входа и вызова
+.Xr login 1 .
+.Pp
+Аргумент
+.Ar tty
+— это специальный файл устройства в
+.Pa /dev ,
+который нужно открыть для терминала (например, ``ttyh0'').
+Если аргумент отсутствует или равен
+.Sq Fl ,
+предполагается, что линия tty уже открыта как файловый дескриптор 0.
+.Pp
+Аргумент
+.Ar тип
+можно использовать, чтобы
+.Nm
+обрабатывал линию терминала особым образом.
+Этот аргумент используется как индекс в базе данных
+.Xr gettytab 5
+для определения характеристик линии.
+Если аргумент отсутствует или такой таблицы нет, используется таблица
+.Em default .
+Если файла
+.Pa /etc/gettytab
+нет, используется набор системных значений по умолчанию.
+Если это указано в найденной таблице,
+.Nm
+очистит экран терминала,
+выведет заголовок баннера
+и запросит имя входа.
+Обычно либо баннер, либо приглашение для входа содержат
+имя хоста системы.
+.Pp
+Большинство действий по умолчанию
+.Nm
+можно обойти или изменить с помощью подходящей таблицы
+.Pa gettytab .
+.Pp
+Утилиту
+.Nm
+можно настроить на завершение по тайм-ауту через некоторый интервал,
+что приведёт к разрыву коммутируемых линий,
+если имя входа не будет введено достаточно быстро.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/gettytab -compact
+.It Pa /etc/gettytab
+.It Pa /etc/ttys
+.El
+.Sh ДИАГНОСТИКА
+.Bl -diag
+.Pp
+Терминал, включённый в файле
+.Pa ttys ,
+не удаётся открыть, вероятно, потому что необходимые
+строки либо не сконфигурированы в системе, связанное устройство
+не было подключено во время конфигурирования системы при загрузке,
+либо специальный файл в
+.Pa /dev
+не существует.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr login 1 ,
+.Xr ioctl 2 ,
+.Xr tty 4 ,
+.Xr gettytab 5 ,
+.Xr ttys 5 ,
+.Xr init 8 ,
+.Xr pstat 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v3 .

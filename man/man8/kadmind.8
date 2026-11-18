@@ -1,0 +1,163 @@
+.\" Copyright (c) 2002 - 2004 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/kadmin/kadmind.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 5c55e83b38a830644edc1312b590732c0b0c24b5b0672003dc05d0ec19fda337
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December  8, 2004
+.Dt KADMIND 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kadmind
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Oo Fl c Ar файл \*(Ba Xo
+.Fl Fl config-file= Ns Ar файл
+.Xc
+.Oc
+.Oo Fl k Ar файл \*(Ba Xo
+.Fl Fl key-file= Ns Ar файл
+.Xc
+.Oc
+.Op Fl Fl keytab= Ns Ar keytab
+.Oo Fl r Ar область \*(Ba Xo
+.Fl Fl realm= Ns Ar область
+.Xc
+.Oc
+.Op Fl d | Fl Fl debug
+.Oo Fl p Ar порт \*(Ba Xo
+.Fl Fl ports= Ns Ar порт
+.Xc
+.Oc
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+прослушивает запросы на изменение базы данных Kerberos и выполняет
+их при наличии соответствующих прав.  При запуске, если stdin является
+сокетом, он предполагает, что был запущен
+.Xr inetd 8 ,
+в противном случае он работает как демон, порождая процессы для каждого
+нового соединения. Опция
+.Fl Fl debug
+заставляет
+.Nm
+принять ровно одно соединение, что полезно для отладки.
+.Pp
+Демон
+.Xr kpasswdd 8
+отвечает за протокол смены пароля Kerberos 5
+(используется
+.Xr kpasswd 1 ) .
+.Pp
+Этот демон следует запускать только на главном сервере, а не на
+подчинённых серверах.
+.Pp
+Принципалам всегда разрешено менять свой собственный пароль и
+просматривать свой собственный принципал.  Кроме того, для выполнения
+любой операции требуется разрешение, явно добавленное в файл ACL
+.Pa /var/heimdal/kadmind.acl .
+Формат этого файла таков:
+.Bd -ragged
+.Va принципал
+.Va права
+.Op Va шаблон-принципала
+.Ed
+.Pp
+Где права — это любая (разделённая запятыми) комбинация из:
+.Bl -bullet -compact
+.It
+change-password or cpw
+.It
+list
+.It
+delete
+.It
+modify
+.It
+add
+.It
+get
+.It
+all
+.El
+.Pp
+И необязательный
+.Ar шаблон-принципала
+ограничивает права операциями над принципалами, соответствующими
+шаблону в стиле glob.
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl c Ar файл , Fl Fl config-file= Ns Ar файл
+расположение файла конфигурации
+.It Fl k Ar файл , Fl Fl key-file= Ns Ar файл
+расположение файла мастер-ключа
+.It Fl Fl keytab= Ns Ar keytab
+какой keytab использовать
+.It Fl r Ar область , Fl Fl realm= Ns Ar область
+используемая область
+.It Fl d , Fl Fl debug
+включить отладку
+.It Fl p Ar порт , Fl Fl ports= Ns Ar порт
+порты для прослушивания. По умолчанию, если запущен как демон, он
+прослушивает порт
+749, но вы можете добавить любое количество портов с этой опцией.
+Строка
+портов — это разделённый пробелами список спецификаций портов, со
+специальной строкой
+.Dq +
+представляющей порт по умолчанию.
+.El
+.Sh ФАЙЛЫ
+.Pa /var/heimdal/kadmind.acl
+.Sh ПРИМЕРЫ
+Это заставит
+.Nm
+прослушивать порт 4711 в дополнение к любым
+значениям по умолчанию, заданным при компиляции:
+.Pp
+.Pp
+Этот файл ACL предоставит Joe все права и позволит Mallory
+просматривать и добавлять принципалы хостов.
+.Bd -literal -offset indent
+joe/admin@EXAMPLE.COM      all
+mallory/admin@EXAMPLE.COM  add,get  host/*@EXAMPLE.COM
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kpasswd 1 ,
+.Xr kadmin 8 ,
+.Xr kdc 8 ,
+.Xr kpasswdd 8

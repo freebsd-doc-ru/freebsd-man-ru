@@ -1,0 +1,115 @@
+.\"	$OpenBSD: ts.1,v 1.6 2022/06/30 21:40:41 jmc Exp $
+.\"
+.\" Copyright (c) 2022 Job Snijders <job@openbsd.org>
+.\"
+.\" Permission to use, copy, modify, and distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.\" FRDP path contrib/ts/ts.1
+.\" FRDP githash 3d516b853179b9cc02d358410ef9b64c593022ce
+.\" FRDP hash256 2b0338a1ba952afdb4f30b8f3f0fee5b3a65c58bc6831239e68217dce9c22719
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 30, 2022
+.Dt TS 1
+.Os
+.Sh ИМЯ
+.Nm ts
+.Nd добавление отметок времени к входным данным
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i | s
+.Op Fl m
+.Op Ar format
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+добавляет отметку времени в начало каждой строки стандартного ввода и записывает
+её в стандартный вывод.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl i
+Отображать время, прошедшее с момента последней отметки времени.
+.It Fl m
+Отображать отметки времени, полученные от строго линейно возрастающих часов.
+Без
+.Fl m
+отметки времени отражают текущие дату и время, включая скачки времени при
+изменении системного времени.
+.It Fl s
+Отображать время, прошедшее с момента запуска программы.
+.El
+.Pp
+Необязательный аргумент
+.Ar format
+управляет отображением отметки времени в соответствии со
+спецификациями преобразования, описанными на странице Справочника
+.Xr strftime 3 .
+Формат по умолчанию —
+.Qq %b %d %H:%M:%S ;
+или
+.Qq %H:%M:%S
+если используется один из параметров
+.Fl i
+или
+.Fl s .
+.Pp
+Также поддерживаются некоторые дополнительные спецификации преобразования
+для добавления точности до микросекунд:
+.Cm %.S ,
+.Cm %.s ,
+и
+.Cm %.T ;
+которые аналогичны
+.Cm %S ,
+.Cm %s ,
+и
+.Cm \&%T .
+Примеры:
+.Qq 10.00001 ,
+.Qq 1656427781.00001
+и
+.Qq 4:20:00.00001 .
+.Sh ПРИМЕРЫ
+.Bd -literal -offset indent
+$ (echo foo; sleep 2; echo bar) | ts
+Jun 28 12:13:38 foo
+Jun 28 12:13:40 bar
+
+$ ls | ts -i %.S
+00.000452 CVS
+00.000595 Makefile
+00.000004 ts.1
+00.000004 ts.c
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr strftime 3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в коллекции moreutils, созданной Джоуи Хессом, и была
+переписана с нуля для
+.Ox 7.2 .
+.Pp
+Она была импортирована в
+.Fx
+пользователем
+.An -nosplit
+.An Juraj Lutter Aq Mt otis@FreeBSD.org .
+.Sh АВТОРЫ
+Эта утилита
+.Nm
+была написана
+.An Job Snijders Aq Mt job@openbsd.org
+и
+.An Claudio Jeker Aq Mt claudio@openbsd.org .

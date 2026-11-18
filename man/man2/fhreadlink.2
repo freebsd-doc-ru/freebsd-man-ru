@@ -1,0 +1,99 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Gandi
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/fhreadlink.2
+.\" FRDP githash fb4cdd51608f3008f035d01f6a499811cda41735
+.\" FRDP hash256 548c5bdb8dc52e9043554752307c74f652f84aaec65a56e5208a5522023cfbdd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 30, 2022
+.Dt FHREADLINK 2
+.Os
+.Sh ИМЯ
+.Nm fhreadlink
+.Nd прочитать значение символической ссылки
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/mount.h
+.Ft int
+.Fn fhreadlink "fhandle_t *fhp" "char *buf" "size_t bufsize"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn fhreadlink
+помещает содержимое символической ссылки
+.Fa fhp
+в буфер
+.Fa buf ,
+имеющий размер
+.Fa bufsiz .
+Системный вызов
+.Fn fhreadlink
+не добавляет символ
+.Dv NUL
+к
+.Fa buf .
+.Pp
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном выполнении вызов возвращает количество символов, помещённых в буфер,
+или \-1 при возникновении ошибки, помещая код ошибки
+в глобальную переменную
+.Va errno .
+.Sh ОШИБКИ
+Системный вызов
+.Fn fhreadlink
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er ELOOP
+При преобразовании файлового дескриптора
+.Fa fhp
+встречено слишком много символических ссылок.
+.It Bq Er EINVAL
+Указанный файл не является символической ссылкой.
+.It Bq Er EIO
+При чтении из файловой системы произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EFAULT
+Аргумент
+.Fa buf
+выходит за пределы выделенного адресного пространства процесса.
+.It Bq Er ESTALE
+Файловый дескриптор
+.Fa fhp
+больше не действителен
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fhlink 2 ,
+.Xr fhstat 2 ,
+.Xr readlink 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn fhreadlink
+впервые появился в
+.Fx 12.1 .

@@ -1,0 +1,179 @@
+.\" Copyright (c) 2014-2021 The FreeBSD Foundation
+.\"
+.\" Portions of this documentation were written by John-Mark Gurney
+.\" under the sponsorship of the FreeBSD Foundation and
+.\" Rubicon Communications, LLC (Netgate).
+.\"
+.\" Portions of this documentation were written by Ararat River
+.\" Consulting, LLC under sponsorship of the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1.  Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\" 2.  Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/crypto.7
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 3f17507076bc8f6a510849237e4f744a7cf8390533ec65a3e8c849fea370bdc0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 11, 2022
+.Dt CRYPTO 7
+.Os
+.Sh ИМЯ
+.Nm crypto
+.Nd алгоритмы OpenCrypto
+.Sh ОПИСАНИЕ
+Внутриядерная инфраструктура OpenCrypto поддерживает несколько различных алгоритмов шифрования и аутентификации.
+В этом документе описаны параметры и требования этих алгоритмов.
+Если не указано иное, все размеры ниже указаны в байтах.
+.Ss Аутентификаторы
+Аутентификаторы вычисляют значение (также известное как дайджест, хеш или тег) по входной последовательности байтов.
+Внутриядерные запросы могут либо вычислять значение для заданных входных данных, либо проверять, совпадает ли заданный тег с вычисленным тегом для заданных входных данных.
+Поддерживаются следующие алгоритмы аутентификации:
+.Bl -column "CRYPTO_AES_CCM_CBC_MAC" "12" "16, 24, 32" "16" "Description"
+.It Sy Имя Ta Sy Нонс Ta Sy Размеры ключей Ta Sy Дайджест Ta Sy Описание
+.It Dv CRYPTO_AES_CCM_CBC_MAC Ta 12 Ta 16, 24, 32 Ta 16 Ta
+Режим AES-CCM только с аутентификацией
+.It Dv CRYPTO_AES_NIST_GMAC Ta 12 Ta 16, 24, 32 Ta 16 Ta
+Код аутентификации сообщений Галуа
+.It Dv CRYPTO_BLAKE2B Ta Ta 0, 64 Ta 64 Ta
+Blake2b
+.It Dv CRYPTO_BLAKE2S Ta Ta 0, 32 Ta 32 Ta
+Blake2s
+.It Dv CRYPTO_NULL_HMAC Ta Ta Ta 12 Ta
+HMAC NULL для IPsec
+.It Dv CRYPTO_POLY1305 Ta Ta 32 Ta 16 Ta
+Аутентификатор Poly1305
+.It Dv CRYPTO_RIPEMD160 Ta Ta Ta 20 Ta
+RIPE Message Digest-160
+.It Dv CRYPTO_RIPEMD160_HMAC Ta Ta 64 Ta 20 Ta
+RIPE Message Digest-160 HMAC
+.It Dv CRYPTO_SHA1 Ta Ta Ta 20 Ta
+SHA-1
+.It Dv CRYPTO_SHA1_HMAC Ta Ta 64 Ta 20 Ta
+SHA-1 HMAC
+.It Dv CRYPTO_SHA2_224 Ta Ta Ta 28 Ta
+SHA-2 224
+.It Dv CRYPTO_SHA2_224_HMAC Ta Ta 64 Ta 28 Ta
+SHA-2 224 HMAC
+.It Dv CRYPTO_SHA2_256 Ta Ta Ta 32 Ta
+SHA-2 256
+.It Dv CRYPTO_SHA2_256_HMAC Ta Ta 64 Ta 32 Ta
+SHA-2 256 HMAC
+.It Dv CRYPTO_SHA2_384 Ta Ta Ta 48 Ta
+SHA-2 384
+.It Dv CRYPTO_SHA2_384_HMAC Ta Ta 128 Ta 48 Ta
+SHA-2 384 HMAC
+.It Dv CRYPTO_SHA2_512 Ta Ta Ta 64 Ta
+SHA-2 512
+.It Dv CRYPTO_SHA2_512_HMAC Ta Ta 128 Ta 64 Ta
+SHA-2 512 HMAC
+.El
+.Ss Блочные шифры
+Блочные шифры в OCF могут обрабатывать только сообщения, длина которых кратна размеру блока шифра.
+OCF поддерживает следующие блочные шифры:
+.Bl -column "CRYPTO_CAMELLIA_CBC" "16" "16" "16, 24, 32" "Description"
+.It Sy Имя Ta Sy Размер IV Ta Sy Размер блока Ta Sy Размеры ключей Ta Sy Описание
+.It Dv CRYPTO_AES_CBC Ta 16 Ta 16 Ta 16, 24, 32 Ta
+AES-CBC
+.It Dv CRYPTO_AES_XTS Ta 8 Ta 16 Ta 32, 64 Ta
+AES-XTS
+.It Dv CRYPTO_CAMELLIA_CBC Ta 16 Ta 16 Ta 16, 24, 32 Ta
+Camellia CBC
+.It Dv CRYPTO_NULL_CBC Ta 0 Ta 4 Ta 0-256 Ta
+Шифр NULL для IPsec
+.El
+.Pp
+.Dv CRYPTO_AES_XTS
+реализует настраиваемый блочный шифр XEX с кражей шифртекста
+(XEX Tweakable Block Cipher with Ciphertext Stealing) согласно NIST SP 800-38E.
+Потребители OCF предоставляют первые 8 байт IV.
+Остальные 8 байт определяются как счётчик блоков, начинающийся с 0.
+.Pp
+ПРИМЕЧАНИЕ: часть с кражей шифртекста реализована не во всех бэкендах,
+поэтому этот шифр требует, чтобы входные данные имели длину, кратную размеру блока.
+.Ss Поточные шифры
+Поточные шифры могут обрабатывать сообщения произвольной длины.
+OCF поддерживает следующие поточные шифры:
+.Bl -column "CRYPTO_CHACHA20" "16" "16, 32" "Description"
+.It Sy Имя Ta Sy Размер IV Ta Sy Размеры ключей Ta Sy Описание
+.It Dv CRYPTO_AES_ICM Ta 16 Ta 16, 24, 32 Ta
+Режим счётчика AES
+.It Dv CRYPTO_CHACHA20 Ta 16 Ta 16, 32 Ta
+ChaCha20
+.El
+.Pp
+IV для каждого запроса должен передаваться в
+.Fa crp_iv
+через флаг
+.Dv CRYPTO_F_IV_SEPARATE .
+.Pp
+.Dv CRYPTO_AES_ICM
+использует весь IV как 128-битный счётчик блоков с прямым порядком байтов
+(big endian).
+IV задаёт начальное значение счётчика для сообщения.
+Если потребитель хочет использовать IV, значение которого разделено на
+отдельные поля нонса и счётчика (например, IPsec),
+потребитель отвечает за разделение запросов для обработки
+переполнения счётчика.
+.Pp
+.Dv CRYPTO_CHACHA20
+принимает 16-байтовый IV.
+Первые 8 байт используются как нонс.
+Последние 8 байт используются как 64-битный счётчик блоков с обратным порядком байтов
+(little endian).
+.Ss Алгоритмы аутентифицированного шифрования с ассоциированными данными
+Алгоритмы AEAD в OCF объединяют поточный шифр с алгоритмом
+аутентификации, обеспечивая как конфиденциальность, так и аутентификацию.
+Алгоритмы AEAD принимают дополнительные данные аутентификации (AAD)
+в дополнение к шифртексту или открытому тексту.
+AAD передаются алгоритму аутентификации на вход способом,
+определённым конкретным алгоритмом AEAD.
+.Pp
+Алгоритмы AEAD в OCF принимают нонс, который объединяется со счётчиком,
+заданным алгоритмом, для построения IV базового
+поточного шифра.
+Этот нонс должен передаваться в
+.Fa crp_iv
+через флаг
+.Dv CRYPTO_F_IV_SEPARATE .
+Некоторые алгоритмы AEAD поддерживают несколько размеров нонса.
+Первый указанный размер является размером нонса по умолчанию.
+.Pp
+Поддерживаются следующие алгоритмы AEAD:
+.Bl -column "CRYPTO_XCHACHA20_POLY1305" "12, 7-13" "16, 24, 32" "16" "Description"
+.It Sy Имя Ta Sy Нонс Ta Sy Размеры ключей Ta Sy Тег Ta Sy Описание
+.It Dv CRYPTO_AES_NIST_GCM_16 Ta 12 Ta 16, 24, 32 Ta 16 Ta
+Режим Galois/Counter AES
+.It Dv CRYPTO_AES_CCM_16 Ta 12, 7-13 Ta 16, 24, 32 Ta 16 Ta
+AES Counter с CBC-MAC
+.It Dv CRYPTO_CHACHA20_POLY1305 Ta 12, 8 Ta 32 Ta 16 Ta
+ChaCha20-Poly1305
+.It Dv CRYPTO_XCHACHA20_POLY1305 Ta 24 Ta 32 Ta 16 Ta
+XChaCha20-Poly1305
+.El
+.Sh СМ. ТАКЖЕ
+.Xr crypto 4 ,
+.Xr crypto 9
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 10.1 .

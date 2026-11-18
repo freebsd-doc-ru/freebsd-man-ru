@@ -1,0 +1,127 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2020 Daniel Ebdrup Jensen
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/stats.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 53dfdd46b1e1ea514664ab0631c0fef59e84257406b57126ddc6ee0a0fd59659
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 22, 2021
+.Dt STATS 7
+.Os
+.Sh ИМЯ
+.Nm stats
+.Nd сведения о различных статистических утилитах
+.Sh ОПИСАНИЕ
+Пользовательское окружение
+.Fx
+частично содержит ряд утилит, которые можно использовать
+для определения состояния системы во время выполнения и, при необходимости, из core-файлов.
+.Sh КОМАНДЫ
+Следующие команды
+.Pq в алфавитном порядке
+в настоящее время включены в базовую систему, а новые появляются периодически.
+.Bl -tag -width "zpool iostat" -compact
+.It Nm btsockstat
+Показать информацию о сокетах Bluetooth
+.It Nm ctlstat
+Утилита статистики CAM Target Layer
+.It Nm dwatch
+Наблюдать за процессами при срабатывании определённого зонда DTrace
+.It Nm fstat
+Идентифицировать активные файлы
+.It Nm gstat
+Вывести статистику по дискам GEOM
+.It Nm ibstat
+Показать информацию от драйвера InfiniBand
+.It Nm ifmcstat
+Вывести статистику управления группами многоадресной рассылки по каждому интерфейсу
+.It Nm iostat
+Вывести статистику ввода-вывода подсистем ядра
+.It Nm ipfstat
+Показать статистику пакетного фильтра IPF и список фильтров
+.It Nm kldstat
+Показать состояние динамического компоновщика ядра
+.It Nm lockstat
+Вывести статистику блокировок ядра и профилирования
+.It Nm mailstats
+Показать статистику почты
+.It Nm netstat
+Показать состояние и статистику сети
+.It Nm nfsstat
+Показать статистику NFS
+.It Nm plockstat
+Трассировать статистику блокировок pthread с помощью DTrace
+.It Nm pmcstat
+Измерение производительности с помощью аппаратных средств мониторинга производительности
+.It Nm procstat
+Получить подробную информацию о процессах
+.It Nm pstat
+Показать структуры данных системы
+.It Nm sockstat
+Список открытых сокетов
+.It Nm stat
+Показать состояние файла
+.It Nm systat
+Показать статистику системы
+.It Nm vmstat
+Вывести статистику виртуальной памяти
+.It Nm zpool iostat
+Вывести статистику ввода-вывода ZFS
+.El
+.Sh СМ. ТАКЖЕ
+.Xr btsockstat 1 ,
+.Xr dwatch 1 ,
+.Xr fstat 1 ,
+.Xr intro 1 ,
+.Xr lockstat 1 ,
+.Xr netstat 1 ,
+.Xr plockstat 1 ,
+.Xr procstat 1 ,
+.Xr sockstat 1 ,
+.Xr stat 1 ,
+.Xr systat 1 ,
+.Xr intro 7 ,
+.Xr ctlstat 8 ,
+.Xr gstat 8 ,
+.Xr ibstat 8 ,
+.Xr ifmcstat 8 ,
+.Xr intro 8 ,
+.Xr iostat 8 ,
+.Xr ipfstat 8 ,
+.Xr kldstat 8 ,
+.Xr mailstats 8 ,
+.Xr pmcstat 8 ,
+.Xr pstat 8 ,
+.Xr vmstat 8 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+впервые появилась в
+.Fx 13.0 .
+.Sh АВТОРЫ
+.An Daniel Ebdrup Jensen Aq Mt debdrup@FreeBSD.org

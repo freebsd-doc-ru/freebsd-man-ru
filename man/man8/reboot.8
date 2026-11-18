@@ -1,0 +1,239 @@
+.\" Copyright (c) 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/reboot/reboot.8
+.\" FRDP githash 94c1c907f8c78d8c8ad34b6a7d374384f8fb71b6
+.\" FRDP hash256 c405511c2fba2a18f2e922102d51d7fd8e899fa5315e885e829a38469a769b89
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 12, 2025
+.Dt REBOOT 8
+.Os
+.Sh ИМЯ
+.Nm reboot ,
+.Nm halt ,
+.Nm fastboot ,
+.Nm fasthalt
+.Nd остановка и перезапуск системы
+.Sh СИНТАКСИС
+.Nm halt
+.Op Fl DflNnpq
+.Op Fl e Ar variable=value
+.Op Fl k Ar kernel
+.Op Fl o Ar options
+.Nm
+.Op Fl cDdflNnpqr
+.Op Fl e Ar variable=value
+.Op Fl k Ar kernel
+.Op Fl o Ar options
+.Nm fasthalt
+.Op Fl DflNnpq
+.Op Fl e Ar variable=value
+.Op Fl k Ar kernel
+.Op Fl o Ar options
+.Nm fastboot
+.Op Fl dDflNnpq
+.Op Fl e Ar variable=value
+.Op Fl k Ar kernel
+.Op Fl o Ar options
+.Sh ОПИСАНИЕ
+Утилиты
+.Nm halt
+и
+.Nm
+сбрасывают кэш файловой системы на диск, посылают всем работающим процессам
+.Dv SIGTERM
+(а затем
+.Dv SIGKILL )
+и соответственно останавливают или перезапускают систему.
+Действие протоколируется, включая внесение записи о завершении работы в базу данных
+учёта пользователей.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl c
+Система выключит питание, а затем снова включит его, если сможет.
+Если действие выключения питания завершится неудачно, система
+обычно остановится или перезагрузится в зависимости от того, была ли
+вызвана
+.Nm halt
+или
+.Nm .
+В настоящее время только драйвер
+.Xr ipmi 4
+реализует функцию цикла питания, и только на оборудовании
+с BMC, поддерживающим цикл питания.
+В отличие от выключения питания, количество оборудования, поддерживающего цикл питания,
+невелико.
+.It Fl D
+Удалить существующую конфигурацию
+.Nm nextboot
+и выйти.
+.It Fl d
+Системе даётся запрос на создание аварийного дампа.
+Этот параметр
+поддерживается только при перезагрузке и не действует, если ранее не было указано
+устройство дампа с помощью
+.Xr dumpon 8 .
+.It Fl e Ar variable=value
+Устанавливает
+.Va variable
+в
+.Va value
+в окружении загрузчика и ядра.
+Если
+.Va value
+ещё не заключено в двойные кавычки, они будут добавлены перед записью в
+конфигурацию
+.Nm nextboot .
+Следует соблюдать осторожность, если
+.Va value
+содержит символы, специальные для оболочки или кода разбора конфигурации
+загрузчика.
+.It Fl f
+Принудительная перезагрузка.
+Обычно
+.Nm
+проверяет наличие следующего ядра
+и отсутствие файла
+.Pa /var/run/noshutdown .
+Без этого флага перезагрузка запрещается, если одно из условий не выполнено.
+.It Fl k Ar kname
+Загрузить указанное ядро
+.Ar kname
+при следующей загрузке системы.
+Это однократный параметр; при последующих загрузках будет загружено
+.Em стандартное
+ядро.
+Ни
+.Nm reboot
+, ни
+.Nm halt
+не будут выполнены, если
+.Em /boot/kname/kernel
+не существует, если только не указан флаг
+.Fl f .
+.It Fl l
+Остановка или перезагрузка
+.Em не
+протоколируется в системном журнале.
+Этот параметр предназначен для таких приложений, как
+.Xr shutdown 8 ,
+которые вызывают
+.Nm
+или
+.Nm halt
+и сами протоколируют это.
+.It Fl N
+Кэш файловой системы не сбрасывается во время начальной очистки процессов,
+однако системный вызов
+.Xr reboot 2
+на уровне ядра всё равно выполняется с синхронизацией.
+Этот параметр может быть полезен для выполнения
+.Dq по возможности
+перезагрузки, когда устройства могут быть недоступны.
+Это может произойти, когда устройства были отключены, например, с
+.Xr iscsi 4 .
+.It Fl n
+Кэш файловой системы не сбрасывается.
+Этот параметр, вероятно, не следует использовать.
+.It Fl o Ar options
+Этот параметр
+позволяет передать флаги ядра для следующей загрузки.
+.It Fl p
+Система выключит питание, если сможет.
+Если действие выключения питания завершится неудачно, система
+обычно остановится или перезагрузится в зависимости от того, была ли
+вызвана
+.Nm halt
+или
+.Nm .
+.It Fl q
+Система останавливается или перезапускается быстро и без корректного завершения, и выполняется только
+сброс кэша файловой системы (если параметр
+.Fl n
+не указан).
+Этот параметр, вероятно, не следует использовать.
+.It Fl r
+Система завершает все процессы, размонтирует все файловые системы, монтирует новую
+корневую файловую систему и начинает обычную последовательность загрузки.
+После изменения vfs.root.mountfrom с помощью
+.Xr kenv 1 ,
+.Nm Fl r
+можно использовать для смены корневой файловой системы при сохранении состояния ядра.
+Для этого требуется, чтобы был загружен модуль ядра
+.Xr tmpfs 4 ,
+поскольку
+.Xr init 8
+нужно место для размещения себя после размонтирования старого корня, но
+до того, как новый корень будет на месте.
+.El
+.Pp
+Утилиты
+.Nm fasthalt
+и
+.Nm fastboot
+являются не чем иным, как псевдонимами для утилит
+.Nm halt
+и
+.Nm .
+.Pp
+Обычно утилита
+.Xr shutdown 8
+используется, когда систему нужно остановить или перезагрузить, что заблаговременно предупреждает
+пользователей о надвигающейся беде и корректно завершает
+определённые программы.
+.Sh ПРИМЕРЫ
+Заменить текущую корневую файловую систему на UFS, смонтированную из
+.Pa /dev/ada0s1a :
+.Bd -literal -offset indent
+kenv vfs.root.mountfrom=ufs:/dev/ada0s1a
+reboot -r
+.Ed
+.Pp
+Этот механизм также можно использовать с NFS, с той оговоркой, что
+он работает только с NFSv4 и требует числовой IPv4-адрес:
+.Bd -literal -offset indent
+kenv vfs.root.mountfrom=nfs:192.168.1.1:/share/name
+reboot -r
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr kenv 1 ,
+.Xr reboot 2 ,
+.Xr getutxent 3 ,
+.Xr ipmi 4 ,
+.Xr boot 8 ,
+.Xr dumpon 8 ,
+.Xr nextboot 8 ,
+.Xr savecore 8 ,
+.Xr shutdown 8 ,
+.Xr sync 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.0 .

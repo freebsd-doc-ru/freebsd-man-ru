@@ -1,0 +1,101 @@
+.\" Copyright (c) 1995
+.\"	Bill Paul <wpaul@ctr.columbia.edu>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Bill Paul.
+.\" 4. Neither the name of the author nor the names of any co-contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Bill Paul AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/ethers.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8db7d4250f436f02fbb71987a4b657afdc8c2a7bad6fcf1ae3597beb8f991491
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 12, 1995
+.Dt ETHERS 5
+.Os
+.Sh ИМЯ
+.Nm ethers
+.Nd база данных Ethernet-адресов
+.Sh ОПИСАНИЕ
+База данных
+.Nm
+содержит информацию об известных 48-битных Ethernet-адресах хостов в объединённой сети.
+Данные хранятся в файле
+.Pa /etc/ethers
+в следующем формате:
+.Pp
+.D1 Ar ethernet-адрес полное-имя-хоста
+.Pp
+Элементы разделяются любым количеством пробелов и/или
+символов табуляции.
+``#'' в начале строки обозначает
+начало комментария, который продолжается до конца строки.
+``+'' в
+начале строки заставит библиотечные функции
+.Xr ethers 3
+использовать данные, хранящиеся в картах
+.Tn NIS
+.Pa ethers.byname
+и
+.Pa ethers.byaddr,
+в дополнение к данным в файле
+.Pa /etc/ethers .
+.Pp
+Ethernet-адрес выражается в
+.Tn ASCII
+.Ar x
+— шестнадцатеричное значение от 0x00 до 0xFF.
+Значения адреса
+должны быть в сетевом порядке.
+Имена хостов, указанные в базе данных
+.Pa /etc/ethers ,
+должны соответствовать записям в файле
+.Xr hosts 5 .
+.Pp
+Функцию
+.Fn ether_line
+из стандартной библиотеки C можно использовать для разбиения отдельных
+строк в базе данных
+.Pa /etc/ethers
+на отдельные компоненты: двоичный Ethernet-адрес,
+хранящийся в виде структуры
+.Pa ether_addr ,
+и имя хоста, хранящееся в виде строки символов.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/services -compact
+.It Pa /etc/ethers
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ethers 3 ,
+.Xr yp 8
+.Sh ИСТОРИЯ
+Формат
+.Nm
+основан на формате, используемом в SunOS 4.1.x.

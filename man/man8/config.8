@@ -1,0 +1,268 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/config/config.8
+.\" FRDP githash 9e2b87207ba1949f402e169416f63ab5cdbf3dd4
+.\" FRDP hash256 2072852db50e3dcf69f112120743fe6549668bb4b0ef285e6a7a3e17d8142ce2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 9, 2021
+.Dt CONFIG 8
+.Os
+.Sh ИМЯ
+.Nm config
+.Nd собирает файлы конфигурации системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl CVgpv
+.Op Fl I Ar путь
+.Op Fl d Ar destdir
+.Op Fl s Ar srcdir
+.Ar SYSTEM_NAME
+.Nm
+.Op Fl x Ar ядро
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+строит набор файлов конфигурации системы из файла
+.Ar SYSTEM_NAME ,
+который описывает
+конфигурируемую систему.
+Второй файл
+сообщает
+.Nm ,
+какие файлы нужны для генерации системы, и
+может быть дополнен набором файлов, зависящих от конфигурации,
+которые предоставляют альтернативные файлы для конкретной машины
+(см.
+.Sx ФАЙЛЫ
+ниже).
+.Pp
+Доступные параметры и операнды:
+.Bl -tag -width indent
+.It Fl V
+Выводит
+.Nm
+номер версии.
+.It Fl C
+Если INCLUDE_CONFIG_FILE присутствует в файле конфигурации,
+образ ядра будет содержать полные файлы конфигурации, включённые
+буквально (с сохранением комментариев).
+Этот флаг сохранён для обратной совместимости.
+.It Fl I Ar путь
+Поиск в
+.Ar путь
+любого файла, включаемого директивой
+.Ic include .
+Этот параметр может быть указан несколько раз.
+.It Fl d Ar destdir
+Использовать
+.Ar destdir
+в качестве выходного каталога вместо каталога по умолчанию.
+Обратите внимание, что
+.Nm
+не добавляет
+.Ar SYSTEM_NAME
+к указанному каталогу.
+.It Fl s Ar srcdir
+Использовать
+.Ar srcdir
+в качестве каталога исходных текстов вместо каталога по умолчанию.
+.It Fl m
+Вывести значения MACHINE и MACHINE_ARCH для этого
+ядра и выйти.
+.It Fl g
+Настроить систему для отладки.
+.It Fl x Ar ядро
+Вывести файл конфигурации ядра, встроенный в файл
+ядра.
+Этот параметр имеет смысл, только если
+запись присутствовала в вашем файле конфигурации.
+.It Fl v
+Включает подробный вывод.
+.It Ar SYSTEM_NAME
+Задаёт имя файла конфигурации системы,
+содержащего спецификации устройств, параметры конфигурации
+и другие системные параметры для одной конфигурации системы.
+.El
+.Pp
+Утилита
+.Nm
+должна запускаться из подкаталога
+.Pa conf
+исходных текстов системы (обычно
+.Pa /sys/ Ns Va ARCH Ns Pa /conf ) ,
+где
+.Va ARCH
+обозначает одну из архитектур, поддерживаемых
+.Fx .
+Утилита
+.Nm
+создаёт каталог
+.Pa ../compile/ Ns Ar SYSTEM_NAME
+или указанный с помощью параметра
+.Fl d ,
+при необходимости, и помещает туда все выходные файлы.
+Выходные данные
+.Nm
+состоят из ряда файлов; для
+.Tn i386
+это:
+.Pa Makefile ,
+используемый
+.Xr make 1
+при сборке системы;
+заголовочные файлы,
+определения
+количества различных устройств, которые будут скомпилированы в систему.
+.Pp
+Утилита
+.Nm
+ищет исходные тексты ядра в каталоге
+.Pa ../..
+или в указанном с помощью параметра
+.Fl s .
+.Pp
+После запуска
+.Nm
+необходимо выполнить
+.Dq Li make depend
+в каталоге, где был создан новый makefile.
+Утилита
+.Nm
+выводит напоминание об этом после завершения.
+.Pp
+Если возникают другие сообщения об ошибках, выдаваемые
+.Nm ,
+проблемы в файле конфигурации следует исправить и
+.Nm
+следует запустить снова.
+Попытки скомпилировать систему, в которой были ошибки конфигурации,
+скорее всего, не увенчаются успехом.
+.Sh ОТЛАДОЧНЫЕ ЯДРА
+Традиционные ядра
+.Bx
+компилируются без символов из-за большой нагрузки на
+систему при компиляции
+.Dq отладочного
+ядра.
+Отладочное ядро содержит полные символы для всех исходных файлов и
+позволяет опытному программисту ядра проанализировать причину проблемы.
+Отладчики, доступные до
+.Bx 4.4 Lite ,
+могли извлечь некоторую информацию
+из обычного ядра;
+.Xr gdb 1 Pq Pa ports/devel/gdb
+обеспечивает очень малую поддержку обычных ядер, и для любого
+осмысленного анализа необходимо отладочное ядро.
+.Pp
+По причинам исторического характера, времени и места, сборка отладочного ядра не является
+поведением по умолчанию в
+.Fx :
+сборка отладочного ядра занимает до 30% больше времени и
+требует около 30 МБ дискового пространства в каталоге сборки по сравнению с примерно 6
+МБ для неотладочного ядра.
+Размер отладочного ядра составляет около 11 МБ по сравнению
+с примерно 2 МБ для неотладочного ядра.
+Это пространство используется как в корневой файловой
+системе, так и во время выполнения в памяти.
+Используйте параметр
+.Fl g
+для сборки отладочного ядра.
+С этим параметром
+.Nm
+приводит к сборке двух файлов ядра в каталоге сборки ядра:
+.Bl -bullet
+.It
+.Pa kernel.debug
+— полное отладочное ядро.
+.It
+.Pa kernel
+— копия ядра с удалёнными отладочными символами.
+Это эквивалентно
+обычному неотладочному ядру.
+.El
+.Pp
+В настоящее время мало смысла устанавливать и загружаться с отладочного ядра,
+поскольку единственные доступные инструменты, использующие символы, не работают в режиме онлайн.
+Поэтому
+есть два варианта установки отладочного ядра:
+.Bl -bullet
+.It
+устанавливает
+.Pa kernel
+в корневую файловую систему.
+.It
+устанавливает
+.Pa kernel.debug
+в корневую файловую систему.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /sys/conf/files. Ns Va ARCH" -compact
+.It Pa /sys/conf/files
+список общих файлов, из которых собирается система
+.It Pa /sys/conf/Makefile . Ns Va ARCH
+общий makefile для
+.Va ARCH
+.It Pa /sys/conf/files . Ns Va ARCH
+список файлов, специфичных для
+.Va ARCH
+.It Pa /sys/ Ns Va ARCH Ns Pa /compile/ Ns Ar SYSTEM_NAME
+каталог сборки ядра по умолчанию для системы
+.Ar SYSTEM_NAME
+на
+.Va ARCH .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr config 5
+.Pp
+Часть
+.Sx СИНТАКСИС
+каждого устройства в разделе 4.
+.Rs
+.%A S. J. Leffler
+.%A M. J. Karels
+.%B 4.4BSD System Manager's Manual (SMM)
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.1 .
+.Pp
+До появления поддержки
+.Fl x
+включала весь файл конфигурации, который раньше встраивался в
+новое ядро.
+Это означало, что
+.Xr strings 1
+можно было использовать для извлечения его из ядра:
+чтобы извлечь информацию о конфигурации, нужно было использовать
+команду:
+.Pp
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Номера строк, сообщаемые в сообщениях об ошибках, обычно смещены на единицу.

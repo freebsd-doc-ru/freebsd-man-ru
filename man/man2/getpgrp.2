@@ -1,0 +1,141 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getpgrp.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 895fb687e51d9b394802cc9a62d72c84f4b46db26621a2d982c6723450fbb1ea
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 4, 1993
+.Dt GETPGRP 2
+.Os
+.Sh ИМЯ
+.Nm getpgrp
+.Nd получить группу процессов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft pid_t
+.Fn getpgrp void
+.Ft pid_t
+.Fn getpgid "pid_t pid"
+.Sh ОПИСАНИЕ
+Группа процессов текущего процесса возвращается
+.Fn getpgrp .
+Группа процессов процесса, определяемого
+.Fa pid
+возвращается
+.Fn getpgid .
+Если
+.Fa pid
+равен нулю,
+.Fn getpgid
+возвращает группу процессов текущего процесса.
+.Pp
+Группы процессов используются для распределения сигналов и
+терминалами для арбитража запросов на их ввод: процессы,
+которые имеют ту же группу процессов, что и терминал, являются фоновыми
+и могут читать, в то время как другие будут блокироваться сигналом, если они попытаются
+читать.
+.Pp
+Таким образом, этот системный вызов используется программами, такими как
+.Xr csh 1
+для создания
+групп процессов
+при реализации управления заданиями.
+Вызовы
+.Fn tcgetpgrp
+и
+.Fn tcsetpgrp
+используются для получения/установки группы процессов управляющего терминала.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn getpgrp
+всегда завершается успешно.
+При успешном завершении системный вызов
+.Fn getpgid
+возвращает группу процессов указанного процесса;
+в противном случае он возвращает значение \-1 и устанавливает
+.Va errno
+для указания ошибки.
+.Sh СОВМЕСТИМОСТЬ
+Эта версия
+.Fn getpgrp
+отличается от прошлых версий Berkeley тем, что не принимает
+.Fa "pid_t pid"
+аргумент.
+Эта несовместимость требуется
+.St -p1003.1-90 .
+.Pp
+Из
+.St -p1003.1-90
+обоснования:
+.Pp
+.Bx 4.3
+предоставляет системный вызов
+.Fn getpgrp
+который возвращает идентификатор группы процессов для указанного процесса.
+Хотя эта функция используется для поддержки управления заданиями, все известные
+оболочки управления заданиями всегда указывают вызывающий процесс с помощью этой
+функции.
+Таким образом, более простой
+.At V
+.Fn getpgrp
+достаточен, и добавленная сложность
+.Bx 4.3
+.Fn getpgrp
+была опущена из POSIX.1.
+Старая функциональность доступна из системного вызова
+.Fn getpgid .
+.Sh ОШИБКИ
+Системный вызов
+.Fn getpgid
+завершится успешно, если только:
+.Bl -tag -width Er
+.It Bq Er ESRCH
+нет процесса, чей идентификатор процесса равен
+.Fa pid
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getsid 2 ,
+.Xr setpgid 2 ,
+.Xr termios 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn getpgrp
+будет соответствовать
+.St -p1003.1-90 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getpgrp
+появился в
+.Bx 4.0 .
+Системный вызов
+.Fn getpgid
+происходит из его использования в
+.At V.4 .

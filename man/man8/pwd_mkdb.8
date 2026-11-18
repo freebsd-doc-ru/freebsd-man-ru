@@ -1,0 +1,180 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pwd_mkdb/pwd_mkdb.8
+.\" FRDP githash 3467ce29b4485b5318e7efac187cfb7ec0c91aea
+.\" FRDP hash256 7c8112b28e56f9c187379729f4b8a52af1c37ef9a79c636b2e918455ef0997ab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2025
+.Dt PWD_MKDB 8
+.Os
+.Sh ИМЯ
+.Nm pwd_mkdb
+.Sh СИНТАКСИС
+.Nm
+.Op Fl CiNp
+.Op Fl d Ar каталог
+.Op Fl s Ar размер_кэша
+.Op Fl u Ar имя_пользователя
+.Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт защищённые и незащищённые базы данных в стиле
+.Xr db 3
+для указанного файла.
+Затем эти базы данных устанавливаются в
+.Pa /etc/spwd.db
+и
+.Pa /etc/pwd.db
+соответственно.
+Файл устанавливается в
+.Pa /etc/master.passwd .
+Файл должен быть в правильном формате (см.
+.Xr passwd 5 ) .
+Важно отметить, что формат, используемый в этой системе,
+отличается от исторического формата стиля Version 7.
+.Pp
+Опции следующие:
+.Bl -tag -width flag
+.It Fl C
+Проверить, что файл паролей имеет правильный формат.
+Не
+изменять, не добавлять и не удалять никакие файлы.
+.It Fl d Ar каталог
+Сохранять базы данных в указанный целевой каталог вместо
+.Pa /etc .
+.It Fl i
+Игнорировать ошибку блокировки файла
+.Pa master.passwd .
+Эта опция предназначена для использования при создании файлов паролей в
+процессе выпуска по NFS, где не может возникнуть конкуренция.
+Также необходимо указать каталог, отличный от каталога по умолчанию, с помощью
+.Fl d ,
+чтобы блокировка игнорировалась.
+Использование этой опции в других целях настоятельно не рекомендуется.
+.It Fl N
+Указать
+.Nm
+завершиться с ошибкой, если она не может получить блокировку файла.
+По умолчанию
+мы блокируемся в ожидании блокировки исходного файла.
+Блокировка удерживается на протяжении
+перестроения базы данных.
+.It Fl p
+Создать файл паролей в стиле Version 7 и установить его в
+.Pa /etc/passwd .
+.It Fl s Ar размер_кэша
+Указать в мегабайтах размер кэша памяти, используемого
+библиотекой хэширования.
+В системах с большим числом пользователей небольшой размер кэша
+может привести к недопустимо долгому времени перестроения файла базы данных.
+В качестве приблизительного ориентира потребление памяти
+.Nm
+в мегабайтах будет немного больше удвоенного указанного здесь значения.
+По умолчанию — 2 мегабайта.
+.It Fl u Ar имя_пользователя
+Обновить только запись для указанного пользователя.
+Утилиты, работающие
+с одним пользователем, могут использовать эту опцию, чтобы избежать
+затрат на перестроение всей базы данных.
+.El
+.Pp
+Две базы данных различаются тем, что защищённая версия содержит
+зашифрованный пароль пользователя, а незащищённая версия содержит звёздочку (``*'')
+.Pp
+Базы данных используются подпрограммами работы с паролями из библиотеки C (см.
+.Xr getpwent 3 ) .
+.Pp
+Утилита
+.Nm
+завершается с кодом ноль при успехе и ненулевым кодом при ошибке.
+.Sh ОКРУЖЕНИЕ
+Если установлена переменная окружения
+.Ev PW_SCAN_BIG_IDS ,
+.Nm
+будет подавлять предупреждающие сообщения, которые
+обычно выдаются для больших идентификаторов пользователей и групп.
+Такие идентификаторы могут вызвать серьёзные проблемы с программным обеспечением,
+которое делает предположения о значениях идентификаторов.
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa -compact
+.It Pa /etc/pwd.db
+Файл незащищённой базы данных паролей.
+.It Pa /etc/pwd.db.tmp
+Временный файл.
+.It Pa /etc/spwd.db
+Файл защищённой базы данных паролей.
+.It Pa /etc/spwd.db.tmp
+Временный файл.
+.It Pa /etc/master.passwd
+Текущий файл паролей.
+.It Pa /etc/passwd
+Файл паролей в формате Version 7.
+.El
+.Sh ПРИМЕРЫ
+Перегенерировать базу данных паролей после ручного редактирования или замены
+файла паролей:
+.Bd -literal -offset indent
+/usr/sbin/pwd_mkdb -p /etc/master.passwd
+.Ed
+.Sh СОВМЕСТИМОСТЬ
+В предыдущих версиях системы была программа, подобная
+.Nm ,
+mkpasswd, которая создавала базы данных в стиле
+.Xr dbm 3
+для файла паролей, но установка их зависела от вызывающих программ.
+Программа была переименована, чтобы предыдущие пользователи программы
+не были удивлены изменениями в функциональности.
+.Sh СМ. ТАКЖЕ
+.Xr chpass 1 ,
+.Xr passwd 1 ,
+.Xr db 3 ,
+.Xr getpwent 3 ,
+.Xr passwd 5 ,
+.Xr vipw 8
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Из-за необходимости атомарного обновления файлов паролей
+.Nm
+использует
+.Xr rename 2
+для их установки.
+Однако это требует, чтобы файл, указанный в командной строке, находился
+в той же файловой системе, что и каталог
+.Pa /etc .
+.Pp
+Существуют очевидные гонки, когда несколько человек одновременно запускают
+.Nm
+для разных файлов паролей.
+Интерфейсы к
+.Nm ,
+.Xr chpass 1 ,
+.Xr passwd 1
+и
+.Xr vipw 8 ,
+обрабатывают блокировки, необходимые для предотвращения этой проблемы.

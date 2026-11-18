@@ -1,0 +1,87 @@
+.\"-
+.\" Copyright (c) 2005-2006 Robert N. M. Watson
+.\" Copyright (c) 2008 Apple Inc. 
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/auditctl.2
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 d6b6a1a9620cb1602e5827db46b5d5fd819aad48821081bd149093c540e04931
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2005
+.Dt AUDITCTL 2
+.Os
+.Sh ИМЯ
+.Nm auditctl
+.Nd "настройка параметров системного аудита"
+.Sh SYNOPSIS
+.In bsm/audit.h
+.Ft int
+.Fn auditctl "const char *path"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn auditctl
+указывает ядру открыть новый файл журнала аудита.
+Для этого требуются соответствующие привилегии.
+Системный вызов
+.Fn auditctl
+открывает новые файлы, но для отключения журнала аудита
+используется
+.Xr auditon 2 .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn auditctl
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Путь недопустим.
+.It Bq Er EPERM
+У процесса недостаточно прав для выполнения
+операции.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr auditon 2 ,
+.Xr libbsm 3 ,
+.Xr auditd 8
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана компанией McAfee Research, подразделением
+безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано компанией McAfee Research, подразделением
+исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока
+событий аудита были определены Sun Microsystems.
+.Pp
+Эта страница руководства была написана
+.An Robert Watson Aq rwatson@FreeBSD.org .

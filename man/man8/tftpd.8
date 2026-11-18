@@ -1,0 +1,323 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/tftpd/tftpd.8
+.\" FRDP githash 79c342aaf86feb4efbd15383f54e4fe7bdc9da7b
+.\" FRDP hash256 daa0feccef0bcdbe21d8daa78f52668f63a81db09c1b4184b0ef8eaa76516662
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 3, 2024
+.Dt TFTPD 8
+.Os
+.Sh ИМЯ
+.Nm tftpd
+.Nd Сервер интернет-протокола тривиальной передачи файлов
+.Sh СИНТАКСИС
+.Nm tftpd
+.Op Fl bCcdlnoSw
+.Op Fl F Ar строка-формата-strftime
+.Op Fl s Ar каталог
+.Op Fl U Ar umask
+.Op Fl u Ar пользователь
+.Op Ar каталог ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это сервер, поддерживающий
+интернет-протокол тривиальной передачи файлов
+.Pq Tn RFC 1350 .
+Сервер
+.Tn TFTP
+работает
+на порту, указанном в описании службы
+.Ql tftp ;
+см.
+.Xr services 5 .
+Сервер обычно запускается
+.Xr inetd 8 .
+.Pp
+Использование
+.Xr tftp 1
+не требует учётной записи или пароля на удалённой системе.
+Из-за отсутствия сведений аутентификации
+.Nm
+разрешает доступ только к файлам, доступным для чтения всем.
+Файлы, содержащие строку или начинающиеся с неё, не допускаются.
+Файлы могут быть записаны, только если они уже существуют (если не
+используется опция
+.Fl w )
+и доступны для записи всем (если только не выполняется в chroot и не
+используется опция
+.Fl S ).
+Заметьте, что это расширяет понятие
+.Dq публичный
+, включая
+всех пользователей на всех хостах, доступных через сеть;
+это может подходить не для всех систем, и его последствия
+следует рассмотреть перед включением службы tftp.
+Сервер должен иметь идентификатор пользователя с наименьшими возможными привилегиями.
+.Pp
+Доступ к файлам может быть ограничен путём запуска
+.Nm
+со списком каталогов, указав до 20 путей
+в качестве аргументов серверной программы в
+.Xr inetd.conf 5 .
+В этом случае доступ ограничен файлами, имена которых
+начинаются с одного из указанных каталогов.
+Указанные каталоги также рассматриваются как путь поиска для
+запросов относительных имён файлов.
+.Pp
+Опция
+.Fl s
+обеспечивает дополнительную безопасность, изменяя
+корневой каталог
+.Nm ,
+тем самым запрещая доступ за пределы указанного
+.Ar каталог .
+Поскольку
+.Xr chroot 2
+требует привилегий суперпользователя,
+.Nm
+должен запускаться от имени
+.Li root .
+Однако после выполнения вызова
+.Xr chroot 2 ,
+.Nm
+установит свой идентификатор пользователя в значение указанного
+.Ar пользователь ,
+или
+.Dq Li nobody
+, если опция
+.Fl u
+не указана.
+.Pp
+Опции:
+.Bl -tag -width Ds
+.It Fl b
+По умолчанию
+.Nm
+ожидает, что на его входном сокете будет доступно начальное сообщение.
+Если данные недоступны, сервер немедленно завершается.
+Если указана
+.Fl b ,
+.Nm
+будет блокироваться в ожидании начального сообщения.
+.It Fl c
+Изменяет корневой каталог по умолчанию подключающегося хоста через
+.Xr chroot 2
+на основе IP-адреса подключения.
+Это предотвращает одновременную запись несколькими клиентами в один и тот же файл.
+Если каталог не существует, подключение клиента отклоняется.
+Для
+.Fl c
+требуется опция
+.Fl s ,
+и указанный
+.Ar каталог
+используется в качестве базового.
+.It Fl C
+Работает так же, как
+.Fl c ,
+за исключением того, что возвращается к
+.Ar каталог
+, указанному через
+.Fl s ,
+если каталог для IP клиента не существует.
+.It Fl F
+Использовать эту совместимую с
+.Xr strftime 3
+строку формата для создания суффикса, если указана
+.Fl W .
+.It Fl d, d Ar [значение]
+Включает отладочный вывод.
+Если
+.Ar значение
+не указано, уровень отладки увеличивается на единицу
+для каждого указанного экземпляра
+.Fl d .
+.Pp
+Если
+.Ar значение
+указано, уровень отладки устанавливается в
+.Ar значение .
+Уровень отладки — это битовая маска, реализованная в
+.Pa src/libexec/tftpd/tftp-utils.h .
+Допустимые значения: 0 (DEBUG_NONE), 1 (DEBUG_PACKETS), 2, (DEBUG_SIMPLE),
+4 (DEBUG_OPTIONS) и 8 (DEBUG_ACCESS).  Несколько значений отладки можно объединить
+в битовой маске с помощью логического ИЛИ значений.  Например, указание
+.Fl d
+.Ar 15
+включит все значения отладки.
+.It Fl l
+Регистрировать все запросы с помощью
+.Xr syslog 3
+с категорией
+.Dv LOG_FTP .
+.Sy Примечание :
+Регистрация сообщений
+.Dv LOG_FTP
+также должна быть включена в конфигурационном файле syslog,
+.Xr syslog.conf 5 .
+.It Fl n
+Подавлять отрицательное подтверждение запросов для несуществующих
+относительных имён файлов.
+.It Fl o
+Отключить поддержку опций TFTP в стиле RFC2347.
+.It Fl s Ar каталог
+Заставить
+.Nm
+сменить корневой каталог на
+.Ar каталог .
+После этого, но перед принятием команд,
+.Nm
+переключит учётные данные на непривилегированного пользователя.
+.It Fl S
+Если
+.Nm
+работает в chroot, опция разрешает запросы на запись в соответствии с обычными
+правами доступа к файлам, пропуская требование о том, чтобы файлы были общедоступны для записи.
+Опция игнорируется при работе без chroot.
+.It Fl u Ar пользователь
+Переключить учётные данные на
+.Ar пользователь
+(по умолчанию
+.Dq Li nobody )
+, когда используется опция
+.Fl s .
+Пользователь должен быть указан по имени, а не числовым UID.
+.It Fl U Ar umask
+Установить
+.Ar umask
+для только что созданных файлов.
+По умолчанию 022
+.Pq Dv S_IWGRP | S_IWOTH .
+.It Fl w
+Разрешить запросам на запись создавать новые файлы.
+По умолчанию
+.Nm
+требует, чтобы файл, указанный в запросе на запись, существовал.
+Заметьте, что это работает только в каталогах, доступных для записи пользователю,
+указанному с помощью опции
+.Fl u .
+.It Fl W
+Как
+.Fl w ,
+но добавляет последовательность YYYYMMDD.nn в конец имени файла.
+Заметьте, что строку YYYYMMDD можно изменить с помощью опции
+.Fl F .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr tftp 1 ,
+.Xr chroot 2 ,
+.Xr syslog 3 ,
+.Xr inetd.conf 5 ,
+.Xr services 5 ,
+.Xr syslog.conf 5 ,
+.Xr inetd 8
+.Pp
+Поддерживаются следующие RFC:
+.Rs
+.%T RFC 1350: Протокол TFTP (редакция 2)
+.Re
+.Rs
+.%T RFC 2347: Расширение опций TFTP
+.Re
+.Rs
+.%T RFC 2348: Опция размера блока TFTP
+.Re
+.Rs
+.%T RFC 2349: Опции интервала тайм-аута и размера передачи TFTP
+.Re
+.Rs
+.%T RFC 7440: Опция размера окна TFTP
+.Re
+.Pp
+Нестандартные опции TFTP
+.Cm rollover
+и
+.Cm blksize2
+упоминаются здесь:
+.Rs
+.%T Расширение TFTP
+.%U http://www.compuphase.com/tftp.htm
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 ;
+опция
+.Fl s
+была введена в
+.Fx 2.2 ,
+опция
+.Fl u
+была введена в
+.Fx 4.2 ,
+опция
+.Fl c
+была введена в
+.Fx 4.3 ,
+опции
+.Fl F
+и
+.Fl W
+были введены в
+.Fx 7.4 ,
+а опция
+.Fl S
+была введена в
+.Fx 13.3 .
+.Pp
+Поддержка опций интервала тайм-аута и размера передачи (RFC2349)
+была введена в
+.Fx 5.0 ;
+поддержка опции размера блока TFTP (RFC2348) и опции blksize2
+была введена в
+.Fx 7.4 .
+.Pp
+Edwin Groothuis <edwin@FreeBSD.org> выполнил крупную переработку кода
+.Nm
+и
+.Xr tftp 1
+для поддержки RFC2348.
+.Pp
+Поддержка опции windowsize (RFC7440) была введена в
+.Fx 13.0 .
+.Sh ПРИМЕЧАНИЯ
+Файлы размером более 33 553 919 октетов (65535 блоков, последний <512
+октетов) не могут быть корректно переданы, если клиент и сервер
+не поддерживают согласование размера блока (RFC 2347 и 2348)
+или нестандартную опцию TFTP rollover.
+В качестве временного решения
+.Nm
+принимает последовательность номеров блоков, которые обнуляются после 65535,
+даже если опция rollover не указана.
+.Pp
+Многие клиенты tftp не будут передавать файлы размером более 16 776 703 октетов
+(32767 блоков), так как они неправильно считают номер блока, используя
+знаковое, а не беззнаковое 16-битное целое.
