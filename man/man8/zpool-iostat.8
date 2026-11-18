@@ -1,0 +1,296 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-iostat.8
+.\" FRDP githash 25c6e6ed725d817764d32f97b589e3447906f783
+.\" FRDP hash256 504b98d983a1b7344c26c66741de505d69cf4735d00661556cdbd03063f5cbbd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 29, 2024
+.Dt ZPOOL-IOSTAT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-iostat
+.Nd отображать логическую статистику ввода-вывода для пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm iostat
+.Op Oo Oo Fl c Ar SCRIPT Oc Oo Fl lq Oc Oc Ns | Ns Fl rw
+.Op Fl T Sy u Ns | Ns Sy d
+.Op Fl ghHLnpPvy
+.Oo Ar pool Ns … Ns | Ns Oo Ar pool vdev Ns … Oc Ns | Ns Ar vdev Ns … Oc
+.Op Ar interval Op Ar count
+.
+.Sh ОПИСАНИЕ
+Отображает логическую статистику ввода-вывода для заданных пулов/vdev.
+Физическую статистику ввода-вывода можно наблюдать с помощью
+.Xr iostat 1 .
+Если записи расположены рядом, они могут быть объединены в одну
+более крупную операцию.
+Дополнительный ввод-вывод может генерироваться в зависимости от уровня
+избыточности vdev.
+Чтобы отфильтровать вывод, можно передать список пулов, пул и список vdev
+в этом пуле или список любых vdev из любого пула.
+Если элементы не указаны, показывается статистика для каждого пула в системе.
+Если указан
+.Ar interval ,
+статистика печатается каждые
+.Ar interval
+секунд до завершения.
+Если указан флаг
+.Fl n ,
+заголовки отображаются только один раз; в противном случае они
+отображаются периодически.
+Если указан
+.Ar count ,
+команда завершается после печати
+.Ar count
+отчётов.
+Первый напечатанный отчёт всегда содержит статистику с момента загрузки,
+независимо от того, переданы ли
+.Ar interval
+и
+.Ar count .
+Однако это поведение можно подавить с помощью флага
+.Fl y .
+Также обратите внимание, что единицы
+.Sy K ,
+.Sy M ,
+.Sy G Ns …
+печатаемые в отчёте, имеют основание 1024.
+Чтобы получить необработанные значения, используйте флаг
+.Fl p .
+.Bl -tag -width Ds
+.It Fl c Op Ar SCRIPT1 Ns Oo , Ns Ar SCRIPT2 Oc Ns …
+Запускать скрипт (или скрипты) на каждом vdev и включать вывод как новый столбец
+в вывод
+.Nm zpool Cm iostat .
+Пользователи могут запускать любой скрипт, найденный в их каталоге
+.Pa ~/.zpool.d
+или в системном каталоге
+.Pa /etc/zfs/zpool.d .
+Имена скриптов, содержащие символ косой черты
+.Pq Sy /
+не допускаются.
+Путь поиска по умолчанию можно переопределить, задав переменную окружения
+.Sy ZPOOL_SCRIPTS_PATH .
+Привилегированный пользователь может запускать
+.Fl c
+только если у него задана переменная окружения
+.Sy ZPOOL_SCRIPTS_AS_ROOT .
+Если скрипту требуется привилегированная команда, например
+.Xr smartctl 8 ,
+рекомендуется разрешить пользователю доступ к ней в
+.Pa /etc/sudoers .
+.Pp
+Если
+.Fl c
+передан без имени скрипта, печатается список всех скриптов.
+.Fl c
+также включает подробный режим
+.No \&( Ns Fl v Ns No \&) .
+.Pp
+Несколько строк можно использовать для вывода нескольких столбцов.
+Первая строка вывода не в
+и после этого больше никакой вывод не отображается.
+Это может быть полезно для печати сообщений об ошибках.
+Пустые или NULL значения печатаются как '-', чтобы вывод можно было обрабатывать в AWK.
+.Pp
+Перед запуском каждого скрипта задаются следующие переменные окружения:
+.Bl -tag -width Ds
+.It Sy VDEV_PATH
+Полный путь к vdev
+.It Sy VDEV_UPATH
+Нижележащий путь к vdev
+.Pq Pa /dev/sd* .
+Для использования с device mapper, multipath или разделёнными vdev.
+.It Sy VDEV_ENC_SYSFS_PATH
+Путь sysfs к корпусу для vdev (если есть).
+.El
+.It Fl T Sy u Ns | Ns Sy d
+Отображать отметку времени.
+Укажите
+.Sy u
+для печатного представления внутреннего представления времени.
+См.
+.Xr time 1 .
+Укажите
+.Sy d
+для стандартного формата даты.
+См.
+.Xr date 1 .
+.It Fl g
+Отображать GUID vdev вместо обычных имён устройств.
+Эти GUID можно использовать вместо имён устройств для команд zpool
+detach/offline/remove/replace.
+.It Fl H
+Режим для скриптов.
+Не отображать заголовки и разделять поля одним символом табуляции вместо
+произвольного пробела.
+.It Fl L
+Отображать реальные пути для vdev с разрешением всех символических ссылок.
+Это можно использовать для поиска текущего имени блочного устройства независимо от пути
+.Pa /dev/disk/ ,
+использованного для его открытия.
+.It Fl n
+Печатать заголовки только один раз, если указан
+.It Fl p
+Отображать числа в разбираемых (точных) значениях.
+Значения времени указываются в наносекундах.
+.It Fl P
+Отображать полные пути для vdev вместо только последнего компонента пути.
+Это можно использовать вместе с флагом
+.Fl L .
+.It Fl r
+Печатать гистограммы размеров запросов для ввода-вывода листовых vdev.
+Они включают гистограммы отдельных операций ввода-вывода (ind) и агрегированного
+ввода-вывода (agg).
+Эта статистика может быть полезна для наблюдения за тем, насколько хорошо
+работает агрегация ввода-вывода.
+Обратите внимание, что ввод-вывод TRIM может превышать 16M, но будет
+учитываться как 16M.
+.It Fl v
+Подробная статистика. Сообщает статистику использования для отдельных vdev внутри
+пула в дополнение к статистике по всему пулу.
+.It Fl y
+Обычно первая строка вывода содержит статистику с момента загрузки:
+подавить её.
+.It Fl w
+Отображать гистограммы задержек:
+.Bl -tag -width Ds
+.It Sy total_wait
+Общее время ввода-вывода (время в очереди + время ввода-вывода диска).
+.It Sy disk_wait
+Время ввода-вывода диска (время чтения/записи диска).
+.It Sy syncq_wait
+Время, которое ввод-вывод провёл в синхронных очередях приоритета.
+Не включает время диска.
+.It Sy asyncq_wait
+Время, которое ввод-вывод провёл в асинхронных очередях приоритета.
+Не включает время диска.
+.It Sy scrub
+Время, которое ввод-вывод провёл в очереди scrub.
+Не включает время диска.
+.It Sy rebuild
+Время, которое ввод-вывод провёл в очереди rebuild.
+Не включает время диска.
+.El
+.It Fl l
+Включать статистику средней задержки:
+.Bl -tag -width Ds
+.It Sy total_wait
+Среднее общее время ввода-вывода (время в очереди + время ввода-вывода диска).
+.It Sy disk_wait
+Среднее время ввода-вывода диска (время чтения/записи диска).
+.It Sy syncq_wait
+Среднее время, которое ввод-вывод провёл в синхронных очередях приоритета.
+Не включает время диска.
+.It Sy asyncq_wait
+Среднее время, которое ввод-вывод провёл в асинхронных очередях приоритета.
+Не включает время диска.
+.It Sy scrub
+Среднее время в очереди scrub.
+Не включает время диска.
+.It Sy trim
+Среднее время в очереди trim.
+Не включает время диска.
+.It Sy rebuild
+Среднее время в очереди rebuild.
+Не включает время диска.
+.El
+.It Fl q
+Включать статистику активных очередей.
+Каждая очередь приоритета содержит как ожидающие
+.Sy ( pend ) ,
+так и активные
+.Sy ( activ )
+запросы ввода-вывода.
+Ожидающие запросы ждут отправки на диск, а активные запросы отправлены на диск
+и ждут завершения.
+Эта статистика разбита по очередям приоритета:
+.Bl -tag -width Ds
+.It Sy syncq_read/write
+Текущее число записей в синхронных очередях приоритета.
+.It Sy asyncq_read/write
+Текущее число записей в асинхронных очередях приоритета.
+.It Sy scrubq_read
+Текущее число записей в очереди scrub.
+.It Sy trimq_write
+Текущее число записей в очереди trim.
+.It Sy rebuildq_write
+Текущее число записей в очереди rebuild.
+.El
+.Pp
+Вся статистика очередей представляет собой мгновенные измерения числа
+записей в очередях.
+Если указать интервал, измерения будут выбираться на конец интервала.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 13: Добавление кэширующих устройств в пул ZFS
+Следующая команда добавляет два диска для использования в качестве кэширующих устройств в пул хранения ZFS:
+.Dl # Nm zpool Cm add Ar pool Sy cache Pa sdc sdd
+.Pp
+После добавления кэширующие устройства постепенно заполняются содержимым из основной памяти.
+В зависимости от размера кэширующих устройств их заполнение может занять более часа.
+Ёмкость и чтения можно отслеживать с помощью подкоманды
+.Cm iostat
+следующим образом:
+.Dl # Nm zpool Cm iostat Fl v Ar pool 5
+.
+.Ss Пример 16: Добавление выходных столбцов
+Дополнительные столбцы можно добавить в вывод
+.Nm zpool Cm status No и Nm zpool Cm iostat No с помощью Fl c .
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm status Fl c Pa vendor , Ns Pa model , Ns Pa size
+   NAME     STATE  READ WRITE CKSUM vendor  model        size
+   tank     ONLINE 0    0     0
+   mirror-0 ONLINE 0    0     0
+   U1       ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U10      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U11      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U12      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U13      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+   U14      ONLINE 0    0     0     SEAGATE ST8000NM0075 7.3T
+
+.No # Nm zpool Cm iostat Fl vc Pa size
+              capacity     operations     bandwidth
+pool        alloc   free   read  write   read  write  size
+----------  -----  -----  -----  -----  -----  -----  ----
+rpool       14.6G  54.9G      4     55   250K  2.69M
+  sda1      14.6G  54.9G      4     55   250K  2.69M   70G
+----------  -----  -----  -----  -----  -----  -----  ----
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr iostat 1 ,
+.Xr smartctl 8 ,
+.Xr zpool-list 8 ,
+.Xr zpool-status 8

@@ -1,0 +1,90 @@
+.\" Copyright (c) 2005 Doug Rabson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $FreeBSD: src/lib/libgssapi/mech.5,v 1.1 2005/12/29 14:40:20 dfr Exp $
+.\" FRDP path crypto/heimdal/lib/gssapi/mech/mech.5
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 9dbf6ad8fe0d6970909651765e74f8e3df6701cc8c8bb832b38c0d610a1b999d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 14, 2005
+.Dt MECH 5
+.Os
+.Sh ИМЯ
+.Nm mech ,
+.Nm qop
+.Sh СИНТАКСИС
+.Sh ОПИСАНИЕ
+Файл содержит список установленных механизмов безопасности GSS-API.
+Каждая строка файла либо содержит комментарий, если первый символ
+— '#', либо содержит пять полей со следующими значениями:
+.Bl -tag
+.It Имя
+Имя этого механизма GSS-API.
+.It Идентификатор объекта
+OID для этого механизма.
+.It Библиотека
+Разделяемая библиотека, содержащая реализацию этого механизма.
+.It Модуль ядра (необязательно)
+Модуль ядра, содержащий реализацию этого механизма (пока не
+поддерживается в FreeBSD).
+.It Параметры библиотеки (необязательно)
+Необязательные параметры, интерпретируемые механизмом. Параметры библиотеки
+должны быть заключены в квадратные скобки ([ ]), чтобы отличать их от
+необязательной записи модуля ядра.
+.El
+.Pp
+Файл содержит список значений качества защиты (Quality of Protection) для использования с
+GSS-API.
+Каждая строка файла либо содержит комментарий, если первый символ
+— '#', либо содержит три поля со следующими значениями:
+.Bl -tag
+.It Строка QOP
+Имя этого алгоритма качества защиты.
+.It Значение QOP
+Числовое значение, используемое для выбора этого алгоритма для использования с GSS-API
+функциями, такими как
+.Xr gss_get_mic 3 .
+.It Имя механизма
+Имя механизма GSS-API, соответствующее этому алгоритму.
+.El
+.Sh ПРИМЕРЫ
+Это типичная запись из
+.Bd -literal
+kerberosv5	1.2.840.113554.1.2.2	/usr/lib/libgssapi_krb5.so.8	-
+.Ed
+.Pp
+Это типичная запись из
+.Bd -literal
+GSS_KRB5_CONF_C_QOP_DES		0x0100	kerberosv5
+.Ed
+.Sh ИСТОРИЯ
+Пример страницы руководства
+.Nm
+впервые появился в
+.Fx 7.0 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An Doug Rabson Aq Mt dfr@FreeBSD.org .

@@ -1,0 +1,226 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1997 Wolfgang Helbig
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/ncal/ncal.1
+.\" FRDP githash 49224311fe6d850e5c25a7e79328c87029df6be8
+.\" FRDP hash256 096d8b95d95a5a3fee5c1501506bcfd554fbec438b81659928d6c911e9b80a79
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 7, 2019
+.Dt CAL 1
+.Os
+.Sh ИМЯ
+.Nm cal ,
+.Nm ncal
+.Nd отображает календарь и дату Пасхи
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 3hjMy
+.Op Fl A Ar число
+.Op Fl B Ar число
+.Oo
+.Op Ar месяц
+.Ar год
+.Oc
+.Nm
+.Op Fl 3hjM
+.Op Fl A Ar число
+.Op Fl B Ar число
+.Fl m Ar месяц
+.Op Ar год
+.Nm ncal
+.Op Fl 3hjJpwy
+.Op Fl A Ar число
+.Op Fl B Ar число
+.Op Fl s Ar country_code
+.Oo
+.Op Ar месяц
+.Ar год
+.Oc
+.Nm ncal
+.Op Fl 3hJeo
+.Op Fl A Ar число
+.Op Fl B Ar число
+.Op Ar год
+.Nm ncal
+.Op Fl CN
+.Op Fl H Ar yyyy-mm-dd
+.Op Fl d Ar yyyy-mm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает простой календарь в традиционном формате, а
+.Nm ncal
+предлагает альтернативное расположение, больше параметров и дату Пасхи.
+Новый формат немного тесноват, но позволяет уместить год
+на терминале 25x80.
+Если аргументы не указаны,
+отображается текущий месяц.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl h
+Переключает подсветку сегодняшнего дня.
+По умолчанию подсветка включена, если stdout является TTY.
+.It Fl J
+Отображать юлианский календарь; при использовании вместе с параметром
+.Fl e
+отображать дату Пасхи по юлианскому календарю.
+.It Fl e
+Отображать дату Пасхи (для западных церквей).
+.It Fl j
+Отображать юлианские дни (дни с отсчётом от единицы, начиная с 1 января).
+.It Fl M
+Отображать понедельник как первый день недели в режиме
+.Nm cal .
+.It Fl m Ar месяц
+Отображать указанный
+.Ar месяц .
+Если
+.Ar месяц
+указан как десятичное число, после него может следовать буква
+.Ql f
+или
+.Ql p
+для обозначения соответственно следующего или предыдущего месяца
+относительно этого числа.
+.It Fl o
+Отображать дату православной Пасхи (греческой и русской
+православных церквей).
+.It Fl p
+Вывести коды стран и дни перехода с юлианского на григорианский
+календарь, как их предполагает
+.Nm ncal .
+Код страны, определённый из локального окружения, помечается
+звёздочкой.
+.It Fl s Ar country_code
+Предполагать переход с юлианского на григорианский календарь в дату,
+связанную с
+.Ar country_code .
+Если не указано,
+.Nm ncal
+пытается угадать дату перехода из локального окружения или
+возвращается к 2 сентября 1752 г.
+Тогда Великобритания
+и её колонии перешли на григорианский календарь.
+.It Fl w
+Выводить номер недели под каждым столбцом недели.
+.It Fl y
+Отображать календарь для указанного года.
+.It Fl 3
+Отображать предыдущий, текущий и следующий месяц вокруг сегодняшнего.
+.It Fl A Ar число
+Отображать
+.Ar число
+месяцев после текущего месяца.
+.It Fl B Ar число
+Отображать
+.Ar число
+месяцев до текущего месяца.
+.It Fl C
+Переключиться в режим
+.Nm cal .
+.It Fl N
+Переключиться в режим
+.Nm ncal .
+.It Fl d Ar yyyy-mm
+Использовать
+.Ar yyyy-mm
+как текущую дату (для отладки выбора даты).
+.It Fl H Ar yyyy-mm-dd
+Использовать
+.Ar yyyy-mm-dd
+как текущую дату (для отладки подсветки).
+.El
+.Pp
+Один параметр задаёт год (1\(en9999), который нужно отобразить;
+обратите внимание, что год должен быть указан полностью:
+.Dq Li cal 89
+.Em не
+будет отображать календарь для 1989 года.
+Два параметра обозначают месяц и
+год; месяц — это либо число от 1 до 12, либо полное или
+сокращённое название, определённое текущей локалью.
+Месяц и
+год по умолчанию берутся из текущих системных часов и часового пояса (так
+.Dq Li cal -m 8
+отобразит календарь для месяца август в текущем
+году).
+.Pp
+Не все параметры можно использовать вместе.
+Например,
+.Dq Li -3 -A 2 -B 3 -y -m 7
+означало бы:
+показать мне три месяца вокруг седьмого месяца, три до
+этого, два после этого и весь год.
+.Nm ncal
+предупредит о таких комбинациях.
+.Pp
+Год начинается с 1 января.
+.Pp
+Подсветка дат отключена, если stdout не является tty.
+.Sh СМ. ТАКЖЕ
+.Xr calendar 3 ,
+.Xr strftime 3
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+опции X/Open System Interfaces
+.St -p1003.1-2008
+спецификации.
+.Pp
+Флаги
+.Op Fl 3ehJMopwy ,
+а также возможность указать название месяца одним аргументом,
+являются расширениями этой спецификации.
+.Pp
+Номер недели, вычисляемый
+.Fl w ,
+соответствует
+.St -iso8601
+спецификации.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .
+Команда
+.Nm ncal
+появилась в
+.Fx 2.2.6 .
+.Sh АВТОРЫ
+Команда и страница Справочника
+.Nm ncal
+были написаны
+.An Wolfgang Helbig Aq Mt helbig@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Сопоставление дат перехода с юлианского на григорианский календарь
+кодам стран исторически наивно для многих стран.
+.Pp
+Не все параметры совместимы, и их использование в разном порядке
+даст разные результаты.

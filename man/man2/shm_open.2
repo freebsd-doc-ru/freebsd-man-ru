@@ -1,0 +1,644 @@
+.\"
+.\" Copyright 2000 Massachusetts Institute of Technology
+.\"
+.\" Permission to use, copy, modify, and distribute this software and
+.\" its documentation for any purpose and without fee is hereby
+.\" granted, provided that both the above copyright notice and this
+.\" permission notice appear in all copies, that both the above
+.\" copyright notice and this permission notice appear in all
+.\" supporting documentation, and that the name of M.I.T. not be used
+.\" in advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.  M.I.T. makes
+.\" no representations about the suitability of this software for any
+.\" purpose.  It is provided "as is" without express or implied
+.\" warranty.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY M.I.T. ``AS IS''.  M.I.T. DISCLAIMS
+.\" ALL EXPRESS OR IMPLIED WARRANTIES WITH REGARD TO THIS SOFTWARE,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
+.\" SHALL M.I.T. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/shm_open.2
+.\" FRDP githash 9a8d333368baef356f0a611b47ec592568dd14f9
+.\" FRDP hash256 5dd54fae876d6ddf90c318d77c81ba7d4bcd07eda19c97c4653933be67c89d4a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 26, 2025
+.Dt SHM_OPEN 2
+.Os
+.Sh ИМЯ
+.Nm memfd_create , shm_create_largepage , shm_open , shm_rename, shm_unlink
+.Nd "операции с объектами разделяемой памяти"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/mman.h
+.In fcntl.h
+.Ft int
+.Fn memfd_create "const char *name" "unsigned int flags"
+.Ft int
+.Fo shm_create_largepage
+.Fa "const char *path"
+.Fa "int flags"
+.Fa "int psind"
+.Fa "int alloc_policy"
+.Fa "mode_t mode"
+.Fc
+.Ft int
+.Fn shm_open "const char *path" "int flags" "mode_t mode"
+.Ft int
+.Fn shm_rename "const char *path_from" "const char *path_to" "int flags"
+.Ft int
+.Fn shm_unlink "const char *path"
+.Sh ОПИСАНИЕ
+Функция
+.Fn shm_open
+открывает (или, при необходимости, создаёт) объект разделяемой памяти
+POSIX
+с именем
+.Fa path .
+Аргумент
+.Fa flags
+содержит подмножество флагов, используемых
+.Xr open 2 .
+Режим доступа, равный либо
+.Dv O_RDONLY ,
+либо
+.Dv O_RDWR ,
+должен быть указан в
+.Fa flags .
+Также могут быть указаны необязательные флаги
+.Dv O_CREAT ,
+.Dv O_EXCL ,
+.Dv O_TRUNC
+и
+.Dv O_CLOFORK .
+.Pp
+Если указан
+.Dv O_CREAT ,
+то новый объект разделяемой памяти с именем
+.Fa path
+будет создан, если он не существует.
+В этом случае объект разделяемой памяти создаётся с режимом
+.Fa mode
+с учётом значения umask процесса.
+Если указаны оба флага
+.Dv O_CREAT
+и
+.Dv O_EXCL
+и объект разделяемой памяти с именем
+.Fa path
+уже существует,
+то
+.Fn shm_open
+завершится с ошибкой
+.Er EEXIST .
+.Pp
+Только что созданные объекты имеют нулевой размер.
+Если существующий объект разделяемой памяти открывается с
+.Dv O_RDWR
+и указан флаг
+.Dv O_TRUNC ,
+то объект разделяемой памяти будет усечён до нулевого размера.
+Размер объекта можно изменить с помощью
+.Xr ftruncate 2
+и получить с помощью
+.Xr fstat 2 .
+.Pp
+Новый дескриптор устанавливается для закрытия при системных вызовах
+.Xr execve 2 ;
+см.
+.Xr close 2
+и
+.Xr fcntl 2 .
+.Pp
+Константа
+.Dv SHM_ANON
+может использоваться в качестве аргумента
+.Fa path
+для
+.Fn shm_open .
+В этом случае создаётся анонимный, безымянный объект разделяемой памяти.
+Поскольку объект не имеет имени,
+он не может быть удалён последующим вызовом
+.Fn shm_unlink
+или перемещён вызовом
+.Fn shm_rename .
+Вместо этого
+объект разделяемой памяти будет собран сборщиком мусора, когда будет удалена
+последняя ссылка на объект разделяемой памяти.
+Объект разделяемой памяти может использоваться совместно с другими процессами
+путём совместного использования файлового дескриптора через
+.Xr fork 2
+или
+.Xr sendmsg 2 .
+Попытка открыть анонимный объект разделяемой памяти с
+.Dv O_RDONLY
+завершится с ошибкой
+.Er EINVAL .
+Все остальные флаги игнорируются.
+.Pp
+Функция
+.Fn shm_create_largepage
+ведёт себя аналогично
+.Fn shm_open ,
+за исключением того, что флаг
+.Dv O_CREAT
+задаётся неявно, а возвращаемый объект
+.Dq largepage
+всегда размещается в выровненных, физически непрерывных блоках памяти.
+Это гарантирует, что объект может быть отображён с использованием так
+называемых
+.Dq суперстраниц ,
+что может повысить производительность приложения в некоторых рабочих
+нагрузках за счёт уменьшения числа записей буфера трансляции адресов (TLB),
+требуемых для доступа к отображению объекта,
+и за счёт уменьшения числа ошибок страниц при доступе к отображению.
+Это происходит автоматически для всех объектов largepage.
+.Pp
+Существующий объект largepage может быть открыт с помощью функции
+.Fn shm_open .
+Объекты разделяемой памяти largepage ведут себя несколько иначе, чем
+объекты, не являющиеся largepage:
+.Bl -bullet -offset indent
+.It
+Память для объекта largepage выделяется при расширении объекта с помощью
+системного вызова
+.Xr ftruncate 2 ,
+тогда как память для обычных объектов разделяемой памяти выделяется
+лениво и может быть выгружена в устройство подкачки, когда не используется.
+.It
+Размер отображения объекта largepage должен быть кратен
+размеру базовой большой страницы.
+Большинство атрибутов такого отображения могут быть изменены только с
+гранулярностью размера большой страницы.
+Например, при использовании
+.Xr munmap 2
+для отмены отображения части объекта largepage или при использовании
+.Xr mprotect 2
+для изменения защиты отображения объекта largepage начальный адрес
+должен быть выровнен по размеру большой страницы, а длина операции должна быть
+кратна размеру большой страницы.
+В противном случае соответствующий системный вызов завершится с ошибкой и
+установит
+.Va errno
+в
+.Er EINVAL .
+.El
+.Pp
+Аргумент
+.Fa psind
+для
+.Fn shm_create_largepage
+задаёт размер больших страниц, используемых для размещения объекта.
+Этот аргумент является индексом в массиве размеров страниц, возвращаемом
+.Xr getpagesizes 3 .
+В частности, все большие страницы, размещающие объект largepage, должны быть
+одного размера.
+Например, в системе с размерами больших страниц 2 МБ и 1 ГБ объект largepage
+размером 2 ГБ будет состоять либо из 1024 страниц по 2 МБ, либо из 2 страниц
+по 1 ГБ, в зависимости от значения, указанного для аргумента
+.Fa psind .
+Параметр
+.Fa alloc_policy
+определяет, что происходит при неудачной попытке использовать
+.Xr ftruncate 2
+для выделения памяти для объекта.
+Принимаются следующие значения:
+.Bl -tag -offset indent -width SHM_
+.It Dv SHM_LARGEPAGE_ALLOC_DEFAULT
+Если (неблокирующее) выделение памяти завершается неудачно из-за недостатка
+свободной непрерывной памяти, ядро попытается дефрагментировать физическую
+память и повторить выделение.
+Последующее выделение может как завершиться успешно, так и нет.
+Если это последующее выделение также завершается неудачно,
+.Xr ftruncate 2
+завершится с ошибкой и установит
+.Va errno
+в
+.Er ENOMEM .
+.It Dv SHM_LARGEPAGE_ALLOC_NOWAIT
+Если выделение памяти завершается неудачно,
+.Xr ftruncate 2
+завершится с ошибкой и установит
+.Va errno
+в
+.Er ENOMEM .
+.It Dv SHM_LARGEPAGE_ALLOC_HARD
+Ядро будет пытаться выполнить дефрагментацию до тех пор, пока выделение не
+увенчается успехом или потоку не будет доставлен неблокируемый сигнал.
+Однако физическая память может быть фрагментирована таким образом, что
+выделение никогда не увенчается успехом.
+.El
+.Pp
+Команды
+.Xr ioctl 2
+.Dv FIOSSHMLPGCNF
+и
+.Dv FIOGSHMLPGCNF
+могут использоваться с объектом разделяемой памяти largepage для получения и
+установки параметров объекта largepage.
+Обе команды работают со следующей структурой:
+.Bd -literal
+struct shm_largepage_conf {
+	int psind;
+	int alloc_policy;
+};
+
+.Ed
+Команда
+.Dv FIOGSHMLPGCNF
+заполняет эту структуру текущими значениями этих параметров,
+а команда
+.Dv FIOSSHMLPGCNF
+изменяет объект largepage.
+В настоящее время может быть изменён только параметр
+.Va alloc_policy .
+Внутри
+.Fn shm_create_largepage
+работает путём создания обычного объекта разделяемой памяти с помощью
+.Fn shm_open
+и последующего преобразования его в объект largepage с помощью
+ioctl-команды
+.Dv FIOSSHMLPGCNF .
+.Pp
+Системный вызов
+.Fn shm_rename
+атомарно удаляет объект разделяемой памяти с именем
+.Fa path_from
+и перелинковывает его по адресу
+.Fa path_to .
+Если другой объект уже связан с
+.Fa path_to ,
+этот объект будет отлинкован, если не указан один из следующих флагов:
+.Bl -tag -offset indent -width Er
+.It Er SHM_RENAME_EXCHANGE
+Атомарно обменять объекты разделяемой памяти по адресам
+.Fa path_from
+и
+.Fa path_to .
+.It Er SHM_RENAME_NOREPLACE
+Вернуть ошибку, если объект разделяемой памяти существует по адресу
+.Fa path_to ,
+вместо его отлинковки.
+.El
+.Pp
+Системный вызов
+.Fn shm_unlink
+удаляет объект разделяемой памяти с именем
+.Fa path .
+.Pp
+Функция
+.Fn memfd_create
+создаёт анонимный объект разделяемой памяти, идентичный создаваемому
+функцией
+.Fn shm_open
+при указании
+.Dv SHM_ANON .
+Только что созданные объекты имеют нулевой размер.
+Размер нового объекта должен быть изменён с помощью
+.Xr ftruncate 2 .
+.Pp
+Аргумент
+.Fa name
+не должен быть
+.Dv NULL ,
+но может быть пустой строкой.
+Длина аргумента
+.Fa name
+не может превышать
+.Dv NAME_MAX
+минус шесть символов для префикса
+.Dq memfd: ,
+который будет добавлен в начало.
+Аргумент
+.Fa name
+предназначен исключительно для целей отладки и никогда не будет использоваться
+ядром для идентификации memfd.
+Поэтому имена не обязаны быть уникальными.
+.Pp
+Для
+.Fn memfd_create
+могут быть указаны следующие
+.Fa flags :
+.Bl -tag -width MFD_ALLOW_SEALING
+.It Dv MFD_CLOEXEC
+Установить
+.Dv FD_CLOEXEC
+для результирующего файлового дескриптора.
+.It Dv MFD_ALLOW_SEALING
+Разрешить добавление печатей к результирующему файловому дескриптору с
+помощью команды
+.Dv F_ADD_SEALS
+.Xr fcntl 2 .
+.It Dv MFD_HUGETLB
+Создать memfd, размещённый в объекте
+.Dq largepage .
+Один из флагов
+.Dv MFD_HUGE_*
+, определённых в
+.In sys/mman.h
+может быть включён для указания фиксированного размера.
+Если конкретный размер не запрошен, выбирается наименьший поддерживаемый
+размер большой страницы.
+.Pp
+Поведение, задокументированное выше для аргумента
+.Fa psind
+функции
+.Fn shm_create_largepage ,
+также применимо к объектам largepage, созданным
+.Fn memfd_create ,
+и всегда будет использоваться политика
+.Dv SHM_LARGEPAGE_ALLOC_DEFAULT .
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха
+.Fn memfd_create
+и
+.Fn shm_open
+обе возвращают неотрицательное целое число,
+а
+.Fn shm_rename
+и
+.Fn shm_unlink
+возвращают ноль.
+Все функции возвращают -1 при ошибке и устанавливают
+.Va errno
+для указания ошибки.
+.Sh СОВМЕСТИМОСТЬ
+Функции
+.Fn shm_create_largepage
+и
+.Fn shm_rename
+являются расширениями
+.Fx ,
+как и поддержка значения
+.Dv SHM_ANON
+в
+.Fn shm_open .
+.Pp
+Аргументы
+.Fa path ,
+.Fa path_from
+и
+.Fa path_to
+не обязательно представляют собой имя пути (хотя в большинстве других
+реализаций это так).
+Два процесса, открывающие один и тот же
+.Fa path ,
+гарантированно получают доступ к одному и тому же объекту разделяемой памяти
+тогда и только тогда, когда
+.Fa path
+начинается с символа косой черты
+.Pq Ql \&/ .
+.Pp
+В переносимых программах могут использоваться только флаги
+.Dv O_RDONLY ,
+.Dv O_RDWR ,
+.Dv O_CREAT ,
+.Dv O_EXCL
+и
+.Dv O_TRUNC .
+.Pp
+Спецификации
+POSIX
+утверждают, что результат использования
+.Xr open 2 ,
+.Xr read 2
+или
+.Xr write 2
+для объекта разделяемой памяти или для дескриптора, возвращённого
+.Fn shm_open ,
+не определён.
+Однако реализация ядра
+.Fx
+явно включает поддержку
+.Xr read 2
+и
+.Xr write 2 .
+.Pp
+.Fx
+также поддерживает передачу данных без копирования из объектов разделяемой
+памяти с помощью
+.Xr sendfile 2 .
+.Pp
+Ни объекты разделяемой памяти, ни их содержимое не сохраняются между
+перезагрузками.
+.Pp
+Запись не расширяет объекты разделяемой памяти, поэтому перед записью
+любых данных необходимо вызвать
+.Xr ftruncate 2 .
+См.
+.Sx ПРИМЕРЫ .
+.Sh ПРИМЕРЫ
+Этот пример завершается с ошибкой без вызова
+.Xr ftruncate 2 :
+.Bd -literal -compact
+
+        uint8_t buffer[getpagesize()];
+        ssize_t len;
+        int fd;
+
+        fd = shm_open(SHM_ANON, O_RDWR | O_CREAT, 0600);
+        if (fd < 0)
+                err(EX_OSERR, "%s: shm_open", __func__);
+        if (ftruncate(fd, getpagesize()) < 0)
+                err(EX_IOERR, "%s: ftruncate", __func__);
+        len = pwrite(fd, buffer, getpagesize(), 0);
+        if (len < 0)
+                err(EX_IOERR, "%s: pwrite", __func__);
+        if (len != getpagesize())
+                errx(EX_IOERR, "%s: pwrite length mismatch", __func__);
+.Ed
+.Sh ОШИБКИ
+.Fn memfd_create
+завершается с указанными кодами ошибок при следующих условиях:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa name
+был равен NULL.
+.It Bq Er EINVAL
+Аргумент
+.Fa name
+был слишком длинным.
+.Pp
+В
+.Fa flags
+был включён недопустимый или неподдерживаемый флаг.
+.It Bq Er EINVAL
+Было запрошено отображение hugetlb, но
+.Dv MFD_HUGETLB
+не был указан в
+.Fa flags .
+.It Bq Er EMFILE
+Процесс уже достиг своего предела открытых файловых дескрипторов.
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er ENOSYS
+В
+.Fa flags
+был указан
+.Dv MFD_HUGETLB ,
+и эта система не поддерживает принудительные отображения hugetlb.
+.It Bq Er EOPNOTSUPP
+Эта система не поддерживает запрошенный размер страницы hugetlb.
+.El
+.Pp
+.Fn shm_open
+завершается с указанными кодами ошибок при следующих условиях:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+В
+.Fa flags
+был включён флаг, отличный от
+.Dv O_RDONLY ,
+.Dv O_RDWR ,
+.Dv O_CREAT ,
+.Dv O_EXCL
+или
+.Dv O_TRUNC .
+.It Bq Er EMFILE
+Процесс уже достиг своего предела открытых файловых дескрипторов.
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er EINVAL
+Был указан
+.Dv O_RDONLY
+при создании анонимного объекта разделяемой памяти через
+.Dv SHM_ANON .
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er ENAMETOOLONG
+Полное имя пути превышает 1023 символа.
+.It Bq Er EINVAL
+.Fa path
+не начинается с символа косой черты
+.Pq Ql \&/ .
+.It Bq Er ENOENT
+.Dv O_CREAT
+не указан, и именованный объект разделяемой памяти не существует.
+.It Bq Er EEXIST
+Указаны
+.Dv O_CREAT
+и
+.Dv O_EXCL ,
+и именованный объект разделяемой памяти существует.
+.It Bq Er EACCES
+Требуемые права доступа (на чтение или чтение и запись) запрещены.
+.It Bq Er ECAPMODE
+Процесс работает в режиме возможностей (см.
+.Xr capsicum 4 )
+и попытался создать именованный объект разделяемой памяти.
+.El
+.Pp
+.Fn shm_create_largepage
+может завершиться с ошибкой по причинам, перечисленным выше.
+Она также завершается с указанными кодами ошибок при следующих условиях:
+.Bl -tag -width Er
+.It Bq Er ENOTTY
+Ядро не поддерживает большие страницы на текущей платформе.
+.El
+.Pp
+Для
+.Fn shm_rename
+определены следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa path_from
+или
+.Fa path_to
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er ENAMETOOLONG
+Полное имя пути превышает 1023 символа.
+.It Bq Er ENOENT
+Объект разделяемой памяти по адресу
+.Fa path_from
+не существует.
+.It Bq Er EACCES
+Требуемые права доступа запрещены.
+.It Bq Er EEXIST
+Объект разделяемой памяти существует по адресу
+.Fa path_to ,
+и был указан флаг
+.Dv SHM_RENAME_NOREPLACE .
+.El
+.Pp
+.Fn shm_unlink
+завершается с указанными кодами ошибок при следующих условиях:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er ENAMETOOLONG
+Полное имя пути превышает 1023 символа.
+.It Bq Er ENOENT
+Именованный объект разделяемой памяти не существует.
+.It Bq Er EACCES
+Требуемые права доступа запрещены.
+.Fn shm_unlink
+требует прав на запись к объекту разделяемой памяти.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr posixshmcontrol 1 ,
+.Xr close 2 ,
+.Xr fstat 2 ,
+.Xr ftruncate 2 ,
+.Xr ioctl 2 ,
+.Xr mmap 2 ,
+.Xr munmap 2 ,
+.Xr sendfile 2
+.Sh СТАНДАРТЫ
+Ожидается, что функция
+.Fn memfd_create
+совместима с одноимённым системным вызовом Linux.
+.Pp
+Считается, что функции
+.Fn shm_open
+и
+.Fn shm_unlink
+соответствуют
+.St -p1003.1b-93 .
+.Sh ИСТОРИЯ
+Функция
+.Fn memfd_create
+появилась в
+.Fx 13.0 .
+.Pp
+Функции
+.Fn shm_open
+и
+.Fn shm_unlink
+впервые появились в
+.Fx 4.3 .
+Функции были перереализованы как системные вызовы, использующие объекты
+разделяемой памяти напрямую, а не файлы, в
+.Fx 8.0 .
+.Pp
+.Fn shm_rename
+впервые появилась в
+.Fx 13.0
+как расширение
+.Fx .
+.Sh АВТОРЫ
+.An Garrett A. Wollman Aq Mt wollman@FreeBSD.org
+(поддержка библиотеки C и эта страница руководства)
+.Pp
+.An Matthew Dillon Aq Mt dillon@FreeBSD.org
+.Pq Dv MAP_NOSYNC
+.Pp
+.An Matthew Bryan Aq Mt matthew.bryan@isilon.com
+.Pq Dv реализация shm_rename

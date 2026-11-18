@@ -1,0 +1,245 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018-2024, Juniper Networks, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/veriexec/veriexec.8
+.\" FRDP githash 04907571427d6fdfbe582e971ff52df700c0df44
+.\" FRDP hash256 e0f3333c0f235a4b33fc8cfa6ce32fa16b4252f92b8b26341ed22aaa57421d10
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2025
+.Dt VERIEXEC 8
+.Os
+.Sh ИМЯ
+.Nm veriexec
+.Nd управление состоянием mac_veriexec
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Op Fl C Ar каталог
+.Op Fl S
+.Pa manifest
+.Nm
+.Fl z Ar состояние
+.Nm
+.Fl i Ar состояние
+.Nm
+.Fl l
+.Ar файл ...
+.Nm
+.Fl x
+.Ar файл ...
+.Sh ОПИСАНИЕ
+.Nm
+— утилита для запроса или управления состоянием
+.Xr mac_veriexec 4 .
+.Pp
+Первая форма предназначена для загрузки
+.Pa manifest .
+.Nm
+сначала проверяет цифровую подпись
+.Ar манифеста
+и в случае успеха разбирает его и передаёт его содержимое ядру.
+Флаг
+.Fl S
+указывает, что следует проверять срок действия сертификата.
+Без этого действительная подпись с истёкшим сертификатом
+всё равно будет принята.
+.Pp
+Вторая форма с
+.Fl z
+используется для изменения
+.Ar состояния ,
+а с
+.Fl i
+— для запроса текущего
+.Ar состояния .
+.Pp
+С
+.Fl l
+.Nm
+выведет все метки, связанные с остальными аргументами,
+которые предполагаются файлами.
+Если задан только один аргумент-файл, будет выведена
+только метка (если она есть), иначе — путь, за которым следует метка.
+.Pp
+Последняя форма с
+.Fl x
+используется для проверки, является ли
+.Ar файл
+верифицированным или нет.
+Для этого требуется, чтобы
+.Xr mac_veriexec 4
+находился в состоянии
+.Ql active
+или
+.Ql enforce .
+.Pp
+Возможные состояния:
+.Bl -tag -width enforce
+.It Ar loaded
+устанавливается автоматически при загрузке первого
+.Pa manifest .
+.It Ar active
+.Xr mac_veriexec 4
+начнёт проверять файлы.
+В это состояние можно перейти только из состояния
+.Ar loaded .
+.It Ar enforce
+.Xr mac_veriexec 4
+будет отклонять попытки
+.Xr execve 2
+или
+.Xr open 2
+файлов с
+.Dv O_VERIFY
+, если они не верифицированы.
+.It Ar locked
+запрещает загрузку любых дополнительных манифестов.
+.El
+.Pp
+При установке или запросе состояния достаточно указать
+уникальный префикс нужного состояния.
+Так,
+.Fl i
+.Ar a
+или
+.Fl z
+.Ar e
+достаточны, но
+.Fl i
+.Ar loc
+— это минимум, необходимый во избежание путаницы с
+.Ar loaded .
+.Sh МАНИФЕСТЫ
+Манифест содержит сопоставление относительных путей с отпечатками
+и необязательными флагами.
+Например:
+.Bd -literal -offset indent
+sbin/veriexec sha256=f22136...c0ff71 no_ptrace trusted
+usr/bin/python sha256=5944d9...876525 indirect
+sbin/somedaemon sha256=77fc2f...63f5687 label=mod1/val1,mod2/val2
+.Ed
+.Pp
+Поддерживаемые флаги:
+.Bl -tag -width indirect
+.It Ql indirect
+исполняемый файл нельзя запустить напрямую,
+но его можно использовать как интерпретатор, например, через:
+.Bd -literal -offset indent
+#!/usr/bin/python
+.Ed
+.It Ql no_fips
+Если в системе есть понятие работы в режиме FIPS,
+файл, помеченный этим флагом, не будет допущен к
+запуску.
+.It Ql no_ptrace
+не разрешать запуск исполняемого файла под отладчиком.
+Полезно для любого приложения, критичного для состояния безопасности системы.
+.It Ql trusted
+этот флаг требуется процессу для использования
+.Xr veriexec 4
+для взаимодействия с
+.Xr mac_veriexec 4 .
+Обычно только
+.Nm
+нуждается в этом флаге.
+Подразумевает
+.Ql no_ptrace .
+
+.El
+.Pp
+Аргумент
+.Ql label
+позволяет связать с файлом
+.Xr maclabel 7 .
+Ни
+.Nm
+, ни
+.Xr mac_veriexec 4
+(если он поддерживает метки)
+не обращают никакого внимания на содержимое метки;
+они предоставлены для использования другими
+.Xr mac 4
+модулями или даже другими приложениями.
+.Sh ПРИМЕРЫ
+Загрузите манифест для
+.Xr tarfs 5
+пакета, смонтированного в
+.Pa /mnt
+, и строго проверяйте действительность сертификата:
+.Bd -literal -offset indent
+# veriexec -S -C /mnt /mnt/manifest
+
+.Ed
+.Nm
+будет искать отделённую подпись, которую он распознаёт, например
+.Pa manifest.asc
+(OpenPGP) или
+.Pa manifest.*sig
+(X.509).
+В случае подписи X.509 нам также нужна соответствующая цепочка сертификатов
+.Pa manifest.*certs .
+В любом случае в хранилище доверенных сертификатов должен быть подходящий
+якорь доверия.
+.Pp
+Теперь мы можем активировать:
+.Bd -literal -offset indent
+# veriexec -z active
+
+.Ed
+Любой пользователь может проверить, находится ли
+.Xr mac_veriexec 4
+в состоянии
+.Ql active :
+.Bd -literal -offset indent
+$ veriexec -i active
+
+.Ed
+Любой пользователь может проверить, что
+.Pa /mnt/bin/app
+верифицирован:
+.Bd -literal -offset indent
+$ veriexec -x /mnt/bin/app
+
+.Ed
+Если это не так, мы получим ошибку аутентификации,
+но если
+.Xr mac_veriexec 4
+не находится в состоянии
+.Ql enforce ,
+мы всё ещё сможем его запустить.
+.Sh ПРИМЕЧАНИЯ
+Безопасно устанавливать
+.Xr mac_veriexec 4
+в состояние
+.Ql enforce
+только если загружено достаточно манифестов,
+охватывающих все приложения, которые могут потребоваться запустить.
+.Sh ИСТОРИЯ
+Система Verified Exec впервые появилась в
+.Nx .
+Эта утилита происходит от той, что найдена в Junos,
+которая требует, чтобы файлы манифестов были подписаны цифровой подписью.

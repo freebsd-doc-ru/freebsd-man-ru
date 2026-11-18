@@ -1,0 +1,1063 @@
+.\"
+.\" Copyright (c) 2020 Warner Losh <imp@FreeBSD.org>
+.\" Copyright (c) 2018-2019 Alexander Motin <mav@FreeBSD.org>
+.\" Copyright (c) 2012 Intel Corporation
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions, and the following disclaimer,
+.\"    without modification.
+.\" 2. Redistributions in binary form must reproduce at minimum a disclaimer
+.\"    substantially similar to the "NO WARRANTY" disclaimer below
+.\"    ("Disclaimer") and any redistribution must be conditioned upon
+.\"    including a substantially similar Disclaimer requirement for further
+.\"    binary redistribution.
+.\"
+.\" NO WARRANTY
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" HOLDERS OR CONTRIBUTORS BE LIABLE FOR SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGES.
+.\"
+.\" nvmecontrol man page.
+.\"
+.\" Author: Jim Harris <jimharris@FreeBSD.org>
+.\"
+.\" FRDP path sbin/nvmecontrol/nvmecontrol.8
+.\" FRDP githash 6a2f1e3a06bc4e70eb60ac37b77cf6f3c7d9d8a3
+.\" FRDP hash256 63f0fc0b1450e2ad94cefcc57f323d9b1bc1f53b9a7a078265112bc392851f91
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 31, 2026
+.Dt NVMECONTROL 8
+.Os
+.Sh ИМЯ
+.Nm nvmecontrol
+.Nd Утилита управления NVM Express
+.Sh СИНТАКСИС
+.Nm
+.Ic devlist
+.Op Fl h
+.Nm
+.Ic identify
+.Op Fl v
+.Op Fl x
+.Op Fl n Ar nsid
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic perftest
+.Aq Fl n Ar num_threads
+.Aq Fl o Ar read|write
+.Op Fl p
+.Aq Fl s Ar size_in_bytes
+.Aq Fl t Ar time_in_sec
+.Aq Ar namespace-id
+.Nm
+.Ic reset
+.Aq Ar device-id
+.Nm
+.Ic logpage
+.Aq Fl p Ar page_id
+.Op Fl x
+.Op Fl v Ar vendor-string
+.Op Fl b
+.Op Fl f Ar LSP
+.Op Fl i Ar LSI
+.Op Fl r
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic ns active
+.Aq Ar device-id
+.Nm
+.Ic ns allocated
+.Aq Ar device-id
+.Nm
+.Ic ns attach
+.Aq Fl n Ar nsid
+.Aq Fl c Ar cntid
+.Aq Ar device-id
+.Nm
+.Ic ns attached
+.Aq Fl n Ar nsid
+.Aq Ar device-id
+.Nm
+.Ic ns controllers
+.Aq Ar device-id
+.Nm
+.Ic ns create
+.Aq Fl s Ar nsze
+.Op Fl c Ar ncap
+.Op Fl f Ar lbaf
+.Op Fl m Ar mset
+.Op Fl n Ar nmic
+.Op Fl p Ar pi
+.Op Fl l Ar pil
+.Op Fl L Ar flbas
+.Op Fl d Ar dps
+.Aq Ar device-id
+.Nm
+.Ic ns delete
+.Aq Fl n Ar nsid
+.Aq Ar device-id
+.Nm
+.Ic ns detach
+.Aq Fl n Ar nsid
+.Aq Fl c Ar cntid
+.Aq Ar device-id
+.Nm
+.Ic ns identify
+.Op Fl v
+.Op Fl x
+.Aq Fl n Ar nsid
+.Aq Ar device-id
+.Nm
+.Ic nsid
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic resv acquire
+.Aq Fl c Ar crkey
+.Op Fl p Ar prkey
+.Aq Fl t Ar rtype
+.Aq Fl a Ar racqa
+.Aq Ar namespace-id
+.Nm
+.Ic resv register
+.Op Fl i
+.Op Fl c Ar crkey
+.Aq Fl k Ar nrkey
+.Aq Fl r Ar rrega
+.Op Fl p Ar cptpl
+.Aq Ar namespace-id
+.Nm
+.Ic resv release
+.Aq Fl c Ar crkey
+.Aq Fl t Ar rtype
+.Aq Fl a Ar rrela
+.Aq Ar namespace-id
+.Nm
+.Ic resv report
+.Op Fl e
+.Op Fl v
+.Op Fl x
+.Aq Ar namespace-id
+.Nm
+.Ic firmware
+.Op Fl s Ar slot
+.Op Fl f Ar path_to_firmware
+.Op Fl a
+.Aq Ar device-id
+.Nm
+.Ic format
+.Op Fl f Ar fmt
+.Op Fl m Ar mset
+.Op Fl p Ar pi
+.Op Fl l Ar pil
+.Op Fl E
+.Op Fl C
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic sanitize
+.Aq Fl a Ar sanact
+.Op Fl c Ar owpass
+.Op Fl d
+.Op Fl p Ar ovrpat
+.Op Fl r
+.Op Fl I
+.Op Fl U
+.Aq Ar device-id
+.Nm
+.Ic power
+.Op Fl l
+.Op Fl p power_state
+.Op Fl w workload_hint
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic selftest
+.Aq Fl c Ar code
+.Aq Ar device-id | Ar namespace-id
+.Nm
+.Ic wdc cap-diag
+.Op Fl o path_template
+.Aq Ar device-id
+.Nm
+.Ic wdc drive-log
+.Op Fl o path_template
+.Aq Ar device-id
+.Nm
+.Ic wdc get-crash-dump
+.Op Fl o path_template
+.Aq Ar device-id
+.Nm
+.Ic admin-passthru
+.Op args
+.Aq Ar device-id
+.Nm
+.Ic io-passthru
+.Op args
+.Aq Ar namespace-id
+.Nm
+.Ic discover
+.Op Fl v
+.Op Fl t Ar transport
+.Op Fl q Ar HostNQN
+.Nm
+.Ic connect
+.Op Fl FGg
+.Op Fl c Ar cntl-id
+.Op Fl i Ar queues
+.Op Fl k Ar seconds
+.Op Fl l Ar seconds
+.Op Fl r Ar seconds
+.Op Fl t Ar transport
+.Op Fl q Ar HostNQN
+.Op Fl Q Ar entries
+.Aq Ar address
+.Aq Ar SubNQN
+.Nm
+.Ic connect-all
+.Op Fl FGg
+.Op Fl i Ar queues
+.Op Fl k Ar seconds
+.Op Fl l Ar seconds
+.Op Fl r Ar seconds
+.Op Fl t Ar transport
+.Op Fl q Ar HostNQN
+.Op Fl Q Ar entries
+.Aq Ar address
+.Nm
+.Ic disconnect
+.Aq Ar device-id | Ar namespace-id | Ar SubNQN
+.Nm
+.Ic reconnect
+.Aq Ar device-id
+.Nm
+.Ic reconnect
+.Op Fl FGg
+.Op Fl i Ar queues
+.Op Fl k Ar seconds
+.Op Fl l Ar seconds
+.Op Fl r Ar seconds
+.Op Fl t Ar transport
+.Op Fl q Ar HostNQN
+.Op Fl Q Ar entries
+.Aq Ar device-id
+.Aq Ar address
+.Nm
+.Ic telemetry-log
+.Fl O Ar output-file
+.Op Fl d Ar data-area
+.Aq Ar device-id
+.Sh ОПИСАНИЕ
+NVM Express (NVMe) — это стандарт протокола хранения для SSD и других
+высокоскоростных устройств хранения через PCI Express, а также удалённых
+устройств хранения, доступ к которым осуществляется через сетевую структуру.
+.Ss devlist
+Перечисляет все контроллеры и пространства имён NVMe вместе с их узлами устройств.
+С аргументом
+.Fl h
+при отображении места на диске используются суффиксы единиц: байт, кибибайт,
+мебибайт, гибибайт, тебибайт и пебибайт (на основе степеней 1024).
+По умолчанию используется мебибайт.
+.Ss identify
+Команда identify сообщает информацию из
+.Dv IDENTIFY_CONTROLLER
+накопителя, если указан
+.Ar device-id .
+Она сообщает данные
+.Dv IDENTIFY_NAMESPACE
+если указан
+.Ar namespace-id .
+При использовании с именами дисков сообщаются данные
+.Dv IDENTIFY_NAMESPACE
+если пространство имён
+.Ar nsid
+не переопределено флагом
+.Fl n .
+Тогда сообщаются данные этого пространства имён, если оно существует.
+Команда принимает следующие параметры:
+.Bl -tag -width 6n
+.It Fl n
+Пространство имён
+.Aq nsid
+которое нужно использовать вместо пространства имён, связанного с устройством.
+Значение
+.Ar nsid
+равное
+.Dq 0
+используется для получения данных
+.Dv IDENTIFY_CONTROLLER
+связанных с этим накопителем.
+.El
+.Ss logpage
+Команда logpage умеет печатать страницы журнала различных типов.
+Она также знает о страницах журнала, специфичных для производителя, от HGST/WDC, Samsung,
+Micron и Intel.
+Обратите внимание, что некоторые производители используют одни и те же номера страниц журнала для разных данных.
+.Pp
+.Bl -tag -width 6n
+.It Dv Page 0x01
+Журнал ошибок накопителя
+.It Dv Page 0x02
+Данные состояния/SMART
+.It Dv Page 0x03
+Информация о прошивке
+.It Dv Page 0x04
+Список изменённых пространств имён
+.It Dv Page 0x05
+Поддерживаемые команды и эффекты
+.It Dv Page 0x06
+Самотестирование устройства
+.It Dv Page 0x80
+Уведомление о резервировании
+.It Dv Page 0x81
+Состояние очистки
+.It Dv Page 0xc1
+Расширенная информация SMART (WDC/HGST)
+.It Dv Page 0xc1
+Статистика задержек чтения (Intel)
+.It Dv Page 0xc2
+Статистика задержек записи (Intel)
+.It Dv Page 0xc5
+Статистика температуры (Intel)
+.It Dv Page 0xca
+Расширенная информация SMART (Intel)
+.It Dv Page 0xca
+Расширенная информация SMART (Samsung)
+.It Dv Page 0xca
+Уникальная для производителя информация SMART (Micron)
+.El
+.Pp
+Указание
+.Fl v
+.Ic help
+выведет список всех допустимых производителей и страниц.
+.Fl x
+напечатает страницу в шестнадцатеричном виде.
+.Fl b
+напечатает двоичные данные страницы.
+.Fl s
+установит поле Log Specific Field.
+.Fl i
+установит идентификатор Log Specific Identifier.
+.Fl r
+установит флаг Retain Asynchronous Event.
+.Ss ns
+Различные команды управления пространствами имён.
+Если устройство поддерживает управление пространствами имён, позволяют перечислять, создавать и удалять
+пространства имён, перечислять контроллеры, прикреплять их к пространствам имён и отсоединять.
+Каждое устройство NVM состоит из одной или нескольких подсистем NVM.
+Каждая подсистема NVM имеет один или несколько портов NVM.
+Каждый порт NVM прикреплён к одному или нескольким контроллерам NVM (хотя обычно к одному).
+Каждый контроллер NVM прикреплён к одному или нескольким пространствам имён.
+.Pp
+После создания пространство имён считается
+.Dq allocated .
+Все пространства имён, которые не были созданы, являются невыделенными.
+Выделенное пространство имён может быть активным или неактивным.
+Активное пространство имён прикреплено к контроллеру и с ним можно взаимодействовать.
+Пространство имён может переходить из активного в неактивное при отсоединении.
+Выделенное пространство имён можно удалить, чтобы сделать его невыделенным.
+Подробности о нюансах пространств имён NVM см. в разделе 2
+.Em Theory of Operation
+и разделе 3
+.Em NVM Express Architecture
+последнего стандарта NVM.
+.Ss ns active
+Выводит список идентификаторов активных пространств имён для заданного контроллера NVM.
+.Ss ns allocated
+Выводит список идентификаторов выделенных пространств имён для заданного контроллера NVM.
+.Ss ns attach
+Прикрепляет nsid к контроллеру.
+Если контроллер не указан, используется первичный контроллер.
+.Ss ns attached
+Выводит список контроллеров, прикреплённых к nsid.
+Если указан только аргумент контроллера nvme, также должен быть указан nsid.
+.Ss ns controllers
+Выводит список всех контроллеров в подсистеме NVM.
+.Ss ns create
+Создаёт новое пространство имён.
+.Ss ns delete
+Удаляет пространство имён.
+В данный момент оно должно быть неактивным.
+.Ss ns detach
+Отсоединяет пространство имён от контроллера.
+Пространство имён станет недоступным, но его содержимое сохранится, если оно снова будет
+.Em активировано .
+.Ss ns identify
+Печатает подробную информацию о пространстве имён.
+.Ss nsid
+Сообщает идентификатор пространства имён и устройство контроллера, связанные с
+.Aq Ar namespace-id
+или
+.Aq Ar device-id
+аргументом.
+.Ss resv acquire
+Захватывает или вытесняет резервирование пространства имён, используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl a
+Действие захвата:
+.Bl -tag -compact -width 6n
+.It Dv 0
+Захватить
+.It Dv 1
+Вытеснить
+.It Dv 2
+Вытеснить и прервать
+.El
+.It Fl c
+Текущий ключ резервирования.
+.It Fl p
+Ключ резервирования для вытеснения.
+.It Fl t
+Тип резервирования:
+.Bl -tag -compact -width 6n
+.It Dv 1
+Эксклюзивная запись
+.It Dv 2
+Эксклюзивный доступ
+.It Dv 3
+Эксклюзивная запись — только зарегистрированные
+.It Dv 4
+Эксклюзивный доступ — только зарегистрированные
+.It Dv 5
+Эксклюзивная запись — все зарегистрированные
+.It Dv 6
+Эксклюзивный доступ — все зарегистрированные
+.El
+.El
+.Ss resv register
+Регистрирует, отменяет регистрацию или заменяет ключ резервирования, используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl c
+Текущий ключ резервирования.
+.It Fl k
+Новый ключ резервирования.
+.It Fl r
+Действие регистрации:
+.Bl -tag -compact -width 6n
+.It Dv 0
+Зарегистрировать
+.It Dv 1
+Отменить регистрацию
+.It Dv 2
+Заменить
+.El
+.It Fl i
+Игнорировать существующий ключ
+.It Fl p
+Изменить состояние Persist Through Power Loss:
+.Bl -tag -compact -width 6n
+.It Dv 0
+Без изменения состояния PTPL
+.It Dv 2
+Установить состояние PTPL в ‘0’.
+При включении питания резервирования снимаются, а регистрации очищаются.
+.It Dv 3
+Установить состояние PTPL в ‘1’.
+Резервирования и регистрации сохраняются при потере питания.
+.El
+.El
+.Ss resv release
+Снимает или очищает резервирование, используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl c
+Текущий ключ резервирования.
+.It Fl t
+Тип резервирования.
+.It Fl a
+Действие снятия:
+.Bl -tag -compact -width 6n
+.It Dv 0
+Снять
+.It Dv 1
+Очистить
+.El
+.El
+.Ss resv report
+Печатает состояние резервирования, используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl x
+Печатать состояние резервирования в шестнадцатеричном виде.
+.It Fl e
+Использовать расширенную структуру данных.
+.El
+.Ss format
+Форматирует указанное пространство имён или все пространства имён указанного контроллера,
+используя указанные параметры:
+.Bl -tag -width 8n
+.It Fl f Ar fmt
+Индекс
+.Ar fmt
+используемых параметров.
+Номер формата LBA, указанный при идентификации пространства имён с помощью
+.Dq nvmecontrol identify
+с указанным пространством имён, сопоставляет этот индекс с этими параметрами.
+.It Fl m Ar mset
+Настройка метаданных.
+.Ar mset
+.Bl -tag -compact -width 6n
+.It Dv 0
+не передавать метаданные вместе с информацией LBA
+.It Dv 1
+Передавать метаданные как часть расширенной информации LBA.
+.El
+.It Fl p Ar pi
+Информация защиты.
+.Bl -tag -compact -width 6n
+.It Dv 0
+Информация защиты не включена.
+.It Dv 1
+Включена защита информации типа 1.
+.It Dv 2
+Включена защита информации типа 2.
+.It Dv 3
+Включена защита информации типа 3.
+.El
+.It Fl l Ar pil
+Расположение информации защиты.
+.Bl -tag -compact -width 6n
+.It Dv 0
+Передавать метаданные защиты как последние N байт передачи.
+.It Dv 1
+Передавать метаданные защиты как первые N байт передачи.
+.El
+.It Fl E
+Включает стирание пользовательских данных при форматировании.
+Все пользовательские данные стираются, а последующие чтения дают неопределённый результат.
+Накопитель может реализовать это как криптографическое стирание или физически стереть нижележащий носитель.
+.It Fl C
+Включает криптографическое стирание при форматировании.
+Все пользовательские данные стираются криптографически путём удаления ключа шифрования,
+что делает их нечитаемыми.
+.El
+.Pp
+При форматировании конкретного пространства имён существующие значения используются по умолчанию.
+При форматировании всех пространств имён следует указать все параметры.
+Некоторые контроллеры могут не поддерживать форматирование или стирание конкретных или всех
+пространств имён.
+Драйвер
+.Xr nvme 4
+в настоящее время не поддерживает передачу метаданных и информации защиты.
+.Ss sanitize
+Очищает подсистему NVM указанного контроллера,
+используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl a Ar operation
+Указывает выполняемую операцию очистки.
+.Bl -tag -width 16n
+.It overwrite
+Выполнить операцию перезаписи, записав предоставленный пользователем
+шаблон данных на устройство один или несколько раз.
+Шаблон задаётся аргументом
+.Fl p .
+Количество раз задаётся аргументом
+.Fl c .
+.It block
+Выполнить операцию блочного стирания.
+Все блоки устройства устанавливаются в определённое производителем
+значение, обычно ноль.
+.It crypto
+Выполнить операцию криптографического стирания.
+Ключи шифрования изменяются, чтобы сделать невозможным расшифровывание
+данных.
+.It exitfailure
+Завершает ранее неудавшуюся операцию очистки.
+Неудавшуюся операцию очистки можно завершить, только если она
+выполнялась в режиме неограниченного завершения, задаваемом аргументом
+.Fl U .
+.It 1, 2, 3, 4
+совместимые с nvme-cli
+.Fl a
+значения для
+.Dq exitfailure ,
+.Dq block ,
+.Dq overwrite ,
+и
+.Dq crypto
+соответственно.
+.El
+.It Fl c Ar passes
+Количество проходов при выполнении операции
+.Sq overwrite .
+Допустимые значения — от 1 до 16.
+По умолчанию 1.
+.It Fl d
+Не освобождать после очистки.
+.It Fl I
+При выполнении операции
+.Sq overwrite
+шаблон инвертируется между последовательными проходами.
+.It Fl p Ar pattern
+32 бита шаблона, используемые при выполнении операции
+.Sq overwrite .
+Шаблон повторяется по мере необходимости для заполнения каждого блока.
+.It Fl U
+Выполнить очистку в режиме неограниченного завершения.
+Если операция завершится неудачно, позже её можно будет завершить операцией
+.Sq exitfailure .
+.It Fl r
+Работать в режиме
+.Dq report only .
+В этом режиме выводится состояние очистки, уже выполняющейся на накопителе.
+.El
+.Ss power
+Управляет режимами питания контроллера NVMe.
+.Bl -tag -width 6n
+.It Fl l
+Вывести список всех поддерживаемых режимов питания.
+Режимы, отмеченные звёздочкой
+.Pq Dq *
+являются нерабочими режимами питания.
+.It Fl p Ar mode
+Установить режим питания в
+.Ar mode .
+Это должен быть режим, перечисленный командой
+.Dl nvmecontrol power -l
+.It Fl w Ar hint
+Установить подсказку рабочей нагрузки для автоматического управления режимом питания.
+.Bl -tag -compact -width 6n
+.It 0
+Подсказка рабочей нагрузки не предоставляется.
+.It 1
+Рабочая нагрузка с продолжительным периодом простоя.
+Устройство часто простаивает минутами.
+В течение нескольких секунд поступает всплеск команд записи.
+Затем устройство снова становится простаивающим.
+.It 2
+Интенсивная последовательная запись.
+Будет отправлено огромное количество последовательных записей, заполняющих очереди отправки.
+.It Other
+Все остальные значения зарезервированы и не имеют стандартного значения.
+.El
+Подробности см. в разделе
+.Dq NVM Subsystem Workloads
+соответствующего базового стандарта NVM Express.
+.El
+.Ss selftest
+Запускает указанное самотестирование устройства:
+.Bl -tag -width 6n
+.It Fl c Ar code
+Укажите код команды самотестирования устройства.
+Распространённые коды:
+.Bl -tag -compact -width 6n
+.It Dv 0x1
+Запустить короткую операцию самотестирования устройства
+.It Dv 0x2
+Запустить расширенную операцию самотестирования устройства
+.It Dv 0xe
+Запустить операцию самотестирования устройства, специфичную для производителя
+.It Dv 0xf
+Прервать операцию самотестирования устройства
+.El
+.El
+.Ss wdc
+Различные команды wdc извлекают данные журналов с накопителей wdc/hgst.
+Флаг
+.Fl o
+задаёт шаблон пути для вывода файлов.
+Каждый файл берёт шаблон пути (по умолчанию пустой), добавляет
+серийный номер накопителя и тип дампа, после чего добавляется .bin.
+Эти журналы необходимо отправлять производителю для анализа.
+Этот инструмент лишь предоставляет способ их извлечения.
+.Ss passthru
+Команды
+.Dq admin-passthru
+и
+.Dq io-passthru
+отправляют команды NVMe либо в административную, либо в часть данных устройства.
+Предполагается, что эти команды совместимы с nvme-cli.
+Подробности см. в базовом стандарте NVM Express.
+.Bl -tag -width 16n
+.It Fl o -opcode Ar opcode
+Отправляемый код операции.
+.It Fl 2 -cdw2 Ar value
+32-битное значение для CDW2.
+.It Fl 3 -cdw3 Ar value
+32-битное значение для CDW3.
+.It Fl 4 -cdw10 Ar value
+32-битное значение для CDW10.
+.It Fl 5 -cdw11 Ar value
+32-битное значение для CDW11.
+.It Fl 6 -cdw12 Ar value
+32-битное значение для CDW12.
+.It Fl 7 -cdw13 Ar value
+32-битное значение для CDW13.
+.It Fl 8 -cdw14 Ar value
+32-битное значение для CDW14.
+.It Fl 9 -cdw15 Ar value
+32-битное значение для CDW15.
+.It Fl l -data-len
+Длина данных для ввода-вывода (в байтах).
+.It Fl m -metadata-len
+Длина сегмента метаданных для команды (в байтах).
+Игнорируется и не реализована в
+.Xr nvme 4 .
+.It Fl f -flags
+Флаги команды NVMe.
+.It Fl n -namespace-id
+Идентификатор пространства имён для команды (игнорируется).
+.It Fl p -prefill
+Значение для предварительного заполнения полезной нагрузки.
+.It Fl b -raw-binary
+Вывод в двоичном формате (иначе создаётся шестнадцатеричный дамп).
+.It Fl d -dry-run
+Не выполнять команду фактически, а выполнить её проверки корректности.
+.It Fl r -read
+Команда читает данные с устройства.
+.It Fl s -show-command
+Показать все значения команды в стандартном выводе.
+.It Fl w -write
+Команда записывает данные на устройство.
+.El
+.Pp
+Отправляет произвольные команды на устройство.
+Может использоваться для извлечения журналов, специфичных для производителя.
+Передача на устройство и с устройства возможна, но ограничена
+.Dv MAXPHYS
+байтами.
+Команды либо читают данные, либо записывают их, но не то и другое одновременно.
+Команды, требующие метаданных, не поддерживаются драйвером
+.Xr nvme 4 .
+.Ss discover
+Выводит список удалённых контроллеров, анонсированных удалённым контроллером обнаружения:
+.Bl -tag -width 6n
+.It Fl t Ar transport
+Используемый транспорт.
+По умолчанию
+.Ar tcp .
+.It Fl q Ar HostNQN
+NVMe Qualified Name, используемое для этого хоста.
+По умолчанию NQN автоматически генерируется из UUID текущего хоста.
+.It Fl v
+Показать данные
+.Dv IDENTIFY_CONTROLLER
+для контроллера обнаружения.
+.El
+.Ss connect
+Устанавливает ассоциацию с контроллером ввода-вывода с именем
+.Ar SubNQN
+по адресу
+.Ar address .
+Адрес должен включать порт.
+.Pp
+Создаётся пара административных очередей и одна или несколько пар очередей ввода-вывода, которые передаются
+ядру для создания нового устройства контроллера.
+.Bl -tag -width 6n
+.It Fl c Ar cntl-id
+Запрашиваемый идентификатор удалённого контроллера:
+.Bl -tag
+.It dynamic
+Запросить динамический идентификатор контроллера для контроллеров, использующих динамическую
+модель контроллера.
+Это значение по умолчанию.
+.It static
+Запросить динамический идентификатор контроллера для контроллеров, использующих статическую
+модель контроллера.
+.It Ar number
+Запросить конкретный идентификатор контроллера для контроллеров, использующих статическую
+модель контроллера.
+.El
+.It Fl F
+Запросить управление потоком очереди отправки.
+По умолчанию управление потоком очереди отправки отключено, если только удалённый
+контроллер не требует его.
+.It Fl g
+Включить дайджесты заголовков TCP PDU.
+.It Fl G
+Включить дайджесты данных TCP PDU.
+.It Fl i Ar queues
+Количество создаваемых пар очередей ввода-вывода.
+По умолчанию 1.
+.It Fl k Ar seconds
+Длительность таймера Keep Alive в секундах.
+По умолчанию 120.
+.It Fl l Ar seconds
+Длительность таймера потери контроллера в секундах.
+По умолчанию 600.
+.Pp
+Этот таймер запускается при потере ассоциации с удалённым контроллером ввода-вывода
+и отменяется при установлении новой ассоциации.
+Если таймер истекает, устройство контроллера удаляется.
+Значение ноль отключает этот таймер.
+.It Fl r Ar seconds
+Длительность таймера переподключения в секундах.
+По умолчанию 10.
+.Pp
+При потере ассоциации с удалённым контроллером ввода-вывода
+устройство контроллера будет запрашивать переподключение через периодические
+уведомления
+.Xr devctl 4
+пока не будет установлена новая ассоциация или устройство контроллера
+не будет удалено.
+Этот таймер задаёт интервал между уведомлениями
+.Xr devctl 4 .
+Обратите внимание, что первое уведомление инициируется сразу после потери
+ассоциации.
+Значение ноль отключает этот таймер.
+.It Fl t Ar transport
+Используемый транспорт.
+По умолчанию
+.Ar tcp .
+.It Fl q Ar HostNQN
+NVMe Qualified Name, используемое для этого хоста.
+По умолчанию NQN автоматически генерируется из UUID текущего хоста.
+.It Fl Q Ar entries
+Количество записей в каждой очереди ввода-вывода.
+По умолчанию используется минимум из 128 или максимального размера очереди, сообщаемого
+полем MQES свойства CAP удалённого хоста.
+.El
+.Ss connect-all
+Запрашивает контроллер обнаружения по адресу
+.Ar address
+и устанавливает ассоциацию для каждого анонсированного контроллера ввода-вывода.
+Флаг
+.Fl t
+определяет транспорт, используемый для начальной ассоциации с
+контроллером обнаружения, и по умолчанию равен
+.Ar tcp .
+Все остальные флаги используются для управления свойствами каждой ассоциации ввода-вывода, как
+описано выше для команды
+.Cm connect .
+.Ss disconnect
+Удаляет устройство контроллера, связанное с удалённым контроллером ввода-вывода,
+включая любую активную ассоциацию и открытые очереди.
+.Ss reconnect
+Повторно устанавливает ассоциацию для удалённого контроллера ввода-вывода, связанного с
+.Ar device-id .
+Если
+.Ar address
+не указан,
+для установления новой ассоциации используются разрешённый адрес и настройки из предыдущей ассоциации.
+Если
+.Ar address
+указан,
+для установления новой ассоциации используются предоставленный адрес и флаги командной строки.
+В этом случае
+адрес должен включать порт, а
+флаги имеют то же значение для новой ассоциации, как описано выше
+для команды
+.Cm connect .
+.Ss telemetry-log
+Извлекает журнал телеметрии, связанный с
+.Ar device-id ,
+используя указанные параметры:
+.Bl -tag -width 6n
+.It Fl O Ar output-file
+Выходной файл для данных.
+Этот параметр обязателен.
+.It Fl d Ar data-area
+Область данных — 1, 2 или 3.
+.El
+.Sh ИМЕНА УСТРОЙСТВ
+Там, где требуется
+.Aq Ar namespace-id ,
+можно использовать либо устройство
+.Pa nvmeXnsY ,
+либо дисковое устройство, такое как
+.Pa ndaZ
+или
+.Pa nvdZ .
+Ведущий
+.Pa /dev/
+можно опустить.
+Там, где требуется
+.Aq Ar device-id ,
+можно использовать либо устройство
+.Pa nvmeX ,
+либо дисковое устройство, такое как
+.Pa ndaZ
+или
+.Pa nvdZ .
+Для команд, принимающих необязательный
+.Aq nsid
+его можно использовать для получения информации о других пространствах имён или для запроса
+самого накопителя.
+Значение
+.Aq nsid
+равное
+.Dq 0
+означает запрос самого накопителя.
+.Sh ТРАНСПОРТЫ FABRICS
+Для доступа к удалённым контроллерам поддерживаются следующие транспорты NVM Express over Fabrics:
+.Bl -tag
+.It tcp
+Транспорт TCP
+.El
+.Sh СЕТЕВЫЕ АДРЕСА
+Сетевые адреса удалённых контроллеров могут использовать один из следующих форматов:
+.Bl -bullet
+.It
+.Bq Ar IPv6 address
+.Ns : Ns Ar port
+.It
+.Ar IPv4 address
+.Ns : Ns Ar port
+.It
+.Ar hostname Ns : Ns Ar port
+.It
+.Bq Ar IPv6 address
+.It
+.Ar IPv6 address
+.It
+.Ar IPv4 address
+.It
+.Ar hostname
+.El
+.Pp
+Если
+.Ar port
+не указан, по возможности используется значение по умолчанию.
+.Sh ПРИМЕРЫ
+.Dl nvmecontrol devlist
+.Pp
+Показать список контроллеров и пространств имён NVMe вместе с их узлами устройств.
+.Pp
+.Dl nvmecontrol identify nvme0
+.Dl nvmecontrol identify -n 0 nvd0
+.Pp
+Показать удобочитаемую сводку данных
+.Dv IDENTIFY_CONTROLLER
+для nvme0.
+В этом примере nvd0 подключён к nvme0.
+.Pp
+.Dl nvmecontrol identify -x -v nvme0ns1
+.Dl nvmecontrol identify -x -v -n 1 nvme0
+.Pp
+Показать шестнадцатеричный дамп данных
+.Dv IDENTIFY_NAMESPACE
+для пространства имён 1 на nvme0.
+.Pp
+.Dl nvmecontrol perftest -n 32 -o read -s 512 -t 30 nvme0ns1
+.Pp
+Запустить тест производительности на nvme0ns1 с использованием 32 потоков ядра в течение 30 секунд.
+Каждый поток выполнит одну команду чтения размером 512 байт.
+По истечении 30 секунд результаты выводятся в стандартный вывод.
+.Pp
+.Dl nvmecontrol reset nvme0
+.Dl nvmecontrol reset nda4
+.Pp
+Выполнить сброс на уровне контроллера для контроллера nvme0.
+В этом примере nda4 связан с nvme0.
+.Pp
+.Dl nvmecontrol logpage -p 1 nvme0
+.Pp
+Показать удобочитаемую сводку журнала информации об ошибках контроллера nvme0.
+Страницы журнала, определённые спецификацией NVMe, включают журнал информации об ошибках (ID=1),
+журнал информации SMART/Health (ID=2) и журнал слотов прошивки (ID=3).
+.Pp
+.Dl nvmecontrol logpage -p 0xc1 -v wdc nvme0
+.Pp
+Показать удобочитаемую сводку расширенных данных SMART, специфичных для wdc, для nvme0.
+.Pp
+.Dl nvmecontrol logpage -p 1 -x nvme0
+.Pp
+Показать шестнадцатеричный дамп журнала информации об ошибках контроллера nvme0.
+.Pp
+.Dl nvmecontrol logpage -p 0xcb -b nvme0 > /tmp/page-cb.bin
+.Pp
+Вывести содержимое страницы 0xcb, специфичной для производителя, как двоичные данные в
+стандартный вывод.
+Перенаправить его во временный файл.
+.Pp
+.Dl nvmecontrol firmware -s 2 -f /tmp/nvme_firmware nvme0
+.Pp
+контроллер nvme0, но не активировать образ.
+.Pp
+.Dl nvmecontrol firmware -s 4 -a nvme0
+.Pp
+Активировать прошивку в слоте 4 контроллера nvme0 при следующей перезагрузке.
+.Pp
+.Dl nvmecontrol firmware -s 7 -f /tmp/nvme_firmware -a nvme0
+.Pp
+контроллер nvme0 и активировать её при следующей перезагрузке.
+.Pp
+.Dl nvmecontrol power -l nvme0
+.Pp
+Вывести список всех текущих режимов питания.
+.Pp
+.Dl nvmecontrol power -p 3 nvme0
+.Pp
+Установить текущий режим питания.
+.Pp
+.Dl nvmecontrol power nvme0
+.Pp
+Получить текущий режим питания.
+.Pp
+.Dl nvmecontrol identify -n 0 nda0
+.Pp
+Идентифицировать данные накопителя, связанные с устройством
+.Pa nda0 .
+Соответствующее устройство
+.Pa nvmeX
+используется автоматически.
+.Pp
+.Dl nvmecontrol identify nda0
+.Pp
+Получить параметры пространства имён, связанные с устройством
+.Pa nda0 .
+Соответствующее устройство
+.Pa nvmeXnsY
+используется автоматически.
+.Pp
+.Dl nvmecontrol format -f 2 -m 0 -p 0 -l 0 -C nvme2
+.Pp
+Форматировать все пространства имён на nvme2, используя параметры из
+.Dq LBA Format #2
+без метаданных или данных защиты, с криптографическим стиранием.
+Если команда
+.Dq nvmecontrol identify -n 1 nvme2
+завершилась выводом
+.Pp
+.Bd -literal
+LBA Format #00: Data Size:   512  Metadata Size:     0  Performance: Good
+LBA Format #01: Data Size:   512  Metadata Size:     8  Performance: Good
+LBA Format #02: Data Size:  4096  Metadata Size:     0  Performance: Good
+LBA Format #03: Data Size:  4096  Metadata Size:     8  Performance: Good
+LBA Format #04: Data Size:  4096  Metadata Size:    64  Performance: Good
+.Ed
+.Pp
+то это даст формат данных 4 Кбайт как минимум для пространства имён 1, без
+метаданных.
+.Pp
+.Sh ДИНАМИЧЕСКАЯ ЗАГРУЗКА
+Каталоги
+.Pa /lib/nvmecontrol
+и
+.Pa /usr/local/lib/nvmecontrol
+сканируются на наличие любых файлов .so.
+Эти файлы загружаются.
+Элементы набора компоновщика
+.Va top
+добавляются к командам верхнего уровня.
+Элементы набора компоновщика
+.Va logpage
+добавляются к анализаторам logpage.
+.Sh СМ. ТАКЖЕ
+.Rs
+.%T The NVM Express Base Specification
+.%D June 10, 2019
+.%U https://nvmexpress.org/wp-content/uploads/NVM-Express-1_4-2019.06.10-Ratified.pdf
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 9.2 .
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+была разработана Intel и первоначально написана
+.An Jim Harris Aq Mt jimharris@FreeBSD.org .
+.Pp
+Эта страница руководства была написана
+.An Jim Harris Aq Mt jimharris@FreeBSD.org .

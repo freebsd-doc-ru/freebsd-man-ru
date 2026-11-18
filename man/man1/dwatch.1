@@ -1,0 +1,740 @@
+.\" Copyright (c) 2014-2018 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path cddl/usr.sbin/dwatch/dwatch.1
+.\" FRDP githash ea13f1826da24b26065ef06c74bc48de72f1e33a
+.\" FRDP hash256 b919830b565ca391b4cceecc387af92bcdf3f4142c1fe7345e1ade1952075f8c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 6, 2026
+.Dt DWATCH 1
+.Os
+.Sh ИМЯ
+.Nm dwatch
+.Nd наблюдать за процессами при срабатывании определённой пробы DTrace
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 1defFmnPqRvVwxy
+.Op Fl B Ar num
+.Op Fl E Ar code
+.Op Fl g Ar group
+.Op Fl j Ar jail
+.Op Fl k Ar name
+.Op Fl K Ar num
+.Op Fl N Ar count
+.Op Fl o Ar file
+.Op Fl O Ar cmd
+.Op Fl p Ar pid
+.Op Fl r Ar regex
+.Op Fl t Ar test
+.Op Fl T Ar time
+.Op Fl u Ar user
+.Op Fl X Ar profile
+.Op Fl z Ar regex
+.Op Fl -
+.Op probe[,...]
+.Op args ...
+.Nm
+.Fl l
+.Op Fl fmnPqy
+.Op Fl r Ar regex
+.Op probe ...
+.Nm
+.Fl Q
+.Op Fl 1qy
+.Op Fl r Ar regex
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+использует
+.Xr dtrace 1
+для отображения сведений о процессе при срабатывании заданной точки пробы DTrace.
+Выполнять эту команду может только пользователь root или пользователи, имеющие доступ через
+.Xr mdo 1
+или
+.Xr sudo 8 Pq Pa ports/security/sudo .
+.Pp
+.Nm
+автоматизирует создание сценариев DTrace для объединения вывода трассировки по
+дате/времени,
+сведениям о процессе
+и
+.Op необязательно
+данным, специфичным для пробы.
+.Pp
+Формат вывода без опций:
+.Pp
+.Dl date/time uid.gid execname[pid]: psargs
+.Pp
+Например,
+команда
+.Ql dwatch BEGIN
+выводит:
+.Pp
+.Dl INFO Watching 'dtrace:::BEGIN' ...
+.Dl 2017 May 29 08:23:20 0.0 dtrace[60671]: dtrace -s /dev/stdin
+.Pp
+Опция
+.Fl F
+заставляет
+.Nm
+вместо этого объединять вывод трассировки по дате/времени,
+сведениям о процессе
+и обходу проб.
+.Pp
+Формат вывода с опцией
+.Ql Fl F
+таков:
+.Pp
+.Dl date/time uid.gid execname[pid]: {->,<-, |} prov:mod:func:name ...
+.Pp
+Например,
+команда
+.Ql dwatch -F BEGIN
+выводит:
+.Pp
+.Dl INFO Watching 'dtrace:::BEGIN' ...
+.Dl 2017 May 29 21:34:41 0.0 dtrace[86593]:  | dtrace:::BEGIN ...
+.Pp
+Опция
+.Fl R
+заставляет
+.Nm
+отображать дерево процессов, содержащее сведения о родительском,
+прародительском
+и предковом процессах.
+.Pp
+Формат вывода с опцией
+.Ql Fl R
+таков:
+.Pp
+.Dl date/time uid0.gid0 execname[pid0]: psargs0
+.Pp
+Например,
+команда
+.Ql dwatch -R BEGIN
+выводит:
+.Pp
+.Dl INFO Watching 'dtrace:::BEGIN' ...
+.Dl 2017 May 29 21:38:54 0.0 dtrace[86899]: dtrace -s /dev/stdin
+.Pp
+Особый интерес представляет возможность фильтрации с помощью регулярных выражений.
+Опции
+.Ql Fl g Ar group ,
+.Ql Fl p Ar pid ,
+.Ql Fl r Ar regex ,
+.Ql Fl u Ar user
+и
+.Ql Fl z Ar regex
+можно комбинировать с
+.Ql Fl R
+для сопоставления как по критериям родительского процесса, так и по сведениям о текущем процессе.
+.Pp
+Напротив,
+опции
+.Ql Fl j Ar jail
+и
+.Ql Fl k Ar name
+применяются только к текущему процессу, даже если указана
+.Ql Fl R .
+.Pp
+Опция
+.Ql Fl E Ar code
+позволяет настраивать данные, специфичные для пробы.
+Например,
+команда:
+.Pp
+.Pp
+отображает аргумент пути, передаваемый в вызовы
+.Xr chdir 2 .
+.Pp
+Профили можно писать для более сложных процедур и/или удобства.
+Чтобы вывести список доступных профилей, используйте опцию
+.Ql Fl Q .
+Используйте опцию
+.Ql Fl X Ar profile ,
+чтобы выбрать конкретный профиль.
+.Pp
+Например,
+команда
+.Ql dwatch -X kill
+отображает аргументы, передаваемые в
+.Xr kill 2 .
+.Sh ОПЦИИ
+Если аргумент
+.Ar probe
+не содержит двоеточия
+и не задана ни одна из опций
+.Ql Fl P ,
+.Ql Fl m ,
+.Ql Fl f
+или
+.Ql Fl n ,
+аргумент пробы разумно сопоставляется с наиболее вероятным значением.
+Используйте
+.Ql Nm Fl l Ar name ,
+чтобы увидеть, какие пробы соответствуют заданному имени.
+.Pp
+Несколько проб должны быть заданы как один
+.Pq в кавычках
+аргумент,
+разделённый запятыми и/или пробелами.
+Все аргументы, следующие за указанными пробами, будут переданы в
+.Xr dtrace 1
+без изменений.
+.Bl -tag -width indent
+.It Fl 1
+Выводить одну строку на процесс/профиль
+.Pq по умолчанию; отключает Ql Fl R .
+.It Fl B Ar num
+Максимальное число отображаемых аргументов
+.Pq по умолчанию 64 .
+.It Fl d
+Отладка.
+Отправлять сценарий
+.Xr dtrace 1
+в стандартный вывод вместо выполнения.
+.It Fl e
+Выйти после компиляции запроса, но до включения проб.
+.It Fl E Ar code
+Код DTrace
+.Ar code
+для сведений о событии.
+Если указан `-',
+читать со стандартного ввода.
+Это позволяет настроить, что выводится после даты/времени и сведений о процессе.
+По умолчанию показываются имя и аргументы программы, активировавшей пробу.
+Может указываться несколько раз.
+.It Fl f
+Включить пробы, соответствующие указанным именам функций.
+.It Fl F
+Объединять вывод трассировки по пробе.
+.It Fl g Ar group
+Фильтр по группе.
+Показывать только процессы, соответствующие имени/gid
+.Ar group .
+Это может быть регулярное выражение
+.Xr awk 1
+для сопоставления числового gid.
+.It Fl j Ar jail
+Фильтр по клетке.
+Показывать только процессы, соответствующие имени/jid
+.Ar jail .
+.It Fl k Ar name
+Показывать только процессы, соответствующие
+.Ar name .
+Это также может быть формат
+.Ql Li name*
+для указания
+.Dq Li начинается с ,
+.Ql Li *name
+для указания
+.Dq Li заканчивается на ,
+или
+.Ql Li *name*
+для указания
+.Dq Li содержит .
+Может указываться несколько раз.
+.It Fl K Ar num
+Максимальная глубина каталога для отображения
+.Pq по умолчанию 64 .
+.It Fl l
+Вывести доступные пробы в стандартный вывод и завершиться.
+.It Fl m
+Включить пробы, соответствующие указанным именам модулей.
+.It Fl X Ar profile
+Загрузить профиль из DWATCH_PROFILES_PATH.
+.It Fl n
+Включить пробы, соответствующие указанным именам проб.
+.It Fl N Ar count
+Выйти после
+.Ar count
+совпадающих записей
+.Pq по умолчанию 0 означает отключено .
+.It Fl o Ar file
+Задать выходной файл.
+Если указано
+.Ql Li - ,
+используется путь
+.Ql Li /dev/stdout .
+.It Fl O Ar cmd
+Выполнять
+.Ar cmd
+для каждого события.
+Это может быть любая допустимая команда
+.Xr sh 1 .
+Для заданной команды
+.Ar cmd
+устанавливаются переменные окружения
+.Ql Li $TAG
+и
+.Ql Li $DETAILS .
+.It Fl p Ar pid
+Фильтр по идентификатору процесса.
+Показывать только процессы с соответствующим
+.Ar pid .
+Это может быть регулярное выражение
+.Xr awk 1 .
+.It Fl P
+Включить пробу, соответствующую указанному имени провайдера.
+.It Fl q
+Тихий режим.
+Скрывать информационные сообщения и все ошибки dtrace(1).
+.It Fl Q
+Вывести доступные профили в DWATCH_PROFILES_PATH и завершиться.
+.It Fl r Ar regex
+Фильтр.
+Показывать только блоки, соответствующие регулярному выражению
+.Xr awk 1 .
+.It Fl R
+Показывать сведения о родительском,
+прародительском
+и предковом процессах.
+.It Fl t Ar test
+Проверочное условие
+.Pq предикат
+для ограничения событий
+.Pq по умолчанию нет .
+Может указываться несколько раз.
+.It Fl T Ar time
+Тайм-аут.
+Формат:
+.Ql Li #[smhd]
+или просто
+.Ql Li #
+в секундах.
+.It Fl u Ar user
+Фильтр по пользователю.
+Показывать только процессы, соответствующие имени/uid
+.Ar user .
+Это может быть регулярное выражение
+.Xr awk 1
+для сопоставления числового UID.
+.It Fl v
+Подробный режим.
+Показывать все ошибки от
+.Xr dtrace 1 .
+.It Fl V
+Вывести версию
+.Nm
+в стандартный вывод и завершиться.
+.It Fl w
+Разрешить разрушительные действия
+.Pq copyout*, stop, panic, и т. д. .
+.It Fl x
+Трассировка.
+Выводить
+.Ql Li <probe-id>
+при срабатывании пробы.
+.It Fl y
+Всегда рассматривать стандартный вывод как консоль
+.Pq включить цвета/столбцы/и т. д. .
+.It Fl z Ar regex
+Показывать только процессы, соответствующие регулярному выражению
+.Xr awk 1 .
+.El
+.Sh ПРОФИЛИ
+Профили настраивают данные, выводимые во время событий.
+Профили загружаются из списка каталогов, разделённых двоеточиями, в
+.Ev DWATCH_PROFILES_PATH .
+Это неполный список профилей с краткими описаниями:
+.Bl -tag -width indent
+.It chmod
+Выводить режим и путь из
+.Xr chmod 2 ,
+.Xr lchmod 2 ,
+.Xr fchmodat 2
+.It errno
+Выводить ненулевые результаты errno из системных вызовов
+.It io
+Выводить сведения о дисковом вводе-выводе, предоставляемые
+.Xr dtrace_io 4
+.It ip
+Выводить сведения IPv4 и IPv6, предоставляемые
+.Xr dtrace_ip 4
+.It kill
+Выводить сигнал и pid из
+.Xr kill 2
+.It nanosleep
+Выводить запрошенное время из
+.Xr nanosleep 2
+.It open
+Выводить путь из
+.Xr open 2 ,
+.Xr openat 2
+.It proc
+Выводить сведения о выполнении процесса, предоставляемые
+.Xr dtrace_proc 4
+.It proc-signal
+Выводить сведения о сигналах процесса, предоставляемые
+.Xr dtrace_proc 4
+.It rw
+Выводить содержимое буфера из
+.Xr read 2 ,
+.Xr write 2
+.It sched
+Выводить сведения о планировании ЦП, предоставляемые
+.Xr dtrace_sched 4
+.It tcp
+Выводить сведения об адресе/порте TCP, предоставляемые
+.Xr dtrace_tcp 4
+.It tcp-io
+Выводить сведения о вводе-выводе TCP, предоставляемые
+.Xr dtrace_tcp 4
+.It udp
+Выводить сведения о вводе-выводе UDP, предоставляемые
+.Xr dtrace_udp 4
+.It vop_create
+Выводить пути файловой системы, создаваемые с помощью
+.Xr VOP_CREATE 9
+.It vop_lookup
+Выводить пути файловой системы, которые ищутся с помощью
+.Xr VOP_LOOKUP 9
+.It vop_mkdir
+Выводить пути каталогов, создаваемые с помощью
+.Xr VOP_MKDIR 9
+.It vop_mknod
+Выводить пути узлов устройств, создаваемые с помощью
+.Xr VOP_MKNOD 9
+.It vop_readdir
+Выводить пути каталогов, читаемые с помощью
+.Xr VOP_READDIR 9
+.It vop_remove
+Выводить пути файловой системы, удаляемые с помощью
+.Xr VOP_REMOVE 9
+.It vop_rename
+Выводить пути файловой системы, переименовываемые с помощью
+.Xr VOP_RENAME 9
+.It vop_rmdir
+Выводить пути каталогов, удаляемые с помощью
+.Xr VOP_RMDIR 9
+.It vop_symlink
+Выводить пути символических ссылок, создаваемые с помощью
+.Xr VOP_SYMLINK 9
+.El
+.Sh ОКРУЖЕНИЕ
+Эти переменные окружения влияют на выполнение
+.Nm :
+.Bl -tag -width indent
+.It Ev DWATCH_PROFILES_PATH
+Если
+.Ev DWATCH_PROFILES_PATH
+задана,
+.Nm
+ищет профили в списке каталогов, разделённых двоеточиями, в этой переменной вместо значения по умолчанию
+.Ql Li /usr/libexec/dwatch:/usr/local/libexec/dwatch .
+Если задано значение NULL,
+профили не загружаются.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Наблюдать за процессами, поступающими в системный планировщик ЦП.
+.Bd -literal -offset indent
+dwatch on-cpu
+.Ed
+.Pp
+Вывести доступные профили по одному в строке.
+.Bd -literal -offset indent
+dwatch -1 -Q
+.Ed
+.Pp
+Не выполнять
+.Xr dtrace 1 ,
+а вывести сценарий в стандартный вывод и завершиться.
+.Bd -literal -offset indent
+dwatch -d fsync
+.Ed
+.Pp
+Скомпилировать и проверить, но не выполнять код, сгенерированный для заданной пробы.
+.Bd -literal -offset indent
+dwatch -e test_probe
+.Ed
+.Pp
+Выводить первый аргумент, передаваемый в каждый вызов zfs_sync().
+.Bd -literal -offset indent
+.Ed
+.Pp
+Наблюдать за всеми функциями с именем
+.Ql Li read .
+.Bd -literal -offset indent
+dwatch -f read
+.Ed
+.Pp
+Наблюдать за всем обходом проб.
+.Bd -literal -offset indent
+dwatch -F :
+.Ed
+.Pp
+Наблюдать за обходом проб системных вызовов.
+.Bd -literal -offset indent
+dwatch -F syscall
+.Ed
+.Pp
+Показывать только процессы, принадлежащие супергруппе wheel.
+.Bd -literal -offset indent
+dwatch -g wheel execve
+.Ed
+.Pp
+Показывать только процессы, принадлежащие группам
+.Ql Li daemon
+или
+.Ql Li nobody .
+.Bd -literal -offset indent
+dwatch -g '1|65534' execve
+.Ed
+.Pp
+Игнорировать клетки,
+показывая только процессы базовой системы.
+.Bd -literal -offset indent
+dwatch -j 0 execve
+.Ed
+.Pp
+Показывать только процессы, работающие внутри клетки с именем
+.Ql Li myjail .
+.Bd -literal -offset indent
+dwatch -j myjail execve
+.Ed
+.Pp
+Наблюдать за обходом системных вызовов процессами ruby.
+.Bd -literal -offset indent
+dwatch -k 'ruby*' -F syscall
+.Ed
+.Pp
+Наблюдать за обходом системных вызовов процессами, содержащими
+.Ql Li daemon
+в своём имени.
+.Bd -literal -offset indent
+dwatch -k '*daemon*' -F syscall
+.Ed
+.Pp
+Наблюдать за сигналами, передаваемыми в
+.Xr kill 2 .
+.Bd -literal -offset indent
+dwatch -X kill
+.Ed
+.Pp
+Наблюдать за сигналами, передаваемыми между
+.Xr bash 1 Pq Pa ports/shells/bash
+и
+.Xr vi 1 .
+.Bd -literal -offset indent
+dwatch -k bash -k vi -X kill
+.Ed
+.Pp
+Вывести список доступных уникальных функций.
+.Bd -literal -offset indent
+dwatch -l -f
+.Ed
+.Pp
+Вывести доступные пробы для функций, оканчивающихся на
+.Ql Li read .
+.Bd -literal -offset indent
+dwatch -l -f '*read'
+.Ed
+.Pp
+Вывести доступные пробы, оканчивающиеся на
+.Dq Li read .
+.Bd -literal -offset indent
+dwatch -l -r 'read$'
+.Ed
+.Pp
+Вывести список уникальных провайдеров.
+.Bd -literal -offset indent
+dwatch -l -P
+.Ed
+.Pp
+Наблюдать за путями, удаляемыми с помощью
+.Xr VOP_REMOVE 9 .
+.Bd -literal -offset indent
+dwatch -X vop_remove
+.Ed
+.Pp
+Наблюдать за именем
+.Ql Li read
+вместо функции
+.Ql Li read .
+Алгоритм выбора
+.Nm
+обычно отдаёт предпочтение функции с именем
+.Ql Li read ,
+если тип не задан
+.Pq с помощью So Fl P Sc , So Fl m Sc , So Fl f Sc , или So Fl n Sc ,
+поскольку существует больше проб, соответствующих функции с именем
+.Ql Li read ,
+чем проб, соответствующих
+.Ql Li read
+для любого другого типа.
+.Bd -literal -offset indent
+dwatch -n read
+.Ed
+.Pp
+Показать первый процесс, вызвавший
+.Xr kill 2 ,
+и затем завершиться.
+.Bd -literal -offset indent
+dwatch -N 1 kill
+.Ed
+.Pp
+Наблюдать за процессами, порождёнными pid 1234.
+.Bd -literal -offset indent
+dwatch -p 1234 execve
+.Ed
+.Pp
+Наблюдать за процессами, порождёнными pid 1234 или pid 5678.
+.Bd -literal -offset indent
+dwatch -p '1234|5678' execve
+.Ed
+.Pp
+Наблюдать за провайдером
+.Ql Li random
+вместо функции
+.Ql Li random .
+Алгоритм выбора
+.Nm
+обычно отдаёт предпочтение функции с именем
+.Ql Li random ,
+если тип не задан
+.Pq с помощью So Fl P Sc , So Fl m Sc , So Fl f Sc , или So Fl n Sc ,
+поскольку существует больше проб, соответствующих функции с именем
+.Ql Li random ,
+чем проб, соответствующих провайдеру с именем
+.Ql Li random .
+.Bd -literal -offset indent
+dwatch -P random
+.Ed
+.Pp
+Показать доступные профили, соответствующие
+.Ql Li vop .
+.Bd -literal -offset indent
+dwatch -Q -r vop
+.Ed
+.Pp
+Наблюдать за путями
+.Xr VOP_LOOKUP 9 ,
+содержащими
+.Ql Li /lib/ .
+.Bd -literal -offset indent
+dwatch -r /lib/ -X vop_lookup
+.Ed
+.Pp
+Показывать дерево процессов для каждой команды при её выполнении.
+.Bd -literal -offset indent
+dwatch -R execve
+.Ed
+.Pp
+Наблюдать за процессами, порождёнными pid 1234, или их дочерними процессами.
+.Bd -literal -offset indent
+dwatch -R -p 1234 execve
+.Ed
+.Pp
+Показывать процессы, вызывающие
+.Xr write 2
+с
+.Dq nbytes
+меньше 10.
+.Bd -literal -offset indent
+.Ed
+.Pp
+Показывать буфер
+.Xr write 2 ,
+когда
+.Dq execname
+не равно
+.Ql Li dtrace
+и
+.Dq nbytes
+меньше 10.
+.Bd -literal -offset indent
+.Ed
+.Pp
+Наблюдать за
+.Ql Li statfs
+в течение 5 минут и завершиться.
+.Bd -literal -offset indent
+dwatch -T 5m statfs
+.Ed
+.Pp
+Показывать только процессы, принадлежащие суперпользователю root.
+.Bd -literal -offset indent
+dwatch -u root execve
+.Ed
+.Pp
+Показывать только процессы, принадлежащие пользователям
+.Ql Li daemon
+или
+.Ql Li nobody .
+.Bd -literal -offset indent
+dwatch -u '1|65534' execve
+.Ed
+.Pp
+Вывести версию и завершиться.
+.Bd -literal -offset indent
+dwatch -V
+.Ed
+.Pp
+Просмотреть первые 100 вытеснений планировщика.
+.Bd -literal -offset indent
+dwatch -y -N 100 preempt | less -R
+.Ed
+.Pp
+Показывать процессы, соответствующие
+.Dq Li mkdir
+или
+.Dq Li rmdir .
+.Bd -literal -offset indent
+dwatch -z '(mk|rm)dir' execve
+.Ed
+.Pp
+Запустить команду и наблюдать за сетевой активностью только во время работы этой команды.
+.Bd -literal -offset indent
+.Ed
+.Pp
+Наблюдать за вызовами
+.Xr open 2
+и
+.Xr openat 2
+только пока pid 1234 активен.
+.Bd -literal -offset indent
+dwatch -X open -- -p 1234
+.Ed
+.Pp
+Наблюдать за обходом проб для заданной команды.
+Обратите внимание, что
+.Dq Li -c true
+передаётся в
+.Xr dtrace 1 ,
+поскольку он указан после аргумента пробы
+.Nm .
+.Bd -literal -offset indent
+dwatch -F 'pid$target:::entry' -c true
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr dtrace 1
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 11.2 .
+.Sh АВТОРЫ
+.An Devin Teske Aq Mt dteske@FreeBSD.org

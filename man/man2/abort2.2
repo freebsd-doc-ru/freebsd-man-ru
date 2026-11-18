@@ -1,0 +1,114 @@
+.\" Copyright (c) 2005 Wojciech A. Koszek <dunstan@FreeBSD.czest.pl>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/abort2.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 cd88fce9d16342f5a2d59dc662c6b2bb64d65b5d47521c530505d52297dcee0b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 30, 2006
+.Dt ABORT2 2
+.Os
+.Sh ИМЯ
+.Nm abort2
+.Nd "прервать процесс с диагностикой"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In stdlib.h
+.Ft void
+.Fn abort2 "const char *why" "int nargs" "void **args"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn abort2
+приводит к завершению процесса, а указанное диагностическое
+сообщение (с аргументами) доставляется ядром
+демону
+.Xr syslogd 8 .
+.Pp
+Аргумент
+.Fa why
+указывает на строку, завершающуюся
+.Dv NUL- Ns ,
+задающую причину завершения программы
+(максимальная длина 128 символов).
+Массив
+.Fa args
+содержит указатели, которые будут зарегистрированы в числовом виде
+(с использованием формата
+.Ql %p
+.Xr printf 9
+ядра).
+Аргумент
+.Fa nargs
+задаёт количество указателей в
+.Fa args
+(максимум 16).
+.Pp
+Системный вызов
+.Fn abort2
+предназначен для использования в ситуациях, когда продолжение процесса
+невозможно или по другим окончательным причинам нежелательно, а обычным
+диагностическим каналам нельзя доверить доставку сообщения.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Функция
+.Fn abort2
+никогда не возвращает управление.
+.Pp
+Процесс завершается сигналом
+.Dv SIGABRT ,
+если только аргументы
+.Fn abort2
+не являются недопустимыми, в этом случае
+используется
+.Dv SIGKILL .
+.Sh ПРИМЕРЫ
+.Bd -literal -compact
+#include <stdlib.h>
+
+if (weight_kg > max_load) {
+	void *ptrs[3];
+
+	ptrs[0] = (void *)(intptr_t)weight_kg;
+	ptrs[1] = (void *)(intptr_t)max_load;
+	ptrs[2] = haystack;
+	abort2("Camel overloaded", 3, ptrs);
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr abort 3 ,
+.Xr exit 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn abort2
+впервые появился в
+.Fx 7.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Системный вызов
+.Fn abort2
+был разработан
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org .
+Он был реализован
+.An Wojciech A. Koszek Aq Mt dunstan@freebsd.czest.pl .

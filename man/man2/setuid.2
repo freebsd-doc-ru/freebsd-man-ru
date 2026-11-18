@@ -1,0 +1,163 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/setuid.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 6877a8360859fe6174e425383bef312ee2bbcb3c1146d40f64f57b898345024e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 15, 2015
+.Dt SETUID 2
+.Os
+.Sh ИМЯ
+.Nm setuid ,
+.Nm seteuid ,
+.Nm setgid ,
+.Nm setegid
+.Nd установка идентификаторов пользователя и группы
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn setuid "uid_t uid"
+.Ft int
+.Fn seteuid "uid_t euid"
+.Ft int
+.Fn setgid "gid_t gid"
+.Ft int
+.Fn setegid "gid_t egid"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn setuid
+устанавливает реальный и эффективный
+идентификаторы пользователя и сохранённый идентификатор set-user-ID текущего процесса
+в указанное значение.
+Системный вызов
+.Fn setuid
+разрешён, если указанный идентификатор совпадает с реальным идентификатором пользователя
+или эффективным идентификатором пользователя
+процесса, либо если эффективный идентификатор пользователя принадлежит суперпользователю.
+.Pp
+Системный вызов
+.Fn setgid
+устанавливает реальный и эффективный
+идентификаторы группы и сохранённый идентификатор set-group-ID текущего процесса
+в указанное значение.
+Системный вызов
+.Fn setgid
+разрешён, если указанный идентификатор совпадает с реальным идентификатором группы
+или эффективным идентификатором группы
+процесса, либо если эффективный идентификатор пользователя принадлежит суперпользователю.
+.Pp
+Системный вызов
+.Fn seteuid
+.Pq Fn setegid
+устанавливает эффективный идентификатор пользователя (группы) текущего
+процесса.
+Эффективный идентификатор пользователя может быть установлен в значение
+реального идентификатора пользователя или сохранённого идентификатора set-user-ID (см.
+.Xr intro 2
+и
+.Xr execve 2 ) ;
+таким образом, эффективный идентификатор пользователя исполняемого файла с set-user-ID
+может быть переключён на реальный идентификатор пользователя, а затем снова включён
+обратным переключением на значение set-user-ID.
+Аналогично, эффективный идентификатор группы может быть установлен в значение
+реального идентификатора группы или сохранённого идентификатора set-group-ID.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы завершатся неудачей, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Пользователь не является суперпользователем и указанный идентификатор
+не является реальным, эффективным или сохранённым идентификатором.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getgid 2 ,
+.Xr getuid 2 ,
+.Xr issetugid 2 ,
+.Xr setregid 2 ,
+.Xr setreuid 2
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn setuid
+и
+.Fn setgid
+соответствуют спецификации
+.St -p1003.1-90
+при условии, что
+.Li _POSIX_SAVED_IDS
+не
+определён, с разрешёнными расширениями из Приложения B.4.2.2.
+Системные вызовы
+.Fn seteuid
+и
+.Fn setegid
+являются расширениями, основанными на
+.Tn POSIX
+концепции
+.Li _POSIX_SAVED_IDS ,
+и были предложены для будущей редакции стандарта.
+.Sh ИСТОРИЯ
+Функция
+.Fn setuid
+появилась в
+.At v1 .
+Функция
+.Fn setgid
+появилась в
+.At v4 .
+.Sh ВОПРОСЫ БЕЗОПАСНОСТИ
+Права на чтение и запись файлов определяются при вызове
+.Xr open 2 .
+После того как файловый дескриптор открыт, сброс привилегий не влияет
+на права процесса на чтение и запись, даже если указанный идентификатор пользователя
+не имеет прав на чтение или запись в файл.
+Эти файлы обычно остаются открытыми в любом новом запущенном процессе,
+что позволяет пользователю читать или изменять
+потенциально конфиденциальные данные.
+.Pp
+Чтобы предотвратить сохранение этих файлов открытыми после вызова
+.Xr exec 3 ,
+обязательно установите флаг закрытия при exec:
+.Bd -literal
+void
+pseudocode(void)
+{
+	int fd;
+	/* ... */
+
+	fd = open("/path/to/sensitive/data", O_RDWR | O_CLOEXEC);
+	if (fd == -1)
+		err(1, "open");
+
+	/* ... */
+	execve(path, argv, environ);
+}
+.Ed

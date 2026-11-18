@@ -1,0 +1,243 @@
+.\"
+.\" Copyright (c) 2018-2026 Mateusz Piotrowski <0mp@FreeBSD.org>
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path share/man/man5/style.mdoc.5
+.\" FRDP githash 1db695e37ad276282c63d8fc78424afdf10f530f
+.\" FRDP hash256 20ac18408a16617d6b720927ef63de558538643a76da8eac3ad5faea1c8d2b22
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 13, 2026
+.Dt STYLE.MDOC 5
+.Os
+.Sh ИМЯ
+.Nm style.mdoc
+.Nd руководство по стилю справочных страниц FreeBSD
+.Sh ОПИСАНИЕ
+В этом файле описывается предпочтительный стиль справочных страниц в
+дереве исходного кода
+.Fx
+.
+.Ss Раздел ИМЯ
+.Bl -bullet
+.It
+Не заключайте в кавычки описание документа, передаваемое макросу
+.Sy \&.Nd
+.
+.El
+.Ss Примеры кода
+.Bl -bullet
+.It
+Используйте литеральное форматирование для примеров и литеральных команд оболочки, например:
+.Bd -literal -offset indent
+Затем выполните
+\&.Ql make install clean .
+.Ed
+.Pp
+что отображается как:
+.Bd -filled -offset indent
+Затем выполните
+.Ql make install clean .
+.Ed
+.Pp
+Неправильным способом было бы использовать такие макросы, как
+.Sy \&Nm
+для стилизации вызова команды:
+.Bd -literal -offset indent
+Затем выполните
+\&.Ql Nm make Cm install Cm clean .
+.Ed
+.Pp
+что отображается как:
+.Bd -filled -offset indent
+Затем выполните
+.Ql Nm make Cm install Cm clean .
+.Ed
+.Pp
+Это загрязняет базу данных
+.Xr whatis 1
+и приводит к тому, что
+.Ql whatis clean
+неправильно показывает страницу, в которой это было написано.
+.El
+.Ss Заголовок авторских прав
+См.
+.Xr style 9 .
+.Ss Раздел HARDWARE
+Справочные страницы драйверов в четвертом разделе должны иметь раздел
+.Sx HARDWARE
+описывающий оборудование, которое, как известно, работает с драйвером.
+Этот раздел дословно включается в Release Hardware Notes,
+поэтому следует отметить несколько моментов:
+.Bl -bullet
+.It
+Вводное предложение должно иметь следующий вид:
+.Bd -literal -offset indent
+Драйвер
+\&.Nm
+поддерживает следующие $device_class:
+.Ed
+.Pp
+За ним следует список поддерживаемого оборудования.
+.Pp
+Это определяет, к какому драйверу относится подраздел,
+и позволяет читателю искать в Hardware Notes
+не только модели устройств, которые у него есть,
+но и тип устройства, который он собирается приобрести.
+.It
+Поддерживаемое оборудование следует перечислить в виде маркированного списка,
+или, если сложность требует, в виде списка в колонках.
+Эти два типа списков создают очень аккуратные подразделы
+с четкими началом и концом.
+.El
+.Ss Раздел ПРИМЕРЫ
+.Bl -bullet
+.It
+Форматируйте раздел
+.Sx ПРИМЕРЫ
+следующим образом:
+.Bd -literal -offset indent
+\&.Bl -tag -width 0n
+\&.It Sy Пример 1\\&: Выполнение действия
+\&.Pp
+Следующая команда выполняет некоторое действие.
+\&.Bd -literal -offset 2n
+\&.Ic # make -VLEGAL
+\&.Ed
+\&.It Sy Пример 2\\&: Выполнение другого действия
+\&.Pp
+Следующая команда выполняет другое действие.
+\&.Bd -literal -offset 2n
+\&.Ic # bectl list
+\&.Ed
+\&.Pp
+Полезно знать эту команду.
+\&.El
+.Ed
+.Pp
+что отображается как:
+.Bl -tag -width 0n
+.It Sy Пример 1\&: Выполнение действия
+.Pp
+Следующая команда выполняет некоторое действие.
+.Bd -literal -offset 2n
+.Ic # make -VLEGAL
+.Ed
+.It Sy Пример 2\&: Выполнение другого действия
+.Pp
+Следующая команда выполняет другое действие.
+.Bd -literal -offset 2n
+.Ic # bectl list
+.Ed
+.Pp
+Полезно знать эту команду.
+.El
+.El
+.Ss Списки
+.Bl -bullet
+.It
+Аргумент
+.Fl width
+макроса
+.Sy \&.Bl
+должен соответствовать длине самого длинного отображаемого элемента списка,
+например:
+.Bd -literal -offset indent
+\&.It Fl a Ar адрес
+Задать адрес.
+\&.It Fl v
+Вывести версию.
+\&.El
+.Ed
+.Pp
+Если самый длинный элемент слишком длинный и ухудшает читаемость,
+рекомендуется задать
+аргумент
+.Fl width
+равным
+.Ql indent ,
+например:
+.Bd -literal -offset indent
+\&.It Cm build
+Собрать порт.
+\&.It Cm install
+Установить порт.
+\&.It Fl install-missing-packages
+Установить отсутствующие пакеты.
+\&.El
+.Ed
+.El
+.Ss Кавычки
+.Bl -bullet
+.It
+Используйте макрос
+.Sy \&Dq
+.Pq Do Dc
+для кавычек.
+Используйте макрос
+.Sy \&Sq
+.Pq So Sc
+для кавычек внутри кавычек.
+Использование макроса
+.Sy \&Qq
+.Pq Qo Qc
+обычно не требуется.
+.El
+.Ss Переменные
+.Bl -bullet
+.It
+Используйте
+.Sy \&Va
+вместо
+.Sy \&Dv
+для переменных
+.Xr sysctl 8
+, таких как
+.Va kdb.enter.panic .
+.It
+Используйте макрос угловых скобок
+.Sy \&Aq
+.Pq Dq Ao Ac
+для аргументов
+.Pq Sy \&Ar
+в сочетании с аналогично стилизованными макросами, такими как
+.Sy \&Pa
+или
+.Sy \&Va ,
+например:
+.Bd -literal -offset indent
+\&.Va critical_filesystems_ Ns Aq Ar тип
+.Ed
+.Pp
+что отображается как:
+.Bd -filled -offset indent
+.Va critical_filesystems_ Ns Aq Ar тип
+.Ed
+.Pp
+вместо:
+.Bd -literal -offset indent
+\&.Va critical_filesystems_ Ns Ar тип
+.Ed
+.Pp
+что отобразилось бы как:
+.Bd -filled -offset indent
+.Va critical_filesystems_ Ns Ar тип
+.Ed
+.El
+.Sh ФАЙЛЫ
+.Bl -bullet
+.It /usr/share/examples/mdoc/
+Примеры написания справочных страниц.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr man 1 ,
+.Xr mandoc 1 ,
+.Xr mdoc 7 ,
+.Xr roff 7 ,
+.Xr style 9
+.Sh ИСТОРИЯ
+Эта справочная страница впервые появилась в
+.Fx 13.0 .
+.Sh АВТОРЫ
+.An Mateusz Piotrowski Aq Mt 0mp@FreeBSD.org

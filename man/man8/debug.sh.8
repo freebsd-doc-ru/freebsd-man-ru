@@ -1,0 +1,192 @@
+.\" Copyright (c) 1994-2021 Simon J. Gerraty
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" This file is provided in the hope that it will
+.\" be of use.  There is absolutely NO WARRANTY.
+.\" Permission to copy, redistribute or otherwise
+.\" use this file is hereby granted provided that
+.\" the above copyright notice and this notice are
+.\" left intact.
+.\"
+.\" Please send copies of changes and bug-fixes to:
+.\" sjg@crufty.net
+.\"
+.\" FRDP path share/man/man8/debug.sh.8
+.\" FRDP githash 7efa58928cc48de56ffb6fc142a1daf3a3557376
+.\" FRDP hash256 96ecd65f33448e7fa2c10cd3247b7ec06e6ee06356b07e9cc00849597cd154ac
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 22, 2024
+.Dt DEBUG.SH 8
+.Os
+.Sh ИМЯ
+.Nm debug.sh
+.Nd выборочная отладка сценариев
+.Sh СИНТАКСИС
+.Bl -item -compact
+.It
+.Ic $_DEBUG_SH .\& Pa debug.sh
+.Pp
+.It
+.Ic DebugOn Oo Fl eo Oc Ar тег ...
+.It
+.Ic DebugOff Oo Fl eo Oc Oo Cm rc= Ns Ar код_возврата Oc Ar тег ...
+.It
+.Ic Debugging
+.It
+.Ic DebugAdd Ar тег
+.It
+.Ic DebugEcho Op Ar сообщение
+.It
+.Ic DebugLog Op Ar сообщение
+.It
+.Ic DebugShell Ar тег ...
+.It
+.Ic DebugTrace Ar сообщение
+.It
+.Ic Debug Ar тег ...
+.El
+.Sh ОПИСАНИЕ
+.Nm
+предоставляет следующие функции для облегчения гибкой
+трассировки сложных сценариев оболочки во время выполнения.
+.Bl -tag -width 4n
+.It Ic DebugOn Oo Fl eo Oc Ar тег ...
+включает трассировку, если какой-либо
+.Ar тег
+найден в
+.Va DEBUG_SH
+(список тегов, разделённых запятыми).
+.Pp
+Она отключает трассировку, если
+.Ar !тег
+найден в
+.Va DEBUG_SH .
+.Pp
+Она устанавливает
+.Va DEBUG_ON
+в значение
+.Ar тег,
+который вызвал включение трассировки, или
+.Va DEBUG_OFF,
+если совпал
+.Ar !тег .
+.Pp
+Если присутствует опция
+.Fl e,
+возвращает 1, если ни один
+.Ar тег
+не совпал.
+.Pp
+Если присутствует опция
+.Fl o,
+трассировка отключается, если только не был
+найден совпавший
+.Ar тег ;
+это полезно для функций, слишком шумных для трассировки.
+.It Ic DebugOff Oo Fl eo Oc Oo Cm rc= Ns Ar код_возврата Oc Ar тег ...
+включает трассировку, если какой-либо
+.Ar тег
+совпадает с
+.Va DEBUG_OFF,
+или отключает, если какой-либо
+.Ar тег
+совпадает с
+.Va DEBUG_ON .
+Это позволяет вложенным функциям не мешать друг другу.
+.Pp
+Флаги
+.Fl e
+и
+.Fl o
+игнорируются; они просто обеспечивают симметрию с вызовами
+.Fn DebugOn .
+.Pp
+Необязательное значение
+.Ar код_возврата
+будет возвращено вместо значения по умолчанию 0.
+Таким образом, если
+.Fn DebugOff
+является последней операцией в функции,
+.Ar код_возврата
+будет кодом возврата функции.
+.It Ic Debugging
+возвращает истину, если трассировка включена.
+Это полезно для ограничения сложных отладочных действий вместо
+использования множества строк
+.Ic $DEBUG_DO .
+.It Ic DebugAdd Ar тег
+Добавляет
+.Ar тег
+в
+.Va DEBUG_SH,
+чтобы повлиять на последующий вывод,
+возможно, в дочернем процессе.
+.It Ic DebugEcho
+— это просто сокращение для:
+.Bd -literal -offset indent
+.Ed
+.It Ic DebugLog Op Ar сообщение
+Если отладка включена, выводит
+.Ar сообщение
+с префиксом в виде отметки времени.
+.It Ic DebugShell Ar тег ...
+запускает интерактивную оболочку, если какой-либо
+.Ar тег
+найден в
+.Va DEBUG_INTERACTIVE
+и доступен tty.
+Используемая оболочка определяется
+.Va DEBUG_SHELL
+или
+.Va SHELL
+и по умолчанию равна
+.Pa /bin/sh .
+.It Ic DebugTrace Ar сообщение
+Отладочный вывод может быть очень шумным, и его бывает сложно
+соотнести со сценарием.
+Эта функция выводит очень заметный баннер, указывающий значение
+.Va DEBUG_ON ,
+а
+.Ar сообщение
+передаётся в
+.Fn DebugLog ;
+затем баннер повторяется.
+.It Ic Debug Ar тег ...
+Для обратной совместимости вызывает
+.Fn DebugOn ,
+и если это не включает трассировку,
+вызывает
+.Fn DebugOff ,
+чтобы отключить её.
+.El
+.Pp
+Переменные
+.Va DEBUG_SKIP
+и
+.Va DEBUG_DO
+устанавливаются так, чтобы включать/отключать код, который должен быть
+пропущен/выполнен при включении отладки.
+.Va DEBUGGING
+совпадает с
+.Va DEBUG_SKIP
+для обратной совместимости и устанавливается только функцией
+.Fn Debug .
+.Pp
+Использование
+.Ic $_DEBUG_SH
+предназначено для предотвращения многократного включения,
+хотя в этом случае оно не причиняет вреда.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Не работает с некоторыми версиями
+.Xr ksh 1 .
+Если функция включает трассировку, ksh отключает её при
+возврате из функции — бесполезно.
+.Pp
+PD ksh работает нормально ;-)
+.Sh АВТОР
+.An -nosplit
+.Nm
+написан
+.An Simon J Gerraty Aq Mt sjg@crufty.net .

@@ -1,0 +1,164 @@
+.\" Copyright (c) 1996 Wolfram Schneider <wosch@FreeBSD.org>. Berlin.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/tzsetup/tzsetup.8
+.\" FRDP githash c6030b380469f928c8cae87ed53bcb234cb3486f
+.\" FRDP hash256 1c6c07c43b842a010960fc71060d0a21c3b842c7e34cdcb336c2558495c85815
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 14, 2024
+.Dt TZSETUP 8
+.Os
+.Sh ИМЯ
+.Nm tzsetup
+.Nd установить местный часовой пояс
+.Sh СИНТАКСИС
+.Nm
+.Op Fl nrs
+.Op Fl C Ar каталог_chroot
+.Op Ar файл_zoneinfo | имя_zoneinfo
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает базу данных информации о часовых поясах и представляет меню,
+позволяющее пользователю выбрать конкретный пояс, не зная подробностей
+структуры базы данных.
+Выбранный пояс устанавливается как системный
+пояс по умолчанию.
+Утилита
+.Nm
+также определяет, нужна ли корректировка для систем, в которых
+аппаратные часы не хранят время в UTC.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -offset indent -width Fl
+.It Fl C Ar каталог_chroot
+Открывать все файлы и каталоги относительно
+.Ar каталог_chroot .
+.It Fl n
+Не создавать файлы и не создавать символические ссылки.
+.It Fl r
+Переустановить файл zoneinfo, установленный в последний раз.
+Имя берётся из
+.Pa /var/db/zoneinfo .
+.It Fl s
+Пропустить начальный вопрос о корректировке часов, если они не установлены в UTC.
+.Nm
+не будет ни создавать, ни удалять
+.Pa /etc/wall_cmos_clock .
+В только что установленной системе аппаратные часы будут хранить время в UTC.
+.El
+.Pp
+Можно обойти систему меню, указав расположение
+.Ar файл_zoneinfo
+или имя
+.Ar имя_zoneinfo
+в командной строке; это предназначено в основном для предварительно настроенных установочных
+сценариев или людей, которые знают, какой zoneinfo они хотят установить.
+.Sh БАЗА ДАННЫХ ЧАСОВЫХ ПОЯСОВ
+Содержимое базы данных часовых поясов индексируется с помощью
+.Pa /usr/share/zoneinfo/zone1970.tab .
+Этот файл перечисляет для каждого файла данных часового пояса код территории ISO 3166,
+приблизительные географические координаты (в формате ISO 6709)
+и местоположение в пределах территории.
+.Pp
+Сопровождающие базы данных придерживаются следующих правил:
+.Bl -enum -offset indent
+.It
+Как минимум одна зона для каждой страны или обитаемой географической территории.
+.It
+Одна зона для каждой отдельной документированной истории часового пояса с
+начала эпохи
+.Ux
+(1 января 1970 г., GMT).
+.It
+Каждая зона названа в честь самого населённого города в ней.
+(Где возможно,
+база данных включает историю до 1970 года для своего города.)
+.El
+.Pp
+Исходный код базы данных
+.Pq Pa /usr/src/contrib/tzdata/[a-z]*
+содержит множество дополнительных комментариев и ссылок на документацию для
+интересующихся историей.
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /usr/share/zoneinfo/zone1970.tab" -compact
+.It Pa /etc/localtime
+текущий файл часового пояса
+.It Pa /etc/wall_cmos_clock
+см.
+.Xr adjkerntz 8
+.It Pa /usr/share/misc/iso3166
+сопоставление кодов территорий ISO 3166 с названиями
+.It Pa /usr/share/zoneinfo
+каталог файлов zoneinfo
+.It Pa /usr/share/zoneinfo/zone1970.tab
+сопоставление файла часового пояса со страной и местоположением
+.It Pa /var/db/zoneinfo
+сохранённое имя файла часового пояса, установленного последним
+.El
+.Sh ПРИМЕРЫ
+Обычное использование для выбора нужного файла zoneinfo через диалоговый
+пользовательский интерфейс:
+.Pp
+.Dl # tzsetup
+.Pp
+Установить файл
+.Pa /usr/share/zoneinfo/Australia/Sydney :
+.Pp
+.Pp
+Установить файл zoneinfo для Australia/Sydney, предположительно находящийся в
+.Pa /usr/share/zoneinfo :
+.Pp
+.Pp
+После переустановки файлов zoneinfo вы можете переустановить
+последний установленный файл zoneinfo (как указано в
+.Pa /var/db/zoneinfo ) :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr date 1 ,
+.Xr adjtime 2 ,
+.Xr ctime 3 ,
+.Xr timezone 3 ,
+.Xr tzfile 5 ,
+.Xr adjkerntz 8 ,
+.Xr zdump 8 ,
+.Xr zic 8
+.Sh ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ
+Представление некоторых местностей как связанных с определёнными
+странами и/или территориями служит только для целей идентификации
+и не подразумевает одобрения или отклонения со стороны проекта
+.Fx
+территориальных притязаний какого-либо субъекта.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Программы, уже запущенные к моменту, когда
+.Nm
+создаёт или обновляет
+.Pa /etc/localtime ,
+не будут отражать обновлённый часовой пояс.
+Когда система впервые настраивается для аппаратных часов, не работающих
+по UTC, необходимо запустить
+.Xr adjkerntz 8
+(что обычно происходит в процессе запуска системы), чтобы обновить
+представление ядра о правильном смещении часового пояса.

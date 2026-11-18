@@ -1,0 +1,82 @@
+.\"	$NetBSD: utrace.2,v 1.11 2003/04/24 12:17:49 wiz Exp $
+.\"
+.\" Copyright (c) 2000 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Gregory McGarry <g.mcgarry@ieee.org>.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/utrace.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 d09688fd54726f3d32de78e4d7fb8889617f376afeb1a1ec4a051ee169b70a81
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 11, 2015
+.Dt UTRACE 2
+.Os
+.Sh ИМЯ
+.Nm utrace
+.Nd добавление записи пользователя в журнал ktrace
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/time.h
+.In sys/uio.h
+.In sys/ktrace.h
+.Ft int
+.Fn utrace "const void *addr" "size_t len"
+.Sh ОПИСАНИЕ
+Добавляет запись в трассировку процесса с информацией, предоставленной пользователем.
+Запись содержит
+.Fa len
+байт из памяти, на которую указывает
+.Fa addr .
+Этот вызов действует только в том случае, если вызывающий процесс трассируется.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Указанная длина данных
+.Fa len
+была больше
+.Dv KTR_USER_MAXLEN .
+.It Bq Er ENOMEM
+Недостаточно памяти для выполнения запроса.
+.It Bq Er ENOSYS
+Работающее в данный момент ядро было скомпилировано без поддержки
+.Xr ktrace 2
+.Pq Cd "options KTRACE" .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kdump 1 ,
+.Xr ktrace 1 ,
+.Xr truss 1 ,
+.Xr ktrace 2 ,
+.Xr sysdecode_utrace 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn utrace
+впервые появился в
+.Fx 2.2 .

@@ -1,0 +1,66 @@
+.\"	$NetBSD: motd.5,v 1.2 1994/12/28 18:58:53 glass Exp $
+.\"
+.\" This file is in the public domain.
+.\"
+.\" FRDP path share/man/man5/motd.5
+.\" FRDP githash 404802777003b7fb37ca8013fe938eaa4de36103
+.\" FRDP hash256 81e884cea0dfc485b6620f8337e891c59e6edf3f6816ef0f794477442255d163
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 14, 2024
+.Dt MOTD 5
+.Os
+.Sh ИМЯ
+.Nm motd
+.Nd файл, содержащий сообщение(я) дня
+.Sh ОПИСАНИЕ
+Файл
+.Pa /var/run/motd
+обычно отображается
+.Xr login 1
+после того, как пользователь вошёл в систему, но до запуска командной оболочки.
+Обычно он используется для важных общесистемных объявлений.
+При запуске системы строка, содержащая строку версии ядра, добавляется в начало
+.Pa /etc/motd.template ,
+а содержимое записывается в
+.Pa /var/run/motd .
+.Pp
+.Pa /var/run/motd
+можно обновить без перезагрузки системы, вручную перезапустив службу
+motd после обновления
+.Pa /etc/motd.template :
+.Pp
+.Dl service motd restart
+.Pp
+Отдельные пользователи могут отключить отображение этого файла, создав файл с именем
+.Dq Pa .hushlogin
+в своих домашних каталогах или с помощью
+.Xr login.conf 5 .
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/motd
+Символическая ссылка на
+.Pa /var/run/motd .
+.It Pa /etc/motd.template
+Файл шаблона, который могут редактировать системные администраторы.
+.It Pa /var/run/motd
+Сообщение дня.
+.It Pa $HOME/.hushlogin
+Отключает вывод
+.Pa /var/run/motd .
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+FreeBSD 12.1-RELEASE (GENERIC) #0: Sun Dec 29 03:08:31 PST 2019
+
+/home заполнен.  Пожалуйста, очистите ваши каталоги.
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr login 1 ,
+.Xr login.conf 5
+.Sh ИСТОРИЯ
+До
+.Fx 13.0 ,
+.Nm
+находился в
+.Pa /etc .

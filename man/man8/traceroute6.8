@@ -1,0 +1,219 @@
+.\"	$KAME: traceroute6.8,v 1.10 2004/06/06 12:35:15 suz Exp $
+.\"
+.\" Copyright (C) 1995, 1996, 1997, and 1998 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/traceroute6/traceroute6.8
+.\" FRDP githash 42f9573827e9642410c4c99e42549ee7a1beca00
+.\" FRDP hash256 375f9b4f21e030a2d02812ba3d57da558c2a6ae12bfeb8083c70fb2539ead99c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 16, 2026
+.Dt TRACEROUTE6 8
+.Os
+.Sh ИМЯ
+.Nm traceroute6
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Op Fl adeEIlnNrSTUv
+.Ek
+.Bk -words
+.Op Fl A Ar as_server
+.Ek
+.Bk -words
+.Op Fl f Ar firsthop
+.Ek
+.Bk -words
+.Op Fl g Ar gateway
+.Ek
+.Bk -words
+.Op Fl m Ar hoplimit
+.Ek
+.Bk -words
+.Op Fl p Ar port
+.Ek
+.Bk -words
+.Op Fl q Ar probes
+.Ek
+.Bk -words
+.Op Fl s Ar src
+.Ek
+.Bk -words
+.Op Fl t Ar tclass
+.Ek
+.Bk -words
+.Op Fl w Ar waittime
+.Ek
+.Bk -words
+.Ar target
+.Op Ar datalen
+.Ek
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+использует поле предела переходов протокола IPv6, чтобы вызвать
+ответ ICMP6 TIME_EXCEEDED от каждого шлюза на пути к некоторому узлу.
+.Pp
+Единственный обязательный параметр — имя узла назначения или адрес IPv6.
+По умолчанию пробный датаграмма несёт 20 байт полезной нагрузки в дополнение
+к заголовку IPv6.
+Размер полезной нагрузки можно задать, указав длину (в байтах) после
+имени узла назначения.
+.Pp
+Другие параметры:
+.Bl -tag -width Ds
+.It Fl a
+Включить поиск номеров AS для каждого встречающегося перехода.
+.It Fl A Ar as_server
+Включить поиск номеров AS и использовать заданный сервер вместо сервера
+по умолчанию.
+.It Fl d
+Режим отладки.
+.It Fl e
+Режим обхода межсетевого экрана.
+Использовать фиксированные порты назначения для проб UDP, TCP и SCTP.
+Порт назначения НЕ увеличивается с каждым отправленным пакетом.
+.It Fl E
+Обнаружение «выцветания» ECN.
+Установить биты Explicit Congestion Notification (ECN)
+.Em IPTOS_ECN_ECT1
+.Pq Dv 01
+и сообщать, если переход «выцветил»
+.Pq Dv 00
+или исказил
+.Pq Dv 10
+их, либо если он испытывает перегрузку
+.Pq Dv 11 .
+В противном случае сообщать, что биты переданы правильно.
+Если также указан
+.Fl t ,
+соответствующие биты ECN будут заменены.
+.It Fl f Ar firsthop
+Указать, сколько переходов пропустить при трассировке.
+.It Fl g Ar gateway
+Указать промежуточный шлюз.
+Обратите внимание, что
+.Nm
+пытается использовать заголовки маршрутизации.
+.It Fl I
+Использовать ICMP6 ECHO вместо датаграмм UDP.
+.It Fl l
+Игнорируется для обратной совместимости.
+.It Fl m Ar hoplimit
+Указать максимальный предел переходов, вплоть до 255.
+По умолчанию используется значение
+.Va net.inet6.ip6.hlim
+.Xr sysctl 8
+(тот же по умолчанию применяется для соединений TCP).
+.It Fl n
+Не преобразовывать числовой адрес в имя узла.
+.It Fl N
+Использовать для проб пакеты без заголовка верхнего уровня вместо
+датаграмм UDP.
+.It Fl p Ar port
+Установить номер порта SCTP/TCP/UDP равным
+.Ar port .
+.It Fl q Ar probes
+Установить количество проб на один переход равным
+.Ar probes .
+.It Fl r
+Обойти обычные таблицы маршрутизации и отправлять напрямую узлу в
+подключённой сети.
+Если узел находится не в непосредственно подключённой сети,
+возвращается ошибка.
+Этот параметр соответствует опции сокета
+.Dv SO_DONTROUTE ;
+его можно использовать для проверки связи с локальным узлом через интерфейс,
+через который нет маршрута (например, после того как интерфейс был отброшен
+демоном маршрутизации).
+.It Fl s Ar src
+.Ar Src
+задаёт используемый исходный адрес IPv6.
+.It Fl S
+Использовать пакеты SCTP для проб.
+Размер пробных пакетов должен быть кратен 4.
+Если
+.Ar datalen
+не превышает 28, пробные пакеты состоят из чанка SHUTDOWN-ACK, возможно,
+объединённого с чанком PAD.
+Для пробных пакетов большего размера используется чанк INIT.
+.It Fl t Ar tclass
+.Ar tclass
+задаёт
+.Em класс трафика
+, используемый при отправке пробных пакетов.
+Значение должно быть десятичным целым числом в диапазоне от 0 до 255.
+По умолчанию — 0.
+.It Fl T
+Использовать сегменты TCP для проб.
+.It Fl U
+Использовать датаграммы UDP для проб.
+Это значение по умолчанию.
+.It Fl v
+Подробный вывод.
+.It Fl w Ar waittime
+Указать задержку между пробами.
+.El
+.Pp
+Эта программа выводит маршрут к заданному пункту назначения и время
+кругового обхода до каждого шлюза тем же способом, что и traceroute.
+.Pp
+Ниже приведён список возможных пометок после времени кругового обхода для
+каждого шлюза:
+.Bl -hang -offset indent
+.It !N
+Пункт назначения недостижим — нет маршрута к узлу.
+.It !P
+Пункт назначения недостижим — запрещено административно.
+.It !S
+Пункт назначения недостижим — не сосед.
+.It !A
+Пункт назначения недостижим — адрес недостижим.
+.It !H
+Проблема с параметром — нераспознанный тип следующего заголовка.
+.It !<num>
+Код недостижимости ICMP6 <num>.
+.It !\&
+Выводится, если предел переходов <= 1 в сообщении о недостижимости порта.
+Это означает, что пакет дошёл до пункта назначения, но у ответа предел
+переходов был лишь чуть больше, чем достаточно, чтобы вернуться к источнику
+traceroute6.
+В случае IPv4 это было интереснее, поскольку по такому поведению можно
+было выявить некоторые ошибки в стеке IP.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и с ненулевым кодом при ошибках.
+.Sh СМ. ТАКЖЕ
+.Xr ping 8 ,
+.Xr traceroute 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в наборе протоколов IPv6 WIDE hydrangea.

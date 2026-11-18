@@ -1,0 +1,256 @@
+.\" Copyright (c) 2004-2005 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/raid3/graid3.8
+.\" FRDP githash 27bd6c32bbb49a592a0dfbec5f211a7c2fed31d6
+.\" FRDP hash256 8da5e22e4e92fab50529142d5aced459aff9199221c882be9e929bed95ab481e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 23, 2025
+.Dt GRAID3 8
+.Os
+.Sh ИМЯ
+.Nm graid3
+.Sh СИНТАКСИС
+.Nm
+.Cm label
+.Op Fl Fhnrvw
+.Op Fl s Ar размер_блока
+.Ar имя
+.Ar prov prov prov ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar prov ...
+.Nm
+.Cm configure
+.Op Fl adfFhnrRvwW
+.Ar имя
+.Nm
+.Cm rebuild
+.Op Fl v
+.Ar имя
+.Ar prov
+.Nm
+.Cm insert
+.Op Fl hv
+.Op Fl n Ar номер
+.Ar имя
+.Ar prov
+.Nm
+.Cm remove
+.Op Fl v
+.Fl n Ar номер
+.Ar имя
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для конфигурации массива RAID3.
+После создания устройства все компоненты обнаруживаются и настраиваются
+автоматически.
+Все операции, такие как обнаружение отказов, обнаружение устаревших компонентов, перестроение
+устаревших компонентов и т.д.\&, также выполняются автоматически.
+Утилита
+.Nm
+использует метаданные на диске (последний сектор провайдера) для хранения всей необходимой
+информации.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm label
+Создать устройство RAID3.
+Последний указанный компонент будет содержать данные чётности, а остальные
+будут содержать обычные данные.
+Количество компонентов должно быть равно 3, 5, 9, 17 и т.д.\& (2^n + 1).
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl F
+Не синхронизировать после сбоя питания или краха системы.
+Предполагает, что устройство находится в согласованном состоянии.
+.It Fl h
+Жёстко закодировать имена провайдеров в метаданных.
+.It Fl n
+Отключить автосинхронизацию устаревших компонентов.
+.It Fl r
+Использовать компонент чётности для чтения в режиме кругового перебора.
+Без этого параметра компонент чётности вообще не используется для операций чтения,
+когда устройство находится в полном состоянии.
+С указанием этого параметра случайные операции чтения ввода-вывода становятся даже на 40% быстрее,
+но последовательное чтение медленнее.
+Нельзя использовать этот параметр, если также указан параметр
+.Fl w .
+.It Fl s
+Вручную указать размер блока массива. Размер блока будет установлен равным наименьшему
+общему кратному размеров секторов всех компонентов и указанного значения.
+Обратите внимание, что размер сектора массива вычисляется как произведение размера блока и количества
+компонентов с обычными данными. Большие значения могут снизить производительность и совместимость,
+так как все запросы ввода-вывода должны быть кратны размеру сектора.
+.It Fl w
+Использовать функцию проверки при чтении.
+При чтении с устройства в полном состоянии также читать данные из компонента чётности
+и проверять данные, сравнивая XOR обычных данных с данными чётности.
+Если проверка не удалась, возвращается ошибка
+.Er EIO
+и значение sysctl
+.Va kern.geom.raid3.stat.parity_mismatch
+увеличивается.
+Нельзя использовать этот параметр, если также указан параметр
+.Fl r .
+.El
+.It Cm clear
+Очистить метаданные на указанных провайдерах.
+.It Cm configure
+Настроить указанное устройство.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl a
+Включить автосинхронизацию устаревших компонентов.
+.It Fl d
+Не жёстко кодировать имена провайдеров в метаданных.
+.It Fl f
+Синхронизировать устройство после сбоя питания или краха системы.
+.It Fl F
+Не синхронизировать после сбоя питания или краха системы.
+Предполагает, что устройство находится в согласованном состоянии.
+.It Fl h
+Жёстко закодировать имена провайдеров в метаданных.
+.It Fl n
+Отключить автосинхронизацию устаревших компонентов.
+.It Fl r
+Включить круговое чтение.
+.It Fl R
+Отключить круговое чтение.
+.It Fl w
+Включить проверку при чтении.
+.It Fl W
+Отключить проверку при чтении.
+.El
+.It Cm rebuild
+Принудительно перестроить указанный компонент.
+Если автосинхронизация не была отключена для данного устройства, эта команда
+должна быть не нужна.
+.It Cm insert
+Добавить указанный компонент в существующий массив, если один из компонентов был
+ранее удалён командой
+.Cm remove
+или если один компонент отсутствует и больше не будет подключён.
+Если номер не указан, новый компонент будет добавлен вместо первого пропущенного
+компонента.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl h
+Жёстко закодировать имена провайдеров в метаданных.
+.El
+.It Cm remove
+Удалить указанный компонент из указанного массива и очистить метаданные на нём.
+.It Cm stop
+Остановить указанные массивы.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl f
+Остановить указанный массив, даже если он открыт.
+.El
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl v
+Быть более подробным.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается неудачей.
+.Sh ПРИМЕРЫ
+Использовать 3 диска для настройки массива RAID3 (с функцией кругового чтения).
+Создать файловую систему, смонтировать её, затем размонтировать и остановить устройство:
+.Bd -literal -offset indent
+graid3 label -v -r data da0 da1 da2
+newfs /dev/raid3/data
+mount /dev/raid3/data /mnt
+\&...
+umount /mnt
+graid3 stop data
+graid3 unload
+.Ed
+.Pp
+Создать массив RAID3, но не использовать функцию автоматической синхронизации.
+Перестроить компонент чётности:
+.Bd -literal -offset indent
+graid3 label -n data da0 da1 da2
+graid3 rebuild data da2
+.Ed
+.Pp
+Заменить один диск с данными на совершенно новый:
+.Bd -literal -offset indent
+graid3 remove -n 0 data
+graid3 insert -n 0 data da5
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr geom 8 ,
+.Xr mount 8 ,
+.Xr newfs 8 ,
+.Xr umount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Должен быть раздел с описанием реализации.
+.Pp
+Документация для sysctl
+.Va kern.geom.raid3.*
+отсутствует.

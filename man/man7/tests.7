@@ -1,0 +1,322 @@
+.\"	$NetBSD: tests.kyua.7,v 1.2 2013/07/20 21:39:59 wiz Exp $
+.\"
+.\" Copyright (c) 2010 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/tests.7
+.\" FRDP githash 03920772145a6127ce0b45008615213c048f978d
+.\" FRDP hash256 7e86bf4ce84e646b98af07f95bc48f697101b5100a4b8d4dfb1967bac39a5404
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 17, 2026
+.Dt TESTS 7
+.Os
+.Sh ИМЯ
+.Nm tests
+.Nd введение в
+.Fx
+набор тестов
+.Sh ОПИСАНИЕ
+Набор тестов
+.Fx
+предоставляет набор автоматизированных тестов для двух основных целей.
+С одной стороны, набор тестов помогает
+.Em разработчикам
+обнаруживать ошибки и регрессии при изменении дерева исходного кода.
+С другой стороны, он позволяет
+.Em конечным пользователям
+(и, в частности, системным администраторам) убедиться, что свежие установки
+операционной системы
+.Fx
+работают правильно на их аппаратной платформе, а также гарантировать,
+что система не подвержена регрессиям во время регулярной эксплуатации и
+обслуживания.
+.Pp
+Набор тестов
+.Fx
+можно найти в иерархии
+.Pa /usr/tests .
+.Pp
+В этой странице руководства описано, как запускать набор тестов и как настраивать
+некоторые его дополнительные возможности.
+Сведения о написании тестов см. в
+.Xr atf 7 .
+.Ss Установка набора тестов
+Если каталог
+.Pa /usr/tests
+отсутствует, вам потребуется включить сборку набора тестов, пересобрать систему
+и установить результаты.
+Это можно сделать, задав
+.Sq WITH_TESTS=yes
+в файле
+.Pa /etc/src.conf
+(подробности см. в
+.Xr src.conf 5 )
+и пересобрав систему, как описано в
+.Xr build 7 .
+.Ss Когда запускать тесты?
+Прежде чем углубляться в подробности запуска набора тестов, приведём несколько
+сценариев, в которых его следует запускать:
+.Bl -bullet -offset indent
+.It
+После свежей установки
+.Fx
+чтобы убедиться, что система правильно работает на вашей аппаратной платформе.
+.It
+После обновления
+.Fx
+до другой версии, чтобы убедиться, что новый код хорошо работает на вашей
+аппаратной платформе и что обновление не внесло регрессий в вашу
+конфигурацию.
+.It
+После изменения дерева исходного кода для обнаружения новых ошибок и/или регрессий.
+.It
+Периодически, возможно, с помощью задания
+.Xr cron 8 ,
+чтобы убедиться, что любые изменения системы (например, установка
+сторонних пакетов или ручные изменения файлов конфигурации) не
+вносят неожиданных сбоев.
+.El
+.Ss Запуск тестов
+По умолчанию Kyua ищет тесты в текущем каталоге.
+Чтобы запустить весь набор тестов, либо используйте
+.Fl k
+для указания
+.Pa Kyuafile
+верхнего уровня:
+.Bd -literal -offset indent
+$ kyua test -k /usr/tests/Kyuafile
+.Ed
+.Pp
+или просто перейдите в корень набора тестов перед запуском Kyua:
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua test
+.Ed
+.Pp
+Вышеописанное рекурсивно переберёт все тестовые программы в
+.Pa /usr/tests ,
+выполнит их, сохранит их результаты и отладочные данные в базе данных Kyua
+(по умолчанию в
+.Pa ~/.kyua/store/ ) ,
+и выведет сводку результатов.
+Эта сводка включает краткое количество всех запущенных тестов и сколько из
+них завершились неудачно.
+.Pp
+Можно ограничить, какие тесты запускать, указав их
+имена или часть их пути в командной строке.
+Например, так будут выполнены все тесты, предоставленные для
+утилит
+.Xr cp 1
+и
+.Xr stat 1 :
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua test bin/cp usr.bin/stat
+.Ed
+.Pp
+Так будет выполнена только одна из двух тестовых программ, предоставленных для
+.Xr stat 1 :
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua test usr.bin/stat/stat_test
+.Ed
+.Pp
+Так будет выполнен только один тестовый случай:
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua test usr.bin/stat/stat_test:t_flag
+.Ed
+.Pp
+Наконец, так будет выполнен этот тестовый случай в режиме отладки:
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua debug -p usr.bin/stat/stat_test:t_flag
+.Ed
+.Pp
+Опция
+.Fl p
+указывает Kyua приостановиться перед очисткой, чтобы вы могли изучить
+временный каталог и лучше понять, почему тест завершился неудачно.
+.Pp
+Обратите внимание, что некоторые тесты могут требовать прав root для выполнения:
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ kyua debug usr.bin/stat/stat_test:h_flag
+usr.bin/stat/stat_test:h_flag  ->  skipped: Requires root privileges
+$ sudo kyua debug usr.bin/stat/stat_test:h_flag
+[...]
+usr.bin/stat/stat_test:h_flag  ->  passed
+.Ed
+.Pp
+И наоборот, некоторые тесты будут работать правильно только при запуске от
+непривилегированного пользователя.
+Обычно это отмечается в метаданных теста, что заставляет Kyua
+автоматически сбрасывать привилегии перед запуском теста.
+.Ss Получение отчётов о выполнении тестов
+Дополнительные сведения о результатах тестов можно получить
+с помощью различных команд отчётности Kyua.
+Например, следующая команда выведет текстовый отчёт о
+тестах, выполненных в последнем запуске тестов, и покажет, какие из них завершились неудачно:
+.Bd -literal -offset indent
+$ kyua report --verbose
+.Ed
+.Pp
+Чтобы показать результаты произвольного запуска тестов, используйте
+.Fl r
+чтобы указать, какой файл результатов читать:
+.Bd -literal -offset indent
+$ kyua report --verbose \\
+    -r ~/.kyua/store/results.usr_tests.20260417-173009-335060.db
+.Ed
+.Pp
+Имейте в виду, что если тесты запускались от имени root, результаты
+будут сохранены в каталоге
+.Pa kyua
+пользователя root, и самый простой способ получить к ним доступ — также запустить
+команду
+.Cm report
+от имени root:
+.Bd -literal -offset indent
+$ cd /usr/tests
+$ sudo kyua test usr.bin/stat
+$ sudo kyua report --verbose
+.Ed
+.Pp
+Этот пример создаст HTML-отчёт, готовый к публикации на
+веб-сервере:
+.Bd -literal -offset indent
+$ kyua report-html --output ~/public_html/tests
+.Ed
+.Pp
+Дополнительные сведения о командном интерфейсе Kyua см. в её странице руководства
+.Xr kyua 1 .
+.Ss Настройка тестов
+Некоторые тестовые случаи в
+наборе тестов
+.Fx
+требуют ручной настройки администратором перед запуском.
+Если определённые свойства не заданы, тесты, которые их требуют, будут
+пропущены.
+.Pp
+Наборы тестов настраиваются путём определения их переменных
+конфигурации в
+.Pa /etc/kyua/kyua.conf
+или в командной строке.
+Формат файла конфигурации подробно описан в
+.Xr kyua.conf 5 .
+.Pp
+Следующие переменные конфигурации доступны в
+наборе тестов
+.Fx
+; все имена переменных имеют префикс
+.Va test_suites.FreeBSD. .
+.Bl -tag -width ".Va test_suites.FreeBSD.allow_sysctl_side_effects"
+.It Va allow_sysctl_side_effects
+Включает тесты, которые изменяют глобально значимые
+переменные
+.Xr sysctl 8 .
+Тесты отменят любые изменения на этапах очистки.
+.It Va allow_network_access
+Включает тесты, которым требуется доступ к сети, к которой подключён
+тестовый хост.
+Такие тесты могут требовать правильно настроенного доступа в Интернет.
+.It Va disks
+Должно быть задано как разделённый пробелами список узлов дисковых устройств.
+Тесты, которым требуется деструктивный доступ к дискам, должны использовать эти устройства.
+Тесты не обязаны сохранять какие-либо данные, присутствующие на этих дисках.
+.It Va fibs
+Должно быть задано как разделённый пробелами список FIB (таблиц маршрутизации).
+Тесты, которым нужно изменить таблицу маршрутизации, могут использовать любые из них.
+Тесты удалят любые новые маршруты, которые они создадут.
+.El
+.Ss Что делать, если что-то завершилось неудачно?
+Если во время выполнения набора тестов произошёл
+.Em любой сбой
+, пожалуйста, рассмотрите возможность сообщить о нём
+разработчикам
+.Fx
+, чтобы сбой можно было проанализировать и исправить.
+Для этого отправьте сообщение в соответствующий список рассылки или создайте
+отчёт о проблеме.
+Дополнительные сведения см. в:
+.Bl -bullet -offset indent -compact
+.It
+.It
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /usr/tests/Kyuafile"
+.It Pa /etc/kyua/kyua.conf
+Общесистемный файл конфигурации для
+.Xr kyua 1 .
+.It Pa ~/.kyua/kyua.conf
+Пользовательский файл конфигурации для
+.Xr kyua 1 ;
+переопределяет системный файл.
+.It Pa ~/.kyua/logs/
+Расположение отладочных журналов Kyua по умолчанию (один
+файл
+.Pa .log
+на запуск тестов).
+.It Pa ~/.kyua/store/
+Расположение результатов тестов Kyua по умолчанию (один
+файл
+.Pa .db
+на запуск тестов).
+.It Pa /usr/tests/
+Расположение
+набора тестов
+.Fx .
+.It Pa /usr/tests/Kyuafile
+Файл определения набора тестов верхнего уровня.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kyua 1 ,
+.Xr atf 7 ,
+.Xr build 7 ,
+.Xr development 7
+.Sh ИСТОРИЯ
+Набор тестов
+.Fx
+впервые появился в
+.Fx 10.1
+и устанавливался по умолчанию в
+.Fx 11.0 .
+.Pp
+Страница руководства
+.Nm
+впервые появилась в
+.Nx 6.0
+и позже была перенесена в
+.Fx 10.1 .
+.Pp
+Драйвер тестов,
+.Xr kyua 1 ,
+был импортирован как часть базовой системы в
+.Fx 13.0 ,
+ранее он был доступен только в
+.Xr ports 7 .
+.Sh АВТОРЫ
+.An Julio Merino Aq Mt jmmv@FreeBSD.org

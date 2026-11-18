@@ -1,0 +1,275 @@
+.\"
+.\" Copyright (c) 1995 David Hovemeyer <daveho@infocom.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/semop.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 02576c4b9ad9d7cd1ee852efeeb82e55eb898da98d0545814e0afeab34e98c50
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 22, 1995
+.Dt SEMOP 2
+.Os
+.Sh ИМЯ
+.Nm semop
+.Nd атомарный массив операций над набором семафоров
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/sem.h
+.Ft int
+.Fn semop "int semid" "struct sembuf *array" "size_t nops"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn semop
+атомарно выполняет массив операций, заданный в
+.Fa array ,
+над набором семафоров, указанным в
+.Fa semid .
+Длина
+.Fa array
+задаётся в
+.Fa nops .
+Каждая операция кодируется в
+.Vt "struct sembuf" ,
+которая определена следующим образом:
+.Bd -literal
+struct sembuf {
+        u_short sem_num;        /* semaphore # */
+        short   sem_op;         /* semaphore operation */
+        short   sem_flg;        /* operation flags */
+};
+.Ed
+.Pp
+Для каждого элемента в
+.Fa array
+поля
+.Va sem_op
+и
+.Va sem_flg
+определяют операцию, выполняемую над семафором с номером
+.Va sem_num
+в наборе.
+Значения
+.Dv SEM_UNDO
+и
+.Dv IPC_NOWAIT
+могут быть объединены операцией
+.Em OR Ns 'ed
+с членом
+.Va sem_flg
+для изменения поведения данной операции.
+.Pp
+Выполняемая операция зависит от значения
+.Va sem_op
+следующим образом:
+.Bl -bullet
+.It
+Если
+.Va sem_op
+положительно и процесс имеет право на изменение,
+значение семафора увеличивается на
+.Va sem_op Ns 's
+величину.
+Если указано
+.Dv SEM_UNDO ,
+значение корректировки при выходе для семафора уменьшается на
+.Va sem_op Ns 's
+величину.
+Положительное значение
+.Va sem_op
+обычно соответствует освобождению процессом ресурса,
+связанного с семафором.
+.It
+Поведение, когда
+.Va sem_op
+отрицательно и процесс имеет право на изменение,
+зависит от текущего значения семафора:
+.Bl -bullet
+.It
+Если текущее значение семафора больше или равно
+абсолютному значению
+.Va sem_op ,
+то значение уменьшается на абсолютное значение
+.Va sem_op .
+Если указано
+.Dv SEM_UNDO ,
+значение корректировки при выходе для семафора увеличивается на абсолютное значение
+.Va sem_op .
+.It
+Если текущее значение семафора меньше абсолютного значения
+.Va sem_op ,
+происходит одно из следующего:
+.Bl -bullet
+.It
+Если было указано
+.Dv IPC_NOWAIT ,
+то
+.Fn semop
+немедленно возвращает значение
+.Er EAGAIN .
+.It
+В противном случае вызывающий процесс засыпает до выполнения одного из следующих
+условий:
+.Bl -bullet
+.It
+Какой-либо другой процесс удаляет семафор с помощью
+опции
+.Dv IPC_RMID
+вызова
+.Xr semctl 2 .
+В этом случае
+.Fn semop
+немедленно возвращает значение
+.Er EIDRM .
+.It
+Процесс получает сигнал, который должен быть перехвачен.
+В этом случае процесс возобновляет выполнение, как определено в
+.Xr sigaction 2 .
+.It
+Значение семафора больше или равно абсолютному значению
+.Va sem_op .
+Когда это условие становится истинным, значение семафора уменьшается
+на абсолютное значение
+.Va sem_op ,
+значение корректировки при выходе для семафора увеличивается на
+абсолютное значение
+.Va sem_op .
+.El
+.El
+.El
+.Pp
+Отрицательное значение
+.Va sem_op
+обычно означает, что процесс ожидает освобождения ресурса.
+.It
+Когда
+.Va sem_op
+равно нулю и процесс имеет право на чтение,
+происходит одно из следующего:
+.Bl -bullet
+.It
+Если текущее значение семафора равно нулю,
+то
+.Fn semop
+может немедленно вернуть управление.
+.It
+Если было указано
+.Dv IPC_NOWAIT ,
+то
+.Fn semop
+немедленно возвращает значение
+.Er EAGAIN .
+.It
+В противном случае вызывающий процесс засыпает до выполнения одного из следующих
+условий:
+.Bl -bullet
+.It
+Какой-либо другой процесс удаляет семафор с помощью
+опции
+.Dv IPC_RMID
+вызова
+.Xr semctl 2 .
+В этом случае
+.Fn semop
+немедленно возвращает значение
+.Er EIDRM .
+.It
+Процесс получает сигнал, который должен быть перехвачен.
+В этом случае процесс возобновляет выполнение, как определено в
+.Xr sigaction 2 .
+.It
+Значение семафора становится равным нулю.
+.El
+.El
+.El
+.Pp
+Для каждого семафора, используемого процессом, ядро поддерживает
+значение
+.Dq "adjust on exit"
+(корректировка при выходе), как упоминалось ранее.
+Когда процесс
+завершается, добровольно или вынужденно, значение корректировки при выходе
+для каждого семафора добавляется к значению семафора.
+Это можно
+использовать для гарантии освобождения ресурса, если процесс завершается
+неожиданно.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std semop
+.Sh ОШИБКИ
+Системный вызов
+.Fn semop
+завершается неудачей, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Ни один набор семафоров не соответствует
+.Fa semid ,
+или процесс превысил бы системный предел для количества
+структур
+.Dv SEM_UNDO
+на процесс.
+.It Bq Er EACCES
+Доступ запрещён из-за несоответствия между операцией и режимом
+набора семафоров.
+.It Bq Er EAGAIN
+Значение семафора привело бы к засыпанию процесса,
+а было указано
+.Dv IPC_NOWAIT .
+.It Bq Er E2BIG
+Указано слишком много операций.
+.Bq Dv SEMOPM
+.It Bq Er EFBIG
+.Va sem_num
+не входил в диапазон допустимых семафоров для набора.
+.It Bq Er EIDRM
+Набор семафоров был удалён из системы.
+.It Bq Er EINTR
+Системный вызов
+.Fn semop
+был прерван сигналом.
+.It Bq Er ENOSPC
+Системный пул
+.Dv SEM_UNDO
+.Bq Dv SEMMNU
+переполнен.
+.It Bq Er ERANGE
+Запрошенная операция привела бы к превышению либо
+текущего значения семафора
+.Bq Dv SEMVMX ,
+либо его значения корректировки при выходе
+.Bq Dv SEMAEM
+установленных системой пределов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr semctl 2 ,
+.Xr semget 2 ,
+.Xr sigaction 2
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Системный вызов
+.Fn semop
+может блокироваться в ожидании памяти, даже если
+было указано
+.Dv IPC_NOWAIT .

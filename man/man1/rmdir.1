@@ -1,0 +1,112 @@
+.\"-
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path bin/rmdir/rmdir.1
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 291ca56d642beb216d187c5c4e5ceebba7cd950b056d3b9abb8d1288da73b8aa
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 15, 2013
+.Dt RMDIR 1
+.Os
+.Sh ИМЯ
+.Nm rmdir
+.Nd удалять каталоги
+.Sh СИНТАКСИС
+.Nm
+.Op Fl pv
+.Ar каталог ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+удаляет запись каталога, заданную каждым аргументом
+.Ar каталог
+, если каталог пуст.
+.Pp
+Аргументы обрабатываются в порядке их задания.
+Чтобы удалить и родительский каталог, и подкаталог этого родителя,
+подкаталог необходимо указать первым, чтобы родительский каталог
+был пуст, когда
+.Nm
+попытается удалить его.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl p
+Каждый аргумент, задаваемый
+.Ar каталог
+, рассматривается как имя пути, все компоненты которого будут удалены,
+если они пусты, начиная с самого последнего компонента.
+(См.
+.Xr rm 1
+для полностью рекурсивного удаления без разбора.)
+.It Fl v
+Выводить подробные сообщения, перечисляя каждый каталог по мере его удаления.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с одним из следующих значений:
+.Bl -tag -width indent
+.It Er 0
+Каждый
+.Ar каталог
+указывал на пустой каталог и был успешно удалён.
+.It Er 1
+Произошла ошибка при попытке удалить один или несколько каталогов.
+.It Er 2
+Недопустимые аргументы.
+.El
+.Sh ПРИМЕРЫ
+Удалить каталог
+.Pa foobar
+, если он пуст:
+.Pp
+.Dl $ rmdir foobar
+.Pp
+Удалить все каталоги вплоть до
+.Pa cow
+включительно, останавливаясь на первом непустом каталоге (если он есть):
+.Pp
+.Dl $ rmdir -p cow/horse/monkey
+.Sh СМ. ТАКЖЕ
+.Xr rm 1 ,
+.Xr rmdir 2
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+совместима с
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

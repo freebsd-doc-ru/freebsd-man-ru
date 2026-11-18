@@ -1,0 +1,165 @@
+.\" Copyright (c) 1983, 1991, 1992, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigaltstack.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 be1183ab10907a53aa9aca89a321d30a426dfa7835dc7472c6613ebc87db27a9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 6, 2010
+.Dt SIGALTSTACK 2
+.Os
+.Sh ИМЯ
+.Nm sigaltstack
+.Nd установка и/или получение контекста стека сигналов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Bd -literal
+typedef struct {
+        char    *ss_sp;
+        size_t  ss_size;
+        int     ss_flags;
+} stack_t;
+.Ed
+.Ft int
+.Fn sigaltstack "const stack_t * restrict ss" "stack_t * restrict oss"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigaltstack
+позволяет определить альтернативный стек, на котором должны
+обрабатываться сигналы для текущего потока.
+Если
+.Fa ss
+не равно нулю,
+он задаёт указатель на
+.Em "стек сигналов"
+и его размер, на котором должны доставляться сигналы.
+Когда действие сигнала указывает, что его обработчик
+должен выполняться на стеке сигналов (заданном с помощью
+системного вызова
+.Xr sigaction 2 ) ,
+система проверяет,
+выполняется ли поток в данный момент на этом стеке.
+Если поток в данный момент не выполняется на стеке сигналов,
+система организует переключение на стек сигналов на
+время выполнения обработчика сигнала.
+.Pp
+Активный стек не может быть изменён.
+.Pp
+Если в
+.Fa ss_flags
+установлен
+.Dv SS_DISABLE ,
+то
+.Fa ss_sp
+и
+.Fa ss_size
+игнорируются, а стек сигналов будет отключён.
+Отключённый стек приведёт к тому, что все сигналы будут
+приниматься на обычном пользовательском стеке.
+Если позже стек будет снова включён, то все сигналы, которые были указаны
+для обработки на альтернативном стеке, возобновят её.
+.Pp
+Если
+.Fa oss
+не равно нулю, возвращается текущее состояние стека сигналов.
+Поле
+.Fa ss_flags
+будет содержать значение
+.Dv SS_ONSTACK ,
+если поток в данный момент находится на стеке сигналов, и
+.Dv SS_DISABLE ,
+если стек сигналов в данный момент отключён.
+.Sh ЗАМЕЧАНИЯ
+Значение
+.Dv SIGSTKSZ
+определено как количество байт/символов, которое было бы использовано для покрытия
+обычного случая при выделении области альтернативного стека.
+Следующий фрагмент кода обычно используется для выделения альтернативного стека.
+.Bd -literal -offset indent
+if ((sigstk.ss_sp = malloc(SIGSTKSZ)) == NULL)
+	/* error return */
+sigstk.ss_size = SIGSTKSZ;
+sigstk.ss_flags = 0;
+if (sigaltstack(&sigstk, NULL) < 0)
+	perror("sigaltstack");
+.Ed
+Для программ с обработчиками сигналов,
+которым требуется определённый объём стекового пространства, отличный от размера по умолчанию,
+предусмотрен альтернативный подход.
+Значение
+.Dv MINSIGSTKSZ
+определено как количество байт/символов, которое требуется
+операционной системе для реализации возможности альтернативного стека.
+При вычислении размера альтернативного стека
+программы должны добавлять
+.Dv MINSIGSTKSZ
+к своим требованиям к стеку, чтобы учесть накладные расходы операционной системы.
+.Pp
+Стеки сигналов автоматически корректируются с учётом направления роста стека
+и требований выравнивания.
+Стеки сигналов могут быть защищены аппаратным обеспечением, а могут и не быть,
+и они не «растут» автоматически, как это делается для обычного стека.
+Если стек переполняется и это пространство не защищено,
+могут возникнуть непредсказуемые результаты.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std sigaltstack
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigaltstack
+завершится с ошибкой, а контекст стека сигналов останется неизменным,
+если произойдёт одно из следующих событий.
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Либо
+.Fa ss ,
+либо
+.Fa oss
+указывает на память, которая не является допустимой частью адресного
+пространства процесса.
+.It Bq Er EPERM
+Была предпринята попытка изменить активный стек.
+.It Bq Er EINVAL
+Поле
+.Fa ss_flags
+было недопустимым.
+.It Bq Er ENOMEM
+Размер области альтернативного стека меньше или равен
+.Dv MINSIGSTKSZ .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sigaction 2 ,
+.Xr setjmp 3
+.Sh ИСТОРИЯ
+Предшественник
+.Fn sigaltstack ,
+системный вызов
+.Fn sigstack ,
+появился в
+.Bx 4.2 .

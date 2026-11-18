@@ -1,0 +1,176 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-userspace.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 f0c50314b9b17cc87bd314e3bac8a020f4d6ad4d703e44b11df70b2cd0fd2d12
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-USERSPACE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-userspace
+.Nd отображение пространства и квот набора данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm userspace
+.Op Fl Hinp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Oo Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns … Oc
+.Ar файловая система Ns | Ns Ar снимок Ns | Ns Ar путь
+.Nm zfs
+.Cm groupspace
+.Op Fl Hinp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Oo Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns … Oc
+.Ar файловая система Ns | Ns Ar снимок Ns | Ns Ar путь
+.Nm zfs
+.Cm projectspace
+.Op Fl Hp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Ar файловая система Ns | Ns Ar снимок Ns | Ns Ar путь
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm userspace
+.Op Fl Hinp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Oo Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns … Oc
+.Ar файловая система Ns | Ns Ar снимок Ns | Ns Ar путь
+.Xc
+Отображает пространство, потребляемое каждым пользователем, и квоты для каждого пользователя в указанной файловой системе, снимке или пути.
+Если указан путь, будет использована файловая система, содержащая этот путь.
+Это соответствует свойствам
+.Sy userused@ Ns Em пользователь ,
+.Sy userobjused@ Ns Em пользователь ,
+.Sy userquota@ Ns Em пользователь ,
+и
+.Sy userobjquota@ Ns Em пользователь .
+.It Fl H
+Не выводить заголовки, использовать вывод с разделением табуляцией.
+.It Fl S Ar поле
+Сортировать по этому полю в обратном порядке.
+См.
+.Fl s .
+.It Fl i
+Преобразовывать SID в POSIX ID.
+POSIX ID может быть временным, если сопоставление отсутствует.
+Обычные интерфейсы POSIX
+.Pq например Xr stat 2 , Nm ls Fl l
+выполняют это преобразование, поэтому параметр
+.Fl i
+позволяет напрямую сравнивать вывод
+.Nm zfs Cm userspace
+с этими утилитами.
+Однако
+.Fl i
+может привести к путанице, если некоторые файлы были созданы пользователем SMB до того, как было установлено сопоставление имён SMB с POSIX.
+В таком случае некоторые файлы будут принадлежать сущности SMB, а некоторые — сущности POSIX.
+Однако параметр
+.Fl i
+сообщит, что сущность POSIX имеет суммарное использование и квоту для обоих.
+.It Fl n
+Выводить числовой идентификатор вместо имени пользователя/группы.
+.It Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns …
+Отображать только указанные поля из следующего набора:
+.Sy type ,
+.Sy name ,
+.Sy used ,
+.Sy quota .
+По умолчанию отображаются все поля.
+.It Fl p
+Использовать точный
+.Pq пригодный для разбора
+числовой вывод.
+.It Fl s Ar поле
+Сортировать вывод по этому полю.
+Флаги
+.Fl s
+и
+.Fl S
+можно указывать несколько раз, чтобы сначала сортировать по одному полю, затем по другому.
+По умолчанию используются
+.Fl s Sy type Fl s Sy name .
+.It Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns …
+Выводить только указанные типы из следующего набора:
+.Sy all ,
+.Sy posixuser ,
+.Sy smbuser ,
+.Sy posixgroup ,
+.Sy smbgroup .
+По умолчанию используются
+.Fl t Sy posixuser , Ns Sy smbuser .
+Значение по умолчанию можно изменить, чтобы включить типы групп.
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm groupspace
+.Op Fl Hinp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Oo Fl t Ar тип Ns Oo , Ns Ar тип Oc Ns … Oc
+.Ar файловая система Ns | Ns Ar снимок
+.Xc
+Отображает пространство, потребляемое каждой группой, и квоты для каждой группы в указанной файловой системе или снимке.
+Эта подкоманда идентична
+.Cm userspace ,
+за исключением того, что по умолчанию отображаются типы
+.Fl t Sy posixgroup , Ns Sy smbgroup .
+.It Xo
+.Nm zfs
+.Cm projectspace
+.Op Fl Hp
+.Oo Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns … Oc
+.Oo Fl s Ar поле Oc Ns …
+.Oo Fl S Ar поле Oc Ns …
+.Ar файловая система Ns | Ns Ar снимок Ns | Ns Ar путь
+.Xc
+Отображает пространство, потребляемое каждым проектом, и квоты для каждого проекта в указанной файловой системе или снимке.
+Эта подкоманда идентична
+.Cm userspace ,
+за исключением того, что идентификатор проекта — это число, а не имя.
+Поэтому не нужны ни параметр
+.Fl i
+для преобразования SID в POSIX ID, ни
+.Fl n
+для числового ID, ни
+.Fl t
+для типов.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfsprops 7 ,
+.Xr zfs-set 8

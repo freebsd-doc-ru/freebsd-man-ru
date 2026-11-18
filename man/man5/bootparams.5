@@ -1,0 +1,90 @@
+.\"
+.\" Copyright (c) 1994 Gordon W. Ross
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\"	from: Id: bootparams.5,v 1.2 1994/10/03 19:26:13 gwr Exp
+.\"
+.\" FRDP path usr.sbin/bootparamd/bootparamd/bootparams.5
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 2a63a4ac086cb9401a7bd0a8c0d90b5515c629b41eb6dfa814c7d6e52912d5a8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 2, 1994
+.Dt BOOTPARAMS 5
+.Os
+.Sh ИМЯ
+.Nm bootparams
+.Nd база данных параметров загрузки
+.Sh СИНТАКСИС
+.Nm /etc/bootparams
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+задает параметры загрузки, которые могут запрашивать клиенты
+.Xr diskless 8
+при загрузке по сети.
+Каждый клиент, поддерживаемый этим сервером, должен иметь в файле
+.Nm
+запись, содержащую имена путей для его
+.Dq root
+и (необязательно)
+.Dq swap
+областей.
+.Pp
+Каждая строка в файле
+(кроме строк комментариев, начинающихся с
+.Ql # )
+задает имя клиента, за которым следуют имена путей, которые
+клиент может запросить по их логическим именам.
+Компоненты строки разделяются пробелом или табуляцией
+и могут быть продолжены на нескольких строках с помощью обратной косой черты.
+.Pp
+Например:
+.Bd -literal -offset indent
+dummy	root=host:/export/dummy/root \\
+	swap=host:/export/dummy/swap \\
+	dump=host:/export/dummy/swap
+.Ed
+.Pp
+При запросе клиентом с именем
+.Dq dummy
+имени пути для своего логического
+.Dq root
+ему будет выдано имя пути
+.Dq Pa host:/export/dummy/root
+в качестве ответа на его
+.Tn RPC
+запрос.
+Компонент
+.Dq host:
+должен быть указан.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/bootparams -compact
+.It Pa /etc/bootparams
+файл конфигурации по умолчанию
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bootparamd 8 ,
+.Xr diskless 8

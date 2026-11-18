@@ -1,0 +1,250 @@
+.\" Copyright (c) 2003 Tim J. Robbins
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/lio_listio.2
+.\" FRDP githash ff2bc641599a7845f597ad02ccfc98c5467fa948
+.\" FRDP hash256 51becfe0a21e0b19a186867a1328f756497b478ea522e5ed503ab38bb5cdc4cb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 13, 2024
+.Dt LIO_LISTIO 2
+.Os
+.Sh ИМЯ
+.Nm lio_listio
+.Nd "списковый ввод-вывод с прямым доступом (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fo lio_listio
+.Fa "int mode"
+.Fa "struct aiocb * const list[]"
+.Fa "int nent"
+.Fa "struct sigevent *sig"
+.Fc
+.Sh ОПИСАНИЕ
+Функция
+.Fn lio_listio
+инициирует список запросов ввода-вывода одним вызовом функции.
+Аргумент
+.Fa list
+представляет собой массив указателей на структуры
+.Vt aiocb
+, описывающие каждую выполняемую операцию,
+с
+.Fa nent
+элементами.
+Элементы
+.Dv NULL
+игнорируются.
+.Pp
+Поле
+.Va aio_lio_opcode
+каждой структуры
+.Vt aiocb
+задаёт выполняемую операцию.
+Поддерживаются следующие операции:
+.Bl -tag -width ".Dv LIO_WRITE"
+.It Dv LIO_READ
+Чтение данных, как при вызове
+.Xr aio_read 2 .
+.It Dv LIO_READV
+Чтение данных, как при вызове
+.Xr aio_readv 2 .
+.It Dv LIO_NOP
+Никакой операции.
+.It Dv LIO_WRITE
+Запись данных, как при вызове
+.Xr aio_write 2 .
+.It Dv LIO_WRITEV
+Запись данных, как при вызове
+.Xr aio_writev 2 .
+.El
+.Pp
+Если к кодам операций
+.Dv LIO_READ ,
+.Dv LIO_READV ,
+.Dv LIO_WRITE ,
+.Dv LIO_WRITEV
+применена операция побитового ИЛИ с флагом
+.Dv LIO_FOFFSET ,
+соответствующая операция чтения или записи использует текущее смещение
+файлового дескриптора вместо
+.Va aio_offset
+из
+.Vt aiocb .
+.Pp
+Если аргумент
+.Fa mode
+равен
+.Dv LIO_WAIT ,
+.Fn lio_listio
+не возвращает управление, пока все запрошенные операции не будут завершены.
+Если
+.Fa mode
+равен
+.Dv LIO_NOWAIT ,
+.Fa sig
+может использоваться для запроса асинхронного уведомления о завершении
+всех операций.
+Если
+.Fa sig
+равен
+.Dv NULL ,
+уведомление не отправляется.
+.Pp
+Для уведомлений
+.Dv SIGEV_KEVENT
+отправляемый kevent будет содержать:
+.Bl -column ".Va filter"
+.It Sy Элемент Ta Sy Значение
+.It Va ident Ta Fa list
+.It Va filter Ta Dv EVFILT_LIO
+.It Va udata Ta
+значение, сохранённое в
+.Fa sig->sigev_value
+.El
+.Pp
+Для уведомлений
+.Dv SIGEV_SIGNO
+и
+.Dv SIGEV_THREAD_ID
+информация о помещённом в очередь сигнале будет включать
+.Dv SI_ASYNCIO
+в поле
+.Va si_code
+и значение, сохранённое в
+.Fa sig->sigev_value
+в поле
+.Va si_value .
+.Pp
+Для уведомлений
+.Dv SIGEV_THREAD
+значение, сохранённое в
+.Fa sig->sigev_value
+передаётся в
+.Fa sig->sigev_notify_function
+как описано в
+.Xr sigevent 3 .
+.Pp
+Порядок, в котором выполняются запросы, не определён;
+в частности, нет гарантии, что они будут выполнены в
+порядке 0, 1, ...,
+.Fa nent Ns \-1 .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Если
+.Fa mode
+равен
+.Dv LIO_WAIT ,
+функция
+.Fn lio_listio
+возвращает 0, если операции успешно завершены,
+иначе \-1.
+.Pp
+Если
+.Fa mode
+равен
+.Dv LIO_NOWAIT ,
+функция
+.Fn lio_listio
+возвращает 0, если операции успешно помещены в очередь,
+иначе \-1.
+.Sh ОШИБКИ
+Функция
+.Fn lio_listio
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Недостаточно ресурсов для постановки запросов в очередь.
+.It Bq Er EAGAIN
+Запрос приведёт к превышению общесистемного предела
+.Dv {AIO_MAX} .
+.It Bq Er EINVAL
+Аргумент
+.Fa mode
+не является ни
+.Dv LIO_WAIT ,
+ни
+.Dv LIO_NOWAIT ,
+или
+.Fa nent
+больше
+.Dv {AIO_LISTIO_MAX} .
+.It Bq Er EINVAL
+Метод асинхронного уведомления в
+.Fa sig->sigev_notify
+недопустим или не поддерживается.
+.It Bq Er EINTR
+Сигнал прервал системный вызов до его завершения.
+.It Bq Er EIO
+Один или несколько запросов завершились с ошибкой.
+.El
+.Pp
+Кроме того, функция
+.Fn lio_listio
+может завершиться с ошибкой по любой из причин, перечисленных для
+.Xr aio_read 2
+и
+.Xr aio_write 2 .
+.Pp
+Если
+.Fn lio_listio
+завершается успешно или с кодом ошибки
+.Er EAGAIN , EINTR
+или
+.Er EIO ,
+некоторые из запросов могли быть инициированы.
+Вызывающая сторона должна проверить состояние ошибки каждой структуры
+.Vt aiocb
+отдельно, вызвав
+.Xr aio_error 2 .
+.Sh СМ. ТАКЖЕ
+.Xr aio_error 2 ,
+.Xr aio_read 2 ,
+.Xr aio_readv 2 ,
+.Xr aio_write 2 ,
+.Xr aio_writev 2 ,
+.Xr read 2 ,
+.Xr write 2 ,
+.Xr sigevent 3 ,
+.Xr siginfo 3 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Ожидается, что функция
+.Fn lio_listio
+соответствует
+.St -p1003.1-2001 .
+Операции
+.Dv LIO_READV
+и
+.Dv LIO_WRITEV
+являются
+.Fx
+расширениями и не должны использоваться в переносимом коде.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn lio_listio
+впервые появился в
+.Fx 3.0 .

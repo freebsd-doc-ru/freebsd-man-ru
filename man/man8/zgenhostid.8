@@ -1,0 +1,95 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2017 by Lawrence Livermore National Security, LLC.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zgenhostid.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 44e4c4f22a9cd986fdd1b4a61934304c49f29c8d127ad957087dabad88b5717f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZGENHOSTID 8
+.Os
+.
+.Sh ИМЯ
+.Nm zgenhostid
+.Nd сгенерировать идентификатор узла в /etc/hostid
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f
+.Op Fl o Ar имя_файла
+.Op Ar идентификатор_узла
+.
+.Sh ОПИСАНИЕ
+Создаёт файл
+.Pa /etc/hostid
+и сохраняет в нём идентификатор узла.
+Если
+.Ar идентификатор_узла
+был указан, проверьте и сохраните это значение.
+В противном случае случайным образом сгенерируйте идентификатор.
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl h
+Показать сводку параметров командной строки.
+.It Fl f
+Разрешить перезапись вывода.
+.It Fl o Ar имя_файла
+Записать в
+.Pa имя_файла
+вместо заданного по умолчанию
+.Pa /etc/hostid .
+.It Ar идентификатор_узла
+Задаёт значение, которое будет помещено в
+.Pa /etc/hostid .
+Это должно быть число со значением от 1 до 2^32-1.
+Если
+.Sy 0 ,
+сгенерировать случайный идентификатор.
+Это значение
+.Em должно
+быть уникальным среди ваших систем.
+Оно
+.Em должно
+быть 8-значным шестнадцатеричным числом, необязательно с префиксом
+.Qq 0x .
+.El
+.
+.Sh ФАЙЛЫ
+.Pa /etc/hostid
+.
+.Sh ПРИМЕРЫ
+.Bl -tag -width Bd
+.It Сгенерировать случайный идентификатор узла и сохранить его
+.Dl # Nm
+.It Записать сгенерированный libc идентификатор узла в Pa /etc/hostid
+.Dl # Nm Qq $ Ns Pq Nm hostid
+.It Записать пользовательский идентификатор узла Po Ar 0xdeadbeef Pc в Pa /etc/hostid
+.Dl # Nm Ar deadbeef
+.It Записать пользовательский идентификатор узла Po Ar 0x01234567 Pc в /tmp/hostid No и перезаписать файл, если он существует
+.Dl # Nm Fl f o Ar /tmp/hostid 0x01234567
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr genhostid 1 ,
+.Xr hostid 1 ,
+.Xr sethostid 3 ,
+.Xr spl 4
+.
+.Sh ИСТОРИЯ
+.Nm
+эмулирует утилиту
+.Xr genhostid 1
+и предоставляется для использования в системах, которые
+не включают эту утилиту или не предоставляют функцию
+.Xr sethostid 3 .

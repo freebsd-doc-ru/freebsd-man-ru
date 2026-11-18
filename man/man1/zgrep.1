@@ -22,10 +22,12 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" FRDP path ./usr.bin/grep/zgrep.1
-.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
-.\" FRDP hash256 68ba2b14d0ca41ad671489a94eaee62ace8b72ebe3dab36aebf777cf412ff044
-.Dd 20 июля 2020
+.\" FRDP path usr.bin/grep/zgrep.1
+.\" FRDP githash da5d94d29a5ec29817476c39ae2b2ad1666c3f06
+.\" FRDP hash256 d2bdfb84bcb91af086907c9e6c9ec099fba4d86c32f640ad3400123ee4bbb15e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 20, 2020
 .Dt ZGREP 1
 .Os
 .Sh ИМЯ
@@ -44,42 +46,42 @@
 .Nm zstdgrep ,
 .Nm zstdegrep ,
 .Nm zstdfgrep
-.Nd поиск в сжатых файлах
+.Nd поиск в сжатых файлах с помощью grep
 .Sh СИНТАКСИС
 .Nm
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm zegrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm zfgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Pp
 .Nm bzgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm bzegrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm bzfgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Pp
 .Nm lzgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm lzegrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm lzfgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Pp
 .Nm xzgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm xzegrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm xzfgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Pp
 .Nm zstdgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm zstdegrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Nm zstdfgrep
-.Oo Аргументы Oc Файлы
+.Oo Ar флаги Oc Ar файлы
 .Sh ОПИСАНИЕ
 Позволяет
 .Xr grep 1
@@ -91,21 +93,7 @@
 .Xr xz 1 ,
 .Xr zstd 1
 .Sh АВТОРЫ
-Эта версия утилиты
+Автором этой версии утилиты
 .Nm
-была написана
-.An Томасом Клауснером Aq Mt wiz@NetBSD.org .
-.Sh ИЗВЕСТНЫЕ ОШИБКИ
-.Xr zgrep 1
-не обрабатывает флаги, принимающие аргументы, если между флагом и аргументом нет пробела, например:
-.Pp
-.Pp
-При использовании более одного флага
-.Fl e
-совпадение должно происходить для любого из шаблонов (аналогично нескольким шаблонам, указанным в файле с флагом
-.Fl f
-).
-.Xr zgrep 1
-соответствует только последнему шаблону
-.Fl e
-.
+является
+.An Thomas Klausner Aq Mt wiz@NetBSD.org .

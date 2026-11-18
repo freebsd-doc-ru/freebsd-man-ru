@@ -1,0 +1,182 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright 2018 Allan Jude <allanjude@freebsd.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted providing that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/certctl/certctl.8
+.\" FRDP githash 2fef18ff594328a771b6aa659e8ffa5a7e076540
+.\" FRDP hash256 572fe8bd261bc034c13875afc0f6037c3ec79b35d5a27efe4a9c94b5ec784690
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 24, 2026
+.Dt CERTCTL 8
+.Os
+.Sh ИМЯ
+.Nm certctl
+.Sh СИНТАКСИС
+.Nm
+.Op Fl lv
+.Ic list
+.Nm
+.Op Fl lv
+.Ic untrusted
+.Nm
+.Op Fl BnUv
+.Op Fl D Ar destdir
+.Op Fl M Ar metalog
+.Ic rehash
+.Nm
+.Op Fl nv
+.Ic untrust Ar
+.Nm
+.Op Fl nv
+.Ic trust Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+управляет списком центров сертификации TLS, которым доверяют приложения, использующие OpenSSL.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width 4n
+.It Fl B
+Не создавать пакет.
+Этот параметр допустим только вместе с командой
+.Ic rehash
+.
+.It Fl D Ar destdir
+Указывает DESTDIR (переопределяя значения из окружения).
+.It Fl d Ar distbase
+Указывает DISTBASE (переопределяя значения из окружения).
+.It Fl l
+При выводе списка установленных (доверенных или недоверенных) сертификатов показывать
+полный путь и отличительное имя для каждого сертификата.
+.It Fl M Ar metalog
+Указывает путь к файлу METALOG
+.Po
+по умолчанию:
+.Pa ${DESTDIR}/METALOG
+.Pc .
+Этот параметр допустим только вместе с командой
+.Ic rehash
+.
+.It Fl n
+Режим пробного запуска.
+Фактически не выполнять никаких действий, кроме записи metalog.
+.It Fl v
+Подробный режим.
+Выводить подробную информацию о каждом выполненном действии.
+.It Fl U
+Непривилегированный режим.
+Не пытаться устанавливать владельца созданных файлов.
+Этот параметр допустим только вместе с параметром
+.Fl M
+и командой
+.Ic rehash
+.
+.El
+.Pp
+Основные функции команд:
+.Bl -tag -width untrusted
+.It Ic list
+Вывести список всех текущих доверенных сертификатов.
+.It Ic untrusted
+Вывести список всех текущих недоверенных сертификатов.
+.It Ic rehash
+Перестроить список доверенных сертификатов, просканировав все каталоги
+в
+.Ev TRUSTPATH
+и все недоверенные сертификаты в
+.Ev UNTRUSTPATH .
+Копия каждого доверенного сертификата помещается в
+.Ev TRUSTDESTDIR
+, а каждый недоверенный сертификат — в
+.Ev UNTRUSTDESTDIR .
+Кроме того, пакет, содержащий доверенные сертификаты, помещается в
+.Ev BUNDLE .
+.It Ic untrust
+Добавить указанный файл в список недоверенных.
+Обратите внимание, что следующая
+.Ic rehash
+удалит его, если его копия также не помещена куда-либо в
+каталог, включённый в
+.Ev UNTRUSTPATH .
+.It Ic trust
+Добавить указанный файл в список доверенных, если он ещё не
+помечен как недоверенный.
+Обратите внимание, что следующая
+.Ic rehash
+удалит его, если его копия также не помещена куда-либо в
+каталог, включённый в
+.Ev TRUSTPATH .
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width UNTRUSTDESTDIR
+.It Ev DESTDIR
+Абсолютный путь к альтернативному каталогу назначения для работы
+вместо корня файловой системы, например
+.Dq Li /tmp/install .
+.It Ev DISTBASE
+Дополнительный компонент пути, включаемый при работе с каталогами сертификатов.
+Он должен начинаться с косой черты, например
+.Dq Li /base .
+.It Ev LOCALBASE
+Расположение локальных программ.
+По умолчанию принимает значение sysctl user.localbase, которое обычно равно
+.Pa /usr/local .
+.It Ev TRUSTPATH
+Список путей для поиска доверенных сертификатов.
+По умолчанию:
+.Pa ${DESTDIR}${DISTBASE}/usr/share/certs/trusted
+.Pa ${DESTDIR}${LOCALBASE}/share/certs/trusted
+.Pa ${DESTDIR}${LOCALBASE}/share/certs
+.It Ev UNTRUSTPATH
+Список путей для поиска недоверенных сертификатов.
+По умолчанию:
+.Pa ${DESTDIR}${DISTBASE}/usr/share/certs/untrusted
+.Pa ${DESTDIR}${LOCALBASE}/share/certs/untrusted
+.It Ev TRUSTDESTDIR
+Каталог назначения для символических ссылок на доверенные сертификаты.
+По умолчанию:
+.Pa ${DESTDIR}${DISTBASE}/etc/ssl/certs
+.It Ev UNTRUSTDESTDIR
+Каталог назначения для символических ссылок на недоверенные сертификаты.
+По умолчанию:
+.Pa ${DESTDIR}${DISTBASE}/etc/ssl/untrusted
+.It Ev BUNDLE
+Имя файла пакета для создания.
+По умолчанию:
+.Pa ${DESTDIR}${DISTBASE}/etc/ssl/cert.pem
+.El
+.Sh СМ. ТАКЖЕ
+.Xr openssl 1
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 12.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Первоначальная реализация на shell была написана
+.An Allan Jude Aq Mt allanjude@FreeBSD.org .
+Текущая реализация на C была написана
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .

@@ -1,0 +1,297 @@
+.\" Copyright (c) 2016, George V. Neville-Neil
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright notice,
+.\"    this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+.\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/netmap/pkt-gen.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 75670d2bb44ecaac315f41baf4c7ac2fc3ab153bc0fdb5137a0df8982a6f1459
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 21, 2023
+.Dt PKT-GEN 8
+.Os
+.Sh ИМЯ
+.Nm pkt-gen
+.Nd Генератор пакетов для использования с
+.Xr netmap 4
+.Sh СИНТАКСИС
+.Bl -item -compact
+.It
+.Nm
+.Op Fl h46XzZNIWvrAB
+.Op Fl i Ar interface
+.Op Fl f Ar function
+.Op Fl n Ar count
+.Op Fl l Ar pkt_size
+.Op Fl b Ar burst_size
+.Op Fl d Ar dst_ip[:port[-dst_ip:port]]
+.Op Fl s Ar src_ip[:port[-src_ip:port]]
+.Op Fl D Ar dst_mac
+.Op Fl S Ar src_mac
+.Op Fl a Ar cpu_id
+.Op Fl c Ar cpus
+.Op Fl p Ar threads
+.Op Fl T Ar report_ms
+.Op Fl P Ar file
+.Op Fl w Ar wait_for_link_time
+.Op Fl R Ar rate
+.Op Fl H Ar len
+.Op Fl F Ar num_frags
+.Op Fl M Ar frag_size
+.Op Fl C Ar port_config
+.El
+.Sh ОПИСАНИЕ
+.Nm
+использует
+.Xr netmap 4
+для генерации и приёма необработанных сетевых пакетов группами.
+Аргументы следующие:
+.Bl -tag -width Ds
+.It Fl h
+Показать использование программы и выйти.
+.It Fl i Ar interface
+Имя сетевого интерфейса, на котором работает
+.Nm .
+Это может быть системный сетевой интерфейс (например, em0),
+имя порта
+.Xr vale 4
+(например, valeSSS:PPP), имя канала или монитора netmap,
+либо любое допустимое имя порта netmap, принимаемое библиотечной функцией
+.Ar nm_open
+, как описано в
+.Xr netmap 4
+(раздел NIOCREGIF).
+.It Fl f Ar function
+Функция, выполняемая
+.Nm .
+Укажите
+.Cm tx
+для передачи,
+.Cm rx
+для приёма,
+.Cm ping
+для операции ping-pong на стороне клиента и
+.Cm pong
+для операции ping-pong на стороне сервера.
+.It Fl n Ar count
+Количество итераций функции
+.Nm
+(0 означает бесконечно).
+В случае
+.Cm tx
+или
+.Cm rx
+.Ar count
+— это количество пакетов для приёма или передачи.
+В случае
+.Cm ping
+или
+.Cm pong
+.Ar count
+— это количество ping-pong транзакций.
+.It Fl l Ar pkt_size
+Размер пакета в байтах без CRC.
+Если указан второй раз, использовать случайные размеры, большие или равные второму и меньшие первого.
+.It Fl b Ar burst_size
+Передавать или принимать до
+.Ar burst_size
+пакетов за раз.
+.It Fl 4
+Использовать адреса IPv4.
+.It Fl 6
+Использовать адреса IPv6.
+.It Fl d Ar dst_ip[:port[-dst_ip:port]]
+Адрес и порт назначения IPv4/IPv6, один или диапазон.
+.It Fl s Ar src_ip[:port[-src_ip:port]]
+Адрес и порт источника IPv4/IPv6, один или диапазон.
+.It Fl D Ar dst_mac
+MAC-адрес назначения в записи через двоеточия (например, aa:bb:cc:dd:ee:00).
+.It Fl S Ar src_mac
+MAC-адрес источника в записи через двоеточия.
+.It Fl a Ar cpu_id
+Привязать первый поток
+.Nm
+к определённому CPU с помощью
+.Xr pthread_setaffinity_np 3 .
+Если используется больше потоков, они привязываются к последующим CPU,
+по одному на поток.
+.It Fl c Ar cpus
+Максимальное количество используемых CPU (0 означает использовать все доступные).
+.It Fl p Ar threads
+Количество используемых потоков.
+По умолчанию используется только один поток
+для обработки всех колец netmap.
+Если
+.Ar threads
+больше единицы, каждый поток обрабатывает одно кольцо TX (в режиме
+.Cm tx
+), одно кольцо RX (в режиме
+.Cm rx
+) или пару колец TX/RX.
+Количество
+.Ar threads
+должно быть меньше или равно количеству доступных колец TX (или RX)
+в устройстве, указанном в
+.Ar interface .
+.It Fl T Ar report_ms
+Количество миллисекунд между отчётами.
+.It Fl w Ar wait_for_link_time
+Количество секунд ожидания перед запуском функции
+.Nm
+, полезно, чтобы убедиться, что сетевой канал поднят.
+Драйверу сетевого устройства может потребоваться некоторое время для перехода в режим netmap или
+для создания новой пары колец передачи/приёма, когда
+.Xr netmap 4
+запрашивает её.
+.It Fl R Ar rate
+Скорость передачи пакетов.
+Если скорость передачи пакетов не задана,
+.Nm
+передаёт пакеты как можно быстрее.
+На серверах с 2010 года и новее
+.Xr netmap 4
+способен полностью использовать всю пропускную способность канала 10 или 40 Гбит/с,
+поэтому эту опцию следует использовать, если только ваша цель не — насытить канал.
+.It Fl X
+Выводить дамп полезной нагрузки каждого переданного или принятого пакета.
+.It Fl H Ar len
+Добавить пустой заголовок virtio-net размером
+.Ar len .
+Допустимые размеры: 0, 10 и 12.
+Эта опция используется только с технологиями виртуальных машин, которые используют virtio
+в качестве сетевого интерфейса.
+.It Fl P Ar file
+Загружать пакет для передачи из файла pcap вместо создания его внутри
+.Nm .
+.It Fl z
+Использовать случайный IPv4/IPv6 адрес/порт источника.
+.It Fl Z
+Использовать случайный IPv4/IPv6 адрес/порт назначения.
+.It Fl N
+Не нормализовать единицы (т.е. использовать bps, pps вместо Mbps, Kpps и т.д.).
+.It Fl F Ar num_frags
+Отправлять многослотовые пакеты, каждый с
+.Ar num_frags
+фрагментами.
+Многослотовый пакет представляется двумя или более последовательными слотами netmap
+с установленным флагом
+.Ar NS_MOREFRAG
+(кроме последнего слота).
+Это полезно для передачи или приёма пакетов большего размера, чем размер буфера netmap.
+.It Fl M Ar frag_size
+В многослотовом режиме
+.Ar frag_size
+задаёт размер каждого фрагмента, если он меньше длины пакета,
+делённой на
+.Ar num_frags .
+.It Fl I
+Использовать косвенные буферы.
+Допустимо только для передачи на портах VALE
+и реализуется установкой флага
+.Ar NS_INDIRECT
+в слотах netmap.
+.It Fl W
+Немедленно завершить работу, если все кольца RX пусты при первом их
+просмотре.
+.It Fl v
+Увеличить уровень подробности вывода.
+.It Fl r
+В режиме
+.Cm tx
+не инициализировать пакеты, а отправлять то, что находится в
+неинициализированных буферах netmap (режим мусора).
+.It Fl A
+Вычислять среднее и стандартное отклонение (по скользящему окну) для
+скорости передачи или приёма.
+.It Fl B
+Учитывать кадрирование Ethernet и CRC при вычислении среднего bps.
+Это добавляет 4 байта CRC и 20 байт кадрирования к каждому пакету.
+.It Fl C Ar tx_slots Ns Oo Cm \&, Ns Ar rx_slots Ns Oo Cm \&, Ns Ar tx_rings Ns Oo Cm \&, Ns Ar rx_rings Oc Oc Oc
+Конфигурация в терминах количества колец и слотов, используемых при
+открытии порта netmap.
+Такая конфигурация влияет на программные порты,
+создаваемые на лету, такие как порты VALE и каналы netmap.
+Конфигурация может состоять из от 1 до 4 чисел, разделённых запятыми:
+.Dq tx_slots,rx_slots,tx_rings,rx_rings .
+Отсутствующие числа или нули означают значения по умолчанию.
+Дополнительно, если указано ровно одно число,
+оно присваивается обоим
+.Ar tx_slots
+и
+.Ar rx_slots .
+Если четвёртого числа нет, третье присваивается обоим
+.Ar tx_rings
+и
+.Ar rx_rings .
+.El
+.Pp
+.Nm
+является генератором необработанных пакетов, который может использовать либо
+.Xr netmap 4
+, либо
+.Xr bpf 4
+, но чаще всего используется с
+.Xr netmap 4 .
+Используемое
+.Ar interface name
+зависит от того, как нижележащий драйвер Ethernet предоставляет свои
+кольца передачи и приёма для
+.Xr netmap 4 .
+Большинство современных сетевых интерфейсов, поддерживающих 10 Гбит/с и выше,
+имеют несколько колец передачи и приёма, которые используются операционной
+системой для балансировки трафика по интерфейсу.
+.Nm
+может выделить одно или несколько колец передачи или приёма для собственного
+использования, не мешая пакетам, которые иначе могли бы быть предназначены
+хосту.
+Например, в системе с сетевой картой (NIC) Chelsio спецификация интерфейса
+.Ar -i netmap:ncxl0
+даёт
+.Nm
+доступ к паре колец передачи и приёма, отдельных от более известного
+интерфейса cxl0, который используется стеком TCP/IP операционной
+системы.
+.Sh ПРИМЕРЫ
+Захватить и подсчитать все пакеты, прибывающие на интерфейс cxl0
+операционной системы.
+Использование этого заблокирует пакеты от достижения сетевого
+стека операционной системы.
+.Bd -literal -offset indent
+pkt-gen -i cxl0 -f rx
+.Ed
+.Pp
+Отправить поток поддельных DNS-пакетов между двумя хостами с длиной пакета
+128 байт.
+Вы должны задать MAC-адрес назначения, чтобы
+пакеты были получены целевым хостом.
+.Bd -literal -offset indent
+pkt-gen -i netmap:ncxl0 -f tx -s 172.16.0.1:53 -d 172.16.1.3:53 \e
+-D 00:07:43:29:2a:e0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr netmap 4 ,
+.Xr bridge 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An George V. Neville-Neil Aq Mt gnn@FreeBSD.org .

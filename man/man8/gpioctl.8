@@ -1,0 +1,173 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/gpioctl/gpioctl.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 7590e365a31a586e269e21f57ed2023f0a458d38dae0f48a7a38efcceff4c0d9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 2018
+.Dt GPIOCTL 8
+.Os
+.Sh ИМЯ
+.Nm gpioctl
+.Nd утилита управления GPIO
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar ctldev
+.Cm -l
+.Op Fl v
+.Nm
+.Op Fl f Ar ctldev
+.Op Fl pN
+.Cm -t
+.Ar pin
+.Nm
+.Op Fl f Ar ctldev
+.Op Fl pN
+.Cm -c
+.Ar pin
+.Ar flag
+.Op flag ...
+.Nm
+.Op Fl f Ar ctldev
+.Op Fl pN
+.Cm -n
+.Ar pin
+.Ar pin-name
+.Nm
+.Op Cm -f Ar ctldev
+.Op Fl pN
+.Ar pin
+.Ar [0|1]
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для управления контактами GPIO из пространства пользователя и вывода списка доступных контактов.
+.Pp
+Аргумент
+.Pa pin
+может быть либо
+.Pa pin-number ,
+либо
+.Pa pin-name .
+Если это число и какой-либо контакт имеет это число в качестве своего имени, а вы не использовали
+.Fl N
+или
+.Fl p ,
+то
+.Nm
+завершает работу.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl c Ar pin Ar flag Op flag ...
+Настроить контакт, установив заданные флаги.
+В настоящее время определены следующие флаги:
+.Bl -tag -width Ds
+.It Cm IN
+Входной контакт
+.It Cm OUT
+Выходной контакт
+.It Cm OD
+Контакт с открытым стоком
+.It Cm PP
+Двухтактный контакт
+.It Cm TS
+Контакт с третьим состоянием
+.It Cm PU
+Контакт с подтяжкой вверх
+.It Cm PD
+Контакт с подтяжкой вниз
+.It Cm II
+Инвертированный входной контакт
+.It Cm IO
+Инвертированный выходной контакт
+.El
+.It Fl f Ar ctldev
+Устройство контроллера GPIO, которое нужно использовать.
+Если не указано, по умолчанию используется
+.Pa /dev/gpioc0
+.It Fl l
+вывести список доступных контактов
+.It Fl n Ar pin Ar pin-name
+задать имя, используемое для описания контакта
+.It Fl t Ar pin
+переключить значение указанного контакта
+.It Fl v
+подробный режим: для каждого выведенного контакта печатать текущую конфигурацию
+.It Fl p
+Принудительно интерпретировать
+.Pa pin
+как номер контакта
+.It Fl N
+Принудительно интерпретировать
+.Pa pin
+как имя контакта
+.El
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Вывести список контактов, доступных на контроллере GPIO, определяемом устройством /dev/gpioc0
+.Pp
+gpioctl -f /dev/gpioc0 -l
+.It
+Установить значение контакта 12 в 1
+.Pp
+gpioctl -f /dev/gpioc0 12 1
+.It
+Настроить контакт 12 как входной контакт
+.Pp
+gpioctl -f /dev/gpioc0 -c 12 IN
+.It
+Задать имя контакта 12 как test
+.Pp
+gpioctl -f /dev/gpioc0 -n 12 test
+.It
+Переключить значение контакта с именем test
+.Pp
+gpioctl -f /dev/gpioc0 -t test
+.It
+Переключить значение контакта с номером 12, даже если другой контакт имеет имя 12
+.Pp
+gpioctl -f /dev/gpioc0 -pt 12
+.El
+.Sh СМ. ТАКЖЕ
+.Xr gpio 4 ,
+.Xr gpioiic 4 ,
+.Xr gpioled 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и эта страница руководства были написаны
+.An Oleksandr Tymoshenko Aq Mt gonzo@FreeBSD.org .

@@ -1,0 +1,104 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2025 The FreeBSD Foundation
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/flua/flua.1
+.\" FRDP githash cbe50f7c20cf0ca484d29cf345864a18c29850e7
+.\" FRDP hash256 d8e9c5c46a093fa994e9cc4f2b71eb72237924e519539726ee9baca30e28a73a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 28, 2025
+.Dt FLUA 1
+.Os
+.Sh ИМЯ
+.Nm flua
+.Nd Интерпретатор Lua для базовой системы FreeBSD
+.Sh СИНТАКСИС
+.Nm flua
+.Op Fl EWiv
+.Op Fl e Ar строка
+.Op Fl l Ar модуль
+.Op Fl l Ar g=модуль
+.Op Ar сценарий Op Ar аргументы
+.Op Fl -
+.Op Fl
+.Sh ОПИСАНИЕ
+.Nm
+является минимальным интерпретатором Lua, интегрированным в базовую систему FreeBSD.
+Он основан на Lua 5.4 с изменениями, отвечающими потребностям
+.Fx
+в инфраструктуре сборки и системных инструментах.
+.Nm
+предназначен для внутреннего использования в базовой системе и
+.Em не
+рассчитан на сценарии общего назначения или использование сторонними приложениями.
+.Pp
+В отличие от полных установок Lua, предоставляемых коллекцией портов,
+.Nm
+обладает сокращённым набором возможностей и ограничен удовлетворением требований
+окружений базовой системы, таких как загрузчик.
+.Sh ИСПОЛЬЗОВАНИЕ
+.Nm
+обычно вызывается внутренними инструментами базовой системы FreeBSD и сборочными сценариями.
+Хотя он принимает исходные файлы Lua и аргументы стандартным образом, его
+ограниченное окружение и поддержка модулей делают его непригодным для общего
+использования в сценариях.
+.Sh ВКЛЮЧЁННЫЕ МОДУЛИ
+.Nm
+включает подмножество функциональности из небольшого числа стандартных модулей Lua,
+а также специализированные модули, необходимые для базовой системы:
+.Bl -bullet
+.It
+lfs (LuaFileSystem) – работа с атрибутами файлов и каталогами
+.It
+lposix - базовые системные вызовы POSIX
+.It
+.Xr freebsd.kenv 3lua
+.It
+.Xr freebsd.sys.linker 3lua
+.It
+.Xr hash 3lua
+.It
+.Xr jail 3lua
+.El
+.Sh ПРИМЕЧАНИЯ
+.Nm
+не следует использовать в качестве замены для
+.Xr lua 1
+из коллекции портов (например,
+.Pa lang/lua54 )
+поскольку в будущем он может быть изменён или обновлён до более новой версии Lua без
+сохранения обратной совместимости.
+.Sh СМ. ТАКЖЕ
+.Xr freebsd.kenv 3lua ,
+.Xr freebsd.sys.linker 3lua ,
+.Xr hash 3lua ,
+.Xr jail 3lua ,
+.Xr style.lua 9
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Fx 14.0 .

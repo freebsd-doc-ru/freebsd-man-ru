@@ -1,0 +1,120 @@
+.\"-
+.\" Copyright (c) 2000 Dag-Erling Smørgrav
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer
+.\"    in this position and unchanged.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/acpi/acpiconf/acpiconf.8
+.\" FRDP githash e738085b94631f90e21a49852538ac95974baf44
+.\" FRDP hash256 16805e9c24714666860c3baf908fd4ac6a6e48df56895a71c5c7a7cd66233f6c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 16, 2023
+.Dt ACPICONF 8
+.Os
+.Sh ИМЯ
+.Nm acpiconf
+.Nd управление энергопотреблением ACPI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Op Fl i Ar batt
+.Op Fl k Ar ack
+.Op Fl s Ar type
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+позволяет пользователю управлять функциями управления питанием ACPI.
+Распознаются следующие параметры командной строки:
+.Bl -tag -width indent
+.It Fl h
+Показывает сводку доступных параметров.
+.It Fl i Ar batt
+Получает сведения о конструкции и текущее состояние аккумулятора, указанного
+по его номеру, начиная с
+.Cm 0 .
+.It Fl k Ar ack
+Подтверждает или отменяет ожидающий запрос приостановки, используя предоставленный аргумент.
+.Sy Большинству пользователей не следует использовать эту опцию напрямую.
+.It Fl s Ar type
+Входит в указанный режим сна.
+Распознаются следующие типы:
+.Cm 1
+(останавливается только тактовая частота процессора),
+.Cm 2
+(не реализован в большинстве систем, но аналогичен S1),
+.Cm 3
+(контекст процессора теряется, а контекст памяти сохраняется),
+и
+.Cm 4
+(контекст процессора теряется, а контекст памяти сохраняется на диск).
+Состояния сна также можно задавать как S1, S2 и т.д.
+Поддерживаемые состояния зависят от реализации BIOS, включая байт-код ACPI
+(AML).
+Если сценарии
+.Pa /etc/rc.suspend
+и
+.Pa /etc/rc.resume
+являются исполняемыми, они будут запущены
+.Xr devd 8
+или
+.Xr apmd 8
+до и после входа в заданное состояние сна.
+.Pp
+Сценарии
+.Pa /etc/rc.suspend
+и
+.Pa /etc/rc.resume
+используют утилиту
+.Xr rcorder 8
+для вызова сценариев в
+.Pa /etc/rc.d/
+и аргумент командной строки
+.Va $local_startup .
+См.
+.Xr rc.conf 5
+для получения дополнительной информации о
+.Va $local_startup .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr rc.conf 5 ,
+.Xr acpidump 8 ,
+.Xr apm 8 ,
+.Xr apmd 8 ,
+.Xr devd 8 ,
+.Xr rcorder 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Mitsuru Iwasaki Aq Mt iwasaki@FreeBSD.org .
+Эта страница руководства была написана
+.An Dag-Erling Sm\(/orgrav Aq Mt des@FreeBSD.org .

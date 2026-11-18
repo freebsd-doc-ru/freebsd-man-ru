@@ -1,0 +1,155 @@
+.\" Copyright (c) 2005 Michael Bushkov <bushman@rsu.ru>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nscd/nscd.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 2cf30d05e1c352311b6f76040fb5a49d88904b0dfc7b6adc917837ef1320aff3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 6, 2018
+.Dt NSCD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm nscd.conf
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+используется демоном
+.Xr nscd 8
+и читается при его запуске.
+Его синтаксис в основном похож на синтаксис
+.Pa nscd.conf
+в
+.Tn Linux
+и
+.Tn Solaris .
+Однако есть некоторые отличия \[em] см. ниже.
+.Pp
+Каждая строка задаёт либо атрибут и
+.Ar значение ,
+либо атрибут,
+.Ar имя_кэша
+и
+.Ar значение .
+Обычные имена кэшей:
+.Dq Li passwd ,
+.Dq Li group ,
+.Dq Li hosts ,
+.Dq Li services ,
+.Dq Li protocols
+и
+.Dq Li rpc .
+Вы также можете использовать любое другое
+.Ar имя_кэша
+(например, если какое-либо стороннее
+приложение использует nsswitch).
+.Bl -tag -width indent
+.It Va threads Op Ar значение
+Количество потоков, которые будут прослушивать соединения и обрабатывать запросы.
+Минимальное значение — 1.
+Значение по умолчанию — 8.
+.It Va enable-cache Oo Ar имя_кэша Oc Op Cm yes | no
+Включает или отключает кэш для указанного
+.Ar имя_кэша .
+.It Va positive-time-to-live Oo Ar имя_кэша Oc Op Ar значение
+Устанавливает TTL (время жизни) для указанного кэша в секундах.
+Большие значения могут повысить производительность системы, но также могут повлиять
+на согласованность кэша.
+Значение по умолчанию — 3600.
+.It Va positive-policy Oo Ar имя_кэша Oc Op Cm fifo | lru | lfu
+Политика, применяемая для удаления некоторых элементов кэша, когда
+превышается ограничение размера для заданного
+.Ar имя_кэша .
+Возможные политики:
+.Cm fifo
+(первый вошёл — первый вышел),
+.Cm lru
+(наименее недавно использованный) и
+.Cm lfu
+(наименее часто используемый).
+Политика по умолчанию —
+.Cm lru .
+.It Va negative-time-to-live Oo Ar имя_кэша Oc Op Ar значение
+TTL отрицательно кэшированных элементов в секундах.
+Большие значения могут значительно повысить производительность системы в некоторых
+средах (например, при работе с файлами, UID которых отсутствуют в системных
+базах данных).
+Это число следует держать небольшим, чтобы избежать проблем с согласованностью кэша.
+Значение по умолчанию — 60.
+.It Va negative-policy Oo Ar имя_кэша Oc Op Cm fifo | lru | lfu
+То же, что и positive-policy, но применяется к отрицательным
+элементам заданного
+.Ar имя_кэша .
+Политика по умолчанию — fifo.
+.It Va negative-confidence-threshold Oo Ar имя_кэша Oc Op Ar значение
+Количество раз, которое запрос должен завершиться неудачно, прежде чем кэш примет,
+что элемент не может быть найден.
+При значении по умолчанию 1 каждый отрицательный результат запроса кэшируется и
+немедленно возвращается из кэша при дальнейших запросах.
+Более высокие числа заставляют запросы повторяться в настроенных источниках данных
+заданное количество раз, прежде чем отрицательный результат будет
+возвращён из кэша при дальнейших запросах.
+Это позволяет проверить существование записи, а затем создать
+её, если она не существовала, без того, чтобы отрицательный результат проверки препятствовал
+доступу к новой записи в течение срока действия отрицательного TTL.
+.It Va suggested-size Oo Ar имя_кэша Oc Op Ar значение
+Это внутренний размер хэш-таблицы.
+Значение должно быть простым числом для оптимальной производительности.
+Следует изменять это значение только тогда, когда количество кэшированных элементов
+значительно (в 5-10 раз) превышает размер хэш-таблицы по умолчанию (257).
+.It Va keep-hot-count Oo Ar имя_кэша Oc Op Ar значение
+Ограничение размера кэша с заданным
+.Ar имя_кэша .
+При его превышении будет применена политика.
+Значение по умолчанию — 2048.
+.It Va perform-actual-lookups Oo Ar имя_кэша Oc Op Cm yes | no
+Если включено,
+.Xr nscd 8
+не просто получает и кэширует результаты NSS-запросов, а выполняет
+все поиски самостоятельно и только возвращает ответы.
+Если эта функция включена, то для заданного
+.Ar имя_кэша
+.Xr nscd 8
+будет действовать аналогично NSCD.
+.Pp
+.Sy ПРИМЕЧАНИЕ :
+эта функция в настоящее время экспериментальна \[em] она поддерживает только
+.Dq Li passwd ,
+.Dq Li group
+и
+.Dq Li services
+имена кэшей.
+.El
+.Sh ПРИМЕЧАНИЯ
+Вы можете использовать символ
+.Ql #
+в начале строки для комментариев.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/nscd.conf
+.El
+.Sh СМ. ТАКЖЕ
+.Xr nscd 8
+.Sh АВТОРЫ
+.An Michael Bushkov Aq Mt bushman@FreeBSD.org

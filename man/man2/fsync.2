@@ -1,0 +1,134 @@
+.\" Copyright (c) 1983, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" Parts of this documentation were written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/fsync.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 bd44ee4d85c0e78a56a039c1b9f319f1a570c49f8c0811d244103e9d7517bac9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt FSYNC 2
+.Os
+.Sh ИМЯ
+.Nm fdatasync ,
+.Nm fsync
+.Nd "синхронизировать изменения в файле"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn fdatasync "int fd"
+.Ft int
+.Fn fsync "int fd"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn fsync
+приводит к тому, что все изменённые данные и атрибуты файла, на который
+ссылается файловый дескриптор
+.Fa fd ,
+перемещаются на устройство постоянного хранения.
+Обычно это приводит к записи на диск всех изменённых копий буферов
+соответствующего файла, находящихся в памяти.
+.Pp
+Системный вызов
+.Fn fdatasync
+приводит к тому, что все изменённые данные
+.Fa fd
+перемещаются на устройство постоянного хранения.
+В отличие от
+.Fn fsync ,
+этот системный вызов не гарантирует, что атрибуты файла или
+метаданные, необходимые для доступа к файлу, будут зафиксированы
+на устройстве постоянного хранения.
+.Pp
+Системный вызов
+.Fn fsync
+должен использоваться программами, которые требуют, чтобы файл
+находился в известном состоянии, например, при построении простого
+механизма транзакций.
+Если метаданные файла уже зафиксированы, использование
+.Fn fdatasync
+может быть более эффективным, чем
+.Fn fsync .
+.Pp
+Оба вызова
+.Fn fdatasync
+и
+.Fn fsync
+являются точками отмены.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std fsync
+.Sh ОШИБКИ
+Вызовы
+.Fn fsync
+и
+.Fn fdatasync
+завершаются неудачей, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором.
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+ссылается на сокет, а не на файл.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка
+ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы были обнаружены повреждённые данные.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fsync 1 ,
+.Xr sync 2 ,
+.Xr syncer 4 ,
+.Xr sync 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn fsync
+появился в
+.Bx 4.2 .
+Системный вызов
+.Fn fdatasync
+появился в
+.Fx 11.1 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Системный вызов
+.Fn fdatasync
+в настоящее время не гарантирует, что поставленные в очередь
+запросы
+.Xr aio 4
+для файла, на который ссылается
+.Fa fd ,
+будут завершены до возврата из системного вызова.

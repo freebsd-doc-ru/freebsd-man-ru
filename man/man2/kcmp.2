@@ -1,0 +1,230 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2024 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Mark Johnston <markj@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kcmp.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 40362eefc8249e98f360969afeebcae0c709d66c0ee48a7fa30c800199b90291
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 23, 2024
+.Dt KCMP 2
+.Os
+.Sh ИМЯ
+.Nm kcmp
+.Nd сравнение двух объектов ядра
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn kcmp "pid_t pid1" "pid_t pid2" "int type" "uintptr_t idx1" "uintptr_t idx2"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Nm
+позволяет вызывающему определить, ссылаются ли два процесса с PID
+.Fa pid1
+и
+.Fa pid2
+на один и тот же объект ядра.
+Параметр
+.Fa type
+задаёт тип объекта, а
+.Fa idx1
+и
+.Fa idx2
+— это идентификаторы, которые ссылаются на некоторый объект в контексте процесса
+.Fa pid1
+и
+.Fa pid2
+соответственно.
+.Pp
+Могут быть указаны следующие значения
+.Fa type :
+.Bl -tag -width KCMP_FILE
+.It Dv KCMP_FILE
+Сравнить два описания файлов, на которые ссылаются файловые дескрипторы
+.Fa idx1
+и
+.Fa idx2 .
+Они могут быть эквивалентны, если, например, один из дескрипторов был
+создан путём применения
+.Xr dup 2
+к другому дескриптору.
+.It Dv KCMP_FILEOBJ
+Выполнить
+.Dq глубокое сравнение
+описаний файлов, на которые ссылаются файловые дескрипторы
+.Fa idx1
+и
+.Fa idx2 .
+Это проверяет, является ли нижележащий объект, на который ссылаются описания
+файлов, одним и тем же.
+Например, если один и тот же путь файловой системы открывается дважды, ядро создаст
+два отдельных описания файлов для двух файловых дескрипторов, но они будут
+ссылаться на один и тот же нижележащий объект —
+.Xr vnode 9 .
+При сравнении с использованием типа
+.Dv KCMP_FILE
+эти дескрипторы будут различными, но при использовании типа
+.Dv KCMP_FILEOBJ
+они будут равны (при условии, что путь не был удалён между
+двумя открытиями).
+.It Dv KCMP_FILES
+Определить, разделяют ли два процесса одну и ту же таблицу файловых дескрипторов.
+Это будет так, если один из процессов был создан с помощью
+.Xr rfork 2
+без указания флага
+.Dv RFFDG .
+Параметры
+.Fa idx1
+и
+.Fa idx2
+игнорируются.
+.It Dv KCMP_SIGHAND
+Определить, разделяют ли два процесса одну и ту же таблицу обработчиков сигналов.
+Это будет так, если один из процессов был создан с использованием флага
+.Dv RFSIGSHARE
+для
+.Xr rfork 2 .
+Параметры
+.Fa idx1
+и
+.Fa idx2
+игнорируются.
+.It Dv KCMP_VM
+Определить, разделяют ли два процесса адресное пространство виртуальной памяти.
+Это может быть так, если один из процессов создал другой с помощью
+.Xr vfork 2
+или
+.Xr rfork 2
+с флагом
+.Dv RFMEM .
+Параметры
+.Fa idx1
+и
+.Fa idx2
+игнорируются.
+.El
+Вызывающий
+.Nm
+должен иметь разрешение на отладку обоих процессов, иначе системный вызов
+завершится с ошибкой.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если
+.Fa idx1
+и
+.Fa idx2
+ссылаются на один и тот же объект,
+.Nm
+возвращает 0.
+Если объект, на который ссылаются
+.Fa pid1
+и
+.Fa idx1 ,
+меньше или больше объекта, на который ссылаются
+.Fa pid2
+и
+.Fa idx2 ,
+.Nm
+возвращает значения 1 и 2 соответственно.
+Порядок определяется внутренне ядром и стабилен до перезагрузки системы.
+Если два объекта не могут быть сравнены по какой-либо причине,
+.Nm
+возвращает 3.
+Например, если
+.Fa type
+равен
+.Dv KCMP_FILEOBJ
+и
+.Fa idx1
+и
+.Fa idx2
+являются дескрипторами разных типов, например, сокетом и файлом, то
+.Nm
+вернёт 3.
+.Pp
+Если происходит ошибка, возвращается значение -1 и глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+.Nm
+может завершиться с ошибкой со следующими ошибками:
+.Bl -tag -width Er
+.It Bq Er ENODEV
+Был указан
+.Dv KCMP_FILEOBJ
+и
+.Fa idx1
+ссылается на файловый дескриптор, который не реализует оператор сравнения.
+.It Bq Er EINVAL
+Значение
+.Fa type
+недопустимо.
+.It Bq Er EBADF
+Один из файловых дескрипторов, на которые ссылаются
+.Fa idx1
+или
+.Fa idx2 ,
+недопустим.
+.It Bq Er ESRCH
+Один из процессов, на которые ссылаются
+.Fa pid1
+или
+.Fa pid2 ,
+не существует или невидим (например, из-за ограничений клетки).
+.It Bq Er EPERM
+Вызывающий не имеет разрешения на доступ к одному из процессов, на которые ссылаются
+.Fa pid1
+или
+.Fa pid2 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr dup 2 ,
+.Xr fcntl 2 ,
+.Xr fork 2 ,
+.Xr rfork 2 ,
+.Xr vfork 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Nm
+происходит из Linux.
+Данная реализация стремится быть совместимой на уровне исходного кода с реализацией в Linux.
+.Fx
+реализует только подмножество возможных значений
+.Fa type ,
+поддерживаемых в Linux.
+В будущем могут быть добавлены дополнительные значения.
+Тип
+.Dv KCMP_FILEOBJ
+является расширением FreeBSD.
+.Sh ИСТОРИЯ
+Функция
+.Nm
+была введена в
+.Fx 14.1 .

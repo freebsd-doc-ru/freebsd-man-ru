@@ -1,0 +1,198 @@
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/arp/arp.8
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 76888b30cc59984389f4140b7fdfa3fed577fcaecea834c26124b80d05f97756
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt ARP 8
+.Os
+.Sh ИМЯ
+.Nm arp
+.Nd отображение и управление разрешением адресов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo Ar options
+.Op Fl n
+.Op Fl i Ar interface
+.Ar hostname
+.Nm
+.Op Fl -libxo Ar options
+.Op Fl n
+.Op Fl i Ar interface
+.Fl a
+.Nm
+.Fl d Ar hostname
+.Nm
+.Fl d
+.Op Fl i Ar interface
+.Fl a
+.Nm
+.Fl s Ar hostname ether_addr
+.Op Cm temp
+.Op Cm blackhole No \&| Cm reject
+.Op Cm pub
+.Nm
+.Fl S Ar hostname ether_addr
+.Op Cm temp
+.Op Cm blackhole No \&| Cm reject
+.Op Cm pub
+.Nm
+.Fl f Ar filename
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает и изменяет таблицы преобразования адресов Internet в Ethernet,
+используемые протоколом разрешения адресов
+.Pq Xr arp 4 .
+Без флагов программа отображает текущую
+.Tn ARP
+запись для
+.Ar hostname .
+Узел может быть задан по имени или по номеру,
+с использованием точечной нотации Internet.
+.Pp
+Доступные параметры:
+.Bl -tag -width indent
+.It Fl -libxo
+Создаёт вывод через
+.Xr libxo 3
+в различных человеко- и машиночитаемых форматах.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl a
+Программа отображает или, если она используется с флагом
+.Fl d
+, удаляет все текущие
+.Tn ARP
+записи.
+.It Fl d
+Суперпользователь может удалить запись для узла
+.Ar hostname
+с флагом
+.Fl d
+.
+.Pp
+Флаг
+.Fl d
+может быть скомбинирован с флагом
+.Fl a
+для удаления всех записей.
+.It Fl i Ar interface
+Ограничить область действия записями
+.Tn ARP
+на
+.Ar interface .
+Применимо только к следующим операциям:
+показать одну, показать все, удалить все.
+.It Fl n
+Показывать сетевые адреса как числа (обычно
+.Nm
+пытается отображать адреса символически).
+.It Fl s Ar hostname ether_addr
+Создать
+.Tn ARP
+запись для узла
+.Ar hostname
+с Ethernet-адресом
+.Ar ether_addr .
+Ethernet-адрес задаётся как шесть шестнадцатеричных байтов, разделённых двоеточиями.
+Запись будет постоянной, если в команде не указано слово
+.Cm temp .
+Если указано слово
+.Cm pub
+, запись будет
+.Dq опубликована ;
+то есть эта система будет
+действовать как
+.Tn ARP
+сервер,
+отвечая на запросы для
+.Ar hostname
+даже если адрес узла не принадлежит ей.
+В этом случае
+.Ar ether_addr
+можно указать как
+.Cm auto ,
+и тогда интерфейсы на этом узле будут проверены,
+и если будет обнаружено, что один из них занимает ту же подсеть, будет
+использован его Ethernet-адрес.
+.Pp
+Если указано ключевое слово
+.Cm reject
+, запись будет помечена так, что трафик к
+узлу будет отбрасываться, а отправитель будет уведомлён о том, что
+узел недостижим.
+Ключевое слово
+.Cm blackhole
+аналогично тем, что трафик отбрасывается, но отправитель
+не уведомляется.
+Их можно использовать для блокирования внешнего трафика к узлу без
+использования межсетевого экрана.
+.It Fl S Ar hostname ether_addr
+Действует так же, как
+.Fl s
+, за исключением того, что любая существующая
+.Tn ARP
+запись для этого узла сначала будет удалена.
+.It Fl f Ar filename
+Прочитать файл
+.Ar filename
+и установить несколько записей в
+.Tn ARP
+таблицах.
+Записи
+в файле должны иметь вид
+.Pp
+.Bd -ragged -offset indent -compact
+.Ar hostname ether_addr
+.Op Cm temp
+.Op Cm blackhole No \&| Cm reject
+.Op Cm pub
+.Ed
+.Pp
+где значения аргументов такие же, как указано выше.
+Ведущие пробелы и пустые строки игнорируются.
+Символ
+.Ql #
+помечает остаток строки как комментарий.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr inet 3 ,
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr arp 4 ,
+.Xr ifconfig 8 ,
+.Xr ndp 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.3 .

@@ -1,0 +1,824 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2021 John H. Baldwin <jhb@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bhyve/bhyve_config.5
+.\" FRDP githash 489f9ed6a0a63dfd100247e51bfccba706564cb4
+.\" FRDP hash256 d88091f59e46cb1123942e00b7e55188793cd472ce1073c02cf7c3431e9c78e5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 14, 2026
+.Dt BHYVE_CONFIG 5
+.Os
+.Sh ИМЯ
+.Nm bhyve_config
+.Sh ОПИСАНИЕ
+.Xr bhyve 8
+использует иерархическое дерево переменных конфигурации для описания глобальных настроек и настроек отдельных устройств.
+Внутренние узлы этого дерева не имеют значения,
+значения есть только у листовых узлов.
+В этом руководстве описаны переменные конфигурации, понимаемые
+.Xr bhyve 8 .
+Если определены дополнительные переменные,
+.Xr bhyve 8
+будет игнорировать их и не будет выдавать ошибок для неизвестных переменных.
+Однако на эти дополнительные переменные могут ссылаться другие
+переменные, как описано ниже.
+.Sh ЗНАЧЕНИЯ ПЕРЕМЕННЫХ
+Значения переменных конфигурации хранятся в виде строк.
+Значение переменной конфигурации может ссылаться на одно или несколько других
+значений конфигурации по имени.
+Вхождения шаблона
+.Sq % Ns Pq Ar var
+заменяются значением переменной конфигурации
+.Va var .
+Чтобы избежать нежелательного раскрытия,
+символы
+.Sq %
+можно экранировать предшествующим
+.Sq % .
+Например,
+если переменная конфигурации
+.Va disk
+использует значение
+.Pa /dev/zvol/bhyve/%(name) ,
+то итоговое значение переменной
+.Va disk
+будет установлено в путь тома ZFS, имя которого совпадает
+с именем виртуальной машины в пуле
+.Pa bhyve .
+.Pp
+Некоторые переменные конфигурации могут интерпретироваться как булево значение.
+Для таких переменных следующие значения без учёта регистра могут использоваться для
+указания истинного значения:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+true
+.It
+on
+.It
+yes
+.It
+1
+.El
+.Pp
+Следующие значения могут использоваться для указания ложного значения:
+.Pp
+.Bl -bullet -offset indent -compact
+.It
+false
+.It
+off
+.It
+no
+.It
+0
+.El
+.Pp
+Некоторые переменные конфигурации могут интерпретироваться как целое число.
+Для таких переменных
+может использоваться любой синтаксис, поддерживаемый
+.Xr strtol 3 .
+.Sh ГЛОБАЛЬНЫЕ НАСТРОЙКИ
+.Ss Настройки, не зависящие от архитектуры
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va name Ta string Ta Ta
+Имя ВМ.
+.It Va cpus Ta integer Ta 1 Ta
+Общее число виртуальных процессоров.
+.It Va cores Ta integer Ta 1 Ta
+Число виртуальных ядер в каждом виртуальном сокете.
+.It Va threads Ta integer Ta 1 Ta
+Число виртуальных процессоров в каждом виртуальном ядре.
+.It Va sockets Ta integer Ta 1 Ta
+Число виртуальных сокетов.
+.It Va memory.guest_in_core Ta bool Ta false Ta
+Включать память гостя в файл дампа ядра.
+.It Va memory.size Ta string Ta 256M Ta
+Размер физической памяти гостя в байтах.
+Значение должно быть отформатировано, как описано в
+.Xr expand_number 3 .
+.It Va memory.wired Ta bool Ta false Ta
+Закрепить память гостя.
+.It Va bootrom Ta path Ta Ta
+Путь к загрузочному ROM.
+При инициализации гостя содержимое этого файла копируется в
+память гостя.
+Если загрузочный ROM присутствует, для использования загрузочным ROM
+также включается устройство интерфейса прошивки.
+.It Va bootvars Ta path Ta Ta
+Путь к загрузочным VARS.
+Содержимое этого файла копируется под загрузочный ROM.
+Прошивка может записывать в него для сохранения переменных.
+Все переменные будут сохраняться даже при перезагрузках гостя.
+.It Va acpi_tables Ta bool Ta true Ta
+Генерировать таблицы ACPI.
+.It Va acpi_tables_in_memory Ta bool Ta true Ta
+.Xr bhyve 8
+всегда предоставляет таблицы ACPI через fw_cfg.
+Для обратной совместимости bhyve также копирует их в память гостя.
+Это может вызвать проблемы, если гость использует версию в памяти, поскольку некоторые
+расширенные возможности, такие как эмуляция TPM, предоставляются только через fw_cfg.
+Поэтому при запуске гостей Windows рекомендуется установить этот флаг в false.
+.It Va destroy_on_poweroff Ta bool Ta false Ta
+Уничтожать ВМ при инициированном гостем завершении питания.
+.It Va gdb.address Ta string Ta localhost Ta
+Имя хоста, IP-адрес или IPv6-адрес для отладочного сервера.
+.It Va gdb.port Ta integer Ta 0 Ta
+Номер TCP-порта для отладочного сервера.
+Если установлено ненулевое значение, отладочный сервер
+будет ожидать подключений на этом порту.
+.It Va gdb.wait Ta bool Ta false Ta
+Если отладочный сервер включён, ожидать подключения отладчика
+перед запуском гостя.
+.It Va keyboard.layout Ta string Ta Ta
+Укажите имя раскладки клавиатуры с именем файла в
+.Ar /usr/share/bhyve/kbdlayout .
+Это значение работает только при загрузке в режиме UEFI для VNC и
+при использовании клиента VNC, который не поддерживает QEMU Extended Key Event
+Message (например, TightVNC).
+.It Va pci.enable_bars Ta bool Ta Ta
+Включать и отображать PCI BAR перед выполнением любого кода гостя.
+По умолчанию этот параметр равен false при использовании загрузочного ROM и true в противном случае.
+.It Va rtc.use_localtime Ta bool Ta true Ta
+Часы реального времени используют местное время хоста.
+Если установлено false, часы реального времени используют UTC.
+.It Va uuid Ta string Ta Ta
+Универсально уникальный идентификатор (UUID), используемый в структуре
+System Management BIOS System Information гостя.
+Если явное значение не задано, допустимый UUID генерируется из
+имени хоста и имени ВМ.
+.It Va virtio_msix Ta bool Ta true Ta
+Использовать прерывания MSI-X для устройств PCI VirtIO.
+Если установлено false, вместо них используются прерывания MSI.
+.It Va config.dump Ta bool Ta false Ta
+Если это значение установлено в true после того, как
+.Xr bhyve 8
+завершил разбор параметров командной строки,
+то
+.Xr bhyve 8
+запишет все свои переменные конфигурации в stdout и завершится.
+ВМ запущена не будет.
+.It Va bios.vendor Ta string Ta BHYVE Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va bios.version Ta string Ta 14.0 Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va bios.release_date Ta string Ta 10/17/2021 Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.family_name Ta string Ta Virtual Machine Ta
+Семейство, к которому принадлежит компьютер.
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.manufacturer Ta string Ta FreeBSD Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.product_name Ta string Ta BHYVE Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.serial_number Ta string Ta None Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.sku Ta string Ta None Ta
+Единица складского учёта компьютера.
+Также называется идентификатором продукта или номером заказа на закупку.
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va system.version Ta string Ta 1.0 Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.manufacturer Ta string Ta FreeBSD Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.product_name Ta string Ta BHYVE Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.version Ta string Ta 1.0 Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.serial_number Ta string Ta None Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.asset_tag Ta string Ta None Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va board.location Ta string Ta None Ta
+Описывает расположение платы в корпусе.
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va chassis.manufacturer Ta string Ta FreeBSD Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va chassis.version Ta string Ta 1.0 Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va chassis.serial_number Ta string Ta None Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va chassis.asset_tag Ta string Ta None Ta
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va chassis.sku Ta string Ta None Ta
+Единица складского учёта корпуса.
+Также называется идентификатором продукта или номером заказа на закупку.
+Это значение используется в структуре System Management BIOS System Information гостя.
+.It Va vcpu.N.cpuset Ta string Ta none Ta
+Разделённые запятыми идентификаторы и диапазоны CPU хоста, к которым
+привязан виртуальный CPU
+.Em N .
+.El
+.Ss Настройки для x86
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va x86.mptable Ta bool Ta true Ta
+Генерировать MPTable.
+.It Va x86.x2apic Ta bool Ta false Ta
+Настроить локальные APIC гостя в режиме x2APIC.
+.It Va x86.strictio Ta bool Ta false Ta
+Завершаться, если гость обращается к неэмулируемому порту ввода-вывода.
+По умолчанию записи игнорируются, а чтения возвращают все установленные биты.
+.It Va x86.strictmsr Ta bool Ta true Ta
+Генерировать общую ошибку защиты, если гость обращается к неэмулируемому
+Model Specific Register (MSR).
+Если false, записи игнорируются, а чтения возвращают ноль.
+.It Va x86.verbosemsr Ta bool Ta false Ta
+Включить подробный вывод MSR.
+Если этот параметр true, будут выводиться сообщения, связанные с чтением (rdmsr)
+и записью (wrmsr) MSR на виртуальных CPU.
+Это может быть полезно для отладки.
+.It Va x86.vmexit_on_hlt Ta bool Ta false Ta
+Принудительно выполнять выход из ВМ, когда CPU гостя выполняет
+инструкцию
+.Dv HLT .
+Это позволяет простаивающим CPU гостя уступать CPU хоста.
+.It Va x86.vmexit_on_pause Ta bool Ta false Ta
+Принудительно выполнять выход из ВМ, когда CPU гостя выполняет
+инструкцию
+.Dv PAUSE .
+.It Va domains.N.size Ta string Ta Ta
+Размер физической памяти гостя, назначенной домену NUMA
+.Em N .
+Значение должно быть отформатировано, как описано в
+.Xr expand_number 3 .
+Если хотя бы один домен NUMA настроен без размера памяти,
+настроенная память гостя равномерно распределяется между всеми настроенными доменами.
+.It Va domains.N.cpus Ta string Ta Ta
+Разделённые запятыми идентификаторы и диапазоны CPU гостя, назначенные домену NUMA
+.Em N .
+Этот параметр обязателен для каждого настроенного домена NUMA.
+.It Va domains.N.domain_policy Ta string Ta Ta
+Политика выделения памяти NUMA хоста для памяти, обеспечивающей домен NUMA
+.Em N .
+Значение использует формат политики, принимаемый
+.Xr cpuset 1
+с параметром
+.Fl n .
+.El
+.Ss Настройки для arm64 и RISC-V
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va console Ta string Ta Ta
+Бэкенд-устройство для консоли.
+Поддерживаются бэкенды: путь к символьному устройству,
+.Dq stdio
+и
+.Ql tcp=ip:port .
+Бэкенд
+.Dq stdio
+использует стандартный ввод и вывод процесса
+.Xr bhyve 8 .
+Бэкенд
+.Ql tcp=ip:port
+ожидает TCP-подключений.
+.El
+.Sh НАСТРОЙКИ УСТРОЙСТВ
+Настройки устройств хранятся под узлом устройства.
+Имя узла устройства задаётся родительской шиной устройства.
+.Ss Настройки устройств PCI
+Устройства PCI описываются узлом устройства с именем
+.Dq pci . Ns Ar bus . Ns Ar slot . Ns Ar function
+где каждое из
+.Ar bus ,
+.Ar slot
+и
+.Ar function
+форматируется как десятичное значение без дополнения.
+Все узлы устройств PCI должны содержать переменную конфигурации с именем
+.Dq device
+, которая указывает используемую модель устройства.
+Поддерживаются следующие модели устройств PCI:
+.Bl -tag -width indent
+.It Li hostbridge
+Предоставить простое устройство моста PCI-Host.
+Обычно настраивается на pci0:0:0 и требуется большинством гостевых
+операционных систем.
+.It Li ahci
+Контроллер хранилища AHCI.
+.It Li e1000
+Сетевой интерфейс Intel e82545.
+.It Li fbuf
+Устройство кадрового буфера VGA, подключённое к серверу VNC.
+.It Li lpc
+Мост LPC PCI-ISA с последовательными портами COM1-COM4 16550,
+загрузочным ROM и, необязательно, модулем TPM, типом fw_cfg
+и отладочным/тестовым устройством.
+Это устройство должно быть настроено на шине 0.
+.It Li hda
+Контроллер аудио High Definition.
+.It Li nvme
+Контроллер NVM Express (NVMe).
+.It Li passthru
+Устройство сквозной передачи PCI.
+.It Li uart
+Последовательное устройство PCI 16550.
+.It Li virtio-9p
+Интерфейс VirtIO 9p (VirtFS).
+.It Li virtio-blk
+Интерфейс блочного хранилища VirtIO.
+.It Li virtio-console
+Консольный интерфейс VirtIO.
+.It Li virtio-input
+Интерфейс ввода VirtIO.
+.It Li virtio-net
+Сетевой интерфейс VirtIO.
+.It Li virtio-rnd
+Интерфейс RNG VirtIO.
+.It Li virtio-scsi
+Интерфейс VirtIO SCSI.
+.It Li xhci
+USB-контроллер Extensible Host Controller Interface (XHCI).
+.El
+.Ss Настройки устройств USB
+Устройства-контроллеры USB содержат ноль или более дочерних USB-устройств,
+подключённых к слотам.
+Каждое USB-устройство хранит свои настройки в узле с именем
+.Dq slot. Ns Va N
+под узлом устройства контроллера.
+.Va N
+— это номер слота, к которому подключено USB-устройство.
+Обратите внимание, что номера слотов USB начинаются с 1.
+Все узлы USB-устройств должны содержать переменную конфигурации с именем
+.Dq device
+, которая указывает используемую модель устройства.
+Поддерживаются следующие модели USB-устройств:
+.Bl -tag -width indent
+.It Li tablet
+USB-планшетное устройство, обеспечивающее точную синхронизацию курсора
+при использовании VNC.
+.El
+.Ss Настройки блочных устройств
+Блочные устройства используют следующие настройки для конфигурации своего
+хранилища.
+Эти настройки хранятся в узле конфигурации соответствующего устройства.
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It path Ta string Ta Ta
+Путь к файлу или дисковому устройству, используемому в качестве хранилища.
+.It nocache Ta bool Ta false Ta
+Отключить кэширование для файла хранилища, открывая файл хранилища с
+.Dv O_DIRECT .
+.It nodelete Ta bool Ta false Ta
+Отключить эмуляцию запросов trim от гостя через
+запросы
+.Dv DIOCGDELETE .
+.It sync Ta bool Ta false Ta
+Записывать изменения в файл хранилища синхронными записями.
+.It direct Ta bool Ta false Ta
+Синоним для
+.Va sync .
+.It ro Ta bool Ta false Ta
+Отключить записи в файл хранилища.
+.It sectorsize Ta Va logical Ns Op / Ns Va physical Ta Ta
+Указать логический и физический размер сектора эмулируемого диска.
+Если физический размер не указан,
+он равен логическому размеру.
+.El
+.Ss Настройки сетевых бэкендов
+Сетевые устройства используют следующие настройки для конфигурации своего бэкенда.
+Бэкенд отвечает за передачу пакетов между моделью устройства
+и желаемым назначением.
+Для настройки бэкенда требуется установить переменную
+.Va backend .
+Тип бэкенда можно либо задать явно через переменную
+.Va type ,
+либо вывести из значения
+.Va backend .
+.Pp
+Поддерживаются следующие типы бэкендов:
+.Bl -tag -width indent
+.It tap
+Использовать интерфейс
+.Xr tap 4
+с именем, указанным в
+.Va backend , в качестве бэкенда.
+.It netgraph
+Использовать сокетный хук
+.Xr netgraph 4
+в качестве бэкенда.
+Этот бэкенд использует следующие дополнительные переменные:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va path Ta string Ta Ta
+Имя узла назначения
+.Xr netgraph 4 .
+.It Va peerhook Ta string Ta Ta
+Имя хука назначения.
+.It Va socket Ta string Ta Ta
+Имя созданного узла
+.Xr ng_socket 4 .
+.It Va hook Ta string Ta vmlink Ta
+Имя исходного хука на созданном узле
+.Xr ng_socket 4 .
+.El
+.It netmap
+Использовать
+.Xr netmap 4
+либо на сетевом интерфейсе, либо на порту моста
+.Xr vale 4
+в качестве бэкенда.
+Значение
+.Va backend
+передаётся в
+.Nm nm_open
+для подключения к порту netmap.
+.It slirp
+Использовать бэкенд slirp для предоставления сетевого стека в пространстве пользователя.
+Переменная
+.Va hostfwd
+используется для настройки того, как пакеты с хоста преобразуются
+перед отправкой гостю.
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va hostfwd Ta string Ta Ta
+Разделённый точками с запятой список правил перенаправления с хоста, каждое в форме
+.Ar proto:haddr:hport-gaddr:gport ,
+где
+.Ar proto
+— это либо
+.Ql tcp ,
+либо
+.Ql udp .
+Если адрес гостя равен пустой строке, пакеты будут
+перенаправлены на первый адрес, назначенный по DHCP, в госте.
+.El
+.El
+.Pp
+Если
+.Va type
+не указан явно, то он выводится из
+.Va backend
+на основе следующих шаблонов:
+.Bl -column -offset indent "Шаблон" "Тип"
+.It Sy Шаблон Ta Sy Тип
+.It tap Ns Va N Ta tap
+.It vmnet Ns Va N Ta tap
+.It netgraph Ta netgraph
+.It netmap: Ns Va interface Ta netmap
+.It vale Ns Va bridge : Ns Va port Ta netmap
+.El
+.Ss Настройки устройств UART
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va path Ta path Ta Ta
+Бэкенд-устройство для последовательного порта.
+Либо путь к символьному устройству, либо
+.Dq stdio
+для использования стандартного ввода и вывода процесса
+.Xr bhyve 8 .
+.It Va tcp Ta Xo
+.Sm off
+.Op Ar IP Cm \&:
+.Ar port
+.Sm on
+.Xc Ta Ta
+TCP-адрес для прослушивания удалённых подключений.
+IP-адрес должен быть задан как числовой адрес.
+IPv6-адреса должны быть заключены в квадратные скобки и
+поддерживают идентификаторы с областью действия, как описано в
+.Xr getaddrinfo 3 .
+.El
+.Ss Настройки хост-моста
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va pcireg.* Ta integer Ta Ta
+Значения регистра PCI.
+.It Sy Имя Ta Sy По умолчанию
+.It Va vendor Ta 0x1275
+.It Va device Ta 0x1275
+.El
+.Ss Настройки контроллера AHCI
+Устройства-контроллеры AHCI содержат ноль или более портов, каждый из которых
+предоставляет устройство хранения.
+Каждый порт хранит свои настройки в узле с именем
+.Dq port. Ns Va N
+под узлом устройства контроллера.
+Значения
+.Va N
+форматируются как последовательные десятичные значения, начиная с 0.
+В дополнение к описанным выше настройкам блочных устройств каждый
+порт поддерживает следующие настройки:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va type Ta string Ta Ta
+Тип эмулируемого устройства хранения.
+Должен быть установлен в
+.Dq cd
+или
+.Dq hd .
+.It Va nmrr Ta integer Ta 0 Ta
+Номинальная скорость вращения носителя, также известная как RPM.
+Значение 1 указывает, что устройство является твердотельным накопителем, то есть
+невращающимся.
+.It Va ser Ta string Ta generated Ta
+Серийный номер длиной до двадцати символов.
+Серийный номер по умолчанию генерируется с использованием хеша
+пути файла хранилища.
+.It Va rev Ta string Ta 001 Ta
+Номер ревизии длиной до восьми символов.
+.It Va model Ta string Ta Ta
+Номер модели длиной до сорока символов.
+Для типов устройств
+.Dq cd
+и
+.Dq hd
+используются отдельные строки модели по умолчанию.
+.El
+.Ss Настройки e1000
+В дополнение к настройкам сетевого бэкенда
+сетевые интерфейсы Intel e82545 поддерживают следующие переменные:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va mac Ta MAC address Ta generated Ta
+MAC-адрес.
+Если не указан, MAC-адрес получается из фиксированного OUI, а
+остальные байты — из хеша MD5 номеров слота и функции и
+имени устройства.
+Если указан, он должен быть одноадресным MAC-адресом.
+.El
+.Ss Настройки кадрового буфера
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va wait Ta bool Ta false Ta
+Ожидать удалённого подключения перед запуском ВМ.
+.It Va rfb Ta Xo
+.Sm off
+.Op Ar IP Cm \&:
+.Ar port
+.Sm on
+.Xc Ta 127.0.0.1:5900 Ta
+TCP-адрес для прослушивания удалённых подключений.
+IP-адрес должен быть задан как числовой адрес.
+IPv6-адреса должны быть заключены в квадратные скобки и
+поддерживают идентификаторы с областью действия, как описано в
+.Xr getaddrinfo 3 .
+Можно указать только номер порта, и тогда используется адрес
+localhost IPv4.
+.It Va rfb Ta
+.Sm off
+.Cm unix: Ar my/unix.sock Ta Ta
+.Sm on
+В качестве альтернативы можно указать путь к доменному сокету UNIX.
+.It Va vga Ta string Ta io Ta
+Конфигурация VGA.
+Дополнительные сведения приведены в
+.Xr bhyve 8 .
+.It Va w Ta integer Ta 1024 Ta
+Ширина кадрового буфера в пикселях.
+.It Va h Ta integer Ta 768 Ta
+Высота кадрового буфера в пикселях.
+.It Va password Ta string Ta Ta
+Пароль для аутентификации VNC.
+Известно, что этот тип аутентификации криптографически слаб и не
+предназначен для использования в недоверенных сетях.
+.El
+.Ss Настройки High Definition Audio
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va play Ta path Ta Ta
+Устройство воспроизведения хоста,
+обычно
+.Pa /dev/dsp0 .
+.It Va rec Ta path Ta Ta
+Устройство записи хоста,
+обычно
+.Pa /dev/dsp0 .
+.El
+.Ss Настройки устройств LPC
+Мост LPC хранит свою конфигурацию под узлом верхнего уровня
+.Va lpc
+, а не под узлом устройства PCI LPC.
+Под
+.Va lpc
+доступны следующие узлы:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va com1 Ta node Ta Ta
+Настройки устройства последовательного порта COM1.
+.It Va com2 Ta node Ta Ta
+Настройки устройства последовательного порта COM2.
+.It Va com3 Ta node Ta Ta
+Настройки устройства последовательного порта COM3.
+.It Va com4 Ta node Ta Ta
+Настройки устройства последовательного порта COM4.
+.It Va fwcfg Ta string Ta bhyve Ta
+Используемый тип fw_cfg.
+Поддерживаются значения
+.Dq bhyve
+для fwctl и
+.Dq qemu
+для fw_cfg.
+.It Va pc-testdev Ta bool Ta false Ta
+Включить отладочное/тестовое устройство PC.
+.It Va pcireg.* Ta integer Ta Ta
+Значения регистра PCI.
+Также принимает значение
+.Ar host
+для использования pci id хост-системы.
+Это значение требуется для правильной работы драйвера Intel GOP.
+.It Sy Имя Ta Sy По умолчанию
+.It Va vendor Ta 0x8086
+.It Va device Ta 0x7000
+.It Va revid Ta 0
+.It Va subvendor Ta 0
+.It Va subdevice Ta 0
+.El
+.Ss Настройки устройств TPM
+Устройство TPM хранит свою конфигурацию под узлом верхнего уровня
+.Va tpm
+, а не под узлом устройства LPC TPM.
+Поддерживается только одно устройство TPM.
+Под
+.Va tpm
+доступны следующие узлы:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va tpm.path Ta string Ta Ta
+Путь к бэкенду TPM.
+В зависимости от
+.Va tpm.type ,
+это либо устройство TPM хоста, обычно
+.Pa /dev/tpm0 ,
+либо любой доменный сокет UNIX, на котором прослушивает процесс
+.Cm swtpm .
+.It Va tpm.type Ta string Ta Ta
+Тип устройства TPM, передаваемого гостю.
+Это может быть либо
+.Dq passthru
+для использования устройств TPM хоста, либо
+.Dq swtpm
+для подключения к работающему процессу
+.Cm swtpm .
+.It Va tpm.version Ta string Ta 2.0 Ta
+Версия устройства TPM согласно спецификации TCG.
+В настоящее время поддерживается только версия 2.0.
+.El
+.Ss Настройки контроллера NVMe
+Каждый контроллер NVMe поддерживает одно устройство хранения.
+Устройство может быть основано либо на диске в памяти, описываемом переменной
+.Va ram ,
+либо на блочном устройстве с использованием описанных выше настроек блочного устройства.
+Кроме того, каждый контроллер поддерживает следующие настройки:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va maxq Ta integer Ta 16 Ta
+Максимальное число пар очередей отправки и завершения ввода-вывода.
+.It Va qsz Ta integer Ta 2058 Ta
+Число элементов в каждой очереди ввода-вывода.
+.It Va ioslots Ta integer Ta 8 Ta
+Максимальное число одновременных запросов ввода-вывода.
+.It Va sectsz Ta integer Ta Ta
+Размер сектора.
+Может быть одним из 512, 4096 или 8192.
+Для устройств на основе диска в памяти по умолчанию используется 4096.
+Для устройств на основе блочного устройства по умолчанию используется размер сектора
+блочного устройства.
+.It Va ser Ta string Ta Ta
+Серийный номер длиной до двадцати символов.
+Серийный номер по умолчанию генерируется с использованием хеша PCI-адреса устройства.
+.It Va eui64 Ta integer Ta Ta
+Расширенный уникальный идентификатор IEEE.
+Если EUI не указан, значение по умолчанию генерируется с использованием контрольной суммы
+PCI-адреса устройства.
+.It Va dsm Ta string Ta auto Ta
+Объявлять ли поддержку управления наборами данных.
+Одно из
+.Dq auto ,
+.Dq enable
+или
+.Dq disable .
+Настройка
+.Dq auto
+объявляет поддержку только если хранилище поддерживает
+освобождение ресурсов, например через TRIM.
+.It Va ram Ta integer Ta Ta
+Если задано, выделить диск в памяти в качестве хранилища.
+Значение этой переменной — размер диска в памяти в мегабайтах.
+.El
+.Ss Настройки сквозной передачи PCI
+Драйвер устройства
+.Xr ppt 4
+должен быть подключён к
+PCI-устройству, которое передаётся.
+Устройство для передачи можно идентифицировать либо по имени, либо по
+его расположению на шине PCI хоста.
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va bus Ta integer Ta Ta
+Адрес шины PCI хоста устройства для передачи.
+.It Va slot Ta integer Ta Ta
+Адрес слота PCI хоста устройства для передачи.
+.It Va func Ta integer Ta Ta
+Адрес функции PCI хоста устройства для передачи.
+.It Va pptdev Ta string Ta Ta
+Имя устройства
+.Xr ppt 4
+для передачи.
+.It Va rom Ta path Ta Ta
+Файл ROM устройства, который будет выполнен OVMF для инициализации устройства.
+.El
+.Ss Настройки VirtIO 9p
+Каждое устройство VirtIO 9p предоставляет одну файловую систему из пути хоста.
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va sharename Ta string Ta Ta
+Имя общего ресурса, предоставляемого гостю.
+.It Va path Ta path Ta Ta
+Путь к каталогу на хосте для экспорта гостю.
+.It Va ro Ta bool Ta false Ta
+Если true, файловая система гостя доступна только для чтения.
+.El
+.Ss Настройки блочного устройства VirtIO
+В дополнение к описанным выше настройкам блочного устройства каждое
+блочное устройство VirtIO поддерживает следующие настройки:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va ser Ta string Ta generated Ta
+Серийный номер длиной до двадцати символов.
+Серийный номер по умолчанию генерируется с использованием хеша
+пути файла хранилища.
+.El
+.Ss Настройки консольного устройства VirtIO
+Каждое консольное устройство VirtIO содержит один или несколько консольных портов.
+Каждый порт хранит свои настройки в узле с именем
+.Dq port. Ns Va N
+под узлом устройства контроллера.
+Значения
+.Va N
+форматируются как последовательные десятичные значения, начиная с 0.
+Каждый порт поддерживает следующие настройки:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va name Ta string Ta Ta
+Имя порта, предоставляемого гостю.
+.It Va path Ta path Ta Ta
+Путь к доменному сокету UNIX, обеспечивающему подключение хоста для порта.
+.El
+.Ss Настройки интерфейса ввода VirtIO
+Каждое устройство ввода VirtIO содержит одно устройство событий ввода.
+Все события ввода устройства событий ввода отправляются гостю через интерфейс ввода VirtIO.
+Интерфейсы ввода VirtIO поддерживают следующие переменные:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va path Ta path Ta Ta
+Путь к устройству событий ввода, предоставляемому гостю
+.El
+.Ss Настройки сетевого интерфейса VirtIO
+В дополнение к настройкам сетевого бэкенда
+сетевые интерфейсы VirtIO поддерживают следующие переменные:
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va mac Ta MAC address Ta generated Ta
+MAC-адрес.
+Если не указан, MAC-адрес получается из фиксированного OUI, а
+остальные байты — из хеша MD5 номеров слота и функции и
+имени устройства.
+Если указан, он должен быть одноадресным MAC-адресом.
+.It Va mtu Ta integer Ta 1500 Ta
+Наибольший поддерживаемый MTU, объявляемый гостю.
+.El
+.Ss Настройки VirtIO SCSI
+.Bl -column -offset indent "Имя" "Формат" "По умолчанию" "Описание"
+.It Sy Имя Ta Sy Формат Ta Sy По умолчанию Ta Sy Описание
+.It Va dev Ta path Ta Ta
+Путь к устройству уровня цели CAM (CTL) для экспорта:
+.Pa /dev/cam/ctl Ns Oo Ar pp . Ns Ar vp Oc .
+.It Va iid Ta integer Ta 0 Ta
+Идентификатор инициатора, используемый при отправке запросов в порт CTL.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr expand_number 3 ,
+.Xr getaddrinfo 3 ,
+.Xr strtol 3 ,
+.Xr netgraph 4 ,
+.Xr netmap 4 ,
+.Xr ng_socket 4 ,
+.Xr tap 4 ,
+.Xr vale 4 ,
+.Xr vmnet 4 ,
+.Xr bhyve 8

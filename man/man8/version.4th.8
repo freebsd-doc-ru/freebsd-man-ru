@@ -1,0 +1,127 @@
+.\" Copyright (c) 2011-2013 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/version.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 14fce713d74980a081f048f0bcb308f9d5ba302344941ce4887a3d5c22f13795
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 6, 2013
+.Dt VERSION.4TH 8
+.Os
+.Sh ИМЯ
+.Nm version.4th
+.Nd загрузочный модуль строки версии FreeBSD
+.Sh ОПИСАНИЕ
+Файл с именем
+.Nm
+представляет собой набор команд, предназначенных для отображения версии загрузчика в правом нижнем углу экрана.
+Команды
+.Nm
+сами по себе недостаточны для большинства случаев использования.
+Обратитесь к примерам ниже для наиболее распространённых ситуаций и к
+.Xr loader 8
+для дополнительных команд.
+.Pp
+Перед использованием любой из команд, предоставляемых в
+.Nm ,
+его необходимо включить с помощью команды:
+.Pp
+.Dl include version.4th
+.Pp
+Эта строка присутствует в стандартном файле
+.Pa /boot/menu.rc ,
+поэтому в обычной конфигурации она не требуется (и не должна добавляться повторно).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic print_version
+Выводит содержимое переменной окружения
+.Va loader_version
+с выравниванием по правому краю в столбце
+.Va loader_version_x
+и строке
+.Va loader_version_y .
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootfile -offset indent
+.It Va loader_version
+Автоматически устанавливается
+.Xr loader 8 ,
+но её можно переопределить, задав в
+.Xr loader.conf 5 .
+Здесь должна быть указана версия используемого загрузчика.
+.It Va loader_version_x
+Задаёт желаемую конечную позицию столбца для
+.Va loader_version .
+По умолчанию — 80.
+.It Va loader_version_y
+Задаёт желаемую конечную позицию строки для
+.Va loader_version .
+По умолчанию — 24.
+.It Va loader_color
+Если задано значение
+.Dq Li NO
+(без учёта регистра) или
+.Dq Li 0 ,
+версия выводится без цвета
+.Pq по умолчанию — ANSI Cyan .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/version.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/version.4th
+Сам
+.Nm .
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Xr loader 8 .
+.El
+.Sh ПРИМЕРЫ
+Переопределение версии
+.Xr loader 8
+в
+.Xr loader.conf 5 :
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr color.4th 8 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

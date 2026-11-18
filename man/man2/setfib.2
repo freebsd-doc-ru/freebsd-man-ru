@@ -1,0 +1,111 @@
+.\" Copyright (c) 2008 Cisco Systems.  All rights reserved.
+.\"    Author: Julian Elischer
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Neither the name of the Cisco Systems nor the names of its employees
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/setfib.2
+.\" FRDP githash 010ee8215f5c899e23250828402af5b7bb354328
+.\" FRDP hash256 54706750dddd261b6d7898de1262460db80164d39ad38b5d664fa2053584b864
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 10, 2025
+.Dt SETFIB 2
+.Os
+.Sh ИМЯ
+.Nm setfib
+.Nd установка таблицы маршрутизации (FIB) по умолчанию для вызывающего процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/socket.h
+.Ft int
+.Fn setfib "int fib"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn setfib
+устанавливает для всех сокетов, открываемых после вызова, связанную таблицу
+маршрутизации (FIB), равную значению аргумента
+.Fa fib .
+Аргумент
+.Fa fib
+должен быть больше или равен 0
+и меньше текущего системного максимума, который
+может быть получен через sysctl
+.Va net.fibs .
+Системный максимум задаётся в файле конфигурации ядра с помощью
+.Bd -ragged -offset indent
+.Cd "options ROUTETABLES=" Ns Em N
+.Ed
+.Pp
+или в
+.Pa /boot/loader.conf
+или
+.Pa /etc/sysctl.conf
+с помощью
+.Pp
+.Dl net.fibs= Ns Qq Em N
+.Pp
+где
+.Em N
+— целое число меньше 65536.
+Обратите внимание, что число FIB может быть увеличено после загрузки, но не может
+быть уменьшено.
+.Pp
+Максимум 65536 обусловлен тем, что реализация хранит
+номер FIB в 16-битном поле заголовка пакета
+.Xr mbuf 9 ,
+однако не рекомендуется использовать такое большое число,
+поскольку память выделяется для каждой FIB независимо от того, используется ли она,
+и существуют места, где выполняется перебор всех FIB.
+.Pp
+FIB по умолчанию для процесса применяется ко всем семействам протоколов,
+поддерживающим несколько FIB, и игнорируется теми, которые их не поддерживают.
+FIB по умолчанию для процесса может быть переопределён для сокета с помощью
+опции сокета
+.Dv SO_SETFIB .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std setfib
+.Sh ОШИБКИ
+Системный вызов
+.Fn setfib
+завершится неудачей, никаких действий предпринято не будет и будет возвращена
+.Er EINVAL
+если аргумент
+.Fa fib
+больше текущего системного максимума.
+.Sh СМ. ТАКЖЕ
+.Xr setfib 1 ,
+.Xr setsockopt 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn setfib
+является расширением
+.Fx ,
+однако аналогичные расширения
+были добавлены во многие другие ядра
+.Ux
+-стиля.
+.Sh ИСТОРИЯ
+Функция
+.Fn setfib
+появилась в
+.Fx 7.1 .

@@ -1,0 +1,273 @@
+.\"
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 2002-2003, 2023 David O'Brien <obrien@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the author nor the names of any contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL DAVID O'BRIEN OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/style.Makefile.5
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 4cba43265c538c0e743efe5d69038078c18260fa23248a0a63970397258aec1d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 17, 2023
+.Dt STYLE.MAKEFILE 5
+.Os
+.Sh ИМЯ
+.Nm style.Makefile
+.Nd Руководство по стилю Makefile для FreeBSD
+.Sh ОПИСАНИЕ
+В этом файле описывается предпочтительный стиль для make-файлов в дереве исходного кода
+.Fx
+.
+.Bl -bullet
+.It
+.Cm .PATH :
+ставится первым, если нужно, и записывается
+с одним
+.Tn ASCII
+пробелом после двоеточия.
+Не используйте переменную
+.Va VPATH
+.
+.It
+Специальные переменные (то есть
+.Va LIB , SRCS , MLINKS ,
+и т. д.) перечисляются в порядке
+.Dq продукта ,
+затем сборки и установки бинарного файла.
+Специальные переменные также можно перечислять в порядке
+.Dq сборки
+: то есть сначала для основной программы (или библиотеки).
+Общий порядок для
+.Dq продукта
+таков:
+.Va PROG Ns / Ns Oo Va SH Oc Ns Va LIB Ns / Ns Va SCRIPTS
+.Va FILES
+.Va LINKS
+.Va MAN
+.Va MLINKS
+.Va INCS
+.Va SRCS
+.Va WARNS
+.Va CSTD
+.Va CFLAGS
+.Va DPADD
+.Va LDADD .
+Общий порядок
+.Dq сборки
+таков:
+.Va PROG Ns / Ns Oo Va SH Oc Ns Va LIB Ns / Ns Va SCRIPTS
+.Va SRCS
+.Va WARNS
+.Va CSTD
+.Va CFLAGS
+.Va DPADD
+.Va LDADD
+.Va INCS
+.Va FILES
+.Va LINKS
+.Va MAN
+.Va MLINKS .
+.It
+Опускайте
+.Va SRCS
+при использовании
+.In bsd.prog.mk
+, если есть один исходный файл с тем же именем, что и
+.Va PROG
+.
+.It
+Опускайте
+.Va MAN
+при использовании
+.In bsd.prog.mk
+, если страница руководства имеет то же имя, что и
+.Va PROG ,
+и находится в разделе 1.
+.It
+Все присваивания переменных записываются как
+.Dq Va VAR Ns Ic = ,
+то есть без пробела между именем переменной и
+.Ic = .
+По возможности располагайте значения в алфавитном порядке.
+.It
+Переменные раскрываются с помощью
+.Sy {} ,
+а не
+.Sy () .
+Например,
+.Va ${VARIABLE} .
+.It
+Не используйте
+.Ic +=
+для установки переменных, которые задаются только один раз
+(или для первого задания переменных).
+.It
+Не используйте пустые строки в простых make-файлах,
+но используйте их для группировки локально связанных элементов в более сложных/длинных файлах.
+.It
+.Va WARNS
+идёт перед
+.Va CFLAGS ,
+поскольку это по сути модификатор
+.Va CFLAGS .
+Он идёт перед
+.Va CFLAGS
+, а не после
+.Va CFLAGS
+, чтобы не потеряться в море операторов
+.Va CFLAGS
+, так как
+.Va WARNS
+— важная вещь.
+Использование
+.Va WARNS
+записывается так, чтобы его можно было переопределить в командной строке или в
+.Xr make.conf 5 .
+.It
+Не следует использовать это:
+оно противоречит цели
+.Va WARNS .
+Это следует использовать только в командной строке и в особых обстоятельствах.
+.It
+.Va CFLAGS
+записывается
+.It
+Предпочтительно перечислять
+.Fl D Ns 's
+перед
+.Fl I Ns 's
+в
+.Va CFLAGS
+для алфавитного порядка и чтобы
+.Fl D Ns 's
+было легче увидеть.
+.Fl D Ns 's
+часто влияют на условную компиляцию,
+а
+.Fl I Ns 's
+обычно довольно длинные.
+Разделяйте длинные настройки
+.Va CFLAGS
+между
+.Fl D Ns 's
+и
+.Fl I Ns 's.
+.It
+Не используйте специфичные для GCC вещи (такие как
+.Fl g
+и
+.Fl Wall )
+в
+.Va CFLAGS .
+.It
+Обычно между
+.Va VAR Ns Ic =
+и значением ставится один
+.Tn ASCII
+табулятор, чтобы значение начиналось в столбце 9.
+Для имён переменных, выходящих за столбец 9, допускается один
+.Tn ASCII
+пробел.
+Для очень длинных имён переменных также допускается отсутствие пробельных символов.
+.It
+.Ic .include In bsd.*.mk
+идёт последним.
+.It
+Не используйте анахронизмы вроде
+.Va $<
+и
+.Va $@ .
+Вместо них используйте
+.Va ${.IMPSRC}
+или
+.Va ${.ALLSRC}
+и
+.Va ${.TARGET} .
+.It
+Чтобы не собирать часть
+.Dq foo
+базовой системы,
+используйте
+.Va NO_FOO ,
+а не
+.Va NOFOO .
+.It
+Чтобы по желанию собрать что-либо в базовой системе,
+записывайте параметр как
+.Va WITH_FOO
+, а не
+.Va WANT_FOO
+или
+.Va USE_FOO .
+Последние зарезервированы для коллекции портов
+.Fx
+.
+.It
+Для переменных, которые только проверяются с помощью
+.Fn defined ,
+не задавайте никакого фиктивного значения.
+.El
+.Pp
+Желание выразить логическую группировку часто означает несоблюдение некоторых из
+вышеперечисленных правил.
+.Sh ПРИМЕРЫ
+Простейший
+.Pa Makefile
+для программы:
+.Bd -literal -offset indent
+PROG=	foo
+
+\&.include <bsd.prog.mk>
+.Ed
+.Pp
+Простейший
+.Pa Makefile
+для библиотеки:
+.Bd -literal -offset indent
+LIB=	foo
+SHLIB_MAJOR= 1
+MAN=	libfoo.3
+SRCS=	foo.c
+
+\&.include <bsd.lib.mk>
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr make 1 ,
+.Xr make.conf 5 ,
+.Xr style 9
+.Sh ИСТОРИЯ
+Эта страница руководства создана по образцу страницы руководства
+.Xr style 9
+и впервые появилась в
+.Fx 5.1 .
+.Sh АВТОРЫ
+.An David O'Brien Aq Mt deo@NUXI.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Здесь мало жёстких и неизменных правил стиля.
+Стиль многих вещей слишком зависит от контекста всего make-файла
+или окружающих его строк.

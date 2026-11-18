@@ -1,0 +1,185 @@
+.\"***************************************************************************
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
+.\" Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
+.\"                                                                          *
+.\" Permission is hereby granted, free of charge, to any person obtaining a  *
+.\" copy of this software and associated documentation files (the            *
+.\" "Software"), to deal in the Software without restriction, including      *
+.\" without limitation the rights to use, copy, modify, merge, publish,      *
+.\" distribute, distribute with modifications, sublicense, and/or sell       *
+.\" copies of the Software, and to permit persons to whom the Software is    *
+.\" furnished to do so, subject to the following conditions:                 *
+.\"                                                                          *
+.\" The above copyright notice and this permission notice shall be included  *
+.\" in all copies or substantial portions of the Software.                   *
+.\"                                                                          *
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
+.\" OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
+.\" IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
+.\" DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
+.\" OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
+.\" THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
+.\"                                                                          *
+.\" Except as contained in this notice, the name(s) of the above copyright   *
+.\" holders shall not be used in advertising or otherwise to promote the     *
+.\" sale, use or other dealings in this Software without prior written       *
+.\" authorization.                                                           *
+.\"***************************************************************************
+.\"
+.\" $Id: clear.1,v 1.53 2025/04/05 21:56:26 tom Exp $
+.\" FRDP path contrib/ncurses/man/clear.1
+.\" FRDP githash 68ad2b0d7af2a3571c4abac9afa712f9b09b721c
+.\" FRDP hash256 1f62bfeebec95375600c5455113bd360e1f006b0e65f9e9a3fca6f124c035ca3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.ie \n(.g \{\
+.ds `` \(lq
+.ds '' \(rq
+.ds '  \(aq
+.\}
+.el \{\
+.ie t .ds `` ``
+.ie t .ds '' ''
+.ie t .ds '  \(aq
+.el   .ds '  '
+.\}
+.
+.de bP
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
+..
+.
+.SH ИМЯ
+\fB\%@CLEAR@\fP \-
+очистить экран терминала
+.SH СИНТАКСИС
+.B @CLEAR@
+.RB [ \-x ]
+.RB [ \-T\ \c
+.IR terminal-type ]
+.PP
+.SH ОПИСАНИЕ
+\fB\%@CLEAR@\fP очищает экран вашего терминала и его буфер прокрутки,
+если он есть.
+\fB\%@CLEAR@\fP получает тип терминала из переменной окружения
+\fITERM\fP,
+затем обращается к записи базы данных возможностей терминала \fIterminfo\fP
+для этого типа, чтобы определить, как выполнить эти действия.
+.PP
+Возможности для очистки экрана и буфера прокрутки называются
+\*(``clear\*('' и \*(``E3\*('' соответственно.
+Последняя является \fIопределяемой пользователем возможностью\fP,
+применяющей механизм расширения, представленный в \fI\%ncurses\fP 5.0
+(1999).
+.SH ОПЦИИ
+\fB\%@CLEAR@\fP распознаёт следующие опции.
+.B \-T \fItype\fP
+создаёт инструкции, подходящие для терминала \fItype\fP.
+Обычно
+эта опция не нужна,
+потому что тип терминала выводится из переменной окружения
+\fITERM\fP.
+Если эта опция указана,
+\fB\%@CLEAR@\fP также игнорирует переменные окружения \fILINES\fP и
+\fI\%COLUMNS\fP.
+.TP
+.B \-V
+сообщает версию \fI\%ncurses\fP, связанную с этой программой, и
+завершает работу с успешным статусом.
+.TP
+.B \-x
+предотвращает попытки \fB\%@CLEAR@\fP очистить буфер прокрутки.
+.SH ПЕРЕНОСИМОСТЬ
+Ни IEEE Std 1003.1/The Open Group Base Specifications Issue\ 7
+(POSIX.1-2008), ни X/Open Curses Issue\ 7 не документируют \fB\%@CLEAR@\fP.
+.PP
+Последний документирует \fBtput\fP,
+который можно использовать для замены этой утилиты либо через сценарий оболочки, либо
+с помощью псевдонима
+(например, символической ссылки),
+чтобы запускать \fB\%@TPUT@\fP как \fB\%@CLEAR@\fP.
+.SH ИСТОРИЯ
+Команда \fBclear\fP, использующая базу данных и библиотеку \fItermcap\fP,
+появилась в 2BSD (1979).
+Позже она была включена в Eighth Edition Unix (1985).
+.PP
+Коммерческое подразделение Unix компании AT&T адаптировало другую программу
+BSD (\fBtset\fP), чтобы создать новую команду,
+\fBtput\fP,
+и заменило программу \fBclear\fP сценарием оболочки, который вызывал
+\*(``\fBtput clear\fP\*(''.
+.PP
+.RS 4
+.EX
+.nf
+/usr/bin/tput ${1:+\-T$1} clear 2> /dev/null
+exit
+.fi
+.EE
+.RE
+.PP
+В 1989 году, когда Кит Бостик переработал команду BSD \fBtput\fP,
+чтобы сделать её похожей на \fBtput\fP от AT&T,
+он также добавил сценарий оболочки \fBclear\fP.
+.PP
+.RS 4
+.EX
+exec tput clear
+.EE
+.RE
+.PP
+Остальная часть сценария в каждом случае является уведомлением об авторских правах.
+.PP
+В 1995 году
+\fBclear\fP из \fI\%ncurses\fP начался с адаптации оригинальной
+команды \fBclear\fP из BSD для использования \fIterminfo\fP.
+Расширение \fBE3\fP появилось позже.
+.bP
+В июне 1999 года \fIxterm\fP предоставил расширение к стандартной управляющей
+последовательности для очистки экрана.
+Вместо очистки только видимой части экрана с помощью
+.RS 8
+.PP
+.EX
+printf \*'\e033[2J\*'
+.EE
+.RE
+.IP
+можно также очистить буфер прокрутки, используя
+.RS 8
+.PP
+.EX
+printf \*'\e033[\fB3\fPJ\*'
+.EE
+.RE
+.IP
+вместо этого.
+\*(``XTerm Control Sequences\fP\*('' документирует эту функцию как
+происходящую из \fIxterm\fP.
+.bP
+Несколько других эмуляторов терминала переняли её,
+например PuTTY в 2006 году.
+.bP
+В апреле 2011 года разработчик Red Hat отправил патч в ядро
+Linux, изменив его драйвер консоли, чтобы делать то же самое.
+Документация этого изменения,
+появившаяся в Linux 3.0,
+не упоминала \fIxterm\fP,
+хотя эта программа была указана в отчёте об ошибке Red Hat (#683733),
+мотивировавшем эту функцию.
+.bP
+Впоследствии
+всё больше разработчиков терминалов перенимали эту функцию.
+Следующим важным шагом было изменение программы \fBclear\fP из \fI\%ncurses\fP
+в 2013 году для включения этого расширения.
+.bP
+В 2013 году
+возможность \fBE3\fP не задействовалась командой
+\*(``\fB\%@TPUT@ clear\fP\*(''.
+Это упущение было исправлено в 2016 году путём реорганизации \fB\%@TPUT@\fP,
+чтобы он делился своей логикой с \fB\%@CLEAR@\fP и \fB\%@TSET@\fP.
+.SH СМ. ТАКЖЕ
+\fB\%@TPUT@\fP(1),
+\fB\%xterm\fP(1),
+\fB\%terminfo\fP(5)

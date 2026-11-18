@@ -1,0 +1,212 @@
+.\" Copyright (c) 2007-2010 Daniel Braniss <danny@cs.huji.ac.il>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/iscsictl/iscsi.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 7a593591cd65b0f23943a19b611bf7d7586dddedd831480f1cbea8a4de0a1275
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 25, 2022
+.Dt ISCSI.CONF 5
+.Os
+.Sh ИМЯ
+.Nm iscsi.conf
+.Nd файл конфигурации инициатора iSCSI
+.Sh ОПИСАНИЕ
+Файл конфигурации
+.Nm
+используется утилитой
+.Xr iscsictl 8 .
+Общий синтаксис:
+.Bf Li
+.Bd -literal
+	# это комментарий
+	nickname_1 {
+	   variable = value;
+	   ...
+	}
+	nickname_2 {
+	   variable = value;
+	   ...
+	}
+	...
+.Ed
+.Ef
+.Bl -tag -width MaxConnections
+.It Cm AuthMethod
+Задаёт тип аутентификации.
+Тип может быть либо
+.Qq Ar None ,
+либо
+.Qq Ar CHAP .
+По умолчанию
+.Qq Ar None .
+Если установлено
+.Cm CHAP ,
+должны быть определены как
+.Cm chapIName ,
+так и
+.Cm chapSecret .
+.It Cm chapIName
+Логин для аутентификации CHAP.
+.It Cm chapSecret
+Секрет для аутентификации CHAP.
+.It Cm tgtChapName
+Логин цели для взаимной аутентификации CHAP.
+.It Cm tgtChapSecret
+Секрет цели для взаимной аутентификации CHAP.
+.It Cm HeaderDigest
+Задаёт дайджест заголовка; контрольную сумму, вычисляемую по заголовку
+PDU iSCSI и проверяемую при получении.
+Дайджест может быть либо
+.Qq Ar None ,
+либо
+.Qq Ar CRC32C .
+По умолчанию
+.Qq Ar None .
+.It Cm DataDigest
+Задаёт дайджест данных; контрольную сумму, вычисляемую по секции данных
+PDU iSCSI и проверяемую при получении.
+Дайджест может быть либо
+.Qq Ar None ,
+либо
+.Qq Ar CRC32C .
+По умолчанию
+.Qq Ar None .
+.It Cm InitiatorName
+Задаёт имя инициатора.
+По умолчанию имя является конкатенацией
+.Qq Ar iqn.1994-09.org.freebsd:
+с именем хоста.
+.It Cm TargetName
+Задаёт имя цели.
+Не требуется для сеансов обнаружения.
+.It Cm TargetAddress
+Задаёт адрес и порт цели в формате
+.Sy address[:port] .
+Значение
+.Sy address
+может быть либо IP-адресом, либо именем хоста.
+Необязательный порт по умолчанию равен 3260.
+.It Cm SessionType
+Задаёт тип сеанса.
+Тип может быть либо
+.Qq Ar Discovery ,
+либо
+.Qq Ar Normal .
+По умолчанию
+.Qq Ar Normal .
+Для обычных сеансов должен быть определён
+.Sy TargetName .
+Сеансы обнаружения приводят к тому, что инициатор подключается ко всем целям,
+возвращённым обнаружением iSCSI SendTargets, с заданным
+.Sy TargetAddress .
+.It Cm Enable
+Включает или отключает сеанс.
+Состояние может быть либо
+.Qq Ar On ,
+либо
+.Qq Ar Off .
+По умолчанию
+.Qq Ar On .
+.It Cm Offload
+Имя выбранного драйвера аппаратной разгрузки iSCSI.
+По умолчанию
+.Qq Ar None .
+.It Cm Protocol
+Имя выбранного протокола.
+Это может быть либо
+.Qq Ar iSER
+для iSCSI поверх RDMA, либо
+.Qq Ar iSCSI .
+По умолчанию
+.Qq Ar iSCSI .
+.It Cm dscp
+Кодовая точка DiffServ, используемая для отправки данных.
+DSCP можно задать непосредственно числовым или шестнадцатеричным значением,
+а также с помощью определённых
+.Qq Ar cs<n>
+и
+.Qq Ar af<xx>
+кодовых точек.
+По умолчанию кодовая точка dscp не задана, что означает использование
+значения по умолчанию исходящего интерфейса.
+.It Cm pcp
+Кодовая точка приоритета 802.1Q, используемая для отправки пакетов.
+PCP можно задать значением в диапазоне от
+.Qq Ar 0
+до
+.Qq Ar 7 .
+Если не указано, используется значение по умолчанию для исходящего интерфейса.
+.It Cm PingTimeout
+Задаёт время в секундах для ожидания между ping-запросами (SCSI NOP) и
+для ожидания ответа на ping, прежде чем объявить сеанс неработоспособным и
+попытаться установить его заново.
+Если эта запись отсутствует в файле конфигурации, драйвер берёт значение по умолчанию,
+настроенное с помощью
+.Qq Ar kern.iscsi.ping_timeout
+(по умолчанию
+.Qq Ar 5
+секунд).
+Если присутствует, PingTimeout можно установить в любое положительное значение,
+начиная с
+.Qq Ar 1 .
+.It Cm LoginTimeout
+Задаёт время в секундах ожидания отправки или получения PDU входа в систему
+после попытки установить новый сеанс.
+Если в течение этого времени не получен PDU входа в систему, вход для
+конкретного соединения завершается неудачей и выполняется новая попытка переподключения.
+Если эта запись отсутствует в файле конфигурации, используется значение по умолчанию
+.Qq Ar 60
+секунд, настроенное с помощью
+.Qq Ar kern.iscsi.login_timeout .
+LoginTimeout можно установить в любое положительное значение, начиная с
+.Qq Ar 1 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/iscsi.conf
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+myiscsi { # псевдоним
+   targetaddress = iscsi1
+   targetname    = iqn.1900.com.com:sn.123456
+}
+
+myiscsi6 { # псевдоним
+   targetaddress = [2001:db8::de:ef]:3260
+   targetname    = iqn.1900.com.com:sn.123456
+}
+
+chaptest {
+   targetaddress = 10.0.0.1;
+   targetname    = iqn.1900.com.com:sn.123456;
+   initiatorname = iqn.2005-01.il.ac.huji.cs:nobody;
+   authmethod    = CHAP;
+   chapiname     = iqn.2005-01.il.ac.huji.cs:nobody;
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr iscsictl 8

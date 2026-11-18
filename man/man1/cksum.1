@@ -1,0 +1,181 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/cksum/cksum.1
+.\" FRDP githash 70445a8061226ad46a7079ce8ad96e89ae45d6c5
+.\" FRDP hash256 a2c15d000918a12a021cd93dece352cf5cd3541cdd0d385718e82e2a23107a65
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 18, 2024
+.Dt CKSUM 1
+.Os
+.Sh ИМЯ
+.Nm cksum ,
+.Nm sum
+.Nd выводит контрольные суммы файлов и количество блоков
+.Sh СИНТАКСИС
+.Nm
+.Op Fl o Ar 1 | 2 | 3
+.Op Ar
+.Nm sum
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+записывает в стандартный вывод три разделённых пробельными символами
+поля для каждого входного файла.
+Эти поля — контрольная сумма
+.Tn CRC ,
+общее число октетов в файле и имя файла.
+Если имя файла не указано, используется стандартный ввод, и имя файла
+не записывается.
+.Pp
+Утилита
+.Nm sum
+идентична утилите
+.Nm
+за исключением того, что по умолчанию использует исторический алгоритм 1,
+описанный ниже.
+Она предоставлена только для совместимости.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl o
+Использовать исторические алгоритмы вместо (лучшего) алгоритма по умолчанию.
+.Pp
+Алгоритм 1 — это алгоритм, использовавшийся историческими
+.Bx
+системами как алгоритм
+.Xr sum 1
+и историческими
+.At V
+системами как алгоритм
+.Xr sum 1
+при использовании параметра
+.Fl r .
+Это 16-битная контрольная сумма, с правым циклическим сдвигом перед каждым
+сложением; переполнение отбрасывается.
+.Pp
+Алгоритм 2 — это алгоритм, использовавшийся историческими
+.At V
+системами как алгоритм
+.Xr sum 1
+по умолчанию.
+Это 32-битная контрольная сумма, определяемая следующим образом:
+.Bd -unfilled -offset indent
+s = сумма всех байтов;
+r = s % 2^16 + (s % 2^32) / 2^16;
+cksum = (r % 2^16) + r / 2^16;
+.Ed
+.Pp
+Алгоритм 3 — это то, что обычно называют алгоритмом
+.Ql 32bit CRC .
+Это 32-битная контрольная сумма.
+.Pp
+Оба алгоритма 1 и 2 записывают в стандартный вывод те же поля, что и
+алгоритм по умолчанию, за исключением того, что размер файла в байтах
+заменяется размером файла в блоках.
+По историческим причинам размер блока равен 1024 для алгоритма 1 и 512
+для алгоритма 2.
+Неполные блоки округляются вверх.
+.El
+.Pp
+Используемая по умолчанию
+.Tn CRC
+основана на полиноме, применяемом для
+.Tn CRC
+проверки ошибок
+в сетевом стандарте
+.St -iso8802-3 .
+Кодирование контрольной суммы
+.Tn CRC
+определяется порождающим полиномом:
+.Bd -unfilled -offset indent
+G(x) = x^32 + x^26 + x^23 + x^22 + x^16 + x^12 +
+     x^11 + x^10 + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1
+.Ed
+.Pp
+Математически значение
+.Tn CRC ,
+соответствующее заданному файлу, определяется
+следующей процедурой:
+.Bd -ragged -offset indent
+.Ar n
+битов, подлежащих вычислению, рассматриваются как коэффициенты полинома M(x) по модулю 2
+степени
+.Ar n Ns \-1 .
+Эти
+.Ar n
+битов — это биты из файла, причём старший бит является старшим
+битом первого октета файла, а последний бит — младшим
+битом последнего октета; они дополняются нулевыми битами (при необходимости) до
+целого числа октетов, после чего следует один или несколько октетов,
+представляющих длину файла в виде двоичного значения, начиная с младшего октета.
+Используется наименьшее число октетов, способное представить это целое.
+.Pp
+M(x) умножается на x^32 (то есть сдвигается влево на 32 бита) и делится на
+G(x) с использованием деления по модулю 2, давая остаток R(x) степени <= 31.
+.Pp
+Коэффициенты R(x) рассматриваются как 32-битная последовательность.
+.Pp
+Битовая последовательность инвертируется, и результатом является CRC.
+.Ed
+.Sh СТАТУС ВЫХОДА
+.Ex -std cksum sum
+.Sh ПРИМЕРЫ
+Вычислить контрольную сумму для всех доступных алгоритмов.
+Обратите внимание на различие в представлении размера (в байтах для алгоритмов 1 и 2
+и в блоках для 3 и алгоритма по умолчанию):
+.Bd -literal -offset indent
+3015617425 6
+36979 1
+542 1
+909783072 6
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr md5 1
+.Pp
+Расчёт по умолчанию идентичен приведённому в псевдокоде
+в следующей
+.Tn ACM
+статье.
+.Rs
+.%A Dilip V. Sarwate
+.Re
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+будет соответствовать
+.St -p1003.2-92 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.4 .

@@ -1,0 +1,82 @@
+.\" Copyright (c) 2019 Ian Lepore <ian@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/arm/gen/arm_sync_icache.2
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f6e12d76cc589af7a09153af1d7f803059e1e59143479f048580538be856c8ce
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 10, 2019
+.Dt ARM_sync_icache 2
+.Os
+.Sh ИМЯ
+.Nm arm_sync_icache
+.Nd синхронизировать кэши данных и инструкций
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In machine/sysarch.h
+.Ft int
+.Fn arm_sync_icache "u_int addr" "int len"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Nm
+синхронизирует содержимое кэшей данных и инструкций
+с содержимым основной памяти для заданного диапазона.
+Используйте его после загрузки исполняемого кода или изменения существующего кода в памяти,
+перед попыткой выполнения этого кода.
+.Pp
+Аргументы
+.Va addr
+и
+.Va len
+не обязаны быть выровнены по какой-либо определённой границе, но
+операции с кэшем затронут целые строки кэша, даже те, которые лишь
+частично перекрываются заданным диапазоном.
+.Pp
+В зависимости от требований
+аппаратного обеспечения выполняются одно или несколько из следующих действий:
+.Bl -bullet
+.It
+Записать изменённые строки кэша данных в пределах диапазона обратно в основную память.
+.It
+Аннулировать существующее содержимое кэша инструкций для диапазона.
+.It
+Аннулировать кэши предсказания переходов для диапазона.
+.El
+.Pp
+На аппаратном обеспечении, поддерживающем несколько точек синхронизации для операций
+с кэшем, кэши поддерживаются до точки объединения,
+что делает данные в диапазоне когерентными для всех ядер.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Nm
+всегда возвращает 0.
+.Sh ОШИБКИ
+Если вызов обращается к памяти, к которой вызывающий процесс не имеет прав
+доступа, или если аргумент
+.Va len
+отрицателен, вызывающему потоку доставляется сигнал SIGSEGV.
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Ian Lepore .

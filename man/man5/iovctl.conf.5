@@ -1,0 +1,169 @@
+.\"
+.\" Copyright (c) 2014 Sandvine Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/iovctl/iovctl.conf.5
+.\" FRDP githash d36050dc99ea68894f5c300a550a7841e8803e7e
+.\" FRDP hash256 1a84d8229c59bf5a41c1651e1bdf7c37055c19706e7fbbbc1916ecfc2b0b2be8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 30, 2024
+.Dt IOVCTL.CONF 5
+.Os
+.Sh ИМЯ
+.Nm iovctl.conf
+.Nd Файл конфигурации IOVCTL
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+является файлом конфигурации для программы
+.Xr iovctl 8 .
+Этот файл задаёт параметры конфигурации для одного устройства Physical Function
+.Pq PF .
+Чтобы настроить SR-IOV на нескольких устройствах PF, используйте отдельный файл конфигурации для каждого PF.
+Расположение всех файлов конфигурации
+.Xr iovctl 8
+задаётся в
+.Xr rc.conf 5 .
+.Pp
+Файл
+.Nm
+использует формат UCL.
+Синтаксис UCL описан на официальном веб-сайте UCL:
+.Lk http://github.com/vstakhov/libucl .
+.Pp
+В файле
+.Nm
+есть три типа секций.
+Секция — это ключ верхнего уровня файла, значением которого является список.
+Список может содержать ключи, указанные в разделе
+.Sx ПАРАМЕТРЫ
+этой страницы руководства.
+Отдельные реализации драйверов PF могут указывать дополнительные специфичные для устройства ключи конфигурации, которые они будут принимать.
+Порядок следования секций в
+.Nm
+игнорируется.
+Никакие две секции не могут иметь одинаковый ключ.
+Например, нельзя определять две секции для VF-1.
+.Pp
+Первый тип секции — секция PF.
+определена.
+Эта секция задаёт параметры конфигурации, применяемые к PF в целом.
+.Pp
+Второй тип секции — секция VF.
+Индексы VF начинаются с 0 и всегда увеличиваются на 1.
+Допустимые индексы VF находятся в диапазоне от 0 до
+.Pq num_vfs - 1 .
+Индекс VF должен быть задан десятичным целым числом без ведущих нулей.
+Эта секция задаёт параметры конфигурации, применяемые к одному VF.
+.Pp
+Третий тип секции — секция по умолчанию.
+должна быть указана.
+Эта секция задаёт параметры конфигурации по умолчанию, применяемые ко всем VF.
+Все ключи конфигурации, допустимые для применения к VF, допустимы в этой секции.
+Отдельная секция VF может переопределить значение по умолчанию, заданное в этой секции, указав другое значение параметра конфигурации.
+Обратите внимание, что секция по умолчанию применяется ко ВСЕМ VF.
+Секция по умолчанию должна идти перед любыми секциями VF.
+Секция по умолчанию может идти до или после секции PF.
+.Pp
+Поддерживаются следующие типы параметров:
+.Bl -tag -width indent
+.It boolean
+Принимает логическое значение true или false.
+.It vlan
+.It mac-addr
+Принимает одноадресный MAC-адрес, заданный строкой вида xx:xx:xx:xx:xx:xx, где xx — одна или две шестнадцатеричные цифры.
+.It string
+Принимает любое строковое значение.
+.It uint8_t
+Принимает любое целое число в диапазоне от 0 до 255 включительно.
+.It uint16_t
+Принимает любое целое число в диапазоне от 0 до 65535 включительно.
+.It uint32_t
+Принимает любое целое число в диапазоне от 0 до
+.Pq 2**32 - 1 ,
+включительно.
+.It uint64_t
+Принимает любое целое число в диапазоне от 0 до
+.Pq 2**64 - 1 ,
+включительно.
+.El
+.Sh ПАРАМЕТРЫ
+Следующие параметры принимаются всеми драйверами PF:
+.Bl -tag -width indent
+.It device Pq string
+Этот параметр задаёт имя устройства PF.
+Этот параметр должен быть указан.
+.It num_vfs Pq uint16_t
+Этот параметр задаёт число создаваемых дочерних VF.
+Этот параметр не может быть нулевым.
+Максимальное значение этого параметра зависит от устройства.
+.El
+.Pp
+Следующие параметры принимаются всеми VF:
+.Bl -tag -width indent
+.It passthrough Pq boolean
+Этот параметр управляет тем, зарезервирован ли VF для использования гипервизором
+.Xr bhyve 8
+в качестве устройства сквозного доступа PCI (passthrough).
+Если этот параметр установлен в true, то VF будет зарезервирован как устройство сквозного доступа PCI (passthrough) и не будет доступен из хост-ОС.
+Значение этого параметра по умолчанию — false.
+.El
+.Pp
+Параметры конфигурации, специфичные для конкретного оборудования, см. на странице руководства драйвера PF.
+.Pp
+Для сетевых устройств отобразить специфичные для NIC инициализацию, ресурсы и состояние политики можно с помощью:
+.Bd -literal -offset indent
+ifconfig -v ix0
+.Ed
+Значение отображаемых полей описано в
+.Xr ifconfig 8 .
+.Sh ПРИМЕРЫ
+Этот пример файла создаст 3 VF как дочерние устройства ix0.
+VF-1 и VF-2 задаются как устройства сквозного доступа (passthrough) для
+.Xr bhyve 8
+с помощью секции по умолчанию.
+VF-0 не настраивается как устройство сквозного доступа (passthrough), так как явно переопределяет значение по умолчанию.
+VF-0 также задаёт специфичный для устройства параметр с именем mac-addr.
+.Bd -literal -offset ident
+PF {
+	num_vfs : 3;
+}
+
+DEFAULT {
+	passthrough : true;
+}
+
+VF-0 {
+	passthrough : false;
+	vlan: 1;
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr rc.conf 5 ,
+.Xr ifconfig 8 ,
+.Xr iovctl 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Ryan Stone Aq Mt rstone@FreeBSD.org .

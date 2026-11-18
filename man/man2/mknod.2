@@ -1,0 +1,191 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mknod.2
+.\" FRDP githash a3b5937da6159bcdaf4e635a0ad20013d4c3734d
+.\" FRDP hash256 e0b0e390e547deca28a75fb659b5c84880228825890b59b3dbc84ae801b4580d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt MKNOD 2
+.Os
+.Sh ИМЯ
+.Nm mknod ,
+.Nm mknodat
+.Nd создание специального узла файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/stat.h
+.Ft int
+.Fn mknod "const char *path" "mode_t mode" "dev_t dev"
+.Ft int
+.Fn mknodat "int fd" "const char *path" "mode_t mode" "dev_t dev"
+.Sh ОПИСАНИЕ
+Узел файловой системы
+.Fa path
+создаётся с типом файла и правами доступа, указанными в
+.Fa mode .
+Права доступа изменяются значением umask процесса.
+.Pp
+Если
+.Fa mode
+указывает на блочный или символьный специальный файл,
+.Fa dev
+представляет собой зависящую от конфигурации спецификацию, обозначающую конкретное устройство
+в системе.
+В противном случае, если
+.Fa mode
+указывает на запрос создания FIFO
+.Pq см. Xr mkfifo 2
+аргумент
+.Fa dev
+должен быть равен нулю.
+При создании whiteout аргумент
+.Fa dev
+игнорируется.
+.Pp
+Системный вызов
+.Fn mknod ,
+если он не вызывается для создания FIFO,
+требует привилегий суперпользователя.
+.Pp
+Системный вызов
+.Fn mknodat
+эквивалентен
+.Fn mknod ,
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае вновь созданный узел устройства создаётся относительно
+каталога, связанного с дескриптором файла
+.Fa fd ,
+а не текущего рабочего каталога.
+Если
+.Fn mknodat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог, и поведение
+идентично вызову
+.Fn mknod .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std mknod
+.Sh ОШИБКИ
+Системный вызов
+.Fn mknod
+завершится с ошибкой, и файл не будет создан, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или полное имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Компонент префикса пути не существует.
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути отказано.
+.It Bq Er ELOOP
+При преобразовании имени пути встречено слишком много символических ссылок.
+.It Bq Er EPERM
+Эффективный идентификатор пользователя процесса не является суперпользователем.
+.It Bq Er EIO
+При создании записи каталога или выделении inode произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для нового узла,
+не может быть расширен, так как на файловой системе, содержащей каталог,
+не осталось места.
+.It Bq Er ENOSPC
+На файловой системе, на которой создаётся узел,
+нет свободных inode.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для нового узла,
+не может быть расширен, так как
+квота пользователя на дисковые блоки на файловой системе,
+содержащей каталог, исчерпана.
+.It Bq Er EDQUOT
+Квота пользователя на inode на файловой системе, на
+которой создаётся узел, исчерпана.
+.It Bq Er EROFS
+Указанный файл находится на файловой системе, доступной только для чтения.
+.It Bq Er EEXIST
+Указанный файл существует.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Создание чего-либо, кроме блочного или символьного специального
+файла, whiteout или FIFO, не поддерживается.
+.It Bq Er EINVAL
+При создании FIFO указан ненулевой
+.Fa dev .
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn mknod ,
+.Fn mknodat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь, и аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём, и
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chmod 2 ,
+.Xr mkfifo 2 ,
+.Xr stat 2 ,
+.Xr umask 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn mknodat
+соответствует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Функция
+.Fn mknod
+появилась в
+.At v4 .
+Системный вызов
+.Fn mknodat
+появился в
+.Fx 8.0 .

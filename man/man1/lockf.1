@@ -1,0 +1,281 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (C) 1998 John D. Polstra.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY JOHN D. POLSTRA AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL JOHN D. POLSTRA OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/lockf/lockf.1
+.\" FRDP githash dd201e407e48ba59bdfa1f71d41acfdac1a9c562
+.\" FRDP hash256 dd075a1e0f088afb7ac986592d0c33ed7f93d9fe426d1add3d4439c6dc284f6c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 26, 2026
+.Dt LOCKF 1
+.Os
+.Sh ИМЯ
+.Nm lockf
+.Nd выполнить команду, удерживая блокировку файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl knpsTw
+.Op Fl t Ar секунд
+.Ar файл
+.Ar команда
+.Op Ar аргументы
+.Nm
+.Op Fl s
+.Op Fl t Ar секунд
+.Ar fd
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+устанавливает исключительную блокировку на
+.Ar файл ,
+создавая его при необходимости,
+.Bf Em
+и удаляет файл при выходе, если явно не указано обратное.
+.Ef
+Удерживая блокировку, она выполняет
+.Ar команду
+с необязательными
+.Ar аргументами .
+После завершения
+.Ar команды
+.Nm
+снимает блокировку и удаляет
+.Ar файл ,
+если не указан параметр
+.Fl k .
+.Bx Ns -стилевая
+блокировка используется, как описано в
+.Xr flock 2 ;
+само существование
+.Ar файла
+не считается блокировкой.
+.Pp
+.Nm
+также может использоваться для работы с файловым дескриптором вместо файла.
+Если
+.Ar команда
+не указана, то
+.Ar fd
+должен быть файловым дескриптором.
+Версия с
+.Ar командой
+также может использоваться с файловым дескриптором, если передать его как путь
+.Pa /dev/fd/N ,
+где N — желаемый файловый дескриптор.
+Параметр
+.Fl k
+подразумевается, когда используется файловый дескриптор, а параметры
+.Fl n
+и
+.Fl w
+молча игнорируются.
+Это можно использовать для блокировки внутри сценария оболочки.
+.Pp
+Если утилита
+.Nm
+используется для обеспечения параллелизма между несколькими процессами, рекомендуется использовать параметр
+.Fl k .
+Это гарантирует порядок блокировок, а также реализует
+алгоритм с повышенной производительностью, который минимизирует нагрузку на ЦП,
+связанную с одновременным удалением, снятием и повторным захватом блокировок.
+Следует отметить, что если параметр
+.Fl k
+не используется, то никаких гарантий порядка блокировок дать нельзя.
+.Pp
+Поддерживаются следующие параметры:
+.Bl -tag -width Ds
+.It Fl k
+Заставляет сохранять файл блокировки (не удалять его) после завершения команды.
+.It Fl n
+Заставляет
+.Nm
+завершиться с ошибкой, если указанный
+.Ar файл
+блокировки не существует.
+Если
+.Fl n
+не указан,
+.Nm
+создаст
+.Ar файл
+при необходимости.
+.It Fl p
+Записывает pid
+.Ar команды
+в
+.Ar файл .
+Этот параметр заставит
+.Nm
+открыть
+.Ar файл
+для записи, а не для чтения.
+.It Fl s
+Заставляет
+.Nm
+работать молча.
+Неудача при получении блокировки отражается только в статусе выхода.
+.It Fl T
+При получении
+.Dv SIGTERM
+передаёт
+.Dv SIGTERM
+далее
+.Ar команде
+перед очисткой
+.Ar файла
+и выходом.
+По умолчанию
+.Nm
+фактически оставляет
+.Ar команду
+сиротой после очистки
+.Ar файла .
+.It Fl t Ar секунд
+Задаёт время ожидания блокировки.
+По умолчанию
+.Nm
+ждёт получения блокировки бесконечно.
+Если с этим параметром задано время ожидания,
+.Nm
+подождёт не более заданного числа
+.Ar секунд
+перед тем, как отказаться.
+Можно задать время ожидания 0; в этом случае
+.Nm
+завершится с ошибкой, если не сможет получить блокировку немедленно.
+Когда время ожидания блокировки истекает,
+.Ar команда
+.Em не
+выполняется.
+.It Fl w
+Заставляет
+.Nm
+открыть
+.Ar файл
+для записи, а не для чтения.
+Это необходимо в файловых системах (включая NFSv4), где файл, открытый
+только для чтения, не может быть исключительно заблокирован.
+.El
+.Pp
+Ни при каких обстоятельствах
+.Nm
+не нарушит блокировку, удерживаемую другим процессом.
+.Sh СТАТУС ВЫХОДА
+Если
+.Nm
+успешно получает блокировку, она возвращает статус выхода, созданный
+.Ar командой .
+В противном случае она возвращает один из кодов выхода, определённых в
+.Xr sysexits 3 ,
+следующим образом:
+.Bl -tag -width Ds
+.It Er EX_OSERR Pq 61
+Системный вызов, например
+.Xr fork 2 ,
+неожиданно завершился с ошибкой.
+.It Er EX_USAGE Pq 64
+Произошла ошибка в командной строке
+.Nm .
+.It Er EX_UNAVAILABLE Pq 69
+Указан параметр
+.Fl n
+, и указанный файл блокировки не существует.
+.It Er EX_SOFTWARE Pq 70
+Указанная
+.Ar команда
+завершилась не нормально,
+но могла получить сигнал или быть остановлена.
+.It Er EX_CANTCREAT Pq 73
+Утилита
+.Nm
+не смогла создать файл блокировки, например, из-за недостаточных прав
+доступа.
+.It Er EX_TEMPFAIL Pq 75
+Указанный файл блокировки уже был заблокирован другим процессом.
+.El
+.Sh ПРИМЕРЫ
+Первое задание захватывает блокировку и спит 5 секунд в фоновом режиме.
+Второе задание пытается получить блокировку и через 1 секунду превышает время ожидания (номера PID
+будут различаться):
+.Bd -literal -offset indent
+[1] 94410
+lockf: mylock: already locked
+.Ed
+.Pp
+Первое задание захватывает блокировку и спит 1 секунду в фоновом режиме.
+Второе задание ждёт до 5 секунд, чтобы захватить блокировку, и в случае успеха
+выводит сообщение (номера PID будут различаться):
+.Bd -literal -offset indent
+[1] 19995
+Success
+[1]+  Done                    lockf mylock sleep 1
+.Ed
+.Pp
+Заблокировать файл и запустить сценарий; немедленно вернуться, если блокировка
+недоступна.
+Не удалять файл после этого, чтобы порядок блокировок был гарантирован.
+.Pp
+.Dl $ lockf -t 0 -k /tmp/my.lock myscript
+.Pp
+Защитить участок сценария оболочки блокировкой; ждать её появления до 5 секунд.
+Обратите внимание, что сценарий оболочки открыл файл блокировки
+.Fa /tmp/my.lock ,
+и
+.Nm
+выполняет вызов блокировки исключительно через переданный файловый дескриптор (9).
+В этом случае
+.Fl k
+подразумевается, а
+.Fl w
+не действует, потому что файл уже открыт оболочкой.
+В этом примере предполагается, что
+.Ql >
+реализован в оболочке путём открытия и усечения
+.Pa /tmp/my.lock ,
+а не путём замены файла блокировки.
+.Bd -literal -offset indent
+(
+	lockf -s -t 5 9
+	if [ $? -ne 0 ]; then
+		exit 1
+	fi
+
+	echo Start
+	# Do some stuff
+	echo End
+) 9>/tmp/my.lock
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr flock 2 ,
+.Xr lockf 3 ,
+.Xr sysexits 3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 2.2 .
+.Sh АВТОРЫ
+.An John Polstra Aq Mt jdp@polstra.com

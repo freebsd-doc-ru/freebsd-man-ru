@@ -1,0 +1,145 @@
+.\" Copyright (c) 2002 Marcel Moolenaar
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/uuidgen.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c92fbf2b621bd3ad701c69cc4925a37f5f5b7b47c030b629c0b35af429f1c272
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2002
+.Dt UUIDGEN 2
+.Os
+.Sh ИМЯ
+.Nm uuidgen
+.Nd генерация универсально уникальных идентификаторов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/uuid.h
+.Ft int
+.Fn uuidgen "struct uuid *store" "int count"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn uuidgen
+генерирует
+.Fa count
+универсально уникальных идентификаторов (UUID) и записывает их в буфер,
+на который указывает
+.Fa store .
+Идентификаторы генерируются в соответствии с синтаксисом и семантикой
+варианта DCE версии 1 универсально уникальных идентификаторов.
+Более подробное описание идентификаторов приведено ниже.
+Когда адрес IEEE 802 недоступен для поля node, для каждого вызова
+системного вызова генерируется случайный широковещательный адрес.
+В соответствии с алгоритмом генерации UUID на основе времени, это также
+приведёт к принудительной генерации новой случайной последовательности часов,
+тем самым увеличивая вероятность уникальности идентификатора.
+.Pp
+Когда требуется сгенерировать несколько идентификаторов, системный вызов
+.Fn uuidgen
+сгенерирует набор идентификаторов, который является плотным таким образом,
+что не существует идентификатора, который больше наименьшего идентификатора
+в наборе и меньше наибольшего идентификатора в наборе и который ещё не
+входит в набор.
+.Pp
+Универсально уникальные идентификаторы, также известные как глобально
+уникальные идентификаторы (GUID), имеют двоичное представление размером
+128 бит.
+Группировка и значение этих битов описываются следующей структурой и
+описанием её полей:
+.Bd -literal
+struct uuid {
+	uint32_t	time_low;
+	uint16_t	time_mid;
+	uint16_t	time_hi_and_version;
+	uint8_t		clock_seq_hi_and_reserved;
+	uint8_t		clock_seq_low;
+	uint8_t		node[_UUID_NODE_LEN];
+};
+.Ed
+.Bl -tag -width ".Va clock_seq_hi_and_reserved"
+.It Va time_low
+Младшие 32 бита 60-битной отметки времени.
+Это поле хранится в собственном порядке байтов.
+.It Va time_mid
+Младшие 16 бит старших 28 бит 60-битной отметки времени.
+Это поле хранится в собственном порядке байтов.
+.It Va time_hi_and_version
+Старшие 12 бит 60-битной отметки времени, мультиплексированные с 4-битным
+номером версии.
+Номер версии хранится в старших 4 битах 16-битного поля.
+Это поле хранится в собственном порядке байтов.
+.It Va clock_seq_hi_and_reserved
+Старшие 6 бит 14-битного порядкового номера, мультиплексированные с
+2-битным значением варианта.
+Обратите внимание, что ширина значения варианта определяется самим
+вариантом.
+Идентификаторы, сгенерированные системным вызовом
+.Fn uuidgen ,
+имеют значение варианта 10b.
+Значение варианта хранится в старших битах поля.
+.It Va clock_seq_low
+Младшие 8 бит 14-битного порядкового номера.
+.It Va node
+6-байтовый адрес IEEE 802 (MAC) одного из интерфейсов узла.
+Если такой интерфейс отсутствует, вместо него используется случайный
+широковещательный адрес.
+.El
+.Pp
+Двоичное представление зависит от порядка байтов.
+Любое многобайтовое поле должно храниться в локальном или собственном
+порядке байтов, и идентификаторы должны быть преобразованы при передаче
+на узлы, которые не согласуют порядок байтов.
+Однако спецификация не документирует, что это означает в конкретных
+терминах, и это выходит за рамки данного системного вызова.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn uuidgen
+может завершиться с ошибкой:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Запись в буфер, на который указывает
+.Fa store ,
+не удалась ни для одного или для всех идентификаторов.
+.It Bq Er EINVAL
+Аргумент
+.Fa count
+меньше 1 или больше жёсткого верхнего предела 2048.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr uuidgen 1 ,
+.Xr uuid 3
+.Sh СТАНДАРТЫ
+Идентификаторы представляются и генерируются в соответствии со
+спецификацией DCE 1.1 RPC.
+Сам системный вызов
+.Fn uuidgen
+не является частью спецификации.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn uuidgen
+впервые появился в
+.Fx 5.0 .

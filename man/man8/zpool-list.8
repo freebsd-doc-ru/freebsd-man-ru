@@ -1,0 +1,191 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-list.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 ad32ba95c97908ac8416d4a432102c1869144ae1441a0f7fcbcc4df3a62b9c51
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 12, 2024
+.Dt ZPOOL-LIST 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-list
+.Nd выводит информацию о пулах хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm list
+.Op Fl HgLpPv
+.Op Fl j Op Ar --json-int, --json-pool-key-guid
+.Op Fl o Ar property Ns Oo , Ns Ar property Oc Ns …
+.Op Fl T Sy u Ns | Ns Sy d
+.Oo Ar pool Oc Ns …
+.Op Ar interval Op Ar count
+.
+.Sh ОПИСАНИЕ
+Выводит список указанных пулов вместе с состоянием работоспособности и использованием пространства.
+Если не указаны
+.Ar pool Ns s ,
+выводятся все пулы в системе.
+Если задан
+.Ar interval ,
+информация выводится каждые
+.Ar interval
+секунд до принудительного завершения.
+Если указан
+.Ar count ,
+команда завершается после вывода
+.Ar count
+отчётов.
+.Bl -tag -width Ds
+.It Fl j , -json Op Ar --json-int, --json-pool-key-guid
+Показывать список пулов в формате JSON.
+Укажите
+.Sy --json-int
+чтобы отображать числа в целочисленном формате, а не в виде строк.
+Укажите
+.Sy --json-pool-key-guid
+чтобы использовать GUID пула в качестве ключа для объектов пулов вместо имён пулов.
+.It Fl g
+Показывать GUID vdev вместо обычных имён устройств.
+Эти GUID можно использовать вместо имён устройств в командах zpool
+detach/offline/remove/replace.
+.It Fl H
+Режим для сценариев.
+Не выводить заголовки и разделять поля одним символом табуляции вместо произвольного
+количества пробелов.
+.It Fl o Ar property
+Список свойств для отображения, разделённых запятыми.
+Список допустимых свойств см. в
+.Xr zpoolprops 7
+manual page.
+Список по умолчанию:
+.Sy name , size , allocated , free , checkpoint, expandsize , fragmentation ,
+.Sy capacity , dedupratio , health , altroot .
+.It Fl L
+Показывать реальные пути для vdev с разрешением всех символических ссылок.
+Это можно использовать для поиска текущего имени блочного устройства независимо от
+.Pa /dev/disk
+пути, использованного для его открытия.
+.It Fl p
+Показывать числа в пригодном для разбора
+.Pq точном
+виде.
+.It Fl P
+Показывать полные пути для vdev вместо только последнего компонента
+пути.
+Это можно использовать вместе с флагом
+.Fl L .
+.It Fl T Sy u Ns | Ns Sy d
+Показывать отметку времени.
+Укажите
+.Sy u
+для печатного представления внутреннего представления времени.
+См.
+.Xr time 1 .
+Укажите
+.Sy d
+для стандартного формата даты.
+См.
+.Xr date 1 .
+.It Fl v
+Подробная статистика.
+Выводит статистику использования для отдельных vdev внутри пула в дополнение к
+статистике по всему пулу.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1: Вывод доступных пулов хранения ZFS
+Следующая команда выводит список всех доступных пулов в системе.
+В этом случае пул
+.Ar zion
+находится в состоянии FAULTED из-за отсутствующего устройства.
+Результаты этой команды похожи на следующие:
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm list
+NAME    SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+rpool  19.9G  8.43G  11.4G         -    33%    42%  1.00x  ONLINE  -
+tank   61.5G  20.0G  41.5G         -    48%    32%  1.00x  ONLINE  -
+zion       -      -      -         -      -      -      -  FAULTED -
+.Ed
+.
+.Ss Пример 2: Отображение расширенного пространства на устройстве
+Следующая команда выводит подробную информацию о пуле
+.Ar data .
+Этот пул состоит из одного vdev raidz, в котором ёмкость одного из устройств
+увеличена на 10 GiB.
+В этом примере пул не сможет использовать эту дополнительную ёмкость, пока
+не будут расширены все устройства в составе vdev raidz.
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm list Fl v Ar data
+NAME         SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+data        23.9G  14.6G  9.30G         -    48%    61%  1.00x  ONLINE  -
+  raidz1    23.9G  14.6G  9.30G         -    48%
+    sda         -      -      -         -      -
+    sdb         -      -      -       10G      -
+    sdc         -      -      -         -      -
+.Ed
+.
+.Ss Пример 3: Отображение расширенного пространства на устройстве
+Следующая команда выводит список всех доступных пулов в системе в формате JSON.
+.Bd -literal -compact -offset Ds
+.No # Nm zpool Cm list Fl j | Nm jq
+{
+  },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        },
+          }
+        }
+      }
+    }
+  }
+}
+
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-import 8 ,
+.Xr zpool-status 8

@@ -1,0 +1,134 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/apply/apply.1
+.\" FRDP githash dc140a9fc151f3717bce2157f49070daafa13ec0
+.\" FRDP hash256 a7b630445aacf832bec5972fd1100eabea5971d0c7eb68f617cc336cb610c87e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 28, 2022
+.Dt APPLY 1
+.Os
+.Sh ИМЯ
+.Nm apply
+.Nd применение команды к набору аргументов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a Ar c
+.Op Fl d
+.Op Cm - Ns Ar #
+.Ar команда аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+поочерёдно запускает указанную
+.Ar команду
+для каждого
+.Ar аргумента .
+.Pp
+Последовательности символов вида
+.Dq Li \&%d
+в
+.Ar команде ,
+где
+.Sq Li d
+— цифра от 1 до 9, заменяются на
+.Li d Ns -й
+следующий неиспользованный
+.Ar аргумент .
+В этом случае при каждом выполнении
+.Ar команды
+отбрасывается число аргументов, равное наибольшей цифре.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Cm - Ns Ar #
+Обычно аргументы берутся по одному; необязательное число
+.Ar #
+задаёт количество аргументов, передаваемых
+.Ar команде .
+Если число равно нулю,
+.Ar команда
+запускается без аргументов по одному разу для каждого
+.Ar аргумента .
+.Pp
+Если в
+.Ar команде
+встречаются последовательности
+.Dq Li \&%d ,
+параметр
+.Fl #
+игнорируется.
+.It Fl a Ar c
+Использование символа
+.Sq Li %
+в качестве магического символа можно изменить с помощью параметра
+.Fl a .
+.It Fl d
+Показывать команды, которые были бы выполнены, но на самом деле их не выполнять.
+.El
+.Sh ОКРУЖЕНИЕ
+На выполнение
+.Nm
+влияет следующая переменная окружения:
+.Bl -tag -width SHELL
+.It Ev SHELL
+Путь к используемой командной оболочке.
+Если эта переменная не определена, используется оболочка POSIX.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /bin/sh -compact
+.It Pa /bin/sh
+оболочка по умолчанию
+.El
+.Sh ПРИМЕРЫ
+.Bl -tag -width apply -compact
+аналогична
+.Xr ls 1 ;
+сравнивает файлы `a' с файлами `b';
+запускает
+.Xr who 1
+5 раз; и
+создаёт ссылки на все файлы в текущем каталоге в каталоге
+.Pa /usr/joe .
+.El
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh АВТОРЫ
+.An Rob Pike
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Метасимволы командной оболочки в
+.Ar команде
+могут привести к странным эффектам; сложные команды лучше заключать в одинарные кавычки
+.Pq '' .
+.Pp
+Утилита
+.Nm
+не распознаёт многобайтные символы.

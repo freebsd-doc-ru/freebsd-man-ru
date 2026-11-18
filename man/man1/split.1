@@ -1,0 +1,221 @@
+.\" Copyright (c) 1990, 1991, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/split/split.1
+.\" FRDP githash 784f5708fd0feb4fbc14d24a448a7cf0fc0de664
+.\" FRDP hash256 1637353a74cea4769a1f9059284045aed11ec4a63c3982eab9599731e52e4a95
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2023
+.Dt SPLIT 1
+.Os
+.Sh ИМЯ
+.Nm split
+.Nd разбить файл на части
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cd
+.Op Fl l Ar line_count
+.Op Fl a Ar suffix_length
+.Op Ar file Op Ar prefix
+.Nm
+.Op Fl cd
+.Fl b Ar byte_count Ns
+.Oo
+.Sm off
+.Cm K | k | M | m | G | g
+.Sm on
+.Oc
+.Op Fl a Ar suffix_length
+.Op Ar file Op Ar prefix
+.Nm
+.Op Fl cd
+.Fl n Ar chunk_count
+.Op Fl a Ar suffix_length
+.Op Ar file Op Ar prefix
+.Nm
+.Op Fl cd
+.Fl p Ar pattern
+.Op Fl a Ar suffix_length
+.Op Ar file Op Ar prefix
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает указанный
+.Ar file
+и разбивает его на файлы по 1000 строк каждый
+(если параметры не указаны), оставляя
+.Ar file
+без изменений.
+Если
+.Ar file
+представляет собой одиночный дефис
+.Pq Sq Fl
+или отсутствует,
+.Nm
+читает со стандартного ввода.
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width indent
+.It Fl a Ar suffix_length
+Использовать
+.Ar suffix_length
+букв для формирования суффикса имени файла.
+.It Fl b Ar byte_count Ns Oo
+.Sm off
+.Cm K | k | M | m | G | g
+.Sm on
+.Oc
+Создавать разбитые файлы длиной
+.Ar byte_count
+байт.
+Если к числу добавлено
+.Cm k
+или
+.Cm K ,
+файл разбивается на части по
+.Ar byte_count
+килобайт.
+Если к числу добавлено
+.Cm m
+или
+.Cm M ,
+файл разбивается на части по
+.Ar byte_count
+мегабайт.
+Если к числу добавлено
+.Cm g
+или
+.Cm G ,
+файл разбивается на части по
+.Ar byte_count
+гигабайт.
+.It Fl c
+Продолжать создавать файлы и не перезаписывать существующие выходные файлы.
+.It Fl d
+Использовать числовой суффикс вместо буквенного.
+.It Fl l Ar line_count
+Создавать разбитые файлы длиной
+.Ar line_count
+строк.
+.It Fl n Ar chunk_count
+Разбить файл на
+.Ar chunk_count
+меньших файлов.
+Первые n - 1 файлов будут иметь размер (размер
+.Ar file
+/
+.Ar chunk_count
+), а последний файл будет содержать оставшиеся байты.
+.It Fl p Ar pattern
+Файл разбивается каждый раз, когда входная строка соответствует
+.Ar pattern ,
+который интерпретируется как расширенное регулярное выражение.
+Совпавшая строка будет первой строкой следующего выходного файла.
+Этот параметр несовместим с параметрами
+.Fl b
+и
+.Fl l .
+.El
+.Pp
+Если указаны дополнительные аргументы, первый используется как имя входного файла, который нужно разбить.
+Если указан второй дополнительный аргумент, он используется как префикс для имён файлов, на которые разбивается файл.
+В этом случае каждый файл, на который разбивается файл, именуется префиксом, за которым следует лексикографически упорядоченный суффикс с использованием
+.Ar suffix_length
+символов в диапазоне
+.Dq Li a Ns - Ns Li z .
+Если
+.Fl a
+не указан, в качестве начального суффикса используются две буквы.
+Если выходные данные не помещаются в полученное количество файлов и флаг
+.Fl d
+не указан, длина суффикса автоматически увеличивается по мере необходимости так, чтобы все выходные файлы продолжали сортироваться в лексикографическом порядке.
+.Pp
+Если аргумент
+.Ar prefix
+не указан, файл разбивается на лексикографически упорядоченные файлы, имена которых начинаются с префикса
+.Dq Li x
+и имеют суффиксы, как описано выше.
+.Pp
+По умолчанию
+.Nm
+перезаписывает любые существующие выходные файлы.
+Если указан флаг
+.Fl c ,
+.Nm
+вместо этого создаёт файлы с именами, которых ещё не существует.
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL , LC_CTYPE
+и
+.Ev LC_COLLATE
+влияют на выполнение
+.Nm
+так, как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Разбить входные данные на столько файлов, сколько нужно, чтобы каждый файл содержал не более 2 строк:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Разбить входные данные на фрагменты по 10 байт, используя числовые префиксы для имён файлов.
+При этом создаются два файла по 10 байт (x00 и x01) и третий файл (x02) с оставшимися 2 байтами:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Разбить входные данные, создав 6 файлов:
+.Bd -literal -offset indent
+.Ed
+.Pp
+Разбить входные данные, создавая новый файл каждый раз, когда строка соответствует регулярному выражению для
+.Dq t
+с последующим
+.Dq a
+или
+.Dq u ,
+таким образом создавая два файла:
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr csplit 1 ,
+.Xr re_format 7
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v3 .
+.Pp
+До
+.Fx 14
+сопоставление шаблонов и строк работало только со строками длиной менее 65 536 байт.

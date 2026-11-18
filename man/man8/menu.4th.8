@@ -1,0 +1,350 @@
+.\" Copyright (c) 2011-2013 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/menu.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 f166135dc8595e01f9d02ac07241bebf4430866fda829bc77f03b630f827a6cb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 4, 2024
+.Dt MENU.4TH 8
+.Os
+.Sh NAME
+.Nm menu.4th
+.Nd динамический загрузочный модуль меню FreeBSD
+.Sh ОПИСАНИЕ
+Файл, носящий имя
+.Nm ,
+представляет собой набор команд, предназначенных для отображения динамической
+системы меню, управляемой через систему тщательно названных переменных
+окружения.
+Самих по себе команд
+.Nm
+недостаточно для большинства случаев использования.
+Обратитесь к приведённым ниже примерам для наиболее распространённых ситуаций,
+а также к
+.Xr loader 8
+для дополнительных команд.
+.Pp
+Перед использованием любой из команд, предоставляемых
+.Nm ,
+его необходимо включить с помощью команды:
+.Pp
+.Dl include menu.4th
+.Pp
+Эта строка присутствует в файле
+.Pa /boot/menu.rc
+по умолчанию, поэтому в обычной настройке она не требуется (и не должна
+добавляться повторно).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic menu-init
+Рисует ограничивающую рамку меню и инициализирует некоторые внутренние
+переменные состояния.
+Эту команду следует вызывать перед любыми другими функциями, связанными с меню.
+.It Ic menu-display
+Отображает меню (настроенное с помощью описанных ниже переменных окружения)
+и блокируется в ожидании ввода с клавиатуры, ожидая действия пользователя.
+.It Ic menu-erase
+Очищает область экрана внутри ограничивающей рамки меню.
+.It Ic menu-redraw
+Вызывает
+.Ic menu-erase
+и затем перерисовывает меню.
+.It Ic menu-unset
+Сбрасывает переменные окружения, связанные с отдельными пунктами меню,
+очищая путь для нового меню.
+.It Ic menu-clear
+Вызывает
+.Ic menu-unset
+и затем
+.Ic menu-erase .
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootfile -offset indent
+.It Va loader_color
+Если задано значение
+.Dq Li NO
+(без учёта регистра) или
+.Dq Li 0 ,
+меню отображается без цвета.
+По умолчанию используется ANSI-раскраска, когда это возможно.
+Если включена загрузка через последовательный порт, цвет по умолчанию отключён.
+Возможности цвета включают использование ANSI-полужирного для чисел, appearing
+слева от пунктов меню, и использование специальных переменных
+.Dq Li ansi ,
+описанных ниже.
+.It Va autoboot_delay
+Число секунд, в течение которых
+.Ic menu-display
+будет ожидать перед выполнением
+.Va menu_timeout_command
+.Ic ( boot
+по умолчанию), если не нажата клавиша.
+Если задано
+.Dq Li NO
+(без учёта регистра),
+.Ic menu-display
+будет ждать ввода пользователя и никогда не выполнит
+.Ic menu_timeout_command .
+Если задано
+.Dq Li -1 ,
+.Ic menu-display
+немедленно загрузится, предотвращая как прерывание процесса
+.Ic autoboot ,
+так и выход в приглашение загрузчика.
+По умолчанию
+.Dq Li 10 .
+См.
+.Xr loader 8
+для дополнительной информации.
+.It Va menu_timeout_command
+Команда, выполняемая через
+.Va autoboot_delay
+секунд, если клавиша не нажата.
+По умолчанию
+.Ic boot .
+.It Va loader_menu_frame
+Задаёт желаемый стиль рамки, рисуемой вокруг меню загрузки.
+Возможные значения:
+.Dq Li single
+.Pq по умолчанию ,
+.Dq Li double
+и
+.Dq Li none .
+.It Va loader_menu_timeout_x
+Задаёт желаемую позицию столбца для текста обратного отсчёта тайм-аута.
+По умолчанию 4.
+.It Va loader_menu_timeout_y
+Задаёт желаемую позицию строки для текста обратного отсчёта тайм-аута.
+По умолчанию 23.
+.It Va loader_menu_title
+Текст, отображаемый над меню.
+По умолчанию
+.It Va loader_menu_title_align
+По умолчанию
+.Ic loader_menu_title
+выравнивается по центру над меню.
+Это можно задать как
+.Dq Li left
+или
+.Dq Li right ,
+чтобы вместо этого отображать заголовок с выравниванием по левому или правому
+краю
+.Pq соответственно .
+.It Va loader_menu_x
+Задаёт желаемую позицию столбца меню загрузки.
+По умолчанию 5.
+.It Va loader_menu_y
+Задаёт желаемую позицию строки меню загрузки.
+По умолчанию 10.
+.It Va menu_caption[x]
+Текст, отображаемый для пронумерованного пункта меню
+.Dq Li x .
+.It Va menu_command[x]
+Команда, выполняемая при нажатии числа, связанного с пунктом меню
+.Dq Li x .
+См. список включённых слов FICL ниже для некоторых идей.
+.It Va menu_keycode[x]
+Необязательный десятичный ASCII-код клавиши, связываемый с пунктом меню
+.Dq Li x .
+При нажатии вызовет выполнение
+.Va menu_command[x] .
+.It Va ansi_caption[x]
+Если
+.Va loader_color
+задано
+.Pq включено по умолчанию ,
+использовать эту подпись для пункта меню
+.Dq Li x
+вместо
+.Va menu_caption[x] .
+.It Va toggled_text[x]
+Для пунктов меню, где
+.Va menu_command[x]
+задано как
+.Dq Li toggle_menuitem
+(или его производная), отображаемый текст будет переключаться между этим
+значением и
+.Va menu_caption[x] .
+.It Va toggled_ansi[x]
+Аналогично
+.Va toggled_text[x] ,
+но используется, когда
+.Va loader_color
+включено
+.Pq по умолчанию .
+.It Va menu_caption[x][y]
+Для пунктов меню, где
+.Va menu_command[x]
+задано как
+.Dq Li cycle_menuitem
+(или его производная), отображаемый текст будет циклически переключаться
+между этим и другими записями
+.Va menu_caption[x][y] .
+.It Va ansi_caption[x][y]
+Аналогично
+.Va menu_caption[x][y] ,
+но используется, когда
+.Va loader_color
+включено
+.Pq по умолчанию .
+.It Va menu_acpi
+Если задано числом
+.Dq Li x ,
+связанным с данным пунктом меню, этот пункт меню будет отображаться только
+при работе на ACPI-совместимом оборудовании, когда
+.Va acpi.rsdp
+задано (что указывает на наличие аппаратной поддержки ACPI, обнаруженной
+.Xr loader 8 ) ,
+и
+.Va hint.acpi.0.disabled
+не задано.
+На оборудовании, отличном от i386, пункты меню, настроенные после пункта меню
+.Dq Li menu_acpi ,
+будут использовать меньшее число (чтобы компенсировать отсутствующий пункт
+меню ACPI), но продолжат работать должным образом.
+На i386-совместимом оборудовании без поддержки ACPI (как обнаружено
+.Xr loader 8 ) ,
+последующие пункты меню сохранят связанные с ними номера.
+.It Va acpi.rsdp
+Автоматически задаётся
+.Xr loader 8
+на ACPI-совместимом оборудовании, когда поддержка ACPI обнаружена во время
+загрузки.
+Влияет на отображение пункта меню
+.Dq Li menu_acpi
+(если он настроен).
+.It Va hint.acpi.0.disabled
+Влияет на отображение пункта меню
+.Va menu_acpi .
+Если задано, пункт меню будет отображать
+.Va toggled_text[x]
+.Va ( toggled_ansi[x]
+если
+.Va loader_color
+задано), иначе
+.Va menu_caption[x]
+.Va ( ansi_caption[x]
+если
+.Va loader_color
+задано).
+.It Va menu_options
+Если задано числом
+.Dq Li x ,
+между
+.Va menu_caption[x-1]
+и
+.Va menu_caption[x]
+вставляются одна пустая строка и заголовок
+.Dq Li Options
+(если настроено).
+.It Va menu_reboot
+Если задано, добавляет встроенный пункт меню
+.Dq Li Reboot
+в конец последнего настроенного пункта меню.
+Если
+.Va menu_options
+настроено, пункт меню
+.Dq Li Reboot
+будет вставлен перед разделителем
+.Dq Options .
+.El
+.Pp
+Кроме того, он предоставляет следующие слова FICL:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic arch-i386? ( -- BOOL )
+Возвращает true (-1) на i386 и false (0) в противном случае.
+.It Ic acpipresent? ( -- BOOL )
+Возвращает true (-1), если ACPI присутствует, и false (0) в противном случае.
+.It Ic acpienabled? ( -- BOOL )
+Возвращает true (-1), если ACPI включён, и false (0) в противном случае.
+.It Ic toggle_menuitem ( N -- N )
+Переключает пункт меню
+.Dq Li N
+между
+.Va menu_caption[x]
+и
+.Va toggled_text[x]
+(где
+.Dq Li N
+представляет десятичное значение ASCII для
+.Dq Li x ) .
+.It Ic cycle_menuitem ( N -- N )
+Циклически переключает пункт меню
+.Dq Li N
+между записями
+.Va menu_caption[x][y]
+(где
+.Va N
+представляет десятичное значение ASCII для
+.Va x ) .
+.El
+.Pp
+Для всех значений
+.Dq Li x
+выше используйте любое число от 1 до 9.
+Извините, двузначные числа в настоящее время не поддерживаются.
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/loader.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/menu.4th
+Сам
+.Nm .
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Xr loader 8 .
+.El
+.Sh ПРИМЕРЫ
+Простое меню загрузки:
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/menu.4th
+menu-init
+set menu_options=2
+set menu_reboot
+menu-display
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr beastie.4th 8 ,
+.Xr loader 8 ,
+.Xr loader.4th 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 9.0 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

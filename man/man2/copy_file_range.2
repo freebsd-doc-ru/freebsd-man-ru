@@ -1,0 +1,246 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2019 Rick Macklem
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/copy_file_range.2
+.\" FRDP githash e39c9ac213584b5398d9c1c045af5ca07c11f210
+.\" FRDP hash256 4c4deb78386811ee6c6c822650f253b1c36587ffa8c1f02d6119757632611f69
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 16, 2025
+.Dt COPY_FILE_RANGE 2
+.Os
+.Sh ИМЯ
+.Nm copy_file_range
+.Nd копирование диапазона байтов из одного обычного файла в другой
+или в пределах одного обычного файла на уровне ядра
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In unistd.h
+.Ft ssize_t
+.Fo copy_file_range
+.Fa "int infd"
+.Fa "off_t *inoffp"
+.Fa "int outfd"
+.Fa "off_t *outoffp"
+.Fa "size_t len"
+.Fa "unsigned int flags"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn copy_file_range
+копирует до
+.Fa len
+байтов из
+.Fa infd
+в
+.Fa outfd
+в ядре.
+Он может делать это с использованием специфичной для файловой системы
+техники, если
+.Fa infd
+и
+.Fa outfd
+находятся в одной файловой системе.
+Если
+.Fa infd
+и
+.Fa outfd
+ссылаются на один и тот же файл, диапазоны байтов, определяемые
+смещением входного файла, смещением выходного файла и
+.Fa len
+не должны пересекаться.
+Аргумент
+.Fa infd
+должен быть открыт для чтения, а
+.Fa outfd
+должен быть открыт для записи, но не с
+.Dv O_APPEND .
+.Pp
+Если
+.Fa inoffp
+или
+.Fa outoffp
+равен
+.Dv NULL ,
+то смещение файла для
+.Fa infd
+или
+.Fa outfd
+соответственно будет использовано и обновлено на
+количество скопированных байтов.
+Если
+.Fa inoffp
+или
+.Fa outoffp
+не равен
+.Dv NULL ,
+то смещение байта, на которое указывает
+.Fa inoffp
+или
+.Fa outoffp
+соответственно, будет использовано/обновлено, а смещение файла для
+.Fa infd
+или
+.Fa outfd
+соответственно затронуто не будет.
+.Pp
+Единственный
+.Fa flags
+аргумент, определённый в настоящее время, —
+.Dv COPY_FILE_RANGE_CLONE .
+Когда этот флаг установлен,
+.Fn copy_file_range
+вернёт
+.Er EOPNOTSUPP ,
+если копирование не может быть выполнено посредством
+клонирования блоков.
+Когда
+.Fa flags
+равен 0, файловая система может выполнять копирование посредством клонирования блоков
+или путём копирования данных.
+Клонирование блоков возможно только тогда, когда смещения (плюс
+.Fa len
+если не до EOF во входном файле) выровнены по блокам.
+Правильное выравнивание блоков обычно можно получить через
+запрос
+.Dv _PC_CLONE_BLKSIZE
+к
+.Xr pathconf 2 .
+.Pp
+Этот системный вызов пытается сохранить дыры в выходном файле для
+копируемого диапазона байтов.
+Однако это не всегда работает хорошо.
+Рекомендуется копировать разреженные файлы в цикле, используя
+.Xr lseek 2
+с аргументами
+.Dv SEEK_HOLE ,
+.Dv SEEK_DATA
+и этот системный вызов для
+найденных диапазонов данных.
+.Pp
+Для наилучшей производительности вызывайте
+.Fn copy_file_range
+с максимально возможным значением
+.Fa len .
+Он прерываем на большинстве файловых систем,
+поэтому нет штрафа за использование очень больших значений len, даже SSIZE_MAX.
+.Pp
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха вызов возвращает количество скопированных байтов, которое может быть меньше
+.Fa len .
+Возврат меньшего количества байтов, чем
+.Fa len
+не обязательно означает, что был достигнут EOF.
+Однако возврат нуля при ненулевом аргументе
+.Fa len
+указывает на то, что смещение для
+.Fa infd
+находится в EOF или за его пределами.
+.Fn copy_file_range
+следует использовать в цикле до тех пор, пока копирование желаемого диапазона байтов не будет
+завершено.
+Если произошла ошибка, возвращается \-1 и код ошибки помещается в
+глобальную переменную
+.Va errno .
+.Sh ОШИБКИ
+Системный вызов
+.Fn copy_file_range
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Если
+.Fa infd
+не открыт для чтения или
+.Fa outfd
+не открыт для записи, либо открыт для записи с
+.Dv O_APPEND ,
+или если
+.Fa infd
+и
+.Fa outfd
+ссылаются на один и тот же файл.
+.It Bq Er EFBIG
+Если копирование превышает лимит размера файла процесса или максимальный размер файла
+для файловой системы, в которой находится
+.Fa outfd .
+.It Bq Er EINTR
+Сигнал прервал системный вызов
+до его завершения.
+Это может произойти для файлов на некоторых NFS-монтированиях.
+Когда это происходит, значения, на которые указывают
+.Fa inoffp
+и
+.Fa outoffp
+сбрасываются к начальным значениям для системного вызова.
+.It Bq Er EINVAL
+.Fa infd
+и
+.Fa outfd
+ссылаются на один и тот же файл и диапазоны байтов пересекаются.
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+не равен нулю.
+.It Bq Er EINVAL
+Либо
+.Fa infd
+либо
+.Fa outfd
+ссылается на объект файла, который не является обычным файлом.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при чтении/записи файлов.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы были обнаружены повреждённые данные.
+.It Bq Er EISDIR
+Если либо
+.Fa infd
+либо
+.Fa outfd
+ссылается на каталог.
+.It Bq Er ENOSPC
+Файловая система, в которой хранится
+.Fa outfd
+заполнена.
+.It Bq Er EOPNOTSUPP
+Невозможно выполнить копирование посредством клонирования блоков, а
+.Dv COPY_FILE_RANGE_CLONE
+аргумент
+.Fa flags
+указан.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr lseek 2 ,
+.Xr pathconf 2
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn copy_file_range
+будет совместим с одноимённым системным вызовом Linux.
+.Sh ИСТОРИЯ
+Функция
+.Fn copy_file_range
+появилась в
+.Fx 13.0 .

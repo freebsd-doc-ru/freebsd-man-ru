@@ -1,0 +1,155 @@
+.\" Copyright (c) 2001 - 2006 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/appl/rsh/rshd.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 bcf2e6ec632216ef0e32db2ae3b951e54422d435b5da4ea172578028c4e4e748
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 22, 2002
+.Dt RSHD 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm rshd
+.Nd сервер удалённой оболочки
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aiklnvxPL
+.Op Fl p Ar порт
+.Sh ОПИСАНИЕ
+.Nm
+является сервером для
+программы
+.Xr rsh 1 .
+Он предоставляет службу удалённого выполнения команд с аутентификацией.
+Поддерживаются следующие параметры:
+.Bl -tag -width Ds
+.It Xo
+.Fl n ,
+.Fl Fl no-keepalive
+.Xc
+Отключает сообщения keep-alive.
+Keep-alive — это пакеты, отправляемые через определённые интервалы, чтобы убедиться, что
+клиент всё ещё на связи, даже если он не отправляет никаких данных.
+.It Xo
+.Fl k ,
+.Fl Fl kerberos
+.Xc
+Предполагает, что клиенты, подключающиеся к этому серверу, будут использовать некоторую форму
+аутентификации Kerberos. См. раздел
+.Sx ПРИМЕРЫ
+для образца
+конфигурации
+.Xr inetd.conf 5 .
+.It Xo
+.Fl x ,
+.Fl Fl encrypt
+.Xc
+Для Kerberos 4 это означает, что соединения шифруются. Kerberos
+5 может согласовать шифрование даже без этого параметра, но если он
+присутствует,
+.Nm
+будет отклонять незашифрованные соединения. Этот параметр подразумевает
+.Fl k .
+.It Xo
+.Fl v ,
+.Fl Fl vacuous
+.Xc
+Если подключающийся клиент не использует аутентификацию Kerberos,
+вывести сообщение с жалобой на этот факт и завершить работу. Это
+полезно, если вы хотите отказаться от старой аутентификации, основанной на портах.
+.It Xo
+.Fl P
+.Xc
+При использовании файловой системы AFS токены аутентификации пользователей помещаются в
+так называемую PAG (Process Authentication Group). Несколько
+процессов могут совместно использовать PAG, но обычно каждый сеанс входа имеет собственный
+PAG. Этот параметр отключает вызов
+.Fn setpag
+, поэтому все токены будут помещены в PAG по умолчанию (основанный на uid), что делает
+возможным совместное использование токенов между сеансами. Это полезно только в
+особых окружениях, таких как некоторые системы пакетной обработки.
+.It Xo
+.Fl i ,
+.Fl Fl no-inetd
+.Xc
+Параметр
+.Fl i
+заставит
+.Nm
+создать сокет вместо того, чтобы предполагать, что его stdin пришёл от
+.Xr inetd 8 .
+Это в основном полезно для отладки.
+.It Xo
+.Fl p Ar порт ,
+.Fl Fl port= Ns Ar порт
+.Xc
+Порт для использования с
+.Fl i .
+.It Xo
+.Fl a
+.Xc
+Этот флаг предназначен только для обратной совместимости.
+.It Xo
+.Fl L
+.Xc
+Этот флаг включает журналирование подключений в
+.Xr syslogd 8 .
+В этой реализации данный параметр всегда включён.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/hosts.equiv -compact
+.It Pa /etc/hosts.equiv
+.It Pa ~/.rhosts
+.El
+.Sh ПРИМЕРЫ
+Следующее можно использовать для включения rsh с Kerberos в
+.Xr inetd.cond 5 ,
+отключая при этом соединения без Kerberos:
+.Bd -literal
+shell   stream  tcp  nowait  root  /usr/libexec/rshd  rshd -v
+kshell  stream  tcp  nowait  root  /usr/libexec/rshd  rshd -k
+ekshell stream  tcp  nowait  root  /usr/libexec/rshd  rshd -kx
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr rsh 1 ,
+.Xr iruserok 3
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh АВТОРЫ
+Эта реализация
+.Nm
+была написана как часть реализации Heimdal Kerberos 5.

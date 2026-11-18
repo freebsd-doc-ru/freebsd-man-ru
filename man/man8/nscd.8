@@ -1,0 +1,146 @@
+.\" Copyright (c) 2005 Michael Bushkov <bushman@rsu.ru>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nscd/nscd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 1596512242a2aa3be0cd5795d84986671163e5b427e2e3ae94d2bd15b6b14380
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 5, 2018
+.Dt NSCD 8
+.Os
+.Sh ИМЯ
+.Nm nscd
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dnst
+.Op Fl i Ar cachename
+.Op Fl I Ar cachename
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это системный демон кэширования.
+Он может кэшировать почти все типы данных и в основном предназначен для использования с подсистемой
+.Nm nsswitch .
+Кэш фактически ведётся отдельно для каждого пользователя.
+Это означает, что каждый пользователь может работать только с теми кэшированными данными, которые были кэшированы им самим, и не может отравить кэш других пользователей.
+Утилита
+.Nm
+поддерживает два типа кэширования:
+.Bl -column "Type" "Description"
+.It Sy Тип
+.Sy Описание
+.It Обычное кэширование
+Каждый кэшированный элемент представляет собой пару ключ+значение.
+Этот тип кэширования поддерживает политики, которые применяются при превышении максимального числа кэшированных элементов.
+Доступны три политики:
+.Cm FIFO
+(первым пришёл — первым вышел),
+.Cm LRU
+(наименее недавно использованный) и
+.Cm LFU
+(наименее часто используемый).
+Этот тип кэширования используется с семейством функций
+.Fn getXXXbyname .
+.It Многосоставное кэширование
+Каждый кэшированный элемент является частью последовательности элементов.
+Этот тип кэширования предназначен для использования с семейством функций
+.Fn getXXXent .
+.El
+.Pp
+Утилита
+.Nm
+способна не только кэшировать элементы, но и самостоятельно выполнять фактические поиски в nsswitch.
+Чтобы включить эту возможность, используйте параметр
+.Va perform-actual-lookups
+в
+.Xr nscd.conf 5 .
+.Pp
+Утилита
+.Nm
+распознаёт следующие параметры времени выполнения:
+.Bl -tag -width indent
+.It Fl n
+Не переходить в режим демона;
+.Nm
+не будет форкаться или отсоединяться от терминала.
+.It Fl s
+Однопоточный режим.
+Заставляет использовать только один поток для всех целей обработки (переопределяет параметр
+.Va threads
+в файле
+.Xr nscd.conf 5 ).
+.It Fl t
+Режим трассировки.
+Все сообщения трассировки будут записаны в stdout.
+Этот режим обычно используется с флагами
+.Fl n
+и
+.Fl s
+для отладки.
+.It Fl i Ar cachename
+Аннулирует персональный кэш.
+Если указан,
+.Nm
+действует как инструмент администрирования.
+Он просит уже запущенный
+.Nm
+аннулировать указанную часть кэша вызывающего пользователя.
+Например, иногда может потребоваться аннулировать ваш кэш
+.Dq Li hosts .
+Вы можете указать
+.Dq Li all
+в качестве
+.Ar cachename ,
+чтобы аннулировать ваш персональный кэш целиком.
+Вы не можете использовать этот параметр для
+.Ar cachename ,
+для которого включён параметр
+.Va perform-actual-lookups .
+.It Fl I Ar cachename
+Аннулирует кэш для каждого пользователя.
+Если указан,
+.Nm
+действует как инструмент администрирования.
+Он просит уже запущенный
+.Nm
+аннулировать указанную часть кэша для каждого пользователя.
+Вы можете указать
+.Dq Li all
+в качестве
+.Ar cachename ,
+чтобы аннулировать весь кэш.
+Только root может использовать этот параметр.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /etc/nscd.conf"
+.It Pa /etc/nscd.conf
+Файл конфигурации по умолчанию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr nsdispatch 3 ,
+.Xr nscd.conf 5 ,
+.Xr nsswitch.conf 5
+.Sh АВТОРЫ
+.An Michael Bushkov Aq Mt bushman@FreeBSD.org

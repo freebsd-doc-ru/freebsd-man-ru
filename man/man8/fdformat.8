@@ -1,0 +1,203 @@
+.\" Copyright (C) 1993, 1994, 1995, 2001 by Joerg Wunsch, Dresden
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+.\" IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/fdformat/fdformat.8
+.\" FRDP githash 4c736cfc69a7ef81c48c8431b31c7e31746fe816
+.\" FRDP hash256 441120e23a1bdb8fab1c1aa3cc85885f349f72bba4ddd077f977381d8035dbfe
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 16, 2025
+.Dt FDFORMAT 8
+.Os
+.Sh ИМЯ
+.Nm fdformat
+.Nd форматирование гибких дисков
+.Sh СИНТАКСИС
+.Nm
+.Op Fl F Ar заполнитель
+.Op Fl f Ar размер
+.Op Fl s Ar строка_формата
+.Op Fl nqvy
+.Ar устройство
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕВАНИИ
+.Nm
+устарела и может отсутствовать в
+.Fx 16.0
+и более поздних версиях.
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+форматирует гибкий диск, определяемый аргументом
+.Ar устройство ,
+где
+.Ar устройство
+может быть задано либо полным путевым
+именем узла устройства для дисковода гибких дисков
+(например,\&
+.Pa /dev/fd0 ) ,
+либо с помощью сокращённого имени, которое будет найдено
+в
+.Pa /dev
+(например,\&
+.Dq Li fd0 ) .
+.Pp
+Параметры следующие:
+.Bl -tag -width "заполнитель"
+.It Fl F Ar заполнитель
+Использовать
+.Ar заполнитель
+в качестве байта заполнения для только что отформатированных секторов.
+Аргумент
+.Ar заполнитель
+должен быть числом в диапазоне от 0 до 255 в обычной
+нотации языка C.
+Значение по умолчанию —
+.Dq Li 0xf6 .
+.It Fl f Ar размер
+Задать параметры плотности для формата размером
+.Ar размер
+килобайт, как описано в
+.Xr fdcontrol 8 .
+.It Fl s Ar строка_формата
+Задать параметры плотности с помощью явных параметров, как
+описано в
+.Xr fdcontrol 8 .
+.It Fl n
+Не проверять гибкий диск после форматирования.
+.It Fl q
+Подавлять любой обычный вывод команды и не запрашивать у
+пользователя подтверждение того, форматировать ли гибкий диск в
+.Ar устройство .
+.It Fl v
+Не форматировать, только проверять.
+.It Fl y
+Не запрашивать подтверждение того, форматировать ли гибкий диск, но
+всё равно сообщать о состоянии форматирования.
+.El
+.Pp
+Для подустройств без автоматического выбора нельзя задавать ни
+.Fl f Ar размер ,
+ни
+.Fl s Ar строка_формата ,
+поскольку всегда будут использоваться предварительно настроенные
+параметры плотности носителя из драйвера ядра.
+Однако если
+.Ar устройство
+является устройством с автоматическим выбором плотности носителя (см.
+.Xr fdc 4 ) ,
+то оба метода можно использовать для переопределения параметров плотности для
+только что отформатированного носителя (без постоянного изменения параметров
+плотности
+.Ar устройство ) .
+.Pp
+Если флаг
+.Fl q
+не был указан, у пользователя запрашивается подтверждение
+предполагаемого процесса форматирования.
+Чтобы продолжить, необходимо дать ответ
+.Ql y .
+.Pp
+Обратите внимание, что
+.Nm
+выполняет только низкоуровневое форматирование.
+Чтобы создать
+файловую систему на носителе, см. команды
+.Xr newfs 8
+для файловой системы
+.Tn UFS
+или
+.Xr newfs_msdos 8
+для файловой системы
+.Tn MS-DOS
+(FAT).
+.Sh СТАТУС ВЫХОДА
+При успешном выполнении возвращается статус выхода 0.
+Статус выхода
+1 возвращается при любых ошибках во время форматирования гибкого диска, а статус выхода
+2 отражает недопустимые аргументы, переданные программе (вместе с
+соответствующей информацией, записанной в диагностический вывод).
+.Sh ПРИМЕРЫ
+Чтобы отформатировать новый двусторонний высокоплотный (HD) диск
+1.44 МБ, вставленный в первый дисковод гибких дисков, выполните:
+.Pp
+.Pp
+После низкоуровневого форматирования диска с помощью
+.Nm ,
+создайте метку диска, чтобы система могла определить размер и
+геометрию диска.
+Поддерживаемые значения геометрии перечислены в
+.Pa /etc/disktab ,
+и в этом примере мы будем использовать
+.Va fd1440 .
+Чтобы записать метку диска, используйте
+.Xr bsdlabel 8 :
+.Pp
+.Pp
+Теперь гибкий диск готов к высокоуровневому форматированию с файловой системой.
+Чтобы отформатировать гибкий диск с FAT, выполните:
+.Pp
+.Sh ДИАГНОСТИКА
+Если не был указан
+.Fl q ,
+в стандартный вывод печатается одна буква,
+чтобы информировать пользователя о ходе работы.
+Сначала печатается
+.Ql F ,
+когда дорожка форматируется, затем
+.Ql V ,
+пока она проверяется, и если обнаружена ошибка, она
+в конечном итоге меняется на
+.Ql E .
+Подробная информация о состоянии (номер цилиндра, головки и сектора, а также
+точная причина ошибки) будет напечатана для не более 10 ошибок после
+завершения всего процесса форматирования.
+.Sh СМ. ТАКЖЕ
+.Xr fdc 4 ,
+.Xr bsdlabel 8 ,
+.Xr fdcontrol 8 ,
+.Xr newfs 8 ,
+.Xr newfs_msdos 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была разработана для
+.Bx 386 0.1
+и обновлена для нового
+.Xr fdc 4
+драйвера гибких дисков.
+Позже она вошла в состав системы
+.Fx 1.1 .
+Начиная с
+.Fx 5.0 ,
+она использует унифицированные спецификации плотности, как описано в
+.Xr fdcontrol 8 .
+.Sh АВТОРЫ
+.An -nosplit
+Программу предоставил
+.An J\(:org Wunsch ,
+Дрезден, с изменениями, внесёнными
+.An Serge Vakulenko
+и
+.An Andrey A. Chernov ,
+Москва.

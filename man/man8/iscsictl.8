@@ -1,0 +1,210 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/iscsictl/iscsictl.8
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 eabecbc6e21fa58aa2c81ffddc2b51ec8dee0826f7d75dd939baa82c1724d127
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt ISCSICTL 8
+.Os
+.Sh ИМЯ
+.Nm iscsictl
+.Nd утилита управления инициатором iSCSI
+.Sh СИНТАКСИС
+.Nm
+.Fl A
+.Fl p Ar портал Fl t Ar цель
+.Op Fl u Ar пользователь Fl s Ar секрет
+.Op Fl w Ar таймаут
+.Op Fl r
+.Op Fl e Cm on Ns | Ns Cm off
+.Nm
+.Fl A
+.Fl d Ar хост-обнаружения
+.Op Fl u Ar пользователь Fl s Ar секрет
+.Op Fl r
+.Op Fl e Cm on Ns | Ns Cm off
+.Nm
+.Fl A
+.Fl a Op Fl c Ar путь
+.Nm
+.Fl A
+.Fl n Ar псевдоним Op Fl c Ar путь
+.Nm
+.Fl M
+.Fl i Ar идентификатор-сеанса
+.Op Fl p Ar портал
+.Op Fl t Ar цель
+.Op Fl u Ar пользователь
+.Op Fl s Ar секрет
+.Op Fl e Cm on Ns | Ns Cm off
+.Nm
+.Fl M
+.Fl i Ar идентификатор-сеанса
+.Op Fl n Ar псевдоним Op Fl c Ar путь
+.Nm
+.Fl R
+.Op Fl p Ar портал
+.Op Fl t Ar цель
+.Nm
+.Fl R
+.Fl a
+.Nm
+.Fl R
+.Fl n Ar псевдоним Op Fl c Ar путь
+.Nm
+.Fl L
+.Op Fl v
+.Op Fl w Ar таймаут
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для настройки инициатора iSCSI.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width "-w timeout"
+.It Fl -libxo
+Создавать вывод через
+.Xr libxo 3
+в различных человеко- и машиночитаемых форматах.
+См.
+.Xr xo_options 7
+для подробностей об аргументах командной строки.
+.It Fl A
+Добавить сеанс.
+.It Fl M
+Изменить сеанс.
+.It Fl R
+Удалить сеанс.
+.It Fl L
+Вывести список сеансов.
+.It Fl a
+При добавлении добавить все сеансы, определённые в файле конфигурации.
+При удалении удалить все текущие установленные сеансы.
+.It Fl c Ar путь
+Путь к файлу конфигурации.
+По умолчанию используется
+.Pa /etc/iscsi.conf .
+.It Fl d Ar хост-обнаружения
+Имя хоста или адрес цели, используемые для обнаружения SendTargets.
+При использовании будет добавлен временный сеанс обнаружения.
+После завершения обнаружения для каждой обнаруженной цели будут добавлены сеансы,
+а временный сеанс обнаружения будет удалён.
+.It Fl e Cm on Ns | Ns Cm off
+Включить или отключить сеанс.
+Для сеансов обнаружения это игнорируется, но передаётся обычным
+сеансам, которые они добавляют.
+.It Fl i Ar идентификатор-сеанса
+Идентификатор сеанса, как отображается в
+.Nm
+.Fl v .
+.It Fl n Ar псевдоним
+.Ar псевдоним
+сеанса, определённого в файле конфигурации.
+.It Fl p Ar портал
+Портал цели \(em имя хоста или адрес \(em для статически определённых целей.
+.It Fl r
+Использовать iSER (iSCSI over RDMA) вместо обычного iSCSI over TCP/IP.
+.It Fl s Ar секрет
+Секрет CHAP.
+.It Fl t Ar цель
+Имя цели.
+.It Fl u Ar пользователь
+Логин CHAP.
+.It Fl v
+Подробный режим.
+.It Fl w Ar таймаут
+Вместо немедленного возврата, ждать не более
+.Ar таймаут
+секунд, пока все настроенные сеансы не будут успешно установлены.
+.El
+.Pp
+При добавлении сеанса необходимы определённые параметры.
+Их можно указать либо через командную строку (с помощью параметров
+.Fl t ,
+.Fl p ,
+.Fl u ,
+и
+.Fl s ),
+либо через файл конфигурации (с помощью параметров
+.Fl a
+или
+.Fl n ).
+Некоторые возможности — например, взаимный CHAP — доступны только
+через файл конфигурации.
+.Pp
+Поскольку подключение к цели выполняется в фоновом режиме, ненулевой
+статус выхода не означает, что сеанс был успешно установлен.
+Используйте либо
+.Nm Fl L
+для проверки состояния подключения, либо флаг
+.Fl w
+для ожидания установления сеанса.
+.Pp
+Обратите внимание, что для того, чтобы инициатор iSCSI мог подключиться к цели,
+демон
+.Xr iscsid 8
+должен быть запущен.
+.Sh ФАЙЛЫ
+.Bl -tag -width "/etc/iscsi.conf"
+.It Pa /etc/iscsi.conf
+Файл конфигурации инициатора iSCSI.
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и >0 при возникновении ошибки.
+.Sh ПРИМЕРЫ
+Подключиться к цели iqn.2012-06.com.example:target0, обслуживаемой 192.168.1.1:
+.Dl Nm Fl A Fl t Ar iqn.2012-06.com.example:target0 Fl p Ar 192.168.1.1
+.Pp
+Выполнить обнаружение на 192.168.1.1 и добавить отключённые сеансы для каждой
+обнаруженной цели; используйте
+.Nm -M -e on
+для их подключения:
+.Dl Nm Fl A Fl d Ar 192.168.1.1 Fl e Ar off
+.Pp
+Отключить все сеансы iSCSI:
+.Dl Nm Fl Ra
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr iscsi 4 ,
+.Xr iscsi.conf 5 ,
+.Xr iscsid 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.

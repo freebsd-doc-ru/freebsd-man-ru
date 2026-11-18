@@ -25,28 +25,30 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\"     @(#)yes.1	8.1 (Berkeley) 6/6/93
-.\"
-.\" FRDP path ./usr.bin/yes/yes.1
-.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
-.\" FRDP hash256 5a3a5b5e0321a6644c2f261102682485face6e67144e450178d85e50bc3fb4d1
-.Dd 4 июня 2014
+.\" FRDP path usr.bin/yes/yes.1
+.\" FRDP githash cf74b63d61b49db848ecc20b87e7ee5f16671320
+.\" FRDP hash256 bb8773fc6d5438e57daa3377ae0ab485ca249512735123e9f00cb4ccf387e4d3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 2, 2026
 .Dt YES 1
 .Os
 .Sh ИМЯ
 .Nm yes
-.Nd повторять утвердительный ответ
+.Nd бесконечно повторять утвердительный ответ
 .Sh СИНТАКСИС
 .Nm
-.Op Ar выражение
+.Op Ar ругательство ...
 .Sh ОПИСАНИЕ
 Утилита
 .Nm
 выводит
-.Ar выражение ,
+.Ar ругательство ,
 или, по умолчанию,
 .Dq y ,
 бесконечно.
+Если задано несколько аргументов, они объединяются в одну
+строку, разделённую пробелами.
 .Sh СМ. ТАКЖЕ
 .Xr jot 1 ,
 .Xr seq 1

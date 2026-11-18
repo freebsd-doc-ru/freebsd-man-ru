@@ -1,0 +1,116 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_wake.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 36be6b0223ffd36f48a3cb344e77b02506f9d0384371f2e05b613f595058a3c0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_WAKE 2
+.Os
+.Sh ИМЯ
+.Nm thr_wake
+.Nd разбудить приостановленный поток
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_wake "long id"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Эта функция предназначена для реализации потоков.
+Обычные приложения должны вместо неё использовать
+.Xr pthread_cond_timedwait 3
+вместе с
+.Xr pthread_cond_broadcast 3
+для типичной безопасной приостановки при содействии
+приостанавливаемого потока, или
+.Xr pthread_suspend_np 3
+и
+.Xr pthread_resume_np 3
+в некоторых специфических ситуациях.
+.Ef
+.Pp
+Передача идентификатора вызывающего потока
+.Po
+см.
+.Xr thr_self 2
+.Pc
+в
+.Fn thr_wake
+устанавливает флаг потока, чтобы следующий прерываемый сигналом сон
+этого потока в ядре немедленно завершился с ошибкой
+.Er EINTR .
+Флаг сбрасывается попыткой прерываемого сна или вызовом
+.Xr thr_suspend 2 .
+Это используется системной библиотекой потоков для реализации отмены.
+.Pp
+Если
+.Fa id
+не равен идентификатору текущего потока, указанный поток
+пробуждается, если он был приостановлен системным вызовом
+.Xr thr_suspend 2 .
+Если поток не приостановлен на момент вызова
+.Nm
+, пробуждение запоминается, и следующая попытка потока
+приостановить себя с помощью
+.Xr thr_suspend 2
+немедленно возвращает успех.
+Запоминается только одно пробуждение.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std thr_wake
+.Sh ОШИБКИ
+Операция
+.Fn thr_wake
+возвращает следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er ESRCH
+Указанный поток не найден или не принадлежит процессу
+вызывающего потока.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr thr_self 2 ,
+.Xr thr_suspend 2 ,
+.Xr pthread_cancel 3 ,
+.Xr pthread_resume_np 3 ,
+.Xr pthread_suspend_np 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn thr_suspend
+не является стандартным и используется
+.Lb libthr
+для реализации функциональности
+.St -p1003.1-2001
+.Xr pthread 3 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn thr_suspend
+впервые появился в
+.Fx 5.2 .

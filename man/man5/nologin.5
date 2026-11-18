@@ -1,0 +1,98 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nologin/nologin.5
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 e08c247edae5793a46cdc12d4d0e4bb49cea1cc641478f40deefeab95a92b4b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 10, 2007
+.Dt NOLOGIN 5
+.Os
+.Sh ИМЯ
+.Nm nologin
+.Nd запрещает вход в систему
+.Sh ОПИСАНИЕ
+Программы, такие как
+.Xr login 1 ,
+запрещают вход, если файл
+.Nm
+существует.
+Программы отображают пользователю содержимое
+.Nm
+, если это возможно, и прерывают процедуру входа.
+Это позволяет просто временно запретить вход в систему для всех пользователей.
+.Pp
+Чтобы запретить вход для отдельных учётных записей,
+обратитесь к
+.Xr nologin 8 .
+.Sh БЕЗОПАСНОСТЬ
+Файл
+.Nm
+по умолчанию игнорируется для пользователя root.
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Возможность
+.Nm
+реализована через
+.Xr login.conf 5 ,
+что позволяет изменить путь к файлу
+и расширить список пользователей,
+освобождённых от временного ограничения входа.
+.Pp
+Программы с поддержкой PAM можно выборочно настроить так, чтобы они учитывали
+.Nm
+с помощью модуля
+.Xr pam_nologin 8
+через
+.Xr pam.conf 5 .
+.Pp
+Файл
+.Nm
+будет удалён при загрузке системы, если он находится в
+.Pa /var/run
+и
+.Va cleanvar_enable
+установлен в
+.Dq Li YES
+в
+.Xr rc.conf 5 ,
+что является значением по умолчанию.
+Поэтому перезагрузка системы может фактически снова разрешить вход.
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/run/nologin"
+.It Pa /var/run/nologin
+расположение по умолчанию для
+.Nm
+.El
+.Sh СМ. ТАКЖЕ
+.Xr login 1 ,
+.Xr login.conf 5 ,
+.Xr pam.conf 5 ,
+.Xr rc.conf 5 ,
+.Xr nologin 8 ,
+.Xr pam_nologin 8 ,
+.Xr shutdown 8

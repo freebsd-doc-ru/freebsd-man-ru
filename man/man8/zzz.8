@@ -1,0 +1,67 @@
+.\" Copyright (c) 2003 Nate Lawson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/zzz/zzz.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 7b8d86e70d508ca91ffe1574a6247699b4f67a29a5cbb4953130449266e9598e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 13, 2003
+.Dt ZZZ 8
+.Os
+.Sh ИМЯ
+.Nm zzz
+.Nd приостановить систему ACPI или APM
+.Sh СИНТАКСИС
+.Nm
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+проверяет поддержку
+.Tn ACPI
+или
+.Tn APM
+и затем соответствующим образом приостанавливает систему.
+Для
+.Tn APM ,
+.Pp
+.Dl apm -z
+.Pp
+будет выполнена.
+Для
+.Tn ACPI,
+будет найдено настроенное состояние приостановки, проверено,
+поддерживается ли оно, и,
+.Pp
+.Dl acpiconf -s <state>
+.Pp
+будет выполнена.
+.Sh СМ. ТАКЖЕ
+.Xr acpi 4 ,
+.Xr apm 4 ,
+.Xr acpiconf 8 ,
+.Xr apm 8
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Nate Lawson Aq Mt njl@FreeBSD.org .

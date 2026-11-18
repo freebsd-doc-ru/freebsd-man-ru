@@ -1,0 +1,136 @@
+.\" Copyright (c) 2016 Andriy Gapon
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/zfsbootcfg/zfsbootcfg.8
+.\" FRDP githash a3b72d89c7028a2254381e4d2b126416dee3fbb5
+.\" FRDP hash256 7efad4e0ed73e080a04613a82941c9c8b8da4605e493739957f5850bb4125918
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 28, 2025
+.Dt ZFSBOOTCFG 8
+.Os
+.Sh ИМЯ
+.Nm zfsbootcfg
+.Sh СИНТАКСИС
+.Nm
+.Ao Ar параметры Ac
+.Nm
+.Op Fl n Ar имя
+.Op Fl k Ar ключ
+.Op Fl p
+.Op Fl t Ar тип
+.Op Fl v Ar значение
+.Op Fl z Ar пул
+.Nm
+.Sh ОПИСАНИЕ
+.Nm
+используется для установки
+.Xr boot.config 5 Ns -style
+опций, которые будут использованы
+.Xr gptzfsboot 8
+или
+.Xr loader 8
+при следующей загрузке машины.
+Как только
+.Xr gptzfsboot 8
+или
+.Xr loader 8
+прочитает эту информацию, она удаляется.
+Если загрузка не удалась, машина автоматически возвращается к предыдущей
+конфигурации загрузки.
+Информация хранится в специальной области среды загрузки пула ZFS.
+.Pp
+Если использовать без аргументов,
+.Nm
+выведет текущую конфигурацию загрузки, если она установлена.
+.Pp
+Поддерживаются следующие опции
+.Nm :
+.Bl -tag -width indent
+.It Fl k Ar ключ
+Определяет ключ для пары
+.Ao ключ , значение Ac .
+.It Fl n Ar имя
+Обновляет nvlist
+.Ar имя .
+.It Fl p
+Выводит всю информацию, хранящуюся в области bootenv пула ZFS.
+.It Fl t Ar тип
+Устанавливает тип
+.Ar значения ,
+используемого в паре
+.Ao ключ , значение Ac .
+В настоящее время поддерживаются следующие типы:
+.Bl -tag -width indent -compact
+.It Ar DATA_TYPE_BYTE
+.It Ar DATA_TYPE_INT8
+.It Ar DATA_TYPE_UINT8
+.It Ar DATA_TYPE_INT16
+.It Ar DATA_TYPE_UINT16
+.It Ar DATA_TYPE_INT32
+.It Ar DATA_TYPE_UINT32
+.It Ar DATA_TYPE_INT64
+.It Ar DATA_TYPE_UINT64
+.It Ar DATA_TYPE_BOOLEAN_VALUE
+.It Ar DATA_TYPE_STRING
+.El
+.Pp
+Если не указан, по умолчанию используется
+.Ar DATA_TYPE_STRING .
+.It Fl v Ar значение
+Определяет значение для пары
+.Ao ключ , значение Ac .
+.It Fl z Ar пул
+Работает с
+.Ar пулом .
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width vfs.root.mountfrom -compact
+.It Ev vfs.root.mountfrom
+Переменная
+.Xr kenv 1 ,
+которая определяет пул, для которого записываются опции.
+.El
+.Sh ПРИМЕРЫ
+Попытаться загрузиться в новую
+.Em среду загрузки
+без изменения свойства
+.Cm bootfs
+пула:
+.Pp
+.Pp
+Чтобы очистить опции загрузки:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr boot.config 5 ,
+.Xr bectl 8 ,
+.Xr gptzfsboot 8 ,
+.Xr loader 8
+.Sh ИСТОРИЯ
+.Nm
+появилась в
+.Fx 11.1 .
+.Sh АВТОРЫ
+Эта страница Справочника была написана
+.An Andriy Gapon Aq Mt avg@FreeBSD.org .

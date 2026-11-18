@@ -1,0 +1,239 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Part of the content of the man page was derived from
+.\" The Open Group Base Specifications Issue 7
+.\" IEEE Std 1003.1-2008
+.\"
+.\" FRDP path lib/libc/compat-43/sigpause.2
+.\" FRDP githash dc36d6f9bb1753f3808552f3afd30eda9a7b206a
+.\" FRDP hash256 b528eb8a9bcdb93999fb2123d121c0ac39a69d96bb1831e713998a17701d5f59
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 1993
+.Dt SIGPAUSE 2
+.Os
+.Sh ИМЯ
+.Nm sighold ,
+.Nm sigignore ,
+.Nm sigpause ,
+.Nm sigrelse ,
+.Nm sigset
+.Nd устаревший интерфейс управления сигналами
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sighold "int sig"
+.Ft int
+.Fn sigignore "int sig"
+.Ft int
+.Fn xsi_sigpause "int sigmask"
+.Ft int
+.Fn sigrelse "int sig"
+.Ft void (*)(int)
+.Fn sigset "int" "void (*disp)(int)"
+.Ft int
+.Fn sigpause "int sigmask"
+.Sh ОПИСАНИЕ
+.Sy Этот интерфейс устарел и заменён
+.Xr sigsuspend 2
+.Sy и
+.Xr sigaction 2 .
+.Pp
+Функция
+.Fn sigset
+изменяет диспозиции сигналов.
+Аргумент
+.Fa sig
+задаёт сигнал, который может быть любым сигналом, кроме
+.Dv SIGKILL
+и
+.Dv SIGSTOP .
+Аргумент
+.Fa disp
+задаёт диспозицию сигнала,
+которая может быть
+.Dv SIG_DFL ,
+.Dv SIG_IGN
+или адресом обработчика сигнала.
+Если используется
+.Fn sigset
+и
+.Fa disp
+является адресом обработчика сигнала, система добавляет
+.Fa sig
+в маску сигналов вызывающего процесса перед выполнением обработчика
+сигнала; при возврате из обработчика сигнала система восстанавливает
+маску сигналов вызывающего процесса в состояние, предшествовавшее
+доставке сигнала.
+Кроме того, если используется
+.Fn sigset
+и
+.Fa disp
+равна
+.Dv SIG_HOLD ,
+.Fa sig
+добавляется в маску сигналов вызывающего процесса, а
+диспозиция
+.Fa sig
+остаётся неизменной.
+Если используется
+.Fn sigset
+и
+.Fa disp
+не равна
+.Dv SIG_HOLD ,
+.Fa sig
+удаляется из маски сигналов вызывающего процесса.
+.Pp
+Функция
+.Fn sighold
+добавляет
+.Fa sig
+в маску сигналов вызывающего процесса.
+.Pp
+Функция
+.Fn sigrelse
+удаляет
+.Fa sig
+из маски сигналов вызывающего процесса.
+.Pp
+Функция
+.Fn sigignore
+устанавливает диспозицию
+.Fa sig
+в
+.Dv SIG_IGN .
+.Pp
+Функция
+.Fn xsi_sigpause
+удаляет
+.Fa sig
+из маски сигналов вызывающего процесса и приостанавливает вызывающий
+процесс до получения сигнала.
+Функция
+.Fn xsi_sigpause
+восстанавливает маску сигналов процесса в исходное состояние перед
+возвратом.
+.Pp
+Функция
+.Fn sigpause
+присваивает
+.Fa sigmask
+набору маскируемых сигналов
+и затем ожидает поступления сигнала;
+при возврате набор маскируемых сигналов восстанавливается.
+Аргумент
+.Fa sigmask
+обычно равен 0, что означает, что никакие
+сигналы не блокируются.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Функции
+.Fn sigpause
+и
+.Fn xsi_sigpause
+всегда завершаются в результате прерывания, возвращая -1 с
+.Va errno
+установленным в
+.Er EINTR .
+.Pp
+При успешном завершении
+.Fn sigset
+возвращает
+.Dv SIG_HOLD
+если сигнал был заблокирован, и предыдущую диспозицию сигнала, если
+он не был заблокирован.
+В противном случае возвращается
+.Dv SIG_ERR
+и
+.Va errno
+устанавливается для указания ошибки.
+.Pp
+Для всех остальных функций при успешном завершении возвращается 0.
+В противном случае возвращается -1 и
+.Va errno
+устанавливается для указания ошибки:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa sig
+не является допустимым номером сигнала.
+.It Bq Er EINVAL
+Для функций
+.Fn sigset
+и
+.Fn sigignore
+была предпринята попытка перехватить или игнорировать
+.Dv SIGKILL
+или
+.Dv SIGSTOP .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr sigaction 2 ,
+.Xr sigblock 2 ,
+.Xr sigprocmask 2 ,
+.Xr sigsuspend 2 ,
+.Xr sigvec 2
+.Sh СТАНДАРТЫ
+Функция
+.Fn sigpause
+реализована для совместимости с историческими приложениями
+.Bx 4.3 .
+Несовместимый интерфейс с тем же именем, использовавший один номер сигнала
+вместо маски, присутствовал в
+.At V ,
+и был скопирован оттуда в
+.Sy X/Open System Interfaces
+.Pq Tn XSI
+опцию
+.St -p1003.1-2001 .
+.Fx
+реализует его под именем
+.Fn xsi_sigpause .
+Функции
+.Fn sighold ,
+.Fn sigignore ,
+.Fn sigrelse
+и
+.Fn sigset
+реализованы для совместимости с
+.Sy System V
+и
+.Sy XSI
+интерфейсами.
+.Sh ИСТОРИЯ
+Функция
+.Fn sigpause
+появилась в
+.Bx 4.2
+и была объявлена устаревшей.
+Все остальные функции появились в
+.Fx 8.1
+и были объявлены устаревшими до того, как были реализованы.

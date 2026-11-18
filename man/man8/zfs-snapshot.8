@@ -1,0 +1,129 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-snapshot.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 f7bdeff0dc587e4e6410c0f0e057ca4992a1ee4ec9c1c3e01e94d0f99a7278ca
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-SNAPSHOT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-snapshot
+.Nd создание снимков наборов данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm snapshot
+.Op Fl r
+.Oo Fl o Ar property Ns = Ns Ar value Oc Ns …
+.Ar dataset Ns @ Ns Ar snapname Ns …
+.
+.Sh ОПИСАНИЕ
+Создает снимок набора данных или несколько снимков различных наборов данных.
+.Pp
+Снимки создаются атомарно.
+То есть снимок представляет собой согласованный образ набора данных на определенный момент времени; он включает все изменения набора данных, сделанные системными вызовами, которые успешно завершились до этого момента времени.
+Рекурсивные снимки, создаваемые с помощью опции
+.Fl r
+, создаются все одновременно.
+.Pp
+.Nm zfs Cm snap
+может использоваться как псевдоним для
+.Nm zfs Cm snapshot .
+.Pp
+См. раздел
+.Sx Снимки
+в
+.Xr zfsconcepts 7
+для подробностей.
+.Bl -tag -width Ds
+.It Fl o Ar property Ns = Ns Ar value
+Устанавливает указанное свойство; см.
+.Nm zfs Cm create
+для подробностей.
+.It Fl r
+Рекурсивно создает снимки всех дочерних наборов данных.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание снимка ZFS
+Следующая команда создает снимок с именем
+.Ar yesterday .
+Этот снимок монтируется по требованию в каталоге
+.Pa .zfs/snapshot
+в корне файловой системы
+.Ar pool/home/bob .
+.Dl # Nm zfs Cm snapshot Ar pool/home/bob Ns @ Ns Ar yesterday
+.
+.Ss Пример 2 : No Создание и уничтожение нескольких снимков
+Следующая команда создает снимки с именем
+.Ar yesterday No для
+.Ar pool/home
+и всех его дочерних файловых систем.
+Каждый снимок монтируется по требованию в каталоге
+.Pa .zfs/snapshot
+в корне его файловой системы.
+Вторая команда уничтожает только что созданные снимки.
+.Dl # Nm zfs Cm snapshot Fl r Ar pool/home Ns @ Ns Ar yesterday
+.Dl # Nm zfs Cm destroy Fl r Ar pool/home Ns @ Ns Ar yesterday
+.
+.Ss Пример 3 : No Продвижение клона ZFS
+Следующие команды показывают, как протестировать изменения в файловой системе, а затем заменить исходную файловую систему измененной, используя клоны, продвижение клонов и переименование:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm create Ar pool/project/production
+  заполнить /pool/project/production данными
+.No # Nm zfs Cm snapshot Ar pool/project/production Ns @ Ns Ar today
+.No # Nm zfs Cm clone Ar pool/project/production@today pool/project/beta
+  внести изменения в /pool/project/beta и протестировать их
+.No # Nm zfs Cm promote Ar pool/project/beta
+.No # Nm zfs Cm rename Ar pool/project/production pool/project/legacy
+.No # Nm zfs Cm rename Ar pool/project/beta pool/project/production
+  когда старая версия больше не нужна, ее можно уничтожить
+.No # Nm zfs Cm destroy Ar pool/project/legacy
+.Ed
+.
+.Ss Пример 4 : No Выполнение скользящего снимка
+Следующий пример показывает, как поддерживать историю снимков с согласованной схемой именования.
+Чтобы хранить снимки за неделю, пользователь уничтожает самый старый снимок, переименовывает оставшиеся снимки, а затем создает новый снимок следующим образом:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm destroy Fl r Ar pool/users@7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@6daysago No @ Ns Ar 7daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@5daysago No @ Ns Ar 6daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@4daysago No @ Ns Ar 5daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@3daysago No @ Ns Ar 4daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@2daysago No @ Ns Ar 3daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@yesterday No @ Ns Ar 2daysago
+.No # Nm zfs Cm rename Fl r Ar pool/users@today No @ Ns Ar yesterday
+.No # Nm zfs Cm snapshot Fl r Ar pool/users Ns @ Ns Ar today
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-bookmark 8 ,
+.Xr zfs-clone 8 ,
+.Xr zfs-destroy 8 ,
+.Xr zfs-diff 8 ,
+.Xr zfs-hold 8 ,
+.Xr zfs-rename 8 ,
+.Xr zfs-rollback 8 ,
+.Xr zfs-send 8

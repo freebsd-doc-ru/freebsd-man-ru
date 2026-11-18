@@ -1,0 +1,313 @@
+.\" Copyright (c) 1999 Berkeley Software Design, Inc. All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Berkeley Software Design Inc's name may not be used to endorse or
+.\"    promote products derived from this software without specific prior
+.\"    written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY BERKELEY SOFTWARE DESIGN INC ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL BERKELEY SOFTWARE DESIGN INC BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/daemon/daemon.8
+.\" FRDP githash 79f020ffcad205ef82b0a098fd356dbbc5fba8cd
+.\" FRDP hash256 6f86339d86ac58be95916adf3d16bf1d5400ed18f3ae3311f8cdb045fa8537c7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 13, 2026
+.Dt DAEMON 8
+.Os
+.Sh ИМЯ
+.Nm daemon
+.Nd запуск отдельно от управляющего терминала
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cfHrSx
+.Op Fl p Ar child_pidfile
+.Op Fl P Ar supervisor_pidfile
+.Op Fl t Ar title
+.Op Fl u Ar user
+.Op Fl m Ar output_mask
+.Op Fl o Ar output_file
+.Op Fl s Ar syslog_priority
+.Op Fl T Ar syslog_tag
+.Op Fl l Ar syslog_facility
+.Op Fl R Ar restart_delay_seconds
+.Op Fl C Ar restart_count
+.Ar аргументы команды ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отсоединяется от управляющего терминала и
+выполняет программу, указанную в её аргументах.
+Привилегии могут быть понижены до указанного пользователя.
+Вывод демонизированного процесса может быть перенаправлен в syslog и в
+файл журнала.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl C , Fl -restart-count Ar restart_count
+Перезапускать процесс не более
+.Ar restart_count
+раз.
+Если указан ноль,
+.Nm
+завершится.
+Максимальное число перезапусков —
+.Cm 128 .
+Этот параметр используется вместе с параметром
+.Fl -restart .
+.It Fl c , Fl -change-dir
+Сменить текущий рабочий каталог на корневой
+.Pq Dq Pa / .
+.It Fl f , Fl -close-fds
+Перенаправить стандартный ввод, стандартный вывод и стандартный вывод ошибок в
+.Pa /dev/null .
+Когда этот параметр используется вместе с любым из параметров, относящихся к выводу в файл
+или syslog, стандартные файловые дескрипторы сначала перенаправляются в
+.Pa /dev/null ,
+затем stdout и/или stderr перенаправляются в файл или в syslog, как
+указано другими параметрами.
+.It Fl H , Fl -sighup
+Закрыть
+.Pa output_file
+и повторно открыть его при получении сигнала
+.Dv SIGHUP
+для совместимости с
+.Xr newsyslog 8
+и подобными механизмами ротации / архивирования журналов.
+Если
+.Fl -output-file
+не указан, этот флаг игнорируется.
+.It Fl l , Fl -syslog-facility Ar syslog_facility
+Принимаются следующие категории:
+.Cm auth , authpriv , console , cron , daemon ,
+.Cm ftp , kern , lpr , mail , news , ntp , security ,
+.Cm syslog , user , uucp ,
+и
+локальные категории от
+.Cm local0
+до
+.Cm local7 .
+По умолчанию используется
+.Cm daemon .
+.It Fl m , Fl -output-mask Ar output_mask
+Перенаправлять вывод stdout дочернего процесса
+.Pq Cm 1 ,
+stderr
+.Pq Cm 2 ,
+или оба
+.Pq Cm 3 .
+Это значение указывает, что отправляется в syslog и в файл журнала.
+По умолчанию —
+.Cm 3 .
+.It Fl M , Fl -output-file-mode Ar mode
+Указать
+.Ar mode
+файла, используемый при создании
+.Pa output_file .
+Режим интерпретируется с использованием семантики
+.Xr chmod 1 .
+Этот параметр полезен, когда демонизированный процесс или внешние
+сборщики журналов требуют доступа группы или остальных к выходному файлу.
+По умолчанию —
+.Cm 0600 .
+.It Fl o , Fl -output-file Ar output_file
+Дописывать вывод демонизированного процесса в
+.Pa output_file .
+Если файл не существует, он создаётся с режимом файла по умолчанию
+.Ar mode .
+Когда этот параметр используется вместе с параметрами
+.Fl -change-dir
+и
+.Fl -sighup
+необходимо указать абсолютный путь, чтобы гарантировать, что
+.Nm
+сможет снова открыть файл после
+.Dv SIGHUP .
+.It Fl P , Fl -supervisor-pidfile Ar supervisor_pidfile
+Записать идентификатор процесса
+.Nm
+в
+.Ar supervisor_pidfile
+с использованием функциональности
+.Xr pidfile 3 .
+Программа выполняется в порождённом дочернем процессе, пока
+.Nm
+ожидает его завершения, чтобы удерживать
+.Ar supervisor_pidfile
+заблокированным, и удаляет его после завершения процесса.
+Владельцем
+.Ar supervisor_pidfile
+является пользователь, запускающий
+.Nm
+независимо от того, используется ли параметр
+.Fl -user
+или нет.
+.It Fl p , Fl -child-pidfile Ar child_pidfile
+Записать идентификатор созданного процесса в
+.Ar child_pidfile
+с использованием функциональности
+.Xr pidfile 3 .
+Программа выполняется в порождённом дочернем процессе, пока
+.Nm
+ожидает его завершения, чтобы удерживать
+.Ar child_pidfile
+заблокированным, и удаляет его после завершения процесса.
+Владельцем
+.Ar child_pidfile
+является пользователь, запускающий
+.Nm
+независимо от того, используется ли параметр
+.Fl -user
+или нет.
+.It Fl R , Fl -restart-delay Ar restart_delay_seconds
+Наблюдать за программой и перезапускать её после указанной задержки,
+если она была завершена.
+Допустимые значения — 1-31536000 (до 1 года).
+.It Fl r , Fl -restart
+Наблюдать за программой и перезапускать её с задержкой в одну секунду, если она была завершена.
+.It Fl S , Fl -syslog
+Включить вывод в syslog.
+Это неявно применяется, если указаны другие параметры syslog.
+Значения по умолчанию — daemon, notice и daemon для категории, приоритета и
+тега соответственно.
+.It Fl s , Fl -syslog-priority Ar syslog_priority
+Принимаются следующие приоритеты:
+.Cm emerg , alert , crit , err , warning ,
+.Cm notice , info ,
+и
+.Cm debug .
+По умолчанию —
+.Cm notice .
+.It Fl T , Fl -syslog-tag Ar syslog_tag
+Установить тег, который добавляется ко всем сообщениям syslog.
+По умолчанию —
+.Cm daemon .
+.It Fl t , Fl -title Ar title
+Установить заголовок для процесса демона.
+По умолчанию используется демонизированный вызов.
+.It Fl u , Fl -user Ar user
+Имя входа пользователя, от имени которого выполнять программу.
+Переменные окружения
+.Ev HOME , USER ,
+и
+.Ev SHELL
+устанавливаются соответствующим образом.
+Требуются достаточные привилегии суперпользователя.
+.It Fl x , Fl -execute-only
+Не наблюдать за дочерним процессом при использовании
+.Fl p .
+Этот параметр полезен для запуска заданной программы от имени другого пользователя, когда
+.Xr su 1
+не может быть использован, но нужен файл, содержащий pid.
+.Ar child_pidfile
+не будет заблокирован, и его содержимое может быть молча усечено
+одновременным вызовом daemon(8).
+.El
+.Pp
+Если указан любой из параметров
+.Fl -child-pidfile
+(без
+.Fl -execute-only
+),
+.Fl -output-mask ,
+.Fl -restart ,
+.Fl -restart-delay ,
+.Fl -supervisor-pidfile ,
+.Fl -syslog ,
+.Fl -syslog-facility
+.Fl -syslog-priority ,
+.Fl -syslog-tag ,
+или
+.Fl -output ,
+программа выполняется в порождённом дочернем процессе.
+.Nm
+ожидает его завершения, чтобы удерживать файл(ы) pid заблокированными, и удаляет их
+после завершения процесса или перезапускает программу.
+В этом случае, если наблюдающий
+.Nm
+получает сигнал программного завершения
+.Pq Dv SIGTERM
+он передаёт его
+порождённому процессу.
+Обычно это приводит к завершению дочернего процесса, удалению файла(ов) pid
+и затем к завершению.
+.Pp
+Если не выбран ни вывод в файл, ни вывод в syslog, весь вывод перенаправляется в процесс
+.Nm
+и записывается в stdout.
+Параметр
+.Fl -close-fds
+может использоваться для полного подавления вывода в stdout.
+.Pp
+Параметр
+.Fl -supervisor-pidfile
+полезен в сочетании с параметром
+.Fl -restart
+, поскольку
+.Ar supervisor_pidfile
+содержит идентификатор супервизора,
+а не дочернего процесса.
+Это особенно важно, если вы используете
+.Fl -restart
+в rc-скрипте, поскольку параметр
+.Fl -child-pidfile
+предоставит вам идентификатор дочернего процесса для отправки сигнала, когда вы попытаетесь
+остановить службу, что заставит
+.Nm
+перезапустить дочерний процесс.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 1, если библиотечная функция
+.Xr daemon 3
+возвращает ошибку; с кодом 2, если
+.Ar child_pidfile
+или
+.Ar supervisor_pidfile
+запрошен, но не может быть открыт; с кодом 3, если процесс уже запущен (pidfile
+существует и заблокирован); с кодом 4, если
+.Ar syslog_priority
+не принимается; с кодом 5, если
+.Ar syslog_facility
+не принимается; с кодом 6, если
+.Ar output_mask
+не находится в допустимом диапазоне; с кодом 7, если
+.Ar output_file
+не может быть открыт для добавления; и 0 в остальных случаях.
+.Sh ДИАГНОСТИКА
+Если команда не может быть выполнена, сообщение об ошибке выводится в
+стандартный вывод ошибок.
+Точное поведение зависит от параметров журналирования и
+флага
+.Fl -close-fds .
+.Sh СМ. ТАКЖЕ
+.Xr nohup 1 ,
+.Xr setregid 2 ,
+.Xr setreuid 2 ,
+.Xr daemon 3 ,
+.Xr exec 3 ,
+.Xr pidfile 3 ,
+.Xr termios 4 ,
+.Xr tty 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 4.7 .

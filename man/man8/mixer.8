@@ -1,0 +1,273 @@
+.\"-
+.\" Copyright (c) 2021-2026 Christos Margiolis <christos@FreeBSD.org>
+.\"
+.\" Permission is hereby granted, free of charge, to any person obtaining a copy
+.\" of this software and associated documentation files (the "Software"), to deal
+.\" in the Software without restriction, including without limitation the rights
+.\" to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+.\" copies of the Software, and to permit persons to whom the Software is
+.\" furnished to do so, subject to the following conditions:
+.\"
+.\" The above copyright notice and this permission notice shall be included in
+.\" all copies or substantial portions of the Software.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\" IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\" FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\" AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\" LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+.\" OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+.\" THE SOFTWARE.
+.\"
+.\" FRDP path usr.sbin/mixer/mixer.8
+.\" FRDP githash 254d0a0ae90867697827b7e48cbbbdaae930b886
+.\" FRDP hash256 22f6fe69d99918cefd0156c8120087a7016d9f2df25d796aa091d95d66cc6a60
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 4, 2026
+.Dt MIXER 8
+.Os
+.Sh ИМЯ
+.Nm mixer
+.Nd управление элементами микшера звуковой карты
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar устройство
+.Op Fl d Ar pcmX | X
+.Op Fl os
+.Op Ar устройство Ns Op Cm \&. Ns Ar элемент Ns Op Cm \&= Ns Ar значение
+.Ar ...
+.Nm
+.Op Fl os
+.Fl a
+.Nm
+.Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для установки и отображения элементов управления микшера звуковой карты.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a
+Вывести значения для всех устройств микшера, доступных в системе
+.Pq см. Sx ФАЙЛЫ .
+.It Fl d Ar pcmX | X
+Изменить звуковую карту по умолчанию на
+.Ar pcmX ,
+где X — номер устройства (например, для pcm0 номер устройства равен 0).
+См.
+.Sx ПРИМЕРЫ
+о том, как вывести список всех доступных аудиоустройств в системе.
+.It Fl f Ar устройство
+Открыть
+.Ar устройство
+в качестве устройства микшера
+.Pq см. Sx ФАЙЛЫ .
+.It Fl h
+Вывести сообщение справки.
+.It Fl o
+Вывести значения микшера в формате, пригодном для использования в сценариях.
+Заголовок микшера (имя, имя звуковой карты, ...) не будет выводиться.
+.It Fl s
+Вывести только источник(и) записи устройства микшера.
+.El
+.Pp
+Список устройств микшера, которые можно изменять:
+.Bd -ragged -offset indent
+.Cm vol , bass , treble , synth , pcm , speaker , line , mic , cd , mix ,
+.Cm pcm2 , rec ,
+.Cm igain , ogain ,
+.Cm line1 , line2 , line3 ,
+.Cm dig1 , dig2 , dig3 ,
+.Cm phin , phout , video , radio ,
+и
+.Cm monitor .
+.Ed
+.Pp
+Не все устройства микшера доступны.
+.Pp
+Без аргументов
+.Nm
+выводит всю информацию для каждого из поддерживаемых устройств микшера в
+.Ar stdout .
+Если указан аргумент
+.Ar устройство ,
+.Nm
+выводит только значения для
+.Ar устройство .
+Можно указать более одного устройства.
+.Pp
+Команды используют следующий формат:
+.Bl -column xxxxxxxxxxxxxxxxxxxxxxxx -offset indent
+.It Sy Имя Ta Sy Действие
+.It Ar устройство Ta Показать все элементы управления
+.It Ar устройство Ns Cm \&. Ns Ar элемент Ta Показать только указанный элемент
+.It Ar устройство Ns Cm \&. Ns Ar элемент Ns Cm \&= Ns Ar значение Ta Установить значение элемента
+.El
+.Pp
+Доступные элементы управления перечислены ниже (замените
+.Ar устройство
+на одно из доступных устройств):
+.Sm off
+.Bl -column xxxxxxxxxxxxxxxxxxxxxxxx -offset indent
+.It Sy Имя Ta Sy Значение
+.It Ar устройство Cm .volume Ta Xo
+.Ar vol |
+.Oo Cm \&+ | Cm \&- Oc Ar lvol Oo % Oc
+.Oo Cm \&: Oo Cm \&+ | Cm \&- Oc Ar rvol Oo % Oc Oc
+.Xc
+.It Ar устройство Cm .mute Ta Cm off | on | toggle
+.It Ar устройство Cm .recsrc Ta Cm toggle | add | remove | set
+.El
+.Sm on
+.Pp
+Элемент
+.Ar устройство Ns Cm .volume
+изменяет громкость устройства.
+Необходимо указать необязательные значения
+.Ar lvol
+и/или
+.Ar rvol .
+Значения обычно должны быть десятичными числами от 0 до 1 не более чем с 2 цифрами после десятичной точки.
+Завершающий знак процента означает, что значение следует рассматривать как процент от 1.0, а не как абсолютное значение.
+Так, 70% означает то же, что и 0.7.
+Если значения левой или правой громкости имеют префикс
+.Cm +
+или
+.Cm - ,
+следующее значение будет использоваться как относительная поправка, изменяющая текущие настройки на указанную величину.
+Обратите внимание, что относительные проценты по-прежнему отсчитываются от 1.0, а не от текущего значения.
+Если текущая громкость равна 0.40 и указана поправка +20%, итоговая громкость будет установлена в 0.60.
+.Pp
+Громкость также можно задать с помощью сокращённой записи
+.Ar устройство Ns Cm =value .
+Этот синтаксис не применяется к другим элементам управления.
+.Pp
+Элемент
+.Ar устройство Ns Cm .mute
+включает или отключает звук устройства.
+Доступны следующие значения:
+.Bl -tag -width Ds
+.It Cm off
+включает звук для
+.Ar устройство
+.It Cm on
+отключает звук для
+.Ar устройство
+.It Cm toggle
+переключает отключение звука для
+.Ar устройство
+.El
+.Pp
+Элемент
+.Ar устройство Ns Cm .recsrc
+изменяет источники записи микшера.
+.Nm
+помечает устройства, которые можно использовать в качестве источника записи, как
+.Sy rec .
+Источники записи помечаются как
+.Sy src .
+Чтобы изменить источник записи, можно использовать один из следующих модификаторов для устройства
+.Sy rec :
+.Bl -tag -width Ds
+.It Cm toggle
+переключает
+.Ar устройство
+в списке возможных устройств записи
+.It Cm add
+добавляет
+.Ar устройство
+к возможным устройствам записи
+.It Cm remove
+удаляет
+.Ar устройство
+из возможных устройств записи
+.It Cm set
+делает
+.Ar устройство
+единственным устройством записи.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /dev/mixerX
+Устройство микшера, где X — номер этого устройства;
+.Pa /dev/dsp*
+устройства и
+.Pa /dev/mixer*
+устройства имеют взаимно однозначное соответствие, что означает, например, что
+.Pa /dev/mixer0
+является устройством микшера для
+.Pa /dev/dsp0 .
+.It /dev/mixer
+Псевдоним устройства микшера устройства по умолчанию.
+.Nm
+открывает его, если параметр
+.Fl f Ar устройство
+не указан.
+.El
+.Sh ПРИМЕРЫ
+Вывести список всех доступных аудиоустройств в системе:
+.Bd -literal -offset indent
+$ mixer -a | grep ^pcm
+.Ed
+.Pp
+Увеличить громкость устройства
+.Cm vol
+на 5%:
+.Bd -literal -offset indent
+$ mixer vol=+5%
+.Ed
+.Pp
+Изменить громкость устройства
+.Cm vol
+устройства микшера
+.Pa /dev/mixer0
+на 0.65:
+.Bd -literal -offset indent
+$ mixer -f /dev/mixer0 vol.volume=0.65
+.Ed
+.Pp
+Увеличить левую громкость устройства
+.Cm mic
+на 0.10 и уменьшить правую громкость на 0.05:
+.Bd -literal -offset indent
+$ mixer mic.volume=+0.10:-0.05
+.Ed
+.Pp
+Переключить отключение звука для
+.Cm vol :
+.Bd -literal -offset indent
+$ mixer vol.mute=toggle
+.Ed
+.Pp
+Добавить
+.Cm mic
+и удалить
+.Cm line
+из устройств записи:
+.Bd -literal -offset indent
+$ mixer mic.recsrc=add line.recsrc=remove
+.Ed
+.Pp
+Сохранить информацию
+.Pa /dev/mixer0
+в файл и позже восстановить:
+.Bd -literal -offset indent
+$ mixer -f /dev/mixer0 -o > info
+\&...
+$ mixer -f /dev/mixer0 `cat info`
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr mixer 3 ,
+.Xr sound 4 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 2.0.5
+и была полностью переписана в
+.Fx 14.0 .
+.Sh АВТОРЫ
+.An Christos Margiolis Aq Mt christos@FreeBSD.org

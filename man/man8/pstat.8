@@ -1,0 +1,266 @@
+.\" Copyright (c) 1980, 1991, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2002 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" Portions of this software was developed for the FreeBSD Project by
+.\" ThinkSec AS and NAI Labs, the Security Research Division of Network
+.\" Associates, Inc.  under DARPA/SPAWAR contract N66001-01-C-8035
+.\" ("CBOSS"), as part of the DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pstat/pstat.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 908606ba1551d8f1b26f6922e44889335131076226fb36954470c29633809137
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 8, 2022
+.Dt PSTAT 8
+.Os
+.Sh ИМЯ
+.Nm pstat ,
+.Nm swapinfo
+.Nd отображение системных структур данных
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Tfghkmnst
+.Op Fl M Ar core Op Fl N Ar system
+.Nm swapinfo
+.Op Fl ghkm
+.Op Fl M Ar core Op Fl N Ar system
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает записи открытых файлов, использование пространства подкачки,
+состояние терминалов и структуры данных vnode.
+.Pp
+Если она вызвана как
+.Nm swapinfo
+,
+подразумевается параметр
+.Fl s
+, и только параметры
+.Fl k , m , g ,
+и
+.Fl h
+являются допустимыми.
+.Pp
+Если параметр
+.Fl M
+не указан, информация получается из текущего работающего ядра через интерфейс
+.Xr sysctl 3 .
+В противном случае информация читается из указанного core-файла,
+используя список имён из указанного образа ядра (или из образа по умолчанию).
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl n
+Выводить устройства по major/minor вместо имени.
+.It Fl h
+.Dq Удобочитаемый
+вывод.
+Использовать суффиксы единиц при выводе размеров разделов подкачки:
+байт, килобайт, мегабайт, гигабайт, терабайт и петабайт.
+.It Fl k
+Выводить размеры в килобайтах независимо от значения переменной окружения
+.Ev BLOCKSIZE .
+.It Fl m
+Выводить размеры в мегабайтах независимо от значения переменной окружения
+.Ev BLOCKSIZE .
+.It Fl g
+Выводить размеры в гигабайтах независимо от значения переменной окружения
+.Ev BLOCKSIZE .
+.It Fl T
+Выводить количество используемых и свободных слотов в нескольких системных таблицах.
+Это полезно для проверки того, насколько большими стали системные таблицы,
+если система сильно нагружена.
+.It Fl f
+Выводить таблицу открытых файлов со следующими заголовками:
+.Bl -tag -width indent
+.It LOC
+Расположение в core-файле для этой записи таблицы.
+.It TYPE
+Тип объекта, на который указывает запись таблицы файлов.
+.It FLG
+Различные переменные состояния, закодированные следующим образом:
+.Pp
+.Bl -tag -width indent -compact
+.It R
+открыт для чтения
+.It W
+открыт для записи
+.It A
+открыт для добавления
+.It I
+посылать сигнал pgrp, когда данные готовы
+.El
+.It CNT
+Количество процессов, которым известен этот открытый файл.
+.It MSG
+Количество сообщений, ожидающих обработки для этого файла.
+.It DATA
+Расположение записи таблицы vnode или структуры сокета для этого файла.
+.It OFFSET
+Смещение в файле (см.
+.Xr lseek 2 ) .
+.El
+.It Fl s
+Выводить информацию об использовании пространства подкачки для всех
+областей подкачки, вкомпилированных в ядро.
+Первый столбец — имя устройства раздела.
+Следующий столбец —
+общее пространство, доступное в разделе.
+Столбец
+.Ar Used
+указывает общее количество использованных на данный момент блоков; столбец
+.Ar Available
+указывает, сколько места осталось в каждом разделе.
+Столбец
+.Ar Capacity
+сообщает процент использованного пространства.
+.Pp
+Если в систему сконфигурировано более одного раздела, итоги по всей
+статистике будут выведены в последней строке отчёта.
+.It Fl t
+Выводить таблицу для терминалов
+со следующими заголовками:
+.Bl -tag -width indent
+.It LINE
+Имя устройства.
+.It INQ
+Количество символов, которые могут быть сохранены во входной очереди.
+.It CAN
+Количество символов во входной очереди, которые можно прочитать.
+.It LIN
+Количество символов во входной очереди, которые ещё нельзя прочитать.
+.It LOW
+Нижний порог для ввода.
+.It OUTQ
+Количество символов, которые могут быть сохранены в выходной очереди.
+.It USE
+Количество байтов в выходной очереди.
+.It LOW
+Нижний порог для вывода.
+.It COL
+Вычисленная позиция терминала по столбцу.
+.It SESS
+Идентификатор процесса лидера сеанса.
+.It PGID
+Группа процессов, для которой этот терминал является управляющим.
+.It STATE
+Различные переменные состояния, закодированные следующим образом:
+.Pp
+.Bl -tag -width indent -compact
+.It I
+присутствуют узлы устройств init/lock-state
+.It C
+присутствуют узлы устройств callout
+.It O
+открыт
+.It c
+консоль используется
+.It G
+отсутствует
+.It B
+занят в
+.Xr open 2
+.It Y
+посылать SIGIO для событий ввода
+.It L
+следующий символ является буквальным
+.It H
+достигнут верхний порог
+.It X
+открыт для монопольного использования
+.It S
+вывод остановлен (управление потоком ixon)
+.It l
+используется процедура ввода в блочном режиме
+.It Z
+соединение потеряно
+.It s
+ввод-вывод прослушивается
+.It b
+занят в
+.Xr read 2
+или
+.Xr write 2
+.El
+.Pp
+Символы
+.Ql i
+и
+.Ql o
+относятся к предыдущему символу, чтобы различать
+ввод и вывод.
+.El
+.It Fl M
+Извлекать значения, связанные со списком имён, из указанного core-файла.
+.It Fl N
+Если также указан
+.Fl M ,
+извлекать список имён из указанной системы вместо значения по умолчанию,
+которым является образ ядра, с которого загрузилась система.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width BLOCKSIZE
+.It Ev BLOCKSIZE
+Если переменная окружения
+.Ev BLOCKSIZE
+установлена и параметры
+.Fl h , k ,
+или
+.Fl m
+не указаны, количество блоков будет отображаться в единицах
+этого размера блока.
+Если
+.Ev BLOCKSIZE
+не установлена и параметры
+.Fl h , k ,
+или
+.Fl m
+не указаны, количество блоков будет отображаться в 512-байтовых
+блоках.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr systat 1 ,
+.Xr stat 2 ,
+.Xr fs 5 ,
+.Xr iostat 8 ,
+.Xr vmstat 8
+.Rs
+.%T Реализация UNIX
+.%A K. Thompson
+.Re
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Не распознаёт серверы подкачки
+.Tn NFS .

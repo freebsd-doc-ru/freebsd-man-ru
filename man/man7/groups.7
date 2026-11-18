@@ -1,0 +1,335 @@
+.\"	$NetBSD: groups.7,v 1.8 2020/04/02 20:57:20 roy Exp $
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2020 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/groups.7
+.\" FRDP githash e1c951dccde1496330fe69425f8e97f2f8003d32
+.\" FRDP hash256 04e0781fb27955b682e35dff351ccb16d486ad49b66e386c909741fb2b2db6b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 21, 2026
+.Dt GROUPS 7
+.Os
+.Sh ИМЯ
+.Nm groups
+.Nd стандартные имена групп
+.Sh ОПИСАНИЕ
+Стандартная установка
+.Fx
+имеет следующие имена групп пользователей:
+.Bl -tag -width ".Em _pflogd"
+.It Em wheel
+Пользователи, уполномоченные повышать свои права до привилегий суперпользователя
+пользователя root, то есть uid\~0.
+Обычно группа
+.Em wheel
+имеет gid\~0.
+.Pp
+Пользователям, не входящим в группу
+.Em wheel ,
+.Xr su 1
+никогда не разрешает получить привилегии root.
+.It Em daemon
+Используется программами с битом set-group-id
+.Xr lpr 1
+и
+.Xr rwho 1 .
+.It Em kmem
+Используется программами с битом set-group-id (например,
+.Xr ktrdump 8 ),
+которым нужен доступ к памяти ядра
+.Po Pa /dev/mem
+и
+.Pa /dev/kmem
+входят в группу
+.Em kmem
+.Pc .
+См.
+.Xr mem 4 .
+.It Em sys
+Историческая группа.
+Не используется в современной
+.Fx .
+.It Em tty
+Используется программами с битом set-group-id
+.Xr wall 1
+и
+.Xr write 1 ,
+чтобы позволять пользователям отправлять сообщения на другой tty, даже если он им
+не принадлежит (статические узлы устройств tty
+.Pa /dev/pts/*
+все входят в группу
+.Em tty ) .
+См.
+.Xr tty 4 .
+.It Em operator
+Пользователи, уполномоченные создавать резервные копии дисковых устройств и
+выключать машину.
+.Pp
+Узлы дисковых устройств
+(например,
+.Pa /dev/ada0 )
+входят в группу
+.Em operator
+и доступны для чтения группе, поэтому пользователи этой группы могут читать с
+дисковых устройств, например с помощью
+.Xr dump 8 .
+Узлы ленточных устройств
+(например,
+.Pa /dev/sa0 )
+входят в группу
+.Em operator
+и доступны для чтения и записи группе, поэтому пользователи этой группы могут
+писать на ленточные устройства.
+.Pp
+Программа
+.Xr shutdown 8
+может выполняться только root и членами группы
+.Em operator .
+.It Em mail
+Используется почтовыми агентами (например,
+.Xr dma 8 ) .
+.Pp
+По умолчанию почта root
+.Pq Pa /var/mail/root
+находится в группе
+.Em mail .
+.It Em bin
+Историческая группа.
+Не используется в современной
+.Fx .
+.It Em news
+Историческая группа.
+Не используется в современной
+.Fx .
+.It Em man
+Историческая группа; раньше использовалась для управления страницами руководства (см.
+.Xr man 1 ) .
+.It Em games
+Используется различными играми с битом set-group-id для ведения файлов рекордов
+и других общих файлов в
+.Pa /var/games .
+Членам этой группы также разрешён доступ к узлам устройств
+.Pa /dev/input/event*
+(см.
+.Xr hgame 4 ) .
+См. также
+.Xr intro 6 .
+.It Em ftp
+Раньше использовалась
+.Xr sysinstall 8
+(теперь заменена на
+.Xr bsdinstall 8 )
+для настройки анонимного FTP.
+Не используется в современной
+.Fx .
+.It Em staff
+Пользователи staff, в отличие от гостевых пользователей (см. группу
+.Em guest ) .
+Не используется
+.Fx ;
+доступна для трактовки администратором.
+См.
+.Xr security 7
+для некоторых рекомендаций по управлению учётными записями в группе
+.Em staff .
+.It Em sshd
+Основная группа для псевдопользователя
+.Em sshd ,
+используемого демоном безопасной оболочки
+.Xr sshd 8 .
+.It Em smmsp
+Основная группа для пользователя
+.Em smmsp ,
+который используется
+.Xr sendmail 8 ,
+если для его запуска не настроены пользователи, отличные от root.
+.Pp
+.It Em mailnull
+Используется агентом пересылки электронной почты
+.Xr sendmail 8
+как группа для его пользователя по умолчанию
+.Em mailnull .
+.It Em guest
+Гостевые пользователи, в отличие от пользователей staff (см. группу
+.Em staff ) .
+Не используется
+.Fx ;
+доступна для трактовки администратором.
+.It Em audio
+Используется для доступа к loopback-устройствам
+.Xr virtual_oss 8 .
+.It Em video
+Используется для доступа к устройствам
+.Pa /dev/drm/* ,
+которые применяются для аппаратного ускорения GPU.
+См.
+.Xr drm 7 .
+.It Em realtime
+Используется
+.Xr mac_priotiry 4 ,
+чтобы позволить членам этой группы запускать потоки и процессы с приоритетом
+планирования реального времени.
+См. также
+.Xr rtprio 1 .
+.It Em idletime
+Используется
+.Xr mac_priority 4 ,
+чтобы позволить членам этой группы запускать процессы с приоритетом планирования
+простоя.
+См. также
+.Xr idprio 1 .
+.It Em bind
+Раньше использовалась как основная группа для псевдопользователя
+.Em bind ,
+используемого сервером доменных имён Интернета
+.Xr named 8 ,
+который был удалён из базовой системы в
+.Fx 10.0 .
+.It Em unbound
+Основная группа для псевдопользователя
+.Em unbound ,
+используемого рекурсивным DNS-резолвером
+.Xr local-unbound 8 .
+.It Em proxy
+Основная группа для псевдопользователя
+.Em proxy ,
+используемого прокси-демоном
+.Xr ftp-proxy 8
+с такими пакетными фильтрами, как
+.Xr pf 4 .
+.It Em authpf
+Используется программой с битом set-group-id
+.Xr authpf 8
+для настройки аутентифицированных шлюзов.
+.It Em _pflogd
+Основная группа для псевдопользователя
+.Em _pflogd ,
+используемого демоном журналирования
+.Xr pflogd 8
+с пакетным фильтром
+.Xr pf 4 .
+.It Em _dhcp
+Основная группа для псевдопользователя
+.Em _dhcp ,
+используемого клиентом DHCP
+.Xr dhclient 8 .
+.It Em dialer
+Пользователи, уполномоченные выполнять исходящие модемные вызовы (см.
+.Xr cu 1
+и устройства
+.Pa /dev/cuauN ) .
+.It Em network
+Историческая группа.
+Не используется в современной
+.Fx .
+.It Em audit
+Основная группа для псевдопользователя
+.Em auditdistd ,
+используемого демонами аудита
+.Xr auditd 8
+и
+.Xr auditdistd 8 .
+.It Em www
+Историческая группа для доступа к World Wide Web.
+Не используется в современной
+.Fx .
+.It Em u2f
+Используется для пользователей, которым нужен доступ к устройствам
+.Pa /dev/u2f/*
+(см.
+.Xr u2f 4 ) .
+.It Em ntpd
+Основная группа для псевдопользователя
+.Em ntpd ,
+используемого демоном протокола сетевого времени
+.Xr ntpd 8 .
+.It Em _ypldap
+Основная группа для псевдопользователя
+.Em _ypldap ,
+используемого демоном
+.Xr ypldap 8 .
+.It Em hast
+Основная группа для псевдопользователя
+.Em hast ,
+используемого демоном высокодоступного хранилища
+.Xr hastd 8 .
+.It Em tests
+Основная группа для псевдопользователя
+.Em tests ,
+используемого автоматическими тестами, которые запрашивают запуск без привилегий.
+См.
+.Xr tests 7 .
+.It Em nogroup
+Псевдогруппа (фиктивная группа).
+Она отличается от группы
+.Em nobody
+тем, что для
+.Em nogroup
+нет выделенного пользователя.
+Например, эта группа используется для пользователей
+.Em tty
+и
+.Em kmem .
+.It Em nobody
+Основная группа для традиционного псевдопользователя
+.Em nobody .
+Современная практика — назначать каждому отдельному демону собственную отдельную
+учётную запись псевдопользователя и группу, чтобы при компрометации одного демона
+не компрометировались все остальные демоны.
+.Pp
+См. также группу
+.Em nogroup .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width ".Pa /usr/src/etc/group"
+.It Pa /etc/group
+Основной файл прав групп.
+.It Pa /usr/src/etc/group
+Файл прав групп для базовой системы.
+.It Pa /usr/ports/GIDs
+Список GID (идентификаторов групп), зарезервированных для портов (см.
+.Xr ports 7 ) .
+.El
+.Pp
+См.
+.Xr group 5
+о формате вышеупомянутых файлов.
+.Sh СМ. ТАКЖЕ
+.Xr chgrp 1 ,
+.Xr groups 1 ,
+.Xr id 1 ,
+.Xr newgrp 1 ,
+.Xr group 5 ,
+.Xr pw 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+появилась в
+.Nx 10.0
+и
+.Fx 15.1 .

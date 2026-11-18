@@ -1,0 +1,1146 @@
+.\" 	$NetBSD: rc.subr.8,v 1.12 2004/01/06 00:52:24 lukem Exp $
+.\"
+.\" Copyright (c) 2002-2004 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Luke Mewburn.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man8/rc.subr.8
+.\" FRDP githash 12584410c5dc3d17f6a07a743ca351f02434dc00
+.\" FRDP hash256 ef0d349abaf7de4b792e5bf6d75596b8e972da2a4d6ddd8bb82099a316847521
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 23, 2024
+.Dt RC.SUBR 8
+.Os
+.Sh ИМЯ
+.Nm rc.subr
+.Nd функции, используемые системными сценариями командной оболочки
+.Sh СИНТАКСИС
+.Bl -item -compact
+.It
+.Ic .\& Pa /etc/rc.subr
+.Pp
+.It
+.Ic backup_file Ar action Ar file Ar current Ar backup
+.It
+.Ic checkyesno Ar var
+.It
+.Ic check_pidfile Ar pidfile Ar procname Op Ar interpreter
+.It
+.Ic check_process Ar procname Op Ar interpreter
+.It
+.Ic DebugOn Ar tag ...
+.It
+.Ic DebugOff Ar tag ...
+.It
+.Ic debug Ar message
+.It
+.Ic dot Ar file ...
+.It
+.Ic err Ar exitval Ar message
+.It
+.Ic force_depend Ar name
+.It
+.Ic info Ar message
+.It
+.Ic is_verified Ar file
+.It
+.Ic load_kld Oo Fl e Ar regex Oc Oo Fl m Ar module Oc Ar file
+.It
+.Ic load_rc_config Oo Ar flag Oc Op Ar service
+.It
+.Ic load_rc_config_var Ar name Ar var
+.It
+.Ic mount_critical_filesystems Ar type
+.It
+.Ic rc_log Ar message
+.It
+.Ic rc_trace Ar level Ar message
+.It
+.Ic rc_usage Ar command ...
+.It
+.Ic reverse_list Ar item ...
+.It
+.Ic run_rc_command Ar argument
+.It
+.Ic run_rc_script Ar file Ar argument
+.It
+.Ic run_rc_scripts Oo options Oc Ar file ...
+.It
+.Ic safe_dot Ar file ...
+.It
+.Ic sdot Ar file ...
+.It
+.Ic startmsg Oo Fl n Oc Ar message
+.It
+.Ic vdot Ar file ...
+.It
+.Ic wait_for_pids Op Ar pid ...
+.It
+.Ic warn Ar message
+.El
+.Sh ОПИСАНИЕ
+Сценарий
+.Nm
+содержит часто используемые функции сценариев командной оболочки и определения переменных, которые используются различными сценариями, такими как
+.Xr rc 8 .
+Сценарии, требуемые портами в
+.Pa /usr/local/etc/rc.d ,
+также со временем
+будут переписаны для его использования.
+.Pp
+Функции
+.Nm
+были в основном импортированы из
+.Nx .
+.Pp
+Доступ к ним осуществляется путём подключения
+.Pa /etc/rc.subr
+в текущую командную оболочку.
+.Pp
+Доступны следующие функции командной оболочки:
+.Bl -tag -width 4n
+.It Ic backup_file Ar action file current backup
+Создать резервную копию
+.Ar file
+в
+.Ar current .
+Сохранить предыдущую версию
+.Ar current
+как
+.Ar backup .
+.Pp
+Аргумент
+.Ar action
+может быть одним из следующих:
+.Bl -tag -width Ds
+.It Cm add
+.Ar file
+теперь резервируется с помощью этого механизма резервного копирования или, возможно, повторно в него включён.
+.Ar current
+создаётся.
+.It Cm update
+.Ar file
+изменился и нуждается в резервном копировании.
+Если
+.Ar current
+существует, он копируется в
+.Ar backup ,
+а затем
+.Ar file
+копируется в
+.Ar current .
+.It Cm remove
+.Ar file
+больше не отслеживается этим механизмом резервного копирования.
+.Ar current
+перемещается в
+.Ar backup .
+.El
+.It Ic checkyesno Ar var
+Возвращает 0, если
+.Ar var
+определена как
+.Dq Li YES ,
+.Dq Li TRUE ,
+.Dq Li ON ,
+или
+.Ql 1 .
+Возвращает 1, если
+.Ar var
+определена как
+.Dq Li NO ,
+.Dq Li FALSE ,
+.Dq Li OFF ,
+или
+.Ql 0 .
+В противном случае выдаёт предупреждение, что
+.Ar var
+задана неправильно.
+Значения нечувствительны к регистру.
+.Em Примечание :
+.Ar var
+должна быть именем переменной, а не её значением;
+.Ic checkyesno
+сама раскроет переменную.
+.It Ic check_pidfile Ar pidfile procname Op Ar interpreter
+Разбирает первое слово первой строки
+.Ar pidfile
+в поисках PID и проверяет, что процесс с этим PID
+запущен, а его первый аргумент совпадает с
+.Ar procname .
+В случае успеха выводит совпавший PID, иначе ничего.
+Если
+.Ar interpreter
+указан, разбирает первую строку
+.Ar procname ,
+проверяет, что строка имеет вид:
+.Pp
+.Pp
+и использует
+.Ar interpreter
+с его необязательными аргументами и
+.Ar procname ,
+добавленным как строка процесса для поиска.
+.It Ic check_process Ar procname Op Ar interpreter
+Выводит PID всех процессов, запущенных с первым
+аргументом, совпадающим с
+.Ar procname .
+.Ar interpreter
+обрабатывается так же, как в
+.Ic check_pidfile .
+.It Ic DebugOn Ar tag ...
+Включает трассировку, если она ещё не включена и если какой-либо
+.Ar tag
+найден в
+.Va DEBUG_SH
+(список тегов, разделённых запятыми).
+.Pp
+Записывает
+.Ar tag ,
+который привёл к включению, в
+.Va DEBUG_ON ,
+устанавливает
+.Va DEBUG_DO
+пустой, а
+.Va DEBUG_SKIP
+в
+.Ql \&: .
+.Pp
+Подробности см. в
+.Xr debug.sh 8 .
+.It Ic DebugOff Ar tag ...
+Отключает трассировку, если она включена и какой-либо
+.Ar tag
+совпадает с
+.Va DEBUG_ON ,
+что означает, что он был причиной включения трассировки.
+.Pp
+Устанавливает
+.Va DEBUG_DO
+в
+.Ql \&: ,
+а
+.Va DEBUG_ON ,
+.Va DEBUG_SKIP
+пустыми.
+.It Ic debug Ar message
+Выводит отладочное сообщение в
+.Va stderr ,
+записывает его в системный журнал с помощью
+.Xr logger 1
+и
+возвращает управление вызывающему.
+Сообщение об ошибке состоит из имени сценария
+(из
+.Va $0 ) ,
+за которым следует
+и затем
+.Ar message .
+Эта функция предназначена для использования разработчиками
+как помощь при отладке сценариев.
+Её можно включить или выключить
+переменной
+.Xr rc.conf 5
+.Va rc_debug .
+.It Ic dot Ar file ...
+Для чтения непроверенных файлов.
+.Pp
+Убедиться, что опция командной оболочки
+.Li verify
+выключена.
+Эта опция имеет смысл только когда
+.Xr mac_veriexec 4
+активен.
+.Pp
+Прочитать каждый
+.Ar file ,
+если он существует.
+.Pp
+Восстановить предыдущее состояние опции
+.Li verify .
+.It Ic err Ar exitval message
+Выводит сообщение об ошибке в
+.Va stderr ,
+записывает его в системный журнал
+с помощью
+.Xr logger 1
+и
+.Ic exit
+с кодом завершения
+.Ar exitval .
+Сообщение об ошибке состоит из имени сценария
+(из
+.Va $0 ) ,
+за которым следует
+и затем
+.Ar message .
+.It Ic force_depend Ar name
+Выводит рекомендательное сообщение и принудительно запускает службу
+.Ar name .
+Аргумент
+.Ar name
+— это компонент
+.Xr basename 1
+пути к сценарию, расположенному в
+.Pa /etc/rc.d
+(сценарии, хранящиеся в других местах, таких как
+.Pa /usr/local/etc/rc.d ,
+в настоящее время нельзя контролировать с помощью
+.Ic force_depend ).
+Если сценарий завершается неудачно по любой причине, он выведет предупреждение
+и вернёт значение 1.
+Если он завершился успешно,
+он вернёт 0.
+.It Ic is_verified Ar file
+Если
+.Xr veriexec 8
+не существует или
+.Xr mac_veriexec 4
+не активен, просто вернуть успех.
+В противном случае использовать
+.Xr veriexec 8 ,
+чтобы проверить, проверен ли
+.Ar file .
+Если не проверен, код возврата будет 80 (EAUTH).
+.It Ic info Ar message
+Выводит информационное сообщение в
+.Va stdout
+и записывает его в системный журнал с помощью
+.Xr logger 1 .
+Сообщение состоит из имени сценария
+(из
+.Va $0 ) ,
+за которым следует
+и затем
+.Ar message .
+Вывод этого информационного сообщения можно
+включить или выключить
+переменной
+.Xr rc.conf 5
+.Va rc_info .
+.It Ic load_kld Oo Fl e Ar regex Oc Oo Fl m Ar module Oc Ar file
+Загружает
+.Ar file
+как модуль ядра, если он ещё не загружен.
+Для проверки состояния модуля
+можно либо указать точное имя модуля с помощью
+.Fl m ,
+либо передать регулярное выражение
+.Xr egrep 1 ,
+соответствующее имени модуля, через
+.Fl e .
+По умолчанию предполагается, что модуль имеет то же имя, что и
+.Ar file ,
+что не всегда так.
+.It Ic load_rc_config Oo Ar flag Oc Op Ar service
+Подключает файл(ы) конфигурации для
+.Ar service .
+Если
+.Ar service
+не указан,
+будут загружены только глобальные файлы конфигурации.
+Сначала
+.Pa /etc/rc.conf
+подключается, если он ещё не был прочитан.
+Затем
+.Pa /etc/rc.conf.d/ Ns Ar service
+подключается, если он существует.
+Последний также может содержать другие присваивания переменных для переопределения
+аргументов
+.Ic run_rc_command ,
+определённых вызывающим сценарием, чтобы обеспечить простой
+механизм для администратора по переопределению поведения данного
+сценария
+.Xr rc.d 8
+без необходимости редактирования этого сценария.
+.Pp
+Функция, указанная в
+.Va load_rc_config_reader
+(по умолчанию
+.Ic dot ),
+используется для чтения конфигурации, если только
+.Ar flag
+не равен:
+.Bl -tag -width Ds
+.It Fl s
+использовать
+.Ic sdot
+для чтения конфигурации,
+потому что мы хотим проверенную конфигурацию, или
+использовать
+.Ic safe_dot
+для чтения непроверенной конфигурации.
+.It Fl v
+использовать
+.Ic vdot
+для чтения конфигурации только если она проверена.
+.El
+.Pp
+.Ic DebugOn
+будет вызвана с тегами, производными от
+.Ar name ,
+чтобы включить трассировку, если какие-либо появятся в
+.Va DEBUG_SH .
+.It Ic load_rc_config_var Ar name Ar var
+Читает переменную
+.Xr rc.conf 5
+.Ar var
+для
+.Ar name
+и устанавливает в текущей командной оболочке, используя
+.Ic load_rc_config
+в подоболочке, чтобы предотвратить нежелательные побочные эффекты от других присваиваний переменных.
+.It Ic mount_critical_filesystems Ar type
+Проходит по списку критических файловых систем,
+найденному в переменной
+.Xr rc.conf 5
+.Va critical_filesystems_ Ns Ar type ,
+монтируя каждую, которая
+в данный момент не смонтирована.
+.It Ic rc_log Ar message
+Выводит
+.Ar message
+с отметкой времени, которая одновременно удобочитаема и
+легко разбирается для последующей обработки, используя:
+.Bd -literal -offset indent
+.Ed
+.It Ic rc_trace Ar level Ar message
+Если файл
+.Pa /etc/rc.conf.d/rc_trace
+существует и не пуст, пытается установить
+.Va RC_LEVEL
+на основе его содержимого.
+Если файл пуст или не содержит
+значения для
+.Va RC_LEVEL ,
+устанавливает его в
+.Li 0 .
+.Pp
+Если
+.Ar level
+больше или равен
+.Va RC_LEVEL ,
+передаёт
+.Ar message
+в
+.Ic rc_log .
+.It Ic rc_usage Ar command ...
+Выводит сообщение об использовании для
+.Va $0 ,
+где
+.Ar commands
+— список допустимых аргументов,
+перед которыми может стоять
+.Sm off
+.Dq Bq Li fast | force | one | quiet .
+.Sm on
+.It Ic reverse_list Ar item ...
+Выводит список
+.Ar items
+в обратном порядке.
+.It Ic run_rc_command Ar argument
+Запускает метод
+.Ar argument
+для текущего сценария
+.Xr rc.d 8
+на основе настроек различных переменных командной оболочки.
+.Ic run_rc_command
+чрезвычайно гибкая и позволяет реализовать полностью функциональные
+сценарии
+.Xr rc.d 8
+с небольшим объёмом кода командной оболочки.
+.Pp
+.Ar argument
+ищется в списке поддерживаемых команд, которые могут быть одной
+из:
+.Bl -tag -width Ds
+.It Cm start
+Запустить службу.
+Это должно проверить, что служба должна быть запущена, как указано в
+.Xr rc.conf 5 .
+Также проверяет, запущена ли служба уже, и отказывается запускать, если
+запущена.
+Эта последняя проверка не выполняется стандартными
+.Fx
+сценариями, если система загружается непосредственно в многопользовательский режим, чтобы
+ускорить процесс загрузки.
+.It Cm stop
+Если служба должна быть запущена, как указано в
+.Xr rc.conf 5 ,
+остановить службу.
+Это должно проверить, что служба запущена, и сообщить, если это не так.
+.It Cm restart
+Выполнить
+.Cm stop ,
+затем
+.Cm start .
+По умолчанию отображает идентификатор процесса программы (если запущена).
+.It Cm enabled
+Возвращает 0, если служба включена, и 1, если нет.
+Эта команда ничего не выводит.
+.It Cm rcvar
+Показать, какие переменные
+.Xr rc.conf 5
+используются для управления запуском службы (если есть).
+.El
+.Pp
+Если
+.Va pidfile
+или
+.Va procname
+заданы, также поддерживаются:
+.Bl -tag -width Ds
+.It Cm poll
+Ожидать завершения команды.
+.It Cm status
+Показать состояние процесса.
+.El
+.Pp
+Другие поддерживаемые команды перечислены в необязательной переменной
+.Va extra_commands .
+.Pp
+.Ar argument
+может иметь один из следующих префиксов, который изменяет его работу:
+.Bl -tag -width Ds
+.It Li fast
+Пропустить проверку существующего запущенного процесса
+и устанавливает
+.Va rc_fast Ns = Ns Li YES .
+.It Li force
+Пропустить проверки того, что
+.Va rcvar
+установлена в
+.Dq Li YES ,
+и устанавливает
+.Va rc_force Ns = Ns Li YES .
+Это игнорирует
+.Ar argument Ns Va _precmd ,
+возвращающий ненулевое значение, и игнорирует любые неудачи тестов
+.Va required_*
+и всегда возвращает нулевой код завершения.
+.It Li one
+Пропустить проверки того, что
+.Va rcvar
+установлена в
+.Dq Li YES ,
+но выполняет все другие предварительные проверки.
+.It Li quiet
+Подавляет некоторые подробные диагностические сообщения.
+В настоящее время это включает сообщения
+.Qq Запуск ${name}
+(как проверяется
+.Ic check_startmsgs
+внутри
+.Nm )
+и ошибки об использовании служб, которые не включены в
+.Xr rc.conf 5 .
+Этот префикс также устанавливает
+.Va rc_quiet Ns = Ns Li YES .
+.Em Примечание :
+.Va rc_quiet
+не предназначена для полного сокрытия всех отладочных и предупреждающих сообщений,
+а только некоторых небольших классов из них.
+.El
+.Pp
+.Ic run_rc_command
+использует следующие переменные командной оболочки для управления своим поведением.
+Если не указано иное, они необязательны.
+.Bl -tag -width Ds
+.It Va name
+Имя этого сценария.
+Это обязательно.
+.It Va rcvar
+Значение
+.Va rcvar
+проверяется с помощью
+.Ic checkyesno ,
+чтобы определить, следует ли запускать этот метод.
+.It Va command
+Полный путь к команде.
+Не требуется, если
+.Ar argument Ns Va _cmd
+определён для каждого поддерживаемого ключевого слова.
+Может быть переопределён с помощью
+.Va ${name}_program .
+.It Va command_args
+Необязательные аргументы и/или директивы командной оболочки для
+.Va command .
+.It Va command_interpreter
+.Va command
+запускается с:
+.Pp
+.Pp
+что приводит к тому, что его команда
+.Xr ps 1
+выглядит как:
+.Pp
+.Pp
+поэтому используйте эту строку для поиска PID(ов) запущенной команды,
+а не
+.Va command .
+.It Va extra_commands
+Дополнительные поддерживаемые команды/ключевые слова/аргументы.
+.It Va pidfile
+Путь к файлу PID.
+Используется для определения PID(ов) запущенной команды.
+Если
+.Va pidfile
+задан, используйте:
+.Pp
+.Pp
+для поиска PID.
+В противном случае, если
+.Va command
+задана, используйте:
+.Pp
+.Pp
+для поиска PID.
+.It Va procname
+Имя процесса для проверки.
+По умолчанию равно значению
+.Va command .
+.It Va required_dirs
+Проверять существование перечисленных каталогов
+перед запуском метода
+.Cm start .
+Список проверяется перед запуском
+.Va start_precmd .
+.It Va required_files
+Проверять читаемость перечисленных файлов
+перед запуском метода
+.Cm start .
+Список проверяется перед запуском
+.Va start_precmd .
+.It Va required_modules
+Убедиться, что перечисленные модули ядра загружены
+перед запуском метода
+.Cm start .
+Список проверяется после запуска
+.Va start_precmd .
+Это делается после вызова команд из
+.Va start_precmd ,
+чтобы отсутствующие модули не загружались напрасно,
+если предварительные команды указывают на состояние ошибки.
+Слово в списке может иметь необязательный суффикс
+.Dq Li \&: Ns Ar modname
+или
+.Dq Li ~ Ns Ar pattern .
+Параметр
+.Ar modname
+или
+.Ar pattern
+передаётся в
+.Ic load_kld
+через опцию
+.Fl m
+или
+.Fl e
+соответственно.
+См. описание
+.Ic load_kld
+в этом документе для подробностей.
+.It Va required_vars
+Выполнять
+.Ic checkyesno
+для каждой из переменных списка
+перед запуском метода
+.Cm start .
+Список проверяется после запуска
+.Va start_precmd .
+.It Va ${name}_chdir
+Каталог, в который нужно
+.Ic cd
+перед запуском
+.Va command ,
+если
+.Va ${name}_chroot
+не указан.
+.It Va ${name}_chroot
+Каталог, в который нужно
+.Xr chroot 8
+перед запуском
+.Va command .
+Поддерживается только после монтирования
+.Pa /usr .
+.It Va ${name}_env
+Список переменных окружения, с которыми запускать
+.Va command .
+Эти переменные будут переданы как аргументы утилите
+.Xr env 1 ,
+если только
+.Ar argument Ns Va _cmd
+не определён.
+В этом случае содержимое
+.Va ${name}_env
+будет экспортировано через встроенную команду
+.Xr export 1
+оболочки
+.Xr sh 1 ,
+что накладывает некоторые ограничения на имена переменных
+(например, имя переменной не может начинаться с цифры).
+.It Va ${name}_env_file
+Файл для подключения с переменными окружения, с которыми запускать
+.Va command .
+.Em Примечание :
+все переменные, которым присваиваются значения в этом файле, будут
+экспортированы в окружение
+.Va command .
+.It Va ${name}_fib
+Номер FIB в
+.Pa таблице маршрутизации ,
+с которым запускать
+.Va command .
+См.
+.Xr setfib 1
+для подробностей.
+.It Va ${name}_flags
+Аргументы для вызова
+.Va command .
+Обычно задаются в
+.Xr rc.conf 5 ,
+а не в сценарии
+.Xr rc.d 8 .
+Переменная окружения
+.Sq Ev flags
+может использоваться для переопределения.
+.It Va ${name}_nice
+Уровень
+.Xr nice 1 ,
+с которым запускать
+.Va command .
+Поддерживается только после монтирования
+.Pa /usr .
+.It Va ${name}_limits
+Ограничения ресурсов, применяемые к
+.Va command .
+Они будут переданы как аргументы утилите
+.Xr limits 1 .
+По умолчанию ограничения ресурсов основаны на классе входа, определённом в
+.Va ${name}_login_class .
+.It Va ${name}_login_class
+Класс входа для использования с
+.Va ${name}_limits .
+По умолчанию
+.Dq Li daemon .
+.It Va ${name}_offcmd
+Команды командной оболочки, выполняемые во время запуска, если служба не включена.
+.It Va ${name}_oomprotect
+Защитить
+.Va command
+с помощью
+.Xr protect 1
+от завершения при исчерпании пространства подкачки.
+Если используется
+.Dq Li YES ,
+дочерние процессы не защищаются.
+Если
+.Dq Li ALL ,
+защитить все дочерние процессы.
+.It Va ${name}_program
+Полный путь к команде.
+Переопределяет
+.Va command ,
+если заданы оба, но не оказывает эффекта, если
+.Va command
+не задана.
+Как правило,
+.Va command
+следует задавать в сценарии, а
+.Va ${name}_program
+следует задавать в
+.Xr rc.conf 5 .
+.It Va ${name}_user
+Пользователь, от имени которого запускать
+.Va command ,
+с использованием
+.Xr chroot 8 ,
+если
+.Va ${name}_chroot
+задан, иначе
+используется
+.Xr su 1 .
+Поддерживается только после монтирования
+.Pa /usr .
+.It Va ${name}_group
+Группа, от имени которой запускать команду
+.Va command
+в chroot.
+.It Va ${name}_groups
+Список дополнительных групп, разделённых запятыми, с которыми запускать
+.Va command
+в chroot.
+.It Va ${name}_prepend
+Команды, добавляемые перед
+.Va command .
+Это обобщённая версия
+.Va ${name}_env ,
+.Va ${name}_fib
+или
+.Va ${name}_nice .
+.It Va ${name}_setup
+Необязательная команда, выполняемая во время
+.Cm start ,
+.Cm restart
+и
+.Cm reload
+перед соответствующим
+.Ar argument Ns Va _precmd .
+Если команда завершается неудачно по любой причине, она выведет предупреждение,
+но выполнение продолжится.
+.It Ar argument Ns Va _cmd
+Команды командной оболочки, переопределяющие метод по умолчанию для
+.Ar argument .
+.It Ar argument Ns Va _precmd
+Команды командной оболочки, выполняемые непосредственно перед запуском
+.Ar argument Ns Va _cmd
+или метода по умолчанию для
+.Ar argument .
+Если это возвращает ненулевой код завершения, основной метод не выполняется.
+Если выполняется метод по умолчанию, эта проверка выполняется после
+проверок
+.Va required_*
+и проверок (не)существования процесса.
+.It Ar argument Ns Va _postcmd
+Команды командной оболочки, выполняемые, если запуск
+.Ar argument Ns Va _cmd
+или метода по умолчанию для
+.Ar argument
+вернул нулевой код завершения.
+.It Va sig_stop
+Сигнал, отправляемый процессам для остановки в методе
+.Cm stop
+по умолчанию.
+По умолчанию
+.Dv SIGTERM .
+.It Va sig_reload
+Сигнал, отправляемый процессам для перезагрузки в методе
+.Cm reload
+по умолчанию.
+По умолчанию
+.Dv SIGHUP .
+.El
+.Pp
+Для заданного метода
+.Ar argument ,
+если
+.Ar argument Ns Va _cmd
+не определён, то метод по умолчанию предоставляется
+.Ic run_rc_command :
+.Bl -tag -width Ds
+.It Sy Аргумент Ta Sy Метод по умолчанию
+.It Cm start Ta
+Если
+.Va command
+не запущена и
+.Ic checkyesno Va rcvar
+успешна, запустить
+.Va command .
+.It Cm stop Ta
+Определить PID
+.Va command
+с помощью
+.Ic check_pidfile
+или
+.Ic check_process
+(в зависимости от ситуации),
+.Ic kill Va sig_stop
+эти PID и запустить
+.Ic wait_for_pids
+для этих PID.
+.It Cm reload Ta
+Аналогично
+.Cm stop ,
+за исключением того, что использует
+.Va sig_reload ,
+и не запускает
+.Ic wait_for_pids .
+Другое отличие от
+.Cm stop
+состоит в том, что
+.Cm reload
+не предоставляется по умолчанию.
+Его можно включить через
+.Va extra_commands ,
+если это уместно:
+.Pp
+.It Cm restart Ta
+Запускает метод
+.Cm stop ,
+затем метод
+.Cm start .
+.It Cm status Ta
+Показать PID
+.Va command
+или другую специфичную для сценария операцию состояния.
+.It Cm poll Ta
+Ожидать завершения
+.Va command .
+.It Cm rcvar Ta
+Показать, какая переменная
+.Xr rc.conf 5
+используется (если есть).
+Этот метод всегда работает, даже если соответствующая переменная
+.Xr rc.conf 5
+установлена в
+.Dq Li NO .
+.El
+.Pp
+Следующие переменные доступны методам
+(таким как
+.Ar argument Ns Va _cmd )
+а также после завершения
+.Ic run_rc_command :
+.Bl -tag -width Ds
+.It Va rc_arg
+Аргумент, переданный в
+.Ic run_rc_command ,
+после обработки fast и force.
+.It Va rc_flags
+Флаги для запуска команды по умолчанию.
+По умолчанию
+.Va ${name}_flags ,
+если не переопределено переменной окружения
+.Sq Ev flags .
+Эта переменная может быть изменена методом
+.Ar argument Ns Va _precmd .
+.It Va rc_service
+Путь к выполняемому сценарию службы, на случай если ему нужно повторно вызвать себя.
+.It Va rc_pid
+PID
+.Va command
+(если применимо).
+.It Va rc_fast
+Не пуста, если использовался префикс
+.Dq Li fast .
+.It Va rc_force
+Не пуста, если использовался префикс
+.Dq Li force .
+.El
+.It Ic run_rc_script Ar file argument
+Запустить сценарий
+.Ar file
+с аргументом
+.Ar argument
+и обработать возвращаемое значение сценария.
+.Pp
+Различные переменные командной оболочки сбрасываются перед запуском
+.Ar file :
+.Bd -ragged -offset indent
+.Va name ,
+.Va command ,
+.Va command_args ,
+.Va command_interpreter ,
+.Va extra_commands ,
+.Va pidfile ,
+.Va rcvar ,
+.Va required_dirs ,
+.Va required_files ,
+.Va required_vars ,
+.Ar argument Ns Va _cmd ,
+.Ar argument Ns Va _precmd .
+.Ar argument Ns Va _postcmd .
+.Ed
+.Pp
+Вызвать
+.Ic rc_trace ,
+чтобы указать, что
+.Ar file
+должен быть запущен.
+.Pp
+Однако, если
+.Ic is_verified Ar file
+завершается неудачно, просто вернуться.
+.Pp
+.Ic DebugOn
+будет вызвана с тегами, производными от
+.Va name
+и
+.Va rc_arg ,
+чтобы включить трассировку, если любые из этих тегов появятся в
+.Va DEBUG_SH .
+.Pp
+.Ic run_rc_script
+выполняет
+.Ar file ,
+если только:
+.Bl -enum
+.It
+.Ar file
+заканчивается на
+.Pa .sh
+и находится в
+.Pa /etc/rc.d .
+.It
+.Ar file
+выглядит как резервный или временный файл
+.Po например, с суффиксом
+.Pa ~ , # , .OLD , ,v ,
+или
+.Pa .orig Pc .
+.It
+.Ar file
+не является исполняемым.
+.El
+.It Ic run_rc_scripts Oo options Oc file ...
+Вызывает
+.Ic run_rc_script
+для каждого
+.Ar file ,
+если только он уже не отмечен как выполненный.
+.Pp
+.Ar options
+— это:
+.Bl -tag -width Ds
+.It Ic --arg Ar arg
+Передать
+.Ar arg
+в
+.Ic run_rc_script ,
+по умолчанию
+.Ar _boot ,
+устанавливается
+.Xr rc 8 .
+.It Ic --break Ar break
+Остановить обработку, если любой
+.Ar file
+соответствует любому
+.Ar break
+.El
+.It Ic safe_dot Ar file ...
+Используется
+.Ic sdot ,
+когда
+.Xr mac_veriexec 4
+активен и
+.Ar file
+не проверен.
+.Pp
+Эта функция ограничивает вход из
+.Ar file
+простыми присваиваниями переменных, при этом любые
+неалфанумерические символы заменяются на
+.Ql _ .
+.It Ic sdot Ar file ...
+Для чтения файлов конфигурации.
+Пропускает файлы, которые не существуют или пусты.
+Пытается использовать
+.Ic vdot ,
+и если это не удаётся (файл не проверен),
+переходит к использованию
+.Ic safe_dot .
+.It Ic startmsg Oo Fl n Oc Ar message
+Выводит сообщение о запуске в
+.Va stdout .
+Его следует использовать вместо
+.Xr echo 1 .
+Вывод этого сообщения можно отключить, если переменная
+.Xr rc.conf 5
+.Va rc_startmsgs
+установлена в
+.Dq Li NO .
+.It Ic stop_boot Op Ar always
+Предотвращает загрузку в многопользовательском режиме.
+Если переменная
+.Va autoboot
+установлена в
+.Ql yes
+(см.
+.Xr rc 8 ,
+чтобы узнать больше о
+.Va autoboot ),
+или
+.Ic checkyesno Ar always
+указывает истинное значение, то родительскому
+процессу, который, как предполагается, является
+.Xr rc 8 ,
+посылается сигнал
+.Dv SIGTERM .
+В противном случае командная оболочка завершается с ненулевым статусом.
+.It Ic vdot Ar file ...
+Для чтения только проверенных файлов.
+.Pp
+Убедиться, что опция командной оболочки
+.Li verify
+включена.
+Эта опция имеет смысл только когда
+.Xr mac_veriexec 4
+активен,
+иначе эта функция фактически совпадает с
+.Ic dot .
+.Pp
+Прочитать каждый
+.Ar file ,
+если он существует и
+.Ic is_verfied Ar file
+успешна, иначе установить код возврата 80 (EAUTH).
+.Pp
+Восстановить предыдущее состояние опции
+.Li verify .
+.It Ic wait_for_pids Op Ar pid ...
+Ожидать, пока все предоставленные
+.Ar pids
+перестанут существовать, выводя список оставшихся
+.Ar pids
+каждые две секунды.
+.It Ic warn Ar message
+Выводит предупреждающее сообщение в
+.Va stderr
+и записывает его в системный журнал
+с помощью
+.Xr logger 1 .
+Предупреждающее сообщение состоит из имени сценария
+(из
+.Va $0 ) ,
+за которым следует
+и затем
+.Ar message .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/rc.subr
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rc.conf 5 ,
+.Xr debug.sh 8 ,
+.Xr rc 8
+.Sh ИСТОРИЯ
+Сценарий
+.Nm
+появился в
+.Nx 1.3 .
+Функции поддержки
+.Xr rc.d 8
+появились в
+.Nx 1.5 .
+Сценарий
+.Nm
+впервые появился в
+.Fx 5.0 .

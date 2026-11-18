@@ -1,0 +1,104 @@
+.\" Copyright (c) 2024 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getrlimitusage.2
+.\" FRDP githash 2387a51af235e4304c63f95465a569c878f49dcd
+.\" FRDP hash256 5a6753d5f75d887f393528c8f6499a84eb1426d66cbbe5620b66f13ccd32649f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 24, 2025
+.Dt GETRLIMITUSAGE 2
+.Os
+.Sh ИМЯ
+.Nm getrlimitusage
+.Nd Запрос использования ограниченных ресурсов текущего процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/resource.h
+.Ft int
+.Fn getrlimitusage "unsigned which" "int flags" "rlim_t *res"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Nm
+позволяет процессу запросить текущее потребление ресурсов,
+ограниченных вызовом
+.Xr setrlimit 2 .
+.Pp
+Аргумент
+.Fa which
+указывает ресурс, так же как для вызовов
+.Xr getrlimit 2
+и
+.Xr setrlimit 2 ,
+список принудительно ограничиваемых типов ресурсов см. на их странице руководства.
+.Pp
+Аргумент
+.Fa flags
+изменяет поведение вызова следующим образом:
+.Bl -tag -width GETRLIMITUSAGE_XXXXXX
+.It Va GETRLIMITUSAGE_EUID
+Запросить использование ресурса для пользователя, определяемого эффективным UID процесса,
+вместо реального UID (который используется по умолчанию для учёта).
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn getrlimitusage
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Адрес, указанный для
+.Fa res
+недопустим.
+.It Bq Er EINVAL
+Ресурс, указанный
+.Fn getrlimitusage
+в аргументе
+.Fa which
+неизвестен.
+.It Bq Er ENXIO
+Ресурс, указанный
+.Fn getrlimitusage
+в аргументе
+.Fa which
+не учитывается, а лишь принудительно ограничивается в определённых ситуациях.
+Примерами таких ресурсов являются
+.Va RLIMIT_FSIZE
+и
+.Va RLIMIT_CORE .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr procstat 1 ,
+.Xr getrlimit 2 ,
+.Xr setrlimit 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getrlimitusage
+появился в
+.Fx 14.2 .

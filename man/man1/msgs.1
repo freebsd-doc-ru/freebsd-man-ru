@@ -1,0 +1,229 @@
+.\" Copyright (c) 1980, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/msgs/msgs.1
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 d83bcf9ad4e68a8db95b1f1936516395dd93b52d6ac0e9911dfdeea6fa6ea6a2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 8, 2018
+.Dt MSGS 1
+.Os
+.Sh ИМЯ
+.Nm msgs
+.Nd программа системных сообщений и нежелательной почты
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fhlpq
+.Op Ar число
+.Op Ar \-число
+.Nm
+.Op Fl s
+.Nm
+.Op Fl c
+.Op \-days
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для чтения системных сообщений.
+Эти сообщения
+отправляются по почте на учётную запись `msgs' и должны быть короткими
+фрагментами информации, которые подходят для однократного прочтения большинством пользователей
+системы.
+.Pp
+Утилита
+.Nm
+обычно вызывается при каждом входе в систему путём помещения её в файл
+.Pa .login
+(или
+.Pa .profile ,
+если вы используете
+.Xr sh 1 ) .
+Затем она выведет приглашение с указанием источника и темы каждого нового сообщения.
+Если строки темы нет, будут показаны первые несколько непустых строк
+сообщения.
+Если сообщение содержит больше текста, вам сообщат его длину и спросят,
+хотите ли вы увидеть остальную часть сообщения.
+Возможные ответы:
+.Bl -tag -width Fl
+.It Fl y
+Вывести остальную часть сообщения.
+.It Ic RETURN
+Синоним y.
+.It Fl n
+Пропустить это сообщение
+и перейти к следующему сообщению.
+.It Fl
+Повторно показать последнее сообщение.
+.It Fl q
+Выйти из
+.Nm ;
+в следующий раз
+.Nm
+продолжит с того места, где остановилась в прошлый раз.
+.It Fl s
+Добавить текущее сообщение в файл ``Messages'' в текущем каталоге;
+`s\-' сохранит ранее показанное сообщение.
+После `s' или `s\-' может
+следовать пробел и имя файла, в который нужно поместить сообщение вместо
+файла ``Messages'' по умолчанию.
+.It Fl m
+Копия указанного сообщения помещается во временный
+почтовый ящик, и для этого ящика вызывается
+.Xr mail 1 .
+Как `m', так и `s' принимают числовой аргумент вместо `\-'.
+.El
+.Pp
+Утилита
+.Nm
+отслеживает номер следующего сообщения, которое вы увидите, в файле
+.Pa \&.msgsrc
+в вашем домашнем каталоге.
+В каталоге
+.Pa /var/msgs
+она хранит набор файлов, имена которых являются (последовательными)
+номерами представляемых ими сообщений.
+Файл
+.Pa /var/msgs/bounds
+показывает наименьший и наибольший номера сообщений в каталоге,
+чтобы
+.Nm
+могла быстро определить, нет ли для вас сообщений.
+Если содержимое
+.Pa bounds
+неверно, это можно исправить, удалив его;
+.Nm
+создаст новый файл
+.Pa bounds
+при следующем запуске с опцией
+.Fl s .
+Если
+.Nm
+запускается с любой опцией, кроме
+.Fl s ,
+будет выведена ошибка, если
+.Pa /var/msgs/bounds
+не существует.
+.Pp
+Опция
+.Fl s
+используется для настройки отправки сообщений.
+Строка
+.Pp
+.Pp
+должна быть включена в
+.Pa /etc/mail/aliases
+(см.
+.Xr newaliases 1 )
+чтобы разрешить отправку сообщений.
+.Pp
+Опция
+.Fl c
+используется для выполнения очистки в
+.Pa /var/msgs .
+Запись сценария оболочки для запуска
+.Nm
+с опцией
+.Fl c
+следует поместить в
+.Pa /etc/periodic/daily
+(см.
+.Xr periodic 8 )
+для запуска каждую ночь.
+Это удалит все сообщения старше 21 дня.
+Другой срок хранения можно указать в командной строке, чтобы переопределить
+значение по умолчанию.
+Чтобы использовать эту опцию, необходимо быть суперпользователем.
+.Pp
+Опции при чтении сообщений включают:
+.Bl -tag -width Fl
+.It Fl f
+Не выводить ``Нет новых сообщений.''.
+Это полезно в файле
+.Pa .login ,
+так как здесь это часто бывает.
+.It Fl q
+Проверяет, есть ли сообщения, и выводит
+``Есть новые сообщения.'', если они есть.
+Команда ``msgs \-q'' часто используется в сценариях входа.
+.It Fl h
+Выводить только первую часть сообщений.
+.It Fl l
+Сообщать только о локально созданных сообщениях.
+.It Ar число
+Номер сообщения можно указать
+в командной строке; тогда
+.Nm
+начнёт с указанного сообщения, а не со следующего сообщения,
+указанного в вашем файле
+.Pa \&.msgsrc .
+Таким образом,
+.Pp
+.Dl msgs \-h 1
+.Pp
+выводит первую часть всех сообщений.
+.It Ar \-число
+Начать с сообщения, отстоящего на
+.Ar число
+сообщений назад от указанного в файле
+.Pa \&.msgsrc ,
+что полезно для просмотра недавних сообщений.
+.It Fl p
+Передавать длинные сообщения через
+.Xr less 1 .
+.El
+.Pp
+Внутри
+.Nm
+можно также перейти к любому конкретному сообщению, набрав его номер, когда
+.Nm
+запрашивает, что делать.
+.Sh ОКРУЖЕНИЕ
+Утилита
+.Nm
+использует переменные окружения
+.Ev HOME
+и
+.Ev TERM
+для домашнего каталога и типа терминала по умолчанию.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/msgs/* -compact
+.It Pa /var/msgs/*
+база данных
+.It Pa ~/.msgsrc
+номер следующего сообщения для показа
+.El
+.Sh СМ. ТАКЖЕ
+.Xr less 1 ,
+.Xr mail 1 ,
+.Xr aliases 5 ,
+.Xr periodic 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 3.0 .

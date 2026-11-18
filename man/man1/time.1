@@ -1,0 +1,197 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/time/time.1
+.\" FRDP githash cb18ba9df52df247198c0f41979090686a0f8403
+.\" FRDP hash256 13b7255f4eb221ee8a7b32cff6c1d0c7a1ffff871186003c332437250c875b5d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 7, 2020
+.Dt TIME 1
+.Os
+.Sh ИМЯ
+.Nm time
+.Nd измерение времени выполнения команды
+.Sh СИНТАКСИС
+.Nm
+.Op Fl al
+.Op Fl h | Fl p
+.Op Fl o Ar файл
+.Ar утилита Op Ar аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет и измеряет время выполнения указанной
+.Ar утилиты .
+После завершения
+.Ar утилиты
+.Nm
+записывает в стандартный поток ошибок
+(в секундах):
+общее затраченное время,
+время, использованное для выполнения процесса
+.Ar утилиты , и время, потреблённое системными накладными расходами.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl a
+Если используется флаг
+.Fl o ,
+добавлять в указанный файл, а не перезаписывать его.
+В противном случае этот параметр не действует.
+.It Fl h
+Выводить время в удобочитаемом для человека формате.
+Время выводится в минутах, часах
+и т.\&д.\& по необходимости.
+.It Fl l
+Содержимое структуры
+.Em rusage
+также выводится.
+.It Fl o Ar файл
+Записывать вывод в
+.Ar файл
+вместо stderr.
+Если
+.Ar файл
+существует и флаг
+.Fl a
+не указан, файл будет перезаписан.
+.It Fl p
+Делает вывод
+.Nm
+совместимым с POSIX.2 (каждое значение времени выводится в отдельной строке).
+.El
+.Pp
+Некоторые оболочки могут предоставлять встроенную команду
+.Nm ,
+которая похожа на эту утилиту или идентична ей.
+Обратитесь к странице Справочника
+.Xr builtin 1 .
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент status в
+.Xr stty 1 ),
+текущее время работы данной команды будет записано в стандартный вывод.
+.Sh ОКРУЖЕНИЕ
+Переменная окружения
+.Ev PATH
+используется для поиска запрошенной
+.Ar утилиты ,
+если имя не содержит символов
+.Ql / .
+.Sh СТАТУС ВЫХОДА
+Если время выполнения
+.Ar утилиты
+удалось успешно измерить, возвращается её статус выхода.
+Если
+.Ar утилита
+завершилась аварийно, в stderr выводится предупреждающее сообщение.
+Если
+.Ar утилита
+была найдена, но не могла быть запущена, статус выхода равен 126.
+Если
+.Ar утилита
+вообще не найдена, статус выхода равен 127.
+Если
+.Nm
+сталкивается с любой другой ошибкой, статус выхода находится в диапазоне от 1 до 125
+включительно.
+.Sh ПРИМЕРЫ
+Измерить время выполнения
+.Xr ls 1
+в пустом каталоге:
+.Bd -literal -offset indent
+$ /usr/bin/time ls
+        0.00 real         0.00 user         0.00 sys
+.Ed
+.Pp
+Измерить время выполнения команды
+.Xr cp 1
+и сохранить результат в файле
+.Pa times.txt .
+Затем выполните команду снова, чтобы создать новую копию, и добавьте результат в тот же
+файл:
+.Bd -literal -offset indent
+$ /usr/bin/time -o times.txt cp source.iso copy1.iso
+$ /usr/bin/time -a -o times.txt cp source.iso copy2.iso
+.Ed
+.Pp
+Файл
+.Pa times.txt
+будет содержать время выполнения обеих команд:
+.Bd -literal -offset indent
+$ cat times.txt
+        0.68 real         0.00 user         0.22 sys
+        0.67 real         0.00 user         0.21 sys
+.Ed
+.Pp
+Измерить время выполнения команды
+.Xr sleep 1
+и показать результаты в удобочитаемом для человека формате.
+Также показать содержимое структуры
+.Em rusage :
+.Bd -literal -offset indent
+$ /usr/bin/time -l -h -p sleep 5
+real 5.01
+user 0.00
+sys 0.00
+         0  maximum resident set size
+         0  average shared memory size
+         0  average unshared data size
+         0  average unshared stack size
+        80  page reclaims
+         0  page faults
+         0  swaps
+         1  block input operations
+         0  block output operations
+         0  messages sent
+         0  messages received
+         0  signals received
+         3  voluntary context switches
+         0  involuntary context switches
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr builtin 1 ,
+.Xr csh 1 ,
+.Xr getrusage 2 ,
+.Xr wait 2
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+.St -iso9945-2-93
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v3 .

@@ -1,0 +1,482 @@
+.\"***************************************************************************
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
+.\" Copyright 2017 Free Software Foundation, Inc.                            *
+.\"                                                                          *
+.\" Permission is hereby granted, free of charge, to any person obtaining a  *
+.\" copy of this software and associated documentation files (the            *
+.\" "Software"), to deal in the Software without restriction, including      *
+.\" without limitation the rights to use, copy, modify, merge, publish,      *
+.\" distribute, distribute with modifications, sublicense, and/or sell       *
+.\" copies of the Software, and to permit persons to whom the Software is    *
+.\" furnished to do so, subject to the following conditions:                 *
+.\"                                                                          *
+.\" The above copyright notice and this permission notice shall be included  *
+.\" in all copies or substantial portions of the Software.                   *
+.\"                                                                          *
+.\" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS  *
+.\" OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF               *
+.\" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.   *
+.\" IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,   *
+.\" DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR    *
+.\" OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR    *
+.\" THE USE OR OTHER DEALINGS IN THE SOFTWARE.                               *
+.\"                                                                          *
+.\" Except as contained in this notice, the name(s) of the above copyright   *
+.\" holders shall not be used in advertising or otherwise to promote the     *
+.\" sale, use or other dealings in this Software without prior written       *
+.\" authorization.                                                           *
+.\"***************************************************************************
+.\"
+.\" $Id: scr_dump.5,v 1.52 2025/04/05 21:56:26 tom Exp $
+.\" FRDP path contrib/ncurses/man/scr_dump.5
+.\" FRDP githash 297d5bf8906776137aeac82e48ca2e87944d95b7
+.\" FRDP hash256 1321b87aa4e46cfada0869426b0c5985dd6b93860df8d8214fd04cc88cf1f41c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.ie \n(.g \{\
+.ds `` \(lq
+.ds '' \(rq
+.\}
+.el \{\
+.ie t .ds `` ``
+.ie t .ds '' ''
+.\}
+.
+.de bP
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
+..
+.SH ИМЯ
+scr_dump \- дамп экрана \fIcurses\fR
+.SH ОПИСАНИЕ
+Библиотека curses предоставляет приложениям возможность записывать
+содержимое окна во внешний файл с помощью \fBscr_dump\fP или \fBputwin\fP
+и читать его обратно с помощью \fBscr_restore\fP или \fBgetwin\fP.
+.PP
+Функции \fBputwin\fP и \fBgetwin\fP выполняют работу;
+тогда как \fBscr_dump\fP и \fBscr_restore\fP удобно сохраняют и восстанавливают
+весь экран, то есть \fBstdscr\fP.
+.SS ncurses6
+Давняя реализация дампа экрана была
+пересмотрена в ncurses6, чтобы исправить проблемы предыдущего подхода:
+.IP \(bu 4
+В начало файла дампа записывается \*(``магическое число\*('',
+что позволяет приложениям (таким как \fBfile\fP(1)) распознавать файлы дампов curses.
+.IP
+Поскольку ncurses6 использует новый формат,
+требовалось новое магическое число,
+не использовавшееся другими приложениями.
+Это 16-битное число не использовалось:
+.RS 4
+.PP
+.RS 4
+.EX
+0x8888 (octal \*(``\e210\e210\*('')
+.EE
+.RE
+.PP
+но, чтобы быть увереннее, было выбрано это 32-битное число:
+.PP
+.RS 4
+.EX
+0x88888888 (octal \*(``\e210\e210\e210\e210\*('')
+.EE
+.RE
+.PP
+Это шаблон, переданный сопровождающим программы \fBfile\fP:
+.PP
+.RS 4
+.EX
+.nf
+#
+# ncurses5 (and before) did not use a magic number,
+#
+# ncurses6 (2015) uses this format, ignoring byte-order
+0    string    \e210\e210\e210\e210ncurses    ncurses6 screen image
+#
+.fi
+.EE
+.RE
+.RE
+.bP
+Дампы экрана записываются в текстовой форме,
+так что внутренние размеры данных напрямую не связаны с форматом дампа,
+и это позволяет библиотеке читать дампы из конфигураций
+как с узкими, так и с широкими символами.
+.IP
+Конфигурация библиотеки для \fIузких символов\fP хранит символы и видеоатрибуты
+в 32-битном \fBchtype\fP, тогда как библиотека для \fIшироких символов\fP хранит
+эту информацию в структуре \fBcchar_t\fP, которая намного больше
+32 бит.
+.bP
+Можно прочитать дамп экрана в терминал с другим
+размером экрана,
+поскольку библиотека при необходимости обрезает или дополняет экран.
+.bP
+\fBgetwin\fP в ncurses6 читает устаревшие дампы экрана из ncurses5.
+Возможность дампа экрана была добавлена в \fI\%ncurses\fP в июне 1995 г.
+Хотя в последующие годы были исправления и улучшения,
+базовая схема осталась неизменной:
+.bP
+Структура \fI\%WINDOW\fP записывалась в двоичной форме.
+.bP
+Структура \fI\%WINDOW\fP ссылается на строки данных,
+которые записывались как массив двоичных данных после \fI\%WINDOW\fP.
+.bP
+Когда \fBgetwin\fP восстанавливал окно,
+он отслеживал смещения в массиве строковых данных
+и корректировал структуру \fI\%WINDOW\fP, прочитанную обратно в память.
+.PP
+Это похоже на Unix System\ V,
+но не записывает \*(``магическое число\*('' для идентификации формата файла.
+.SH ПЕРЕНОСИМОСТЬ
+Не существует стандартного формата для
+.I curses
+дампов экрана.
+Ниже приведён краткий обзор существующих реализаций.
+X/Open Curses Issue\ 7 определяет немного.
+В нём сказано
+(выделение полужирным добавлено)
+.RS 3
+.PP
+\*(``Функция \fI\%getwin()\fP читает данные, связанные с окном, сохранённые в файле функцией \fI\%putwin()\fP.
+Функция затем создаёт и инициализирует новое окно с использованием этих данных.
+.PP
+Функция \fI\%putwin()\fP записывает все данные, связанные с \fIwin\fP,
+в поток \fI\%stdio\fP, на который указывает \fIfilep\fP,
+используя \fBнеуказанный формат\fP.
+Эту информацию можно позже получить с помощью \fI\%getwin()\fP.\*(''
+.RE
+.PP
+В середине 1990-х, когда был написан документ X/Open Curses,
+всё ещё существовали системы System\ V, использовавшие более старые,
+менее функциональные
+.I curses
+библиотеки.
+BSD
+.I curses
+не имела отношения к X/Open, поскольку не соответствовала критериям
+базового соответствия;
+см. \fB\%ncurses\fP(3X).
+System\ V
+.I curses
+идентифицировала формат файла, записывая \*(``магическое число\*('' в
+начало дампа.
+Далее следуют данные \fI\%WINDOW\fP и строки текста, всё в двоичной форме.
+.PP
+Solaris
+.I curses
+имеет следующие определения.
+.PP
+.RS 4
+.EX
+.nf
+/* terminfo magic number */
+#define MAGNUM  0432
+
+/* curses screen dump magic number */
+#define SVR2_DUMP_MAGIC_NUMBER  0433
+#define SVR3_DUMP_MAGIC_NUMBER  0434
+.fi
+.EE
+.RE
+.PP
+То есть, эта возможность, вероятно, была введена в SVr2 (1984),
+и улучшена в SVr3 (1987).
+Solaris
+.I curses
+не имеет магического числа для SVr4 (1989).
+Другие операционные системы System\ V
+(AIX и HP-UX)
+используют магическое число, которое соответствовало бы следующему.
+.PP
+.RS 4
+.EX
+.nf
+/* curses screen dump magic number */
+#define SVR4_DUMP_MAGIC_NUMBER  0435
+.fi
+.EE
+.RE
+.PP
+Это восьмеричное число в байтах — 001, 035.
+Поскольку большинство производителей Unix в то время использовали
+аппаратное обеспечение с прямым порядком байтов (big-endian),
+магическое число записывается сначала старшим байтом.
+.PP
+.RS 4
+.EX
+\e001\e035
+.EE
+.RE
+.PP
+После магического числа
+структура \fI\%WINDOW\fP и данные строк записываются в двоичном формате.
+Хотя магическое число, используемое этими системами, можно наблюдать с
+помощью
+\fIod\fP(1),
+ни одна из них не документирует формат, используемый для дампов экрана.
+.PP
+Они также не используют идентичный формат,
+даже в семействе System\ V.
+Тестовая программа
+.I \%ncurses
+.I \%savescreen
+использовалась для сбора информации для этой страницы руководства.
+Она создавала дампы разного размера
+(все на 64-битном аппаратном обеспечении,
+на экранах 40x80):
+.bP
+AIX (51817 bytes)
+.bP
+HP-UX (90093 bytes)
+.bP
+Solaris 10 (13273 bytes)
+.bP
+\fI\%ncurses\fP5 (12888 bytes)
+.SS Solaris
+Как отмечено выше,
+Solaris
+.I curses
+не имеет магического числа, соответствующего SVr4
+.IR curses .
+Это странно,
+поскольку Solaris была первой операционной системой, соответствующей
+рекомендациям SVr4.
+Кроме того, Solaris поставляет две версии
+.IR curses .
+.bP
+Библиотека
+.I curses
+по умолчанию использует магическое число SVr3.
+.bP
+Альтернативная библиотека
+.I curses
+(которую мы называем
+.I \%xcurses),
+доступная в
+.IR /usr/xpg4 ,
+использует текстовый формат без магического числа.
+.IP
+Согласно уведомлению об авторских правах,
+эта библиотека
+.I \%xcurses
+была разработана MKS
+(Mortice Kern Systems) с 1990 по 1995 год.
+.IP
+Как и ncurses6,
+она включает заголовок с параметрами.
+В отличие от ncurses6,
+содержимое окна записывается по частям,
+с координатами и атрибутами для каждого фрагмента текста,
+а не как всё окно сверху вниз.
+.SS PDCurses
+.I \%PDCurses
+добавила поддержку дампов экрана в версии 2.7 (2005).
+Как System\ V и ncurses5,
+она записывает структуру \fI\%WINDOW\fP в двоичном виде,
+но начинает файл со своего трёхбайтового идентификатора \*(``PDC\*('',
+за которым следует однобайтовый номер версии.
+.PP
+.RS 4
+.EX
+	\*(``PDC\e001\*(''
+.EE
+.RE
+.SS NetBSD
+По состоянию на апрель 2017 г.
+NetBSD
+.I curses
+не поддерживает \fB\%scr_dump\fP и \fB\%scr_restore\fP
+(или \fB\%scr_init\fP,
+\fB\%scr_set\fP),
+хотя в ней есть \fB\%putwin\fP и \fB\%getwin\fP.
+.PP
+Как и ncurses5,
+NetBSD \fB\%putwin\fP не идентифицирует свои дампы полезным магическим
+числом.
+Он записывает
+.bP
+основную и дополнительную версии разделяемой библиотеки
+.I curses
+как первые два байта
+(например,
+7 и 1),
+.bP
+за которым следует двоичный дамп \fI\%WINDOW\fP,
+.bP
+некоторые данные для широких символов, на которые ссылается
+структура \fI\%WINDOW\fP,
+и
+.bP
+наконец, строки, как это делают другие реализации.
+.SH ПРИМЕРЫ
+Дан простой пример программы, которая записывает текст на экран
+(и, для примера, ограничивает размер экрана до 10x20):
+.PP
+.RS 4
+.EX
+.nf
+#include <curses.h>
+
+int
+main(void)
+{
+    initscr();
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLUE);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
+    bkgd(COLOR_PAIR(1));
+    move(4, 5);
+    attron(A_BOLD);
+    move(5, 5);
+    attroff(A_BOLD);
+    attrset(A_REVERSE | COLOR_PAIR(2));
+    refresh();
+    endwin();
+    return 0;
+}
+.fi
+.EE
+.RE
+.PP
+При запуске с ncurses6 вывод выглядит так:
+.PP
+.RS 4
+.EX
+.nf
+\e210\e210\e210\e210ncurses 6.0.20170415
+_cury=5
+_curx=11
+_maxy=9
+_maxx=19
+_flags=14
+_attrs=\e{REVERSE|C2}
+flag=_idcok
+_delay=-1
+_regbottom=9
+_bkgrnd=\e{NORMAL|C1}\es
+rows:
+1:\e{NORMAL|C1}\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+2:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+3:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+4:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+5:\es\es\es\es\es\e{BOLD}Hello\e{NORMAL}\es\es\es\es\es\es\es\es\es\es
+6:\es\es\es\es\es\e{REVERSE|C2}World!\e{NORMAL|C1}\es\es\es\es\es\es\es\es\es
+7:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+8:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+9:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+10:\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es\es
+.fi
+.EE
+.RE
+.PP
+Первые четыре восьмеричные escape-последовательности на самом деле
+являются непечатаемыми символами,
+а остальная часть файла — печатаемый текст.
+Можно заметить:
+.bP
+Фактические значения цветовых пар не записываются в файл.
+.bP
+Все символы показаны в печатаемой форме; пробелы обозначены как
+\*(``\es\*('', чтобы их не пропустить.
+.bP
+Атрибуты записываются в экранированных фигурных скобках, например
+\*(``\e{BOLD}\*('',
+и могут включать цветовую пару (C1 или C2 в этом примере).
+.bP
+Параметры в заголовке выводятся только если они ненулевые.
+При чтении обратно порядок не имеет значения.
+.ne 10
+.PP
+Запуск той же программы с \fIxpg4\fP curses в Solaris даёт этот дамп:
+.PP
+.RS 4
+.EX
+.nf
+MAX=10,20
+BEG=0,0
+SCROLL=0,10
+VMIN=1
+VTIME=0
+FLAGS=0x1000
+FG=0,0
+BG=0,0,
+0,0,0,1,
+0,19,0,0,
+1,0,0,1,
+1,19,0,0,
+2,0,0,1,
+2,19,0,0,
+3,0,0,1,
+3,19,0,0,
+4,0,0,1,
+4,5,0x20,0,Hello
+4,10,0,1,
+4,19,0,0,
+5,0,0,1,
+5,5,0x4,2,World!
+5,11,0,1,
+5,19,0,0,
+6,0,0,1,
+6,19,0,0,
+7,0,0,1,
+7,19,0,0,
+8,0,0,1,
+8,19,0,0,
+9,0,0,1,
+9,19,0,0,
+CUR=11,5
+.fi
+.EE
+.RE
+.PP
+\fBgetwin\fP в Solaris требует, чтобы все параметры присутствовали, и
+в том же порядке.
+Библиотека \fIxpg4\fP curses не знает о возможности \fBbce\fP
+(стирание цветом фона), и не окрашивает фон окна.
+.ne 10
+.PP
+С другой стороны, библиотека SVr4 curses знает о цвете фона.
+Однако её дампы экрана двоичные.
+Вот соответствующий дамп (с использованием \*(``od \-t x1\*(''):
+.PP
+.RS 4
+.EX
+.nf
+0000000 1c 01 c3 d6 f3 58 05 00 0b 00 0a 00 14 00 00 00
+0000020 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+0000040 00 00 b8 1a 06 08 cc 1a 06 08 00 00 09 00 10 00
+0000060 00 00 00 80 00 00 20 00 00 00 ff ff ff ff 00 00
+0000100 ff ff ff ff 00 00 00 00 20 80 00 00 20 80 00 00
+0000120 20 80 00 00 20 80 00 00 20 80 00 00 20 80 00 00
+*
+0000620 20 80 00 00 20 80 00 00 20 80 00 00 48 80 00 04
+0000640 65 80 00 04 6c 80 00 04 6c 80 00 04 6f 80 00 04
+0000660 20 80 00 00 20 80 00 00 20 80 00 00 20 80 00 00
+*
+0000740 20 80 00 00 20 80 00 00 20 80 00 00 57 00 81 00
+0000760 6f 00 81 00 72 00 81 00 6c 00 81 00 64 00 81 00
+0001000 21 00 81 00 20 80 00 00 20 80 00 00 20 80 00 00
+0001020 20 80 00 00 20 80 00 00 20 80 00 00 20 80 00 00
+*
+0001540 20 80 00 00 20 80 00 00 00 00 f6 d1 01 00 f6 d1
+0001560 08 00 00 00 40 00 00 00 00 00 00 00 00 00 00 07
+0001600 00 04 00 01 00 01 00 00 00 01 00 00 00 00 00 00
+0001620 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+*
+0002371
+.fi
+.EE
+.RE
+.SH АВТОРЫ
+Thomas E. Dickey
+.br
+расширенный формат дампа экрана для \fI\%ncurses\fP 6.0 (2015)
+.sp
+Eric S. Raymond
+.br
+возможность дампа экрана в \fI\%ncurses\fP 1.9.2d (1995)
+.SH СМ. ТАКЖЕ
+\fB\%curs_scr_dump\fP(3X),
+\fB\%curs_util\fP(3X)

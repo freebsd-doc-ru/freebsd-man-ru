@@ -1,0 +1,195 @@
+.\"	$OpenBSD: mailwrapper.8,v 1.12 2014/03/27 22:34:42 jmc Exp $
+.\"	$NetBSD: mailwrapper.8,v 1.16 2014/09/19 16:05:55 wiz Exp $
+.\"
+.\" Copyright (c) 1998
+.\" 	Perry E. Metzger.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgment:
+.\"	This product includes software developed for the NetBSD Project
+.\"	by Perry E. Metzger.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mailwrapper/mailwrapper.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 0b4f91c88bc197e0f487b546b3a63f7a7ca767c670c16416afc0f3e6ef703a5e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 29, 2014
+.Dt MAILWRAPPER 8
+.Os
+.Sh ИМЯ
+.Nm mailwrapper
+.Nd запуск подходящего программного обеспечения
+.Tn MTA
+на основе файла конфигурации
+.Sh СИНТАКСИС
+Особый.
+См. ниже.
+.Sh ОПИСАНИЕ
+Когда-то единственным легко доступным программным обеспечением агента передачи почты
+.Pq Tn MTA
+был
+.Dq sendmail .
+Этот известный
+.Tn MTA
+был написан
+.An Eric Allman
+и впервые появился в
+.Bx 4.1 .
+Наследие этого
+.Tn MTA
+повлияло на большинство агентов пользователя почты
+.Pq Tn MUAs
+таких как
+.Xr mail 1 ;
+путь и соглашения о вызовах, ожидаемые
+.Dq sendmail ,
+были встроены в код.
+.Pp
+Но времена изменились.
+В современной
+.Fx
+системе администратор может пожелать использовать один из нескольких доступных
+.Tn MTAs .
+.Pp
+Было бы сложно изменить всё
+.Tn MUA
+программное обеспечение, обычно доступное в системе,
+поэтому большинство авторов альтернативных
+.Tn MTAs
+написали свои интерфейсные программы отправки сообщений,
+которые могут появляться вместо
+.Pa /usr/sbin/sendmail ,
+но всё ещё следуют тем же соглашениям о вызовах, что и
+.Dq sendmail .
+.Pp
+У
+.Dq sendmail
+.Tn MTA
+также обычно есть псевдонимы с именами
+.Xr mailq 1
+и
+.Xr newaliases 1 ,
+связанные с ним.
+Программа знает, что нужно вести себя иначе, когда её
+.Va argv[0]
+равен
+.Dq mailq
+или
+.Dq newaliases ,
+и ведёт себя соответствующим образом.
+Обычно заменяющие
+.Tn MTAs
+предоставляют аналогичную функциональность либо через программу, которая также
+переключает поведение в зависимости от имени вызова, либо через набор программ,
+предоставляющих аналогичную функциональность.
+.Pp
+Хотя наличие заменяющих программ, которые полностью заменяют
+.Dq sendmail ,
+помогает при установке альтернативных
+.Tn MTAs ,
+это по существу ставит конфигурацию системы в зависимость
+от ручной установки новых программ в
+.Pa /usr .
+Это приводит к проблемам с конфигурацией у многих администраторов, поскольку
+они могут захотеть установить новый
+.Tn MTA
+не изменяя предоставленный системой
+.Pa /usr .
+(Это может быть, например, чтобы избежать проблем при обновлении, когда новая
+версия системы устанавливается поверх старой.)
+У них также может быть общий
+.Pa /usr
+на нескольких машинах, и они могут захотеть избежать размещения
+неявной информации конфигурации в доступном только для чтения
+.Pa /usr .
+.Pp
+Программа
+.Nm
+предназначена для замены
+.Pa /usr/sbin/sendmail
+и вызова подходящего
+.Tn MTA
+на основе информации конфигурации, размещённой в
+.Pa ${LOCALBASE}/etc/mail/mailer.conf ,
+с возвратом к
+.Pa /etc/mail/mailer.conf .
+Это позволяет администратору настроить, какой
+.Tn MTA
+должен вызываться в
+системе во время выполнения.
+.Pp
+Другие файлы конфигурации может потребоваться изменить при замене
+.Xr sendmail 8 .
+Например, если замещающий
+.Tn MTA
+не поддерживает опцию
+.Fl A
+вместе с
+.Xr mailq 1 ,
+.Va daily_status_include_submit_mailq
+следует отключить в
+.Pa /etc/periodic.conf .
+.Sh ФАЙЛЫ
+Конфигурация для
+.Nm
+хранится в
+.Pa ${LOCALBASE}/etc/mail/mailer.conf
+или
+.Pa /etc/mail/mailer.conf .
+.Pa /usr/sbin/sendmail
+обычно настроен как символическая ссылка на
+.Nm ,
+который обычно не вызывается самостоятельно.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ДИАГНОСТИКА
+.Nm
+выведет диагностическое сообщение, если его файл конфигурации отсутствует или имеет неверный формат,
+или не содержит сопоставления для имени, под которым он был вызван.
+.Sh СМ. ТАКЖЕ
+.Xr mail 1 ,
+.Xr mailq 1 ,
+.Xr newaliases 1 ,
+.Xr mailer.conf 5 ,
+.Xr periodic.conf 5 ,
+.Xr dma 8 ,
+.Xr sendmail 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Nx 1.4
+а затем в
+.Fx 4.0 .
+.Sh АВТОРЫ
+.An Perry E. Metzger Aq Mt perry@piermont.com
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Сама причина существования этой программы — ерунда.
+Вместо этого следует стандартизировать команду
+для отправки почты, и всё
+.Dq ведёт себя иначе при вызове под другим именем
+поведение таких вещей, как
+.Xr mailq 1 ,
+должно исчезнуть.
