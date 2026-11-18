@@ -1,0 +1,296 @@
+.\" Copyright (c) 1999 Softweyr LLC.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Softweyr LLC AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Softweyr LLC OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_write.2
+.\" FRDP githash 1b37af092211f9947d9f089f452232b791b9eafc
+.\" FRDP hash256 c8db12f76513da3a8c52803adb5e81ecfe2144dac40a104a45420faac2185350
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 27, 2025
+.Dt AIO_WRITE 2
+.Os
+.Sh ИМЯ
+.Nm aio_write ,
+.Nm aio_write2 ,
+.Nm aio_writev
+.Nd асинхронная запись в файл (в реальном времени)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fn aio_write "struct aiocb *iocb"
+.Ft int
+.Fn aio_write2 "struct aiocb *iocb" "int flags"
+.In sys/uio.h
+.Ft int
+.Fn aio_writev "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn aio_write ,
+.Fn aio_write2 ,
+и
+.Fn aio_writev
+позволяют вызывающему процессу выполнять запись
+в дескриптор
+.Fa iocb->aio_fildes .
+Системные вызовы возвращают управление сразу после того, как запрос на запись
+поставлен в очередь для дескриптора; запись может быть завершена или не завершена
+к моменту возврата из вызова.
+.Pp
+Вызов
+.Fn aio_write
+записывает
+.Fa iocb->aio_nbytes
+из буфера, на который указывает
+.Fa iocb->aio_buf ,
+тогда как
+.Fn aio_writev
+собирает данные из
+.Fa iocb->aio_iovcnt
+буферов, заданных элементами массива
+.Fa iocb->aio_iov .
+.Pp
+Если запрос не удалось поставить в очередь, обычно из-за
+недопустимых аргументов, вызов возвращает управление, не поставив
+запрос в очередь.
+.Pp
+Для
+.Fn aio_writev
+структура
+.Fa iovec
+описана в
+.Xr writev 2 .
+.Pp
+Если для
+.Fa iocb->aio_fildes
+установлен
+.Dv O_APPEND ,
+операции записи добавляются в файл в том же порядке, в каком выполнялись
+вызовы.
+Если для файлового дескриптора
+.Dv O_APPEND
+не установлен, операция записи для
+.Fn aio_write
+происходит по
+абсолютной позиции от начала файла плюс
+.Fa iocb->aio_offset .
+.Pp
+Вызов
+.Fn aio_write2
+принимает аргумент
+.Fa flags .
+Если
+.Fa flags
+равен нулю, вызов ведёт себя так же, как
+.Fn aio_write .
+Следующие флаги можно указать с помощью логического или:
+.Bl -tag -width AIO_OP2_VECTORED
+.It AIO_OP2_FOFFSET
+Запись для файловых дескрипторов, отличных от
+.Dv O_APPEND ,
+происходит по смещению файлового дескриптора,
+которое продвигается операцией, как это делает
+системный вызов
+.Xr write 2 .
+Поле
+.Fa iocb->aio_offset
+игнорируется.
+.It AIO_OP2_VECTORED
+Подобно
+.Fn aio_writev ,
+буферы записи задаются массивом
+.Fa aiocb->aio_iov .
+.El
+.Pp
+Указатель
+.Fa iocb
+впоследствии может использоваться как аргумент
+.Fn aio_return
+и
+.Fn aio_error
+для определения статуса возврата или ошибки поставленной в очередь операции,
+пока она выполняется.
+.Pp
+Если запрос успешно поставлен в очередь, значение
+.Fa iocb->aio_offset
+может быть изменено во время запроса как контекст, поэтому на это значение
+не следует ссылаться после постановки запроса в очередь.
+.Pp
+Структура
+.Fa iocb->aio_sigevent
+может использоваться для запроса уведомления о завершении операции
+способом, описанным в
+.Xr aio 4 .
+.Sh ОГРАНИЧЕНИЯ
+Структура блока управления асинхронным вводом-выводом, на которую указывает
+.Fa iocb ,
+и буфер, на который ссылается член
+.Fa iocb->aio_buf
+этой структуры, должны оставаться действительными до завершения
+операции.
+.Pp
+Буфер управления асинхронным вводом-выводом
+.Fa iocb
+следует обнулить перед
+системными вызовами, чтобы не передавать ядру фиктивную информацию о контексте.
+.Pp
+Изменения структуры блока управления асинхронным вводом-выводом или
+содержимого буфера не допускаются, пока запрос находится в очереди.
+.Pp
+Если смещение файла в
+.Fa iocb->aio_offset
+превышает максимальное смещение для
+.Fa iocb->aio_fildes ,
+ввод-вывод не произойдёт.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std aio_write aio_writev
+.Sh ОШИБКИ
+Системные вызовы
+.Fn aio_write ,
+.Fn aio_write2 ,
+и
+.Fn aio_writev
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Запрос не был поставлен в очередь из-за ограничений системных ресурсов.
+.It Bq Er EFAULT
+Часть
+.Fa aio_iov
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Метод асинхронного уведомления в
+.Fa iocb->aio_sigevent.sigev_notify
+недопустим или не поддерживается.
+.It Bq Er EOPNOTSUPP
+Асинхронные операции записи для файлового дескриптора
+.Fa iocb->aio_fildes
+небезопасны, а небезопасные операции асинхронного ввода-вывода отключены.
+.El
+.Pp
+Следующие условия могут быть обнаружены синхронно при выполнении
+системного вызова
+.Fn aio_write ,
+.Fn aio_write2 ,
+или
+.Fn aio_writev ,
+либо асинхронно, в любое время после этого.
+Если они
+обнаруживаются во время вызова, вызовы возвращают -1 и устанавливают
+.Va errno
+соответствующим образом; в противном случае необходимо вызвать
+системный вызов
+.Fn aio_return ,
+который вернёт -1, и
+.Fn aio_error
+для определения фактического значения, которое было бы
+возвращено в
+.Va errno .
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa iocb->aio_fildes
+недопустим или не открыт для записи.
+.It Bq Er EINVAL
+Смещение
+.Fa iocb->aio_offset
+недопустимо, приоритет, указанный в
+.Fa iocb->aio_reqprio ,
+не является допустимым приоритетом, или число байт, указанное в
+.Fa iocb->aio_nbytes ,
+недопустимо.
+.El
+.Pp
+Если запрос успешно поставлен в очередь, но впоследствии отменён
+или возникает ошибка, значение, возвращаемое
+системным вызовом
+.Fn aio_return ,
+соответствует
+системному вызову
+.Xr write 2 ,
+а значение, возвращаемое
+системным вызовом
+.Fn aio_error ,
+является либо одним из значений ошибки
+системного вызова
+.Xr write 2 ,
+либо одним из:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa iocb->aio_fildes
+недопустим для записи.
+.It Bq Er ECANCELED
+Запрос был явно отменён посредством вызова
+.Fn aio_cancel .
+.It Bq Er EINVAL
+Смещение
+.Fa iocb->aio_offset
+было бы недопустимым.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_return 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_waitcomplete 2 ,
+.Xr sigevent 3 ,
+.Xr siginfo 3 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn aio_write
+должен соответствовать
+стандарту
+.St -p1003.1 .
+.Pp
+Системные вызовы
+.Fn aio_write2
+и
+.Fn aio_writev
+являются
+расширениями
+.Fx
+и не должны использоваться в переносимом коде.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_write
+впервые появился в
+.Fx 3.0 .
+Системный вызов
+.Fn aio_writev
+впервые появился в
+.Fx 13.0 .
+Системный вызов
+.Fn aio_write2
+впервые появился в
+.Fx 14.1 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Wes Peters Aq Mt wes@softweyr.com .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Недопустимая информация в
+.Fa iocb->_aiocb_private
+может запутать ядро.

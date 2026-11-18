@@ -1,0 +1,185 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigqueue.2
+.\" FRDP githash dcc180c51b9c13df3d1158d14d450308711fe93c
+.\" FRDP hash256 c564d9e23f814dc34ceea78552de83dda6ae00fa4dff4337e5db3c8d92f6a4b0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 21, 2024
+.Dt SIGQUEUE 2
+.Os
+.Sh ИМЯ
+.Nm sigqueue
+.Nd "постановка сигнала в очередь процессу (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sigqueue "pid_t pid" "int signo" "const union sigval value"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigqueue
+приводит к отправке сигнала, заданного
+.Fa signo ,
+со значением, заданным
+.Fa value ,
+процессу, заданному
+.Fa pid .
+Если
+.Fa signo
+равен нулю (нулевой сигнал), выполняется проверка ошибок, но
+сигнал фактически не отправляется.
+Нулевой сигнал может использоваться для проверки
+корректности PID.
+.Pp
+Условия, необходимые для того, чтобы процесс имел право поставить
+сигнал в очередь другому процессу, такие же, как для
+системного вызова
+.Xr kill 2 .
+Системный вызов
+.Fn sigqueue
+ставит сигнал в очередь одному процессу, заданному
+аргументом
+.Fa pid .
+.Pp
+Системный вызов
+.Fn sigqueue
+возвращает управление немедленно.
+Если ресурсы были
+доступны для постановки сигнала в очередь, сигнал будет поставлен в очередь и отправлен
+принимающему процессу.
+.Pp
+Если значение
+.Fa pid
+приводит к тому, что
+.Fa signo
+генерируется для отправляющего процесса, и если
+.Fa signo
+не заблокирован для вызывающего потока и если никакой другой поток не
+имеет
+.Fa signo
+разблокированным или не ожидает в
+системном вызове
+.Fn sigwait
+сигнал
+.Fa signo ,
+то либо
+.Fa signo
+либо, по крайней мере, ожидающий, не заблокированный сигнал будет доставлен
+вызывающему потоку до того, как
+.Fn sigqueue
+вернёт управление.
+Если для доставки выбрано несколько ожидающих сигналов в диапазоне
+от
+.Dv SIGRTMIN
+до
+.Dv SIGRTMAX ,
+выбирается сигнал с наименьшим номером.
+Порядок выбора между сигналами реального времени и не реального времени, или
+между несколькими ожидающими сигналами не реального времени, не определён.
+.Pp
+Как расширение
+.Fx ,
+значение
+.Fa signo
+может быть объединено операцией or со следующими флагами:
+.Bl -tag -width __SIGQUEUE_TID
+.It Dv __SIGQUEUE_TID
+Параметр
+.Fa pid
+является идентификатором потока в текущем процессе,
+и указанный сигнал ставится в очередь указанного потока.
+.El
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigqueue
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Нет доступных ресурсов для постановки сигнала в очередь.
+Процесс уже
+поставил в очередь
+.Brq Dv SIGQUEUE_MAX
+сигналов, которые всё ещё ожидают у получателя(ей),
+или был превышен общесистемный лимит ресурсов.
+.It Bq Er EINVAL
+Значение
+аргумента
+.Fa signo
+является недопустимым или неподдерживаемым номером сигнала.
+.It Bq Er EPERM
+Процесс не имеет соответствующих привилегий для отправки сигнала
+принимающему процессу.
+.It Bq Er ESRCH
+Процесс
+.Fa pid
+не существует.
+.It Bq Er ESRCH
+Поток с идентификатором
+.Fa pid
+не существует в текущем процессе.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr sigaction 2 ,
+.Xr sigpending 2 ,
+.Xr sigsuspend 2 ,
+.Xr sigtimedwait 2 ,
+.Xr sigwait 2 ,
+.Xr sigwaitinfo 2 ,
+.Xr pause 3 ,
+.Xr pthread_sigmask 3 ,
+.Xr siginfo 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn sigqueue
+соответствует
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Поддержка очереди сигналов реального времени
+.Tn POSIX
+впервые появилась в
+.Fx 7.0 .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+При использовании
+.Nm
+для отправки сигналов процессу, который может иметь другой ABI
+(например, один является 32-битным, а другой — 64-битным),
+член
+.Va sival_int
+структуры
+.Fa value
+может быть доставлен надёжно, но
+.Va sival_ptr
+может быть усечён зависящим от порядка байтов образом, и на него нельзя полагаться.
+Кроме того, многие схемы целостности указателей запрещают отправку указателей другим
+процессам, и этот приём не следует использовать в программах, предназначенных
+для переносимости.

@@ -1,0 +1,182 @@
+.\"
+.\" Copyright (c) 2008-2009 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" This software was developed at the University of Cambridge Computer
+.\" Laboratory with support from a grant from Google, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cap_enter.2
+.\" FRDP githash 82bbfe16ae1eaa9eca970cb50abe8ac9162fe9cb
+.\" FRDP hash256 245922efb4101d4b0679ffa258fb9003d292345518fbeaac86dce3023eb7a7d5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 9, 2023
+.Dt CAP_ENTER 2
+.Os
+.Sh ИМЯ
+.Nm cap_enter ,
+.Nm cap_getmode
+.Nd Системные вызовы режима возможностей
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/capsicum.h
+.Ft int
+.Fn cap_enter "void"
+.Ft int
+.Fn cap_getmode "u_int *modep"
+.Sh ОПИСАНИЕ
+.Fn cap_enter
+помещает текущий процесс в режим возможностей — режим выполнения, в котором
+процессы могут совершать только системные вызовы, оперирующие файловыми дескрипторами
+или читающие ограниченное глобальное состояние системы.
+Доступ к глобальным пространствам имён, таким как файловая система или
+пространства имён IPC, запрещён.
+Если процесс уже находится в песочнице режима возможностей, системный вызов
+ничего не делает.
+Будущие потомки процесса, созданные с помощью
+.Xr fork 2
+или
+.Xr pdfork 2 ,
+будут помещены в режим возможностей с момента создания.
+.Pp
+В сочетании с
+.Xr cap_rights_limit 2 ,
+.Xr cap_ioctls_limit 2 ,
+.Xr cap_fcntls_limit 2
+.Fn cap_enter
+может использоваться для создания песочниц, принудительно обеспечиваемых
+ядром, в которых могут выполняться должным образом подготовленные приложения
+или компоненты приложений.
+.Pp
+Пока выполняется вызов, другие потоки останавливаются, поэтому некоторые из их
+прерванных системных вызовов могут вернуть
+.Er EINTR .
+.Pp
+.Fn cap_getmode
+возвращает флаг, указывающий, находится ли процесс в песочнице режима
+возможностей.
+.Sh НАСТРОЙКИ ВРЕМЕНИ ВЫПОЛНЕНИЯ
+Если MIB sysctl
+.Dv kern.trap_enotcap
+установлен в ненулевое значение, то для любого процесса, выполняющегося в
+песочнице режима возможностей, любой системный вызов, который приводит к ошибке
+.Er ENOTCAPABLE
+или
+.Er ECAPMODE ,
+также генерирует синхронный сигнал
+.Dv SIGTRAP
+потоку при возврате из системного вызова.
+При доставке сигнала член
+.Va si_errno
+параметра обработчика сигнала
+.Fa siginfo
+устанавливается в значение ошибки системного вызова,
+а член
+.Va si_code
+устанавливается в
+.Dv TRAP_CAP .
+.Pp
+См. также операции
+.Dv PROC_TRAPCAP_CTL
+и
+.Dv PROC_TRAPCAP_STATUS
+функции
+.Xr procctl 2
+для аналогичной функциональности на уровне процесса.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std cap_enter cap_getmode
+.Pp
+Когда процесс находится в режиме возможностей,
+.Fn cap_getmode
+устанавливает флаг в ненулевое значение.
+Нулевое значение означает, что процесс не находится в режиме возможностей.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn cap_enter
+и
+.Fn cap_getmode
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOSYS
+Работающее ядро было скомпилировано без
+.Cd "options CAPABILITY_MODE" .
+.El
+.Pp
+Системный вызов
+.Fn cap_enter
+также может вернуть следующую ошибку:
+.Bl -tag -width Er
+.It Bq Er EBUSY
+Таблица файловых дескрипторов или состояние текущего/корневого каталога
+процесса совместно используется с другим процессом, см.
+.Xr rfork 2 .
+Совместное использование позволило бы другому процессу предоставить
+дополнительные привилегии процессу после того, как он вошёл в режим
+возможностей, без его согласия.
+.El
+.Pp
+Системный вызов
+.Fn cap_getmode
+также может вернуть следующую ошибку:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Указатель
+.Fa modep
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cap_fcntls_limit 2 ,
+.Xr cap_ioctls_limit 2 ,
+.Xr cap_rights_limit 2 ,
+.Xr fexecve 2 ,
+.Xr procctl 2 ,
+.Xr cap_sandboxed 3 ,
+.Xr capsicum 4 ,
+.Xr sysctl 9
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn cap_getmode
+впервые появился в
+.Fx 8.3 .
+Поддержка возможностей и режима возможностей была разработана в рамках проекта
+.Tn TrustedBSD .
+.Sh АВТОРЫ
+Эти функции и механизм возможностей были созданы
+.An "Robert N. M. Watson"
+в Компьютерной лаборатории Кембриджского университета при поддержке гранта
+от Google, Inc.
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Создание эффективных песочниц для процессов — сложный процесс, включающий
+определение наименьшего возможного набора прав, требуемых процессу, и затем
+безопасную передачу этих прав в процесс.
+Пользователям
+.Fn cap_enter
+также следует учитывать другие унаследованные права, такие как доступ к
+ресурсам виртуальной памяти, содержимому памяти и другим свойствам процесса,
+которые следует принимать во внимание.
+Рекомендуется использовать
+.Xr fexecve 2
+для создания среды выполнения внутри песочницы с как можно меньшим числом
+неявно приобретённых прав.

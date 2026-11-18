@@ -1,0 +1,158 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/readlink.2
+.\" FRDP githash aebac84982567b9f026174f545f27902ae371027
+.\" FRDP hash256 7b756eeeee9c831e90e26e8a16cda20a3131430bcb972339fd0fa28c1adf762f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt READLINK 2
+.Os
+.Sh ИМЯ
+.Nm readlink ,
+.Nm readlinkat
+.Nd прочитать значение символической ссылки
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft ssize_t
+.Fn readlink "const char *restrict path" "char *restrict buf" "size_t bufsiz"
+.Ft ssize_t
+.Fo readlinkat
+.Fa "int fd" "const char *restrict path" "char *restrict buf" "size_t bufsize"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn readlink
+помещает содержимое символической ссылки
+.Fa path
+в буфер
+.Fa buf ,
+имеющий размер
+.Fa bufsiz .
+Системный вызов
+.Fn readlink
+не добавляет символ
+.Dv NUL
+в
+.Fa buf .
+.Pp
+Системный вызов
+.Fn readlinkat
+эквивалентен
+.Fn readlink
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае содержимое символической ссылки читается относительно
+каталога, связанного с файловым дескриптором
+.Fa fd ,
+а не текущего рабочего каталога.
+Если
+.Fn readlinkat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог, и поведение идентично вызову
+.Fn readlink .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном выполнении вызов возвращает количество символов, помещённых
+в буфер, или \-1 при возникновении ошибки, помещая код ошибки в
+глобальную переменную
+.Va errno .
+.Sh ОШИБКИ
+Системный вызов
+.Fn readlink
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превышает 255 символов,
+или полное имя пути превышает 1023 символа.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути отказано.
+.It Bq Er ELOOP
+При преобразовании имени пути встречено слишком много символических ссылок.
+.It Bq Er EINVAL
+Указанный файл не является символической ссылкой.
+.It Bq Er EIO
+При чтении из файловой системы произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EFAULT
+Аргумент
+.Fa buf
+выходит за пределы выделенного адресного пространства процесса.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn readlink ,
+.Fn readlinkat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь, а аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым файловым дескриптором, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём, а
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни файловым дескриптором, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fhreadlink 2 ,
+.Xr lstat 2 ,
+.Xr stat 2 ,
+.Xr symlink 2 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn readlinkat
+соответствует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn readlink
+появился в
+.Bx 4.2 .
+Системный вызов
+.Fn readlinkat
+появился в
+.Fx 8.0 .

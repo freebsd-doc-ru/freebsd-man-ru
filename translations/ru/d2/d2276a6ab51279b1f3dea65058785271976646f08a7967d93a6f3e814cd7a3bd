@@ -1,0 +1,107 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldload.2
+.\" FRDP githash 1e2c9bcc4ed5fd2a27abdbcf5dfb007193251648
+.\" FRDP hash256 d2276a6ab51279b1f3dea65058785271976646f08a7967d93a6f3e814cd7a3bd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 26, 2026
+.Dt KLDLOAD 2
+.Os
+.Sh NAME
+.Nm kldload
+.Nd загрузить файлы KLD в ядро
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldload "const char *file"
+.Sh DESCRIPTION
+Системный вызов
+.Fn kldload
+загружает файл kld, указанный в
+.Fa file ,
+в ядро с помощью компоновщика ядра (см.
+.Xr kld 4 ) .
+.Fa file
+может быть указан как полный или относительный путь, либо, в противном случае,
+выполняется поиск в пути к модулям, определяемом
+переменной настройки загрузчика и переменной sysctl
+.Va kern.module_path .
+Расширение .ko для
+.Fa file
+не является обязательным.
+.Sh RETURN VALUES
+Системный вызов
+.Fn kldload
+возвращает идентификатор файла kld, который был загружен в ядро.
+При возникновении ошибки
+.Fn kldload
+возвращает -1 и устанавливает
+.Va errno
+для указания ошибки.
+.Sh ERRORS
+Указанный файл загружается, если не возникает следующая ситуация:
+.Bl -tag -width Er
+.It Bq Er EPERM
+У вас нет доступа на чтение файла или на его связывание с ядром.
+Для использования системных вызовов
+.Nm kld
+необходимо быть пользователем root.
+.It Bq Er EFAULT
+При добавлении информации kld в пространство ядра обнаружен неверный адрес.
+.It Bq Er ENOMEM
+Недостаточно памяти для загрузки файла в ядро.
+.It Bq Er ENOENT
+Файл не найден.
+.It Bq Er ENOEXEC
+Формат файла
+.Fa file
+не распознан.
+.It Bq Er EEXIST
+Указанный
+.Fa file
+уже загружен.
+.El
+.Sh SEE ALSO
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldload 8
+.Sh HISTORY
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

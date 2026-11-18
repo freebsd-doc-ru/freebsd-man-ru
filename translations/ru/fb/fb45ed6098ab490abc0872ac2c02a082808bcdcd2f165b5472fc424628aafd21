@@ -1,0 +1,300 @@
+.\"	$NetBSD: poll.2,v 1.3 1996/09/07 21:53:08 mycroft Exp $
+.\"
+.\" Copyright (c) 1996 Charles M. Hannum.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Charles M. Hannum.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/poll.2
+.\" FRDP githash b4a0f17b35fd862feef3e1284926da48a6aad694
+.\" FRDP hash256 fb45ed6098ab490abc0872ac2c02a082808bcdcd2f165b5472fc424628aafd21
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 8, 2026
+.Dt POLL 2
+.Os
+.Sh NAME
+.Nm poll
+.Nd синхронное мультиплексирование ввода-вывода
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In poll.h
+.Ft int
+.Fn poll "struct pollfd fds[]" "nfds_t nfds" "int timeout"
+.Ft int
+.Fo ppoll
+.Fa "struct pollfd fds[]"
+.Fa "nfds_t nfds"
+.Fa "const struct timespec * restrict timeout"
+.Fa "const sigset_t * restrict newsigmask"
+.Fc
+.Sh DESCRIPTION
+Системный вызов
+.Fn poll
+проверяет набор файловых дескрипторов, чтобы определить, готовы ли некоторые
+из них к выполнению операций ввода-вывода.
+Аргумент
+.Fa fds
+представляет собой указатель на массив структур pollfd, определённых в
+.In poll.h
+(показан ниже).
+Аргумент
+.Fa nfds
+задаёт размер массива
+.Fa fds .
+.Bd -literal
+struct pollfd {
+    int    fd;       /* file descriptor */
+    short  events;   /* events to look for */
+    short  revents;  /* events returned */
+};
+.Ed
+.Pp
+Поля структуры
+.Fa struct pollfd
+имеют следующее назначение:
+.Bl -tag -width XXXrevents
+.It fd
+Файловый дескриптор, для которого выполняется проверка.
+Если значение fd равно -1, поле
+.Fa revents
+очищается (устанавливается в ноль), а соответствующая структура pollfd
+не проверяется.
+.It events
+События, которые необходимо отслеживать.
+(См. ниже.)
+.It revents
+События, которые могут произойти.
+(См. ниже.)
+.El
+.Pp
+Маски битов событий в полях
+.Fa events
+и
+.Fa revents
+содержат следующие биты:
+.Bl -tag -width XXXPOLLWRNORM
+.It POLLIN
+Данные, не относящиеся к данным с высоким приоритетом, могут быть прочитаны
+без блокировки.
+.It POLLRDNORM
+Обычные данные могут быть прочитаны без блокировки.
+.It POLLRDBAND
+Данные с ненулевым приоритетом могут быть прочитаны без блокировки.
+.It POLLPRI
+Данные с высоким приоритетом могут быть прочитаны без блокировки.
+.It POLLOUT
+.It POLLWRNORM
+Обычные данные могут быть записаны без блокировки.
+.It POLLWRBAND
+Данные с ненулевым приоритетом могут быть записаны без блокировки.
+.It POLLERR
+На устройстве или сокете возникла исключительная ситуация.
+Этот флаг проверяется всегда, даже если он отсутствует в маске битов
+.Fa events .
+.It POLLHUP
+Устройство или сокет были отключены.
+Этот флаг проверяется всегда, даже если он отсутствует в маске битов
+.Fa events .
+Обратите внимание, что
+POLLHUP
+и
+POLLOUT
+никогда не должны присутствовать в маске битов
+.Fa revents
+одновременно.
+.It POLLRDHUP
+Удалённый узел закрыл соединение или прекратил передачу данных.
+В отличие от
+POLLHUP ,
+флаг
+POLLRDHUP
+должен присутствовать в маске битов
+.Fa events ,
+чтобы быть возвращённым.
+Применяется только к потоковым сокетам.
+.It POLLNVAL
+Файловый дескриптор не открыт либо в режиме capability для него недостаточно прав.
+Этот флаг проверяется всегда, даже если он отсутствует в маске битов
+.Fa events .
+.El
+.Pp
+Если значение
+.Fa timeout
+не равно нулю и не равно INFTIM (-1), оно задаёт максимальный интервал ожидания
+готовности любого файлового дескриптора в миллисекундах.
+Если значение
+.Fa timeout
+равно INFTIM (-1), вызов poll блокируется на неопределённое время.
+Если значение
+.Fa timeout
+равно нулю, вызов
+.Fn poll
+возвращается без блокировки.
+.Pp
+Системный вызов
+.Fn ppoll ,
+в отличие от
+.Fn poll ,
+используется для безопасного ожидания до тех пор, пока либо набор файловых
+дескрипторов не станет готов к выполнению операций ввода-вывода, либо не будет
+получен сигнал.
+Аргументы
+.Fa fds
+и
+.Fa nfds
+идентичны соответствующим аргументам
+.Fn poll .
+Аргумент
+.Fa timeout
+в
+.Fn ppoll
+указывает на структуру
+.Vt "const struct timespec" ,
+определённую в
+.In sys/timespec.h
+(показана ниже), вместо используемого в
+.Fn poll
+аргумента
+.Vt "int timeout" .
+Для указания на то, что
+.Fn ppoll
+должен ожидать неопределённое время, можно передать нулевой указатель.
+Наконец, аргумент
+.Fa newsigmask
+задаёт маску сигналов, которая устанавливается на время ожидания ввода.
+При возврате из
+.Fn ppoll
+исходная маска сигналов восстанавливается.
+.Bd -literal
+struct timespec {
+	time_t  tv_sec;         /* seconds */
+	long    tv_nsec;        /* and nanoseconds */
+};
+.Ed
+.Sh IMPLEMENTATION NOTES
+Системные вызовы
+.Fn poll
+и
+.Fn ppoll
+не перезапускаются после возврата из обработчика сигнала независимо от того,
+установлен ли флаг
+.Dv SA_RESTART
+для прерывающего сигнала;
+вместо этого они завершаются ошибкой
+.Er EINTR .
+.Sh RETURN VALUES
+Системный вызов
+.Fn poll
+возвращает количество дескрипторов, готовых к выполнению операций ввода-вывода,
+или -1, если произошла ошибка.
+Если время ожидания истекло,
+.Fn poll
+возвращает 0.
+Если
+.Fn poll
+завершается с ошибкой, в том числе из-за прерванного системного вызова,
+массив
+.Fa fds
+остаётся неизменным.
+.Sh COMPATIBILITY
+Эта реализация отличается от исторической тем, что отдельный файловый дескриптор
+не может привести к возврату
+.Fn poll
+с ошибкой.
+В случаях, когда в исторической реализации это происходило (например, при попытке
+выполнить poll для дескриптора, отозванного с помощью
+.Xr revoke 2 Ns ),
+эта реализация вместо этого копирует маску битов
+.Fa events
+в маску битов
+.Fa revents .
+Попытка выполнить операцию ввода-вывода с этим дескриптором впоследствии
+приведёт к ошибке.
+Считается, что такое поведение более полезно.
+.Sh ERRORS
+Возврат ошибки из
+.Fn poll
+указывает на следующее:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa fds
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINTR
+Сигнал был доставлен до истечения времени ожидания и до возникновения
+любого из выбранных событий.
+.It Bq Er EINVAL
+Указанный интервал ожидания недопустим.
+Один из его компонентов имеет отрицательное значение или слишком велик.
+.It Bq Er EINVAL
+Количество структур pollfd, заданное аргументом
+.Fa nfds ,
+превышает системные параметры настройки
+.Va kern.maxfilesperproc
+и
+.Dv FD_SETSIZE .
+.El
+.Sh SEE ALSO
+.Xr accept 2 ,
+.Xr connect 2 ,
+.Xr kqueue 2 ,
+.Xr pselect 2 ,
+.Xr read 2 ,
+.Xr recv 2 ,
+.Xr select 2 ,
+.Xr send 2 ,
+.Xr write 2
+.Sh STANDARDS
+Функция
+.Fn poll
+соответствует стандарту
+.St -p1003.1-2001 .
+Функция
+.Fn ppoll
+соответствует стандарту
+.St -p1003.1-2024 .
+Флаг
+POLLRDHUP
+не определён стандартом POSIX, но совместим с Linux и illumos.
+.Sh HISTORY
+Функция
+.Fn poll
+появилась в
+.At V .
+Эта страница руководства и основная часть реализации были взяты из
+.Nx .
+Функция
+.Fn ppoll
+впервые появилась в
+.Fx 10.2 .
+.Sh BUGS
+Различие между некоторыми полями масок битов
+.Fa events
+и
+.Fa revents
+на самом деле не имеет смысла без STREAMS.
+Эти поля определены для совместимости с существующим программным обеспечением.

@@ -1,0 +1,144 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/posix_fadvise.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 8c7fab3299f1dbdffe09e9f64507d5434340af2b5dd514787d16bf93cdb8aa8c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt POSIX_FADVISE 2
+.Os
+.Sh ИМЯ
+.Nm posix_fadvise
+.Nd дать рекомендации по использованию данных файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In fcntl.h
+.Ft int
+.Fn posix_fadvise "int fd" "off_t offset" "off_t len" "int advice"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn posix_fadvise
+позволяет процессу сообщить системе о характере доступа к данным для
+открытого файлового дескриптора
+.Fa fd .
+Рекомендация охватывает данные, начиная со смещения
+.Fa offset
+и продолжающиеся
+.Fa len
+байт.
+Если
+.Fa len
+равен нулю,
+охватываются все данные от
+.Fa offset
+до конца файла.
+.Pp
+Поведение задаётся параметром
+.Fa advice
+и может быть одним из:
+.Bl -tag -width POSIX_FADV_SEQUENTIAL
+.It Dv POSIX_FADV_NORMAL
+Указывает системе вернуться к поведению доступа к данным по умолчанию.
+.It Dv POSIX_FADV_RANDOM
+Является подсказкой, что доступ к данным файла будет случайным,
+и предварительная выборка, вероятно, невыгодна.
+.It Dv POSIX_FADV_SEQUENTIAL
+Указывает системе, что доступ к данным файла будет последовательным.
+В настоящее время это ничего не делает, поскольку поведение по умолчанию
+использует эвристику для обнаружения последовательного поведения.
+.It Dv POSIX_FADV_WILLNEED
+Указывает системе, что доступ к указанным данным будет осуществлён в ближайшем будущем.
+Система может инициировать асинхронное чтение данных, если они ещё не
+находятся в памяти.
+.It Dv POSIX_FADV_DONTNEED
+Указывает системе, что доступ к указанным данным не будет осуществлён в ближайшем
+будущем.
+Система может понизить приоритет в памяти чистых данных в
+указанном диапазоне, и будущий доступ к этим данным может потребовать операции чтения.
+.It Dv POSIX_FADV_NOREUSE
+Указывает системе, что доступ к указанным данным будет осуществлён только один раз,
+а затем они не будут использоваться повторно.
+Система может понизить приоритет данных в памяти после того, как они были
+прочитаны или записаны.
+Будущий доступ к этим данным может потребовать операции чтения.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха
+.Fn posix_fadvise
+возвращает ноль.
+При неудаче возвращается ошибка без установки
+.Va errno .
+.Sh ОШИБКИ
+Возможные условия отказа:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым файловым дескриптором.
+.It Bq Er EINVAL
+Аргумент
+.Fa advice
+недопустим.
+.It Bq Er EINVAL
+Аргументы
+.Fa offset
+или
+.Fa len
+отрицательны,
+или
+.Fa offset
++
+.Fa len
+превышает максимальный размер файла.
+.It Bq Er ENODEV
+Аргумент
+.Fa fd
+не ссылается на обычный файл.
+.It Bq Er ESPIPE
+Аргумент
+.Fa fd
+связан с каналом или FIFO.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при чтении из файловой системы или записи в неё.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr madvise 2
+.Sh СТАНДАРТЫ
+Интерфейс
+.Fn posix_fadvise
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn posix_fadvise
+впервые появился в
+.Fx 9.1 .

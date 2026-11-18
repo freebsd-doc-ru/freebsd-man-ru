@@ -1,0 +1,97 @@
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigreturn.2
+.\" FRDP githash 9da4a804f0916b24519b8baa7ed460a7ba23d8c8
+.\" FRDP hash256 667f7c508f03619b8a83e36ec8e564a27921ad42c4033808b5fe8f8473702f33
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 11, 2026
+.Dt SIGRETURN 2
+.Os
+.Sh ИМЯ
+.Nm sigreturn
+.Nd возврат из обработчика сигнала
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sigreturn "const ucontext_t *scp"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigreturn
+позволяет пользователю атомарно снять маскирование, переключить стеки
+и вернуться из контекста обработчика сигнала.
+Маска сигналов потока и состояние стека восстанавливаются
+из структуры контекста, на которую указывает
+.Fa scp .
+Системный вызов не возвращает управление;
+весь контекст пространства пользователя, заданный
+.Fa scp ,
+включая указатель стека пространства пользователя, все регистры общего
+назначения, состояние сопроцессора, регистр состояния процесса и счётчик
+команд, восстанавливается из этого контекста.
+Выполнение возобновляется со счётчика команд из указанного контекста.
+.Pp
+Этот системный вызов используется предоставляемым ядром кодом
+трамплина обработки сигналов, расположенным в виртуальном DSO (VDSO)
+на некоторых архитектурах или в виде необработанного кода
+в разделяемой странице, если VDSO не предоставляется,
+при возврате из обработчика сигнала к ранее выполнявшейся программе.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+В случае успеха системный вызов не возвращает управление.
+В противном случае может быть возвращено значение -1, а
+.Va errno
+устанавливается для указания ошибки.
+Некоторые условия, обнаруженные оборудованием, приводят к доставке
+потоку сигнала синхронной ловушки в дополнение к коду ошибки
+системного вызова или вместо его установки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigreturn
+завершится с ошибкой, а контекст потока останется неизменным,
+если произойдёт одно из следующих событий.
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa scp
+указывает на память, не являющуюся допустимой частью адресного
+пространства процесса.
+.It Bq Er EINVAL
+Длинное слово состояния процесса недопустимо или неправомерно
+повысило бы уровень привилегий процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sigaction 2 ,
+.Xr setjmp 3 ,
+.Xr ucontext 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn sigreturn
+появился в
+.Bx 4.3 .

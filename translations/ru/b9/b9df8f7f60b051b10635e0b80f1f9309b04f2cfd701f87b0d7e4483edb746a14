@@ -1,0 +1,363 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/chmod.2
+.\" FRDP githash bfd03046d18776ea70785ca1ef36dfc60822de3b
+.\" FRDP hash256 b9df8f7f60b051b10635e0b80f1f9309b04f2cfd701f87b0d7e4483edb746a14
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 31, 2024
+.Dt CHMOD 2
+.Os
+.Sh ИМЯ
+.Nm chmod ,
+.Nm fchmod ,
+.Nm lchmod ,
+.Nm fchmodat
+.Nd изменить режим файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/stat.h
+.Ft int
+.Fn chmod "const char *path" "mode_t mode"
+.Ft int
+.Fn fchmod "int fd" "mode_t mode"
+.Ft int
+.Fn lchmod "const char *path" "mode_t mode"
+.Ft int
+.Fn fchmodat "int fd" "const char *path" "mode_t mode" "int flag"
+.Sh ОПИСАНИЕ
+Биты прав доступа к файлу, указанному в
+.Fa path
+или на который ссылается дескриптор файла
+.Fa fd ,
+изменяются на
+.Fa mode .
+Системный вызов
+.Fn chmod
+проверяет, что владелец процесса (пользователь) либо является владельцем
+файла, указанного в
+.Fa path
+(или
+.Fa fd ) ,
+либо
+является суперпользователем.
+Системный вызов
+.Fn chmod
+следует по символическим ссылкам и оперирует целью ссылки,
+а не самой ссылкой.
+.Pp
+Системный вызов
+.Fn lchmod
+аналогичен
+.Fn chmod ,
+но не следует по символическим ссылкам.
+.Pp
+.Fn fchmodat
+эквивалентен либо
+.Fn chmod ,
+либо
+.Fn lchmod
+в зависимости от
+.Fa flag ,
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае изменяемый файл определяется относительно каталога,
+связанного с дескриптором файла
+.Fa fd ,
+а не текущего рабочего каталога.
+Значения для
+.Fa flag
+составляются побитовым ИЛИ флагов из следующего списка, определённых
+в
+.In fcntl.h :
+.Bl -tag -width indent
+.It Dv AT_SYMLINK_NOFOLLOW
+Если
+.Fa path
+указывает на символическую ссылку, то изменяется режим символической ссылки.
+.It Dv AT_RESOLVE_BENEATH
+Обрабатывать только пути ниже каталога, указанного дескриптором
+.Ar fd .
+См. описание флага
+.Dv O_RESOLVE_BENEATH
+в странице руководства
+.Xr open 2 .
+.It Dv AT_EMPTY_PATH
+Если аргумент
+.Fa path
+является пустой строкой, оперировать файлом или каталогом,
+на который ссылается дескриптор
+.Fa fd .
+Если
+.Fa fd
+равен
+.Dv AT_FDCWD ,
+оперировать текущим рабочим каталогом.
+.El
+.Pp
+Если
+.Fn fchmodat
+передано специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог.
+Если также
+.Fa flag
+равен нулю, поведение идентично вызову
+.Fn chmod .
+.Pp
+Режим создаётся из
+.Em объединённых
+побитовым ИЛИ масок прав доступа,
+определённых в
+.In sys/stat.h :
+.Pp
+.Bd -literal -offset indent -compact
+#define S_IRWXU 0000700    /* RWX mask for owner */
+#define S_IRUSR 0000400    /* R for owner */
+#define S_IWUSR 0000200    /* W for owner */
+#define S_IXUSR 0000100    /* X for owner */
+
+#define S_IRWXG 0000070    /* RWX mask for group */
+#define S_IRGRP 0000040    /* R for group */
+#define S_IWGRP 0000020    /* W for group */
+#define S_IXGRP 0000010    /* X for group */
+
+#define S_IRWXO 0000007    /* RWX mask for other */
+#define S_IROTH 0000004    /* R for other */
+#define S_IWOTH 0000002    /* W for other */
+#define S_IXOTH 0000001    /* X for other */
+
+#define S_ISUID 0004000    /* set user id on execution */
+#define S_ISGID 0002000    /* set group id on execution */
+#define S_ISVTX 0001000    /* sticky bit */
+.Ed
+.Pp
+Нестандартный
+.Dv S_ISTXT
+является синонимом
+.Dv S_ISVTX .
+.Pp
+Система виртуальной памяти
+.Fx
+полностью игнорирует бит залипания
+.Pq Dv S_ISVTX
+для исполняемых файлов.
+В файловых системах на основе UFS (FFS, LFS) бит залипания
+может быть установлен только на каталогах.
+.Pp
+Если режим
+.Dv S_ISVTX
+(«бит залипания») установлен на каталоге,
+непривилегированный пользователь не может удалять или переименовывать
+файлы других пользователей в этом каталоге.
+Бит залипания может быть
+установлен любым пользователем на каталог, которым пользователь владеет или имеет соответствующие
+права.
+Более подробно о свойствах бита залипания см.
+.Xr sticky 7 .
+.Pp
+Если на каталоге установлен режим ISUID (set UID),
+и при монтировании файловой системы использовалась опция MNT_SUIDDIR,
+то владелец любых новых файлов и подкаталогов,
+созданных в этом каталоге, устанавливается
+таким же, как владелец этого каталога.
+Если эта функция включена, новые каталоги наследуют
+бит от своих родителей.
+Биты выполнения удаляются из
+файла, и он не будет передан root.
+Это поведение не изменяет
+требований к пользователю для получения разрешения на запись файла, а только определяет итогового
+владельца после его создания.
+Наследование группы не затрагивается.
+.Pp
+Эта функция предназначена для использования на файловых серверах, обслуживающих пользователей ПК через
+ftp, SAMBA или netatalk.
+Она создаёт дыры в безопасности для пользователей оболочки и по этой
+причине не должна использоваться на машинах с оболочкой, особенно для домашних каталогов.
+Для работы этой опции требуется
+опция SUIDDIR в ядре.
+Только файловые системы UFS поддерживают эту опцию.
+Более подробно об опции монтирования suiddir см.
+.Xr mount 8 .
+.Pp
+Запись в файл или изменение его владельца
+отключает биты set-user-id и set-group-id,
+если пользователь не является суперпользователем.
+Это делает систему несколько более безопасной,
+защищая файлы set-user-id (set-group-id)
+от сохранения set-user-id (set-group-id) при их изменении,
+ценой некоторой степени совместимости.
+.Pp
+Хотя обычно вызов
+.Fn fchmod
+на сокете является ошибкой, его можно выполнить на
+сокетах
+.Dv AF_LOCAL
+до их привязки к имени файла; см.
+.Xr unix 4 .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn chmod
+завершится с ошибкой и режим файла останется неизменным, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или всё имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er EACCES
+Разрешение на поиск запрещено для компонента префикса пути.
+.It Bq Er ELOOP
+При разборе имени пути встречено слишком много символических ссылок.
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не совпадает с владельцем файла и
+эффективный идентификатор пользователя не является суперпользователем.
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не является суперпользователем, эффективный идентификатор пользователя совпадает с
+владельцем файла, но идентификатор группы файла не совпадает с эффективным
+идентификатором группы или одним из дополнительных идентификаторов групп.
+.It Bq Er EPERM
+У указанного файла установлен флаг неизменяемости или только-дозаписи, см.
+страницу руководства
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EROFS
+Указанный файл находится на файловой системе только для чтения.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EFTYPE
+Эффективный идентификатор пользователя не является суперпользователем, режим включает бит залипания
+.Dv ( S_ISVTX ) ,
+и path не ссылается на каталог.
+.El
+.Pp
+Системный вызов
+.Fn fchmod
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Дескриптор недействителен.
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+ссылается на сокет, а не на файл.
+.It Bq Er EROFS
+Файл находится на файловой системе только для чтения.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+В дополнение к ошибкам
+.Fn chmod ,
+.Fn fchmodat
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь и аргумент
+.Fa fd
+не является ни
+.Fa AT_FDCWD ,
+ни действительным дескриптором файла, открытым для поиска.
+.It Bq Er EINVAL
+Значение аргумента
+.Fa flag
+недействительно.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём и
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.It Bq Er ENOTCAPABLE
+.Fa path
+является абсолютным путём
+или содержит компонент "..", ведущий в
+каталог за пределами иерархии каталогов, заданной
+.Fa fd ,
+и процесс находится в режиме возможностей или был указан флаг
+.Dv AT_RESOLVE_BENEATH .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chmod 1 ,
+.Xr chflags 2 ,
+.Xr chown 2 ,
+.Xr open 2 ,
+.Xr stat 2 ,
+.Xr sticky 7
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn chmod
+соответствует
+.St -p1003.1-90 ,
+за исключением возврата
+.Er EFTYPE .
+Ожидается, что бит
+.Dv S_ISVTX
+на каталогах соответствует
+.St -susv3 .
+Ожидается, что системный вызов
+.Fn fchmodat
+соответствует
+.St -p1003.1-2008 .
+.Sh ИСТОРИЯ
+Функция
+.Fn chmod
+появилась в
+.At v1 .
+Системный вызов
+.Fn fchmod
+появился в
+.Bx 4.2 .
+Системный вызов
+.Fn lchmod
+появился в
+.Fx 3.0 .
+Системный вызов
+.Fn fchmodat
+появился в
+.Fx 8.0 .

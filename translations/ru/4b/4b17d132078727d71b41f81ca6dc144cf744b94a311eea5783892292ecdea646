@@ -1,0 +1,158 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2025 The FreeBSD Foundation
+.\"
+.\" Portions of this documentation were written by Olivier Certner
+.\" <olce@FreeBSD.org> at Kumacom SARL under sponsorship from the FreeBSD
+.\" Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getgroups.2
+.\" FRDP githash c363dcbe75b2c7171611815daec82d263607ee37
+.\" FRDP hash256 4b17d132078727d71b41f81ca6dc144cf744b94a311eea5783892292ecdea646
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 10, 2025
+.Dt GETGROUPS 2
+.Os
+.Sh ИМЯ
+.Nm getgroups
+.Nd получить дополнительные группы вызывающего процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn getgroups "int gidsetlen" "gid_t *gidset"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn getgroups
+получает дополнительные группы вызывающего процесса и сохраняет их в
+массиве
+.Fa gidset
+в строго возрастающем порядке.
+Значение
+.Fa gidsetlen
+указывает максимальное количество записей, которое может быть помещено в
+.Fa gidset .
+.Pp
+Если
+.Fa gidsetlen
+равно нулю,
+.Fn getgroups
+возвращает количество элементов множества дополнительных групп вызывающего
+процесса и игнорирует аргумент
+.Fa gidset .
+.Pp
+Никогда не может быть возвращено более
+.Dv {NGROUPS_MAX}
+значений.
+Значение
+.Dv {NGROUPS_MAX}
+следует получать с помощью
+.Xr sysconf 3 ,
+чтобы избежать его жесткого кодирования в исполняемом файле.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха системный вызов
+.Fn getgroups
+возвращает количество элементов множества дополнительных групп.
+Он всегда завершается успешно, если аргумент
+.Fa gidsetlen
+равен нулю.
+.Pp
+Значение -1 указывает на то, что произошла ошибка, и код ошибки
+сохраняется в глобальной переменной
+.Va errno .
+.Sh ОШИБКИ
+Возможные ошибки для
+.Fn getgroups :
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa gidsetlen
+меньше количества дополнительных групп
+.Pq но не равен нулю .
+.It Bq Er EFAULT
+При чтении из массива
+.Fa gidset
+был обнаружен недопустимый адрес.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr setgroups 2 ,
+.Xr initgroups 3 ,
+.Xr sysconf 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn getgroups
+соответствует
+.St -p1003.1-2008 ,
+не сообщая эффективный идентификатор группы.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getgroups
+появился в
+.Bx 4.2 .
+.Pp
+Начиная с
+.Fx 14.3 ,
+системный вызов
+.Fn getgroups
+сообщает дополнительные группы в строго возрастающем порядке.
+.Pp
+До
+.Fx 15.0
+системный вызов
+.Fn getgroups
+дополнительно возвращал эффективный идентификатор группы в качестве первого
+элемента массива, перед дополнительными группами.
+.Sh ВОПРОСЫ БЕЗОПАСНОСТИ
+Системный вызов
+.Fn getgroups
+получает множество дополнительных групп в массиве
+.Fa gidset .
+В частности, как упомянуто в
+.Sx ИСТОРИЯ ,
+он больше не извлекает эффективный идентификатор группы в первый слот
+.Fa gidset .
+Программы, которые обрабатывают этот слот особым образом, должны быть
+изменены для получения эффективного идентификатора группы другими способами,
+например, с помощью вызова
+.Xr getegid 2 .
+.Pp
+Эффективный идентификатор группы присутствует в множестве дополнительных
+групп тогда и только тогда, когда он был явно установлен как дополнительная
+группа.
+Функция
+.Fn initgroups
+обеспечивает это, тогда как системный вызов
+.Fn setgroups
+этого не делает.
+Пожалуйста, обратитесь к странице руководства
+.Xr initgroups 3
+для ознакомления с обоснованием.

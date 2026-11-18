@@ -1,0 +1,300 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/send.2
+.\" FRDP githash 9b16399225f8acfba675cf0a9312dd9eac563ce3
+.\" FRDP hash256 52371ac1850682a43f74dba3b1698b466a242308b927e41d604e550564c4fdf2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 3, 2026
+.Dt SEND 2
+.Os
+.Sh ИМЯ
+.Nm send ,
+.Nm sendto ,
+.Nm sendmsg ,
+.Nm sendmmsg
+.Nd отправка сообщения (сообщений) из сокета
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/socket.h
+.Ft ssize_t
+.Fn send "int s" "const void *msg" "size_t len" "int flags"
+.Ft ssize_t
+.Fn sendto "int s" "const void *msg" "size_t len" "int flags" "const struct sockaddr *to" "socklen_t tolen"
+.Ft ssize_t
+.Fn sendmsg "int s" "const struct msghdr *msg" "int flags"
+.Ft ssize_t
+.Fn sendmmsg "int s" "struct mmsghdr * restrict msgvec" "size_t vlen" "int flags"
+.Sh ОПИСАНИЕ
+Функции
+.Fn send
+и
+.Fn sendmmsg ,
+а также системные вызовы
+.Fn sendto
+и
+.Fn sendmsg
+используются для передачи одного или нескольких сообщений (при вызове
+.Fn sendmmsg )
+в другой сокет.
+Функция
+.Fn send
+может использоваться только когда сокет находится в
+.Em соединённом
+состоянии.
+Функции
+.Fn sendto ,
+.Fn sendmsg
+и
+.Fn sendmmsg
+могут использоваться в любое время, если сокет работает в режиме без
+установления соединения.
+Если сокет работает в режиме с установлением соединения, протокол
+должен поддерживать неявное соединение (в настоящее время
+.Xr tcp 4
+является единственным протоколом с такой поддержкой), либо сокет должен
+находиться в соединённом состоянии перед использованием.
+.Pp
+Адрес назначения задаётся в
+.Fa to
+с указанием его размера в
+.Fa tolen ,
+или эквивалентными
+.Fa msg_name
+и
+.Fa msg_namelen
+в
+.Fa struct msghdr .
+Если сокет находится в соединённом состоянии, адрес назначения,
+переданный в
+.Fn sendto ,
+.Fn sendmsg
+или
+.Fn sendmmsg ,
+игнорируется.
+Длина сообщения задаётся в
+.Fa len .
+Если сообщение слишком длинное для атомарной передачи через
+нижележащий протокол, возвращается ошибка
+.Er EMSGSIZE ,
+и сообщение не передаётся.
+.Pp
+Функция
+.Fn sendmmsg
+отправляет несколько сообщений за один вызов.
+Они задаются вектором
+.Fa msgvec
+вместе с
+.Fa vlen ,
+указывающим размер вектора.
+Количество отправленных октетов для каждого сообщения помещается в
+поле
+.Fa msg_len
+каждого обработанного элемента вектора после передачи.
+.Pp
+Указание на неудачу доставки неявно не содержится в
+.Fn send .
+Локально обнаруженные ошибки указываются возвращаемым значением -1.
+.Pp
+Если в сокете нет доступного места для буферизации
+сообщения, которое должно быть передано, то
+.Fn send
+обычно блокируется, если только сокет не был переведён в
+неблокирующий режим ввода-вывода.
+Системный вызов
+.Xr select 2
+может использоваться для определения момента, когда можно
+отправить дополнительные данные.
+.Pp
+Аргумент
+.Fa flags
+может включать один или несколько следующих флагов:
+.Bd -literal
+#define	MSG_OOB		0x00001 /* process out-of-band data */
+#define	MSG_DONTROUTE	0x00004 /* bypass routing, use direct interface */
+#define	MSG_EOR		0x00008 /* data completes record */
+#define	MSG_DONTWAIT	0x00080 /* do not block */
+#define	MSG_EOF		0x00100 /* data completes transaction */
+#define	MSG_NOSIGNAL	0x20000 /* do not generate SIGPIPE on EOF */
+.Ed
+.Pp
+Флаг
+.Dv MSG_OOB
+используется для отправки
+.Dq внеполосных
+данных на сокетах, поддерживающих эту концепцию (например,
+.Dv SOCK_STREAM ) ;
+нижележащий протокол также должен поддерживать
+.Dq внеполосные
+данные.
+.Dv MSG_EOR
+используется для указания метки записи для протоколов, поддерживающих
+эту концепцию.
+Флаг
+.Dv MSG_DONTWAIT
+требует, чтобы вызов завершился, когда он иначе заблокировался бы.
+.Dv MSG_EOF
+требует, чтобы отправляющая сторона сокета была закрыта, и чтобы
+соответствующее указание было отправлено в конце указанных данных;
+этот флаг реализован только для сокетов
+.Dv SOCK_STREAM
+в семействе протоколов
+.Dv PF_INET .
+.Dv MSG_DONTROUTE
+обычно используется только диагностическими или маршрутизирующими программами.
+.Dv MSG_NOSIGNAL
+используется для предотвращения генерации
+.Dv SIGPIPE
+при записи в сокет, который
+может быть закрыт.
+.Pp
+См.
+.Xr recv 2
+для описания структуры
+.Fa msghdr
+и структуры
+.Fa mmsghdr .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Вызовы
+.Fn send ,
+.Fn sendto
+и
+.Fn sendmsg
+возвращают количество отправленных октетов.
+Вызов
+.Fn sendmmsg
+возвращает количество отправленных сообщений.
+При возникновении ошибки возвращается значение -1.
+.Sh ОШИБКИ
+Функции
+.Fn send
+и
+.Fn sendmmsg ,
+а также системные вызовы
+.Fn sendto
+и
+.Fn sendmsg
+завершаются с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Указан неверный дескриптор.
+.It Bq Er EACCES
+Адрес назначения является широковещательным адресом, и
+.Dv SO_BROADCAST
+не был установлен на сокете.
+.It Bq Er ENOTCONN
+Сокет работает в режиме с установлением соединения, но не соединён.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не является сокетом.
+.It Bq Er EFAULT
+Для аргумента указан неверный адрес в пространстве пользователя.
+.It Bq Er EMSGSIZE
+Сокет требует атомарной отправки сообщения,
+а размер отправляемого сообщения сделал это невозможным.
+.It Bq Er EAGAIN
+Сокет помечен как неблокирующий, или
+указан
+.Dv MSG_DONTWAIT ,
+и запрошенная операция привела бы к блокировке.
+.It Bq Er ENOBUFS
+Система не смогла выделить внутренний буфер.
+Операция может завершиться успешно, когда буферы станут доступны.
+.It Bq Er ENOBUFS
+Очередь вывода сетевого интерфейса заполнена.
+Это обычно означает, что интерфейс прекратил отправку,
+но может быть вызвано временной перегрузкой.
+.It Bq Er EHOSTUNREACH
+Удалённый хост был недоступен.
+.It Bq Er EISCONN
+Был указан адрес назначения, и сокет уже соединён.
+.It Bq Er ECONNREFUSED
+Сокет получил ICMP-сообщение о недостижимости назначения
+в ответ на последнее отправленное сообщение.
+Это обычно означает, что
+получатель не прослушивает удалённый порт.
+.It Bq Er EHOSTDOWN
+Удалённый хост был выключен.
+.It Bq Er ENETDOWN
+Удалённая сеть была выключена.
+.It Bq Er EADDRNOTAVAIL
+Процесс, использующий сокет
+.Dv SOCK_RAW ,
+был помещён в клетку, и адрес источника,
+указанный в заголовке IP, не совпадал с IP-адресом,
+привязанным к клетке.
+.It Bq Er EPERM
+.Fa msg
+содержало управляющее сообщение
+.Dv SCM_RIGHTS ,
+и принимающий сокет
+.Xr unix 4
+настроен на отклонение новых
+.Dv SCM_RIGHTS .
+.It Bq Er EPIPE
+Сокет не может больше отправлять данные
+.Dv ( SBS_CANTSENDMORE
+установлен на сокете).
+Это обычно означает, что сокет
+не соединён.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr connect 2 ,
+.Xr fcntl 2 ,
+.Xr getsockopt 2 ,
+.Xr recv 2 ,
+.Xr select 2 ,
+.Xr socket 2 ,
+.Xr write 2 ,
+.Xr CMSG_DATA 3 ,
+.Xr unix 4
+.Sh ИСТОРИЯ
+Функция
+.Fn send
+появилась в
+.Bx 4.2 .
+Функция
+.Fn sendmmsg
+появилась в
+.Fx 11.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку
+.Fn sendmsg
+не обязательно блокируется до тех пор, пока данные не будут переданы, возможно
+передать открытый файловый дескриптор через сокет домена
+.Dv AF_UNIX
+(см.
+.Xr recv 2 ) ,
+а затем
+.Fn close
+его прежде, чем он был фактически отправлен, в результате чего получатель
+получает закрытый файловый дескриптор.
+Приложение должно
+реализовать механизм подтверждения, чтобы предотвратить это.

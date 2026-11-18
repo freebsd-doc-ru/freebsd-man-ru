@@ -1,0 +1,289 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/pathconf.2
+.\" FRDP githash b473bb274cef37d45940cad4624b5d3b7fc96e01
+.\" FRDP hash256 10a1a49204136b1c4df5c6ca451e4e50b7471f2a9a53cd8aeb51041b8be69fb6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 31, 2025
+.Dt PATHCONF 2
+.Os
+.Sh ИМЯ
+.Nm pathconf ,
+.Nm lpathconf ,
+.Nm fpathconf
+.Nd получить настраиваемые переменные пути
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft long
+.Fn pathconf "const char *path" "int name"
+.Ft long
+.Fn lpathconf "const char *path" "int name"
+.Ft long
+.Fn fpathconf "int fd" "int name"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn pathconf
+и
+.Fn fpathconf
+предоставляют приложениям способ определения текущего значения
+настраиваемого системного ограничения или опции, связанных
+с путём или дескриптором файла.
+.Pp
+Для
+.Fn pathconf
+и
+.Fn lpathconf
+аргумент
+.Fa path
+является именем файла или каталога.
+Для
+.Fn fpathconf
+аргумент
+.Fa fd
+является открытым дескриптором файла.
+Аргумент
+.Fa name
+указывает системную переменную, значение которой нужно запросить.
+Символьные константы для каждого значения имени находятся в включаемом файле
+.Li <unistd.h> .
+.Pp
+Системный вызов
+.Fn lpathconf
+работает как
+.Fn pathconf
+за исключением случая, когда указанный файл является символической ссылкой;
+в этом случае
+.Fn lpathconf
+возвращает информацию о ссылке,
+тогда как
+.Fn pathconf
+возвращает информацию о файле, на который ссылается ссылка.
+.Pp
+Доступные значения перечислены ниже:
+.Bl -tag -width 6n
+.It Li _PC_LINK_MAX
+Максимальное количество ссылок на файл.
+.It Li _PC_MAX_CANON
+Максимальное количество байт в канонической строке ввода терминала.
+.It Li _PC_MAX_INPUT
+Минимальное максимальное количество байт, для которого доступно место
+во входной очереди терминала.
+.It Li _PC_NAME_MAX
+Максимальное количество байт в имени файла.
+.It Li _PC_PATH_MAX
+Максимальное количество байт в имени пути.
+.It Li _PC_PIPE_BUF
+Максимальное количество байт, которое будет записано в канал атомарно.
+.It Li _PC_CHOWN_RESTRICTED
+Возвращает 1, если для системного вызова
+.Xr chown 2
+требуются соответствующие привилегии, иначе 0.
+.St -p1003.1-2001
+требует соответствующих привилегий во всех случаях, но это поведение было
+необязательным в предыдущих редакциях стандарта.
+.It Li _PC_NO_TRUNC
+Возвращает значение больше нуля, если попытки использовать компоненты пути длиннее
+.Brq Dv NAME_MAX
+приведут к ошибке
+.Bq Er ENAMETOOLONG ;
+иначе такие компоненты будут усечены до
+.Brq Dv NAME_MAX .
+.St -p1003.1-2001
+требует ошибки во всех случаях, но это поведение было необязательным в предыдущих
+редакциях стандарта, и некоторые
+.No non- Ns Tn POSIX Ns -совместимые
+файловые системы не поддерживают такое поведение.
+.It Li _PC_VDISABLE
+Возвращает значение символа отключения терминала.
+.It Li _PC_ASYNC_IO
+Возвращает 1, если поддерживается асинхронный ввод-вывод, иначе 0.
+.It Li _PC_PRIO_IO
+Возвращает 1, если для этого файла поддерживается приоритетный ввод-вывод,
+иначе 0.
+.It Li _PC_SYNC_IO
+Возвращает 1, если для этого файла поддерживается синхронный ввод-вывод, иначе 0.
+.It Li _PC_ALLOC_SIZE_MIN
+Минимальное количество байт хранилища, выделяемого для любой части файла.
+.It Li _PC_FILESIZEBITS
+Количество бит, необходимое для представления максимального размера файла.
+.It Li _PC_REC_INCR_XFER_SIZE
+Рекомендуемый шаг изменения размера передачи файла между
+.Dv _PC_REC_MIN_XFER_SIZE
+и
+.Dv _PC_REC_MAX_XFER_SIZE .
+.It Li _PC_REC_MAX_XFER_SIZE
+Максимальный рекомендуемый размер передачи файла.
+.It Li _PC_REC_MIN_XFER_SIZE
+Минимальный рекомендуемый размер передачи файла.
+.It Li _PC_REC_XFER_ALIGN
+Рекомендуемое выравнивание буфера передачи файла.
+.It Li _PC_SYMLINK_MAX
+Максимальное количество байт в символической ссылке.
+.It Li _PC_ACL_EXTENDED
+Возвращает 1, если для указанного файла можно установить список управления
+доступом (ACL), иначе 0.
+.It Li _PC_ACL_NFS4
+Возвращает 1, если для указанного файла можно установить ACL NFSv4,
+иначе 0.
+.It Li _PC_ACL_PATH_MAX
+Максимальное количество элементов ACL на файл.
+.It Li _PC_CAP_PRESENT
+Возвращает 1, если для указанного файла можно установить состояние
+возможностей, иначе 0.
+.It Li _PC_INF_PRESENT
+Возвращает 1, если для указанного файла можно установить информационную
+метку, иначе 0.
+.It Li _PC_MAC_PRESENT
+Возвращает 1, если для указанного файла можно установить метку мандатного
+управления доступом (MAC), иначе 0.
+.It Li _PC_MIN_HOLE_SIZE
+Если файловая система поддерживает сообщение о дырах (см.
+.Xr lseek 2 ) ,
+.Fn pathconf
+и
+.Fn fpathconf
+возвращают положительное число, представляющее минимальный размер дыры в байтах.
+Смещения сообщаемых дыр будут выровнены на это же значение.
+Особое значение 1 возвращается, если файловая система не указывает минимальный
+размер дыры, но всё же сообщает о дырах.
+.It Li _PC_DEALLOC_PRESENT
+Возвращает 1, если файловая система поддерживает пробивание дыр (см.
+.Xr fspacectl 2 ) ,
+иначе 0.
+.It Li _PC_NAMEDATTR_ENABLED
+Возвращает 1, если для файловой системы включены именованные атрибуты, иначе 0.
+.It Li _PC_HAS_NAMEDATTR
+Возвращает 1, если для файла существует один или несколько именованных атрибутов, иначе 0.
+.It Li _PC_HAS_HIDDENSYSTEM
+Возвращает 1, если все флаги
+.Dv UF_ARCHIVE ,
+.Dv UF_HIDDEN
+и
+.Dv UF_SYSTEM
+могут быть установлены с помощью
+.Xr chflags 2 ,
+иначе 0.
+.It Li _PC_CLONE_BLKSIZE
+Возвращает размер блока, необходимый для клонирования блоков с помощью
+.Xr copy_file_range 2
+для файловой системы, если клонирование блоков поддерживается,
+иначе 0.
+.It Li _PC_CASE_INSENSITIVE
+Возвращает 1, если файловая система выполняет поиск без учёта регистра,
+иначе 0.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если вызов
+.Fn pathconf
+или
+.Fn fpathconf
+завершается неудачно, возвращается \-1 и
+.Va errno
+устанавливается соответствующим образом.
+Иначе, если переменная связана с функциональностью, которая
+не имеет ограничения в системе, возвращается \-1, а
+.Va errno
+не изменяется.
+Иначе возвращается текущее значение переменной.
+.Sh ОШИБКИ
+Если возникает любое из следующих условий, системные вызовы
+.Fn pathconf
+и
+.Fn fpathconf
+должны вернуть -1 и установить
+.Va errno
+в соответствующее значение.
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Значение аргумента
+.Fa name
+недопустимо.
+.It Bq Er EINVAL
+Реализация не поддерживает связь имени переменной
+со связанным файлом.
+.El
+.Pp
+Системный вызов
+.Fn pathconf
+завершится неудачно, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил
+.Brq Dv NAME_MAX
+символов (но см.
+.Dv _PC_NO_TRUNC
+выше),
+или всё имя пути превысило
+.Brq Dv PATH_MAX
+символов.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути.
+.It Bq Er ELOOP
+При разборе имени пути встретилось слишком много символических ссылок.
+.It Bq Er EIO
+При чтении или записи в файловую систему произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+Системный вызов
+.Fn fpathconf
+завершится неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым открытым дескриптором файла.
+.It Bq Er EIO
+При чтении или записи в файловую систему произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr copy_file_range 2 ,
+.Xr lseek 2 ,
+.Xr sysctl 3
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn pathconf
+и
+.Fn fpathconf
+впервые появились в
+.Bx 4.4 .
+Системный вызов
+.Fn lpathconf
+впервые появился в
+.Fx 8.0 .

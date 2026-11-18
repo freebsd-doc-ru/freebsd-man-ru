@@ -1,0 +1,766 @@
+.\" $OpenBSD: sftp.1,v 1.145 2026/09/07 20:24:22 job Exp $
+.\"
+.\" Copyright (c) 2001 Damien Miller.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path crypto/openssh/sftp.1
+.\" FRDP githash d8fa89d4b4bba3c47dd02eae7952b852c91ae351
+.\" FRDP hash256 67186f688f0c8e169caa245d2048a7bb29dc95400e631299a663e3a351802cdd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd $Mdocdate: September 7 2026 $
+.Dt SFTP 1
+.Os
+.Sh ИМЯ
+.Nm sftp
+.Nd безопасная передача файлов OpenSSH
+.Sh SYNOPSIS
+.Nm sftp
+.Op Fl 46AaCfNpqrv
+.Op Fl B Ar buffer_size
+.Op Fl b Ar batchfile
+.Op Fl c Ar cipher
+.Op Fl D Ar sftp_server_command
+.Op Fl F Ar ssh_config
+.Op Fl i Ar identity_file
+.Op Fl J Ar destination
+.Op Fl l Ar limit
+.Op Fl o Ar ssh_option
+.Op Fl P Ar port
+.Op Fl R Ar num_requests
+.Op Fl S Ar program
+.Op Fl s Ar subsystem | sftp_server
+.Op Fl X Ar sftp_option
+.Ar destination
+.Sh ОПИСАНИЕ
+.Nm
+— это программа передачи файлов, подобная
+.Xr ftp 1 ,
+которая выполняет все операции через шифрованный
+транспорт
+.Xr ssh 1 .
+Она также может использовать многие возможности ssh, такие как
+аутентификация по открытому ключу и сжатие.
+.Pp
+.Ar destination
+может быть задан либо как
+.Sm off
+.Oo user @ Oc host Op : path
+.Sm on
+либо как URI в форме
+.Sm off
+.No sftp:// Oo user @ Oc host Oo : port Oc Op / path .
+.Sm on
+.Pp
+Если
+.Ar destination
+содержит
+.Ar path
+и он не является каталогом,
+.Nm
+будет извлекать файлы автоматически, если используется неинтерактивный
+метод аутентификации; в противном случае это произойдёт после
+успешной интерактивной аутентификации.
+.Pp
+Если
+.Ar path
+не указан или если
+.Ar path
+является каталогом,
+.Nm
+войдёт на указанный
+.Ar host
+и перейдёт в интерактивный командный режим, перейдя в удалённый каталог,
+если он был указан.
+Необязательный завершающий слеш может использоваться, чтобы заставить
+.Ar path
+интерпретироваться как каталог.
+.Pp
+Поскольку форматы назначения используют символы двоеточия для разделения
+имён хостов от имён путей или номеров портов, адреса IPv6 должны быть
+заключены в квадратные скобки во избежание неоднозначности.
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl 4
+Заставляет
+.Nm
+использовать только адреса IPv4.
+.It Fl 6
+Заставляет
+.Nm
+использовать только адреса IPv6.
+.It Fl A
+Разрешает перенаправление
+.Xr ssh-agent 1
+на удалённую систему.
+По умолчанию агент аутентификации не перенаправляется.
+.It Fl a
+Пытаться продолжить прерванные передачи вместо перезаписи
+существующих частичных или полных копий файлов.
+Если частичное содержимое отличается от передаваемого,
+то результирующий файл, скорее всего, будет повреждён.
+.It Fl B Ar buffer_size
+Указывает размер буфера, который
+.Nm
+использует при передаче файлов.
+Более крупные буферы требуют меньшего числа обменов ценой большего
+потребления памяти.
+По умолчанию 32768 байт.
+.It Fl b Ar batchfile
+Пакетный режим читает серию команд из входного
+.Ar batchfile
+вместо
+.Em stdin .
+Поскольку он не предполагает взаимодействия с пользователем, его следует
+использовать вместе с неинтерактивной аутентификацией, чтобы избежать
+необходимости вводить пароль во время подключения (см.
+.Xr sshd 8
+и
+.Xr ssh-keygen 1
+для подробностей).
+.Pp
+.Ar batchfile
+со значением
+.Sq \-
+может использоваться для указания стандартного ввода.
+.Nm
+прервёт работу, если какая-либо из следующих
+команд завершится неудачей:
+.Ic get , put , reget , reput , rename , ln ,
+.Ic rm , mkdir , chdir , ls ,
+.Ic lchdir , copy , cp , chmod , chown ,
+.Ic chgrp , lpwd , df , symlink ,
+и
+.Ic lmkdir .
+.Pp
+Завершение при ошибке может быть подавлено для каждой команды отдельно
+путём добавления перед командой символа
+.Sq \-
+(например,
+.Ic -rm /tmp/blah* ) .
+Эхо команды может быть подавлено путём добавления перед командой символа
+.Sq @ .
+Эти два префикса могут быть объединены в любом порядке, например
+.Ic -@ls /bsd .
+.It Fl C
+Включает сжатие (через флаг
+.Fl C
+ssh).
+.It Fl c Ar cipher
+Выбирает шифр для шифрования передаваемых данных.
+Эта опция передаётся напрямую в
+.Xr ssh 1 .
+.It Fl D Ar sftp_server_command
+Подключаться напрямую к локальному серверу sftp
+(а не через
+.Xr ssh 1 ) .
+Может быть указана команда и аргументы, например
+.Qq /path/sftp-server -el debug3 .
+Эта опция может быть полезна при отладке клиента и сервера.
+.It Fl F Ar ssh_config
+Указывает альтернативный
+пользовательский файл конфигурации для
+.Xr ssh 1 .
+Эта опция передаётся напрямую в
+.Xr ssh 1 .
+.It Fl f
+Требует сброса файлов на диск сразу после передачи.
+При загрузке файлов эта возможность включается только если сервер
+реализует расширение "fsync@openssh.com".
+.It Fl i Ar identity_file
+Выбирает файл, из которого читается идентификатор (закрытый ключ)
+для аутентификации по открытому ключу.
+Эта опция передаётся напрямую в
+.Xr ssh 1 .
+.It Fl J Ar destination
+Подключаться к целевому хосту, сначала устанавливая
+соединение
+.Nm
+с промежуточным хостом, описанным в
+.Ar destination ,
+а затем устанавливая TCP-перенаправление к конечному пункту назначения
+оттуда.
+Может быть указано несколько промежуточных переходов, разделённых
+символами запятой.
+Это сокращение для указания директивы конфигурации
+.Cm ProxyJump .
+Эта опция передаётся напрямую в
+.Xr ssh 1 .
+.It Fl l Ar limit
+Ограничивает используемую полосу пропускания, указанную в Кбит/с.
+.It Fl N
+Отключает тихий режим, например, чтобы переопределить неявный тихий режим,
+установленный флагом
+.Fl b .
+.It Fl o Ar ssh_option
+Может использоваться для передачи опций в
+.Nm ssh
+в формате, используемом в
+.Xr ssh_config 5 .
+Это полезно для указания опций,
+для которых нет отдельного флага командной строки
+.Nm sftp .
+Например, чтобы указать альтернативный порт, используйте:
+.Ic sftp -oPort=24 .
+Для полной информации об опциях, перечисленных ниже, и их возможных
+значениях см.
+.Xr ssh_config 5 .
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It AddKeysToAgent
+.It AddressFamily
+.It BatchMode
+.It BindAddress
+.It BindInterface
+.It CASignatureAlgorithms
+.It CanonicalDomains
+.It CanonicalizeFallbackLocal
+.It CanonicalizeHostname
+.It CanonicalizeMaxDots
+.It CanonicalizePermittedCNAMEs
+.It CertificateFile
+.It ChannelTimeout
+.It CheckHostIP
+.It Ciphers
+.It ClearAllForwardings
+.It Compression
+.It ConnectTimeout
+.It ConnectionAttempts
+.It ControlMaster
+.It ControlPath
+.It ControlPersist
+.It DynamicForward
+.It EnableEscapeCommandline
+.It EnableSSHKeysign
+.It EscapeChar
+.It ExitOnForwardFailure
+.It FingerprintHash
+.It ForkAfterAuthentication
+.It ForwardAgent
+.It ForwardX11
+.It ForwardX11Timeout
+.It ForwardX11Trusted
+.It GSSAPIAuthentication
+.It GSSAPIDelegateCredentials
+.It GatewayPorts
+.It GlobalKnownHostsFile
+.It HashKnownHosts
+.It Host
+.It HostKeyAlgorithms
+.It HostKeyAlias
+.It HostbasedAcceptedAlgorithms
+.It HostbasedAuthentication
+.It Hostname
+.It IPQoS
+.It IdentitiesOnly
+.It IdentityAgent
+.It IdentityFile
+.It IgnoreUnknown
+.It Include
+.It KbdInteractiveAuthentication
+.It KbdInteractiveDevices
+.It KexAlgorithms
+.It KnownHostsCommand
+.It LocalCommand
+.It LocalForward
+.It LogLevel
+.It LogVerbose
+.It MACs
+.It NoHostAuthenticationForLocalhost
+.It NumberOfPasswordPrompts
+.It ObscureKeystrokeTiming
+.It PKCS11Provider
+.It PasswordAuthentication
+.It PermitLocalCommand
+.It PermitRemoteOpen
+.It Port
+.It PreferredAuthentications
+.It ProxyCommand
+.It ProxyJump
+.It ProxyUseFdpass
+.It PubkeyAcceptedAlgorithms
+.It PubkeyAuthentication
+.It RekeyLimit
+.It RemoteCommand
+.It RemoteForward
+.It RequestTTY
+.It RequiredRSASize
+.It RevokedHostKeys
+.It SecurityKeyProvider
+.It SendEnv
+.It ServerAliveCountMax
+.It ServerAliveInterval
+.It SessionType
+.It SetEnv
+.It StdinNull
+.It StreamLocalBindMask
+.It StreamLocalBindUnlink
+.It StrictHostKeyChecking
+.It SyslogFacility
+.It TCPKeepAlive
+.It Tag
+.It Tunnel
+.It TunnelDevice
+.It UpdateHostKeys
+.It User
+.It UserKnownHostsFile
+.It VerifyHostKeyDNS
+.It VisualHostKey
+.It XAuthLocation
+.El
+.It Fl P Ar port
+Указывает порт для подключения на удалённом хосте.
+.It Fl p
+Сохраняет время модификации, время доступа и режимы исходных
+передаваемых файлов.
+.It Fl q
+Тихий режим: отключает индикатор прогресса, а также предупреждающие и
+диагностические сообщения от
+.Xr ssh 1 .
+.It Fl R Ar num_requests
+Указывает, сколько запросов может быть одновременно в обработке.
+Увеличение этого значения может немного повысить скорость передачи файлов,
+но увеличит потребление памяти.
+По умолчанию 64 одновременно обрабатываемых запроса.
+.It Fl r
+Рекурсивно копировать целые каталоги при загрузке и выгрузке.
+Обратите внимание, что
+.Nm
+не следует по символическим ссылкам, встречающимся при обходе дерева.
+.It Fl S Ar program
+Имя
+.Ar program ,
+используемой для шифрованного соединения.
+Программа должна понимать опции
+.Xr ssh 1 .
+.It Fl s Ar subsystem | sftp_server
+Указывает подсистему SSH2 или путь к серверу sftp
+на удалённом хосте.
+Путь полезен, когда удалённый
+.Xr sshd 8
+не имеет настроенной подсистемы sftp.
+.It Fl v
+Повышает уровень журналирования.
+Эта опция также передаётся в ssh.
+.It Fl X Ar sftp_option
+Указывает опцию, управляющую аспектами поведения протокола SFTP.
+Допустимые опции:
+.Bl -tag -width Ds
+.It Cm nrequests Ns = Ns Ar value
+Управляет тем, сколько одновременных запросов чтения или записи SFTP
+может выполняться в любой момент времени во время загрузки или выгрузки.
+По умолчанию может быть активно 64 запроса одновременно.
+.It Cm buffer Ns = Ns Ar value
+Управляет максимальным размером буфера для одной операции чтения/записи
+SFTP, используемой во время загрузки или выгрузки.
+По умолчанию используется буфер 32 КБ.
+.El
+.El
+.Sh ИНТЕРАКТИВНЫЕ КОМАНДЫ
+В интерактивном режиме
+.Nm
+понимает набор команд, подобных командам
+.Xr ftp 1 .
+Команды нечувствительны к регистру.
+Имена путей, содержащие пробелы, должны быть заключены в кавычки.
+Любые специальные символы, содержащиеся в именах путей и распознаваемые
+.Xr glob 3 ,
+должны экранироваться обратными слешами
+.Pq Sq \e .
+.Bl -tag -width Ds
+.It Ic bye
+Выйти из
+.Nm sftp .
+.It Ic cd Op Ar path
+Сменить удалённый каталог на
+.Ar path .
+Если
+.Ar path
+не указан, то сменить каталог на тот, в котором начался сеанс.
+.It Xo Ic chgrp
+.Op Fl h
+.Ar grp
+.Ar path
+.Xc
+Изменить группу файла
+.Ar path
+на
+.Ar grp .
+.Ar path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+.Ar grp
+должен быть числовым GID.
+.Pp
+Если указан флаг
+.Fl h ,
+то символические ссылки не будут разыменовываться.
+Обратите внимание, что это поддерживается только серверами, реализующими
+расширение "lsetstat@openssh.com".
+.It Xo Ic chmod
+.Op Fl h
+.Ar mode
+.Ar path
+.Xc
+Изменить права доступа к файлу
+.Ar path
+на
+.Ar mode .
+.Ar path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+.Pp
+Если указан флаг
+.Fl h ,
+то символические ссылки не будут разыменовываться.
+Обратите внимание, что это поддерживается только серверами, реализующими
+расширение "lsetstat@openssh.com".
+.It Xo Ic chown
+.Op Fl h
+.Ar own
+.Ar path
+.Xc
+Изменить владельца файла
+.Ar path
+на
+.Ar own .
+.Ar path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+.Ar own
+должен быть числовым UID.
+.Pp
+Если указан флаг
+.Fl h ,
+то символические ссылки не будут разыменовываться.
+Обратите внимание, что это поддерживается только серверами, реализующими
+расширение "lsetstat@openssh.com".
+.It Ic copy Ar oldpath Ar newpath
+Скопировать удалённый файл из
+.Ar oldpath
+в
+.Ar newpath .
+.Pp
+Обратите внимание, что это поддерживается только серверами, реализующими
+расширение "copy-data".
+.It Ic cp Ar oldpath Ar newpath
+Псевдоним команды
+.Ic copy .
+.It Xo Ic df
+.Op Fl hi
+.Op Ar path
+.Xc
+Показать информацию об использовании файловой системы, содержащей текущий
+каталог (или
+.Ar path ,
+если указан).
+Если указан флаг
+.Fl h ,
+информация о ёмкости будет отображаться с использованием
+"удобочитаемых" суффиксов.
+Флаг
+.Fl i
+запрашивает отображение информации об inode в дополнение к информации
+о ёмкости.
+Эта команда поддерживается только на серверах, реализующих расширение
+.Dq statvfs@openssh.com .
+.It Ic exit
+Выйти из
+.Nm sftp .
+.It Xo Ic get
+.Op Fl afpR
+.Ar remote-path
+.Op Ar local-path
+.Xc
+Извлечь
+.Ar remote-path
+и сохранить его на локальной машине.
+Если локальное
+имя пути не указано, ему даётся то же имя, которое он имеет на
+удалённой машине.
+.Ar remote-path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+Если это так и
+.Ar local-path
+указан, то
+.Ar local-path
+должен указывать каталог.
+.Pp
+Если указан флаг
+.Fl a ,
+то предпринимается попытка возобновить частичные передачи существующих
+файлов.
+Обратите внимание, что возобновление предполагает, что любая частичная
+копия локального файла совпадает с удалённой копией.
+Если содержимое удалённого файла отличается от частичной локальной копии,
+то результирующий файл, скорее всего, будет повреждён.
+.Pp
+Если указан флаг
+.Fl f ,
+то после завершения передачи файла будет вызвана
+.Xr fsync 2
+для сброса файла на диск.
+.Pp
+Если указан флаг
+.Fl p ,
+то также копируются полные права доступа к файлу и время доступа.
+.Pp
+Если указан флаг
+.Fl R ,
+то каталоги будут копироваться рекурсивно.
+Обратите внимание, что
+.Nm
+не следует по символическим ссылкам при выполнении рекурсивных передач.
+.It Ic help
+Показать текст справки.
+.It Ic lcd Op Ar path
+Сменить локальный каталог на
+.Ar path .
+Если
+.Ar path
+не указан, то сменить каталог на домашний каталог локального
+пользователя.
+.It Ic lls Op Ar ls-options Op Ar path
+Показать содержимое локального каталога
+.Ar path
+или текущего каталога, если
+.Ar path
+не указан.
+.Ar ls-options
+может содержать любые флаги, поддерживаемые командой
+.Xr ls 1
+локальной системы.
+.Ar path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+.It Xo Ic lmkdir
+.Op Fl p
+.Ar path
+.Xc
+Создать локальный каталог, указанный в
+.Ar path .
+Если указан флаг
+.Fl p ,
+создать промежуточные каталоги по мере необходимости.
+Не считать ошибкой, если указанный каталог уже существует.
+.It Xo Ic ln
+.Op Fl s
+.Ar oldpath
+.Ar newpath
+.Xc
+Создать ссылку из
+.Ar oldpath
+в
+.Ar newpath .
+Если указан флаг
+.Fl s ,
+созданная ссылка является символической, в противном случае —
+жёсткой.
+.It Ic lpwd
+Показать локальный рабочий каталог.
+.It Xo Ic ls
+.Op Fl 1afhlnrSt
+.Op Ar path
+.Xc
+Показать содержимое удалённого каталога
+.Ar path
+или текущего каталога, если
+.Ar path
+не указан.
+.Ar path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+.Pp
+Распознаются следующие флаги, изменяющие поведение
+.Ic ls
+соответствующим образом:
+.Bl -tag -width Ds
+.It Fl 1
+Выводить в один столбец.
+.It Fl a
+Показывать файлы, начинающиеся с точки
+.Pq Sq \&. .
+.It Fl f
+Не сортировать содержимое.
+Порядок сортировки по умолчанию — лексикографический.
+.It Fl h
+При использовании с опцией длинного формата использовать суффиксы
+единиц: байт, килобайт, мегабайт, гигабайт, терабайт, петабайт и
+эксабайт, чтобы уменьшить количество цифр до четырёх или менее,
+используя степени 2 для размеров (K=1024, M=1048576 и т. д.).
+.It Fl l
+Показывать дополнительные сведения, включая права доступа
+и информацию о владельце.
+.It Fl n
+Выводить длинный список с информацией о пользователях и группах
+в числовом виде.
+.It Fl r
+Изменить порядок сортировки содержимого на обратный.
+.It Fl S
+Сортировать содержимое по размеру файла.
+.It Fl t
+Сортировать содержимое по времени последней модификации.
+.El
+.It Ic lumask Ar umask
+Установить локальную маску режима на
+.Ar umask .
+.It Xo Ic mkdir
+.Op Fl p
+.Ar path
+.Xc
+Создать удалённый каталог, указанный в
+.Ar path .
+Если указан флаг
+.Fl p ,
+создать промежуточные каталоги по мере необходимости.
+Не считать ошибкой, если указанный каталог уже существует.
+.It Ic progress
+Переключить отображение индикатора прогресса.
+.It Xo Ic put
+.Op Fl afpR
+.Ar local-path
+.Op Ar remote-path
+.Xc
+Выгрузить
+.Ar local-path
+и сохранить его на удалённой машине.
+Если удалённое имя пути не указано, ему даётся то же имя, которое он
+имеет на локальной машине.
+.Ar local-path
+может содержать символы
+.Xr glob 7
+и может соответствовать нескольким файлам.
+Если это так и
+.Ar remote-path
+указан, то
+.Ar remote-path
+должен указывать каталог.
+.Pp
+Если указан флаг
+.Fl a ,
+то предпринимается попытка возобновить частичные
+передачи существующих файлов.
+Обратите внимание, что возобновление предполагает, что любая частичная
+копия удалённого файла совпадает с локальной копией.
+Если содержимое локального файла отличается от удалённой локальной копии,
+то результирующий файл, скорее всего, будет повреждён.
+.Pp
+Если указан флаг
+.Fl f ,
+то серверу будет отправлен запрос вызвать
+.Xr fsync 2
+после завершения передачи файла.
+Обратите внимание, что это поддерживается только серверами, реализующими
+расширение "fsync@openssh.com".
+.Pp
+Если указан флаг
+.Fl p ,
+то также копируются полные права доступа к файлу и время доступа.
+.Pp
+Если указан флаг
+.Fl R ,
+то каталоги будут копироваться рекурсивно.
+Обратите внимание, что
+.Nm
+не следует по символическим ссылкам при выполнении рекурсивных передач.
+.It Ic pwd
+Показать удалённый рабочий каталог.
+.It Ic quit
+Выйти из
+.Nm sftp .
+.It Xo Ic reget
+.Op Fl fpR
+.Ar remote-path
+.Op Ar local-path
+.Xc
+Возобновить загрузку
+.Ar remote-path .
+Эквивалентно
+.Ic get
+с установленным флагом
+.Fl a .
+.It Xo Ic reput
+.Op Fl fpR
+.Ar local-path
+.Op Ar remote-path
+.Xc
+Возобновить выгрузку
+.Ar local-path .
+Эквивалентно
+.Ic put
+с установленным флагом
+.Fl a .
+.It Ic rename Ar oldpath newpath
+Переименовать удалённый файл из
+.Ar oldpath
+в
+.Ar newpath .
+.It Ic rm Ar path
+Удалить удалённый файл, указанный в
+.Ar path .
+.It Ic rmdir Ar path
+Удалить удалённый каталог, указанный в
+.Ar path .
+.It Ic symlink Ar oldpath newpath
+Создать символическую ссылку из
+.Ar oldpath
+в
+.Ar newpath .
+.It Ic version
+Показать версию протокола
+.Nm .
+.It Ic \&! Ns Ar command
+Выполнить
+.Ar command
+в локальной оболочке.
+.It Ic \&!
+Перейти в локальную оболочку.
+.It Ic \&?
+Синоним help.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ftp 1 ,
+.Xr ls 1 ,
+.Xr scp 1 ,
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr glob 7 ,
+.Xr sftp-server 8 ,
+.Xr sshd 8
+.Rs
+.%A T. Ylonen
+.%A S. Lehtinen
+.%T "SSH File Transfer Protocol"
+.%N draft-ietf-secsh-filexfer-00.txt
+.%D January 2001
+.%O work in progress material
+.Re

@@ -1,0 +1,402 @@
+.\" Copyright (c) 1983, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/recv.2
+.\" FRDP githash e5bcf988398924568015202bf853b3a9abd3845e
+.\" FRDP hash256 ee6817ca6169222292100dabac87cfb5887152b05f5fdd44f8da8e4e07e503f1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 6, 2026
+.Dt RECV 2
+.Os
+.Sh ИМЯ
+.Nm recv ,
+.Nm recvfrom ,
+.Nm recvmsg ,
+.Nm recvmmsg
+.Nd получение сообщений из сокета
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/socket.h
+.Ft ssize_t
+.Fn recv "int s" "void *buf" "size_t len" "int flags"
+.Ft ssize_t
+.Fn recvfrom "int s" "void *buf" "size_t len" "int flags" "struct sockaddr * restrict from" "socklen_t * restrict fromlen"
+.Ft ssize_t
+.Fn recvmsg "int s" "struct msghdr *msg" "int flags"
+.Ft ssize_t
+.Fn recvmmsg "int s" "struct mmsghdr * restrict msgvec" "size_t vlen" "int flags" "const struct timespec * restrict timeout"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn recvfrom ,
+.Fn recvmsg ,
+и
+.Fn recvmmsg
+используются для получения сообщений из сокета
+и могут применяться для приёма данных из сокета независимо от того,
+является ли он ориентированным на соединение.
+.Pp
+Если
+.Fa from
+не является нулевым указателем
+и сокет не ориентирован на соединение,
+в него записывается адрес источника сообщения.
+Аргумент
+.Fa fromlen
+является аргументом-значением-результатом: при вызове он инициализируется
+размером буфера, связанного с
+.Fa from ,
+а при возврате изменяется, указывая фактический размер
+сохранённого там адреса.
+.Pp
+Функция
+.Fn recv
+обычно используется только с
+.Em соединённым
+сокетом (см.
+.Xr connect 2 )
+и идентична
+.Fn recvfrom
+с нулевым указателем, переданным в качестве аргумента
+.Fa from .
+.Pp
+Функция
+.Fn recvmmsg
+используется для получения нескольких
+сообщений за один вызов.
+Их число задаётся аргументом
+.Fa vlen .
+После приёма сообщения помещаются в буферы, описанные
+вектором
+.Fa msgvec .
+Размер каждого полученного сообщения помещается в
+поле
+.Fa msg_len
+каждого элемента вектора.
+Если
+.Fa timeout
+равен NULL, вызов блокируется, пока данные не станут доступны
+для каждого предоставленного буфера сообщения.
+В противном случае он ожидает данные в течение указанного времени.
+Если время ожидания истекло и данные не получены,
+возвращается значение 0.
+Системный вызов
+.Xr ppoll 2
+используется для реализации механизма тайм-аута
+перед выполнением первого приёма.
+.Pp
+Функции
+.Fn recv ,
+.Fn recvfrom
+и
+.Fn recvmsg
+при успешном завершении возвращают длину сообщения, тогда как
+.Fn recvmmsg
+возвращает число полученных сообщений.
+Если сообщение слишком велико, чтобы уместиться в предоставленном буфере,
+лишние байты могут быть отброшены в зависимости от типа сокета,
+из которого получено сообщение (см.
+.Xr socket 2 ) .
+.Pp
+Если в сокете нет доступных сообщений, вызов приёма ожидает поступления
+сообщения, если только сокет не является неблокирующим (см.
+.Xr fcntl 2 ),
+и в этом случае возвращается значение
+\-1, а глобальной переменной
+.Va errno
+присваивается
+.Er EAGAIN .
+Вызовы приёма, кроме
+.Fn recvmmsg ,
+обычно возвращают любые доступные данные
+в пределах запрошенного количества,
+а не ожидают получения полного запрошенного объёма;
+на такое поведение влияют параметры уровня сокета
+.Dv SO_RCVLOWAT
+и
+.Dv SO_RCVTIMEO ,
+описанные в
+.Xr getsockopt 2 .
+Функция
+.Fn recvmmsg
+реализует такое поведение для каждого сообщения в векторе.
+.Pp
+Системный вызов
+.Xr select 2
+может использоваться для определения момента поступления новых данных.
+.Pp
+Аргумент
+.Fa flags
+функции
+.Fn recv
+формируется путём
+.Em логического сложения
+одного или нескольких из следующих значений:
+.Bl -column ".Dv MSG_CMSG_CLOEXEC" -offset indent
+.It Dv MSG_OOB Ta обработка внеполосных данных
+.It Dv MSG_PEEK Ta подсмотреть входящее сообщение
+.It Dv MSG_TRUNC Ta вернуть реальную длину пакета или датаграммы
+.It Dv MSG_WAITALL Ta ожидать полного запроса или ошибки
+.It Dv MSG_DONTWAIT Ta не блокироваться
+.It Dv MSG_CMSG_CLOEXEC Ta установить для полученных дескрипторов флаг close-on-exec
+.It Dv MSG_CMSG_CLOFORK Ta установить для полученных дескрипторов флаг close-on-fork
+.It Dv MSG_WAITFORONE Ta не блокироваться после получения первого сообщения
+(только для
+.Fn recvmmsg
+)
+.El
+.Pp
+Флаг
+.Dv MSG_OOB
+запрашивает приём внеполосных данных,
+которые не были бы получены в обычном потоке данных.
+Некоторые протоколы помещают срочные данные в начало обычной
+очереди данных, поэтому этот флаг нельзя использовать с такими протоколами.
+Флаг
+.Dv MSG_PEEK
+заставляет операцию приёма возвращать данные
+из начала очереди приёма, не удаляя эти
+данные из очереди.
+Таким образом, последующий вызов приёма вернёт те же данные.
+Флаг
+.Dv MSG_TRUNC
+заставляет операцию приёма возвращать полную длину пакета
+или датаграммы, даже если она больше предоставленного буфера.
+Флаг поддерживается на сокетах SOCK_DGRAM для семейств
+.Dv AF_INET
+,
+.Dv AF_INET6
+и
+.Dv AF_UNIX
+.
+Флаг
+.Dv MSG_WAITALL
+требует, чтобы операция блокировалась до
+удовлетворения полного запроса.
+Однако вызов всё равно может вернуть меньше данных, чем запрошено,
+если сокет является сокетом на основе сообщений, если пойман сигнал,
+если соединение прервано, если указан
+.Dv MSG_PEEK ,
+или если для сокета ожидается ошибка.
+Флаг
+.Dv MSG_DONTWAIT
+требует, чтобы вызов возвращался, когда он иначе заблокировался бы.
+Если данные отсутствуют,
+.Va errno
+присваивается
+.Er EAGAIN .
+Этот флаг недоступен в режиме компиляции
+.St -ansiC
+или
+.St -isoC-99 .
+Флаг
+.Dv MSG_WAITFORONE
+устанавливает MSG_DONTWAIT после получения первого сообщения.
+Этот флаг имеет смысл только для
+.Fn recvmmsg .
+.Pp
+Системный вызов
+.Fn recvmsg
+использует структуру
+.Fa msghdr
+для минимизации числа непосредственно передаваемых аргументов.
+Эта структура имеет следующий вид, как определено в
+.In sys/socket.h :
+.Bd -literal
+struct msghdr {
+	void		*msg_name;	/* optional address */
+	socklen_t	 msg_namelen;	/* size of address */
+	struct iovec	*msg_iov;	/* scatter/gather array */
+	int		 msg_iovlen;	/* # elements in msg_iov */
+	void		*msg_control;	/* ancillary data, see below */
+	socklen_t	 msg_controllen;/* ancillary data buffer len */
+	int		 msg_flags;	/* flags on received message */
+};
+.Ed
+.Pp
+Здесь
+.Fa msg_name
+и
+.Fa msg_namelen
+задают адрес источника, если сокет не соединён;
+.Fa msg_name
+может быть задан как нулевой указатель, если имена не нужны или не требуются.
+Аргументы
+.Fa msg_iov
+и
+.Fa msg_iovlen
+описывают расположения для сбора-распределения, как обсуждается в
+.Xr read 2 .
+Аргумент
+.Fa msg_control
+,
+имеющий длину
+.Fa msg_controllen ,
+указывает на буфер для других управляющих сообщений протокола
+или прочих вспомогательных данных.
+Сообщения имеют следующий вид:
+.Bd -literal
+struct cmsghdr {
+	socklen_t  cmsg_len;	/* data byte count, including hdr */
+	int	   cmsg_level;	/* originating protocol */
+	int	   cmsg_type;	/* protocol-specific type */
+/* followed by
+	u_char	   cmsg_data[]; */
+};
+.Ed
+.Pp
+Например, параметр сокета SO_TIMESTAMP возвращает отметку времени
+приёма для пакетов UDP.
+.Pp
+В сокетах домена
+.Dv AF_UNIX
+вспомогательные данные могут использоваться для передачи файловых дескрипторов и
+учётных данных процесса.
+Подробности см. в
+.Xr unix 4 .
+.Pp
+Поле
+.Fa msg_flags
+устанавливается при возврате в соответствии с полученным сообщением.
+.Dv MSG_EOR
+указывает конец записи;
+возвращённые данные завершили запись (обычно используется с сокетами типа
+.Dv SOCK_SEQPACKET ) .
+.Dv MSG_TRUNC
+указывает, что
+хвостовая часть датаграммы была отброшена, поскольку датаграмма
+была больше предоставленного буфера.
+.Dv MSG_CTRUNC
+указывает, что некоторые
+управляющие данные были отброшены из-за нехватки места в буфере
+для вспомогательных данных.
+.Dv MSG_OOB
+возвращается, указывая, что были получены срочные или внеполосные данные.
+.Pp
+Системный вызов
+.Fn recvmmsg
+использует структуру
+.Fa mmsghdr
+,
+определённую следующим образом в заголовочном файле
+.In sys/socket.h
+:
+.Bd -literal
+struct mmsghdr {
+	struct msghdr	 msg_hdr;	/* message header */
+	ssize_t		 msg_len;	/* message length */
+};
+.Ed
+.Pp
+При приёме данных поле
+.Fa msg_len
+обновляется до длины полученного сообщения.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении функции
+.Fn recv ,
+.Fn recvfrom ,
+и
+.Fn recvmsg
+возвращают число полученных байтов, тогда как функция
+.Fn recvmmsg
+возвращает число полученных сообщений.
+Если нет сообщений, доступных для приёма, и удалённая сторона
+выполнила корректное закрытие, возвращается 0.
+В противном случае возвращается -1, и
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Вызовы завершаются неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa s
+является недопустимым дескриптором.
+.It Bq Er ECONNRESET
+Удалённый конец сокета принудительно закрыт.
+.It Bq Er ENOTCONN
+Сокет связан с протоколом, ориентированным на соединение,
+и не был соединён (см.
+.Xr connect 2
+и
+.Xr accept 2 ) .
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не ссылается на сокет.
+.It Bq Er EMFILE
+Системный вызов
+.Fn recvmsg
+использовался для получения прав (файловых дескрипторов), находившихся в пути
+по соединению.
+Однако принимающая программа не имела достаточно свободных слотов файловых
+дескрипторов, чтобы их принять.
+В этом случае дескрипторы закрываются, а ожидающие данные либо отбрасываются
+в случае ненадёжного протокола датаграмм, либо сохраняются в случае
+надёжного протокола.
+Ожидающие данные можно извлечь повторным вызовом
+.Fn recvmsg .
+.It Bq Er EMSGSIZE
+Член
+.Fa msg_iovlen
+структуры
+.Fa msghdr
+, на которую указывает
+.Fa msg
+,
+меньше или равен 0, или больше
+.Va IOV_MAX .
+.It Bq Er EAGAIN
+Сокет помечен как неблокирующий, и операция приёма
+заблокировалась бы, или
+был установлен тайм-аут приёма,
+и тайм-аут истёк до получения данных.
+.It Bq Er EINTR
+Приём был прерван доставкой сигнала до того,
+как стали доступны какие-либо данные.
+.It Bq Er EFAULT
+Указатель (указатели) буфера приёма указывает за пределы адресного пространства
+процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fcntl 2 ,
+.Xr getsockopt 2 ,
+.Xr read 2 ,
+.Xr select 2 ,
+.Xr socket 2 ,
+.Xr CMSG_DATA 3 ,
+.Xr unix 4
+.Sh ИСТОРИЯ
+Функция
+.Fn recv
+появилась в
+.Bx 4.2 .
+Функция
+.Fn recvmmsg
+появилась в
+.Fx 11.0 .

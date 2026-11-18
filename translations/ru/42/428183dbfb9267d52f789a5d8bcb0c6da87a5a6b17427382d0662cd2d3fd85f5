@@ -1,0 +1,251 @@
+.\" Copyright (c) 1983, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/accept.2
+.\" FRDP githash efadb5c2a908a08e98f917ef6e6e65c73e8d04af
+.\" FRDP hash256 428183dbfb9267d52f789a5d8bcb0c6da87a5a6b17427382d0662cd2d3fd85f5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 17, 2025
+.Dt ACCEPT 2
+.Os
+.Sh NAME
+.Nm accept ,
+.Nm accept4
+.Nd приём соединения на сокете
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.Ft int
+.Fn accept "int s" "struct sockaddr * restrict addr" "socklen_t * restrict addrlen"
+.Ft int
+.Fn accept4 "int s" "struct sockaddr * restrict addr" "socklen_t * restrict addrlen" "int flags"
+.Sh DESCRIPTION
+Аргумент
+.Fa s
+является сокетом, который был создан с помощью
+.Xr socket 2 ,
+привязан к адресу с помощью
+.Xr bind 2
+и находится в режиме ожидания соединений после вызова
+.Xr listen 2 .
+Системный вызов
+.Fn accept
+извлекает первый запрос на соединение из
+очереди ожидающих соединений, создаёт новый сокет
+и выделяет для него новый файловый дескриптор, который
+наследует состояние свойств
+.Dv O_NONBLOCK
+и
+.Dv O_ASYNC
+и получателя сигналов
+.Dv SIGIO
+и
+.Dv SIGURG
+от исходного сокета
+.Fa s .
+.Pp
+Системный вызов
+.Fn accept4
+аналогичен,
+но свойство
+.Dv O_NONBLOCK
+нового сокета вместо этого определяется флагом
+.Dv SOCK_NONBLOCK
+в аргументе
+.Fa flags ,
+свойство
+.Dv O_ASYNC
+сбрасывается,
+получатель сигналов сбрасывается,
+а флаг close-on-exec для нового файлового дескриптора можно установить с помощью флага
+.Dv SOCK_CLOEXEC
+в аргументе
+.Fa flags .
+Аналогично, свойство
+.Dv O_CLOFORK
+можно установить с помощью флага
+.Dv SOCK_CLOFORK
+в аргументе
+.Fa flags .
+.Pp
+Если в очереди нет ожидающих соединений
+и исходный сокет
+не помечен как неблокирующий,
+.Fn accept
+блокирует вызывающую сторону до появления соединения.
+Если исходный сокет
+помечен как неблокирующий и в очереди нет ожидающих
+соединений,
+.Fn accept
+возвращает ошибку, как описано ниже.
+Принятый сокет
+не может быть использован
+для приёма других соединений.
+Исходный сокет
+.Fa s
+остаётся открытым.
+.Pp
+Аргумент
+.Fa addr
+является аргументом-результатом, который заполняется
+адресом соединяющейся сущности,
+известным коммуникационному уровню.
+Точный формат аргумента
+.Fa addr
+определяется доменом, в котором происходит
+обмен данными.
+Для
+.Fa addr
+может быть указан нулевой указатель,
+если информация об адресе не требуется;
+в этом случае
+.Fa addrlen
+не используется и также должен быть нулевым.
+В противном случае аргумент
+.Fa addrlen
+является аргументом-значением-результатом; изначально он должен содержать
+объём пространства, на который указывает
+.Fa addr ;
+при возврате он будет содержать фактическую длину (в байтах)
+возвращённого адреса.
+Этот вызов
+используется с сокетами, работающими на основе соединений, в настоящее время с
+.Dv SOCK_STREAM .
+.Pp
+Можно использовать
+.Xr select 2
+для сокета с целью выполнения
+.Fn accept ,
+выбрав его для чтения.
+.Pp
+Для некоторых протоколов, требующих явного подтверждения,
+таких как
+.Tn ISO
+или
+.Tn DATAKIT ,
+.Fn accept
+можно рассматривать
+как простое извлечение из очереди следующего запроса
+на соединение без подразумеваемого подтверждения.
+Подтверждение может подразумеваться обычным чтением или записью в новый
+файловый дескриптор, а отказ может подразумеваться закрытием
+нового сокета.
+.Pp
+Для некоторых приложений производительность может быть повышена с помощью
+.Xr accept_filter 9
+для предварительной обработки входящих соединений.
+.Pp
+При использовании
+.Fn accept
+переносимые программы не должны полагаться на то, что
+свойства
+.Dv O_NONBLOCK
+и
+.Dv O_ASYNC
+и получатель сигналов будут унаследованы,
+а должны устанавливать их явно с помощью
+.Xr fcntl 2 ;
+.Fn accept4
+устанавливает эти свойства согласованно,
+но может быть не полностью переносимым между
+.Ux
+платформами.
+.Sh RETURN VALUES
+Эти вызовы возвращают \-1 при ошибке.
+В случае успеха они возвращают неотрицательное
+целое число, являющееся дескриптором принятого сокета.
+.Sh ERRORS
+Системные вызовы
+.Fn accept
+и
+.Fn accept4
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Дескриптор недопустим.
+.It Bq Er EINTR
+Операция
+.Fn accept
+была прервана.
+.It Bq Er EMFILE
+Таблица дескрипторов процесса заполнена.
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er ENOTSOCK
+Дескриптор ссылается на файл, а не на сокет.
+.It Bq Er EINVAL
+.Xr listen 2
+не был вызван для дескриптора сокета.
+.It Bq Er EFAULT
+Аргумент
+.Fa addr
+не находится в записываемой части
+пользовательского адресного пространства.
+.It Bo Er EWOULDBLOCK Bc or Bq Er EAGAIN
+Сокет помечен как неблокирующий, и соединения,
+которые можно принять, отсутствуют.
+.It Bq Er ECONNABORTED
+Соединение поступило, но было закрыто во время ожидания
+в очереди прослушивания.
+.El
+.Pp
+Системный вызов
+.Fn accept4
+также завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+недопустим.
+.El
+.Sh SEE ALSO
+.Xr bind 2 ,
+.Xr connect 2 ,
+.Xr getpeername 2 ,
+.Xr getsockname 2 ,
+.Xr listen 2 ,
+.Xr select 2 ,
+.Xr socket 2 ,
+.Xr accept_filter 9
+.Sh HISTORY
+Системный вызов
+.Fn accept
+появился в
+.Bx 4.2 .
+.Pp
+Системный вызов
+.Fn accept4
+появился в
+.Fx 10.0 .
+.Pp
+Флаг
+.Dv SOCK_CLOFORK
+появился в
+.Fx 15.0 .

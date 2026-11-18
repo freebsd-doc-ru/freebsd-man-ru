@@ -1,0 +1,89 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldnext.2
+.\" FRDP githash f44029e322446469f116bbd26d51ba857083bacb
+.\" FRDP hash256 7801d6bd2dd7cdc4ca1d3ce2aef0aaa24fb4c07fb961480151d1ef0c54cc1836
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 22, 2006
+.Dt KLDNEXT 2
+.Os
+.Sh ИМЯ
+.Nm kldnext
+.Nd возвращает идентификатор файла следующего kld-файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldnext "int fileid"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kldnext
+возвращает идентификатор файла следующего kld-файла (то есть того, который идет после
+.Fa fileid )
+или 0, если
+.Fa fileid
+является последним загруженным файлом.
+Чтобы получить идентификатор файла первого kld-файла, передайте
+.Fa fileid
+равный 0 в
+.Fn kldnext .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn kldnext
+возвращает идентификатор файла следующего kld-файла или 0 в случае успеха.
+В противном случае
+.Fn kldnext
+возвращает значение \-1 и устанавливает глобальную переменную
+.Va errno
+для указания ошибки.
+.Sh ОШИБКИ
+Единственная ошибка, устанавливаемая
+.Fn kldnext
+— это
+.Er ENOENT ,
+которая устанавливается, когда
+.Fa fileid
+ссылается на kld-файл, который не существует (не загружен).
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

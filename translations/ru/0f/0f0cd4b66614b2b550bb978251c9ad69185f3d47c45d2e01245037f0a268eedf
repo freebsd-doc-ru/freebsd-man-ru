@@ -1,0 +1,95 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldunload.2
+.\" FRDP githash f44029e322446469f116bbd26d51ba857083bacb
+.\" FRDP hash256 0f0cd4b66614b2b550bb978251c9ad69185f3d47c45d2e01245037f0a268eedf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 25, 2008
+.Dt KLDUNLOAD 2
+.Os
+.Sh ИМЯ
+.Nm kldunload , kldunloadf
+.Nd выгрузка файлов kld
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldunload "int fileid"
+.Ft int
+.Fn kldunloadf "int fileid" "int flags"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kldunload
+выгружает из ядра файл kld, который ранее был загружен с помощью
+.Xr kldload 2 .
+.Pp
+Системный вызов
+.Fn kldunloadf
+принимает дополнительный аргумент flags, который может быть одним из
+.Dv LINKER_UNLOAD_NORMAL ,
+обеспечивающим то же поведение, что и
+.Fn kldunload ,
+или
+.Dv LINKER_UNLOAD_FORCE ,
+который заставляет выгрузку игнорировать неудачу при приведении модуля в состояние покоя.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Файл, на который ссылается
+.Fa fileid
+выгружается, если не возникает следующая ситуация:
+.Bl -tag -width Er
+.It Bq Er EPERM
+У вас нет прав на удаление файла из ядра.
+.It Bq Er ENOENT
+Файл не найден.
+.It Bq Er EBUSY
+Вы попытались выгрузить файл, загруженный ядром.
+.It Bq Er EINVAL
+В системный вызов
+.Fn kldunloadf
+были переданы недопустимые флаги.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldunload 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

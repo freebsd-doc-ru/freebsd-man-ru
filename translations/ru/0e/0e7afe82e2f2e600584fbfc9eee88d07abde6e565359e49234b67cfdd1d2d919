@@ -1,0 +1,136 @@
+.\" Copyright (c) 1980, 1991 Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/i386/i386_get_ldt.2
+.\" FRDP githash 4bc66c0f9f2c349af86cbf4e77f000b49d819fea
+.\" FRDP hash256 0e7afe82e2f2e600584fbfc9eee88d07abde6e565359e49234b67cfdd1d2d919
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 14, 2006
+.Dt I386_GET_LDT 2
+.Os
+.Sh ИМЯ
+.Nm i386_get_ldt ,
+.Nm i386_set_ldt
+.Nd управление записями локальной таблицы дескрипторов i386 для каждого процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In machine/segments.h
+.In machine/sysarch.h
+.Ft int
+.Fn i386_get_ldt "int start_sel" "union descriptor *descs" "int num_sels"
+.Ft int
+.Fn i386_set_ldt "int start_sel" "union descriptor *descs" "int num_sels"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn i386_get_ldt
+возвращает список дескрипторов i386 из LDT текущего процесса.
+Системный вызов
+.Fn i386_set_ldt
+устанавливает список дескрипторов i386 в LDT текущего процесса.
+Для обеих процедур
+.Fa start_sel
+задаёт индекс селектора в LDT, с которого следует начать, а
+.Fa descs
+указывает на массив из
+.Fa num_sels
+дескрипторов, которые должны быть установлены или возвращены.
+.Pp
+Каждый элемент массива
+.Fa descs
+может быть либо segment_descriptor, либо gate_descriptor, и они определены в
+.In i386/segments.h .
+Эти структуры определены архитектурой
+как непересекающиеся битовые поля, поэтому при их построении необходимо соблюдать осторожность.
+.Pp
+Если
+.Fa start_sel
+равен
+.Em LDT_AUTO_ALLOC ,
+.Fa num_sels
+равен 1 и дескриптор, на который указывает
+.Fa descs ,
+допустим, то
+.Fn i386_set_ldt
+выделит дескриптор и вернёт его
+номер селектора.
+.Pp
+Если
+.Fa num_descs
+равен 1,
+.Fa start_sels
+допустим, а
+.Fa descs
+равен NULL, то
+.Fn i386_set_ldt
+освободит этот дескриптор
+(сделав его доступным для повторного выделения позже).
+.Pp
+Если
+.Fa num_descs
+равен 0,
+.Fa start_sels
+равен 0 и
+.Fa descs
+равен NULL, то, как особый случай,
+.Fn i386_set_ldt
+освободит все дескрипторы.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении
+.Fn i386_get_ldt
+возвращает количество дескрипторов, находящихся в данный момент в LDT.
+Системный вызов
+.Fn i386_set_ldt
+возвращает первый установленный селектор в случае успеха.
+Если ядро выделило дескриптор в LDT,
+возвращается выделенный индекс.
+В противном случае возвращается значение -1, и глобальная
+переменная
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn i386_get_ldt
+и
+.Fn i386_set_ldt
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Для
+.Fa start_sel
+или
+.Fa num_sels
+использовано неподходящее значение.
+.It Bq Er EACCES
+Вызывающий процесс попытался использовать дескриптор, который
+обошёл бы защиту или вызвал бы сбой.
+.El
+.Sh СМ. ТАКЖЕ
+i386 Microprocessor Programmer's Reference Manual, Intel
+.Sh ПРЕДУПРЕЖДЕНИЕ
+Используя это, вы действительно можете испортить свой процесс.

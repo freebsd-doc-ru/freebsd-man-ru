@@ -1,0 +1,246 @@
+.\"	$OpenBSD: clock_gettime.2,v 1.4 1997/05/08 20:21:16 kstailey Exp $
+.\"
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/clock_gettime.2
+.\" FRDP githash 52fa2f9f8d57e4dde555567794c6b3e0e242b8a1
+.\" FRDP hash256 c0e7ff0ff9a6a74dfacb504c89d3cbe01125329a329ce471c9ba5d3d16efba52
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 15, 2025
+.Dt CLOCK_GETTIME 2
+.Os
+.Sh ИМЯ
+.Nm clock_gettime ,
+.Nm clock_settime ,
+.Nm clock_getres
+.Nd получение/установка/калибровка даты и времени
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In time.h
+.Ft int
+.Fn clock_gettime "clockid_t clock_id" "struct timespec *tp"
+.Ft int
+.Fn clock_settime "clockid_t clock_id" "const struct timespec *tp"
+.Ft int
+.Fn clock_getres "clockid_t clock_id" "struct timespec *tp"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn clock_gettime
+и
+.Fn clock_settime
+позволяют вызывающему процессу получить или установить значение,
+используемое часами, которые задаются параметром
+.Fa clock_id .
+.Pp
+Аргумент
+.Fa clock_id
+может быть значением, полученным из
+.Xr clock_getcpuclockid 3
+или
+.Xr pthread_getcpuclockid 3 ,
+а также одним из следующих значений:
+.Pp
+.Bl -tag -width indent -compact
+.It Dv CLOCK_REALTIME
+.It Dv CLOCK_REALTIME_PRECISE
+.It Dv CLOCK_REALTIME_FAST
+.It Dv CLOCK_REALTIME_COARSE
+Увеличивается в секундах СИ как настенные часы.
+Использует эпоху 1970 года и реализует шкалу времени UTC.
+Счётчик физических секунд СИ с 1970 года, скорректированный путём вычитания
+числа положительных секунд координации и прибавления числа отрицательных секунд координации.
+Поведение во время секунды координации не определено ни одним стандартом POSIX.
+.It Dv CLOCK_MONOTONIC
+.It Dv CLOCK_MONOTONIC_PRECISE
+.It Dv CLOCK_MONOTONIC_FAST
+.It Dv CLOCK_MONOTONIC_COARSE
+.It Dv CLOCK_BOOTTIME
+Увеличивается в секундах СИ, даже когда система приостановлена.
+Его эпоха не определена.
+Счётчик не корректируется на секунды координации.
+.It Dv CLOCK_UPTIME
+.It Dv CLOCK_UPTIME_PRECISE
+.It Dv CLOCK_UPTIME_FAST
+Монотонно увеличивается в секундах СИ, пока машина работает.
+Счётчик не корректируется на секунды координации.
+Эпоха не определена.
+.It Dv CLOCK_VIRTUAL
+Увеличивается только тогда, когда
+ЦП работает в пользовательском режиме от имени вызывающего процесса.
+.It Dv CLOCK_PROF
+Увеличивается, когда ЦП работает в пользовательском или ядерном режиме.
+.It Dv CLOCK_SECOND
+Возвращает текущую секунду без выполнения полного запроса к счётчику
+времени, используя кэшированное в ядре значение текущей секунды.
+.It Dv CLOCK_PROCESS_CPUTIME_ID
+Возвращает время выполнения вызывающего процесса.
+.It Dv CLOCK_THREAD_CPUTIME_ID
+Возвращает время выполнения вызывающего потока.
+.It Dv CLOCK_TAI
+Увеличивается в секундах СИ как настенные часы.
+Использует эпоху 1970 года и реализует шкалу времени TAI.
+Аналогично
+.Dv CLOCK_REALTIME ,
+но без секунд координации.
+Увеличивается монотонно во время секунды координации.
+Возвращает
+.Er EINVAL ,
+если текущее смещение между TAI и UTC неизвестно,
+что может быть в начале загрузки, до того как NTP или другой демон времени
+выполнил синхронизацию.
+.El
+.Pp
+Идентификаторы часов
+.Dv CLOCK_BOOTTIME ,
+.Dv CLOCK_REALTIME ,
+.Dv CLOCK_TAI ,
+.Dv CLOCK_MONOTONIC
+и
+.Dv CLOCK_UPTIME
+выполняют полный запрос к счётчику времени.
+Идентификаторы часов с суффиксом _FAST, а именно
+.Dv CLOCK_REALTIME_FAST ,
+.Dv CLOCK_MONOTONIC_FAST
+и
+.Dv CLOCK_UPTIME_FAST ,
+не выполняют
+полный запрос к счётчику времени, поэтому их точность составляет один тик таймера.
+Аналогично,
+.Dv CLOCK_REALTIME_PRECISE ,
+.Dv CLOCK_MONOTONIC_PRECISE
+и
+.Dv CLOCK_UPTIME_PRECISE
+используются для получения наиболее точного значения, за счёт
+времени выполнения.
+Идентификаторы часов
+.Dv CLOCK_REALTIME_COARSE
+и
+.Dv CLOCK_MONOTONIC_COARSE
+являются псевдонимами соответствующих идентификаторов с суффиксом _FAST для совместимости с другими
+системами.
+Наконец,
+.Dv CLOCK_BOOTTIME
+является псевдонимом
+.Dv CLOCK_MONOTONIC
+для совместимости с другими системами и не связан с
+.Fa kern.boottime
+.Xr sysctl 8 .
+.Pp
+Структура, на которую указывает
+.Fa tp ,
+определена в
+.In sys/timespec.h
+как:
+.Bd -literal
+struct timespec {
+	time_t	tv_sec;		/* seconds */
+	long	tv_nsec;	/* and nanoseconds */
+};
+.Ed
+.Pp
+Только суперпользователь может устанавливать время суток, используя только
+.Dv CLOCK_REALTIME .
+Если системный
+.Xr securelevel 7
+больше 1 (см.
+.Xr init 8 ) ,
+время может быть только увеличено.
+Это ограничение введено для предотвращения установки злонамеренным суперпользователем
+произвольных меток времени на файлы.
+Системное время по-прежнему может быть скорректировано назад с помощью
+системного вызова
+.Xr adjtime 2
+даже когда система находится в защищённом режиме.
+.Pp
+Разрешение (гранулярность) часов возвращается
+системным вызовом
+.Fn clock_getres .
+Это значение помещается в (не NULL)
+.Fa *tp .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+В
+.Va errno
+могут быть установлены следующие коды ошибок:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa clock_id
+или
+.Fa timespec
+не был допустимым значением.
+.It Bq Er EPERM
+Пользователь, отличный от суперпользователя, попытался установить время.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr date 1 ,
+.Xr adjtime 2 ,
+.Xr clock_getcpuclockid 3 ,
+.Xr ctime 3 ,
+.Xr pthread_getcpuclockid 3
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn clock_gettime ,
+.Fn clock_settime ,
+и
+.Fn clock_getres
+соответствуют
+.St -p1003.1-2008 .
+Идентификаторы часов
+.Dv CLOCK_BOOTTIME ,
+.Dv CLOCK_MONOTONIC_FAST ,
+.Dv CLOCK_MONOTONIC_PRECISE ,
+.Dv CLOCK_REALTIME_FAST ,
+.Dv CLOCK_REALTIME_PRECISE ,
+.Dv CLOCK_SECOND ,
+.Dv CLOCK_TAI ,
+.Dv CLOCK_UPTIME ,
+.Dv CLOCK_UPTIME_FAST
+и
+.Dv CLOCK_UPTIME_PRECISE
+являются
+.Fx
+расширениями интерфейса POSIX.
+.Pp
+UTC определён в ITU-R TF.460-6, Standard-frequency and time-signal emissions.
+Однако тип
+.Vt time_t
+представляет собой простой счётчик, который не обеспечивает уникального кодирования секунд координации,
+а также спецификации того, какие значения должны использоваться для кодирования секунды координации.
+.Pp
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn clock_gettime ,
+.Fn clock_settime ,
+и
+.Fn clock_getres
+впервые появились в
+.Fx 3.0 .

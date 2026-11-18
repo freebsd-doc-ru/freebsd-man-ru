@@ -1,0 +1,542 @@
+.\"
+.\" Copyright (c) 2009-2010, 2012-2013 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" This software was developed at the University of Cambridge Computer
+.\" Laboratory with support from a grant from Google, Inc.
+.\"
+.\" This software was developed by SRI International and the University of
+.\" Cambridge Computer Laboratory under DARPA/AFRL contract (FA8750-10-C-0237)
+.\" ("CTSRD"), as part of the DARPA CRASH research programme.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/pdfork.2
+.\" FRDP githash ebd89b9595b0e4935791b868fec7212c8677156c
+.\" FRDP hash256 675d41fc794650a7c7f11b4d2cab8d6e22bc0a8f95c87cf35c1fa1e833426c57
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt PDFORK 2
+.Os
+.Sh NAME
+.Nm pdfork ,
+.Nm pdrfork ,
+.Nm pdopenpid ,
+.Nm pdgetpid ,
+.Nm pdkill ,
+.Nm pdwait ,
+.Nm pddupfd
+.Nd системные вызовы для управления дескрипторами процессов
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/procdesc.h
+.Ft pid_t
+.Fn pdfork "int *fdp" "int pdflags"
+.Ft pid_t
+.Fn pdrfork "int *fdp" "int pdflags" "int rfflags"
+.Ft int
+.Fn pdopenpid "pid_t pid" "int pdflags"
+.Ft int
+.Fn pdgetpid "int fd" "pid_t *pidp"
+.Ft int
+.Fn pdkill "int fd" "int signum"
+.Ft int
+.Fo pdwait
+.Fa "int fd"
+.Fa "int *status"
+.Fa "int options"
+.Fa "struct __wrusage *wrusage"
+.Fa "struct __siginfo *info"
+.Fc
+.Ft int
+.Fn pddupfd "int fd" "int remotefd" "int flags"
+.Ft int
+.Fo pdptrace
+.Fa "int req"
+.Fa "int fd"
+.Fa "int lwpid"
+.Fa "void *addr"
+.Fa "int data"
+.Fc
+.Sh DESCRIPTION
+Дескрипторы процессов — это специальные файловые дескрипторы, представляющие
+процессы. Они создаются с помощью
+.Fn pdfork ,
+варианта системного вызова
+.Xr fork 2 ,
+который в случае успеха возвращает дескриптор процесса по адресу, на который
+указывает целочисленный указатель
+.Fa fdp .
+Процессы, созданные с помощью
+.Fn pdfork ,
+при завершении не вызывают сигнал
+.Dv SIGCHLD .
+Вызов
+.Fn pdfork
+принимает следующие флаги
+.Fa pdflags :
+.Bl -tag -width PD_PTRACE_CAP
+.It Dv PD_DAEMON
+Вместо поведения по умолчанию, при котором процесс завершается при закрытии
+дескриптора, позволяет процессу продолжать работу до тех пор, пока он не будет
+явно завершён с помощью
+.Xr kill 2 .
+.Pp
+Этот параметр недопустим в режиме capability системы
+.Xr capsicum 4
+(см.
+.Xr cap_enter 2 ) .
+.Pp
+Примечание: этот параметр изменяет поведение вызова
+.Xr close 2
+для дескриптора процесса, возвращённого данной операцией.
+Если существует другой дескриптор того же процесса, созданный без указания флага
+.Dv PD_DAEMON ,
+закрытие этого дескриптора приведёт к завершению процесса.
+.It Dv PD_CLOEXEC
+Устанавливает для дескриптора процесса флаг close-on-exec.
+.It Dv PD_NOWAITPID
+Родительский процесс не может получить состояние дочернего процесса с помощью
+.Xr waitpid 2 .
+.Pp
+Если этот флаг не установлен, дочерний процесс остаётся в состоянии зомби
+и не освобождается до тех пор, пока для PID этого процесса не будет выполнен вызов
+.Xr waitpid 2 .
+Установка значения
+.Dv true
+для sysctl MIB
+.Dv kern.pdfork_implicit_nowaitpid
+заставляет систему вести себя так, как если бы этот флаг всегда передавался.
+.It Dv PD_PTRACE_CAP
+Разрешает выполнение запросов
+.Xr pdptrace 2
+для полученного файлового дескриптора.
+В противном случае дескриптор нельзя использовать для отладки дочернего процесса.
+Описание возможности
+.Dv CAP_PTRACE
+см. в
+.Xr rights 4 .
+.El
+.Pp
+Системный вызов
+.Fn pdrfork
+является вариантом
+.Fn pdfork ,
+который также принимает аргумент
+.Fa rfflags ,
+управляющий совместным использованием ресурсов процесса вызывающим и новым
+процессами.
+Как и
+.Fn pdfork ,
+эта функция записывает дескриптор созданного процесса в область памяти,
+на которую указывает аргумент
+.Fa fdp .
+Описание возможных флагов
+.Fa rfflag
+см. в
+.Xr rfork 2 .
+Для системного вызова
+.Fn pdrfork
+необходимо указать оба флага
+.Va RFPROC
+и
+.Va RFPROCDESC
+либо флаг
+.Va RFSPAWN .
+.Pp
+Функция
+.Fn pdopenpid
+открывает дескриптор процесса, заданного аргументом
+.Fa pid .
+В аргументе
+.Fa pdflags
+она принимает те же флаги, что и
+.Fn pdfork .
+Для успешного выполнения
+.Fn pdopenpid
+вызывающий процесс должен иметь разрешение на отладку целевого процесса.
+Процессы-зомби открыть нельзя.
+.Pp
+Один и тот же процесс может быть представлен несколькими файловыми дескрипторами.
+После освобождения процесса-зомби вызовы
+.Fn pdwait ,
+выполненные с любым из файловых дескрипторов, относящихся к этому процессу,
+завершатся ошибкой
+.Er ESRCH .
+.Pp
+Системный вызов
+.Fn pdopenpid
+разрешён в режиме capability
+.Pq см. Xr capsicum 4 ,
+если целевой процесс является дочерним для вызывающего процесса либо если
+вызывающий процесс является отладчиком целевого процесса.
+Отладчик присоединяется к целевому процессу с помощью
+.Xr ptrace 2 ,
+.Xr pdptrace 2
+или иным способом, например посредством отладки родительского процесса целевого
+процесса с включённым режимом отслеживания последующих вызовов fork.
+.Pp
+Функция
+.Fn pdgetpid
+получает идентификатор процесса (PID), представленного дескриптором процесса
+.Fa fd .
+.Pp
+Функция
+.Fn pdkill
+функционально идентична
+.Xr kill 2 ,
+за исключением того, что принимает дескриптор процесса
+.Fa fd ,
+а не PID.
+.Pp
+Системный вызов
+.Fn pdwait
+позволяет вызывающему потоку ожидать завершения процесса, представленного
+дескриптором процесса
+.Fa fd ,
+и получать информацию о его состоянии.
+Спецификацию поведения см. в описании системного вызова
+.Xr wait6 2 .
+.Pp
+Функция
+.Fn pddupfd
+позволяет вызывающему процессу дублировать файловый дескриптор между процессами.
+Функция возвращает новый файловый дескриптор, указывающий на тот же файл,
+что и файловый дескриптор
+.Fa remotefd
+в процессе, представленном дескриптором процесса
+.Fa fd .
+Для возвращённого файлового дескриптора устанавливается флаг
+.Dv O_CLOEXEC .
+Аргумент
+.Fa flags
+зарезервирован и должен быть равен нулю.
+Некоторые типы файловых дескрипторов нельзя копировать таким способом,
+в частности kqueue.
+.Pp
+Функция
+.Fn pdptrace
+разрешает выполнение запросов
+.Xr ptrace 2
+для процесса, заданного дескриптором процесса
+.Fa fd .
+.Pp
+Помимо аргументов, принимаемых системным вызовом
+.Xr ptrace 2 ,
+можно указать идентификатор потока
+.Fa lwpid ,
+который определяет поток, к которому должен применяться запрос.
+Аргумент
+.Fa lwpid
+можно задать равным \-1, если вызов не привязан к конкретному потоку
+или если ядру разрешено самостоятельно выбрать поток.
+.Pp
+В отличие от реализации
+.Xr ptrace 2 ,
+функция
+.Fn pdptrace
+не обнуляет переменную
+.Dv errno
+перед выполнением системного вызова.
+.Ss Взаимодействие дескрипторов процессов и Xr WAITPID 2
+.Pp
+Системный вызов
+.Fn pdwait
+можно вызывать для одного и того же дескриптора процесса неограниченное число раз.
+В частности, он не освобождает целевой процесс,
+даже если этот процесс уже завершился.
+При каждом вызове возвращается одно и то же состояние.
+.Bl -dash
+.It
+Если процесс был создан с помощью
+.Fn pdfork
+и был указан флаг
+.Dv PD_NOWAITPID ,
+то процесс автоматически освобождается после закрытия последнего дескриптора
+процесса, ссылающегося на него.
+Для освобождения процесса-зомби не требуется вызов
+.Xr waitpid 2
+.Pq или вызов любой функции из того же семейства функций ожидания, работающих с PID .
+.It
+Если процесс был создан с помощью
+.Fn pdfork
+и флаг
+.Dv PD_NOWAITPID
+не был указан, то после завершения процесс не будет освобождён до тех пор,
+пока родительский процесс или процесс-освободитель не выполнит вызов
+.Xr waitpid 2
+и не будут закрыты все дескрипторы процессов, ссылающиеся на этот процесс.
+.It
+Если процесс был создан системным вызовом
+.Xr fork 2
+.Pq который не выделяет для дочернего процесса дескриптор процесса ,
+а впоследствии был открыт с помощью
+.Fn pdopenpid ,
+то для освобождения завершившегося дочернего процесса родитель должен выполнить
+вызов
+.Xr waitpid 2 .
+.El
+.Pp
+В любом случае PID процесса не используется повторно до тех пор, пока процесс-зомби
+не будет освобождён и все его дескрипторы процессов не будут закрыты.
+.Pp
+Отладчик, присоединённый с помощью
+.Xr ptrace 2 ,
+может выполнять вызовы
+.Fn waitpid
+для работающего целевого процесса независимо от способа создания целевого процесса.
+.Ss Взаимодействие дескрипторов процессов с другими системными вызовами
+.Pp
+Следующие системные вызовы также имеют особое поведение при работе
+с дескрипторами процессов:
+.Pp
+.Xr fstat 2
+получает сведения о состоянии дескриптора процесса; в настоящее время определены
+только поля
+.Fa st_mode ,
+.Fa st_birthtime ,
+.Fa st_atime ,
+.Fa st_ctime
+и
+.Fa st_mtime .
+Если установлены биты чтения, записи и выполнения для владельца, это означает,
+что процесс, представленный дескриптором процесса, всё ещё работает.
+.Pp
+.Xr poll 2
+и
+.Xr select 2
+позволяют ожидать изменения состояния процесса; в настоящее время определён
+только флаг
+.Dv POLLHUP ,
+который устанавливается при завершении процесса.
+Изменения состояния процесса также можно отслеживать с помощью фильтра
+.Xr kqueue 2
+.Dv EVFILT_PROCDESC ;
+в настоящее время реализован только
+.Dv NOTE_EXIT .
+.Pp
+.Xr close 2
+закрывает дескриптор процесса, если не установлен флаг
+.Dv PD_DAEMON ;
+если процесс всё ещё работает и это последняя ссылка на дескриптор процесса,
+процесс будет завершён сигналом
+.Dv SIGKILL .
+PID представленного процесса не используется повторно до тех пор, пока
+дескриптор процесса не будет закрыт,
+независимо от того, был ли процесс-зомби освобождён с помощью
+.Fn pdwait ,
+.Fn wait6
+или аналогичных системных вызовов.
+.Sh RETURN VALUES
+.Fn pdfork
+и
+.Fn pdrfork
+возвращают PID, 0 или -1, как и
+.Xr fork 2 .
+.Pp
+.Fn pdopenpid ,
+.Fn pdgetpid ,
+.Fn pdkill ,
+.Fn pdwait
+и
+.Fn pddupfd
+при успешном выполнении возвращают 0, а при ошибке — -1.
+.Sh ERRORS
+Эти функции могут возвращать те же коды ошибок, что и соответствующие функции,
+работающие с PID
+.Pq например,
+.Fn pdfork
+может возвращать те же коды ошибок, что и
+.Xr fork 2 ) ,
+а также следующие дополнительные ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Не удалось скопировать значение полученного файлового дескриптора в память,
+на которую указывает
+.Fa fdp .
+.Pp
+Обратите внимание, что к моменту обнаружения этого условия дочерний процесс
+уже создан и продолжает выполнение, как и родительский процесс.
+Если эту ошибку необходимо обрабатывать, рекомендуется сохранить результат
+вызова
+.Fn getpid
+до вызова
+.Fn pdfork
+или
+.Fn pdrfork ,
+а затем сравнить его со значением, возвращённым
+.Fn getpid
+после вызова, чтобы определить, выполняется ли код в родительском
+или дочернем процессе.
+.It Bq Er EINVAL
+Вызову
+.Fn pdkill
+передан недопустимый номер сигнала.
+.It Bq Er ENOTCAPABLE
+Для дескриптора процесса, над которым выполняется операция, недостаточно прав
+.Pq например, CAP_PDKILL для
+.Fn pdkill ) .
+.It Bq Er EINVAL
+Функция
+.Fn pdwait
+вызвана с установленными зарезервированными битами в аргументе
+.Fa options .
+.El
+.Pp
+Функция
+.Fn pdopenpid
+может возвращать те же ошибки, что и
+.Xr open 2 ,
+связанные с проблемами выделения файловых дескрипторов, а также следующие
+специфические ошибки:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+В аргументе
+.Fa flags
+установлены зарезервированные биты.
+.It Bq Er ECAPMODE
+.Fn pdopenpid
+вызвана процессом, работающим в режиме capability.
+.It Bq Er EBUSY
+Процесс, заданный аргументом
+.Fa pid ,
+уже завершился.
+.It Bq Er ESRCH
+Процесс, заданный аргументом
+.Fa pid ,
+не существует либо у вызывающего процесса недостаточно привилегий для его открытия.
+.It Bq Er EMFILE
+Вызывающий процесс уже достиг предельного количества открытых файловых дескрипторов.
+.Pp
+Текущая реализация устанавливает открытый дескриптор процесса в таблицу
+файловых дескрипторов вызывающего процесса.
+Если установить дескриптор не удаётся, дескриптор процесса закрывается,
+что приводит к выполнению всех действий, выполняемых вызовом
+.Xr close 2
+для этого дескриптора.
+.El
+.Pp
+Функция
+.Fn pddupfd
+возвращает следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+не равен нулю.
+.It Bq Er EINVAL
+Файловый дескриптор
+.Fa fd
+не является дескриптором файла процесса.
+.It Bq Er ESRCH
+Процесс, заданный файловым дескриптором
+.Fa fd ,
+завершился.
+.It Bq Er EBADF
+Файловый дескриптор
+.Fa remotefd
+не является допустимым файловым дескриптором в указанном процессе.
+.It Bq Er ENOENT
+У указанного процесса отсутствует таблица файловых дескрипторов.
+.It Bq Er EOPNOTSUPP
+.Fa remotefd
+ссылается на файл, который нельзя дублировать между процессами,
+например на kqueue.
+.El
+.Pp
+Системный вызов
+.Fn pdptrace
+возвращает те же ошибки, что и
+.Xr ptrace 2 ,
+а также следующие специфические ошибки:
+.Bl -tag -width Er
+.It Bq Er ECAPMODE
+Процесс, выполняющий вызов
+.Fn pdptrace ,
+работает в режиме capability,
+а параметр настройки
+.Dv security.bsd.allow_ptrace_in_cap_mode
+установлен в
+.Dv false .
+.It Bq Er ENOTCAPABLE
+Процесс вызвал
+.Fn pdptrace
+для дескриптора процесса, у которого не включена возможность
+.Dv CAP_PTRACE .
+.Sh SEE ALSO
+.Xr close 2 ,
+.Xr fork 2 ,
+.Xr fstat 2 ,
+.Xr kill 2 ,
+.Xr kqueue 2 ,
+.Xr poll 2 ,
+.Xr wait4 2 ,
+.Xr capsicum 4 ,
+.Xr procdesc 4
+.Sh HISTORY
+Системные вызовы
+.Fn pdfork ,
+.Fn pdgetpid
+и
+.Fn pdkill
+впервые появились в
+.Fx 9.0 .
+Системные вызовы
+.Fn pdrfork
+и
+.Fn pdwait
+впервые появились в
+.Fx 15.1 .
+Системные вызовы
+.Fn pdopenpid
+и
+.Fn pddupfd
+впервые появились в
+.Fx 16.0 .
+.Pp
+Поддержка режима дескрипторов процессов была разработана в рамках проекта
+.Tn TrustedBSD .
+.Sh AUTHORS
+.An -nosplit
+Эти функции и механизм capability были созданы
+.An Robert N. M. Watson Aq Mt rwatson@FreeBSD.org
+и
+.An Jonathan Anderson Aq Mt jonathan@FreeBSD.org
+в Лаборатории компьютерных наук Кембриджского университета при поддержке гранта
+компании Google, Inc.
+Функции
+.Fn pdrfork
+и
+.Fn pdwait
+были разработаны
+.An Konstantin Belousov Aq Mt kib@FreeBSD.org
+при участии
+.An Alan Somers Aq Mt asomers@FreeBSD.org .
+Функции
+.Fn pdopenpid ,
+.Fn pddupfd
+и
+.Fn pdptrace
+были разработаны
+.An Konstantin Belousov Aq Mt kib@FreeBSD.org .

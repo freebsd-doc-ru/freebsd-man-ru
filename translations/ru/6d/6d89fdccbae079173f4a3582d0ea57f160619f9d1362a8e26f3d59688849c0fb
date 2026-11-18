@@ -1,0 +1,435 @@
+.\" Copyright (c) 2003, David G. Lawrence
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice unmodified, this list of conditions, and the following
+.\"    disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sendfile.2
+.\" FRDP githash d17cbe46983c08ba0567b0ffd71434abd35aa205
+.\" FRDP hash256 6d89fdccbae079173f4a3582d0ea57f160619f9d1362a8e26f3d59688849c0fb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 24, 2025
+.Dt SENDFILE 2
+.Os
+.Sh ИМЯ
+.Nm sendfile
+.Nd отправить файл в сокет
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.In sys/uio.h
+.Ft int
+.Fo sendfile
+.Fa "int fd" "int s" "off_t offset" "size_t nbytes"
+.Fa "struct sf_hdtr *hdtr" "off_t *sbytes" "int flags"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sendfile
+отправляет обычный файл или объект разделяемой памяти, заданный дескриптором
+.Fa fd ,
+в потоковый сокет, заданный дескриптором
+.Fa s .
+.Pp
+Аргумент
+.Fa offset
+задаёт позицию начала в файле.
+Если
+.Fa offset
+выходит за конец файла, система вернёт
+успех и сообщит об отправке 0 байт, как описано ниже.
+Аргумент
+.Fa nbytes
+задаёт, сколько байт файла следует отправить, при этом 0 имеет особое
+значение: отправлять до достижения конца файла.
+.Pp
+Необязательные заголовок и/или трейлер могут быть отправлены до и после данных файла путём указания
+указателя на
+.Vt "struct sf_hdtr" ,
+которая имеет следующую структуру:
+.Pp
+.Bd -literal -offset indent -compact
+struct sf_hdtr {
+	struct iovec *headers;	/* pointer to header iovecs */
+	int hdr_cnt;		/* number of header iovecs */
+	struct iovec *trailers;	/* pointer to trailer iovecs */
+	int trl_cnt;		/* number of trailer iovecs */
+};
+.Ed
+.Pp
+Указатели
+.Fa headers
+и
+.Fa trailers ,
+если они
+.Pf не Dv NULL ,
+указывают на массивы структур
+.Vt "struct iovec" .
+См. системный вызов
+.Fn writev
+для получения информации о структуре iovec.
+Количество iovec в этих
+массивах задаётся
+.Fa hdr_cnt
+и
+.Fa trl_cnt .
+.Pp
+Если
+.Pf не Dv NULL ,
+система запишет общее количество байт, отправленных в сокет, в
+переменную, на которую указывает
+.Fa sbytes .
+.Pp
+Младшие 16 бит аргумента
+.Fa flags
+представляют собой битовую карту следующих значений:
+.Bl -tag -offset indent -width "SF_USER_READAHEAD"
+.It Dv SF_NODISKIO
+Этот флаг заставляет
+.Nm
+возвращать
+.Er EBUSY
+вместо блокировки при обнаружении занятой страницы.
+Эта редкая ситуация может возникнуть, если какой-либо другой процесс в данный момент работает
+с той же областью файла.
+Рекомендуется повторить операцию через короткий промежуток времени.
+.Pp
+Обратите внимание, что в старых версиях
+.Fx
+.Dv SF_NODISKIO
+имел несколько иное значение.
+Флаг предотвращал выполнение
+.Nm
+операций ввода-вывода в случае обнаружения недействительной (не кэшированной) страницы,
+тем самым избегая блокировки на вводе-выводе.
+Начиная с
+.Fx 11
+.Nm
+при отправке файлов с файловой системы
+.Xr ffs 4
+не блокируется на вводе-выводе
+(см.
+.Sx ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+), поэтому это условие больше не применяется.
+Однако безопасно, если приложение использует
+.Dv SF_NODISKIO
+и при
+.Er EBUSY
+выполняет то же действие, что и в
+старых версиях
+.Fx
+, например,
+.Xr aio_read 2 ,
+.Xr read 2
+или
+.Nm
+в другом контексте.
+.It Dv SF_NOCACHE
+Данные, отправленные в сокет, не будут кэшироваться системой виртуальной памяти,
+и будут освобождены непосредственно в пул свободных страниц.
+.It Dv SF_USER_READAHEAD
+.Nm
+имеет некоторые внутренние эвристики для выполнения упреждающего чтения при отправке данных.
+Этот флаг заставляет
+.Nm
+игнорировать любые эвристически вычисленные значения упреждающего чтения и использовать ровно
+указанное приложением упреждающее чтение.
+См.
+.Sx НАСТРОЙКА УПРЕЖДАЮЩЕГО ЧТЕНИЯ
+для получения дополнительной информации об упреждающем чтении.
+.El
+.Pp
+При использовании сокета, помеченного для неблокирующего ввода-вывода,
+.Fn sendfile
+может отправить меньше байт, чем запрошено.
+В этом случае количество успешно
+записанных байт возвращается в
+.Fa *sbytes
+(если указано),
+и возвращается ошибка
+.Er EAGAIN .
+.Sh НАСТРОЙКА УПРЕЖДАЮЩЕГО ЧТЕНИЯ
+.Nm
+использует внутренние эвристики, основанные на размере запроса и структуре файловой системы,
+для выполнения упреждающего чтения.
+Дополнительно приложение может запросить дополнительное упреждающее чтение.
+Старшие 16 бит
+.Fa flags
+задают количество страниц, которые
+.Nm
+может читать заранее при чтении файла.
+Макрос
+.Fn SF_FLAGS
+предоставляется для объединения объёма упреждающего чтения и флагов.
+Пример, показывающий указание упреждающего чтения в 16 страниц и
+флага
+.Dv SF_NOCACHE :
+.Pp
+.Bd -literal -offset indent -compact
+	SF_FLAGS(16, SF_NOCACHE)
+.Ed
+.Pp
+.Nm
+будет использовать либо указанное приложением упреждающее чтение, либо внутренне вычисленное,
+в зависимости от того, какое больше.
+Установка флага
+.Dv SF_USER_READAHEAD
+отключила бы любые эвристики и установила максимально возможную длину упреждающего чтения равной
+количеству страниц, указанному через флаги.
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Реализация
+.Fn sendfile
+в
+.Fx
+не блокируется на дисковом вводе-выводе при отправке файла с файловой системы
+.Xr ffs 4 .
+Системный вызов возвращает успех до завершения фактического ввода-вывода, и данные
+позднее помещаются в сокет без участия процесса.
+Однако порядок данных в сокете сохраняется, поэтому безопасно
+выполнять дальнейшую запись в сокет.
+.Pp
+Реализация
+.Fn sendfile
+в
+.Fx
+является «zero-copy», что означает, что она оптимизирована так, чтобы избежать копирования данных файла.
+.Sh НАСТРОЙКА
+.Ss буферы физических страниц
+.Fn sendfile
+использует vnode pager для чтения страниц файла в память.
+Pager использует пул физических буферов для выполнения своих операций ввода-вывода.
+Когда в системе заканчиваются pbuf, sendfile будет блокироваться и сообщать состояние
+.Dq Li zonelimit .
+Размер пула можно настроить с помощью
+.Va vm.vnode_pbufs
+в
+.Xr loader.conf 5
+и проверить с помощью
+.Xr sysctl 8
+OID с тем же именем во время выполнения.
+.Ss буферы sendfile(2)
+На некоторых архитектурах этот системный вызов внутренне использует специальный
+буфер
+.Fn sendfile
+.Pq Vt "struct sf_buf"
+для обработки отправки данных файла клиенту.
+Если отправляющий сокет является
+блокирующим, и доступно недостаточно
+буферов
+.Fn sendfile ,
+.Fn sendfile
+будет блокироваться и сообщать состояние
+.Dq Li sfbufa .
+Если отправляющий сокет является неблокирующим и доступно недостаточно
+буферов
+.Fn sendfile , вызов будет блокироваться и ждать,
+пока необходимые буферы не станут доступны, прежде чем завершить вызов.
+.Pp
+Количество выделенных
+.Vt sf_buf Ns 'ов
+должно быть пропорционально количеству nmbclusters, используемых для
+отправки данных клиенту через
+.Fn sendfile .
+Настраивайте соответствующим образом, чтобы избежать блокировки!
+Загруженные установки, интенсивно использующие
+.Fn sendfile ,
+могут захотеть увеличить эти значения в соответствии с их
+.Va kern.ipc.nmbclusters
+(см.
+.Xr tuning 7
+для подробностей).
+.Pp
+Количество доступных
+буферов
+.Fn sendfile
+определяется во время загрузки либо переменной
+.Va kern.ipc.nsfbufs
+в
+.Xr loader.conf 5
+, либо параметром конфигурации ядра
+.Dv NSFBUFS .
+Количество
+буферов
+.Fn sendfile
+масштабируется с
+.Va kern.maxusers .
+Переменные
+.Xr sysctl 8
+только для чтения
+.Va kern.ipc.nsfbufsused
+и
+.Va kern.ipc.nsfbufspeak
+показывают текущее и пиковое
+использование буферов
+.Fn sendfile
+соответственно.
+Эти значения также можно просмотреть через
+.Nm netstat Fl m .
+.Pp
+Если
+OID
+.Xr sysctl 8
+.Va kern.ipc.nsfbufs
+не существует, ваша архитектура не нуждается в использовании
+буферов
+.Fn sendfile
+, поскольку их задачу можно эффективно выполнить
+с помощью общих структур виртуальной памяти.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std sendfile
+.Sh ОШИБКИ
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Сокет помечен для неблокирующего ввода-вывода, и не все данные были отправлены из-за
+заполнения буфера сокета.
+Если указано, количество успешно отправленных байт будет возвращено в
+.Fa *sbytes .
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором файла.
+.It Bq Er EBADF
+Аргумент
+.Fa s
+не является допустимым дескриптором сокета.
+.It Bq Er EBUSY
+Была обнаружена занятая страница, и
+был указан
+.Dv SF_NODISKIO .
+Часть данных могла быть отправлена.
+.It Bq Er EFAULT
+Для аргумента был указан недопустимый адрес.
+.It Bq Er EINTR
+Сигнал прервал
+.Fn sendfile
+до его завершения.
+Если указано, количество
+успешно отправленных байт будет возвращено в
+.Fa *sbytes .
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+не является обычным файлом.
+.It Bq Er EINVAL
+Аргумент
+.Fa s
+не является сокетом типа SOCK_STREAM.
+.It Bq Er EINVAL
+Аргумент
+.Fa offset
+отрицателен.
+.It Bq Er EIO
+Произошла ошибка при чтении из
+.Fa fd .
+.It Bq Er EINTEGRITY
+При чтении из
+.Fa fd
+были обнаружены повреждённые данные.
+.It Bq Er ENOTCAPABLE
+Аргумент
+.Fa fd
+или
+.Fa s
+имеет недостаточные права.
+.It Bq Er ENOBUFS
+Система не смогла выделить внутренний буфер.
+.It Bq Er ENOTCONN
+Аргумент
+.Fa s
+указывает на несоединённый сокет.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не является сокетом.
+.It Bq Er EOPNOTSUPP
+Файловая система для дескриптора
+.Fa fd
+не поддерживает
+.Fn sendfile .
+.It Bq Er EPIPE
+Удалённая сторона сокета закрыла соединение.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr open 2 ,
+.Xr send 2 ,
+.Xr socket 2 ,
+.Xr writev 2 ,
+.Xr loader.conf 5 ,
+.Xr tuning 7 ,
+.Xr sysctl 8
+.Rs
+.%A K. Elmeleegy
+.%A A. Chanda
+.%A A. L. Cox
+.%A W. Zwaenepoel
+.%T A Portable Kernel Abstraction for Low-Overhead Ephemeral Mapping Management
+.%J The Proceedings of the 2005 USENIX Annual Technical Conference
+.%P pp 223-236
+.%D 2005
+.Re
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn sendfile
+впервые появился в
+.Fx 3.0 .
+Эта страница руководства впервые появилась в
+.Fx 3.1 .
+В
+.Fx 10
+была добавлена поддержка отправки дескрипторов разделяемой памяти.
+В
+.Fx 11
+была добавлена неблокирующая реализация.
+.Sh АВТОРЫ
+Первоначальная реализация
+системного вызова
+.Fn sendfile
+и эта страница руководства были написаны
+.An David G. Lawrence Aq Mt dg@dglawrence.com .
+Реализация для
+.Fx 11
+была написана
+.An Gleb Smirnoff Aq Mt glebius@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Системный вызов
+.Fn sendfile
+не завершится с ошибкой, т.е. не вернёт
+.Dv -1
+и не установит
+.Va errno
+в
+.Er EFAULT ,
+если указан недопустимый адрес для
+.Fa sbytes .
+Системный вызов
+.Fn sendfile
+не поддерживает сокеты SCTP,
+он вернёт
+.Dv -1
+и установит
+.Va errno
+в
+.Er EINVAL .

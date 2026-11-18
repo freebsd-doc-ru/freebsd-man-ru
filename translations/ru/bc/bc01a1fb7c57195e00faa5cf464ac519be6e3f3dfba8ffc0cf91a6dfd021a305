@@ -1,0 +1,111 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Berkeley Software Design, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/revoke.2
+.\" FRDP githash 48b63e821dec5533dab165d4e95e876bdbd0a37e
+.\" FRDP hash256 bc01a1fb7c57195e00faa5cf464ac519be6e3f3dfba8ffc0cf91a6dfd021a305
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 24, 2025
+.Dt REVOKE 2
+.Os
+.Sh ИМЯ
+.Nm revoke
+.Nd отзыв доступа к файлу
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn revoke "const char *path"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn revoke
+делает недействительными все текущие открытые файловые дескрипторы в системе
+для файла с именем
+.Fa path .
+Последующие операции с любыми такими дескрипторами
+завершаются неудачно, за исключением того, что
+.Fn read
+из файла символьного устройства, доступ к которому был отозван,
+возвращает нулевое значение (конец файла),
+а системный вызов
+.Fn close
+завершится успешно.
+Если файл является специальным файлом для открытого устройства,
+вызывается функция закрытия устройства,
+как если бы все открытые ссылки на файл были закрыты
+с использованием специального метода закрытия, который не блокируется.
+.Pp
+Доступ к файлу может быть отозван только его владельцем или суперпользователем.
+Системный вызов
+.Fn revoke
+в настоящее время поддерживается только для файлов символьных
+специальных устройств.
+Обычно он используется для подготовки терминального устройства к новой сессии
+входа, предотвращая любой доступ со стороны предыдущего пользователя терминала.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std revoke
+.Sh ОШИБКИ
+Доступ к указанному файлу отзывается, если не происходит одно из следующего:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или полное имя пути превысило 1024 символа.
+.It Bq Er ENOENT
+Указанный файл или компонент имени пути не существует.
+.It Bq Er EACCES
+Разрешение на поиск для компонента префикса пути отклонено.
+.It Bq Er ELOOP
+При преобразовании имени пути встретилось слишком много символических ссылок.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Реализация не поддерживает операцию
+.Fn revoke
+для указанного файла.
+.It Bq Er EPERM
+Вызывающий не является ни владельцем файла, ни суперпользователем.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr revoke 1 ,
+.Xr close 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn revoke
+впервые появился в
+.Bx 4.3 Reno .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Неблокирующий метод закрытия правильно реализован только для
+терминальных устройств.

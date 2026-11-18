@@ -1,0 +1,174 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/posix_fallocate.2
+.\" FRDP githash 737edb8fb52b6ed13ae4e09553a0d2ae2899cede
+.\" FRDP hash256 5fd67a8d2aeafb9398f33582e5194b3ec8d823f6662cefb4db38ed46654bf275
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 2, 2025
+.Dt POSIX_FALLOCATE 2
+.Os
+.Sh NAME
+.Nm posix_fallocate
+.Nd предварительное выделение хранилища для диапазона в файле
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In fcntl.h
+.Ft int
+.Fn posix_fallocate "int fd" "off_t offset" "off_t len"
+.Sh DESCRIPTION
+Гарантируется, что необходимое хранилище для диапазона от
+.Fa offset
+до
+.Fa offset +
+.Fa len
+в файле, на который ссылается
+.Fa fd ,
+будет выделено при успешном возврате.
+То есть, если
+.Fn posix_fallocate
+завершилась успешно, последующие операции записи указанных данных файла
+не завершатся ошибкой из-за нехватки свободного места на носителе файловой
+системы.
+Существующие данные файла в указанном диапазоне не изменяются.
+Если
+.Fa offset +
+.Fa len
+выходит за пределы текущего размера файла, то
+.Fn posix_fallocate
+изменит размер файла на
+.Fa offset +
+.Fa len .
+В противном случае размер файла не изменится.
+.Pp
+Пространство, выделенное с помощью
+.Fn posix_fallocate ,
+будет освобождено при успешном вызове
+.Xr creat 2
+или
+.Xr open 2 ,
+который усекает размер файла.
+Пространство, выделенное с помощью
+.Fn posix_fallocate ,
+может быть освобождено при успешном вызове
+.Xr ftruncate 2 ,
+уменьшающем размер файла до значения меньше
+.Fa offset +
+.Fa len .
+.Sh RETURN VALUES
+В случае успеха
+.Fn posix_fallocate
+возвращает ноль.
+В случае ошибки возвращается код ошибки, при этом
+.Va errno
+не устанавливается.
+.Sh ERRORS
+Возможные условия возникновения ошибок:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым файловым дескриптором.
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+ссылается на файл, открытый без разрешения на запись.
+.It Bq Er EFBIG
+Значение
+.Fa offset +
+.Fa len
+превышает максимальный размер файла.
+.It Bq Er EINTR
+Во время выполнения был получен сигнал.
+.It Bq Er EINVAL
+Аргумент
+.Fa len
+меньше или равен нулю либо аргумент
+.Fa offset
+меньше нуля.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы были обнаружены повреждённые данные.
+.It Bq Er ENODEV
+Аргумент
+.Fa fd
+не ссылается на файл, поддерживающий
+.Nm .
+.It Bq Er ENOSPC
+На носителе файловой системы недостаточно свободного места.
+.It Bq Er ENOTCAPABLE
+Файловый дескриптор
+.Fa fd
+имеет недостаточные права.
+.It Bq Er EOPNOTSUPP
+Операция не поддерживается файловой системой.
+.It Bq Er ESPIPE
+Аргумент
+.Fa fd
+связан с каналом или FIFO.
+.El
+.Sh SEE ALSO
+.Xr creat 2 ,
+.Xr ftruncate 2 ,
+.Xr open 2 ,
+.Xr unlink 2
+.Sh STANDARDS
+Системный вызов
+.Fn posix_fallocate
+соответствует стандарту
+.St -p1003.1-2024 .
+.Sh HISTORY
+Функция
+.Fn posix_fallocate
+появилась в
+.Fx 9.0 .
+.Pp
+В предыдущих версиях
+.Nm
+использовала
+.Er EINVAL
+для обозначения того, что операция не поддерживается файловой системой, как
+указано в
+.St -p1003.1
+Base Specifications, Issue 7.
+В
+.St -p1003.1
+Base Specifications, Issue 8 вместо этого требуется использовать
+.Er EOPNOTSUPP
+для данного случая ошибки.
+ZFS перешла на последнее соглашение в
+.Fx 15.0 ,
+а остальные файловые системы базовой системы — в
+.Fx 15.1 .
+.Sh AUTHORS
+Функция
+.Fn posix_fallocate
+и эта справочная страница изначально были написаны
+.An Matthew Fleming Aq Mt mdf@FreeBSD.org .

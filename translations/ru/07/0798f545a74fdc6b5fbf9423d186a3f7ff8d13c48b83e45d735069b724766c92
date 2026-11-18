@@ -1,0 +1,82 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sctp_peeloff.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 0798f545a74fdc6b5fbf9423d186a3f7ff8d13c48b83e45d735069b724766c92
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 2, 2024
+.Dt SCTP_PEELOFF 2
+.Os
+.Sh ИМЯ
+.Nm sctp_peeloff
+.Nd отсоединение ассоциации от сокета "один-ко-многим" в собственный fd
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.In netinet/sctp.h
+.Ft int
+.Fn sctp_peeloff "int s" "sctp_assoc_t id"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sctp_peeloff
+пытается отсоединить ассоциацию, заданную
+.Fa id ,
+в отдельный собственный сокет.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При неудаче вызов возвращает -1, а при успехе — дескриптор нового сокета.
+.Sh ОШИБКИ
+Системный вызов
+.Fn sctp_peeloff
+может возвращать следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er ENOTCONN
+Значение
+.Fa id ,
+переданное вызову, не соответствует допустимой
+ассоциации.
+.It Bq Er E2BIG
+Размер списка адресов превышает объём
+предоставленных данных.
+.It Bq Er EBADF
+Аргумент
+.Fa s
+не является допустимым дескриптором.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не является сокетом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sctp 4
+.Sh СТАНДАРТЫ
+Функция
+.Fn sctp_peeloff
+соответствует RFC 6458.

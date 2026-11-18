@@ -1,0 +1,194 @@
+.\"
+.\" Copyright (c) 1995 David Hovemeyer <daveho@infocom.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/semctl.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 7952c7e468ed1d6737bfaf3446d56f67653131d01565261694a0a466474b6c6d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 9, 2020
+.Dt SEMCTL 2
+.Os
+.Sh ИМЯ
+.Nm semctl
+.Nd управляющие операции над набором семафоров
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/sem.h
+.Ft int
+.Fn semctl "int semid" "int semnum" "int cmd" ...
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn semctl
+выполняет операцию, указанную в
+.Fa cmd
+над набором семафоров, указанным в
+.Fa semid .
+Четвёртый аргумент,
+.Fa "union semun arg" ,
+требуется для некоторых значений
+.Fa cmd .
+Для команд, использующих аргумент
+.Fa arg ,
+.Fa "union semun"
+должен быть определён следующим образом:
+.Bd -literal
+union semun {
+        int     val;            /* value for SETVAL */
+        struct  semid_ds *buf;  /* buffer for IPC_STAT & IPC_SET */
+        u_short *array;         /* array for GETALL & SETALL */
+};
+.Ed
+Непортируемое программное обеспечение может определить
+.Dv _WANT_SEMUN
+перед включением
+.Pa sys/sem.h
+для использования системного определения
+.Fa "union semun" .
+.Pp
+Команды выполняются следующим образом:
+.Bl -tag -width IPC_RMIDXXX
+.It Dv IPC_STAT
+Извлекает
+.Fa "struct semid_ds"
+набора семафоров, сохраняя его в памяти, на которую указывает
+.Fa arg.buf .
+.It Dv IPC_SET
+Изменяет элементы
+.Fa sem_perm.uid ,
+.Fa sem_perm.gid
+и
+.Fa sem_perm.mode
+структуры
+.Fa "struct semid_ds"
+набора семафоров в соответствии с теми, что находятся в структуре, на которую указывает
+.Fa arg.buf .
+Эффективный uid вызывающего процесса должен совпадать либо с
+.Fa sem_perm.uid ,
+либо с
+.Fa sem_perm.cuid ,
+или процесс должен обладать привилегиями суперпользователя.
+.It IPC_RMID
+Немедленно удаляет набор семафоров из системы.
+Эффективный uid вызывающего
+процесса должен совпадать с
+.Fa sem_perm.uid
+или
+.Fa sem_perm.cuid
+набора семафоров,
+или процесс должен обладать привилегиями суперпользователя.
+.It Dv GETVAL
+Возвращает значение семафора номер
+.Fa semnum .
+.It Dv SETVAL
+Устанавливает значение семафора номер
+.Fa semnum
+в
+.Fa arg.val .
+Незавершённые значения корректировки при выходе для этого семафора в любом процессе
+сбрасываются.
+.It Dv GETPID
+Возвращает pid последнего процесса, выполнившего операцию над
+семафором номер
+.Fa semnum .
+.It Dv GETNCNT
+Возвращает количество процессов, ожидающих, когда значение семафора номер
+.Fa semnum Ns 's
+станет больше его текущего значения.
+.It Dv GETZCNT
+Возвращает количество процессов, ожидающих, когда значение семафора номер
+.Fa semnum Ns 's
+станет равным 0.
+.It Dv GETALL
+Извлекает значения всех семафоров в наборе в массив,
+на который указывает
+.Fa arg.array .
+.It Dv SETALL
+Устанавливает значения всех семафоров в наборе в значения
+из массива, на который указывает
+.Fa arg.array .
+Незавершённые значения корректировки при выходе для всех семафоров в этом наборе
+в любом процессе сбрасываются.
+.El
+.Pp
+Структура
+.Vt "struct semid_ds"
+определена следующим образом:
+.Bd -literal
+struct semid_ds {
+        struct  ipc_perm sem_perm;      /* operation permission struct */
+        u_short sem_nsems;      /* number of sems in set */
+        time_t  sem_otime;      /* last operation time */
+        time_t  sem_ctime;      /* last change time */
+                                /* Times measured in secs since */
+                                /* 00:00:00 GMT, Jan. 1, 1970 */
+};
+.Ed
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха, когда
+.Fa cmd
+является одной из
+.Dv GETVAL , GETPID , GETNCNT
+или
+.Dv GETZCNT ,
+.Fn semctl
+возвращает соответствующее значение; в противном случае возвращается 0.
+В случае неудачи возвращается -1, и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn semctl
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Нет набора семафоров, соответствующего
+.Fa semid .
+.It Bq Er EINVAL
+Аргумент
+.Fa semnum
+не находится в диапазоне допустимых семафоров для данного набора семафоров.
+.It Bq Er EPERM
+Эффективный uid вызывающего процесса не совпадает с uid
+владельца или создателя набора семафоров.
+.It Bq Er EACCES
+Доступ запрещён из-за несоответствия между операцией и режимом
+набора семафоров.
+.It Bq Er ERANGE
+.Dv SETVAL
+или
+.Dv SETALL
+попытались установить семафор за пределами допустимого диапазона
+.Bq 0 .. Dv SEMVMX .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr semget 2 ,
+.Xr semop 2
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Dv SETALL
+может обновить некоторые элементы семафоров перед возвратом ошибки.
