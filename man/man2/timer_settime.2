@@ -1,0 +1,256 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/timer_settime.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 036402c11a6f1fe8c61c4f08ab51cdff1714bd168b4724404a8c00088a933584
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 11, 2000
+.Dt TIMER_SETTIME 2
+.Os
+.Sh ИМЯ
+.Nm timer_getoverrun ,
+.Nm timer_gettime ,
+.Nm timer_settime
+.Nd "таймеры уровня процесса (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb librt
+.Sh SYNOPSIS
+.In time.h
+.Ft int
+.Fn timer_getoverrun "timer_t timerid"
+.Ft int
+.Fn timer_gettime "timer_t timerid" "struct itimerspec *value"
+.Ft int
+.Fo timer_settime
+.Fa "timer_t timerid" "int flags" "const struct itimerspec *restrict value"
+.Fa "struct itimerspec *restrict ovalue"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn timer_gettime
+сохраняет количество времени до истечения указанного таймера
+.Fa timerid
+и значение перезагрузки таймера в область, на которую указывает аргумент
+.Fa value .
+Член
+.Va it_value
+этой структуры содержит количество времени до истечения таймера или ноль,
+если таймер разряжен.
+Это значение возвращается как интервал до истечения таймера, даже если
+таймер был взведён с абсолютным временем.
+Член
+.Va it_interval
+структуры
+.Fa value
+содержит значение перезагрузки, последним установленное
+.Fn timer_settime .
+.Pp
+Системный вызов
+.Fn timer_settime
+устанавливает время до следующего истечения таймера, указанного
+.Fa timerid ,
+из члена
+.Va it_value
+аргумента
+.Fa value
+и взводит таймер, если член
+.Va it_value
+структуры
+.Fa value
+не равен нулю.
+Если указанный таймер уже был взведён на момент вызова
+.Fn timer_settime ,
+этот вызов сбрасывает время до следующего истечения на указанное значение.
+Если член
+.Va it_value
+структуры
+.Fa value
+равен нулю, таймер разряжается.
+Если таймер разряжен, то ожидающий сигнал удаляется.
+.Pp
+Если флаг
+.Dv TIMER_ABSTIME
+не установлен в аргументе
+.Fa flags ,
+.Fn timer_settime
+ведёт себя так, как будто время до следующего истечения устанавливается
+равным интервалу, указанному членом
+.Va it_value
+структуры
+.Fa value .
+То есть таймер истекает через
+.Va it_value
+наносекунд с момента выполнения вызова.
+Если флаг
+.Dv TIMER_ABSTIME
+установлен в аргументе
+.Fa flags ,
+.Fn timer_settime
+ведёт себя так, как будто время до следующего истечения устанавливается
+равным разности между абсолютным временем, указанным членом it_value
+структуры value, и текущим значением часов, связанных с
+.Fa timerid .
+То есть таймер истекает, когда часы достигают значения, указанного членом
+.Va it_value
+структуры
+.Fa value .
+Если указанное время уже прошло, системный вызов завершается успешно
+и производится уведомление об истечении.
+.Pp
+Значение перезагрузки таймера устанавливается равным значению, указанному
+членом
+.Va it_interval
+структуры
+.Fa value .
+Когда таймер взведён с ненулевым
+.Va it_interval ,
+задаётся периодический (или повторяющийся) таймер.
+.Pp
+Значения времени, находящиеся между двумя последовательными неотрицательными
+целыми кратными разрешения указанного таймера, округляются вверх до большего
+кратного разрешения.
+Погрешность квантования не приведёт к истечению таймера раньше
+округлённого значения времени.
+.Pp
+Если аргумент
+.Fa ovalue
+не равен
+.Dv NULL ,
+системный вызов
+.Fn timer_settime
+сохраняет в области, на которую ссылается
+.Fa ovalue ,
+значение, представляющее предыдущее количество времени до того, как таймер
+должен был истечь, или ноль, если таймер был разряжен, вместе с предыдущим
+значением перезагрузки таймера.
+Таймеры не истекают раньше запланированного времени.
+.Pp
+Для данного таймера в любой момент времени в очередь процесса ставится
+только один сигнал.
+Когда таймер, для которого сигнал всё ещё ожидает обработки, истекает,
+сигнал не ставится в очередь, и происходит переполнение таймера.
+Когда сигнал об истечении таймера принимается процессом, системный вызов
+.Fn timer_getoverrun
+возвращает счётчик переполнений истечения таймера для указанного таймера.
+Возвращаемый счётчик переполнений содержит число дополнительных истечений
+таймера, произошедших между моментом генерации (постановки в очередь) сигнала
+и моментом его приёма, вплоть до максимума
+.Brq Dv DELAYTIMER_MAX , но не включая его.
+Если число таких дополнительных истечений больше или равно
+.Brq Dv DELAYTIMER_MAX ,
+то счётчик переполнений устанавливается равным
+.Brq Dv DELAYTIMER_MAX .
+Значение, возвращаемое
+.Fn timer_getoverrun ,
+относится к последнему принятому сигналу об истечении для таймера.
+Если для таймера не было доставлено ни одного сигнала об истечении,
+возвращаемое значение
+.Fn timer_getoverrun
+не определено.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если системный вызов
+.Fn timer_getoverrun
+завершается успешно, он возвращает счётчик переполнений истечения таймера,
+как описано выше.
+В противном случае возвращается значение \-1, и глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Pp
+.Rv -std timer_gettime timer_settime
+.Sh ОШИБКИ
+Системный вызов
+.Fn timer_settime
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Структура
+.Fa value
+указывает значение наносекунд меньше нуля или больше либо равное
+1000 миллионам, и член
+.Va it_value
+этой структуры не указывает нулевые секунды и наносекунды.
+.El
+.Pp
+Эти системные вызовы могут завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa timerid
+не соответствует идентификатору, возвращённому
+.Fn timer_create ,
+но ещё не удалённому
+.Fn timer_delete .
+.El
+.Pp
+Системный вызов
+.Fn timer_settime
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Член
+.Va it_interval
+структуры
+.Fa value
+не равен нулю, и таймер был создан с уведомлением путём создания нового
+потока
+.Va ( sigev_sigev_notify
+был равен
+.Dv SIGEV_THREAD )
+и в атрибуте потока, на который указывает
+.Va sigev_notify_attributes ,
+установлен фиксированный адрес стека.
+.El
+.Pp
+Системные вызовы
+.Fn timer_gettime
+и
+.Fn timer_settime
+могут завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Какой-либо из аргументов указывает за пределы выделенного адресного
+пространства или произошла ошибка защиты памяти.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr clock_getres 2 ,
+.Xr timer_create 2 ,
+.Xr siginfo 3
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn timer_getoverrun ,
+.Fn timer_gettime ,
+и
+.Fn timer_settime
+соответствуют
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Поддержка
+.Tn POSIX
+таймеров уровня процесса впервые появилась в
+.Fx 7.0 .

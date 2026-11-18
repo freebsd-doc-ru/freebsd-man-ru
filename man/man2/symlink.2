@@ -1,0 +1,208 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/symlink.2
+.\" FRDP githash dd9e59beebbb346f329dfd1de26a84da8afdcb1d
+.\" FRDP hash256 6a5819b6af8148ec03fdc9ff39361ee5c7e193f11cbc84627d3c469f6ae201b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 15, 2025
+.Dt SYMLINK 2
+.Os
+.Sh ИМЯ
+.Nm symlink ,
+.Nm symlinkat
+.Nd создать символическую ссылку на файл
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn symlink "const char *name1" "const char *name2"
+.Ft int
+.Fn symlinkat "const char *name1" "int fd" "const char *name2"
+.Sh ОПИСАНИЕ
+Символическая ссылка
+.Fa name2
+создаётся на
+.Fa name1
+.Fa ( name2
+— это имя создаваемого
+файла,
+.Fa name1
+— строка,
+используемая при создании символической ссылки).
+Любое из имён может быть произвольным путём; файлы не обязаны
+находиться в одной и той же файловой системе.
+.Pp
+Системный вызов
+.Fn symlinkat
+эквивалентен
+.Fn symlink
+за исключением случая, когда
+.Fa name2
+задаёт относительный путь.
+В этом случае символическая ссылка создаётся относительно каталога,
+связанного с дескриптором файла
+.Fa fd
+вместо текущего рабочего каталога.
+Если
+.Fn symlinkat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог, и поведение
+идентично вызову
+.Fn symlink .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std symlink
+.Sh ОШИБКИ
+Символическая ссылка создаётся успешно, если не возникает следующая ошибка:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути
+.Fa name2
+не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути
+.Fa name2
+превысил 255 символов,
+или полная длина любого из имён путей превысила 1023 символа.
+.It Bq Er ENOENT
+Компонент префикса пути
+.Fa name2
+не существует.
+.It Bq Er EOPNOTSUPP
+Файловая система, содержащая файл, указанный в
+.Fa name2 ,
+не поддерживает символические ссылки.
+.It Bq Er EACCES
+Компонент префикса пути
+.Fa name2
+запрещает поиск, или запрещено разрешение на запись в
+родительский каталог создаваемого файла.
+.It Bq Er ELOOP
+При разборе имени пути
+.Fa name2
+встретилось слишком много символических ссылок.
+.It Bq Er EEXIST
+Имя пути, на которое указывает аргумент
+.Fa name2 ,
+уже существует.
+.It Bq Er EPERM
+Родительский каталог файла, указанного в
+.Fa name2 ,
+имеет установленный флаг неизменяемости; см. страницу руководства
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при создании записи каталога для
+.Fa name2 ,
+выделении inode для
+.Fa name2
+или записи содержимого ссылки
+.Fa name2 .
+.It Bq Er EROFS
+Файл
+.Fa name2
+должен находиться в файловой системе, доступной только для чтения.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для новой символической ссылки,
+не может быть расширен, поскольку на файловой системе,
+содержащей каталог, не осталось места.
+.It Bq Er ENOSPC
+Новая символическая ссылка не может быть создана, поскольку
+на файловой системе, которая должна содержать символическую ссылку,
+не осталось места.
+.It Bq Er ENOSPC
+На файловой системе, в которой создаётся
+символическая ссылка, нет свободных inode.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для новой символической ссылки,
+не может быть расширен, поскольку квота пользователя на дисковые блоки
+на файловой системе, содержащей каталог, исчерпана.
+.It Bq Er EDQUOT
+Новая символическая ссылка не может быть создана, поскольку квота
+пользователя на дисковые блоки на файловой системе, которая должна
+содержать символическую ссылку, исчерпана.
+.It Bq Er EDQUOT
+Квота пользователя на inode на файловой системе,
+в которой создаётся символическая ссылка, исчерпана.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EFAULT
+Аргумент
+.Fa name1
+или
+.Fa name2
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn symlink ,
+.Fn symlinkat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa name2
+не задаёт абсолютный путь, а аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa name2
+не является абсолютным путём, а
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ln 1 ,
+.Xr chflags 2 ,
+.Xr link 2 ,
+.Xr lstat 2 ,
+.Xr readlink 2 ,
+.Xr unlink 2 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn symlinkat
+соответствует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn symlink
+появился в
+.Bx 4.2 .
+Системный вызов
+.Fn symlinkat
+появился в
+.Fx 8.0 .

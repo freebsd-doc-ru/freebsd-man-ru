@@ -1,0 +1,132 @@
+.\"
+.\" Copyright 2002 Massachusetts Institute of Technology
+.\"
+.\" Permission to use, copy, modify, and distribute this software and
+.\" its documentation for any purpose and without fee is hereby
+.\" granted, provided that both the above copyright notice and this
+.\" permission notice appear in all copies, that both the above
+.\" copyright notice and this permission notice appear in all
+.\" supporting documentation, and that the name of M.I.T. not be used
+.\" in advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.  M.I.T. makes
+.\" no representations about the suitability of this software for any
+.\" purpose.  It is provided "as is" without express or implied
+.\" warranty.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY M.I.T. ``AS IS''.  M.I.T. DISCLAIMS
+.\" ALL EXPRESS OR IMPLIED WARRANTIES WITH REGARD TO THIS SOFTWARE,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
+.\" SHALL M.I.T. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/pselect.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 a963fb3bd965cb72e957d15d997d79c4ee61fd2f7f09aba1fb6532574e8d79fb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 2, 2022
+.Dt PSELECT 2
+.Os
+.Sh ИМЯ
+.Nm pselect
+.Nd синхронное мультиплексирование ввода-вывода в духе POSIX.1g
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/select.h
+.Ft int
+.Fo pselect
+.Fa "int nfds"
+.Fa "fd_set * restrict readfds"
+.Fa "fd_set * restrict writefds"
+.Fa "fd_set * restrict exceptfds"
+.Fa "const struct timespec * restrict timeout"
+.Fa "const sigset_t * restrict newsigmask"
+.Fc
+.Sh ОПИСАНИЕ
+Функция
+.Fn pselect
+была введена в
+.St -p1003.1g-2000
+как несколько более строгая версия
+.Xr select 2 .
+Аргументы
+.Fa nfds , readfds , writefds
+и
+.Fa exceptfds
+полностью идентичны аналогичным аргументам
+.Fn select .
+Аргумент
+.Fa timeout
+в
+.Fn pselect
+указывает на
+.Vt "const struct timespec"
+а не на потенциально изменяемую структуру
+.Vt "struct timeval" ,
+используемую
+.Fn select ;
+как и в
+.Fn select ,
+может быть передан нулевой указатель, чтобы указать, что
+.Fn pselect
+должна ждать бесконечно.
+Наконец,
+.Fa newsigmask
+задаёт маску сигналов, которая устанавливается во время ожидания ввода.
+При возврате из
+.Fn pselect
+исходная маска сигналов восстанавливается.
+Если
+.Fa newsigmask
+является нулевым указателем,
+.Fn pselect
+ведёт себя как
+.Fn select
+без установки или восстановления маски сигналов.
+.Pp
+См.
+.Xr select 2
+для более подробного обсуждения семантики этого интерфейса и
+макросов, используемых для работы с типом данных
+.Vt "fd_set" .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Функция
+.Fn pselect
+возвращает те же значения и при тех же условиях, что и
+.Fn select .
+.Sh ОШИБКИ
+Функция
+.Fn pselect
+может завершиться неудачей по любой из причин, описанных для
+.Xr select 2
+и (если предоставлена маска сигналов)
+.Xr sigprocmask 2 .
+.Sh СМ. ТАКЖЕ
+.Xr kqueue 2 ,
+.Xr poll 2 ,
+.Xr select 2 ,
+.Xr sigprocmask 2 ,
+.Xr sigsuspend 2
+.Sh СТАНДАРТЫ
+Функция
+.Fn pselect
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Функция
+.Fn pselect
+впервые появилась в
+.Fx 5.0 .
+.Sh АВТОРЫ
+Первая реализация функции
+.Fn pselect
+и эта страница руководства были написаны
+.An Garrett Wollman Aq Mt wollman@FreeBSD.org .

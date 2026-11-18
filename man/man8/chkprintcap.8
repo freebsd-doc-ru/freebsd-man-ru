@@ -1,0 +1,104 @@
+.\" Copyright 1997 Massachusetts Institute of Technology
+.\"
+.\" Permission to use, copy, modify, and distribute this software and
+.\" its documentation for any purpose and without fee is hereby
+.\" granted, provided that both the above copyright notice and this
+.\" permission notice appear in all copies, that both the above
+.\" copyright notice and this permission notice appear in all
+.\" supporting documentation, and that the name of M.I.T. not be used
+.\" in advertising or publicity pertaining to distribution of the
+.\" software without specific, written prior permission.  M.I.T. makes
+.\" no representations about the suitability of this software for any
+.\" purpose.  It is provided "as is" without express or implied
+.\" warranty.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY M.I.T. ``AS IS''.  M.I.T. DISCLAIMS
+.\" ALL EXPRESS OR IMPLIED WARRANTIES WITH REGARD TO THIS SOFTWARE,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
+.\" SHALL M.I.T. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.sbin/lpr/chkprintcap/chkprintcap.8
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 5391cada3ea14a2d1de85d1c4cb4229e1b4d839edecddb671b3b6ae621d119c7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 30, 1997
+.Dt CHKPRINTCAP 8
+.Os
+.Sh ИМЯ
+.Nm chkprintcap
+.Nd проверка корректности записей в базе данных спулера печати
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl f Ar printcap
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕВАНИИ
+Это средство запланировано к удалению до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сканирует базу данных
+.Xr printcap 5
+(задаваемую аргументом
+.Ar printcap
+или по умолчанию
+.Pa /etc/printcap ) ,
+в поисках записей, которые являются недопустимыми тем или иным образом.
+В настоящее время реализованы следующие проверки:
+.Bl -enum -offset indent
+.It
+.Sq Li tc=
+ссылки были правильно развёрнуты
+.It
+.Sq Li tc=
+ссылки не образовывали цикл
+.It
+Никакие два принтера не используют один и тот же каталог спула
+.Sq ( Li sd=
+возможность).
+.El
+.Pp
+Утилита
+.Nm
+завершается со статусом, равным количеству ошибок, обнаруженных до
+остановки обработки.
+(В некоторых случаях обработка может остановиться до того, как будет
+просканирован весь файл.)
+.Pp
+Если задан флаг
+.Fl d ,
+.Nm
+попытается создать все отсутствующие каталоги спула, назначив им
+режим
+.Sq Li u=rwx,go=rx
+(0755), группу
+.Sq Li daemon ,
+и владельца, указанного в возможности
+.Sq Li du=
+в базе данных (по умолчанию 1, что соответствует пользователю
+.Sq Li daemon ) .
+.Sh СМ. ТАКЖЕ
+.Xr lpr 1 ,
+.Xr printcap 5 ,
+.Xr lpd 8
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Garrett A. Wollman Aq Mt wollman@lcs.mit.edu .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Проверок на корректность выполняется недостаточно.
+Как минимум, также следует проверять владельца и
+режим каталогов спула.
+Другие
+параметры, значение которых может привести к сбою
+.Xr lpd 8 ,
+должны диагностироваться.

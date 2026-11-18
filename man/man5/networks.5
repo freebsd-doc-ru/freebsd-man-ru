@@ -1,0 +1,84 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/networks.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 fc62d4f197c2707727055cde53cb648aaa8d32780d650bd8a0a825b579bf6fc1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 5, 1993
+.Dt NETWORKS 5
+.Os
+.Sh ИМЯ
+.Nm networks
+.Nd база данных имён сетей
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит информацию об известных сетях, составляющих
+.Tn DARPA
+Internet.
+Для каждой сети должна присутствовать одна строка со следующими сведениями:
+.Bd -unfilled -offset indent
+официальное имя сети
+номер сети
+псевдонимы
+.Ed
+.Pp
+Элементы разделяются любым количеством пробелов и/или символов табуляции.
+Символ ``#'' обозначает начало комментария; символы до конца строки
+не интерпретируются подпрограммами, которые выполняют поиск в файле.
+Этот файл обычно создаётся из официальной базы данных сетей,
+поддерживаемой в Центре управления сетевой информацией
+.Pq Tn NIC ,
+хотя может потребоваться внести локальные изменения, чтобы привести его
+в соответствие с неофициальными псевдонимами и/или неизвестными сетями.
+.Pp
+Номера сетей могут быть заданы в традиционной
+``.'' (точечной) нотации с помощью подпрограммы
+.Xr inet_network 3
+из библиотеки работы с интернет-адресами,
+.Xr inet 3 .
+Имена сетей могут содержать любые печатные символы, кроме разделителя
+полей, символа новой строки или символа комментария.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/networks -compact
+.It Pa /etc/networks
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getnetent 3
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Следует использовать сервер имён вместо статического файла.

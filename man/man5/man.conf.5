@@ -1,0 +1,141 @@
+.\"-
+.\"  Copyright (c) 2010 Gordon Tetlow
+.\"  All rights reserved.
+.\"
+.\"  Redistribution and use in source and binary forms, with or without
+.\"  modification, are permitted provided that the following conditions
+.\"  are met:
+.\"  1. Redistributions of source code must retain the above copyright
+.\"     notice, this list of conditions and the following disclaimer.
+.\"  2. Redistributions in binary form must reproduce the above copyright
+.\"     notice, this list of conditions and the following disclaimer in the
+.\"     documentation and/or other materials provided with the distribution.
+.\"
+.\"  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\"  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\"  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\"  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\"  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\"  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\"  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\"  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\"  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\"  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\"  SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/man/man.conf.5
+.\" FRDP githash cd89fe3923e92ab090cbdff7eb215c2d85b51718
+.\" FRDP hash256 b372b385ba8cac0f0deca1142f369f5af2f86d89e0ff3a6ffe776ca14b903c9f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 3, 2011
+.Dt MAN.CONF 5
+.Os
+.Sh ИМЯ
+.Nm man.conf
+.Nd
+.Xr man 1
+и
+.Xr manpath 1
+файлы конфигурации
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+используется для настройки пути поиска справочных страниц, локалей и набора утилит для
+.Xr man 1
+и связанных с ним утилит.
+Во время инициализации
+.Xr man 1
+читает конфигурационные файлы, расположенные в
+.Pa /usr/local/etc/man.d/*.conf
+и
+.Pa /etc/man.conf .
+.Pp
+Файлы, содержащиеся в
+.Pa /usr/local/etc/man.d/*.conf ,
+предназначены для использования системой
+.Xr ports 7
+для расширения набора справочных страниц с целью поддержки дополнительных путей и локалей.
+.Pa /etc/man.conf
+предназначен для использования локальным администратором для задания дополнительной политики.
+.Pp
+В настоящее время поддерживаются следующие переменные конфигурации:
+.Bl -tag -width 12n -offset indent
+.It MANCONFIG
+Переопределяет местоположение по умолчанию для импорта дополнительных файлов конфигурации справочных страниц.
+По умолчанию используется
+.Pa /usr/local/etc/man.d/*.conf .
+.It MANPATH
+Добавляет указанный каталог в путь поиска справочных страниц.
+.It MANLOCALE
+Указывает, что для заданной локали доступна поддержка.
+.El
+.Pp
+Для страниц на заданном языке поддерживается переопределение набора инструментов по умолчанию для отображения с помощью следующих определений:
+.Pp
+.Bl -tag -width 12n -offset indent -compact
+.It EQN Ns _ Ns Va LANG
+.It NROFF Ns _ Ns Va LANG
+.It PIC Ns _ Ns Va LANG
+.It TBL Ns _ Ns Va LANG
+.It TROFF Ns _ Ns Va LANG
+.It REFER Ns _ Ns Va LANG
+.It VGRIND Ns _ Ns Va LANG
+.El
+.Pp
+См. раздел
+.Sx ПРИМЕРЫ
+о том, как использовать эти переменные.
+.Sh ЗАМЕЧАНИЯ ПО РЕАЛИЗАЦИИ
+Синтаксический анализатор, используемый этой утилитой, очень прост и поддерживает символы комментария (#) только в начале строки.
+.Sh ФАЙЛЫ
+.Bl -tag -width 12n -offset indent
+.It Pa /etc/man.conf
+Системный файл конфигурации.
+.It Pa /usr/local/etc/man.d/*.conf
+Локальные файлы конфигурации.
+.El
+.Sh ПРИМЕРЫ
+Порт perl, которому требуется установить дополнительные справочные страницы вне местоположения по умолчанию, может установить файл в
+.Pa /usr/local/etc/man.d/perl.conf
+со следующим содержимым:
+.Bd -literal -offset indent
+# Добавить справочные страницы perl в путь поиска
+MANPATH /usr/local/lib/perl5/5.8.9/man
+MANPATH /usr/local/lib/perl5/5.8.9/perl/man
+.Ed
+.Pp
+Порт локализации для японского языка может установить пользовательский набор инструментов и включить файл в
+.Pa /usr/local/etc/man.d/ja-man-doc.conf
+со следующим содержимым:
+.Bd -literal -offset indent
+# Настройка японского набора инструментов
+MANLOCALE	ja_JP.eucJP
+EQN_JA		/usr/local/bin/geqn
+PIC_JA		/usr/local/bin/gpic
+TBL_JA		/usr/local/bin/gtbl
+NROFF_JA	/usr/local/bin/groff -mandoc -dlang=ja_JP.eucJP
+TROFF_JA	/usr/local/bin/groff -mandoc -dlang=ja_JP.euc.jp
+.Ed
+.Pp
+Если системный администратор решит переопределить переменную
+.Va LOCALBASE
+.Xr make 1 ,
+из-за чего все
+.Xr ports 7
+будут устанавливаться в
+.Pa /opt
+вместо
+.Pa /usr/local ,
+указание следующего в
+.Pa /etc/man.conf
+позволит учесть это изменение:
+.Bd -literal -offset indent
+# Поиск дополнительных файлов конфигурации
+MANCONFIG /opt/etc/man.d/*.conf
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr apropos 1 ,
+.Xr man 1 ,
+.Xr manpath 1 ,
+.Xr whatis 1

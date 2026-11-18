@@ -1,0 +1,257 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_new.2
+.\" FRDP githash 6fd3288c39c493c4f252b715e8354e0d27d5ef90
+.\" FRDP hash256 54dac1616ce958b0b0957f0f2724481f54ac7c997c62fd99a4d759b9aa0900b7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_NEW 2
+.Os
+.Sh ИМЯ
+.Nm thr_new
+.Nd создать новый поток исполнения
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_new "struct thr_param *param" "int param_size"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Эта функция предназначена для реализации потоков.
+Обычные приложения должны вместо неё вызывать
+.Xr pthread_create 3 .
+.Ef
+.Pp
+Системный вызов
+.Fn thr_new
+создаёт новый поток исполнения, планируемый ядром, в контексте
+текущего процесса.
+Вновь созданный поток разделяет все атрибуты процесса с
+существующими потоками, планируемыми ядром, в этом процессе, но имеет
+собственное состояние выполнения на процессоре.
+Контекст машины для нового потока копируется из контекста создающего
+потока, включая состояние сопроцессора.
+Состояние FPU и определённые регистры машины исключаются из копии.
+Они устанавливаются в соответствии с требованиями ABI и параметрами
+системного вызова.
+Состояние FPU для нового потока повторно инициализируется как чистое.
+.Pp
+Структура
+.Fa param
+содержит параметры, влияющие на создание потока.
+Структура определена в заголовочном файле
+.In sys/thr.h
+следующим образом
+.Bd -literal
+struct thr_param {
+    void          (*start_func)(void *);
+    void          *arg;
+    char          *stack_base;
+    size_t        stack_size;
+    char          *tls_base;
+    size_t        tls_size;
+    long          *child_tid;
+    long          *parent_tid;
+    int           flags;
+    struct rtprio *rtp;
+};
+.Ed
+и содержит следующие поля:
+.Bl -tag -width ".Va parent_tid"
+.It Va start_func
+Указатель на функцию входа потока.
+Ядро обеспечивает запуск выполнения этой функции новым потоком
+при первом возврате в пространство пользователя.
+.It Va arg
+Непрозрачный аргумент, передаваемый функции входа.
+.It Va stack_base
+Базовый адрес стека.
+Стек должен быть выделен вызывающей стороной.
+На некоторых архитектурах ABI может требовать, чтобы система размещала
+информацию на стеке для обеспечения среды выполнения для
+.Va start_func .
+.It Va stack_size
+Размер стека.
+.It Va tls_base
+Базовый адрес TLS.
+Значение базового адреса TLS загружается в определённый ABI регистр
+машины в контексте нового потока.
+.It Va tls_size
+Размер TLS.
+.It Va child_tid
+Адрес для сохранения идентификатора нового потока, для использования
+потомком.
+.It Va parent_tid
+Адрес для сохранения идентификатора нового потока, для использования
+родителем.
+.Pp
+Оба поля
+.Va child_tid
+и
+.Va parent_tid
+предоставляются с той целью, чтобы
+.Va child_tid
+использовался новым потоком для получения своего идентификатора потока
+без выполнения системного вызова
+.Xr thr_self 2 ,
+а
+.Va parent_tid
+использовался создателем потока.
+Последний отделён от
+.Va child_tid
+потому, что новый поток может завершиться и освободить свои данные потока
+прежде, чем родитель успеет выполниться достаточно далеко, чтобы получить
+к ним доступ.
+.It Va flags
+Флаги создания потока.
+Член
+.Va flags
+может задавать следующие флаги:
+.Bl -tag -width ".Dv THR_SYSTEM_SCOPE"
+.It Dv THR_SUSPENDED
+Создать новый поток в приостановленном состоянии.
+В настоящее время этот флаг не реализован.
+.It Dv THR_SYSTEM_SCOPE
+Создать поток системной области видимости.
+В настоящее время этот флаг не реализован.
+.It Dv THR_C_RUNTIME
+Указывает, что новый поток создаётся средой выполнения языка C.
+Имеет зависящее от архитектуры значение.
+.Pp
+На amd64 флаг требует, чтобы указанный
+.Fa tls_base
+был загружен в регистр
+.Va %fsbase
+перед вызовом обработчика сигнала.
+.El
+.It Va rtp
+Приоритет планирования в реальном времени для нового потока.
+Может быть
+.Dv NULL
+для наследования приоритета от создающего
+потока.
+.El
+.Pp
+Аргументу
+.Fa param_size
+следует присвоить размер структуры
+.Fa param .
+.Pp
+После первого успешного создания дополнительного потока
+процесс помечается ядром как многопоточный.
+В частности, в
+.Dv p_flag
+процесса устанавливается флаг
+.Dv P_HADTHREADS
+(видимый в выводе
+.Xr ps 1 ), и несколько операций выполняются в многопоточном режиме.
+Например, системный вызов
+.Xr execve 2
+при успешном выполнении завершает все потоки, кроме вызывающего.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха
+.Fn thr_new
+возвращает ноль, иначе возвращается \-1, а
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Операция
+.Fn thr_new
+возвращает следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Память, на которую указывает аргумент
+.Fa param ,
+недопустима.
+.It Bq Er EFAULT
+Память, на которую указывают аргументы
+.Fa child_tid , parent_tid
+или
+.Fa rtp
+структуры
+.Fa param ,
+недопустима.
+.It Bq Er EFAULT
+Указанный базовый адрес стека недопустим, или ядро не смогло разместить
+требуемые начальные данные на стеке.
+.It Bq Er EINVAL
+Аргумент
+.Fa param_size
+задаёт отрицательное значение, или значение больше наибольшего
+размера
+.Fa struct param ,
+который ядро может интерпретировать.
+.It Bq Er EINVAL
+Член
+.Fa rtp
+не равен
+.Dv NULL
+и задаёт недопустимые параметры планирования.
+.It Bq Er EINVAL
+Указанный базовый адрес TLS недопустим.
+.It Bq Er EPERM
+У вызывающей стороны нет прав на установку параметров или
+политики планирования.
+.It Bq Er EPROCLIM
+Создание нового потока превысило бы предел
+.Dv RACCT_NTHR ,
+см.
+.Xr rctl_get_racct 2 .
+.It Bq Er EPROCLIM
+Создание нового потока превысило бы предел
+.Xr sysctl 3
+.Dv kern.threads.max_threads_per_proc .
+.It Bq Er ENOMEM
+Не хватило памяти ядра для выделения структур нового потока.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ps 1 ,
+.Xr _umtx_op 2 ,
+.Xr execve 2 ,
+.Xr rctl_get_racct 2 ,
+.Xr thr_exit 2 ,
+.Xr thr_kill 2 ,
+.Xr thr_kill2 2 ,
+.Xr thr_self 2 ,
+.Xr thr_set_name 2 ,
+.Xr pthread_create 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn thr_new
+не является стандартным и используется
+.Lb libthr
+для реализации функциональности
+.St -p1003.1-2001
+.Xr pthread 3 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn thr_new
+впервые появился в
+.Fx 5.2 .

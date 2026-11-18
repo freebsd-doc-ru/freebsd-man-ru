@@ -1,0 +1,180 @@
+.\" Copyright (c) 2011 The University of Melbourne
+.\" All rights reserved.
+.\"
+.\" This documentation was written by Julien Ridoux at the University of
+.\" Melbourne under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/ffclock.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 012305bc2244e227ff023a4f97b7bb7b9417684c8bfbbbbdd1d9485490a5f654
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 21, 2011
+.Dt FFCLOCK 2
+.Os
+.Sh ИМЯ
+.Nm ffclock_getcounter ,
+.Nm ffclock_getestimate ,
+.Nm ffclock_setestimate
+.Nd Получение счётчика с прямой связью, получение и установка оценок часов с прямой связью
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/timeffc.h
+.Ft int
+.Fn ffclock_getcounter "ffcounter *ffcount"
+.Ft int
+.Fn ffclock_getestimate "struct ffclock_estimate *cest"
+.Ft int
+.Fn ffclock_setestimate "struct ffclock_estimate *cest"
+.Sh ОПИСАНИЕ
+Часы ffclock представляют собой альтернативный метод синхронизации системных часов.
+Часы ffclock реализуют парадигму прямой связи и разделяют функции
+проставления меток времени и хранения времени в ядре.
+Это гарантирует, что прошлые ошибки часов не влияют на текущее хранение времени, —
+подход, радикально отличающийся от альтернативы с обратной связью, реализуемой
+демоном ntpd при корректировке системных часов.
+Подход с прямой связью продемонстрировал лучшую производительность и более высокую
+устойчивость по сравнению с подходом с обратной связью при синхронизации по сети.
+.Pp
+В контексте прямой связи
+.Em метка времени
+представляет собой накопленное значение тиков счётчика времени, которое может быть
+преобразовано в секунды с использованием
+.Em оценок часов
+прямой связи.
+.Pp
+Системный вызов
+.Fn ffclock_getcounter
+позволяет вызывающему процессу получить текущее значение счётчика прямой связи,
+поддерживаемого ядром.
+.Pp
+Системные вызовы
+.Fn ffclock_getestimate
+и
+.Fn ffclock_setestimate
+позволяют вызывающему получить и установить оценки параметров часов прямой связи
+ядра соответственно.
+Системный вызов
+.Fn ffclock_setestimate
+должен вызываться единственным экземпляром демона синхронизации прямой связи.
+Системный вызов
+.Fn ffclock_getestimate
+может вызываться любым процессом для получения оценок часов прямой связи.
+.Pp
+Подход с прямой связью не требует извлечения оценок часов каждый раз, когда
+метка времени должна быть преобразована в секунды.
+Таким образом, количество системных вызовов может быть значительно сокращено, если
+вызывающий процесс вместо этого извлекает оценки часов из демона синхронизации часов.
+Системный вызов
+.Fn ffclock_getestimate
+должен использоваться, когда демон синхронизации прямой связи не запущен
+.Po см.
+.Sx ИСПОЛЬЗОВАНИЕ
+ниже
+.Pc .
+.Pp
+Структура оценок параметров часов, на которую указывает
+.Fa cest ,
+определена в
+.In sys/timeffc.h
+следующим образом:
+.Bd -literal
+struct ffclock_estimate {
+	struct bintime update_time;    /* Time of last estimates update. */
+	ffcounter      update_ffcount; /* Counter value at last update. */
+	ffcounter      leapsec_next;   /* Counter value of next leap second. */
+	uint64_t       period;         /* Estimate of counter period. */
+	uint32_t       errb_abs;       /* Bound on absolute clock error [ns]. */
+	uint32_t       errb_rate;      /* Bound on counter rate error [ps/s]. */
+	uint32_t       status;         /* Clock status. */
+	int16_t        leapsec_total;  /* All leap seconds seen so far. */
+	int8_t         leapsec;        /* Next leap second (in {-1,0,1}). */
+};
+.Ed
+.Pp
+Только суперпользователь может устанавливать оценки часов прямой связи.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+В
+.Va errno
+могут быть установлены следующие коды ошибок:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Указатель
+.Fa ffcount
+или
+.Fa cest
+ссылается на недопустимую память.
+.It Bq Er EPERM
+Пользователь, отличный от суперпользователя, попытался установить оценки
+параметров часов прямой связи.
+.El
+.Sh ИСПОЛЬЗОВАНИЕ
+Парадигма прямой связи позволяет определять специализированные функции часов.
+.Pp
+В простейшей форме
+.Fn ffclock_getcounter
+может использоваться для установления строгого порядка между событиями или для
+очень точного измерения малых интервалов времени с минимальными затратами
+производительности.
+.Pp
+Существуют различные методы доступа к абсолютному времени
+.Po или
+.Qq времени настенных часов
+.Pc , отслеживаемому ffclock.
+Простейший метод использует интерфейс sysctl часов ffclock
+.Va kern.ffclock
+для того, чтобы системные часы возвращали время ffclock.
+Затем системный вызов
+.Xr clock_gettime 2
+может быть использован для получения текущего времени, наблюдаемого
+часами прямой связи.
+Обратите внимание, что эта настройка влияет на всю систему и что при этом
+должен быть запущен демон синхронизации прямой связи.
+.Pp
+Менее автоматизированный метод состоит в извлечении метки времени счётчика прямой
+связи из ядра и использовании оценок параметров часов прямой связи для
+преобразования метки времени в секунды.
+Оценки параметров часов прямой связи могут быть извлечены из ядра или
+непосредственно из демона синхронизации (предпочтительно).
+Этот метод позволяет преобразовывать метки времени с использованием различных моделей
+часов по мере необходимости для приложения, одновременно собирая значимые верхние
+границы текущей ошибки часов.
+.Sh СМ. ТАКЖЕ
+.Xr date 1 ,
+.Xr adjtime 2 ,
+.Xr clock_gettime 2 ,
+.Xr ctime 3
+.Sh ИСТОРИЯ
+Поддержка часов прямой связи впервые появилась в
+.Fx 10.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Поддержка часов прямой связи была написана
+.An Julien Ridoux Aq Mt jridoux@unimelb.edu.au
+в сотрудничестве с
+.An Darryl Veitch Aq Mt dveitch@unimelb.edu.au
+в Университете Мельбурна при спонсорской поддержке FreeBSD Foundation.

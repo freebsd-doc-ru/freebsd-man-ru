@@ -1,0 +1,129 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getfsstat.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 6b70a57dda25eadd55badeba6e31b51128856f1ca2de939c2034c1799c36b979
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt GETFSSTAT 2
+.Os
+.Sh NAME
+.Nm getfsstat
+.Nd получить список всех смонтированных файловых систем
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/ucred.h
+.In sys/mount.h
+.Ft int
+.Fn getfsstat "struct statfs *buf" "long bufsize" "int mode"
+.Sh DESCRIPTION
+Системный вызов
+.Fn getfsstat
+возвращает информацию обо всех смонтированных файловых системах.
+Аргумент
+.Fa buf
+является указателем на структуры
+.Vt statfs ,
+описанные в
+.Xr statfs 2 .
+.Pp
+Поля, не определённые для конкретной файловой системы, устанавливаются в -1.
+Буфер заполняется массивом структур
+.Fa statfs ,
+по одной для каждой смонтированной файловой системы,
+в пределах количества байт, указанного в
+.Fa bufsize .
+Обратите внимание, что аргумент
+.Fa bufsize
+задаёт количество байт, которое может вместить
+.Fa buf ,
+а не количество структур statfs, которые в него поместятся.
+.Pp
+Если
+.Fa buf
+равен NULL,
+.Fn getfsstat
+возвращает только количество смонтированных файловых систем.
+.Pp
+Обычно
+.Fa mode
+следует указывать как
+.Dv MNT_WAIT .
+Если
+.Fa mode
+установлен в
+.Dv MNT_NOWAIT ,
+.Fn getfsstat
+вернёт имеющуюся у него информацию, не запрашивая
+обновление у каждой файловой системы.
+Таким образом, часть информации будет устаревшей, но
+.Fn getfsstat
+не будет блокироваться в ожидании информации от файловой системы,
+которая не может ответить.
+Он также пропустит любую файловую систему, находящуюся в процессе
+размонтирования, даже если размонтирование в конечном итоге завершится неудачей.
+.Sh RETURN VALUES
+При успешном завершении возвращается количество структур
+.Fa statfs .
+В противном случае возвращается -1, и глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ERRORS
+Системный вызов
+.Fn getfsstat
+завершается с ошибкой, если выполнено одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa buf
+указывает на недопустимый адрес.
+.It Bq Er EINVAL
+.Fa mode
+установлен в значение, отличное от
+.Dv MNT_WAIT
+или
+.Dv MNT_NOWAIT .
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла
+ошибка
+.Tn I/O .
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh SEE ALSO
+.Xr statfs 2 ,
+.Xr fstab 5 ,
+.Xr mount 8
+.Sh HISTORY
+Системный вызов
+.Fn getfsstat
+впервые появился в
+.Bx 4.4 .

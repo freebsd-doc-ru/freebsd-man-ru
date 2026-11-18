@@ -1,0 +1,85 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigsuspend.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 8a3dcbe2a0d9b642d5fa50e8112e65637fbe011113ea387dd4fb59671005ec67
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 16, 2013
+.Dt SIGSUSPEND 2
+.Os
+.Sh ИМЯ
+.Nm sigsuspend
+.Nd атомарно разблокировать сигналы и ждать прерывания
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sigsuspend "const sigset_t *sigmask"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigsuspend
+временно заменяет маску блокированных сигналов на набор, на который
+указывает
+.Fa sigmask ,
+а затем ожидает поступления сигнала;
+при возврате восстанавливается предыдущий набор блокированных сигналов.
+Набор маски сигналов
+обычно пуст, что означает, что все
+сигналы разблокированы на время вызова.
+.Pp
+В обычном использовании сигнал блокируется с помощью
+.Xr sigprocmask 2 ,
+чтобы начать критическую секцию, переменные, изменяемые при
+поступлении сигнала, проверяются, чтобы определить, что работы
+нет, и процесс приостанавливается в ожидании работы с помощью
+.Fn sigsuspend
+с предыдущей маской, возвращённой
+.Xr sigprocmask 2 .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+Системный вызов
+.Fn sigsuspend
+всегда завершается прерыванием, возвращая -1 с
+.Va errno ,
+установленным в
+.Er EINTR .
+.Sh СМ. ТАКЖЕ
+.Xr pselect 2 ,
+.Xr sigaction 2 ,
+.Xr sigpending 2 ,
+.Xr sigprocmask 2 ,
+.Xr sigtimedwait 2 ,
+.Xr sigwait 2 ,
+.Xr sigwaitinfo 2 ,
+.Xr sigsetops 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn sigsuspend
+должен соответствовать
+.St -p1003.1-90 .

@@ -1,0 +1,468 @@
+.\"-
+.\" Copyright (c) 2008-2009 Apple Inc.
+.\" Copyright (c) 2005 Robert N. M. Watson
+.\" Copyright (c) 2005 Tom Rhodes
+.\" Copyright (c) 2005 Wayne J. Salamon
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/auditon.2
+.\" FRDP githash 5e386598a6d77973b93c073080f0cc574edda9e2
+.\" FRDP hash256 180eb319ec309919eca763acde5df313acc7c774fa9c34d9ca951240b6406373
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 7, 2016
+.Dt AUDITON 2
+.Os
+.Sh ИМЯ
+.Nm auditon
+.Nd "настройка параметров системного аудита"
+.Sh SYNOPSIS
+.In bsm/audit.h
+.Ft int
+.Fn auditon "int cmd" "void *data" "u_int length"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn auditon
+используется для выполнения различных операций управления аудитом.
+Аргумент
+.Fa data
+должен указывать на структуру, тип которой зависит от команды.
+Аргумент
+.Fa length
+задаёт размер
+.Fa *data
+в байтах.
+Аргумент
+.Fa cmd
+может быть одной из следующих величин:
+.Bl -tag -width ".It Dv A_GETPINFO_ADDR"
+.It Dv A_SETPOLICY
+Установить флаги политики аудита.
+Аргумент
+.Fa data
+должен указывать на значение
+.Vt int
+, установленное в одно или несколько следующих значений управления
+политикой аудита, объединённых побитовым ИЛИ:
+.Dv AUDIT_CNT ,
+.Dv AUDIT_AHLT ,
+.Dv AUDIT_ARGV
+и
+.Dv AUDIT_ARGE .
+Если установлен
+.Dv AUDIT_CNT , система продолжит работу даже при нехватке места
+и прекратит регистрацию событий до устранения условия нехватки места.
+Если он не установлен, аудируемые события будут блокироваться до устранения
+условия нехватки места.
+Однако неаудируемые события это не затрагивает.
+Если установлен
+.Dv AUDIT_AHLT , при невозможности записать событие в глобальный файл
+журнала аудита происходит
+.Xr panic 9 .
+Если установлен
+.Dv AUDIT_ARGV ,
+то список аргументов, переданный системному вызову
+.Xr execve 2 ,
+будет аудирован.
+Если установлен
+.Dv AUDIT_ARGE ,
+то переменные окружения, переданные системному вызову
+.Xr execve 2 ,
+будут аудированы.
+Политика по умолчанию не содержит ни одного из флагов управления
+политикой аудита.
+.It Dv A_SETKAUDIT
+Установить информацию о хосте.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditinfo_addr_t ,
+содержащую информацию об IP-адресе хоста.
+После установки записи аудита, создаваемые в результате событий ядра,
+будут содержать эту информацию.
+.It Dv A_SETKMASK
+Установить маски предварительного отбора ядра (успех и неудача).
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_mask_t ,
+содержащую значения масок, определённые в
+.In bsm/audit.h .
+Эти маски используются для предварительного отбора неатрибутируемых
+событий аудита.
+Поле
+.Fa am_success
+определяет, какие классы успешных событий аудита должны записываться в
+журнал аудита.
+Поле
+.Fa am_failure
+определяет, какие классы неудачных событий аудита должны записываться.
+Значение обоих полей является результатом побитового ИЛИ классов событий
+аудита, указанных в
+.Fa bsm/audit.h .
+Различные классы аудита более подробно описаны в
+.Xr audit_class 5 .
+.It Dv A_SETQCTRL
+Установить параметры очереди аудита ядра.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_qctrl_t
+(определённую в
+.In bsm/audit.h ),
+содержащую настройки управления очередью аудита ядра:
+.Fa aq_hiwater ,
+.Fa aq_lowater ,
+.Fa aq_bufsz ,
+.Fa aq_delay
+и
+.Fa aq_minfree .
+Поле
+.Fa aq_hiwater
+определяет максимальное число записей аудита в очереди, используемой для
+хранения записей аудита, готовых к записи на диск.
+Новые записи вставляются в хвост очереди и извлекаются из головы.
+Для новых записей, которые превысили бы верхнюю отметку, вызывающий поток
+помещается в очередь ожидания, пока в очереди аудита не появится достаточно
+места, определяемого полем
+.Fa aq_lowater .
+Поле
+.Fa aq_bufsz
+определяет максимальную длину записи аудита, которую можно передать через
+.Xr audit 2 .
+Поле
+.Fa aq_delay
+не используется.
+Поле
+.Fa aq_minfree
+задаёт минимальное количество свободных блоков на дисковом устройстве,
+используемом для хранения записей аудита.
+Если значение свободных блоков опускается ниже настроенного минимума,
+ядро уведомляет демон аудита о нехватке дискового пространства.
+Значение задаётся в процентах от свободных блоков файловой системы.
+Значение 0 отключает проверку.
+Значения по умолчанию и максимальные значения (по умолчанию/максимум) для
+параметров управления очередью аудита:
+.Pp
+.Bl -column aq_hiwater -offset indent -compact
+.It aq_hiwater Ta 100/10000 (записей аудита)
+.It aq_lowater Ta 10/aq_hiwater (записей аудита)
+.It aq_bufsz Ta 32767/1048576 (байт)
+.It aq_delay Ta (В настоящее время не используется.)
+.El
+.It Dv A_SETSTAT
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_SETUMASK
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_SETSMASK
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_SETCOND
+Установить текущее состояние аудита.
+Аргумент
+.Fa data
+должен указывать на значение
+.Vt int
+, содержащее новое состояние аудита, одно из
+.Dv AUC_AUDITING ,
+.Dv AUC_NOAUDIT
+или
+.Dv AUC_DISABLED .
+Если установлено
+.Dv AUC_NOAUDIT ,
+аудит временно приостанавливается.
+Если установлено
+.Dv AUC_AUDITING ,
+аудит возобновляется.
+Если установлено
+.Dv AUC_DISABLED ,
+система аудита завершит работу, записав все записи аудита и закрыв файл
+журнала аудита.
+.It Dv A_SETCLASS
+Установить маску предварительного отбора класса для события аудита.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_evclass_map_t ,
+содержащую событие аудита и маску.
+Поле
+.Fa ec_number
+является событием аудита, а
+.Fa ec_class
+— маской класса аудита.
+См.
+.Xr audit_event 5
+для получения дополнительной информации о сопоставлении событий аудита
+классам.
+.It Dv A_SETPMASK
+Установить маски предварительного отбора для процесса.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditpinfo_t ,
+содержащую маски предварительного отбора аудита данного процесса как для
+успеха, так и для неудачи.
+Поле
+.Fa ap_pid
+является идентификатором целевого процесса.
+Поле
+.Fa ap_mask
+должно указывать на структуру
+.Fa au_mask_t
+, содержащую маски предварительного отбора, как описано в разделе
+.Dv A_SETKMASK
+выше.
+.It Dv A_SETFSIZE
+Установить максимальный размер файла журнала аудита.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_fstat_t
+с полем
+.Va af_filesz
+, установленным в максимальный размер файла журнала аудита.
+Значение 0 означает отсутствие ограничения размера.
+.It Dv A_GETCLASS
+Вернуть сопоставление события классу для указанного события аудита.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_evclass_map_t .
+См. раздел
+.Dv A_SETCLASS
+выше для получения дополнительной информации.
+.It Dv A_GETKAUDIT
+Получить текущую информацию о хосте.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditinfo_addr_t .
+.It Dv A_GETPINFO
+Вернуть настройки аудита для процесса.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditpinfo_t ,
+которая будет заполнена значениями
+.Fa ap_auid
+(идентификатор аудита),
+.Fa ap_mask
+(маска предварительного отбора),
+.Fa ap_termid
+(идентификатор терминала) и
+.Fa ap_asid
+(идентификатор сеанса аудита)
+данного целевого процесса.
+Идентификатор целевого процесса передаётся в ядро через поле
+.Fa ap_pid .
+См. раздел
+.Dv A_SETPMASK
+выше и
+.Xr getaudit 2
+для получения дополнительной информации.
+.It Dv A_GETPINFO_ADDR
+Вернуть расширенные настройки аудита для процесса.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditpinfo_addr_t ,
+которая аналогична описанной выше структуре
+.Vt auditpinfo_t .
+Исключением является поле
+.Fa ap_termid
+(идентификатор терминала), которое указывает на структуру
+.Vt au_tid_addr_t
+и может содержать гораздо больший адрес терминала, а также тип адреса.
+Идентификатор целевого процесса передаётся в ядро через поле
+.Fa ap_pid .
+См. раздел
+.Dv A_SETPMASK
+выше и
+.Xr getaudit 2
+для получения дополнительной информации.
+.It Dv A_GETSINFO_ADDR
+Вернуть расширенные настройки аудита для сеанса.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt auditinfo_addr_t .
+Идентификатор целевого сеанса аудита передаётся в ядро через поле
+.Fa ai_asid .
+См.
+.Xr getaudit_addr 2
+для получения дополнительной информации о структуре
+.Vt auditinfo_addr_t .
+.It Dv A_GETKMASK
+Вернуть текущие маски предварительного отбора ядра.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_mask_t ,
+которая будет заполнена текущими масками предварительного отбора ядра
+для неатрибутируемых событий.
+.It Dv A_GETPOLICY
+Вернуть текущую настройку политики аудита.
+Аргумент
+.Fa data
+должен указывать на значение
+.Vt int
+, которое будет установлено в один из текущих флагов политики аудита.
+Флаги политики аудита описаны в разделе
+.Dv A_SETPOLICY
+выше.
+.It Dv A_GETQCTRL
+Вернуть текущие параметры управления очередью аудита ядра.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_qctrl_t ,
+которая будет заполнена текущими параметрами управления очередью аудита
+ядра.
+См. раздел
+.Dv A_SETQCTL
+выше для получения дополнительной информации.
+.It Dv A_GETFSIZE
+Вернуть максимальный размер файла журнала аудита.
+Аргумент
+.Fa data
+должен указывать на структуру
+.Vt au_fstat_t .
+Поле
+.Va af_filesz
+будет установлено в максимальный размер файла журнала аудита.
+Значение 0 означает отсутствие ограничения размера.
+Поле
+.Va af_currsz
+будет установлено в текущий размер файла журнала аудита.
+.It Dv A_GETCWD
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_GETCAR
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_GETSTAT
+Вернуть
+.Er ENOSYS .
+(Не реализовано.)
+.It Dv A_GETCOND
+Вернуть текущее состояние аудита.
+Аргумент
+.Fa data
+должен указывать на значение
+.Vt int
+, которое будет установлено в текущее состояние аудита, одно из
+.Dv AUC_AUDITING ,
+.Dv AUC_NOAUDIT
+или
+.Dv AUC_DISABLED .
+См. раздел
+.Dv A_SETCOND
+выше для получения дополнительной информации.
+.It Dv A_SENDTRIGGER
+Отправить триггер демону аудита.
+Аргумент
+.Fa data
+должен указывать на значение
+.Vt int
+, установленное в одно из допустимых значений триггера:
+.Dv AUDIT_TRIGGER_LOW_SPACE
+(мало места на диске, где находится журнал аудита),
+.Dv AUDIT_TRIGGER_OPEN_NEW
+(открыть новый файл журнала аудита),
+.Dv AUDIT_TRIGGER_READ_FILE
+(прочитать файл
+.Pa audit_control ),
+.Dv AUDIT_TRIGGER_CLOSE_AND_DIE
+(закрыть текущий файл журнала и завершить работу),
+.Dv AUDIT_TRIGGER_NO_SPACE
+(не осталось места на диске для файла журнала аудита).
+.Dv AUDIT_TRIGGER_ROTATE_USER
+(запросить ротацию файла журнала аудита).
+.Dv AUDIT_TRIGGER_INITIALIZE
+(инициализировать подсистему аудита, только для Mac OS X).
+или
+.Dv AUDIT_TRIGGER_EXPIRE_TRAILS
+(запросить истечение срока журнала аудита).
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Функция
+.Fn auditon
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOSYS
+Возвращается опциями, ещё не реализованными.
+.It Bq Er EFAULT
+Произошла ошибка при передаче данных в ядро или из него.
+.It Bq Er EINVAL
+Системный вызов передал недопустимый аргумент.
+.It Bq Er EPERM
+Процесс не имеет достаточных прав для выполнения операции.
+.El
+.Pp
+Команда
+.Dv A_SENDTRIGGER
+специфична для реализаций
+.Fx
+и Mac OS X и отсутствует в Solaris.
+.Sh СМ. ТАКЖЕ
+.Xr audit 2 ,
+.Xr auditctl 2 ,
+.Xr getaudit 2 ,
+.Xr getaudit_addr 2 ,
+.Xr getauid 2 ,
+.Xr setaudit 2 ,
+.Xr setaudit_addr 2 ,
+.Xr setauid 2 ,
+.Xr libbsm 3
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением
+безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением
+исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson
+и SPARTA Inc.
+.Pp
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока
+событий аудита были определены Sun Microsystems.
+.Pp
+Эта страница руководства была написана
+.An Tom Rhodes Aq trhodes@FreeBSD.org ,
+.An Robert Watson Aq rwatson@FreeBSD.org
+и
+.An Wayne Salamon Aq wsalamon@FreeBSD.org .

@@ -1,0 +1,338 @@
+.\" Copyright (c) 2001-2003 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: rfcomm_pppd.8,v 1.7 2003/09/07 18:32:11 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/rfcomm_pppd/rfcomm_pppd.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 56c6696e526dc2cee6c9ae52daed288e62231d9d332d778c5c049d3f15b2acea
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 4, 2003
+.Dt RFCOMM_PPPD 8
+.Os
+.Sh ИМЯ
+.Nm rfcomm_pppd
+.Nd Демон PPP RFCOMM
+.Sh СИНТАКСИС
+.Nm
+.Fl c
+.Op Fl dh
+.Fl a Ar адрес
+.Fl C Ar канал
+.Fl l Ar метка
+.Fl u Ar N
+.Nm
+.Fl s
+.Op Fl dDhS
+.Op Fl a Ar адрес
+.Fl C Ar канал
+.Fl l Ar метка
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+является простым демоном-обёрткой, который позволяет использовать
+.Xr ppp 8
+через соединение RFCOMM.
+Он может работать в двух режимах: клиент и сервер.
+.Pp
+В режиме клиента
+.Nm
+открывает соединение RFCOMM к указанному серверу, используя
+.Ar BD_ADRR
+и
+.Ar канал .
+После установки соединения RFCOMM
+.Nm
+запускает
+.Xr ppp 8
+в режиме
+.Fl direct
+с указанной
+.Ar метка .
+Аналогично,
+.Xr ppp 8
+работает через соединение RFCOMM так же, как через стандартный последовательный порт,
+позволяя пользователю подключаться к Интернету.
+.Pp
+В режиме сервера
+.Nm
+открывает сокет RFCOMM и ожидает входящие соединения от удалённых клиентов.
+После принятия нового входящего соединения
+.Nm
+порождает процесс и запускает
+.Xr ppp 8
+в режиме
+.Fl direct
+с указанной
+.Ar метка .
+Аналогично,
+.Xr ppp 8
+работает через соединение RFCOMM так же, как через стандартный последовательный порт,
+обеспечивая тем самым сетевое подключение для удалённых клиентов.
+.Pp
+Опции следующие:
+.Bl -tag -width indent
+.It Fl a Ar адрес
+В режиме клиента эта обязательная опция задаёт адрес удалённого сервера RFCOMM.
+В режиме сервера эту опцию можно использовать для указания локального адреса
+прослушивания.
+По умолчанию в режиме сервера демон будет прослушивать адрес
+.Dv ANY .
+Адрес можно указать как BD_ADDR или имя.
+Если указано имя, утилита
+.Nm
+попытается разрешить его с помощью
+.Xr bt_gethostbyname 3 .
+.It Fl C Ar канал
+В режимах клиента и сервера эта обязательная опция задаёт канал RFCOMM для
+подключения или прослушивания.
+В режиме сервера канал должен быть числом от 1 до 30.
+В режиме клиента канал может быть либо числом от 1 до 30, либо именем службы.
+Поддерживаемые имена служб:
+.Cm DUN
+(Dial-Up Networking) и
+.Cm LAN
+(LAN Access Using PPP).
+Если вместо числового номера канала используется имя службы, то
+.Nm
+попытается получить номер канала RFCOMM через SDP (протокол обнаружения служб).
+.It Fl c
+Работать как клиент RFCOMM.
+Это режим по умолчанию.
+.It Fl d
+Не отсоединяться от управляющего терминала, т.е. работать на переднем плане.
+.It Fl D
+В режиме сервера регистрировать службу
+.Cm DUN
+(Dial-Up Networking) в дополнение к службе
+.Cm LAN
+(LAN Access Using PPP).
+Обмен AT-командами можно имитировать с помощью сценария chat в
+.Xr ppp 8 .
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl l Ar метка
+В режимах клиента и сервера эта обязательная опция задаёт, какая метка
+.Xr ppp 8
+будет использоваться.
+.It Fl S
+В режиме сервера регистрировать службу
+.Cm SP
+(Serial Port) в дополнение к службе
+.Cm LAN
+(LAN Access Using PPP).
+.Pp
+По-видимому, некоторые сотовые телефоны используют так называемую услугу.
+В этом сценарии пользователь пытается подключить свой сотовый телефон к Интернету,
+а компьютер пользователя выступает в роли шлюзового сервера.
+По-видимому, невозможно заставить телефон просто подключиться и начать
+использовать службу
+.Cm LAN .
+Вместо этого компьютер пользователя должен подключиться к телефону, установив соединение со службой
+.Cm SP
+телефона.
+Затем телефон разрывает существующее соединение и открывает другое
+соединение обратно к компьютеру пользователя.
+Телефон на самом деле хочет использовать службу
+.Cm LAN ,
+но по какой-то причине он ищет службу
+.Cm SP
+на компьютере пользователя.
+Такое нелепое поведение было зарегистрировано для Nokia 6600 и
+Sony/Ericsson P900.
+.It Fl s
+Работать как сервер RFCOMM.
+.It Fl u Ar N
+Эта опция напрямую соответствует параметру командной строки
+.Fl unit
+.Xr ppp 8
+и указывает
+.Nm
+дать
+.Xr ppp 8
+команду пытаться открыть только
+.Pa /dev/tun Ns Ar N .
+Эта опция работает только в режиме клиента.
+.El
+.Sh КОНФИГУРАЦИЯ PPP
+.Ss Важные замечания по конфигурации PPP
+Требуется особое внимание при добавлении новых конфигураций RFCOMM в существующую
+конфигурацию PPP.
+Помните, что PPP будет
+.Em всегда
+выполнять команды в метке
+.Dq Li default
+вашего файла
+.Pa /etc/ppp/ppp.conf .
+Убедитесь, что метка
+.Dq Li default
+.Em только
+содержит команды, применимые к
+.Em каждой
+другой метке.
+Если вам нужно использовать PPP как для исходящего дозвона, так и для приёма входящих
+соединений RFCOMM, убедитесь, что вы переместили все команды, связанные с
+исходящим дозвоном, из раздела
+.Dq Li default
+в подходящую метку для исходящих соединений.
+.Ss Сервер RFCOMM
+Один из типичных примеров — доступ к LAN.
+В этом примере соединение RFCOMM
+используется как нуль-модемное соединение между клиентом и сервером.
+И клиент, и сервер начнут обмен PPP сразу после установления соединения
+RFCOMM.
+.Bd -literal -offset indent
+rfcomm-server:
+ set timeout 0
+ set lqrperiod 10
+ set ifaddr 10.0.0.1 10.0.0.2 255.255.255.0
+ enable lqr
+ accept lqr
+ accept dns
+ # Не использовать аутентификацию PPP. Предполагается, что
+ # соединение Bluetooth уже аутентифицировано.
+ disable pap
+ deny pap
+ disable chap
+ deny chap
+.Ed
+.Ss Клиент RFCOMM
+Утилита
+.Nm
+поддерживает доступ как
+.Cm LAN
+(LAN Access Using PPP), так и
+.Cm DUN
+(Dial-Up Networking).
+Конфигурация клиента для доступа
+.Cm LAN
+очень похожа на конфигурацию сервера и может выглядеть так:
+.Bd -literal -offset indent
+rfcomm-client:
+ enable lqr
+ accept lqr
+ set dial
+ set timeout 0
+ disable iface-alias
+ set ifaddr 10.0.0.1/0 10.0.0.2/0 255.255.255.0 0.0.0.0
+ # Не использовать аутентификацию PPP. Предполагается, что
+ # соединение Bluetooth уже аутентифицировано.
+ deny pap
+ disable pap
+ deny chap
+ disable chap
+.Ed
+.Pp
+Конфигурация клиента для доступа
+.Cm DUN
+отличается.
+В этом сценарии клиент подключается к виртуальному последовательному порту на
+сервере.
+Чтобы открыть сеанс PPP, клиент должен набрать номер.
+Обратите внимание, что по умолчанию
+.Xr ppp 8
+не выполняет никакие настроенные сценарии chat.
+Опцию
+.Ic force-scripts
+можно использовать, чтобы изменить это поведение.
+Пример конфигурации показан ниже:
+.Bd -literal -offset indent
+rfcomm-dialup:
+ # Это ВАЖНАЯ опция
+ enable force-scripts
+
+ # Возможно, вы захотите изменить это
+ set authname
+ set authkey
+
+ # Возможно, вам также захочется настроить строку дозвона
+ set login
+ set timeout 30
+ enable dns
+ resolv rewrite
+
+ set ifaddr 10.0.0.1/0 10.0.0.2/0 255.255.255.0 0.0.0.0
+ add default HISADDR
+.Ed
+.Pp
+Обратите внимание, что, настроив строку инициализации, можно создать соединение CSD (коммутируемая
+передача данных), HSCSD (высокоскоростная коммутируемая передача данных) или GPRS (пакетная
+радиосвязь общего назначения).
+Доступность конкретного типа соединения
+зависит от модели телефона и тарифного плана, активированного на телефоне.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Pp
+Эта команда запустит
+.Nm
+в режиме сервера.
+Сервер RFCOMM будет прослушивать локальный адрес
+.Li 00:01:02:03:04:05
+и канал
+.Li 1 .
+После принятия входящего соединения
+.Nm
+запустит
+.Xr ppp 8
+в режиме
+.Fl direct
+с меткой
+.Dq Li rfcomm-server .
+.Pp
+.Pp
+Эта команда запустит
+.Nm
+в режиме клиента.
+.Nm
+попытается подключиться к серверу RFCOMM по адресу
+.Li 00:01:02:03:04:05
+и каналу
+.Li 1 .
+После подключения
+.Nm
+запустит
+.Xr ppp 8
+в режиме
+.Fl direct
+с меткой
+.Dq Li rfcomm-client .
+.Sh СМ. ТАКЖЕ
+.Xr rfcomm_sppd 1 ,
+.Xr bluetooth 3 ,
+.Xr ng_btsocket 4 ,
+.Xr ppp 8 ,
+.Xr sdpcontrol 8 ,
+.Xr sdpd 8
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Утилита
+.Nm
+в режиме сервера попытается зарегистрировать службу Bluetooth LAN Access Over PPP
+в локальном демоне SDP.
+Если локальный демон SDP не запущен,
+.Nm
+завершится с ошибкой.

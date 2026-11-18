@@ -1,0 +1,625 @@
+.\" Copyright (c) 2000
+.\"	Mike W. Meyer
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/make.conf.5
+.\" FRDP githash bbc0b39ef7df3007c78eec8822213fe77aae4d41
+.\" FRDP hash256 1fcc9c80336bc59c42242cf748c6e35d8f0d3a36b8533e0b48f4bd9cd7540cc0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 15, 2022
+.Dt MAKE.CONF 5
+.Os
+.Sh ИМЯ
+.Nm make.conf
+.Nd информация о сборке системы
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит общесистемные настройки, которые применяются к каждой сборке с использованием
+.Xr make 1
+и стандартного файла
+.Pa sys.mk .
+Это достигается следующим образом:
+.Xr make 1
+по умолчанию обрабатывает системный makefile
+.Pa sys.mk
+раньше любого другого файла, а
+.Pa sys.mk
+включает
+.Nm .
+.Pp
+Файл
+.Nm
+использует стандартный синтаксис makefile.
+Однако
+.Nm
+не должен задавать зависимости для
+.Xr make 1 .
+Вместо этого
+.Nm
+задаёт переменные
+.Xr make 1 ,
+которые управляют действиями других makefile-ов.
+.Pp
+Расположение
+.Nm
+по умолчанию —
+.Pa /etc/make.conf ,
+хотя альтернативное расположение можно указать в переменной
+.Xr make 1
+.Va __MAKE_CONF .
+Возможно, вам потребуется переопределить расположение
+.Nm ,
+если общесистемные настройки не подходят для конкретной сборки.
+Например, установка
+.Va __MAKE_CONF
+в
+.Pa /dev/null
+фактически сбрасывает все параметры сборки к значениям по умолчанию.
+.Pp
+Основное назначение
+.Nm
+— управлять компиляцией исходников
+.Fx
+документации и портированных приложений, которые обычно находятся в
+.Pa /usr/src ,
+.Pa /usr/doc
+и
+.Pa /usr/ports .
+Как правило, системный администратор создаёт
+.Nm ,
+когда значения некоторых управляющих переменных нужно изменить относительно значений по умолчанию.
+.Pp
+Процедуры сборки системы делятся на четыре основные области:
+world, ядро, документация и ports.
+Переменные, заданные в
+.Nm
+могут применяться в одной, двух или всех четырёх из этих областей.
+Кроме того, управляющие переменные можно указать для конкретной сборки с помощью
+.Fl D
+команды
+.Xr make 1
+или в
+.Xr environ 7 .
+В случае сборки world и ядра можно поместить эти переменные в
+.Xr src.conf 5
+вместо
+.Nm .
+Так окружение для сборки документации и ports не загрязняется посторонними переменными.
+.Pp
+Следующие списки содержат имя и краткое описание каждой переменной, которую можно использовать при указанных сборках.
+Значения переменных, помеченных как
+.Vt bool
+игнорируются; сам факт установки переменной (даже в
+.Dq Li FALSE
+или
+.Dq Li NO )
+приводит к тому, что она рассматривается как установленная.
+.Pp
+Следующий список содержит имя и краткое описание переменных, которые используются для всех сборок или используются
+.Pa makefiles
+для целей, отличных от сборки.
+.Bl -tag -width Ar
+.It Va ALWAYS_CHECK_MAKE
+.Pq Vt bool
+Указывает makefile верхнего уровня в дереве исходников (обычно
+.Pa /usr/src )
+всегда проверять, актуален ли
+.Xr make 1 .
+Обычно это делается только для целей world и buildworld, чтобы обрабатывать обновления с более старых версий
+.Fx .
+.It Va CFLAGS
+.Pq Vt str
+Управляет настройками компилятора при компиляции кода на C.
+Уровни оптимизации, отличные от
+.Fl O
+и
+.Fl O2
+не поддерживаются.
+.It Va CPUTYPE
+.Pq Vt str
+Управляет тем, для какого процессора следует генерировать код.
+Это управляет специфичными для процессора оптимизациями в определённом коде (в настоящее время только OpenSSL), а также изменяет значения
+.Va CFLAGS
+и
+.Va COPTFLAGS
+так, чтобы они содержали подходящую директиву оптимизации для
+.Xr cc 1 .
+Чтобы задать значение
+.Va CPUTYPE ,
+используйте
+.Dq Li ?=
+вместо
+.Dq Li = ,
+чтобы его можно было переопределить целями
+.Xr make 1 .
+Автоматическую установку
+.Va CFLAGS
+можно переопределить с помощью переменной
+.Va NO_CPU_CFLAGS .
+Список распознаваемых параметров
+.Va CPUTYPE
+см. в
+.Pa /usr/share/examples/etc/make.conf .
+.It Va CXXFLAGS
+.Pq Vt str
+Управляет настройками компилятора при компиляции кода на C++.
+.Va CXXFLAGS
+изначально устанавливается в значение
+.Va CFLAGS .
+Если вы хотите
+добавить к значению
+.Va CXXFLAGS ,
+используйте
+.Dq Li +=
+вместо
+.Dq Li = .
+.It Va DTC
+.Pq Vt str
+Выберите компилятор для файла DTS (Device Tree Syntax).
+Переменная
+.Va DTC
+изначально устанавливается в значение dtc
+.It Va INSTALL
+.Pq Vt str
+команда установки по умолчанию.
+Чтобы устанавливать только файлы, для которых целевой файл отличается или не существует, используйте
+.Bd -literal -offset indent
+INSTALL+= -C
+.Ed
+Обратите внимание, что некоторые makefile-ы (включая находящиеся в
+.Pa /usr/share/mk )
+могут жёстко задавать параметры для предоставленной команды установки.
+.It Va LOCAL_DIRS
+.Pq Vt str
+Перечислите в этой переменной каталоги, в которые нужно заходить при выполнении
+make в
+.Pa /usr/src .
+.It Va MAKE_SHELL
+.Pq Vt str
+Управляет оболочкой, используемой внутри
+.Xr make 1
+для обработки командных сценариев в makefile-ах.
+В настоящее время поддерживаются
+.Xr sh 1 ,
+.Xr ksh 1
+и
+.Xr csh 1 .
+.Pp
+.It Va MTREE_FOLLOWS_SYMLINKS
+.Pq Vt str
+Установите это в
+.Dq Fl L
+чтобы
+.Xr mtree 8
+следовал символическим ссылкам.
+.It Va NO_CPU_CFLAGS
+.Pq Vt str
+Установка этой переменной предотвращает автоматическое добавление специфичных для CPU флагов компилятора в
+.Va CFLAGS
+во время компиляции.
+.El
+Следующий список содержит имя и краткое описание переменных, которые используются только при сборке ядра:
+.Bl -tag -width Ar
+.It Va BOOTWAIT
+.Pq Vt int
+Управляет временем, в течение которого ядро ожидает нажатия клавиши на консоли перед загрузкой ядра по умолчанию.
+Значение задаётся приблизительно в миллисекундах.
+BIOS принимает нажатия клавиш до загрузки с диска, поэтому можно задать пользовательские параметры загрузки, даже если значение равно 0.
+.It Va COPTFLAGS
+.Pq Vt str
+Управляет настройками компилятора при сборке
+ядра.
+Уровни оптимизации выше
+.Oo Fl O ( O2 , No ...\& ) Oc
+не гарантированно работают.
+.It Va KERNCONF
+.Pq Vt str
+Управляет тем, какие конфигурации ядра будут
+собраны и установлены.
+Например,
+.Bd -literal -offset indent
+KERNCONF=MINE DEBUG GENERIC OTHERMACHINE
+.Ed
+.Pp
+соберёт ядра, указанные в конфигурационных файлах
+.Pa MINE , DEBUG , GENERIC
+и
+.Pa OTHERMACHINE ,
+и установит ядро, указанное в конфигурационном файле
+.Pa MINE .
+По умолчанию используется
+.Pa GENERIC .
+.It Va MODULES_OVERRIDE
+.Pq Vt str
+Установите в список модулей, которые нужно собрать вместо всех.
+.It Va NO_KERNELCLEAN
+.Pq Vt bool
+Установите, чтобы пропустить выполнение во время сборки.
+.It Va NO_KERNELCONFIG
+.Pq Vt bool
+Установите, чтобы пропустить выполнение
+.Xr config 8
+во время сборки.
+.It Va NO_KERNELOBJ
+.Pq Vt bool
+Установите, чтобы пропустить выполнение во время сборки.
+.It Va NO_MODULES
+.Pq Vt bool
+Установите, чтобы не собирать модули вместе с ядром.
+.It Va PORTS_MODULES
+Установите в список ports, которые вы хотите пересобирать при каждой сборке ядра.
+.It Va WITHOUT_MODULES
+.Pq Vt str
+Установите в список модулей, которые нужно исключить из сборки.
+Это несколько более простой способ исключить модули, которые вам точно никогда не понадобятся, чем указывать
+.Va MODULES_OVERRIDE .
+Это применяется
+.Em после
+.Va MODULES_OVERRIDE .
+.El
+Следующий список содержит имя и краткое описание переменных, которые используются при сборке world:
+.Bl -tag -width Ar
+.It Va BOOT_COMCONSOLE_PORT
+.Pq Vt str
+Адрес порта, который следует использовать для консоли, если загрузочные блоки настроены на использование последовательной консоли вместо клавиатуры/видеокарты.
+.It Va BOOT_COMCONSOLE_SPEED
+.Pq Vt int
+Скорость передачи в бодах, которую следует использовать для консоли, если загрузочные блоки настроены на использование последовательной консоли вместо клавиатуры/видеокарты.
+.It Va BOOT_PXELDR_ALWAYS_SERIAL
+.Pq Vt bool
+Вкомпилировать в
+.Xr pxeboot 8
+код, который принудительно использует последовательную консоль.
+Это аналогично параметру
+.Fl h
+в блоках
+.Xr boot 8 .
+.It Va BOOT_PXELDR_PROBE_KEYBOARD
+.Pq Vt bool
+Вкомпилировать в
+.Xr pxeboot 8
+код, который опрашивает клавиатуру.
+Если клавиатура не найдена, загружаться с конфигурацией с двумя консолями.
+Это аналогично параметру
+.Fl D
+в блоках
+.Xr boot 8 .
+.It Va ENABLE_SUID_K5SU
+.Pq Vt bool
+Установите, если хотите использовать утилиту ksu.
+В противном случае она будет установлена без установленного бита set-user-ID.
+.It Va ENABLE_SUID_NEWGRP
+.Pq Vt bool
+Установите, чтобы установить
+.Xr newgrp 1
+с установленным битом set-user-ID.
+В противном случае
+.Xr newgrp 1
+не сможет изменять группы пользователей.
+.It Va LOADER_TFTP_SUPPORT
+.Pq Vt bool
+По умолчанию загрузчик
+.Xr pxeboot 8
+получает ядро по NFS.
+Если определить эту переменную и перекомпилировать
+.Pa /usr/src/stand
+он будет получать ядро по TFTP.
+Это позволяет
+.Xr pxeboot 8
+загружать пользовательское бездисковое ядро BOOTP, но при этом монтировать серверный
+.Pa /
+вместо загрузки серверного ядра.
+.It Va LOADER_FIREWIRE_SUPPORT
+.Pq Vt bool
+Если определить эту переменную и перекомпилировать
+.Pa /usr/src/stand/i386
+в
+.Xr loader 8
+будет добавлен консольный драйвер
+.Xr dcons 4
+и появится доступ через FireWire (IEEE1394) с помощью
+.Xr dconschat 8 .
+В настоящее время поддерживаются только i386 и amd64.
+.It Va MAN_ARCH
+.Pq Vt str
+Разделённый пробелами список одного или нескольких значений MACHINE и/или MACHINE_ARCH, для которых будут установлены страницы руководства раздела 4.
+Специальное значение
+.Sq all
+устанавливает все доступные архитектуры.
+Оно также является значением по умолчанию.
+.It Va MODULES_WITH_WORLD
+.Pq Vt bool
+Установите, чтобы собирать модули вместе с системой, а не с ядром.
+.It Va NO_CLEAN
+.Pq Vt bool
+Установите, чтобы отключить очистку во время сборки.
+Не устанавливайте это, если не знаете, что делаете.
+.It Va NO_CLEANDIR
+.Pq Vt bool
+Установите, чтобы выполнять вместо этого.
+.It Va WITH_MANCOMPRESS
+.Pq Vt defined
+Установите, чтобы устанавливать страницы руководства сжатыми.
+.It Va WITHOUT_MANCOMPRESS
+.Pq Vt defined
+Установите, чтобы устанавливать страницы руководства несжатыми.
+.It Va NO_SHARE
+.Pq Vt bool
+Установите, чтобы не выполнять сборку в подкаталоге
+.Pa share .
+.It Va NO_SHARED
+.Pq Vt bool
+Установите, чтобы собрать
+.Pa /bin
+и
+.Pa /sbin
+статически слинкованными; это может быть плохо.
+Если установлено, каждая утилита, использующая
+.Pa bsd.prog.mk
+будет слинкована статически.
+.It Va PKG_REPO_SIGNING_KEY
+.Pq Vt str
+Путь к закрытому ключу RSA, передаваемому
+.Xr pkg-repo 8
+для подписи пакетов, создаваемых при сборке цели
+.Ar packages ,
+то есть pkgbase.
+Переменная имеет такое же имя в
+.Xr poudriere 8
+поэтому она будет автоматически подхвачена при сборке pkgbase с помощью poudriere.
+.It Va PPP_NO_NAT
+.Pq Vt bool
+Собирать
+.Xr ppp 8
+без поддержки преобразования сетевых адресов (NAT).
+.It Va PPP_NO_NETGRAPH
+.Pq Vt bool
+Установите, чтобы собирать
+.Xr ppp 8
+без поддержки Netgraph.
+.It Va PPP_NO_RADIUS
+.Pq Vt bool
+Установите, чтобы собирать
+.Xr ppp 8
+без поддержки RADIUS.
+.It Va PPP_NO_SUID
+.Pq Vt bool
+Установите, чтобы отключить установку
+.Xr ppp 8
+как программы root с set-user-ID.
+.It Va SENDMAIL_ADDITIONAL_MC
+.Pq Vt str
+Дополнительные файлы
+.Pa .mc
+которые следует собирать в файлы
+.Pa .cf
+во время сборки.
+Значение должно содержать полный путь к файлу(ам)
+.Pa .mc ,
+например
+.Pa /etc/mail/foo.mc ,
+.Pa /etc/mail/bar.mc .
+.It Va SENDMAIL_ALIASES
+.Pq Vt str
+Список файлов
+.Xr aliases 5
+которые нужно пересобрать при использовании
+.Pa /etc/mail/Makefile .
+Значение по умолчанию —
+.Pa /etc/mail/aliases .
+.It Va SENDMAIL_CFLAGS
+.Pq Vt str
+Флаги, передаваемые команде компиляции при сборке
+.Xr sendmail 8 .
+Флаги
+.Va SENDMAIL_*
+можно использовать для обеспечения поддержки SASL с помощью настроек, например:
+.Bd -literal -offset indent
+SENDMAIL_CFLAGS=-I/usr/local/include -DSASL
+SENDMAIL_LDFLAGS=-L/usr/local/lib
+SENDMAIL_LDADD=-lsasl
+.Ed
+.It Va SENDMAIL_CF_DIR
+.Pq Vt str
+Переопределяет расположение по умолчанию для конфигурационных файлов
+.Xr m4 1
+используемых для сборки файла
+.Pa .cf
+из файла
+.Pa .mc .
+.It Va SENDMAIL_DPADD
+.Pq Vt str
+Дополнительные зависимости, добавляемые при сборке
+.Xr sendmail 8 .
+.It Va SENDMAIL_LDADD
+.Pq Vt str
+Флаги, добавляемые в конец команды
+.Xr ld 1
+при сборке
+.Xr sendmail 8 .
+.It Va SENDMAIL_LDFLAGS
+.Pq Vt str
+Флаги, передаваемые команде
+.Xr ld 1
+при сборке
+.Xr sendmail 8 .
+.It Va SENDMAIL_M4_FLAGS
+.Pq Vt str
+Флаги, передаваемые
+.Xr m4 1
+при сборке файла
+.Pa .cf
+из файла
+.Pa .mc .
+.It Va SENDMAIL_MAP_PERMS
+.Pq Vt str
+Режим, используемый при создании файлов базы данных псевдонимов и карт с помощью
+.Pa /etc/mail/Makefile .
+Значение по умолчанию — 0640.
+.It Va SENDMAIL_MAP_SRC
+.Pq Vt str
+Дополнительные карты, которые нужно пересобрать при использовании
+.Pa /etc/mail/Makefile .
+Карты
+.Pa access ,
+.Pa bitdomain ,
+.Pa domaintable ,
+.Pa genericstable ,
+.Pa mailertable ,
+.Pa uucpdomain
+и
+.Pa virtusertable
+всегда пересобираются, если существуют.
+.It Va SENDMAIL_MAP_TYPE
+.Pq Vt str
+Тип карты базы данных, используемый при создании файлов базы данных карт с помощью
+.Pa /etc/mail/Makefile .
+Значение по умолчанию — hash.
+Альтернатива — btree.
+.It Va SENDMAIL_MC
+.Pq Vt str
+Конфигурационный файл
+.Xr m4 1
+по умолчанию, используемый во время установки.
+Значение должно содержать полный путь к файлу
+.Pa .mc ,
+например
+.Pa /etc/mail/myconfig.mc .
+Используйте с осторожностью, так как make install перезапишет любой существующий
+.Pa /etc/mail/sendmail.cf .
+Обратите внимание, что
+.Va SENDMAIL_CF
+устарела.
+.It Va SENDMAIL_SET_USER_ID
+.Pq Vt bool
+Если установлено, установить
+.Xr sendmail 8
+как бинарник root с set-user-ID вместо бинарника с set-group-ID и не устанавливать
+.Pa /etc/mail/submit.{cf,mc} .
+Использование этого флага не рекомендуется; вместо этого, если возможно, следует выполнить альтернативные рекомендации из
+.Pa /etc/mail/README .
+.It Va SENDMAIL_START_SCRIPT
+.Pq Vt str
+Сценарий, используемый
+.Pa /etc/mail/Makefile
+для запуска, остановки и перезапуска
+.Xr sendmail 8 .
+Значение по умолчанию —
+.Pa /etc/rc.d/sendmail .
+.It Va SENDMAIL_SUBMIT_MC
+.Pq Vt str
+Конфигурационный файл
+.Xr m4 1
+по умолчанию для отправки почты, используемый во время установки.
+Значение должно содержать полный путь к файлу
+.Pa .mc ,
+например
+.Pa /etc/mail/mysubmit.mc .
+Используйте с осторожностью, так как make install перезапишет любой существующий
+.Pa /etc/mail/submit.cf .
+.It Va TOP_TABLE_SIZE
+.Pq Vt int
+.Xr top 1
+использует хеш-таблицу для имён пользователей.
+Размер этого хеша можно настроить в соответствии с числом локальных пользователей.
+Размер таблицы должен быть простым числом примерно вдвое больше числа строк в
+.Pa /etc/passwd .
+Число по умолчанию — 20011.
+.It Va WANT_FORCE_OPTIMIZATION_DOWNGRADE
+.Pq Vt int
+Заставляет системный компилятор собираться так, чтобы высокие уровни оптимизации принудительно понижались.
+Известно, что
+.Xr cc 1
+.Fl O2
+и выше иногда вызывает известные ошибки оптимизатора.
+Присваиваемое значение — это наибольшее используемое значение оптимизации.
+.El
+Следующий список содержит имя и краткое описание переменных, используемых при сборке документации.
+.Bl -tag -width Ar
+.It Va DOC_LANG
+.Pq Vt str
+Список языков, которые нужно собрать и установить при сборке документации в
+.Pa /usr/doc .
+.It Va PRINTERDEVICE
+.Pq Vt str
+Формат по умолчанию для системной документации в
+.Pa /usr/src/share/doc
+зависит от вашего принтера.
+Его можно установить в
+.Dq Li ascii
+для простых принтеров или
+.Dq Li ps
+для PostScript- или графических принтеров с фильтром ghostscript, либо и то и другое.
+.El
+Несколько переменных make можно установить, чтобы влиять на сборку ports.
+Эти переменные и их эффекты описаны в
+.Xr ports 7 ,
+.Pa ${PORTSDIR}/Mk/*
+и
+.Fx
+Porter's Handbook.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ar
+.It Pa /etc/make.conf
+.It Pa /usr/doc/Makefile
+.It Pa /usr/ports/Makefile
+.It Pa /usr/share/examples/etc/make.conf
+.It Pa /usr/share/mk/sys.mk
+.It Pa /usr/src/Makefile
+.It Pa /usr/src/Makefile.inc1
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cc 1 ,
+.Xr install 1 ,
+.Xr make 1 ,
+.Xr src.conf 5 ,
+.Xr style.Makefile 5 ,
+.Xr environ 7 ,
+.Xr ports 7 ,
+.Xr sendmail 8
+.Sh ИСТОРИЯ
+Файл
+.Nm
+появился когда-то до
+.Fx 4.0 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Mike W. Meyer Aq Mt mwm@mired.org .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Обратите внимание, что
+.Ev MAKEOBJDIRPREFIX
+и
+.Ev MAKEOBJDIR
+являются переменными окружения, и их не следует задавать в
+.Nm
+или как аргументы командной строки для
+.Xr make 1 ,
+а в окружении make.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Эта страница руководства иногда может не соответствовать параметрам, доступным в настоящее время для использования в
+.Nm .
+Пожалуйста, проверьте файл
+.Pa /usr/share/examples/etc/make.conf
+для получения последних доступных параметров.

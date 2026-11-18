@@ -1,0 +1,99 @@
+.\" Copyright (c) 2018 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/grep/zgrep.1
+.\" FRDP githash da5d94d29a5ec29817476c39ae2b2ad1666c3f06
+.\" FRDP hash256 d2bdfb84bcb91af086907c9e6c9ec099fba4d86c32f640ad3400123ee4bbb15e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 20, 2020
+.Dt ZGREP 1
+.Os
+.Sh ИМЯ
+.Nm zgrep ,
+.Nm zegrep ,
+.Nm zfgrep ,
+.Nm bzgrep ,
+.Nm bzegrep ,
+.Nm bzfgrep ,
+.Nm lzgrep ,
+.Nm lzegrep ,
+.Nm lzfgrep ,
+.Nm xzgrep ,
+.Nm xzegrep ,
+.Nm xzfgrep ,
+.Nm zstdgrep ,
+.Nm zstdegrep ,
+.Nm zstdfgrep
+.Nd поиск в сжатых файлах с помощью grep
+.Sh СИНТАКСИС
+.Nm
+.Oo Ar флаги Oc Ar файлы
+.Nm zegrep
+.Oo Ar флаги Oc Ar файлы
+.Nm zfgrep
+.Oo Ar флаги Oc Ar файлы
+.Pp
+.Nm bzgrep
+.Oo Ar флаги Oc Ar файлы
+.Nm bzegrep
+.Oo Ar флаги Oc Ar файлы
+.Nm bzfgrep
+.Oo Ar флаги Oc Ar файлы
+.Pp
+.Nm lzgrep
+.Oo Ar флаги Oc Ar файлы
+.Nm lzegrep
+.Oo Ar флаги Oc Ar файлы
+.Nm lzfgrep
+.Oo Ar флаги Oc Ar файлы
+.Pp
+.Nm xzgrep
+.Oo Ar флаги Oc Ar файлы
+.Nm xzegrep
+.Oo Ar флаги Oc Ar файлы
+.Nm xzfgrep
+.Oo Ar флаги Oc Ar файлы
+.Pp
+.Nm zstdgrep
+.Oo Ar флаги Oc Ar файлы
+.Nm zstdegrep
+.Oo Ar флаги Oc Ar файлы
+.Nm zstdfgrep
+.Oo Ar флаги Oc Ar файлы
+.Sh ОПИСАНИЕ
+Позволяет
+.Xr grep 1
+читать сжатые файлы.
+.Sh СМ. ТАКЖЕ
+.Xr bzip2 1 ,
+.Xr grep 1 ,
+.Xr gzip 1 ,
+.Xr xz 1 ,
+.Xr zstd 1
+.Sh АВТОРЫ
+Автором этой версии утилиты
+.Nm
+является
+.An Thomas Klausner Aq Mt wiz@NetBSD.org .

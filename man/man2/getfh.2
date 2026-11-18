@@ -1,0 +1,233 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2018 Gandi
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getfh.2
+.\" FRDP githash 650056363baddb83c61c85b0539ee536f3d4b56c
+.\" FRDP hash256 982eefad8456296db231c92ddc95b5f09181a51772d2770f748bb32a518c9e4a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 30, 2022
+.Dt GETFH 2
+.Os
+.Sh ИМЯ
+.Nm getfh ,
+.Nm lgetfh ,
+.Nm getfhat
+.Nd получить дескриптор файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/mount.h
+.Ft int
+.Fn getfh "const char *path" "fhandle_t *fhp"
+.Ft int
+.Fn lgetfh "const char *path" "fhandle_t *fhp"
+.Ft int
+.Fn getfhat "int fd" "const char *path" "fhandle_t *fhp" "int flag"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn getfh
+возвращает дескриптор файла для указанного файла или каталога
+в дескрипторе файла, на который указывает
+.Fa fhp .
+.Pp
+Системный вызов
+.Fn lgetfh
+действует подобно
+.Fn getfh
+за исключением случая, когда именованный файл является символической ссылкой;
+в этом случае
+.Fn lgetfh
+возвращает информацию о ссылке,
+а
+.Fn getfh
+возвращает информацию о файле, на который ссылается ссылка.
+.Pp
+Системный вызов
+.Fn getfhat
+эквивалентен
+.Fn getfh
+и
+.Fn lgetfh
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+Для
+.Fn getfhat
+и относительного
+.Fa path
+состояние извлекается из файла относительно
+каталога, связанного с дескриптором файла
+.Fa fd
+вместо текущего рабочего каталога.
+.Pp
+Значения
+.Fa flag
+формируются побитовым включающим ИЛИ из флагов следующего списка,
+определённых в
+.In fcntl.h :
+.Bl -tag -width indent
+.It Dv AT_SYMLINK_NOFOLLOW
+Если
+.Fa path
+именует символическую ссылку, возвращается состояние символической ссылки.
+.It Dv AT_RESOLVE_BENEATH
+Обходить только пути ниже каталога, указанного дескриптором
+.Ar fd .
+См. описание флага
+.Dv O_RESOLVE_BENEATH
+в руководстве
+.Xr open 2 .
+.El
+.Pp
+Если
+.Fn getfhat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог, а поведение
+идентично вызову
+.Fn getfth
+или
+.Fn lgetfh
+соответственно, в зависимости от того, установлен ли бит
+.Dv AT_SYMLINK_NOFOLLOW
+в
+.Fa flag .
+.Pp
+Когда
+.Fn getfhat
+вызывается с абсолютным
+.Fa path ,
+аргумент
+.Fa fd
+игнорируется.
+.Pp
+Эти системные вызовы доступны только суперпользователю.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы
+.Fn getfh
+и
+.Fn lgetfh
+завершаются с ошибкой, если выполняется одно или несколько из следующих условий:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Вызывающий не имеет соответствующих привилегий для выполнения операции.
+.It Bq Er ENOTDIR
+Компонент префикса пути
+.Fa path
+не является каталогом.
+.It Bq Er ENAMETOOLONG
+Длина компонента
+.Fa path
+превышает 255 символов,
+или длина
+.Fa path
+превышает 1023 символа.
+.It Bq Er ENOENT
+Файл, на который ссылается
+.Fa path ,
+не существует.
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути
+.Fa path .
+.It Bq Er ELOOP
+При разборе
+.Fa path
+встречено слишком много символических ссылок.
+.It Bq Er EFAULT
+Аргумент
+.Fa fhp
+указывает на недопустимый адрес.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает на недопустимый адрес.
+.It Bq Er EIO
+Произошла ошибка
+.Tn I/O
+при чтении из файловой системы или записи в неё.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er ESTALE
+Дескриптор файла
+.Fa fhp
+больше не действителен.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn getfh
+и
+.Fn lgetfh ,
+системный вызов
+.Fn getfhat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь, а
+аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er EINVAL
+Значение аргумента
+.Fa flag
+недопустимо.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём, а
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fhopen 2 ,
+.Xr open 2 ,
+.Xr stat 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getfh
+впервые появился в
+.Bx 4.4 .
+Системный вызов
+.Fn lgetfh
+впервые появился в
+.Fx 5.3 .
+Системный вызов
+.Fn getfhat
+впервые появился в
+.Fx 12.1 .

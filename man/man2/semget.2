@@ -1,0 +1,143 @@
+.\"
+.\" Copyright (c) 1995 David Hovemeyer <daveho@infocom.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/semget.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 ce876b7abb974c57cc6e5b3ee7fea7b0fd811eaeffec3792735d8436ff98753d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 4, 2018
+.Dt SEMGET 2
+.Os
+.Sh ИМЯ
+.Nm semget
+.Nd получить идентификатор семафора
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/sem.h
+.Ft int
+.Fn semget "key_t key" "int nsems" "int flag"
+.Sh ОПИСАНИЕ
+В зависимости от значений
+.Fa key
+и
+.Fa flag ,
+.Fn semget
+возвращает идентификатор вновь созданного или ранее существовавшего
+набора семафоров.
+Ключ
+аналогичен имени файла: он предоставляет дескриптор, именующий
+объект IPC.
+Существует три способа задать ключ:
+.Bl -bullet
+.It
+Может быть указан IPC_PRIVATE, и в этом случае будет создан новый
+объект IPC.
+.It
+Может быть указана целочисленная константа.
+Если объект IPC, соответствующий
+.Fa key ,
+не указан и в
+.Fa flag
+установлен бит IPC_CREAT,
+будет создан новый.
+.It
+Функция
+.Xr ftok 3
+может использоваться для генерации ключа из имени пути.
+.El
+.Pp
+Режим вновь созданного объекта IPC определяется путём логического ИЛИ этих констант
+с аргументом
+.Fa flag :
+.Bl -tag -width 0000
+.It Dv 0400
+Доступ на чтение для пользователя.
+.It Dv 0200
+Доступ на изменение для пользователя.
+.It Dv 0040
+Доступ на чтение для группы.
+.It Dv 0020
+Доступ на изменение для группы.
+.It Dv 0004
+Доступ на чтение для остальных.
+.It Dv 0002
+Доступ на изменение для остальных.
+.El
+.Pp
+Если создаётся новый набор семафоров,
+.Fa nsems
+используется для указания количества семафоров, которое должен содержать набор.
+В противном случае
+.Fa nsems
+может быть указан как 0.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn semget
+возвращает идентификатор набора семафоров в случае успеха; в противном случае
+возвращается -1 и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn semget
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Ошибка прав доступа.
+.It Bq Er EEXIST
+Были указаны IPC_CREAT и IPC_EXCL, и набор семафоров,
+соответствующий
+.Fa key ,
+уже существует.
+.It Bq Er EINVAL
+Запрошенное количество семафоров превышает установленный системой максимум
+на набор.
+.It Bq Er EINVAL
+Набор семафоров, соответствующий
+.Fa key ,
+уже существует и содержит меньше семафоров, чем
+.Fa nsems .
+.It Bq Er EINVAL
+Набор семафоров, соответствующий
+.Fa key ,
+не существует и
+.Fa nsems
+равен 0 или отрицателен.
+.It Bq Er ENOSPC
+Недостаточно доступных семафоров.
+.It Bq Er ENOSPC
+Ядро не смогло выделить
+.Fa "struct semid_ds" .
+.It Bq Er ENOENT
+Не найдено набора семафоров, соответствующего
+.Fa key ,
+и IPC_CREAT не был указан.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr semctl 2 ,
+.Xr semop 2 ,
+.Xr ftok 3

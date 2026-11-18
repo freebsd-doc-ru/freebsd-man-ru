@@ -1,0 +1,187 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/brk.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 5ffda1dd701c32c9e20540b301c6fc1fab6b1d45f71cf4a7189eedb55840353a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 2, 2018
+.Dt BRK 2
+.Os
+.Sh ИМЯ
+.Nm brk ,
+.Nm sbrk
+.Nd изменение размера сегмента данных
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn brk "const void *addr"
+.Ft void *
+.Fn sbrk "intptr_t incr"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Функции
+.Fn brk
+и
+.Fn sbrk
+являются устаревшими интерфейсами, появившимися до возникновения
+современного управления виртуальной памятью.
+Они устарели и отсутствуют на архитектурах arm64 и riscv.
+Для выделения страниц вместо них следует использовать интерфейс
+.Xr mmap 2 .
+.Ef
+.Pp
+Функции
+.Fn brk
+и
+.Fn sbrk
+используются для изменения объёма памяти, выделенной в сегменте данных
+процесса.
+Они делают это путём перемещения расположения
+.Dq точки останова .
+Точка останова — это первый адрес после конца неинициализированного
+сегмента данных процесса (также известного как
+.Dq BSS ) .
+.Pp
+Функция
+.Fn brk
+устанавливает точку останова в
+.Fa addr .
+.Pp
+Функция
+.Fn sbrk
+повышает точку останова на
+.Fa incr
+байт, тем самым выделяя как минимум
+.Fa incr
+байт новой памяти в сегменте данных.
+Если
+.Fa incr
+отрицательно,
+точка останова понижается на
+.Fa incr
+байт.
+.Sh ЗАМЕЧАНИЯ
+Хотя фактический размер сегмента данных процесса, поддерживаемый ядром,
+изменяется только кратно размерам страниц, эти функции позволяют
+устанавливать точку останова в невыровненные значения (то есть она может
+указывать на любой адрес внутри последней страницы сегмента данных).
+.Pp
+Текущее значение точки останова программы можно определить, вызвав
+.Fn sbrk 0 .
+См. также
+.Xr end 3 .
+.Pp
+Системный вызов
+.Xr getrlimit 2
+может использоваться для определения максимально допустимого размера
+сегмента данных.
+Установить точку останова за пределами
+.Dq Va etext No + Va rlim.rlim_max
+будет невозможно, где значение
+.Va rlim.rlim_max
+возвращается из вызова
+.Fn getrlimit RLIMIT_DATA &rlim .
+(Определение
+.Va etext
+см. в
+.Xr end 3 ) .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std brk
+.Pp
+Функция
+.Fn sbrk
+в случае успеха возвращает предыдущее значение точки останова;
+в противном случае возвращается значение
+.Po Vt "void *" Pc Ns \-1
+и глобальная переменная
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Функции
+.Fn brk
+и
+.Fn sbrk
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Запрошенное значение точки останова находится до начала сегмента данных.
+.It Bq Er ENOMEM
+Превышен предел размера сегмента данных, установленный с помощью
+.Xr setrlimit 2 .
+.It Bq Er ENOMEM
+В области подкачки недостаточно места для поддержки расширения сегмента
+данных.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr execve 2 ,
+.Xr getrlimit 2 ,
+.Xr mmap 2 ,
+.Xr end 3 ,
+.Xr free 3 ,
+.Xr malloc 3
+.Sh ИСТОРИЯ
+Функция
+.Fn brk
+появилась в
+.At v7 .
+.Fx 11.0
+представила архитектуры arm64 и riscv, которые не поддерживают
+.Fn brk
+или
+.Fn sbrk .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Смешивание
+.Fn brk
+или
+.Fn sbrk
+с
+.Xr malloc 3 ,
+.Xr free 3
+или аналогичными функциями приведёт к непереносимому поведению программы.
+.Pp
+Установка точки останова может завершиться неудачей из-за временной
+нехватки места подкачки.
+Отличить это от сбоя, вызванного превышением максимального размера
+сегмента данных, невозможно без обращения к
+.Xr getrlimit 2 .
+.Pp
+.Fn sbrk
+иногда используется для мониторинга использования кучи путём вызова с
+аргументом 0.
+Результат вряд ли будет отражать фактическое использование в сочетании с
+malloc, основанным на
+.Xr mmap 2 .
+.Pp
+Функции
+.Fn brk
+и
+.Fn sbrk
+не являются потокобезопасными.

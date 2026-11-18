@@ -1,0 +1,155 @@
+.\"
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/minherit.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 3fd95dd1dc213c639dcf05200146cbf5aef822e8ea8b347fb93288131d69548c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 15, 2017
+.Dt MINHERIT 2
+.Os
+.Sh ИМЯ
+.Nm minherit
+.Nd управление наследованием страниц
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn minherit "void *addr" "size_t len" "int inherit"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn minherit
+изменяет указанные страницы, устанавливая для них характеристику
+наследования
+.Fa inherit .
+Не все реализации гарантируют, что характеристика наследования
+может быть установлена на уровне отдельной страницы;
+гранулярность изменений может достигать целой области.
+.Fx
+способна регулировать характеристики наследования на уровне страниц.
+Наследование влияет только на потомков, созданных через
+.Fn fork .
+Оно не оказывает влияния на
+.Fn exec .
+Процессы, запущенные через exec, полностью заменяют своё адресное пространство.
+Этот системный вызов также
+не влияет на адресное пространство родителя (кроме потенциального
+совместного использования адресного пространства с его потомками).
+.Pp
+Наследование — довольно эзотерическая возможность, в значительной мере
+вытесненная возможностью
+.Dv MAP_SHARED
+вызова
+.Fn mmap .
+Однако можно использовать
+.Fn minherit
+для совместного использования блока памяти между родителем и потомком,
+который был отображён как
+.Dv MAP_PRIVATE .
+То есть изменения, сделанные родителем или потомком, разделяются, но
+исходный нижележащий файл остаётся нетронутым.
+.Bl -tag -width ".Dv INHERIT_SHARE"
+.It Dv INHERIT_SHARE
+Эта опция приводит к тому, что рассматриваемое адресное пространство
+становится общим для родителя и потомка.
+Она не влияет на то, как был отображён исходный нижележащий
+носитель данных.
+.It Dv INHERIT_NONE
+Эта опция предотвращает наследование рассматриваемого адресного
+пространства вообще.
+Адресное пространство будет отображено в потомке как отсутствующее.
+.It Dv INHERIT_COPY
+Эта опция приводит к тому, что потомок наследует адресное пространство
+как копию при записи.
+Эта опция также имеет неприятный побочный эффект: адресное пространство
+родителя становится копией при записи, когда родитель выполняет fork.
+Если исходное отображение было
+.Dv MAP_SHARED ,
+оно больше не будет общим в родителе
+после того, как родитель выполнит fork, и нет способа вернуть прежнее
+отображение с общим нижележащим носителем без снятия отображения и
+повторного отображения адресного пространства в родителе.
+.It Dv INHERIT_ZERO
+Эта опция приводит к тому, что рассматриваемое адресное пространство
+отображается как новые анонимные страницы,
+инициализированные нулевыми байтами,
+в процессе-потомке.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std minherit
+.Sh ОШИБКИ
+Системный вызов
+.Fn minherit
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Диапазон виртуальных адресов, заданный аргументами
+.Fa addr
+и
+.Fa len ,
+не является допустимым.
+.It Bq Er EACCES
+Флаги, заданные аргументом
+.Fa inherit ,
+недопустимы для страниц, заданных
+аргументами
+.Fa addr
+и
+.Fa len .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fork 2 ,
+.Xr madvise 2 ,
+.Xr mincore 2 ,
+.Xr mprotect 2 ,
+.Xr msync 2 ,
+.Xr munmap 2 ,
+.Xr rfork 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn minherit
+впервые появился в
+.Ox
+а затем в
+.Fx 2.2 .
+.Pp
+Поддержка
+.Dv INHERIT_ZERO
+впервые появилась в
+.Ox 5.6
+а затем в
+.Fx 12.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+После того как вы установили наследование в
+.Dv MAP_PRIVATE
+или
+.Dv MAP_SHARED ,
+нет способа восстановить исходную семантику копирования при записи,
+кроме снятия отображения и повторного отображения области.

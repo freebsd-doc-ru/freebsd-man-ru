@@ -1,0 +1,58 @@
+.\"	$NetBSD: rpc.sprayd.8,v 1.10 2009/10/21 01:07:46 snj Exp $
+.\"
+.\" Copyright (c) 1994 Christos Zoulas
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/rpc.sprayd/rpc.sprayd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5b02e5ba28ea26824f54f77f8bc60aa66f1d7e3483622e36b27eeecd0922251f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 27, 2017
+.Dt RPC.SPRAYD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.sprayd ,
+.Nm sprayd
+.Nd сервер spray
+.Sh СИНТАКСИС
+.Nm /usr/libexec/rpc.sprayd
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это сервер, который записывает пакеты, отправленные командой
+.Xr spray 8 ,
+и отправляет отчёт о трафике источнику этих пакетов.
+Демон
+.Nm
+обычно запускается
+.Xr inetd 8 .
+.Pp
+Утилита
+.Nm
+использует протокол
+.Tn RPC ,
+определённый в
+.Pa /usr/include/rpcsvc/spray.x .
+.Sh СМ. ТАКЖЕ
+.Xr spray 8

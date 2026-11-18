@@ -1,0 +1,125 @@
+.\" Copyright (c) 1998 HD Associates, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sched_get_priority_max.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 cb14e4b802cdf4e5cabd20e232a497f84d6f76db1dc3e12ea91fd3bf2cde5164
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 12, 1998
+.Dt SCHED_GET_PRIORITY_MAX 2
+.Os
+.Sh NAME
+.Nm sched_get_priority_max ,
+.Nm sched_get_priority_min ,
+.Nm sched_rr_get_interval
+.Nd получение границ параметров планирования
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sched.h
+.Ft int
+.Fn sched_get_priority_max "int policy"
+.Ft int
+.Fn sched_get_priority_min "int policy"
+.Ft int
+.Fn sched_rr_get_interval "pid_t pid" "struct timespec *interval"
+.Sh DESCRIPTION
+Системные вызовы
+.Fn sched_get_priority_max
+и
+.Fn sched_get_priority_min
+возвращают соответственно максимальное или минимальное подходящее значение
+для политики планирования, заданной в
+.Fa policy .
+Системный вызов
+.Fn sched_rr_get_interval
+обновляет структуру
+.Fa timespec ,
+на которую ссылается аргумент
+.Fa interval ,
+так, чтобы она содержала текущий лимит времени выполнения (т.е. квант
+времени) для процесса, заданного в
+.Fa pid .
+Если
+.Fa pid
+равен нулю, возвращается текущий лимит времени выполнения вызывающего
+процесса.
+.Pp
+Значение
+.Fa policy
+должно быть одним из значений политики планирования, определённых в
+.Fa <sched.h> :
+.Bl -tag -width [SCHED_OTHER]
+.It Bq Er SCHED_FIFO
+Планирование с фиксированным приоритетом по принципу «первым пришёл — первым обслужен» без кругового планирования;
+.It Bq Er SCHED_OTHER
+Стандартный планировщик с разделением времени;
+.It Bq Er SCHED_RR
+Круговое планирование среди процессов с одинаковым приоритетом.
+.El
+.Sh RETURN VALUES
+В случае успеха системные вызовы
+.Fn sched_get_priority_max
+и
+.Fn sched_get_priority_min
+возвращают соответственно максимальное или минимальное подходящее значение.
+В случае неудачи они возвращают значение -1 и устанавливают
+.Fa errno
+для указания ошибки.
+.Pp
+.Rv -std sched_rr_get_interval
+.Sh ERRORS
+При ошибке
+.Va errno
+будет установлен в соответствующее значение:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Значение аргумента
+.Fa policy
+не представляет определённой политики планирования.
+.It Bq Er ENOSYS
+Системные вызовы
+.Fn sched_get_priority_max ,
+.Fn sched_get_priority_min ,
+и
+.Fn sched_rr_get_interval
+не поддерживаются реализацией.
+.It Bq Er ESRCH
+Не найден процесс, соответствующий указанному в
+.Fa pid .
+.El
+.Sh SEE ALSO
+.Xr sched_getparam 2 ,
+.Xr sched_getscheduler 2 ,
+.Xr sched_setparam 2 ,
+.Xr sched_setscheduler 2
+.Sh STANDARDS
+Системные вызовы
+.Fn sched_get_priority_max ,
+.Fn sched_get_priority_min ,
+и
+.Fn sched_rr_get_interval
+соответствуют
+.St -p1003.1b-93 .

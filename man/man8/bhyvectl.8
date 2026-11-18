@@ -1,0 +1,123 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2015 Christian Brueffer
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bhyvectl/bhyvectl.8
+.\" FRDP githash 22348fb999385edaef38ce5e4308f44135f0326c
+.\" FRDP hash256 ed4710326ebc3ddc62486e300dc8afe08bb37429dcb81eb01e38e18bc5d38800
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 8, 2025
+.Dt BHYVECTL 8
+.Os
+.Sh ИМЯ
+.Nm bhyvectl
+.Nd утилита управления экземплярами bhyve
+.Sh СИНТАКСИС
+.Nm
+.Fl -vm= Ns Ar <vmname>
+.Op Fl -create
+.Op Fl -destroy
+.Op Fl -get-stats
+.Op Fl -inject-nmi
+.Op Fl -force-reset
+.Op Fl -force-poweroff
+.Op Fl -checkpoint= Ns Ar <file>
+.Op Fl -suspend= Ns Ar <file>
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+является утилитой управления активными экземплярами виртуальных машин
+.Xr bhyve 8 .
+.Pp
+Пользовательские параметры:
+.Bl -tag -width indent
+.It Fl -vm= Ns Ar <vmname>
+Работать с виртуальной машиной
+.Ar <vmname> .
+.It Fl -create
+Создать указанную виртуальную машину.
+.It Fl -destroy
+Уничтожить указанную виртуальную машину.
+.It Fl -get-stats
+Получить статистику для указанной виртуальной машины.
+.It Fl -inject-nmi
+Внедрить немаскируемое прерывание (NMI) в виртуальную машину.
+.It Fl -force-reset
+Принудительно сбросить виртуальную машину.
+.It Fl -force-poweroff
+Принудительно выключить виртуальную машину.
+.It Fl -checkpoint= Ns Ar <file>
+Сохранить снимок виртуальной машины.
+Содержимое памяти гостя сохраняется в файле, указанном в
+.Ar <file> .
+Состояние устройств гостя и vCPU сохраняется в файле
+.Ar <file>.kern .
+.It Fl -suspend= Ns Ar <file>
+Сохранить снимок виртуальной машины, аналогично
+.Fl -checkpoint .
+Виртуальная машина завершит работу после сохранения снимка.
+.El
+.Pp
+.Em Примечание :
+Большинство
+.Nm
+флагов предназначены для запроса и установки
+состояния активного экземпляра.
+Эти команды предназначены для целей разработки
+и здесь не документированы.
+Полный список можно получить, выполнив
+.Nm
+без аргументов.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Уничтожить виртуальную машину с именем fbsd10:
+.Pp
+.Dl bhyvectl --vm=fbsd10 --destroy
+.Pp
+Работающие виртуальные машины будут видны в
+.Pa /dev/vmm/ .
+.Sh СОВМЕСТИМОСТЬ
+Формат файла снимка пока не стабилен и может быть изменён в будущем.
+Поддержка обратной совместимости для текущего формата файла снимка не
+гарантируется при внесении будущих изменений.
+.Sh СМ. ТАКЖЕ
+.Xr bhyve 8 ,
+.Xr bhyveload 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 10.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Peter Grehan
+и
+.An Neel Natu .

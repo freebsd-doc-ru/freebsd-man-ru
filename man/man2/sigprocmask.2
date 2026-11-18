@@ -1,0 +1,132 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigprocmask.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 9abade83094d8c2412b97c5c2f744e548069d48db4234987dce62f69dc858c7d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 7, 2010
+.Dt SIGPROCMASK 2
+.Os
+.Sh ИМЯ
+.Nm sigprocmask
+.Nd манипулирование текущей маской сигналов
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fo sigprocmask
+.Fa "int how"
+.Fa "const sigset_t * restrict set"
+.Fa "sigset_t * restrict oset"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigprocmask
+исследует и/или изменяет текущую маску сигналов (те сигналы,
+доставка которых блокирована).
+Сигналы блокированы, если они являются членами текущего набора маски сигналов.
+.Pp
+Если
+.Fa set
+не является null, действие
+.Fn sigprocmask
+зависит от значения аргумента
+.Fa how .
+Маска сигналов изменяется как функция указанного
+.Fa set
+и текущей маски.
+Функция задаётся
+.Fa how
+с использованием одного из следующих значений из
+.In signal.h :
+.Bl -tag -width SIG_UNBLOCK
+.It Dv SIG_BLOCK
+Новая маска является объединением текущей маски и указанного
+.Fa set .
+.It Dv SIG_UNBLOCK
+Новая маска является пересечением текущей маски
+и дополнения указанного
+.Fa set .
+.It Dv SIG_SETMASK
+Текущая маска заменяется указанным
+.Fa set .
+.El
+.Pp
+Если
+.Fa oset
+не является null, ему присваивается
+предыдущее значение маски сигналов.
+Когда
+.Fa set
+является null,
+значение
+.Fa how
+не имеет значения и маска остаётся неизменной,
+предоставляя способ исследовать маску сигналов без модификации.
+.Pp
+Система
+молча запрещает
+.Dv SIGKILL
+или
+.Dv SIGSTOP
+блокировать.
+.Pp
+В многопоточных приложениях
+вместо
+.Fn sigprocmask
+необходимо использовать
+.Xr pthread_sigmask 3 .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std sigprocmask
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigprocmask
+завершится с ошибкой, и маска сигналов останется неизменной, если
+произойдёт одно из следующих событий:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa how
+имеет значение, отличное от перечисленных здесь.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr sigaction 2 ,
+.Xr sigpending 2 ,
+.Xr sigsuspend 2 ,
+.Xr fpsetmask 3 ,
+.Xr pthread_sigmask 3 ,
+.Xr sigsetops 3
+.Sh СТАНДАРТЫ
+Ожидается, что
+системный вызов
+.Fn sigprocmask
+соответствует
+.St -p1003.1-90 .

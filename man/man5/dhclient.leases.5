@@ -1,0 +1,95 @@
+.\"	$OpenBSD: dhclient.leases.5,v 1.4 2004/04/15 08:59:47 jmc Exp $
+.\"
+.\" Copyright (c) 1997 The Internet Software Consortium.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of The Internet Software Consortium nor the names
+.\"    of its contributors may be used to endorse or promote products derived
+.\"    from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INTERNET SOFTWARE CONSORTIUM AND
+.\" CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+.\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE INTERNET SOFTWARE CONSORTIUM OR
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+.\" USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+.\" ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.\" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+.\" OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" This software has been written for the Internet Software Consortium
+.\" by Ted Lemon <mellon@fugue.com> in cooperation with Vixie
+.\" Enterprises.  To learn more about the Internet Software Consortium,
+.\" see ``http://www.isc.org/isc''.  To learn more about Vixie
+.\" Enterprises, see ``http://www.vix.com''.
+.\"
+.\" FRDP path sbin/dhclient/dhclient.leases.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 c2f6d0ba25195f73fa010ed59fabc3f35a141c0bbee91e02a7fc0c8153ba9339
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 1, 1997
+.Dt DHCLIENT.LEASES 5
+.Os
+.Sh ИМЯ
+.Nm dhclient.leases
+.Nd База данных аренд DHCP-клиента
+.Sh ОПИСАНИЕ
+DHCP-клиент Internet Software Consortium ведёт постоянную базу данных аренд,
+которые он получил и которые всё ещё действительны.
+База данных представляет собой ASCII-файл свободной формы, содержащий
+одно допустимое объявление на каждую аренду.
+Если для данной аренды появляется более одного объявления,
+используется последнее в файле.
+Файл записывается как журнал, поэтому это не является чем-то необычным.
+.Pp
+Файл аренды называется
+.Pa dhclient.leases . Ns Ar IFNAME ,
+где
+.Ar IFNAME
+обозначает сетевой интерфейс, на котором DHCP-клиент получил аренду.
+Например, если
+.Xr dhclient 8
+настроен для сетевого устройства
+.Li em0 ,
+файл аренды будет называться
+.Pa dhclient.leases.em0 .
+.Pp
+Формат объявлений аренды описан в
+.Xr dhclient.conf 5 .
+.Sh ФАЙЛЫ
+.Bl -tag -width "/var/db/dhclient.leases.IFNAME" -compact
+.It Pa /var/db/dhclient.leases . Ns Ar IFNAME
+Текущий файл аренды.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr dhclient.conf 5 ,
+.Xr dhcp-options 5 ,
+.Xr dhcpd.conf 5 ,
+.Xr dhclient 8 ,
+.Xr dhcpd 8
+.Rs
+.Re
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Xr dhclient 8
+была написана
+.An Ted Lemon Aq Mt mellon@vix.com
+по контракту с Vixie Labs.
+.Pp
+Текущая реализация была переработана
+.An Henning Brauer Aq Mt henning@openbsd.org .

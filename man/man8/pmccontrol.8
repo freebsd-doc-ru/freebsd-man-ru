@@ -1,0 +1,122 @@
+.\" Copyright (c) 2003,2008 Joseph Koshy.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" This software is provided by Joseph Koshy ``as is'' and
+.\" any express or implied warranties, including, but not limited to, the
+.\" implied warranties of merchantability and fitness for a particular purpose
+.\" are disclaimed.  in no event shall Joseph Koshy be liable
+.\" for any direct, indirect, incidental, special, exemplary, or consequential
+.\" damages (including, but not limited to, procurement of substitute goods
+.\" or services; loss of use, data, or profits; or business interruption)
+.\" however caused and on any theory of liability, whether in contract, strict
+.\" liability, or tort (including negligence or otherwise) arising in any way
+.\" out of the use of this software, even if advised of the possibility of
+.\" such damage.
+.\"
+.\" FRDP path usr.sbin/pmccontrol/pmccontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 50ad2ab9f08980596b6d14dea7fa1844123a0610c5c02c139179314a93b29a55
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 9, 2008
+.Dt PMCCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm pmccontrol
+.Sh СИНТАКСИС
+.Nm
+.Oo Fl c Ar cpu | Fl d Ar pmc | Fl e Ar pmc Oc ...
+.Nm
+.Fl l
+.Nm
+.Fl L
+.Nm
+.Fl s
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+управляет работой аппаратных счётчиков производительности системы.
+.Sh ПАРАМЕТРЫ
+Утилита
+.Nm
+обрабатывает параметры в порядке их указания в командной строке, поэтому более поздние параметры изменяют действие более ранних.
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl c Ar cpu
+Последующие параметры включения и отключения воздействуют на процессор,
+обозначенный аргументом
+.Ar cpu .
+Аргумент
+.Ar cpu
+— это число, обозначающее процессор в системе, или
+.Dq Li * ,
+обозначающий все неостановленные процессоры в системе.
+.It Fl d Ar pmc
+Отключить PMC с номером
+.Ar pmc
+на процессоре, указанном с помощью
+.Fl c ,
+не позволяя использовать его до последующего повторного включения.
+Аргумент
+.Ar pmc
+— это число, обозначающее конкретный PMC, или
+.Dq Li *
+обозначающий все PMC на указанном процессоре.
+.Pp
+Отключать можно только бездействующие PMC.
+.It Fl e Ar pmc
+Включить PMC с номером
+.Ar pmc ,
+на процессоре, указанном с помощью
+.Fl c ,
+позволяя использовать его в дальнейшем.
+Аргумент
+.Ar pmc
+— это число, обозначающее конкретный PMC, или
+.Dq Li *
+обозначающий все PMC на указанном процессоре.
+Если PMC
+.Ar pmc
+уже включён, этот параметр не оказывает никакого эффекта.
+.It Fl l
+Вывести список доступных аппаратных счётчиков производительности и их текущее
+состояние.
+.It Fl L
+Вывести список доступных классов аппаратных счётчиков производительности и
+поддерживаемые ими имена событий.
+.It Fl s
+Вывести статистику драйвера, поддерживаемую
+.Xr hwpmc 4 .
+.El
+.Sh ПРИМЕРЫ
+Чтобы отключить все PMC на всех процессорах, используйте команду:
+.Pp
+Чтобы включить все PMC на всех процессорах, используйте:
+.Pp
+Чтобы отключить PMC 0 и 1 на процессоре 2, используйте:
+.Pp
+Чтобы отключить только PMC 0 процессора 0 и включить все остальные PMC на всех остальных
+процессорах, используйте:
+.Sh ДИАГНОСТИКА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr pmc 3 ,
+.Xr pmclog 3 ,
+.Xr hwpmc 4 ,
+.Xr pmcstat 8 ,
+.Xr sysctl 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.0 .
+.Sh АВТОРЫ
+.An Joseph Koshy Aq Mt jkoshy@FreeBSD.org

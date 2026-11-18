@@ -1,0 +1,198 @@
+.\"-
+.\" Copyright (c) 1994, Henrik Vestergaard Draboel
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\" 	This product includes software developed by Henrik Vestergaard Draboel.
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"-
+.\" Copyright (c) 2011 Xin LI <delphij@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/rtprio.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c0bd53b05876c24cdb1b0af5216de50de076438a0f3555ce453571b1008cf224
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 8, 2021
+.Dt RTPRIO 2
+.Os
+.Sh ИМЯ
+.Nm rtprio ,
+.Nm rtprio_thread
+.Nd просмотр или изменение приоритета реального времени или простоя
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/rtprio.h
+.Ft int
+.Fn rtprio "int function" "pid_t pid" "struct rtprio *rtp"
+.Ft int
+.Fn rtprio_thread "int function" "lwpid_t lwpid" "struct rtprio *rtp"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn rtprio
+используется для просмотра или изменения приоритета реального времени или простоя
+процесса либо вызывающего потока.
+Системный вызов
+.Fn rtprio_thread
+используется для просмотра или изменения приоритета реального времени или простоя потока.
+.Pp
+Аргумент
+.Fa function
+задаёт выполняемую операцию.
+RTP_LOOKUP для просмотра текущего приоритета
+и RTP_SET для установки приоритета.
+.Pp
+Для системного вызова
+.Fn rtprio
+аргумент
+.Fa pid
+задаёт процесс, с которым нужно работать,
+0 для вызывающего потока.
+Когда
+.Fa pid
+не равен нулю,
+системный вызов возвращает наивысший приоритет в процессе
+или устанавливает приоритет всех потоков в процессе,
+в зависимости от значения аргумента
+.Fa function .
+.Pp
+Для системного вызова
+.Fn rtprio_thread
+.Fa lwpid
+задаёт поток, с которым нужно работать,
+0 для вызывающего потока.
+.Pp
+Аргумент
+.Fa *rtp
+является указателем на struct rtprio, которая используется для задания приоритета и типа приоритета.
+Эта структура имеет следующий вид:
+.Bd -literal
+struct rtprio {
+	u_short	type;
+	u_short prio;
+};
+.Ed
+.Pp
+Значение поля
+.Va type
+может быть RTP_PRIO_REALTIME для приоритетов реального времени,
+RTP_PRIO_NORMAL для обычных приоритетов и RTP_PRIO_IDLE для приоритетов простоя.
+Приоритет, задаваемый полем
+.Va prio ,
+находится в диапазоне от 0 до
+.Dv RTP_PRIO_MAX
+.Pq обычно 31 .
+0 — наивысший возможный приоритет.
+.Pp
+Приоритет реального времени и простоя наследуется через
+.Fn fork
+и
+.Fn exec .
+.Pp
+Поток реального времени может быть вытеснен только потоком равного или
+более высокого приоритета либо прерыванием; потоки приоритета простоя выполняются только
+когда нет других выполняемых потоков обычного/реального приоритета.
+Потоки с более высоким реальным приоритетом/приоритетом простоя
+вытесняют потоки с более низким реальным приоритетом/приоритетом простоя.
+Потоки с одинаковым реальным приоритетом/приоритетом простоя выполняются по круговому алгоритму.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std rtprio rtprio_thread
+.Sh ОШИБКИ
+Системные вызовы
+.Fn rtprio
+и
+.Fn rtprio_thread
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Указатель rtp, переданный в
+.Fn rtprio
+или
+.Fn rtprio_thread ,
+был недопустимым.
+.It Bq Er EINVAL
+Указанный
+.Fa prio
+был вне диапазона.
+.It Bq Er EPERM
+Вызывающему потоку не разрешено устанавливать приоритет.
+Только
+root разрешено изменять приоритет реального времени или простоя любого потока.
+Исключительные привилегии могут быть предоставлены через
+.Xr mac_priority 4
+и группы пользователей realtime и idletime.
+Переменная
+.Xr sysctl 8
+.Va security.bsd.unprivileged_idprio
+устарела.
+Если она установлена в ненулевое значение, она позволяет любому пользователю изменять приоритет простоя потоков,
+которыми он владеет.
+.It Bq Er ESRCH
+Указанный процесс или поток не был найден или не виден.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr nice 1 ,
+.Xr ps 1 ,
+.Xr rtprio 1 ,
+.Xr setpriority 2 ,
+.Xr nice 3 ,
+.Xr mac_priority 4 ,
+.Xr renice 8 ,
+.Xr p_cansee 9
+.Sh АВТОРЫ
+.An -nosplit
+Первоначальным автором был
+.An Henrik Vestergaard Draboel Aq Mt hvd@terry.ping.dk .
+Эта реализация в
+.Fx
+была существенно переписана
+.An David Greenman .
+Системный вызов
+.Fn rtprio_thread
+был реализован
+.An David Xu .

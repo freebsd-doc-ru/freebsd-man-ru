@@ -1,0 +1,117 @@
+.\" Copyright (c) 2012 Jeremie Le Hen <jlh@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code and documentation must retain the above
+.\"    copyright notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/stdbuf/stdbuf.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 fb8b8f35240c48a5269aa42d12653e529781577c6b9d45cda9b1d834e589f125
+.Dd 28 апреля 2012
+.Dt STDBUF 1
+.Os
+.Sh ИМЯ
+.Nm stdbuf
+.Nd изменение начальной буферизации стандартных потоков
+.Sh СИНТАКСИС
+.Nm
+.Op Fl e Ar определение_буфера
+.Op Fl i Ar определение_буфера
+.Op Fl o Ar определение_буфера
+.Op Ar команда Op ...
+.Sh ОПИСАНИЕ
+.Nm
+используется для изменения начальной буферизации стандартного ввода,
+стандартного вывода и/или стандартного потока ошибок для
+.Ar команды .
+Он опирается на
+.Xr libstdbuf 3 ,
+которая загружается и настраивается
+.Nm
+через переменные окружения.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl e Ar определение_буфера
+Установить начальную буферизацию стандартного потока ошибок для
+.Ar команды
+в соответствии с
+.Ar определением_буфера
+.Pq см. Sx ОПРЕДЕЛЕНИЕ БУФЕРА .
+.It Fl i Ar определение_буфера
+Установить начальную буферизацию стандартного потока ввода для
+.Ar команды
+в соответствии с
+.Ar определением_буфера
+.Pq см. Sx ОПРЕДЕЛЕНИЕ БУФЕРА .
+.It Fl o Ar определение_буфера
+Установить начальную буферизацию стандартного потока вывода для
+.Ar команды
+в соответствии с
+.Ar определением_буфера
+.Pq см. Sx ОПРЕДЕЛЕНИЕ БУФЕРА .
+.El
+.Sh ОПРЕДЕЛЕНИЕ БУФЕРА
+Определение буфера такое же, как в
+.Xr libstdbuf 3 :
+.Bl -tag -width size -offset indent
+.It Qq 0
+без буферизации
+.It Qq L
+построчная буферизация
+.It Qq B
+полная буферизация с размером буфера по умолчанию
+.It Ar размер
+полная буферизация с буфером размером
+.Ar размер
+байт (допускаются суффиксы 'k', 'M' и 'G')
+.El
+.Sh ПРИМЕРЫ
+В следующем примере поток stdout команды
+.Xr awk 1
+будет полностью буферизован по умолчанию, так как он не связан
+с терминалом.
+.Nm
+используется для принудительной построчной буферизации, чтобы
+вывод
+.Xr vmstat 8 Ns
+не задерживался до заполнения полного буфера.
+.Bd -literal -offset indent
+# vmstat 1 | stdbuf -o L awk '$2 > 1 || $3 > 1' | cat -n
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libstdbuf 3 ,
+.Xr setvbuf 3
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 8.4 .
+.Sh АВТОРЫ
+.An -nosplit
+Исходная идея команды
+.Nm
+принадлежит
+.An Padraig Brady ,
+который реализовал её в GNU coreutils.
+.An Jeremie Le Hen
+реализовал её в
+.Fx .

@@ -1,0 +1,85 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/protocols.5
+.\" FRDP githash 97759ccc715c4b365432c16d763c50eecfcb1100
+.\" FRDP hash256 d7dfaa7bd77387698202a20cb7a93704d588399221ebbe1254106c0842f9bcb1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 7, 2020
+.Dt PROTOCOLS 5
+.Os
+.Sh ИМЯ
+.Nm protocols
+.Nd база данных имён протоколов
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+содержит информацию о назначенных номерах протоколов,
+используемых IPv4 и IPv6 для идентификации протокола следующего уровня.
+Для каждого протокола должна присутствовать одна строка
+со следующей информацией:
+.Bd -unfilled -offset indent
+официальное имя протокола
+номер протокола
+псевдонимы
+.Ed
+.Pp
+Элементы разделяются любым количеством пробелов и/или
+символов табуляции.
+Символ ``#'' обозначает начало
+комментария; символы до конца строки
+не интерпретируются подпрограммами, которые выполняют поиск по файлу.
+.Pp
+Имена протоколов могут содержать любые печатные
+символы, кроме разделителя полей, символа новой строки
+или символа комментария.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/protocols -compact
+.It Pa /etc/protocols
+Файл
+.Nm
+находится в
+.Pa /etc .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getprotoent 3
+.Rs
+.%R RFC 2780
+.%D March 2000
+.Re
+.Rs
+.%R RFC 5237
+.%D February 2008
+.Re
+.Sh ИСТОРИЯ
+Формат файла
+.Nm
+появился в
+.Bx 4.2 ,
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Следует использовать сервер имён вместо статического файла.

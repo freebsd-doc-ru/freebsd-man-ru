@@ -1,0 +1,87 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright 2020 Richard Elling
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool_influxdb.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 9115b101c4d237ab006cc3e6cc336007ecd5d350039ccef0145d3d842606ae5e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2021
+.Dt ZPOOL_INFLUXDB 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool_influxdb
+.Nd собирает статистику пулов ZFS в формате линейного протокола InfluxDB
+.Sh СИНТАКСИС
+.Nm
+.Op Fl e Ns | Ns Fl -execd
+.Op Fl n Ns | Ns Fl -no-histogram
+.Op Fl s Ns | Ns Fl -sum-histogram-buckets
+.Op Fl t Ns | Ns Fl -tags Ar ключ Ns = Ns Ar значение Ns Oo , Ns Ar ключ Ns = Ns Ar значение Oc Ns …
+.Op Ar пул
+.
+.Sh ОПИСАНИЕ
+.Nm
+создаёт метрики, совместимые с линейным протоколом InfluxDB, из пулов ZFS.
+Как и команда
+.Nm zpool ,
+.Nm
+читает текущее состояние и статистику пулов.
+В отличие от команды
+.Nm zpool ,
+предназначенной для людей,
+.Nm
+форматирует вывод в линейном протоколе InfluxDB.
+Предполагается его использование в качестве плагина к
+коллектору или агрегатору метрик, например Telegraf.
+.Pp
+По умолчанию
+.Nm
+выводит метрики и состояние пулов в формате линейного протокола InfluxDB.
+Выводятся все пулы, аналогично команде
+.Nm zpool Cm status .
+Указание имени пула ограничивает вывод этим пулом.
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl e , -execd
+Запуск в режиме демона, совместимом с плагином
+.Nm execd
+Telegraf.
+В этом режиме пулы опрашиваются каждый раз, когда в
+стандартном вводе появляется символ новой строки.
+.It Fl n , -no-histogram
+Не выводить гистограммы задержек и размеров ввода-вывода.
+Это может уменьшить общий
+объём данных, но следует учитывать ценность сведений,
+которые дают распределения задержек и размеров ввода-вывода.
+Полученные значения
+подходят для построения графиков с помощью плагина heatmap в Grafana.
+.It Fl s , -sum-histogram-buckets
+Накапливает значения бакетов.
+По умолчанию значения не накапливаются, и необработанные данные отображаются так, как их показывает
+.Nm zpool Cm iostat .
+Это хорошо работает с плагином heatmap в Grafana.
+Суммирование бакетов даёт вывод, аналогичный гистограммам Prometheus.
+.It Fl t , Fl -tags Ar ключ Ns = Ns Ar значение Ns Oo , Ns Ar ключ Ns = Ns Ar значение Oc Ns …
+Добавляет указанные теги в набор тегов.
+Проверка корректности не выполняется.
+Подробности об экранировании специальных символов, используемых в тегах, см. в документации по формату InfluxDB Line Protocol.
+.It Fl h , -help
+Вывести краткую справку по использованию.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-iostat 8 ,
+.Xr zpool-status 8 ,

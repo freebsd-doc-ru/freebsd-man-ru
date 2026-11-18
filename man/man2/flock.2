@@ -1,0 +1,173 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/flock.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 369360bc51b24a3588dbad3c96d34b27126010611025c1ae16a78a65c6c33aa5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 9, 2011
+.Dt FLOCK 2
+.Os
+.Sh ИМЯ
+.Nm flock
+.Nd "установка или снятие рекомендательной блокировки на открытом файле"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/file.h
+.Fd "#define   LOCK_SH        0x01      /* shared file lock */"
+.Fd "#define   LOCK_EX        0x02      /* exclusive file lock */"
+.Fd "#define   LOCK_NB        0x04      /* do not block when locking */"
+.Fd "#define   LOCK_UN        0x08      /* unlock file */"
+.Ft int
+.Fn flock "int fd" "int operation"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn flock
+устанавливает или снимает
+.Em рекомендательную
+блокировку на файле, связанном с дескриптором файла
+.Fa fd .
+Блокировка устанавливается путём указания аргумента
+.Fa operation ,
+который является одним из
+.Dv LOCK_SH
+или
+.Dv LOCK_EX
+с необязательным добавлением
+.Dv LOCK_NB .
+Для снятия
+существующей блокировки
+.Dv operation
+должен быть равен
+.Dv LOCK_UN .
+.Pp
+Рекомендательные блокировки позволяют взаимодействующим процессам выполнять
+согласованные операции над файлами, но не гарантируют
+согласованности (то есть процессы всё ещё могут обращаться к файлам
+без использования рекомендательных блокировок, что может привести
+к несогласованности).
+.Pp
+Механизм блокировки допускает два типа блокировок:
+.Em разделяемые
+блокировки и
+.Em эксклюзивные
+блокировки.
+В любой момент времени на файл может быть установлено несколько разделяемых блокировок,
+но никогда не допускается одновременно несколько эксклюзивных, или же
+разделяемых и эксклюзивных блокировок на файле.
+.Pp
+Разделяемая блокировка может быть
+.Em повышена
+до эксклюзивной, и наоборот, просто путём указания
+соответствующего типа блокировки; это приводит к снятию предыдущей
+блокировки и установке новой (возможно,
+после того как другие процессы получили и сняли блокировку).
+.Pp
+Запрос блокировки на объекте, который уже заблокирован,
+обычно приводит к блокировке вызывающего процесса до тех пор, пока блокировка не может быть
+получена.
+Если
+.Dv LOCK_NB
+включён в
+.Fa operation ,
+то этого не произойдёт; вместо этого вызов завершится с ошибкой
+и будет возвращена ошибка
+.Er EWOULDBLOCK .
+.Sh ПРИМЕЧАНИЯ
+Блокировки устанавливаются на файлы, а не на дескрипторы файлов.
+То есть дескрипторы файлов,
+дублированные с помощью
+.Xr dup 2
+или
+.Xr fork 2 ,
+не приводят к возникновению нескольких экземпляров блокировки, а скорее к нескольким
+ссылкам на одну блокировку.
+Если процесс, удерживающий блокировку на файле,
+выполняет fork, и потомок явно снимает блокировку с файла, родитель
+теряет свою блокировку.
+.Pp
+Блокировки
+.Fn flock ,
+.Xr fcntl 2
+и
+.Xr lockf 3
+совместимы.
+Процессы, использующие различные интерфейсы блокировки, могут безопасно
+взаимодействовать над одним и тем же файлом.
+Однако в пределах одного процесса следует использовать только один из таких
+интерфейсов.
+Если файл заблокирован процессом с помощью
+.Fn flock ,
+любая запись в файле будет рассматриваться как заблокированная
+с точки зрения другого процесса, использующего
+.Xr fcntl 2
+или
+.Xr lockf 3 ,
+и наоборот.
+.Pp
+Заблокированные процессы, ожидающие блокировку, могут быть разбужены сигналами.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std flock
+.Sh ОШИБКИ
+Системный вызов
+.Fn flock
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EWOULDBLOCK
+Файл заблокирован и был указан параметр
+.Dv LOCK_NB .
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+является недопустимым дескриптором.
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+ссылается на объект, отличный от файла.
+.It Bq Er EOPNOTSUPP
+Аргумент
+.Fa fd
+ссылается на объект, который не поддерживает блокировку файлов.
+.It Bq Er ENOLCK
+Была запрошена блокировка, но блокировки недоступны.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr close 2 ,
+.Xr dup 2 ,
+.Xr execve 2 ,
+.Xr fcntl 2 ,
+.Xr fork 2 ,
+.Xr open 2 ,
+.Xr flopen 3 ,
+.Xr lockf 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn flock
+появился в
+.Bx 4.2 .

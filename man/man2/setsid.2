@@ -1,0 +1,82 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/setsid.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 7dc388b7e6dc101efc70405888a3958326ad8f43978c83cb4ffffc373d45afa2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 4, 1993
+.Dt SETSID 2
+.Os
+.Sh ИМЯ
+.Nm setsid
+.Nd создать сеанс и установить идентификатор группы процессов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft pid_t
+.Fn setsid void
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn setsid
+создаёт новый сеанс.
+Вызывающий процесс является лидером сеанса нового сеанса, является
+лидером группы процессов новой группы процессов и не имеет управляющего
+терминала.
+Вызывающий процесс является единственным процессом как в сеансе, так и в
+группе процессов.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении системный вызов
+.Fn setsid
+возвращает значение идентификатора группы процессов новой группы
+процессов, которое совпадает с идентификатором процесса вызывающего процесса.
+В случае ошибки
+.Fn setsid
+возвращает -1, а глобальная переменная
+.Va errno
+устанавливается так, чтобы указать на ошибку.
+.Sh ОШИБКИ
+Системный вызов
+.Fn setsid
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Вызывающий процесс уже является лидером группы процессов, или идентификатор
+группы процессов процесса, отличного от вызывающего процесса, совпадает с
+идентификатором процесса вызывающего процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr setpgid 2 ,
+.Xr tcgetpgrp 3 ,
+.Xr tcsetpgrp 3
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn setsid
+соответствует спецификации
+.St -p1003.1-90 .

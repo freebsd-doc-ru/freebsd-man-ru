@@ -1,0 +1,194 @@
+.\"-
+.\" Copyright (c) 2010 Edward Tomasz Napierala
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/cache/gcache.8
+.\" FRDP githash 7ac7604b9141005cc0663a5d021bceaf7746e940
+.\" FRDP hash256 a3cc20c2375fcf3d5ce5ace4e962bf9623a4d143ff02c32c4ef2bc0ec6a67290
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 3, 2010
+.Dt GCACHE 8
+.Os
+.Sh ИМЯ
+.Nm gcache
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Op Fl b Ar blocksize
+.Op Fl s Ar size
+.Ar name
+.Ar prov
+.Nm
+.Cm configure
+.Op Fl v
+.Op Fl b Ar blocksize
+.Op Fl s Ar size
+.Ar name
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar name
+.Nm
+.Cm label
+.Op Fl v
+.Op Fl b Ar blocksize
+.Op Fl s Ar size
+.Ar name
+.Ar prov
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar name ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar prov ...
+.Nm
+.Cm dump
+.Ar prov ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Op Fl s Ar name
+.Nm
+.Cm load
+.Op Fl v
+.Nm
+.Cm unload
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления кэшем GEOM, который может
+ускорить производительность чтения, отправляя запросы чтения
+фиксированного размера своему потребителю.  Он был разработан для решения
+проблемы ужасной производительности чтения файловой системы с размером блока
+64\~KiB, размещённой на массиве RAID3 с 8 компонентами данных, где отдельный
+дисковый компонент получал бы только запросы чтения по 8\~KiB, что фактически
+убивало производительность диска при высокой нагрузке.
+.Pp
+Кэширование можно настроить двумя разными методами:
+.Dq ручной
+или
+.Dq автоматический .
+При использовании
+.Dq ручного
+метода метаданные не хранятся на устройствах, поэтому устройство кэша
+приходится настраивать вручную каждый раз, когда оно необходимо.
+Метод
+.Dq автоматический
+использует метаданные на диске для обнаружения устройств.
+После того как устройства будут помечены метками, они будут автоматически
+обнаружены и настроены.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое должно быть выполнено:
+.Bl -tag -width indent
+.It Cm create
+Кэшировать заданные устройства с указанным
+.Ar name .
+Это
+.Dq ручной
+метод.
+Модуль ядра
+.Pa geom_cache.ko
+будет загружен, если он ещё не загружен.
+.It Cm label
+Кэшировать заданные устройства с указанным
+.Ar name .
+Это
+.Dq автоматический
+метод, при котором метаданные хранятся в последнем секторе каждого устройства.
+Модуль ядра
+.Pa geom_cache.ko
+будет загружен, если он ещё не загружен.
+.It Cm stop
+Отключить существующее устройство кэша по его
+.Ar name .
+Эта команда не изменяет метаданные на диске!
+.It Cm destroy
+То же, что и
+.Cm stop .
+.It Cm clear
+Очистить метаданные на заданных устройствах.
+.It Cm dump
+Вывести метаданные, хранящиеся на заданных устройствах.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно удалить указанное устройство кэша.
+.It Fl v
+Выводить более подробные сообщения.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие
+.Xr sysctl 8
+переменные можно использовать для управления поведением
+.Nm CACHE
+класса GEOM.
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.geom.cache.used_hi : No 20
+.It Va kern.geom.cache.used_lo : No 5
+.It Va kern.geom.cache.idletime : No 5
+.It Va kern.geom.cache.timeout : No 10
+.It Va kern.geom.cache.enable : No 1
+.It Va kern.geom.cache.debug : No 0
+Уровень отладки
+.Nm CACHE
+класса GEOM.
+Его можно установить в число от 0 до 3 включительно.
+Если установлено 0, выводится минимальный объём отладочной информации, а если 3 —
+максимальный объём отладочной информации.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается ошибкой.
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr geom 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 7.0 .
+.Sh АВТОРЫ
+.An Ruslan Ermilov Aq Mt ru@FreeBSD.org

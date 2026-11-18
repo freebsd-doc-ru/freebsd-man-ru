@@ -1,0 +1,147 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mincore.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 acd17ac7343c47b83095d1d92342552da9bdc65338f48c5af47b135f0eba006d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 23, 2020
+.Dt MINCORE 2
+.Os
+.Sh ИМЯ
+.Nm mincore
+.Nd определение нахождения страниц памяти в памяти
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn mincore "const void *addr" "size_t len" "char *vec"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mincore
+определяет, находится ли каждая из страниц в области, начинающейся с
+.Fa addr
+и продолжающейся
+.Fa len
+байт, в памяти или отображена, в зависимости от значения sysctl
+.Va vm.mincore_mapped .
+Состояние возвращается в массиве
+.Fa vec
+, по одному символу на страницу.
+Каждый символ равен 0, если страница не находится в памяти, или является
+комбинацией следующих флагов (определённых в
+.In sys/mman.h ) :
+.Bl -tag -width ".Dv MINCORE_REFERENCED_OTHER"
+.It Dv MINCORE_INCORE
+Страница находится в памяти (резидентна).
+.It Dv MINCORE_REFERENCED
+Страница была использована нами.
+.It Dv MINCORE_MODIFIED
+Страница была изменена нами.
+.It Dv MINCORE_REFERENCED_OTHER
+Страница была использована.
+.It Dv MINCORE_MODIFIED_OTHER
+Страница была изменена.
+.It Dv MINCORE_PSIND(i)
+Страница является частью большой
+.Pq Dq супер
+страницы с размером, заданным индексом
+.Dv i
+в массиве, возвращаемом
+.Xr getpagesizes 3 .
+.It Dv MINCORE_SUPER
+Маска допустимых значений
+.Dv MINCORE_PSIND()
+.
+Если в этой маске установлен какой-либо бит, страница является частью большой
+.Pq Dq супер
+страницы.
+.El
+.Pp
+Информация, возвращаемая
+.Fn mincore
+, может устареть к моменту возврата из системного вызова.
+Единственный способ гарантировать, что страница находится в памяти, — заблокировать её в памяти
+с помощью системного вызова
+.Xr mlock 2 .
+.Pp
+Если для sysctl
+.Va vm.mincore_mapped
+установлено ненулевое значение (по умолчанию), проверяются только отображения страниц
+в указанном диапазоне виртуальных адресов текущего процесса.
+Это не исключает возврата системой состояний
+.Dv MINCORE_REFERENCED_OTHER
+и
+.Dv MINCORE_MODIFIED_OTHER
+.
+В противном случае, если значение sysctl равно нулю, проверяются все страницы,
+находящиеся в памяти и лежащие в основе указанного диапазона адресов,
+независимо от состояния отображения.
+.Sh ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ
+До появления
+.Dv MINCORE_PSIND()
+в
+.Fx 13.0 ,
+.Dv MINCORE_SUPER
+состоял из одного бита, равного
+.Dv MINCORE_PSIND(1) .
+В частности, приложения, скомпилированные с использованием старого значения
+.Dv MINCORE_SUPER
+, не будут определять большие страницы с индексом размера 2 как большие страницы.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std mincore
+.Sh ОШИБКИ
+Системный вызов
+.Fn mincore
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOMEM
+Диапазон виртуальных адресов, заданный аргументами
+.Fa addr
+и
+.Fa len
+, не полностью отображён.
+.It Bq Er EFAULT
+Аргумент
+.Fa vec
+указывает на недопустимый адрес.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr madvise 2 ,
+.Xr mlock 2 ,
+.Xr mprotect 2 ,
+.Xr msync 2 ,
+.Xr munmap 2 ,
+.Xr getpagesize 3 ,
+.Xr getpagesizes 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn mincore
+впервые появился в
+.Bx 4.4 .

@@ -1,0 +1,177 @@
+.\" Copyright (c) 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mkfifo.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 0ab31de40b814010728a02bcabb709567ad8604d1ce9cc7d0a75b72d6bef5e82
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt MKFIFO 2
+.Os
+.Sh ИМЯ
+.Nm mkfifo ,
+.Nm mkfifoat
+.Nd создать fifo-файл
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/stat.h
+.Ft int
+.Fn mkfifo "const char *path" "mode_t mode"
+.Ft int
+.Fn mkfifoat "int fd" "const char *path" "mode_t mode"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mkfifo
+создаёт новый fifo-файл с именем
+.Fa path .
+Права доступа определяются
+.Fa mode
+и ограничиваются
+.Xr umask 2
+вызывающего процесса.
+.Pp
+Идентификатор владельца fifo устанавливается равным действующему идентификатору пользователя процесса.
+Идентификатор группы fifo устанавливается равным идентификатору группы родительского каталога,
+в котором он создаётся.
+.Pp
+Системный вызов
+.Fn mkfifoat
+эквивалентен
+.Fn mkfifo
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае новый FIFO создаётся относительно каталога, связанного с дескриптором файла
+.Fa fd ,
+вместо текущего рабочего каталога.
+Если
+.Fn mkfifoat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог, и поведение идентично вызову
+.Fn mkfifo .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std mkfifo
+.Sh ОШИБКИ
+Системный вызов
+.Fn mkfifo
+завершится с ошибкой, и fifo не будет создан, если:
+.Bl -tag -width Er
+.It Bq Er ENOTSUP
+Ядро не было сконфигурировано для поддержки fifo.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превышает 255 символов,
+или полное имя пути превышает 1023 символа.
+.It Bq Er ENOENT
+Компонент префикса пути не существует.
+.It Bq Er EACCES
+Компонент префикса пути запрещает поиск, или запись
+запрещена в родительском каталоге создаваемого fifo.
+.It Bq Er ELOOP
+При разборе имени пути встречено слишком много символических ссылок.
+.It Bq Er EROFS
+Указанный файл будет находиться в файловой системе только для чтения.
+.It Bq Er EEXIST
+Указанный файл существует.
+.It Bq Er EPERM
+Родительский каталог указанного файла имеет установленный флаг неизменяемости, см.
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для нового fifo,
+не может быть расширен, так как на файловой системе, содержащей каталог,
+не осталось места.
+.It Bq Er ENOSPC
+На файловой системе, в которой создаётся
+fifo, нет свободных inode.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для нового fifo,
+не может быть расширен, так как квота пользователя на дисковые блоки
+на файловой системе, содержащей каталог, исчерпана.
+.It Bq Er EDQUOT
+Квота пользователя на inode на файловой системе, в которой
+создаётся fifo, исчерпана.
+.It Bq Er EIO
+Произошла ошибка
+.Tn I/O
+при создании записи каталога или распределении inode.
+.It Bq Er EINTEGRITY
+При чтении с файловой системы обнаружены повреждённые данные.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn mkfifo ,
+.Fn mkfifoat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь, а аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём, а
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr chmod 2 ,
+.Xr mknod 2 ,
+.Xr stat 2 ,
+.Xr umask 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn mkfifo
+должен соответствовать
+.St -p1003.1-90 .
+Системный вызов
+.Fn mkfifoat
+соответствует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn mkfifoat
+появился в
+.Fx 8.0 .

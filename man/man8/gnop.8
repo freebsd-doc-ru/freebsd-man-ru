@@ -1,0 +1,215 @@
+.\" Copyright (c) 2004-2006 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/nop/gnop.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d10a067059fea0c3e33c5654511c6d7ccd95b08f94eb5fe31c2adbaf51f8c4b4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 29, 2019
+.Dt GNOP 8
+.Os
+.Sh ИМЯ
+.Nm gnop
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl v
+.Op Fl c Ar count_until_fail
+.Op Fl d Ar delaymsec
+.Op Fl e Ar error
+.Op Fl o Ar offset
+.Op Fl p Ar stripesize
+.Op Fl P Ar stripeoffset
+.Op Fl q Ar rdelayprob
+.Op Fl r Ar rfailprob
+.Op Fl s Ar size
+.Op Fl S Ar secsize
+.Op Fl w Ar wfailprob
+.Op Fl x Ar wdelayprob
+.Op Fl z Ar physpath
+.Op Fl Z Ar gnopname
+.Ar dev ...
+.Nm
+.Cm configure
+.Op Fl v
+.Op Fl c Ar count_until_fail
+.Op Fl d Ar delaymsec
+.Op Fl e Ar error
+.Op Fl q Ar rdelayprob
+.Op Fl r Ar rfailprob
+.Op Fl w Ar wfailprob
+.Op Fl x Ar wdelayprob
+.Ar prov ...
+.Nm
+.Cm destroy
+.Op Fl fv
+.Ar prov ...
+.Nm
+.Cm reset
+.Op Fl v
+.Ar prov ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания прозрачных провайдеров поверх существующих.
+Её основное назначение — тестирование других классов GEOM, поскольку она
+позволяет принудительно удалять провайдеры и имитировать ошибки ввода-вывода
+с заданной вероятностью.
+Она также собирает статистику по количеству запросов чтения, записи, удаления,
+getattr, flush и других, а также по количеству прочитанных и записанных байт.
+.Nm
+также может служить хорошей отправной точкой для реализации новых классов GEOM.
+.Pp
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm create
+Создаёт прозрачный провайдер на указанных устройствах.
+Если операция завершится успешно, новый провайдер должен появиться с именем
+.Pa /dev/ Ns Ao Ar dev Ac Ns Pa .nop .
+Модуль ядра
+.Pa geom_nop.ko
+будет загружен, если он ещё не загружен.
+.It Cm configure
+Настраивает существующий прозрачный провайдер.
+В настоящее время используется только для изменения вероятности отказа.
+.It Cm destroy
+Отключает указанные прозрачные провайдеры.
+.It Cm reset
+Сбрасывает статистику для указанных прозрачных провайдеров.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl c Ar count_until_fail
+Задаёт количество запросов ввода-вывода, которые разрешено выполнить до
+установки вероятностей отказа чтения, записи и задержки.
+.It Fl d Ar delaymsec
+Задаёт задержку запросов в миллисекундах.
+Обратите внимание, что запросы задерживаются перед отправкой на нижележащее
+устройство.
+.It Fl e Ar error
+Задаёт номер ошибки, возвращаемый при сбое.
+.It Fl f
+Принудительно удалить указанный провайдер.
+.It Fl o Ar offset
+С какого места начинать на исходном провайдере.
+.It Fl p Ar stripesize
+Значение свойства stripesize прозрачного провайдера.
+.It Fl P Ar stripeoffset
+Значение свойства stripeoffset прозрачного провайдера.
+.It Fl q Ar rdelayprob
+Задаёт вероятность задержки чтения в процентах.
+.It Fl r Ar rfailprob
+Задаёт вероятность отказа чтения в процентах.
+.It Fl s Ar size
+Размер прозрачного провайдера.
+.It Fl S Ar secsize
+Размер сектора прозрачного провайдера.
+.It Fl w Ar wfailprob
+Задаёт вероятность отказа записи в процентах.
+.It Fl v
+Выводить больше информации.
+.It Fl x Ar wdelayprob
+Задаёт вероятность задержки записи в процентах.
+.It Fl z Ar physpath
+Физический путь прозрачного провайдера.
+.It Fl Z Ar gnopname
+Имя нового провайдера.
+Суффикс
+.Dq .nop
+будет добавлен к имени провайдера.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие
+.Xr sysctl 8
+переменные можно использовать для управления поведением
+.Nm NOP
+класса GEOM.
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.geom.nop.debug : No 0
+Уровень отладки
+.Nm NOP
+класса GEOM.
+Может быть установлен в число от 0 до 2 включительно.
+Если установлено 0, выводится минимальный объём отладочной информации.
+Если установлено 1, базовая отладочная информация записывается вместе с
+запросами ввода-вывода, которые были возвращены как ошибки.
+Если установлено 2, выводится максимальный объём отладочной информации,
+включая все запросы ввода-вывода.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода — 0 при успехе и 1, если команда завершается с ошибкой.
+.Sh ПРИМЕРЫ
+Следующий пример показывает, как создать прозрачный провайдер для диска
+.Pa /dev/da0
+с вероятностью отказа записи 50% и как его уничтожить.
+.Bd -literal -offset indent
+gnop create -v -w 50 da0
+gnop destroy -v da0.nop
+.Ed
+.Pp
+Статистику трафика для указанных прозрачных провайдеров можно получить
+с помощью команды
+.Cm list .
+Пример ниже показывает количество байт, записанных с помощью
+.Xr newfs 8 :
+.Bd -literal -offset indent
+gnop create da0
+newfs /dev/da0.nop
+gnop list
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr geom 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org

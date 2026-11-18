@@ -1,0 +1,252 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Gandi
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/fhlink.2
+.\" FRDP githash 650056363baddb83c61c85b0539ee536f3d4b56c
+.\" FRDP hash256 c64e2cf71b15e1487bccf3e519be38664cde5a241d95953100eef0cda8a2d25d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 30, 2022
+.Dt FHLINK 2
+.Os
+.Sh ИМЯ
+.Nm fhlink ,
+.Nm fhlinkat
+.Nd создание жёсткой ссылки на файл
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn fhlink "fhandle_t *fhp" "const char *to"
+.Ft int
+.Fn fhlinkat "fhandle_t *fhp" "int tofd" "const char *to"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn fhlink
+атомарно создаёт указанную запись каталога (жёсткую ссылку)
+.Fa to
+с атрибутами базового объекта, на который указывает
+.Fa fhp .
+При успешном создании ссылки: счётчик ссылок базового объекта
+увеличивается;
+.Fa fhp
+и
+.Fa to
+получают равный доступ и права
+к базовому объекту.
+.Pp
+Если
+.Fa fhp
+удаляется, файл
+.Fa to
+не удаляется, а счётчик ссылок
+базового объекта
+уменьшается.
+.Pp
+Объект, на который указывает аргумент
+.Fa fhp ,
+должен существовать для успешного создания жёсткой ссылки, и
+оба
+.Fa fhp
+и
+.Fa to
+должны находиться в одной файловой системе.
+Аргумент
+.Fa fhp
+не может быть каталогом.
+.Pp
+Системный вызов
+.Fn fhlinkat
+эквивалентен
+.Fa fhlink
+за исключением случая, когда
+.Fa to
+является относительным путём.
+В этом случае относительный путь
+.Fa to
+интерпретируется относительно
+каталога, связанного с дескриптором файла
+.Fa tofd ,
+а не текущего рабочего каталога.
+.Pp
+Если
+.Fn fhlinkat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa tofd ,
+для аргумента
+.Fa to
+используется текущий рабочий каталог.
+Если
+.Fa tofd
+имеет значение
+.Dv AT_FDCWD ,
+поведение идентично вызову
+.Fn link .
+Если
+.Fa flag
+не содержит флаг
+.Dv AT_SYMLINK_FOLLOW ,
+и
+.Fa fhp
+именует символическую ссылку, создаётся новая ссылка на символическую ссылку
+.Fa fhp ,
+а не на её цель.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std link
+.Sh ОШИБКИ
+Системный вызов
+.Fn fhlink
+завершится с ошибкой и ссылка не будет создана, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса
+.Fa to
+не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент
+.Fa to
+превысил 255 символов,
+или полная длина имени
+.Fa to
+превысила 1023 символа.
+.It Bq Er ENOENT
+Компонент префикса
+.Fa to
+не существует.
+.It Bq Er EOPNOTSUPP
+Файловая система, содержащая файл, на который указывает
+.Fa fhp ,
+не поддерживает ссылки.
+.It Bq Er EMLINK
+Счётчик ссылок файла, на который указывает
+.Fa fhp ,
+превысил бы 32767.
+.It Bq Er EACCES
+Компонент префикса
+.Fa to
+запрещает право поиска.
+.It Bq Er EACCES
+Запрошенная ссылка требует записи в каталог с режимом,
+запрещающим запись.
+.It Bq Er ELOOP
+При преобразовании одного из путей встретилось слишком много символических ссылок.
+.It Bq Er ENOENT
+Файл, на который указывает
+.Fa fhp ,
+не существует.
+.It Bq Er EEXIST
+Ссылка с именем
+.Fa to
+уже существует.
+.It Bq Er EPERM
+Файл, на который указывает
+.Fa fhp ,
+является каталогом.
+.It Bq Er EPERM
+Файл, на который указывает
+.Fa fhp ,
+имеет установленный флаг неизменяемости или только-дозаписи, см.
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EPERM
+Родительский каталог файла с именем
+.Fa to
+имеет установленный флаг неизменяемости.
+.It Bq Er EXDEV
+Ссылка с именем
+.Fa to
+и файл, на который указывает
+.Fa fhp ,
+находятся в разных файловых системах.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для новой ссылки,
+не может быть расширен, так как на файловой системе,
+содержащей каталог, не осталось места.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для новой ссылки,
+не может быть расширен, так как квота пользователя на дисковые блоки
+на файловой системе, содержащей каталог, исчерпана.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё
+для создания записи каталога произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EROFS
+Запрошенная ссылка требует записи в каталог на файловой системе,
+доступной только для чтения.
+.It Bq Er EFAULT
+Один из указанных путей
+находится вне выделенного адресного пространства процесса.
+.It Bq Er ESTALE
+Дескриптор файла
+.Fa fhp
+больше не действителен.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn fhlink ,
+системный вызов
+.Fn fhlinkat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fhp
+или
+.Fa to
+не задаёт абсолютный путь, а аргумент
+.Fa tofd
+не равен
+.Dv AT_FDCWD
+и не является действительным дескриптором файла, открытым для поиска.
+.It Bq Er EINVAL
+Значение аргумента
+.Fa flag
+недействительно.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa fhp
+или
+.Fa to
+не является абсолютным путём, а
+.Fa tofd
+не равен
+.Dv AT_FDCWD
+и не является дескриптором файла, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fhopen 2 ,
+.Xr fhreadlink 2 ,
+.Xr fhstat 2
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn fhlink
+и
+.Fn fhlinkat
+впервые появились в
+.Fx 12.1 .

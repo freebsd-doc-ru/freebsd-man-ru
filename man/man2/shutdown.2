@@ -1,0 +1,170 @@
+.\" Copyright (c) 2007 Bruce M. Simpson.
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/shutdown.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 ebc10397a00a4627563470a531e204bec14bd9d4edc9249005f10e234d59fb2a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 27, 2015
+.Dt SHUTDOWN 2
+.Os
+.Sh ИМЯ
+.Nm shutdown
+.Nd отключение отправки и/или приёма данных на сокете
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.Ft int
+.Fn shutdown "int s" "int how"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn shutdown
+отключает отправку или приём данных на сокете.
+Аргумент
+.Fa how
+определяет тип отключения.
+Возможные значения:
+.Bl -tag -width ".Dv SHUT_RDWR"
+.It Dv SHUT_RD
+Дальнейший приём данных будет запрещён.
+.It Dv SHUT_WR
+Дальнейшая отправка данных будет запрещена.
+Это может привести к действиям, специфичным для семейства протоколов сокета
+.Fa s
+; см.
+.Sx ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ .
+.It Dv SHUT_RDWR
+Дальнейшая отправка и приём данных будут запрещены.
+Подразумевает
+.Dv SHUT_WR .
+.El
+.Pp
+Если файловый дескриптор
+.Fa s
+связан с сокетом
+.Dv SOCK_STREAM ,
+полное или частичное дуплексное соединение будет разорвано.
+.Sh ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Следующие действия, специфичные для протокола, применяются при использовании
+.Dv SHUT_WR
+(и, возможно, также
+.Dv SHUT_RDWR ) ,
+исходя из свойств сокета, связанного с файловым дескриптором
+.Fa s .
+.Bl -column ".Dv PF_INET6" ".Dv SOCK_STREAM" ".Dv IPPROTO_SCTP"
+.It Sy Домен Ta Sy Тип Ta Sy Протокол Ta Sy Действие
+.It Dv PF_INET Ta Dv SOCK_DGRAM Ta Dv IPPROTO_SCTP Ta
+Ошибка,
+так как сокет не подключён.
+.It Dv PF_INET Ta Dv SOCK_DGRAM Ta Dv IPPROTO_UDP Ta
+Ошибка,
+так как сокет не подключён.
+.It Dv PF_INET Ta Dv SOCK_STREAM Ta Dv IPPROTO_SCTP Ta
+Отправка данных из очереди и разрыв ассоциации.
+.It Dv PF_INET Ta Dv SOCK_STREAM Ta Dv IPPROTO_TCP Ta
+Отправка данных из очереди, ожидание ACK, затем отправка FIN.
+.It Dv PF_INET6 Ta Dv SOCK_DGRAM Ta Dv IPPROTO_SCTP Ta
+Ошибка,
+так как сокет не подключён.
+.It Dv PF_INET6 Ta Dv SOCK_DGRAM Ta Dv IPPROTO_UDP Ta
+Ошибка,
+так как сокет не подключён.
+.It Dv PF_INET6 Ta Dv SOCK_STREAM Ta Dv IPPROTO_SCTP Ta
+Отправка данных из очереди и разрыв ассоциации.
+.It Dv PF_INET6 Ta Dv SOCK_STREAM Ta Dv IPPROTO_TCP Ta
+Отправка данных из очереди, ожидание ACK, затем отправка FIN.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std shutdown
+.Sh ОШИБКИ
+Системный вызов
+.Fn shutdown
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa s
+не является допустимым файловым дескриптором.
+.It Bq Er EINVAL
+Аргумент
+.Fa how
+недопустим.
+.It Bq Er ENOTCONN
+Аргумент
+.Fa s
+указывает на сокет, который не подключён.
+.It Bq Er ENOTSOCK
+Аргумент
+.Fa s
+не ссылается на сокет.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr connect 2 ,
+.Xr socket 2 ,
+.Xr inet 4 ,
+.Xr inet6 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn shutdown
+будет соответствовать
+.St -p1003.1g-2000 ,
+после его окончательного утверждения.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn shutdown
+появился в
+.Bx 4.2 .
+Константы
+.Dv SHUT_RD , SHUT_WR ,
+и
+.Dv SHUT_RDWR
+появились в
+.St -p1003.1g-2000 .
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была обновлена
+.An Bruce M. Simpson Aq Mt bms@FreeBSD.org
+чтобы отразить поведение
+.Fn shutdown
+с сокетами
+.Dv PF_INET
+и
+.Dv PF_INET6 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Сообщение ICMP
+.Dq Li "port unreachable"
+должно генерироваться в ответ на
+дейтаграммы, полученные на локальный порт, к которому
+привязан
+.Fa s
+после
+вызова
+.Fn shutdown .

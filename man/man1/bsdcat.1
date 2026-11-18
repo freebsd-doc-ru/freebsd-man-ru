@@ -1,0 +1,44 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2011-2014, Mike Kazantsev
+.\" All rights reserved.
+.\"
+.\" FRDP path ./contrib/libarchive/cat/bsdcat.1
+.\" FRDP githash bd66c1b43e33540205dbc1187c2f2a15c58b57ba
+.\" FRDP hash256 604e2e140654e602a79341244664490415719ee7cbd3d077e69b3b079142acac
+.Dd 1 марта 2014
+.Dt BSDCAT 1
+.Os
+.Sh ИМЯ
+.Nm bsdcat
+.Nd распаковывает файлы в стандартный вывод
+.Sh СИНТАКСИС
+.Nm
+.Op опции
+.Op файлы
+.Sh ОПИСАНИЕ
+.Nm
+распаковывает файлы в стандартный вывод.
+.Sh ПАРАМЕТРЫ
+.Nm
+обычно принимает имя файла в качестве аргумента или читает стандартный ввод при использовании в
+конвейере.
+В обоих случаях распакованные данные записываются в стандартный вывод.
+.Sh ПРИМЕРЫ
+Чтобы распаковать файл:
+.Pp
+.Dl bsdcat example.txt.gz > example.txt
+.Pp
+Чтобы распаковать стандартный ввод в конвейере:
+.Pp
+.Dl cat example.txt.gz | bsdcat > example.txt
+.Pp
+Оба примера достигают одинакового результата — создание распакованного файла путём перенаправления
+вывода.
+.Sh СМ. ТАКЖЕ
+.Xr bzcat 1 ,
+.Xr uncompress 1 ,
+.Xr xzcat 1 ,
+.Xr zcat 1 ,
+.Xr libarchive-formats 5

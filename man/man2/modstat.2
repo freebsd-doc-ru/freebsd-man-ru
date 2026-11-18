@@ -1,0 +1,139 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/modstat.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 2ec9996aa18732c1bae788cbe7fff54800842fda2c5e1d24d84fbd26f14616ca
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 15, 2008
+.Dt MODSTAT 2
+.Os
+.Sh ИМЯ
+.Nm modstat
+.Nd получить состояние модуля ядра
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/module.h
+.Ft int
+.Fn modstat "int modid" "struct module_stat *stat"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn modstat
+записывает информацию о модуле ядра, на который ссылается
+.Fa modid ,
+в
+.Fa stat .
+Структура
+.Va module_stat
+определена в
+.In sys/module.h
+следующим образом:
+.Bd -literal
+struct module_stat {
+	int	version;
+	char	name[MAXPATHLEN];
+	int	refs;
+	int	id;
+	union {
+		int		intval;
+		char *		stringval;
+		void *		ptr;
+	} data;
+};
+typedef struct module_stat *module_stat_t;
+.Ed
+.Pp
+Поле
+.Fa version
+должно быть установлено в размер структуры, упомянутой выше, кодом,
+вызывающим
+.Fn modstat ,
+а не самим
+.Fn modstat .
+.Pp
+.Bl -tag -width XXXaddress
+.It version
+Это поле устанавливается в размер структуры, упомянутой выше, кодом,
+вызывающим
+.Fn modstat ,
+а не самим
+.Fn modstat .
+.It name
+Имя модуля, на который ссылается
+.Fa modid .
+.It refs
+Количество модулей, на которые ссылается
+.Fa modid .
+.It id
+Идентификатор модуля, указанный в
+.Fa modid .
+.It data
+Данные, специфичные для модуля.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std modstat
+.Sh ОШИБКИ
+Информация о модуле, на который ссылается
+.Fa modid ,
+заполняется в структуру, на которую указывает
+.Fa stat ,
+если не возникла одна из следующих ошибок:
+.Bl -tag -width Er
+.It Bq Er ENOENT
+Модуль не найден (вероятно, не загружен).
+.It Bq Er EINVAL
+Версия, указанная в поле
+.Fa version
+структуры stat, не является правильной версией.
+Если возникла эта ошибка, вам потребуется пересобрать world, ядро или ваше
+приложение, при условии, что вы правильно заполнили поле
+.Fa version .
+.It Bq Er EFAULT
+Возникла проблема при копировании одного, нескольких или всех полей в
+.Fa stat
+в функции
+.Xr copyout 9 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

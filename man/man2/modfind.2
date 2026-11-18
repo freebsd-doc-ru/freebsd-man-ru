@@ -1,0 +1,87 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/modfind.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 5c492a0b2dd5929ab282fe19a73e7a7c0fc8aa13ae081e86faf390801e126743
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 28, 2000
+.Dt MODFIND 2
+.Os
+.Sh ИМЯ
+.Nm modfind
+.Nd возвращает modid модуля ядра
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/module.h
+.Ft int
+.Fn modfind "const char *modname"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn modfind
+возвращает modid модуля ядра, на который ссылается
+.Fa modname .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn modfind
+возвращает modid модуля ядра, на который ссылается
+.Fa modname .
+В случае ошибки
+.Fn modfind
+возвращает -1 и устанавливает
+.Va errno
+для указания ошибки.
+.Sh ОШИБКИ
+.Va errno
+устанавливается в одно из следующих значений, если
+.Fn modfind
+завершается неудачно:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Данные, необходимые для этой операции, не могут быть прочитаны из пространства ядра.
+.It Bq Er ENOENT
+Указанный файл не загружен в ядро.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

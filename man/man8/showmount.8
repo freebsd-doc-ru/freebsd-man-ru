@@ -1,0 +1,107 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Rick Macklem at The University of Guelph.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/showmount/showmount.8
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 16687ce36766fed22493276cc18627b5b4beb4251650973ddd82816757894af3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 20, 2016
+.Dt SHOWMOUNT 8
+.Os
+.Sh ИМЯ
+.Nm showmount
+.Nd показать удалённые монтирования NFS на хосте
+.Sh СИНТАКСИС
+.Nm
+.Op Fl a | d
+.Op Fl E
+.Op Fl e
+.Op Fl 1
+.Op Fl 3
+.Op Ar хост
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+показывает информацию о состоянии сервера
+.Tn NFS
+на
+.Ar хосте .
+По умолчанию она выводит имена всех хостов, которые смонтировали
+файловые системы
+.Tn NFS
+на этом хосте.
+Подробное описание протокола см. в
+RFC 1094,
+Приложение A,
+и
+Приложение I.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a , Fl -all
+Вывести все точки монтирования в виде:
+.Bd -ragged -offset indent -compact
+.Ar хост : Ns Ar путь_каталога .
+.Ed
+.It Fl d , Fl -directories
+Вывести пути каталогов точек монтирования вместо хостов.
+.It Fl E , Fl -exports-script
+Показать список экспорта
+.Ar хост Ns а
+в формате, удобном для скриптов.
+Адреса клиентов и заголовок не показываются, а специальные
+символы экранируются.
+.It Fl e , Fl -exports
+Показать список экспорта
+.Ar хост Ns а.
+.It Fl 1
+Использовать протокол монтирования версии 1, совместимый с устаревшими серверами.
+.It Fl 3
+Игнорируется для обратной совместимости.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mount 8 ,
+.Xr mount_nfs 8 ,
+.Xr mountd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Демон монтирования, работающий на сервере, имеет лишь приблизительное представление
+о фактических монтированиях, поскольку сервер
+.Tn NFS
+не сохраняет состояние.
+Утилита
+.Nm
+отобразит информацию лишь настолько точно,
+насколько её сообщает демон монтирования.

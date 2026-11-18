@@ -1,0 +1,252 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibroute.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 4cda4ebd18e1e55942f75fb828ccfef9bc45e75da2f9df0717cd085a17182a4c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBROUTE \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ЗАПРОС ТАБЛИЦ ПЕРЕСЫЛКИ КОММУТАТОРА INFINIBAND
+.SS СИНТАКСИС
+.sp
+ibroute [options] [<dest dr_path|lid|guid> [<startlid> [<endlid>]]]
+.SS ОПИСАНИЕ
+.sp
+ibroute использует SMP для отображения таблиц пересылки (одноадресных
+(LinearForwardingTable или LFT) или многоадресных (MulticastForwardingTable или MFT))
+для указанного LID коммутатора и необязательного диапазона lid (mlid).
+Диапазон по умолчанию — все допустимые записи в диапазоне 1...FDBTop.
+.SS ОПЦИИ
+.INDENT 0.0
+.TP
+.B \fB\-a, \-\-all\fP
+показать все LID в диапазоне, даже недопустимые записи
+.TP
+.B \fB\-n, \-\-no_dests\fP
+не пытаться разрешать адреса назначения
+.TP
+.B \fB\-M, \-\-Multicast\fP
+показать таблицы многоадресной пересылки
+В этом случае параметры диапазона задают диапазон mlid.
+.UNINDENT
+.SS Флаги адресации
+.
+.sp
+\fB\-D, \-\-Direct\fP     Указанный адрес — это направленный маршрут
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Примеры:
+
+   (Обратите внимание, что второе число в указанном пути должно соответствовать используемому порту.
+   Это можно указать с помощью флага выбора порта \(aq\-P\(aq или порта,
+   найденного в процессе автоматического выбора.)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес — это Port GUID
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес — это LID
+.
+.sp
+\fB\-s, \-\-sm_port <smlid>\fP     использовать \(aqsmlid\(aq в качестве целевого lid для запросов SA.
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если не указано устройство или порт IB,
+выбор используемого порта происходит по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, который находится в состоянии ACTIVE.
+.IP 2. 3
+если не найден, первый порт, который находится в состоянии UP (физическое соединение установлено).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершится ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий #1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги отладки
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Может использоваться несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и получения (тайм-ауты и другие)
+.UNINDENT
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+увеличить уровень подробности вывода приложения.
+Может использоваться несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать информацию о версии.
+.SS Флаги конфигурации
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрашиваемых mads.
+.
+.INDENT 0.0
+.TP
+.B \fB\-y, \-\-m_key <key>\fP
+использовать указанный M_key для запросов. Если указано нечисловое значение (например, \(aqx\(aq),
+будет запрошено значение.
+.UNINDENT
+.
+.sp
+\fB\-\-node\-name\-map <node\-name\-map>\fP Указать карту имен узлов.
+.INDENT 0.0
+.INDENT 3.5
+Этот файл сопоставляет GUID более удобным для пользователя именам. См. раздел ФАЙЛЫ.
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.SS ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для установки некоторых общих параметров для всех
+инструментов. Подробности см. в прилагаемом файле конфигурации.
+.
+.SS ФОРМАТ ФАЙЛА СОПОСТАВЛЕНИЯ ИМЕН УЗЛОВ
+.sp
+Карта имен узлов используется для указания удобных для пользователя имен узлов в
+выводе. Для поиска используются GUID.
+.sp
+Эта функциональность предоставляется пакетом opensm\-libs. См. \fBopensm(8)\fP
+для местоположения файла в вашей установке.
+.sp
+\fBОбщий формат:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# комментарий
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBПример:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# IB1
+# Линейные карты
+
+# Коммутаторы
+
+# GUID   Имя узла
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS ПРИМЕРЫ
+.sp
+Примеры Unicast
+.INDENT 0.0
+.TP
+.B ::
+ibroute 4               # вывести все LID с допустимыми выходными портами коммутатора с LID 4
+ibroute \-a 4            # то же, но вывести все LID, даже с недопустимыми выходными портами
+ibroute \-n 4            # простой формат вывода \- без разрешения адреса назначения
+ibroute 4 10            # вывести LID начиная с 10 (до FDBTop)
+ibroute 4 0x10 0x20     # вывести диапазон LID
+ibroute \-G 0x08f1040023 # определить коммутатор по GUID
+ibroute \-D 0,1          # определить коммутатор по прямому пути
+.UNINDENT
+.sp
+Примеры Multicast
+.INDENT 0.0
+.TP
+.B ::
+ibroute \-M 4                # вывести все непустые mlid коммутатора с lid 4
+ibroute \-M 4 0xc010 0xc020  # то же, но с диапазоном
+ibroute \-M \-n 4             # простой формат вывода
+.UNINDENT
+.SS СМ. ТАКЖЕ
+.sp
+ibtracert (8)
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

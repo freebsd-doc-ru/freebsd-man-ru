@@ -1,0 +1,147 @@
+.\" $NetBSD: usbhidctl.1,v 1.8 1999/05/11 21:03:58 augustss Exp $
+.\"
+.\" Copyright (c) 1998 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Lennart Augustsson.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path ./usr.bin/usbhidctl/usbhidctl.1
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 065c24dba83e69d46ae1c8ebfc5302caab636b5b523afc2cb0e56de0154c1981
+.Dd 1 августа 2011
+.Dt USBHIDCTL 1
+.Os
+.Sh ИМЯ
+.Nm usbhidctl
+.Nd управление USB HID устройствами
+.Sh СИНТАКСИС
+.Nm
+.Fl f Ar устройство
+.Op Fl t Ar таблица
+.Op Fl v
+.Op Fl x
+.Fl r
+.Nm
+.Fl f Ar устройство
+.Op Fl t Ar таблица
+.Op Fl l
+.Op Fl v
+.Op Fl x
+.Op Fl z
+.Fl a
+.Nm
+.Fl f Ar устройство
+.Op Fl t Ar таблица
+.Op Fl l
+.Op Fl n
+.Op Fl v
+.Op Fl x
+.Op Fl z
+.Ar элемент ...
+.Nm
+.Fl f Ar устройство
+.Op Fl t Ar таблица
+.Op Fl v
+.Op Fl z
+.Fl w
+.Ar элемент=значение ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для вывода и изменения состояния USB HID устройства (Human Interface Device).
+Каждый указанный
+.Ar элемент
+выводится на печать.
+Если указан флаг
+.Fl w ,
+.Nm
+пытается установить указанные элементы в заданные значения.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl a
+Показать все элементы и их текущие значения, если устройство отвечает.
+.It Fl f Ar устройство
+Указать путь к устройству, с которым производится работа.
+.It Fl l
+Циклически выводить данные устройства каждый раз при их изменении.
+.It Fl n
+Не выводить имя элемента.
+.It Fl r
+Вывести дескриптор отчёта.
+.It Fl t Ar таблица
+Указать путь к файлу таблицы использований HID.
+.It Fl v
+Подробный вывод.
+.It Fl w
+Изменять значения элементов.
+Только элементы вида 'output' и 'feature' могут быть установлены с помощью этой опции.
+.It Fl x
+Выводить данные в шестнадцатеричном, а также в десятичном виде.
+.It Fl z
+Сбросить отчёты в ноль перед обработкой других аргументов.
+Если не указано, текущие значения будут запрошены у устройства.
+.El
+.Sh СИНТАКСИС
+.Nm
+сравнивает имена элементов, указанных в командной строке, с элементами интерфейса пользователя, о которых сообщает USB-устройство.
+Каждый элемент интерфейса пользователя преобразуется из его собственной формы в удобочитаемое имя с использованием файла таблицы использований HID.
+Элементы командной строки сравниваются с сгенерированными именами элементов, и операция выполняется над USB HID устройством при обнаружении совпадения.
+.Pp
+Каждый элемент интерфейса пользователя именуется по
+.Qq странице,
+на которой он появляется,
+.Qq использованию
+в пределах этой страницы и списку
+.Qq коллекций,
+содержащих элемент.
+Каждая коллекция, в свою очередь, также идентифицируется страницей и использованием в пределах этой страницы.
+.Pp
+В командной строке
+.Nm
+имя страницы отделяется от имени использования символом
+.Sq Cm \&: .
+Коллекции разделяются символом
+.Sq Cm \&. .
+.Pp
+Некоторые устройства присваивают одно и то же имя более чем одному элементу.
+.Nm
+поддерживает изоляцию каждого элемента путём добавления символа
+.Sq Cm \&# .
+и десятичного номера экземпляра элемента, начиная с нуля.
+.Sh ФАЙЛЫ
+.Bl -tag -width 30n
+.It Pa /usr/share/misc/usb_hid_usages
+Таблица использований HID по умолчанию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr usbhid 3 ,
+.Xr uhid 4 ,
+.Xr usb 4
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Nx 1.4 .

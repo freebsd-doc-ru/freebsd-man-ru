@@ -1,0 +1,268 @@
+.\"	$NetBSD: fsdb.8,v 1.2 1995/10/08 23:18:08 thorpej Exp $
+.\"
+.\" Copyright (c) 1995 John T. Kohl
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/fsdb/fsdb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 21ecd76b7e76eb753618247ab3037a130166242a499f9248761ef7eb32526d0f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 3, 2016
+.Dt FSDB 8
+.Os
+.Sh ИМЯ
+.Nm fsdb
+.Nd Инструмент отладки и редактирования FFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl f
+.Op Fl r
+.Ar fsname
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+открывает
+.Ar fsname
+(обычно необработанный дисковый раздел) и запускает цикл команд,
+позволяющий манипулировать данными индексных дескрипторов файловой системы.
+Вам предлагается
+ввести команду, где
+.Va X
+— текущий выбранный i-номер.
+Начальный выбранный индексный дескриптор — это
+корень файловой системы (i-номер 2).
+Процессор команд использует
+.Xr editline 3
+библиотеку, поэтому при желании можно использовать редактирование командной строки, чтобы меньше печатать.
+При выходе из цикла команд суперблок файловой системы помечается
+как грязный, и все буферизованные блоки записываются в файловую систему.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Включить дополнительный отладочный вывод (который в основном происходит из кода, производного от
+.Xr fsck 8 Ns -derived).
+.It Fl f
+Оставлен по историческим причинам и не имеет значения.
+.It Fl r
+Открыть файловую систему только для чтения и отключить все команды, которые могли бы
+записывать в неё.
+.El
+.Sh КОМАНДЫ
+Помимо встроенных команд
+.Xr editline 3 ,
+.Nm
+поддерживает следующие команды:
+.Pp
+.Bl -tag -width indent -compact
+.It Cm help
+Вывести список принимаемых команд.
+.Pp
+.It Cm inode Ar i-number
+Выбрать индексный дескриптор
+.Ar i-number
+в качестве нового текущего индексного дескриптора.
+.Pp
+.It Cm back
+Вернуться к предыдущему текущему индексному дескриптору.
+.Pp
+.It Cm clri Ar i-number
+Очистить
+.Ar i-number .
+.Pp
+.It Cm lookup Ar имя
+.It Cm cd Ar имя
+Найти
+.Ar имя
+в текущем каталоге и сделать его индексный дескриптор текущим.
+.Ar Имя
+может быть составным именем или может начинаться с косой черты, чтобы указать, что
+поиск следует начинать с корневого индексного дескриптора.
+Если какой-либо компонент
+пути не найден, последний допустимый обнаруженный каталог
+остаётся активным индексным дескриптором.
+Эта команда допустима, только если начальный индексный дескриптор является каталогом.
+.Pp
+.It Cm active
+.It Cm print
+Вывести активный индексный дескриптор.
+.Pp
+.It Cm blocks
+Вывести список блоков активного индексного дескриптора.
+Учтите, что для больших файлов вывод может стать длинным, поскольку также
+будут выведены все указатели на косвенные блоки.
+.Pp
+.It Cm findblk Ar disk_block_number ...
+Найти индексный(е) дескриптор(ы), владеющий(е) указанным(и) номером(ами) дискового(ых) блока(ов).
+Учтите, что это не абсолютные номера дисковых блоков, а смещения от
+начала раздела.
+.Pp
+.It Cm uplink
+Увеличить число ссылок активного индексного дескриптора.
+.Pp
+.It Cm downlink
+Уменьшить число ссылок активного индексного дескриптора.
+.Pp
+.It Cm linkcount Ar число
+Установить число ссылок активного индексного дескриптора в
+.Ar число .
+.Pp
+.It Cm ls
+Вывести записи каталога текущего индексного дескриптора.
+Эта команда допустима, только
+если текущий индексный дескриптор является каталогом.
+.Pp
+.It Cm rm Ar имя
+.It Cm del Ar имя
+Удалить запись
+.Ar имя
+из текущего индексного дескриптора каталога.
+Эта команда допустима, только
+если текущий индексный дескриптор является каталогом.
+.Pp
+.It Cm ln Ar ino Ar имя
+Создать ссылку на индексный дескриптор
+.Ar ino
+под именем
+.Ar имя
+в текущем индексном дескрипторе каталога.
+Эта команда допустима, только
+если текущий индексный дескриптор является каталогом.
+.Pp
+.It Cm chinum Ar dirslot Ar inum
+Изменить i-номер в записи каталога
+.Ar dirslot
+на
+.Ar inum .
+.Pp
+.It Cm chname Ar dirslot Ar имя
+Изменить имя в записи каталога
+.Ar dirslot
+на
+.Ar имя .
+Эта команда не может расширить запись каталога.
+Переименовать запись можно, только
+если имя поместится в существующий слот каталога.
+.Pp
+.It Cm chtype Ar тип
+Изменить тип текущего индексного дескриптора на
+.Ar тип .
+.Ar Тип
+может быть одним из:
+.Em file ,
+.Em dir ,
+.Em socket ,
+или
+.Em fifo .
+.Pp
+.It Cm chmod Ar режим
+Изменить биты режима текущего индексного дескриптора на
+.Ar режим .
+С помощью этой подкоманды нельзя изменить тип файла; для этого используйте
+.Ic chtype .
+.Pp
+.It Cm chflags Ar флаги
+Изменить флаги файла текущего индексного дескриптора на
+.Ar флаги .
+.Pp
+.It Cm chown Ar uid
+Изменить владельца текущего индексного дескриптора на
+.Ar uid .
+.Pp
+.It Cm chgrp Ar gid
+Изменить группу текущего индексного дескриптора на
+.Ar gid .
+.Pp
+.It Cm chgen Ar gen
+Изменить номер генерации текущего индексного дескриптора на
+.Ar gen .
+.Pp
+.It Cm btime Ar время
+.It Cm mtime Ar время
+.It Cm ctime Ar время
+.It Cm atime Ar время
+Изменить время создания (рождения), модификации, изменения или доступа
+(соответственно) текущего индексного дескриптора на
+.Ar время .
+.Ar Время
+должно быть в формате
+.Em YYYYMMDDHHMMSS[.nsec]
+где
+.Em nsec
+— необязательная спецификация наносекунд.
+Если наносекунды не указаны, поле
+.Va birthnsec ,
+.Va mtimensec ,
+.Va ctimensec
+или
+.Va atimensec
+будет установлено в ноль.
+Учтите, что
+.Cm btime
+доступна только в файловых системах UFS2.
+.Pp
+.It Cm quit , q , exit , Em <EOF>
+Выйти из программы.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr editline 3 ,
+.Xr fs 5 ,
+.Xr clri 8 ,
+.Xr fsck 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.3 Tahoe .
+Она использовала исходный код
+.Xr fsck 8
+для реализации большей части кода манипулирования файловой системой.
+Остальная часть
+.Nm
+появилась в
+.Nx 1.1 ,
+написана
+.An John T. Kohl .
+Впервые появилась в
+.Fx 2.1.5 ,
+портирована Peter Wemm.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Манипулирование «короткими» символическими ссылками не даёт эффекта.
+В частности, не следует
+пытаться изменить тип символической ссылки.
+.Pp
+Режимы необходимо указывать числами, а не символьными именами.
+.Pp
+Есть ещё много вещей, которые вы, возможно, захотите сделать, но которые
+.Nm
+не реализует.
+.Sh ПРЕДУПРЕЖДЕНИЕ
+Используйте этот инструмент с особой осторожностью — вы можете повредить файловую систему FFS
+настолько, что
+.Xr fsck 8
+не сможет её восстановить.

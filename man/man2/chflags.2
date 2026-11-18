@@ -1,0 +1,289 @@
+.\" Copyright (c) 1989, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/chflags.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 185e8880ab41948c8d47171851fa051fcfa874e080add9eda95b5b0113720f3e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2021
+.Dt CHFLAGS 2
+.Os
+.Sh ИМЯ
+.Nm chflags ,
+.Nm lchflags ,
+.Nm fchflags ,
+.Nm chflagsat
+.Nd установить флаги файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/stat.h
+.In unistd.h
+.Ft int
+.Fn chflags "const char *path" "unsigned long flags"
+.Ft int
+.Fn lchflags "const char *path" "unsigned long flags"
+.Ft int
+.Fn fchflags "int fd" "unsigned long flags"
+.Ft int
+.Fn chflagsat "int fd" "const char *path" "unsigned long flags" "int atflag"
+.Sh ОПИСАНИЕ
+Файлу, имя которого задано в
+.Fa path
+или на который ссылается дескриптор
+.Fa fd ,
+устанавливаются флаги
+.Fa flags .
+.Pp
+Системный вызов
+.Fn lchflags
+действует так же, как
+.Fn chflags ,
+за исключением случая, когда именованный файл является символьной ссылкой;
+в этом случае
+.Fn lchflags
+изменит флаги самой ссылки, а не файла, на который она указывает.
+.Pp
+Вызов
+.Fn chflagsat
+эквивалентен
+.Fn chflags
+или
+.Fn fchflags
+в зависимости от
+.Fa atflag ,
+за исключением случая, когда
+.Fa path
+задаёт относительный путь.
+В этом случае изменяемый файл определяется относительно каталога,
+связанного с дескриптором файла
+.Fa fd ,
+а не текущего рабочего каталога.
+Значения для
+.Fa atflag
+формируются побитовым включающим ИЛИ флагов из следующего списка,
+определённых в
+.In fcntl.h :
+.Bl -tag -width indent
+.It Dv AT_SYMLINK_NOFOLLOW
+Если
+.Fa path
+указывает на символьную ссылку, изменить флаги самой символьной ссылки.
+.It Dv AT_RESOLVE_BENEATH
+Если
+.Fa path
+является абсолютным или относительным путём, который пытается выйти за пределы
+каталога, связанного с дескриптором файла
+.Fa fd ,
+завершиться с ошибкой
+.Er EINVAL .
+.El
+.Pp
+Если
+.Fn chflagsat
+передано специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd ,
+используется текущий рабочий каталог.
+Если также
+.Fa atflag
+равен нулю, поведение идентично вызову
+.Fn chflags .
+.Pp
+Указанные флаги формируются с помощью
+.Em or Ns 'ing
+следующих значений
+.Pp
+.Bl -tag -width indent
+.It Dv SF_APPEND
+В файл можно только дописывать.
+.It Dv SF_ARCHIVED
+Файл был архивирован.
+Этот флаг означает противоположное атрибуту FILE_ATTRIBUTE_ARCHIVE
+в DOS, Windows и CIFS.
+Этот флаг устарел и может быть удалён в будущем выпуске.
+.It Dv SF_IMMUTABLE
+Файл нельзя изменять.
+.It Dv SF_NOUNLINK
+Файл нельзя переименовать или удалить.
+.It Dv SF_SNAPSHOT
+Файл является файлом снимка.
+.It Dv UF_APPEND
+В файл можно только дописывать.
+.It Dv UF_ARCHIVE
+Файл нужно архивировать.
+Этот флаг имеет то же значение, что и атрибут FILE_ATTRIBUTE_ARCHIVE
+в DOS, Windows и CIFS.
+Файловые системы во FreeBSD могут иметь или не иметь специальной обработки этого флага.
+Например, ZFS отслеживает изменения файлов и устанавливает этот бит при
+обновлении файла.
+UFS только хранит флаг и полагается на приложение, которое должно изменить его при
+необходимости.
+.It Dv UF_HIDDEN
+Файл может быть скрыт из списков каталога по усмотрению приложения.
+Файл имеет атрибут FILE_ATTRIBUTE_HIDDEN в DOS, Windows и CIFS.
+.It Dv UF_IMMUTABLE
+Файл нельзя изменять.
+.It Dv UF_NODUMP
+Не включать файл в дамп.
+.It Dv UF_NOUNLINK
+Файл нельзя переименовать или удалить.
+.It Dv UF_OFFLINE
+Файл находится в автономном режиме (offline) или имеет атрибут
+FILE_ATTRIBUTE_OFFLINE в Windows и CIFS.
+Файловые системы во FreeBSD хранят и отображают этот флаг, но не выполняют
+специальной обработки, когда он установлен.
+.It Dv UF_OPAQUE
+Каталог является непрозрачным при просмотре через объединённый стек (union stack).
+.It Dv UF_READONLY
+Файл доступен только для чтения; в него нельзя записывать или дописывать.
+Файловые системы могут использовать этот флаг для совместимости с атрибутом
+FILE_ATTRIBUTE_READONLY в DOS, Windows и CIFS.
+.It Dv UF_REPARSE
+Файл содержит точку повторной обработки Windows (reparse point) и имеет атрибут
+FILE_ATTRIBUTE_REPARSE_POINT в Windows и CIFS.
+.It Dv UF_SPARSE
+Файл имеет атрибут FILE_ATTRIBUTE_SPARSE_FILE в Windows.
+Файловая система также может использовать его для указания на разрежённый файл.
+.It Dv UF_SYSTEM
+Файл имеет атрибут FILE_ATTRIBUTE_SYSTEM в DOS, Windows и CIFS.
+Файловые системы во FreeBSD могут хранить и отображать этот флаг, но не выполняют
+специальной обработки, когда он установлен.
+.El
+.Pp
+Если установлен один из
+.Dv SF_IMMUTABLE , SF_APPEND ,
+или
+.Dv SF_NOUNLINK
+пользователь, не являющийся суперпользователем, не может изменять никакие флаги,
+и даже суперпользователь может изменять флаги, только если securelevel равен 0.
+(Подробности см. в
+.Xr init 8 .)
+.Pp
+Флаги
+.Dv UF_IMMUTABLE , UF_APPEND , UF_NOUNLINK , UF_NODUMP ,
+и
+.Dv UF_OPAQUE
+могут устанавливаться или сниматься владельцем файла или суперпользователем.
+.Pp
+Флаги
+.Dv SF_IMMUTABLE , SF_APPEND , SF_NOUNLINK ,
+и
+.Dv SF_ARCHIVED
+могут устанавливаться или сниматься только суперпользователем.
+Попытки переключить эти флаги пользователями, не являющимися суперпользователями,
+отклоняются.
+Эти флаги могут быть установлены в любое время, но обычно могут быть сняты только
+когда система находится в однопользовательском режиме.
+(Подробности см. в
+.Xr init 8 .)
+.Pp
+Реализация всех флагов зависит от файловой системы.
+См. описание флага
+.Dv UF_ARCHIVE
+выше как пример различий в поведении.
+При написании приложений следует учитывать наличие или отсутствие поддержки
+этих флагов в различных файловых системах.
+.Pp
+Флаг
+.Dv SF_SNAPSHOT
+поддерживается системой, и его нельзя переключить.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системный вызов
+.Fn chflags
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил
+.Dv NAME_MAX
+символов, или полное имя пути превысило
+.Dv PATH_MAX
+символов.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути.
+.It Bq Er ELOOP
+При преобразовании имени пути встретилось слишком много символьных ссылок.
+.It Bq Er EPERM
+Эффективный идентификатор пользователя не совпадает с владельцем файла и
+эффективный идентификатор пользователя не является суперпользователем.
+.It Bq Er EROFS
+Указанный файл находится в файловой системе, доступной только для чтения.
+.It Bq Er EFAULT
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Pp
+Системный вызов
+.Fn fchflags
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Дескриптор недействителен.
+.It Bq Er EINVAL
+Аргумент
+.Fa fd
+ссылается на сокет, а не на файл.
+.It Bq Er EROFS
+Файл находится в файловой системе, доступной только для чтения.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 1 ,
+.Xr fflagstostr 3 ,
+.Xr strtofflags 3 ,
+.Xr init 8 ,
+.Xr mount_unionfs 8
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn chflags
+и
+.Fn lchflags
+впервые появились в
+.Bx 4.4 .
+Системный вызов
+.Fn fchflags
+впервые появился в
+.Fx 5.0 .
+Системный вызов
+.Fn chflagsat
+впервые появился в
+.Fx 10.0 .

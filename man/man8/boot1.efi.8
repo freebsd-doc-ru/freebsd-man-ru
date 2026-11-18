@@ -1,0 +1,109 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2020 Netflix, Inc
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/man/boot1.efi.8
+.\" FRDP githash a37825313f624121c6f07bc03f9cf655c300885b
+.\" FRDP hash256 ac1bc3334d9115465136baf7d6125bc56ec13cbe841253ce5fa1e04e9ed39f2a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 6, 2021
+.Dt BOOT1.EFI 8
+.Os
+.Sh ИМЯ
+.Nm boot1.efi
+.Nd цепной загрузчик UEFI
+.Sh ОПИСАНИЕ
+.Nm
+был объявлен устаревшим и будет удалён в одном из будущих выпусков.
+.Xr loader.efi 8
+обрабатывает все его прежние варианты использования с большей гибкостью.
+.Pp
+На системах UEFI
+.Nm
+загружает
+.Pa /boot/loader.efi
+из корневой файловой системы по умолчанию и передаёт управление туда.
+Некоторым системам может потребоваться использовать
+.Xr gptboot.efi 8
+когда
+.Xr loader.efi 8
+не может использоваться напрямую на ESP (системном разделе EFI).
+.Ss Инициализация
+Перед поиском загрузочного устройства
+.Nm
+выполняет следующую инициализацию
+.Bl -bullet
+.It
+Настраивает консоль с использованием стандартных процедур консоли UEFI.
+.It
+Обнаруживает все возможные блочные устройства в системе.
+.It
+Инициализирует все модули файловых систем для чтения файлов с этих устройств
+.El
+.Ss Выбор загрузочного устройства
+.Nm
+использует следующую последовательность для определения корневой файловой системы для загрузки:
+.Bl -bullet
+.It
+Если ZFS настроена,
+.Nm
+будет искать загрузочные zpool-пулы, отдавая предпочтение zpool на загрузочном устройстве перед остальными.
+.It
+Если UFS настроена,
+.Nm
+будет искать во всех разделах UFS загрузочный раздел.
+Он предпочтёт загрузочный раздел с наименьшим номером на загрузочном устройстве всем остальным вариантам.
+Если ни один не найден, он переключится на разделы на других устройствах.
+.El
+.Pp
+Раздел считается загрузочным, если из него можно загрузить
+.Pa /boot/loader.efi
+.
+Аргументы командной строки для следующего этапа загрузки
+читаются из первого существующего файла
+.Pa /boot.config
+или
+.Pa /boot/config
+в указанном порядке.
+.Ss Предостережения
+.Bl -bullet
+.It
+Порядок, в котором перебираются файловые системы, не определён.
+.It
+Поддержка шифрования недоступна.
+.It
+Нет способа прервать процесс загрузки, чтобы выбрать загрузку из какого-либо другого места.
+.It
+Если последовательная консоль настроена для FreeBSD, но не для UEFI, boot1.efi не будет выводить ничего на последовательную консоль.
+.It
+Нет поддержки пометки разделов как предпочтительных.
+См.
+.Xr gptboot.efi 8 .
+.It
+Нет поддержки функциональности однократной загрузки.
+См.
+.Xr gptboot.efi 8 .
+.El

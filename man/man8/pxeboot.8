@@ -1,0 +1,152 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1999 Doug White
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/i386/pxeldr/pxeboot.8
+.\" FRDP githash 89c2d3380aacf83c3523f4a45aa58cb5b50424e4
+.\" FRDP hash256 d64a9c07493a9c9e53c7e56ab6a6e754c0d436edc1bea55757cddd4163111a51
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 15, 2021
+.Dt PXEBOOT 8
+.Os
+.Sh ИМЯ
+.Nm pxeboot
+.Nd Загрузчик Preboot Execution Environment (PXE)
+.Sh ОПИСАНИЕ
+Загрузчик
+.Nm
+представляет собой изменённую версию системного загрузчика третьей ступени
+.Xr loader 8 ,
+настроенного для работы в системе Preboot Execution Environment (PXE) компании Intel.
+PXE — это разновидность интеллектуальной загрузочной микросхемы ПЗУ (boot ROM), встроенной в
+Ethernet-карты Intel EtherExpress Pro/100 и 3Com 3c905c, а также в материнские платы Intel
+со встроенным Ethernet.
+PXE поддерживает настройку через DHCP и предоставляет службы низкоуровневого доступа к NIC.
+.Pp
+Клиент DHCP установит класс пользователя DHCP с именем
+.Va FreeBSD ,
+чтобы обеспечить гибкую настройку сервера DHCP.
+.Pp
+Загрузчик
+.Nm
+получает ядро, модули и другие файлы либо через NFS поверх UDP, либо посредством TFTP;
+выбор способа осуществляется опциями времени компиляции.
+В сочетании с образом файловой системы в памяти или корневой файловой системой,
+смонтированной по NFS,
+.Nm
+позволяет легко, без программатора EEPROM, создавать бездисковые машины.
+.Pp
+Двоичный файл
+.Nm
+загружается так же, как любой другой загрузочный файл,
+путём указания его в файле конфигурации сервера DHCP.
+Ниже приведён пример конфигурации для сервера ISC DHCP v3:
+.Bd -literal -offset indent
+option routers 10.0.0.1;
+option subnet-mask 255.255.255.0;
+option broadcast-address 10.0.0.255;
+option domain-name-servers 10.0.0.1;
+server-identifier 10.0.0.1;
+next-server 10.0.0.1;
+
+default-lease-time 120;
+max-lease-time 120;
+
+subnet 10.0.0.0 netmask 255.255.255.0 {
+       range 10.0.0.10 10.0.0.254;
+       }
+}
+
+.Ed
+.Va next-server
+— это IP-адрес следующего сервера в процессе загрузки, то есть
+вашего TFTP-сервера или NFS-сервера.
+.Nm
+распознаёт
+.Va option root-path
+как сервер и путь для монтирования NFS для файловых запросов соответственно
+либо как сервер, к которому следует направлять TFTP-запросы.
+Обратите внимание, что
+.Nm
+ожидает получить
+.Pa /boot/loader.rc
+с указанного сервера перед загрузкой любых других файлов.
+.Pp
+Допустимый синтаксис
+.Va option root-path
+следующий
+.Bl -tag -width <scheme>://ip/path
+.It /path
+путь к корневой файловой системе на NFS-сервере
+.It ip://path
+путь к корневой файловой системе на NFS-сервере
+.Ar ip
+.It nfs://path
+путь к корневой файловой системе на NFS-сервере
+.It nfs://ip/path
+путь к корневой файловой системе на NFS-сервере
+.Ar ip
+.It tftp://path
+путь к корневой файловой системе на TFTP-сервере
+.It tftp://ip/path
+путь к корневой файловой системе на TFTP-сервере
+.Ar ip
+.El
+.Pp
+.Nm
+по умолчанию использует консервативный размер пакета данных NFS 1024 байта.
+Это можно изменить, установив переменную
+.Va nfs.read_size
+в
+.Pa /boot/loader.conf .
+Допустимые значения находятся в диапазоне от 1024 до 16384 байт.
+.Pp
+Во всех остальных отношениях
+.Nm
+действует так же, как
+.Xr loader 8 .
+.Pp
+Дополнительную информацию о спецификациях PXE компании Intel и системах Wired for
+Management (WfM) см.
+.Li http://www.pix.net/software/pxeboot/archive/pxespec.pdf .
+.Sh СМ. ТАКЖЕ
+.Xr loader 8
+.Sh ИСТОРИЯ
+Загрузчик
+.Nm
+впервые появился в
+.Fx 4.1 .
+.Sh АВТОРЫ
+.An -nosplit
+Загрузчик
+.Nm
+был написан
+.An John Baldwin Aq Mt jhb@FreeBSD.org
+и
+.An Paul Saab Aq Mt ps@FreeBSD.org .
+Эта страница руководства была написана
+.An Doug White Aq Mt dwhite@FreeBSD.org .

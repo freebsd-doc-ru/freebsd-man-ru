@@ -1,0 +1,97 @@
+.\" Copyright (c) 2000
+.\"      Sheldon Hearn.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES
+.\"
+.\" FRDP path lib/libsys/setresuid.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 9fd0c3179fb20a170f5b03e0a100c9c7151c65504a88843b2ece8197e8d0baba
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 7, 2015
+.Dt SETRESUID 2
+.Os
+.Sh NAME
+.Nm getresgid ,
+.Nm getresuid ,
+.Nm setresgid ,
+.Nm setresuid
+.Nd "получить или установить реальный, эффективный и сохранённый идентификатор пользователя или группы"
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In unistd.h
+.Ft int
+.Fn getresgid "gid_t *rgid" "gid_t *egid" "gid_t *sgid"
+.Ft int
+.Fn getresuid "uid_t *ruid" "uid_t *euid" "uid_t *suid"
+.Ft int
+.Fn setresgid "gid_t rgid" "gid_t egid" "gid_t sgid"
+.Ft int
+.Fn setresuid "uid_t ruid" "uid_t euid" "uid_t suid"
+.Sh DESCRIPTION
+Системный вызов
+.Fn setresuid
+устанавливает реальный,
+эффективный и сохранённый идентификаторы пользователя текущего процесса.
+Аналогичный
+.Fn setresgid
+устанавливает реальный, эффективный и сохранённый идентификаторы группы.
+.Pp
+Привилегированные процессы могут устанавливать эти идентификаторы
+в произвольные значения.
+Непривилегированные процессы ограничены
+тем, что каждый из новых идентификаторов должен совпадать с одним из текущих идентификаторов.
+.Pp
+Передача -1 в качестве аргумента оставляет соответствующее значение
+без изменений.
+.Pp
+Вызовы
+.Fn getresgid
+и
+.Fn getresuid
+извлекают реальный, эффективный и сохранённый идентификаторы группы и пользователя
+текущего процесса соответственно.
+.Sh RETURN VALUES
+.Rv -std
+.Sh ERRORS
+.Bl -tag -width Er
+.It Bq Er EPERM
+Вызывающий процесс не был привилегированным
+и попытался изменить один или несколько идентификаторов на значение,
+которое не является текущим реальным идентификатором, текущим эффективным идентификатором
+или текущим сохранённым идентификатором.
+.It Bq Er EFAULT
+Адрес, переданный в
+.Fn getresgid
+или
+.Fn getresuid ,
+был недопустимым.
+.El
+.Sh SEE ALSO
+.Xr getegid 2 ,
+.Xr geteuid 2 ,
+.Xr getgid 2 ,
+.Xr getuid 2 ,
+.Xr issetugid 2 ,
+.Xr setgid 2 ,
+.Xr setregid 2 ,
+.Xr setreuid 2 ,
+.Xr setuid 2
+.Sh HISTORY
+Эти функции впервые появились в HP-UX.

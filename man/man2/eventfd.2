@@ -1,0 +1,210 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2020 Val Packett <val@packett.cool>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/eventfd.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 d58a1f161cd8587c9664e18bd189d257098339e70a7afbc49f9e6b2826f9b117
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 8, 2020
+.Dt EVENTFD 2
+.Os
+.Sh ИМЯ
+.Nm eventfd
+.Nd создать файловый дескриптор для уведомления о событиях
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/eventfd.h
+.Ft int
+.Fn eventfd "unsigned int initval" "int flags"
+.Ft int
+.Fn eventfd_read "int fd" "eventfd_t *value"
+.Ft int
+.Fn eventfd_write "int fd" "eventfd_t value"
+.Sh ОПИСАНИЕ
+.Fn eventfd
+создаёт специальный файловый дескриптор с семантикой счётчика событий или семафора,
+предназначенный для межпроцессного взаимодействия.
+Возвращаемый файловый дескриптор ссылается на объект ядра, содержащий
+беззнаковый 64-битный целочисленный счётчик, который инициализируется значением
+аргумента
+.Fa initval .
+.Pp
+Аргумент
+.Fa flags
+может содержать результат
+.Em или Ns 'ирования
+следующих значений:
+.Pp
+.Bl -tag -width "EFD_SEMAPHORE" -compact
+.It Dv EFD_CLOEXEC
+установить FD_CLOEXEC на файловом дескрипторе
+.It Dv EFD_NONBLOCK
+не блокировать операции чтения/записи
+.It Dv EFD_SEMAPHORE
+использовать семантику семафора
+.El
+.Pp
+Файловые операции имеют следующую семантику:
+.Bl -tag -width EFD_SEMAPHORE
+.It Xr read 2
+Если счётчик равен нулю, вызов блокируется до тех пор, пока счётчик не станет ненулевым, если
+.Dv EFD_NONBLOCK
+не был установлен, в этом случае вызов завершится с ошибкой
+.Dv EAGAIN
+вместо этого.
+.Pp
+Если счётчик ненулевой:
+.Bl -bullet
+.It
+Если
+.Dv EFD_SEMAPHORE
+не установлен, возвращается текущее значение счётчика,
+и значение сбрасывается в ноль.
+.It
+Если
+.Dv EFD_SEMAPHORE
+установлен, возвращается константа 1, и значение уменьшается на 1.
+.El
+.Pp
+Числовое значение кодируется как 64-битное (8 байт) в порядке байтов хоста.
+Вызов
+.Xr read 2
+завершается с ошибкой
+.Dv EINVAL
+если в предоставленном буфере доступно менее 8 байт.
+.It Xr write 2
+Добавляет заданное значение к счётчику.
+Максимальное значение, которое можно сохранить в счётчике, — это
+максимальное беззнаковое 64-битное целое значение минус один (0xfffffffffffffffe).
+.Pp
+Если результирующее значение превышает максимум, вызов блокируется
+до тех пор, пока значение не будет уменьшено с помощью
+.Xr read 2 ,
+если
+.Dv EFD_NONBLOCK
+не был установлен, в этом случае вызов завершится с ошибкой
+.Dv EAGAIN
+вместо этого.
+.Pp
+Числовое значение кодируется как 64-битное (8 байт) в порядке байтов хоста.
+Вызов
+.Xr write 2
+завершается с ошибкой
+.Dv EINVAL
+если в предоставленном буфере доступно менее 8 байт,
+или если задано значение 0xffffffffffffffff.
+.It Xr poll 2
+При получении уведомлений через
+.Xr poll 2 /
+.Xr ppoll 2 /
+.Xr select 2 /
+.Xr pselect 2 /
+.Xr kqueue 2 ,
+применяется следующая семантика:
+.Bl -bullet
+.It
+Файловый дескриптор доступен для чтения, когда счётчик больше нуля.
+.It
+Файловый дескриптор доступен для записи, когда счётчик меньше максимального значения.
+.El
+.El
+.Pp
+Файловые дескрипторы, созданные с помощью
+.Fn eventfd
+могут передаваться другим процессам через
+.Xr sendmsg 2
+и сохраняются при
+.Xr fork 2 ;
+в обоих случаях дескрипторы ссылаются на один и тот же счётчик из обоих процессов.
+Если только
+.Dv O_CLOEXEC
+флаг не был указан,
+созданный файловый дескриптор останется открытым при системных вызовах
+.Xr execve 2 ;
+см.
+.Xr close 2 ,
+.Xr fcntl 2
+и
+.Dv O_CLOEXEC
+описание.
+.Pp
+.Fn eventfd_read
+и
+.Fn eventfd_write
+являются тонкими обёртками вокруг системных вызовов
+.Xr read 2
+и
+.Xr write 2 ,
+предоставленными для совместимости с glibc.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+В случае успеха
+.Fn eventfd
+возвращает неотрицательное целое число, называемое файловым дескриптором.
+При ошибке возвращается \-1, и устанавливается
+.Va errno
+для указания ошибки.
+.Pp
+Функции
+.Fn eventfd_read
+и
+.Fn eventfd_write
+возвращают 0, если операция завершилась успешно, и -1 в противном случае.
+.Sh ОШИБКИ
+.Fn eventfd
+может завершиться с ошибкой:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+переданный в
+.Fn eventfd
+содержит неизвестные биты.
+.It Bq Er EMFILE
+Процесс уже достиг своего предела открытых
+файловых дескрипторов.
+.It Bq Er ENFILE
+Системная таблица файлов заполнена.
+.It Bq Er ENOMEM
+Не было доступной памяти для создания объекта ядра.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr close 2 ,
+.Xr kqueue 2 ,
+.Xr poll 2 ,
+.Xr read 2 ,
+.Xr select 2 ,
+.Xr write 2
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn eventfd
+не является стандартным.
+Он присутствует в Linux.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn eventfd
+впервые появился в
+.Fx 13.0 .
