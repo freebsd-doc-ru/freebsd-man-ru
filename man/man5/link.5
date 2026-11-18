@@ -1,0 +1,589 @@
+.\" Copyright (c) 1993 Paul Kranenburg
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed by Paul Kranenburg.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/link.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 73b071f861a6aacd5a9e704f4a7c403c9713d0498667f4a9267a79f0f78fa8a8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 23, 1993
+.Dt LINK 5
+.Os
+.Sh ИМЯ
+.Nm link
+.Nd интерфейс динамического загрузчика и редактора связей
+.Sh СИНТАКСИС
+.In sys/types.h
+.In nlist.h
+.In link.h
+.Sh ОПИСАНИЕ
+Включаемый файл
+.In link.h
+объявляет несколько структур, присутствующих в динамически связанных
+программах и библиотеках.
+Структуры определяют интерфейс между несколькими компонентами механизма
+редактора связей и загрузчика.
+Расположение ряда этих структур в двоичных файлах во многих местах
+напоминает формат a.out, поскольку он служит для выполнения таких же функций,
+как определения символов (включая сопровождающую таблицу строк) и записи
+перемещений, необходимые для разрешения ссылок на внешние сущности.
+Он также содержит ряд структур данных, свойственных только процессу
+динамической загрузки и связывания.
+К ним относятся ссылки на другие объекты, необходимые для завершения
+процесса редактирования связей, и таблицы косвенной адресации, облегчающие
+.Em позиционно-независимый код
+(сокращённо PIC), чтобы улучшить совместное использование страниц кода
+разными процессами.
+Совокупность описанных здесь структур данных будет называться
+.Em разделом перемещений времени выполнения (RRS)
+и встраивается в стандартные сегменты текста и данных динамически связанной
+программы или образа разделяемого объекта, поскольку существующий формат
+.Xr a.out 5
+не оставляет для него места в другом месте.
+.Pp
+Несколько утилит взаимодействуют, чтобы задача подготовки программы к
+запуску могла успешно завершиться способом, оптимизирующим использование
+системных ресурсов.
+Компилятор генерирует код PIC, из которого с помощью
+.Xr ld 1
+можно собирать разделяемые библиотеки.
+Компилятор также включает информацию о размере любых инициализированных
+элементов данных с помощью ассемблерной директивы .size.
+Код PIC отличается от традиционного кода тем, что обращается к переменным
+данных через таблицу косвенной адресации — Глобальную таблицу смещений
+(Global Offset Table), доступ к которой по соглашению осуществляется по
+зарезервированному имени
+.Dv _GLOBAL_OFFSET_TABLE_ .
+Точный механизм, используемый для этого, зависит от машины; обычно для этой
+цели резервируется машинный регистр.
+Смысл этой конструкции — генерировать код, независимый от фактического
+адреса загрузки.
+Только значения, содержащиеся в Глобальной таблице смещений, могут
+нуждаться в обновлении во время выполнения в зависимости от адресов
+загрузки различных разделяемых объектов в адресном пространстве.
+.Pp
+Аналогично, вызовы процедур для глобально определённых функций
+перенаправляются через таблицу связывания процедур (Procedure Linkage Table,
+PLT), находящуюся в сегменте данных основного образа.
+Опять же, это делается, чтобы избежать модификаций сегмента текста во время
+выполнения.
+.Pp
+Редактор связей выделяет Глобальную таблицу смещений и таблицу связывания
+процедур при объединении объектных файлов PIC в образ, пригодный для
+отображения в адресное пространство процесса.
+Он также собирает все символы, которые могут понадобиться редактору связей
+времени выполнения, и сохраняет их вместе с битами текста и данных образа.
+Ещё один зарезервированный символ
+.Em _DYNAMIC
+используется для указания наличия структур редактора связей времени
+выполнения.
+Когда _DYNAMIC перемещается в 0, нет необходимости вызывать редактор связей
+времени выполнения.
+Если этот символ не равен нулю, он указывает на структуру данных, из которой
+можно получить местоположение необходимой информации о перемещениях и
+символах.
+Прежде всего это используется стартовым модулем
+.Em crt0 .
+Структура _DYNAMIC по соглашению располагается в начале сегмента данных
+образа, к которому она относится.
+.Sh СТРУКТУРЫ ДАННЫХ
+Структуры данных, поддерживающие динамическое связывание и перемещение во
+время выполнения, находятся как в сегментах текста, так и в сегментах данных
+образа, к которому они относятся.
+Сегменты текста содержат данные только для чтения, такие как описания и
+имена символов, тогда как сегменты данных содержат таблицы, которые нужно
+изменять в процессе перемещения.
+.Pp
+Символ _DYNAMIC ссылается на структуру
+.Fa _dynamic :
+.Bd -literal -offset indent
+struct	_dynamic {
+	int	d_version;
+	struct 	so_debug *d_debug;
+	union {
+		struct section_dispatch_table *d_sdt;
+	} d_un;
+	struct  ld_entry *d_entry;
+};
+.Ed
+.Bl -tag -width d_version
+.It Fa d_version
+Это поле обеспечивает поддержку различных версий реализации динамического
+связывания.
+Текущие номера версий, понимаемые
+.Xr ld 1
+и
+.Xr ld.so 1
+, — это
+.Em LD_VERSION_SUN (3) ,
+используемый в выпусках
+.Tn SunOS
+4.x, и
+.Em LD_VERSION_BSD (8) ,
+используемый начиная с
+.Fx 1.1 .
+.It Fa d_un
+Ссылается на структуру данных, зависящую от
+.Em d_version .
+.It Fa so_debug
+это поле предоставляет отладчикам точку подключения для доступа к таблицам
+символов разделяемых объектов, загруженных в результате действий редактора
+связей времени выполнения.
+.El
+.Pp
+Структура
+.Fa section_dispatch_table
+— это основная
+.Dq таблица-диспетчер
+, содержащая смещения в сегментах образа, где расположена различная
+информация о символах и перемещениях.
+.Bd -literal -offset indent
+struct section_dispatch_table {
+	struct	so_map *sdt_loaded;
+	long	sdt_sods;
+	long	sdt_filler1;
+	long	sdt_got;
+	long	sdt_plt;
+	long	sdt_rel;
+	long	sdt_hash;
+	long	sdt_nzlist;
+	long	sdt_filler2;
+	long	sdt_buckets;
+	long	sdt_strings;
+	long	sdt_str_sz;
+	long	sdt_text_sz;
+	long	sdt_plt_sz;
+};
+.Ed
+.Bl -tag -width sdt_filler1
+.It Fa sdt_loaded
+Указатель на первую загруженную карту связей (см. ниже).
+Это поле устанавливается
+.Nm ld.so
+.It Fa sdt_sods
+Начало (связанного) списка дескрипторов разделяемых объектов, необходимых
+.Em этому объекту .
+.It Fa sdt_filler1
+Устарело (использовалось в SunOS для задания правил поиска библиотек).
+.It Fa sdt_got
+Местоположение Глобальной таблицы смещений в этом образе.
+.It Fa sdt_plt
+Местоположение таблицы связывания процедур в этом образе.
+.It Fa sdt_rel
+Местоположение массива структур
+.Fa relocation_info
+(см.
+.Xr a.out 5 ),
+задающих перемещения времени выполнения.
+.It Fa sdt_hash
+Местоположение хеш-таблицы для быстрого поиска символов в таблице символов
+этого объекта.
+.It Fa sdt_nzlist
+Местоположение таблицы символов.
+.It Fa sdt_filler2
+В настоящее время не используется.
+.It Fa sdt_buckets
+Количество корзин в
+.Fa sdt_hash
+.It Fa sdt_strings
+Местоположение таблицы строк символов, соответствующей
+.Fa sdt_nzlist .
+.It Fa sdt_str_sz
+Размер таблицы строк.
+.It Fa sdt_text_sz
+Размер сегмента текста объекта.
+.It Fa sdt_plt_sz
+Размер таблицы связывания процедур.
+.El
+.Pp
+Структура
+.Fa sod
+описывает разделяемый объект, необходимый для завершения процесса
+редактирования связей объекта, содержащего её.
+На список таких объектов (связанных через
+.Fa sod_next )
+указывает
+.Fa sdt_sods
+в структуре section_dispatch_table.
+.Bd -literal -offset indent
+struct sod {
+	long	sod_name;
+	u_int	sod_library : 1,
+		sod_reserved : 31;
+	short	sod_major;
+	short	sod_minor;
+	long	sod_next;
+};
+.Ed
+.Bl -tag -width sod_library
+.It Fa sod_name
+Смещение в сегменте текста строки, описывающей этот объект связывания.
+.It Fa sod_library
+Если установлено,
+.Fa sod_name
+задаёт библиотеку, которую
+.Nm ld.so
+должен искать.
+Путь получается поиском в наборе каталогов
+(см. также
+.Xr ldconfig 8 )
+разделяемого объекта, соответствующего
+.Em lib\&<sod_name>\&.so.n.m .
+Если не установлено,
+.Fa sod_name
+должен указывать на полный путь к нужному разделяемому объекту.
+.It Fa sod_major
+Задаёт номер основной версии загружаемого разделяемого объекта.
+.It Fa sod_minor
+Задаёт предпочтительный номер дополнительной версии загружаемого
+разделяемого объекта.
+.El
+.Pp
+Редактор связей времени выполнения поддерживает список структур, называемых
+.Em картами связей
+, чтобы отслеживать все разделяемые объекты, загруженные в адресное
+пространство процесса.
+Эти структуры используются только во время выполнения и не встречаются в
+сегменте текста или данных исполняемого файла или разделяемой библиотеки.
+.Bd -literal -offset indent
+struct so_map {
+	caddr_t	som_addr;
+	char 	*som_path;
+	struct	so_map *som_next;
+	struct	sod *som_sod;
+	caddr_t som_sodbase;
+	u_int	som_write : 1;
+	struct	_dynamic *som_dynamic;
+	caddr_t	som_spd;
+};
+.Ed
+.Bl -tag -width som_dynamic
+.It Fa som_addr
+Адрес, по которому был загружен разделяемый объект, связанный с этой картой
+связей.
+.It Fa som_path
+Полный путь к загруженному объекту.
+.It Fa som_next
+Указатель на следующую карту связей.
+.It Fa som_sod
+Структура
+.Fa sod ,
+ответственная за загрузку этого разделяемого объекта.
+.It Fa som_sodbase
+Удалено в более поздних версиях редактора связей времени выполнения.
+.It Fa som_write
+Устанавливается, если (некоторая часть) сегмента текста этого объекта в
+настоящее время доступна для записи.
+.It Fa som_dynamic
+Указатель на структуру
+.Fa _dynamic
+этого объекта.
+.It Fa som_spd
+Точка подключения для присоединения закрытых данных, поддерживаемых
+редактором связей времени выполнения.
+.El
+.Pp
+Описание символа с размером.
+Это просто структура
+.Fa nlist
+с добавленным одним полем
+.Pq Fa nz_size .
+Используется для передачи информации о размере элементов в сегменте данных
+разделяемых объектов.
+Массив таких структур находится в сегменте текста разделяемого объекта, и на
+него ссылается поле
+.Fa sdt_nzlist
+структуры
+.Fa section_dispatch_table .
+.Bd -literal -offset indent
+struct nzlist {
+	struct nlist	nlist;
+	u_long		nz_size;
+#define nz_un		nlist.n_un
+#define nz_strx		nlist.n_un.n_strx
+#define nz_name		nlist.n_un.n_name
+#define nz_type		nlist.n_type
+#define nz_value	nlist.n_value
+#define nz_desc		nlist.n_desc
+#define nz_other	nlist.n_other
+};
+.Ed
+.Bl -tag -width nz_size
+.It Fa nlist
+(см.
+.Xr nlist 3 ) .
+.It Fa nz_size
+Размер данных, представленных этим символом.
+.El
+.Pp
+В сегмент текста разделяемого объекта включается хеш-таблица, облегчающая
+быстрый поиск символов во время редактирования связей времени выполнения.
+Поле
+.Fa sdt_hash
+структуры
+.Fa section_dispatch_table
+указывает на массив структур
+.Fa rrs_hash :
+.Bd -literal -offset indent
+struct rrs_hash {
+	int	rh_symbolnum;		/* номер символа */
+	int	rh_next;		/* следующая запись хеш-таблицы */
+};
+.Ed
+.Bl -tag -width rh_symbolnum
+.It Fa rh_symbolnum
+Индекс символа в таблице символов разделяемого объекта (как задано полем
+.Fa ld_symbols ).
+.It Fa rh_next
+В случае коллизий это поле является смещением следующей записи в этой
+корзине хеш-таблицы.
+Для последнего элемента корзины оно равно нулю.
+.El
+Структура
+.Fa rt_symbol
+используется для отслеживания общих блоков, выделенных во время выполнения,
+и элементов данных, скопированных из разделяемых объектов.
+Эти элементы хранятся в связанном списке и экспортируются через поле
+.Fa dd_cc
+в структуре
+.Fa so_debug
+(см. ниже) для использования отладчиками.
+.Bd -literal -offset indent
+struct rt_symbol {
+	struct nzlist		*rt_sp;
+	struct rt_symbol	*rt_next;
+	struct rt_symbol	*rt_link;
+	caddr_t			rt_srcaddr;
+	struct so_map		*rt_smp;
+};
+.Ed
+.Bl -tag -width rt_scraddr
+.It Fa rt_sp
+Описание символа.
+.It Fa rt_next
+Виртуальный адрес следующего rt_symbol.
+.It Fa rt_link
+Следующий в корзине хеш-таблицы.
+Используется внутри
+.Nm ld.so .
+.It Fa rt_srcaddr
+Местоположение источника инициализированных данных в разделяемом объекте.
+.It Fa rt_smp
+Разделяемый объект, являющийся первоначальным источником данных, которые
+описывает этот символ времени выполнения.
+.El
+.Pp
+Структура
+.Fa so_debug
+используется отладчиками для получения сведений о любых разделяемых объектах,
+загруженных в адресное пространство процесса в результате редактирования
+связей времени выполнения.
+Поскольку редактор связей времени выполнения работает как часть
+инициализации процесса, отладчик, желающий получить доступ к символам из
+разделяемых объектов, может сделать это только после того, как редактор
+связей был вызван из crt0.
+Динамически связанный двоичный файл содержит структуру
+.Fa so_debug ,
+которую можно найти с помощью поля
+.Fa d_debug
+в
+.Fa _dynamic .
+.Bd -literal -offset indent
+struct 	so_debug {
+	int	dd_version;
+	int	dd_in_debugger;
+	int	dd_sym_loaded;
+	char    *dd_bpt_addr;
+	int	dd_bpt_shadow;
+	struct rt_symbol *dd_cc;
+};
+.Ed
+.Bl -tag -width dd_in_debugger
+.It Fa dd_version
+Номер версии этого интерфейса.
+.It Fa dd_in_debugger
+Устанавливается отладчиком, чтобы сообщить редактору связей времени
+выполнения, что программа выполняется под управлением отладчика.
+.It Fa dd_sym_loaded
+Устанавливается редактором связей времени выполнения каждый раз, когда он
+добавляет символы путём загрузки разделяемых объектов.
+.It Fa dd_bpt_addr
+Адрес, по которому редактор связей времени выполнения установит точку
+останова, чтобы передать управление отладчику.
+Этот адрес определяется стартовым модулем
+.Pa crt0.o
+как подходящее место перед вызовом _main.
+.It Fa dd_bpt_shadow
+Содержит исходную инструкцию, находившуюся по адресу
+.Fa dd_bpt_addr .
+Предполагается, что перед продолжением программы отладчик восстановит эту
+инструкцию.
+.It Fa dd_cc
+Указатель на связанный список символов, выделенных во время выполнения,
+которые могут заинтересовать отладчик.
+.El
+.Pp
+Структура
+.Em ld_entry
+определяет набор сервисных подпрограмм в
+.Nm ld.so .
+.Bd -literal -offset indent
+struct ld_entry {
+	void	*(*dlopen)(char *, int);
+	int	(*dlclose)(void *);
+	void	*(*dlsym)(void *, char *);
+	char	*(*dlerror)(void);
+};
+.Ed
+.Pp
+Структура
+.Fa crt_ldso
+определяет интерфейс между стартовым кодом в crt0 и
+.Nm ld.so .
+.Bd -literal -offset indent
+struct crt_ldso {
+	int		crt_ba;
+	int		crt_dzfd;
+	int		crt_ldfd;
+	struct _dynamic	*crt_dp;
+	char		**crt_ep;
+	caddr_t		crt_bp;
+	char		*crt_prog;
+	char		*crt_ldso;
+	struct ld_entry	*crt_ldentry;
+};
+#define CRT_VERSION_SUN		1
+#define CRT_VERSION_BSD_2	2
+#define CRT_VERSION_BSD_3	3
+#define	CRT_VERSION_BSD_4	4
+.Ed
+.Bl -tag -width crt_dzfd
+.It Fa crt_ba
+Виртуальный адрес, по которому
+.Nm ld.so
+был загружен crt0.
+.It Fa crt_dzfd
+В системах SunOS это поле содержит открытый файловый дескриптор для
+.Dq Pa /dev/zero ,
+используемый для получения обнулённых страниц, подкачиваемых по требованию.
+В системах
+.Fx
+оно содержит -1.
+.It Fa crt_ldfd
+Содержит открытый файловый дескриптор, который использовался crt0 для
+загрузки
+.Nm ld.so .
+.It Fa crt_dp
+Указатель на структуру
+.Fa _dynamic
+главной программы.
+.It Fa crt_ep
+Указатель на строки окружения.
+.It Fa crt_bp
+Адрес, по которому редактор связей времени выполнения установит точку
+останова, если главная программа выполняется под отладчиком.
+См.
+.Fa so_debug
+.It Fa crt_prog
+Имя главной программы, определённое crt0 (только для CRT_VERSION_BSD3).
+.It Fa crt_ldso
+Путь к редактору связей времени выполнения, отображённому crt0 (только для
+CRT_VERSION_BSD4).
+.El
+.Pp
+Структуры
+.Fa hints_header
+и
+.Fa hints_bucket
+определяют расположение подсказок библиотек, обычно находящихся в
+.Dq Pa /var/run/ld.so.hints ,
+которые используются
+.Nm ld.so
+для быстрого поиска образов разделяемых объектов в файловой системе.
+Организация файла подсказок похожа на организацию объектного файла
+.Dq a.out :
+он содержит заголовок, определяющий смещение и размер таблицы корзин
+хеш-таблицы фиксированного размера и общий пул строк.
+.Bd -literal -offset indent
+struct hints_header {
+	long		hh_magic;
+#define HH_MAGIC	011421044151
+	long		hh_version;
+#define LD_HINTS_VERSION_1	1
+	long		hh_hashtab;
+	long		hh_nbucket;
+	long		hh_strtab;
+	long		hh_strtab_sz;
+	long		hh_ehints;
+};
+.Ed
+.Bl -tag -width hh_strtab_sz
+.It Fa hh_magic
+Магическое число файла подсказок.
+.It Fa hh_version
+Номер версии интерфейса.
+.It Fa hh_hashtab
+Смещение хеш-таблицы.
+.It Fa hh_strtab
+Смещение таблицы строк.
+.It Fa hh_strtab_sz
+Размер строк.
+.It Fa hh_ehints
+Максимально используемое смещение в файле подсказок.
+.El
+.Bd -literal -offset indent
+/*
+ * Элемент хеш-таблицы в файле подсказок.
+ */
+struct hints_bucket {
+	int		hi_namex;
+	int		hi_pathx;
+	int		hi_dewey[MAXDEWEY];
+	int		hi_ndewey;
+#define hi_major hi_dewey[0]
+#define hi_minor hi_dewey[1]
+	int		hi_next;
+};
+.Ed
+.Bl -tag -width hi_ndewey
+.It Fa hi_namex
+Индекс строки, идентифицирующей библиотеку.
+.It Fa hi_pathx
+Индекс строки, представляющей полный путь к библиотеке.
+.It Fa hi_dewey
+Номера версий разделяемой библиотеки.
+.It Fa hi_ndewey
+Количество допустимых элементов в
+.Fa hi_dewey .
+.It Fa hi_next
+Следующая корзина в случае коллизий хеширования.
+.El
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+В настоящее время только компилятор (GNU) C поддерживает создание
+разделяемых библиотек.
+Другие языки программирования использоваться не могут.

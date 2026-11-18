@@ -1,0 +1,68 @@
+.\"
+.\" Copyright (c) 2005 Mark Santcroos <marks@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/snapinfo/snapinfo.8
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 c4ca408011103b3d38ffd645d62daf116ed90a6fa2b687fc939707285c1d9c3a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 20, 2005
+.Dt SNAPINFO 8
+.Os
+.Sh ИМЯ
+.Nm snapinfo
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Fl a
+.Nm
+.Op Fl v
+.Ar точка монтирования
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выполняет поиск и отображает расположение снимков в файловых системах UFS.
+.Pp
+В настоящее время она работает только со смонтированными файловыми системами.
+Она может выполнять поиск либо в одной файловой системе, либо во всех.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Искать снимки во всех смонтированных файловых системах UFS.
+.It Fl v
+Подробный режим.
+.It Ar точка монтирования
+Искать файловую систему, смонтированную в этой точке монтирования.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr ffs 4 ,
+.Xr mksnap_ffs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 6.1 .
+.Sh АВТОРЫ
+.An Mark Santcroos Aq Mt marks@FreeBSD.org

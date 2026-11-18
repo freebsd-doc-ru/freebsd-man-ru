@@ -1,0 +1,244 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2021, Colm Buckley <colm@tuatha.org>
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-create.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 2ea6c2e59a9bf3d68c593bf9c191faa32235b33a339655a420ab269947445011
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-CREATE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-create
+.Nd создать пул хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm create
+.Op Fl dfn
+.Op Fl m Ar точка_монтирования
+.Oo Fl o Ar свойство Ns = Ns Ar значение Oc Ns …
+.Oo Fl o Sy feature@ Ns Ar feature Ns = Ns Ar значение Oc
+.Op Fl o Ar compatibility Ns = Ns Sy off Ns | Ns Sy legacy Ns | Ns Ar файл Ns Oo , Ns Ar файл Oc Ns …
+.Oo Fl O Ar свойство_файловой_системы Ns = Ns Ar значение Oc Ns …
+.Op Fl R Ar корень
+.Op Fl t Ar tname
+.Ar пул
+.Ar vdev Ns …
+.
+.Sh ОПИСАНИЕ
+Создаёт новый пул хранения, содержащий виртуальные устройства, указанные в
+командной строке.
+Имя пула должно начинаться с буквы и может содержать только
+буквенно-цифровые символы, а также подчёркивание
+.Pq Qq Sy _ ,
+дефис
+.Pq Qq Sy \&- ,
+двоеточие
+.Pq Qq Sy \&: ,
+пробел
+.Pq Qq Sy \&\  ,
+и точку
+.Pq Qq Sy \&. .
+Имена пулов
+.Sy mirror ,
+.Sy raidz ,
+.Sy draid ,
+.Sy spare
+и
+.Sy log
+зарезервированы, как и имена, начинающиеся с
+.Sy mirror ,
+.Sy raidz ,
+.Sy draid ,
+и
+.Sy spare .
+Спецификация
+.Ar vdev
+описана в разделе
+.Sx Виртуальные устройства
+страницы
+.Xr zpoolconcepts 7 .
+.Pp
+Команда пытается проверить, что каждое указанное устройство доступно и в
+настоящее время не используется другой подсистемой.
+Однако эта проверка недостаточно надёжна для обнаружения одновременных
+попыток использовать новое устройство в разных пулах, даже если
+.Sy multihost Ns = Sy enabled .
+Администратор должен гарантировать, что одновременные вызовы любой комбинации
+.Nm zpool Cm replace ,
+.Nm zpool Cm create ,
+.Nm zpool Cm add
+или
+.Nm zpool Cm labelclear
+не обращаются к одному и тому же устройству.
+Использование одного и того же устройства в двух пулах приведёт к повреждению пула.
+.Pp
+Некоторые варианты использования, например текущее монтирование или указание
+в качестве выделенного устройства дампа, не позволяют ZFS когда-либо
+использовать устройство.
+Другие варианты использования, например наличие уже существующей файловой
+системы UFS, можно обойти с помощью
+.Fl f .
+.Pp
+Команда также проверяет согласованность стратегии репликации пула.
+Попытка объединить избыточное и неизбыточное хранилище в одном пуле или
+смешать диски и файлы приводит к ошибке, если не указан
+.Fl f .
+Использование устройств разного размера в одной группе raidz или mirror также
+считается ошибкой, если не указан
+.Fl f .
+.Pp
+Если не указан параметр
+.Fl R ,
+точка монтирования по умолчанию —
+.Pa / Ns Ar пул .
+Точка монтирования не должна существовать или должна быть пустой, иначе
+корневой набор данных не сможет быть смонтирован.
+Это можно переопределить с помощью параметра
+.Fl m .
+.Pp
+По умолчанию в новом пуле включены все поддерживаемые функции.
+Параметр
+.Fl d
+и свойство
+.Fl o Ar compatibility
+.Pq например Fl o Sy compatibility Ns = Ns Ar 2020
+можно использовать для ограничения включаемых функций, чтобы пул можно было
+импортировать в других выпусках ZFS.
+.Pp
+.Bl -tag -width Ds
+.It Fl d
+Не включать никакие функции в новом пуле.
+Отдельные функции можно включить, установив соответствующие свойства в
+.Sy enabled
+с помощью
+.Fl o .
+См.
+.Xr zpool-features 7
+для получения подробной информации о свойствах функций.
+.It Fl f
+Принудительно использовать
+.Ar vdev Ns s ,
+даже если они выглядят используемыми или задают конфликтующий уровень
+репликации.
+Не все устройства можно обойти таким образом.
+.It Fl m Ar точка_монтирования
+Устанавливает точку монтирования для корневого набора данных.
+Точка монтирования по умолчанию —
+.Pa /pool
+или
+.Pa altroot/pool ,
+если указан
+.Sy altroot .
+Точка монтирования должна быть абсолютным путём,
+.Sy legacy
+или
+.Sy none .
+Для получения дополнительной информации о точках монтирования наборов данных см.
+.Xr zfsprops 7 .
+.It Fl n
+Отображает конфигурацию, которая была бы использована, без фактического создания
+пула.
+Фактическое создание пула всё равно может завершиться ошибкой из-за
+недостаточных привилегий или совместного использования устройства.
+.It Fl o Ar свойство Ns = Ns Ar значение
+Устанавливает заданные свойства пула.
+См.
+.Xr zpoolprops 7
+для списка допустимых свойств, которые можно установить.
+.It Fl o Ar compatibility Ns = Ns Sy off Ns | Ns Sy legacy Ns | Ns Ar файл Ns Oo , Ns Ar файл Oc Ns …
+Указывает наборы функций совместимости.
+См.
+.Xr zpool-features 7
+для получения дополнительной информации о наборах функций совместимости.
+.It Fl o Sy feature@ Ns Ar feature Ns = Ns Ar значение
+Устанавливает заданную функцию пула.
+См. раздел
+.Xr zpool-features 7
+для списка допустимых функций, которые можно установить.
+Значение может быть либо disabled, либо enabled.
+.It Fl O Ar свойство_файловой_системы Ns = Ns Ar значение
+Устанавливает заданные свойства файловой системы в корневой файловой системе пула.
+См.
+.Xr zfsprops 7
+для списка допустимых свойств, которые можно установить.
+.It Fl R Ar корень
+Эквивалентно
+.Fl o Sy cachefile Ns = Ns Sy none Fl o Sy altroot Ns = Ns Ar корень
+.It Fl t Ar tname
+Устанавливает имя пула в памяти в
+.Ar tname ,
+тогда как имя на диске будет именем, указанным как
+.Ar пул .
+Это установит значение по умолчанию свойства
+.Sy cachefile
+в
+.Sy none .
+Это предназначено для обработки конфликтов пространства имён при создании пулов
+для других систем, таких как виртуальные машины или физические машины, чьи пулы
+размещаются на сетевых блочных устройствах.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание пула хранения RAID-Z
+Следующая команда создаёт пул с одним корневым vdev raidz, состоящим из шести
+дисков:
+.Dl # Nm zpool Cm create Ar tank Sy raidz Pa sda sdb sdc sdd sde sdf
+.
+.Ss Пример 2 : No Создание зеркального пула хранения
+Следующая команда создаёт пул с двумя зеркалами, где каждое зеркало
+содержит два диска:
+.Dl # Nm zpool Cm create Ar tank Sy mirror Pa sda sdb Sy mirror Pa sdc sdd
+.
+.Ss Пример 3 : No Создание пула хранения ZFS с использованием разделов
+Следующая команда создаёт неизбыточный пул с использованием двух разделов диска:
+.Dl # Nm zpool Cm create Ar tank Pa sda1 sdb2
+.
+.Ss Пример 4 : No Создание пула хранения ZFS с использованием файлов
+Следующая команда создаёт неизбыточный пул с использованием файлов.
+Хотя это не рекомендуется, пул на основе файлов может быть полезен для
+экспериментальных целей.
+.Dl # Nm zpool Cm create Ar tank Pa /path/to/file/a /path/to/file/b
+.
+.Ss Пример 5 : No Управление горячими резервами
+Следующая команда создаёт новый пул с доступным горячим резервом:
+.Dl # Nm zpool Cm create Ar tank Sy mirror Pa sda sdb Sy spare Pa sdc
+.
+.Ss Пример 6 : No Создание пула ZFS с зеркальными отдельными журналами намерений
+Следующая команда создаёт пул хранения ZFS, состоящий из двух двухсторонних
+зеркал и зеркальных устройств журнала:
+.Dl # Nm zpool Cm create Ar pool Sy mirror Pa sda sdb Sy mirror Pa sdc sdd Sy log mirror Pa sde sdf
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-destroy 8 ,
+.Xr zpool-export 8 ,
+.Xr zpool-import 8

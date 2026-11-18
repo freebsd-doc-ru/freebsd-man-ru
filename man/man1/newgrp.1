@@ -1,0 +1,124 @@
+.\" Copyright (c) 2002 Tim J. Robbins.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/newgrp/newgrp.1
+.\" FRDP githash e09104dfb76a36b65a64bd315bd1520941c4beed
+.\" FRDP hash256 d171d3a669693e988924e89a53b01aea6be7743c2f810297084b48ef7b3aa092
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt NEWGRP 1
+.Os
+.Sh ИМЯ
+.Nm newgrp
+.Nd переключиться на новую группу
+.Sh СИНТАКСИС
+.Nm
+.Op Fl l
+.Op Ar группа
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт новую среду выполнения командной оболочки с изменёнными
+реальным и эффективным идентификаторами группы.
+.Pp
+Поддерживаются следующие параметры:
+.Bl -tag -width indent
+.It Fl l
+Имитировать полный вход в систему.
+Окружение и umask устанавливаются такими, какими они были бы, если бы
+пользователь действительно вошёл в систему снова.
+.El
+.Pp
+Если операнд
+.Ar группа
+присутствует, запускается новая командная оболочка с указанными
+эффективным и реальным идентификаторами группы.
+Пользователю будет предложено ввести пароль, если он не является членом
+указанной группы.
+.Pp
+В противном случае реальный, эффективный и дополнительные идентификаторы
+групп восстанавливаются из записи текущего пользователя в базе данных
+паролей.
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+пытается запустить командную оболочку независимо от того, были ли
+успешно изменены идентификаторы групп.
+.Pp
+Если происходит ошибка и командную оболочку не удаётся запустить,
+.Nm
+завершается с кодом >0.
+В противном случае статус выхода
+.Nm
+— это статус выхода командной оболочки.
+.Sh ПРИМЕРЫ
+Создайте новую группу,
+.Ar foo ,
+с помощью
+.Xr pw 8 :
+.Pp
+.Dl pw group add foo
+.Pp
+Установите пароль группы:
+.Pp
+.Dl pw group mod foo -h 0
+.Pp
+Будучи пользователем, не являющимся root, переключитесь на группу:
+.Pp
+.Dl newgrp foo
+.Sh СМ. ТАКЖЕ
+.Xr csh 1 ,
+.Xr groups 1 ,
+.Xr login 1 ,
+.Xr sh 1 ,
+.Xr su 1 ,
+.Xr umask 1 ,
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr environ 7 ,
+.Xr groups 7
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v6 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+По соображениям безопасности утилита
+.Nm
+обычно устанавливается без бита setuid.
+Чтобы включить его, выполните следующую команду:
+.Bd -literal -offset indent
+chmod u+s /usr/bin/newgrp
+.Ed
+.Pp
+Пароли групп по своей природе небезопасны, так как невозможно помешать
+пользователям получить хеш пароля из базы данных групп.
+Их использование не рекомендуется.
+Вместо этого пользователей следует просто добавлять в необходимые группы.

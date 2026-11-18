@@ -1,0 +1,119 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-split.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 e25e820e58a95de03bbd421bc78fb6dc81066f47c4f125ab8aa414980b613317
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-SPLIT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-split
+.Nd отделить устройства от пула хранения ZFS, создав новый пул
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm split
+.Op Fl gLlnP
+.Oo Fl o Ar property Ns = Ns Ar value Oc Ns …
+.Op Fl R Ar root
+.Ar pool newpool
+.Oo Ar device Oc Ns …
+.
+.Sh ОПИСАНИЕ
+Отделяет устройства от пула
+.Ar pool
+и создаёт
+.Ar newpool .
+Все vdev в
+.Ar pool
+должны быть зеркалами, а пул не должен находиться в процессе ресильверинга.
+На момент разделения
+.Ar newpool
+будет репликой
+.Ar pool .
+По умолчанию последнее устройство в каждом зеркале отделяется от
+.Ar pool
+для создания
+.Ar newpool .
+.Pp
+Необязательное указание устройств приводит к включению указанных устройств в новый
+.Ar pool .
+Если какие-либо устройства остаются неуказанными, используется последнее устройство в каждом зеркале, как и по умолчанию.
+.Bl -tag -width Ds
+.It Fl g
+Показывать GUID vdev вместо обычных имён устройств.
+Эти GUID можно использовать вместо имён устройств для команд zpool
+detach/offline/remove/replace.
+.It Fl L
+Показывать реальные пути для vdev с разрешением всех символических ссылок.
+Это можно использовать для поиска текущего имени блочного устройства независимо от того, какой путь
+.Pa /dev/disk/
+использовался для его открытия.
+.It Fl l
+Указывает, что эта команда будет запрашивать ключи шифрования для всех зашифрованных
+наборов данных, которые она пытается смонтировать при подключении нового пула.
+Обратите внимание: если какой-либо набор данных имеет
+.Sy keylocation Ns = Ns Sy prompt ,
+эта команда заблокируется в ожидании ввода ключей.
+Без этого флага зашифрованные наборы данных останутся недоступными, пока ключи
+не будут загружены.
+.It Fl n
+Выполнить пробное
+.Pq Qq No-op
+разделение: фактически его не выполнять.
+Вывести ожидаемую конфигурацию
+.Ar newpool .
+.It Fl P
+Показывать полные пути для vdev вместо только последнего компонента
+пути.
+Это можно использовать вместе с флагом
+.Fl L .
+.It Fl o Ar property Ns = Ns Ar value
+Устанавливает указанное свойство для
+.Ar newpool .
+См. справочную страницу
+.Xr zpoolprops 7
+для получения дополнительной информации о доступных свойствах пула.
+.It Fl R Ar root
+Установить
+.Sy altroot
+для
+.Ar newpool
+в
+.Ar root
+и автоматически импортировать его.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-import 8 ,
+.Xr zpool-list 8 ,
+.Xr zpool-remove 8

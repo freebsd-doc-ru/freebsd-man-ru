@@ -1,0 +1,72 @@
+.\" Copyright (c) 2002, 2003 Tim J. Robbins
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libc/locale/mskanji.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4c35223b3506c1b118c3d440ad82ca10119f599a579da7c5cbb6bf8ba21119f7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 7, 2003
+.Dt MSKANJI 5
+.Os
+.Sh ИМЯ
+.Nm mskanji
+.Sh СИНТАКСИС
+.Nm ENCODING
+.Qq MSKanji
+.Sh ОПИСАНИЕ
+Shift-JIS, также известная как MS Kanji или SJIS, — это система кодирования
+японских символов, разработанная корпорацией Microsoft.
+Она кодирует символы из наборов символов
+.Tn JIS
+X 0201 (ASCII/JIS-Roman) и
+.Tn JIS
+X 0208 (японский) как последовательности длиной в один или два байта.
+.Pp
+Символы из набора символов
+.Tn ASCII Ns
+/JIS-Roman кодируются одним байтом в диапазоне от 0x00 до 0x7F
+(ASCII) или от 0xA1 до 0xDF (катакана половинной ширины).
+.Pp
+Символы из набора символов
+.Tn JIS
+X 0208 кодируются двумя байтами.
+Первый байт находится в диапазонах
+0x81 - 0x9F, 0xE0 - 0xEA, 0xED - 0xEE (не
+.Tn JIS :
+.Tn NEC Ns - Ns
+выбранные
+.Tn IBM
+расширенные символы),
+0xF0 - 0xF9 (не
+.Tn JIS :
+определённые пользователем),
+или 0xFA - 0xFC (не
+.Tn JIS :
+.Tn IBM
+расширенные символы).
+Второй байт находится в диапазоне от 0x40 до 0xFC, исключая 0x7F (удаление).
+.Sh СМ. ТАКЖЕ
+.Xr euc 5 ,
+.Xr utf8 5

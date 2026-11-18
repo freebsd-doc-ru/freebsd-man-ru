@@ -1,0 +1,110 @@
+.\" Copyright (c) 2013 The FreeBSD Foundation
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/connectat.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c9d6e8fda2eba500d3ef8b53ece37b0822a0341ae4a5b35354d3a880628e5d0b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 13, 2013
+.Dt CONNECTAT 2
+.Os
+.Sh ИМЯ
+.Nm connectat
+.Nd установить соединение на сокете
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/socket.h
+.Pp
+.In fcntl.h
+.Ft int
+.Fn connectat "int fd" "int s" "const struct sockaddr *name" "socklen_t namelen"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn connectat
+устанавливает соединение на сокете
+.Fa s .
+Если в параметре
+.Fa fd
+передано специальное значение
+.Dv AT_FDCWD ,
+поведение идентично вызову
+.Xr connect 2 .
+В противном случае
+.Fn connectat
+работает как системный вызов
+.Xr connect 2
+за двумя исключениями:
+.Pp
+.Bl -enum -offset indent -compact
+.It
+Он ограничен сокетами домена PF_LOCAL.
+.Pp
+.It
+Если путь к файлу, хранящийся в поле
+.Fa sun_path
+структуры sockaddr_un, является относительным путём, он определяется
+относительно каталога, связанного с файловым дескриптором
+.Fa fd .
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std connectat
+.Sh ОШИБКИ
+Системный вызов
+.Fn connectat
+может завершиться с теми же ошибками, что и системный вызов
+.Xr connect 2 ,
+или со следующими ошибками:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Поле
+.Fa sun_path
+не задаёт абсолютный путь, и аргумент
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым файловым дескриптором.
+.It Bq Er ENOTDIR
+Поле
+.Fa sun_path
+не является абсолютным путём, и
+.Fa fd
+не является ни
+.Dv AT_FDCWD ,
+ни файловым дескриптором, связанным с каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr bindat 2 ,
+.Xr connect 2 ,
+.Xr socket 2 ,
+.Xr unix 4
+.Sh АВТОРЫ
+.Nm
+был разработан
+.An Pawel Jakub Dawidek Aq Mt pawel@dawidek.net
+при спонсорской поддержке FreeBSD Foundation.

@@ -1,0 +1,71 @@
+.\" Copyright (c) April 1996 Wolfram Schneider <wosch@FreeBSD.org>. Berlin.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path libexec/makewhatis.local/makewhatis.local.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 cd09044d62cc89681b5fa37946605829ae599352b7c2a51d391b7cc5373db749
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 26, 1996
+.Dt MAKEWHATIS.LOCAL 8
+.Os
+.Sh ИМЯ
+.Nm makewhatis.local
+.Nd запуск makewhatis для локальных файловых систем
+.Sh СИНТАКСИС
+.Nm /usr/libexec/makewhatis.local
+.Op параметры
+.Ar каталоги ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запускает
+.Xr makewhatis 1
+только для файловых систем, физически смонтированных в системе,
+где выполняется
+.Nm .
+Запуск makewhatis
+с помощью
+.Pa periodic weekly
+для /usr, смонтированного по NFS в режиме rw, может убить
+ваш NFS-сервер -- все NFS-клиенты запускают makewhatis одновременно!
+Поэтому используйте эту обёртку для
+.Xr cron 8
+вместо прямого вызова makewhatis.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/periodic/weekly/320.whatis.XXX -compact
+.It Pa /etc/periodic/weekly/320.whatis
+запускать
+.Nm
+каждую неделю
+.El
+.Sh СМ. ТАКЖЕ
+.Xr find 1 ,
+.Xr makewhatis 1 ,
+.Xr cron 8 ,
+.Xr periodic 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 2.2 .

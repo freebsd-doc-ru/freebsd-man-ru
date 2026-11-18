@@ -1,0 +1,199 @@
+.\" Copyright (c) 2005 Sam Leffler <sam@errno.com>
+.\" Copyright (c) 2006 Rui Paulo
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wpa/hostapd/hostapd.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 754114730723748a8c0099c2933637263aa4ed91cf474aeee2f5d298103f84c1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 2, 2006
+.Dt HOSTAPD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm hostapd.conf
+.Nd конфигурационный файл утилиты
+.Xr hostapd 8
+.Sh ОПИСАНИЕ
+Утилита
+.Xr hostapd 8
+является аутентификатором для сетей IEEE 802.11.
+Она обеспечивает полную поддержку WPA/IEEE 802.11i и
+также может выступать в качестве аутентификатора IEEE 802.1X с подходящим
+сервером аутентификации (обычно
+.Tn FreeRADIUS ) .
+.Pp
+Файл конфигурации состоит из глобальных параметров и конфигурации
+для конкретных предметных областей:
+.Bl -bullet -offset indent -compact
+.It
+IEEE 802.1X-2004
+.It
+RADIUS-клиент
+.It
+RADIUS-сервер аутентификации
+.It
+WPA/IEEE 802.11i
+.El
+.Sh ГЛОБАЛЬНЫЕ ПАРАМЕТРЫ
+Распознаются следующие параметры:
+.Bl -tag -width indent
+.It Va interface
+Имя интерфейса.
+Должно быть установлено в режиме
+.Dq hostap .
+Убедитесь, что после имени интерфейса нет пробелов, иначе hostapd
+пожалуется, что интерфейс не существует.
+.It Va debug
+Режим отладки: 0 = нет, 1 = минимальный, 2 = подробный, 3 = дампы сообщений, 4 =
+избыточный.
+.It Va dump_file
+Файл дампа для информации о состоянии (по
+.Dv SIGUSR1 ) .
+.It Va ctrl_interface
+Имя пути к каталогу, в котором
+.Xr hostapd 8
+создаёт
+.Ux
+файлы сокетов домена для связи
+с клиентскими программами, такими как
+.Xr hostapd_cli 8 .
+.It Va ctrl_interface_group
+Имя группы или идентификатор группы, используемые для установки защиты на
+файл интерфейса управления.
+Это можно задать, чтобы разрешить пользователям, не являющимся root, доступ к
+файлам интерфейса управления.
+Если группа не указана, идентификатор группы интерфейса управления
+не изменяется и, как правило, будет
+идентификатором группы каталога, в котором создаётся сокет.
+.El
+.Sh ПАРАМЕТРЫ IEEE 802.1X-2004
+Распознаются следующие параметры:
+.Bl -tag -width indent
+.It Va ieee8021x
+Требовать авторизацию IEEE 802.1X.
+.It Va eap_message
+Необязательное отображаемое сообщение, отправляемое с EAP Request-Identity.
+.It Va wep_key_len_broadcast
+Длины ключей для широковещательных ключей.
+.It Va wep_key_len_unicast
+Длины ключей для одноадресных ключей.
+.It Va wep_rekey_period
+Период смены ключей в секундах.
+.It Va eapol_key_index_workaround
+Обходной приём для индекса EAPOL-Key (установить bit7) для WinXP Supplicant.
+.It Va eap_reauth_period
+Период повторной аутентификации EAP в секундах.
+Чтобы отключить повторную аутентификацию,
+используйте
+.Dq 0 .
+.El
+.Sh ПАРАМЕТРЫ RADIUS-КЛИЕНТА
+Распознаются следующие параметры:
+.Bl -tag -width indent
+.It Va own_ip_addr
+Собственный IP-адрес точки доступа (используется как NAS-IP-Address).
+.It Va nas_identifier
+Необязательная строка NAS-Identifier для сообщений RADIUS.
+.It Va auth_server_addr , auth_server_port , auth_server_shared_secret
+Параметры RADIUS-сервера аутентификации.
+Их можно задать дважды для вторичных серверов, которые используются, если первичный
+не отвечает на пакеты RADIUS.
+.It Va acct_server_addr , acct_server_port , acct_server_shared_secret
+Параметры RADIUS-сервера учёта.
+Их можно задать дважды для вторичных серверов, которые используются, если первичный
+не отвечает на пакеты RADIUS.
+.It Va radius_retry_primary_interval
+Интервал повторных попыток возврата к первичному RADIUS-серверу (в
+секундах).
+.It Va radius_acct_interim_interval
+Интервал промежуточных обновлений учёта.
+Если это задано (больше 0) и acct_server настроен,
+.Xr hostapd 8
+будет отправлять промежуточные обновления учёта каждые N секунд.
+.El
+.Sh ПАРАМЕТРЫ RADIUS-СЕРВЕРА АУТЕНТИФИКАЦИИ
+Распознаются следующие параметры:
+.Bl -tag -width indent
+.It Va radius_server_clients
+Имя файла конфигурации RADIUS-клиентов для RADIUS-сервера.
+Если это закомментировано, RADIUS-сервер отключён.
+.It Va radius_server_auth_port
+Номер UDP-порта для RADIUS-сервера аутентификации.
+.It Va radius_server_ipv6
+Использовать IPv6 с RADIUS-сервером.
+.El
+.Sh ПАРАМЕТРЫ WPA/IEEE 802.11i
+Распознаются следующие параметры:
+.Bl -tag -width indent
+.It Va wpa
+Включить WPA.
+Установка этой переменной настраивает AP так, чтобы требовался WPA (либо
+WPA-PSK, либо WPA-RADIUS/EAP в зависимости от другой конфигурации).
+.It Va wpa_psk , wpa_passphrase
+Предварительно разделяемые ключи WPA для WPA-PSK.
+Это можно ввести либо как 256-битный секрет в шестнадцатеричном формате (64 hex
+цифры), wpa_psk, либо как ASCII-парольную фразу (8..63 символа), которая
+будет преобразована в PSK.
+Это преобразование использует SSID, поэтому PSK изменяется, когда используется ASCII-парольная фраза
+и изменяется SSID.
+.It Va wpa_psk_file
+Дополнительно ключи WPA PSK можно читать из отдельного текстового файла, содержащего
+список пар PSK и MAC-адресов.
+.It Va wpa_key_mgmt
+Набор принимаемых алгоритмов управления ключами (WPA-PSK, WPA-EAP или оба).
+.It Va wpa_pairwise
+Набор принимаемых наборов шифров (алгоритмов шифрования) для попарных ключей
+(одноадресных пакетов).
+См. файл примера для получения дополнительной информации.
+.It Va wpa_group_rekey
+Интервал времени для смены GTK (широковещательных/многоадресных ключей шифрования) в
+секундах.
+.It Va wpa_strict_rekey
+Сменять GTK, когда любая STA, владеющая текущим GTK, покидает
+BSS.
+.It Va wpa_gmk_rekey
+Интервал времени для смены GMK (главного ключа, используемого внутренне для генерации GTK),
+в секундах.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr hostapd 8 ,
+.Xr hostapd_cli 8
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+и
+функциональность
+.Xr hostapd 8
+впервые появились в
+.Fx 6.0 .
+.Sh АВТОРЫ
+Эта страница руководства основана на файлах
+.Pa README
+и
+.Pa hostapd.conf
+из дистрибутива
+.Nm hostapd ,
+предоставленного
+.An Jouni Malinen Aq Mt j@w1.fi .

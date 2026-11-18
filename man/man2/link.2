@@ -1,0 +1,321 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/link.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c5d730653675b556984d7b570dd70d8ddcf042fcc1b1b52d768262dc7171a862
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2021
+.Dt LINK 2
+.Os
+.Sh ИМЯ
+.Nm link ,
+.Nm linkat
+.Nd создание жесткой ссылки на файл
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn link "const char *name1" "const char *name2"
+.Ft int
+.Fo linkat
+.Fa "int fd1" "const char *name1" "int fd2" "const char *name2" "int flag"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn link
+атомарно создает указанный элемент каталога (жесткую ссылку)
+.Fa name2
+с атрибутами объекта, на который указывает
+.Fa name1 .
+Если создание ссылки успешно: счетчик ссылок на объект
+увеличивается;
+.Fa name1
+и
+.Fa name2
+разделяют равный доступ и права
+на
+базовый объект.
+.Pp
+Если
+.Fa name1
+удален, файл
+.Fa name2
+не удаляется, а счетчик ссылок на
+базовый объект
+уменьшается.
+.Pp
+Объект, на который указывает
+аргумент
+.Fa name1 ,
+должен существовать, чтобы жесткая ссылка могла
+быть создана, и
+как
+.Fa name1 ,
+так и
+.Fa name2
+должны находиться в одной файловой системе.
+Аргумент
+.Fa name1
+не может быть каталогом.
+.Pp
+Системный вызов
+.Fn linkat
+эквивалентен
+.Fa link ,
+за исключением случая, когда либо
+.Fa name1 ,
+либо
+.Fa name2 ,
+либо оба являются относительными путями.
+В этом случае относительный путь
+.Fa name1
+интерпретируется относительно
+каталога, связанного с дескриптором файла
+.Fa fd1 ,
+а не текущего рабочего каталога, и аналогично для
+.Fa name2
+и дескриптора файла
+.Fa fd2 .
+.Pp
+Значения
+.Fa flag
+формируются побитовым включающим ИЛИ из флагов следующего
+списка, определенного в
+.In fcntl.h :
+.Bl -tag -width indent
+.It Dv AT_SYMLINK_FOLLOW
+Если
+.Fa name1
+указывает на символическую ссылку, создается новая ссылка на цель символической ссылки.
+.It Dv AT_RESOLVE_BENEATH
+Обходить только пути ниже каталога, указанного
+дескриптором
+.Ar fd1 .
+См. описание флага
+.Dv O_RESOLVE_BENEATH
+в странице руководства
+.Xr open 2 .
+.It Dv AT_EMPTY_PATH
+Если
+аргумент
+.Fa name1
+является пустой строкой, создать ссылку на файл, на который ссылается дескриптор
+.Fa fd1 .
+Операция требует, чтобы вызывающий процесс имел
+привилегию
+.Dv PRIV_VFS_FHOPEN ,
+фактически выполняясь с эффективным пользователем
+.Dv root .
+.El
+.Pp
+Если
+.Fn linkat
+передается специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fd1
+или
+.Fa fd2 ,
+то для соответствующего
+аргумента
+.Fa name
+используется текущий рабочий каталог.
+Если оба
+.Fa fd1
+и
+.Fa fd2
+имеют значение
+.Dv AT_FDCWD ,
+поведение идентично вызову
+.Fn link .
+Если только
+.Fa flag
+не содержит флаг
+.Dv AT_SYMLINK_FOLLOW ,
+если
+.Fa name1
+указывает на символическую ссылку, создается новая ссылка для символической ссылки
+.Fa name1 ,
+а не ее цели.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std link
+.Sh ОШИБКИ
+Системный вызов
+.Fn link
+завершится неудачно, и ссылка не будет создана, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент любого префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент любого имени пути превысил 255 символов,
+или полная длина любого имени пути превысила 1023 символа.
+.It Bq Er ENOENT
+Компонент любого префикса пути не существует.
+.It Bq Er EOPNOTSUPP
+Файловая система, содержащая файл с именем
+.Fa name1 ,
+не поддерживает ссылки.
+.It Bq Er EMLINK
+Счетчик ссылок на файл с именем
+.Fa name1
+превысил бы 32767.
+.It Bq Er EACCES
+Компонент любого префикса пути запрещает поиск.
+.It Bq Er EACCES
+Запрошенная ссылка требует записи в каталог с режимом,
+запрещающим запись.
+.It Bq Er ELOOP
+При преобразовании одного из имен путей встречено слишком много символических ссылок.
+.It Bq Er ENOENT
+Файл с именем
+.Fa name1
+не существует.
+.It Bq Er EEXIST
+Ссылка с именем
+.Fa name2
+уже существует.
+.It Bq Er EPERM
+Файл с именем
+.Fa name1
+является каталогом.
+.It Bq Er EPERM
+Файл с именем
+.Fa name1
+имеет установленный флаг "неизменяемый" или "только для добавления", см. страницу руководства
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EPERM
+Родительский каталог файла с именем
+.Fa name2
+имеет установленный флаг "неизменяемый".
+.It Bq Er EXDEV
+Ссылка с именем
+.Fa name2
+и файл с именем
+.Fa name1
+находятся в разных файловых системах.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для новой ссылки,
+не может быть расширен, так как в файловой
+системе, содержащей каталог, не осталось свободного места.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для новой ссылки,
+не может быть расширен, так как
+квота пользователя на дисковые блоки в файловой системе,
+содержащей каталог, исчерпана.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при чтении из или записи в
+файловую систему для создания элемента каталога.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены поврежденные данные.
+.It Bq Er EROFS
+Запрошенная ссылка требует записи в каталог на файловой системе
+только для чтения.
+.It Bq Er EFAULT
+Одно из указанных имен путей
+находится вне выделенного адресного пространства процесса.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn link ,
+системный вызов
+.Fn linkat
+может завершиться неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa name1
+или
+.Fa name2
+не задает абсолютный путь, и
+аргумент
+.Fa fd1
+или
+.Fa fd2 ,
+соответственно, не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er EINVAL
+Значение
+аргумента
+.Fa flag
+недопустимо.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa name1
+или
+.Fa name2
+не является абсолютным путем, и
+.Fa fd1
+или
+.Fa fd2 ,
+соответственно, не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.It Bq Er ENOTCAPABLE
+.Fa name1
+не является строго относительным к начальному каталогу.
+Например,
+.Fa name1
+является абсолютным или содержит компонент "..", который выходит
+за пределы иерархии каталогов, указанной
+.Fa fd ,
+и процесс находится в режиме возможностей, или
+был задан флаг
+.Dv AT_RESOLVE_BENEATH .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr readlink 2 ,
+.Xr symlink 2 ,
+.Xr unlink 2
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn link
+соответствует
+.St -p1003.1-90 .
+Системный вызов
+.Fn linkat
+соответствует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Функция
+.Fn link
+появилась в
+.At v1 .
+Системный вызов
+.Fn linkat
+появился в
+.Fx 8.0 .
+.Pp
+Системный вызов
+.Fn link
+традиционно позволял суперпользователю создавать ссылки на каталоги, что
+нарушает целостность файловой системы.
+Данная реализация больше этого не позволяет.

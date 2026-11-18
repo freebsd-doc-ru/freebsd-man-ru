@@ -1,0 +1,193 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 Edward Tomasz Napierala <trasz@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man7/development.7
+.\" FRDP githash db14f5c96de9d6383b1e7f33b5a7ef659d6581d4
+.\" FRDP hash256 07ae1c8141240e0eb4b2543ed9b9f8649dc18f0e7f367477231895fc5f938bb2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 24, 2025
+.Dt DEVELOPMENT 7
+.Os
+.Sh ИМЯ
+.Nm development
+.Nd введение в
+.Fx
+процесс разработки
+.Sh ОПИСАНИЕ
+В
+.Fx
+разработка разделена на три основных подпроекта: doc, ports и src.
+Doc — это документация, такая как
+.Fx
+Handbook.
+Чтобы узнать больше, см.:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/fdp-primer/
+.Pp
+Ports, более подробно описанные в
+.Xr ports 7 ,
+представляют собой способ сборки, упаковки и установки стороннего программного обеспечения.
+Чтобы узнать больше, см.:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/porters-handbook/
+.Pp
+Последний подпроект, src, связан с исходным кодом базовой системы,
+состоящей из ядра, а также библиотек и утилит, обычно называемых
+world.
+.Pp
+Руководство коммиттера, в котором описаны темы, актуальные для всех коммиттеров,
+можно найти по адресу:
+.Pp
+.Lk https://docs.freebsd.org/en/articles/committers-guide/
+.Pp
+Разработка src в
+.Fx
+ведётся в Git-репозитории, размещённом на ресурсах проекта и расположенном по адресу:
+.Pp
+.Lk https://git.FreeBSD.org/src.git
+.Pp
+URL для отправки (push):
+.Pp
+.Lk ssh://git@gitrepo.FreeBSD.org/src.git
+.Pp
+Также имеется список публичных зеркал Git, доступных только для чтения, по адресу:
+.Pp
+.Lk https://docs.FreeBSD.org/en/books/handbook/mirrors/#external-mirrors
+.Pp
+Ветка Git
+.Ql main
+представляет CURRENT;
+все изменения сначала коммитятся в CURRENT, а затем обычно
+переносятся обратно в STABLE, под которым понимаются ветки Git, такие как
+.Ql stable/14 .
+Каждые несколько лет от CURRENT ответвляется новая STABLE
+с увеличенным номером основной версии.
+Затем от STABLE ответвляются релизы, которые нумеруются последовательными
+минорными номерами, такими как
+.Ql releng/14.3
+.Pp
+Структура дерева исходного кода описана в файле
+.Pa README.md
+\&.
+Инструкции по сборке можно найти в
+.Xr build 7
+и
+.Xr release 7 .
+Интерфейсы программирования ядра (KPI) описаны в страницах руководства раздела 9;
+используйте
+.Ql apropos -s 9 \&.
+для получения списка.
+Набор регрессионных тестов описан в
+.Xr tests 7 .
+Соглашения о кодировании см. в
+.Xr style 9 .
+.Pp
+Чтобы задать вопросы по разработке, используйте списки рассылки,
+такие как freebsd-arch@ и freebsd-hackers@:
+.Pp
+.Lk https://lists.FreeBSD.org
+.Pp
+Чтобы ваши патчи были включены в основной репозиторий
+.Fx
+, используйте Phabricator;
+это инструмент проверки кода, который позволяет другим разработчикам
+просматривать изменения, предлагать улучшения и в конечном итоге
+принимать изменение и коммитить его:
+.Pp
+.Lk https://reviews.FreeBSD.org
+.Pp
+Или GitHub:
+.Pp
+.Lk https://github.com/freebsd
+.Pp
+Чтобы проверить последний статус сборки и тестирования
+.Fx
+для веток CURRENT и STABLE, система непрерывной интеграции находится по адресу:
+.Pp
+.Lk https://ci.FreeBSD.org
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /usr/src/CONTRIBUTING.md
+.Fx
+рекомендации по участию
+.It Pa /usr/src/tools/tools/git/git-arc.sh
+инструменты проверки Phabricator
+.It Pa /usr/ports/devel/freebsd-git-devtools
+инструменты проверки Phabricator в виде порта
+.El
+.Sh ПРИМЕРЫ
+Примените патч из pull-запроса GitHub #1234, используя
+.Pa devel/gh :
+.Pp
+.Dl gh pr checkout 1234
+.Pp
+Примените патч из проверки Phabricator D1234, используя
+.Xr git-arc 1 :
+.Pp
+.Dl git arc patch -c D1234
+.Pp
+Примените вручную загруженный патч, созданный
+.Xr git-format-patch 1 ,
+.Pa draft.patch ,
+из Bugzilla или почты:
+.Pp
+.Dl git am draft.patch
+.Pp
+Примените вручную загруженный патч
+.Pa draft.diff ,
+из Bugzilla или почты:
+.Pp
+.Dl git apply draft.diff
+.Sh СМ. ТАКЖЕ
+.Xr git 1 ,
+.Xr git-arc 1 ,
+.Xr witness 4 ,
+.Xr build 7 ,
+.Xr hier 7 ,
+.Xr ports 7 ,
+.Xr release 7 ,
+.Xr tests 7 ,
+.Xr locking 9 ,
+.Xr style 9
+.Sh ИСТОРИЯ
+Страница руководства
+.Nm
+была изначально написана
+.An Matthew Dillon Aq Mt dillon@FreeBSD.org
+и впервые появилась в
+.Fx 5.0 ,
+в декабре 2002 года.
+С тех пор она была существенно изменена
+.An Eitan Adler Aq Mt eadler@FreeBSD.org
+с целью отразить переход репозитория с
+.Lk https://www.nongnu.org/cvs/ CVS
+на
+.Lk https://subversion.apache.org/ Subversion .
+Она была переписана с нуля
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+для
+.Fx 12.0 .

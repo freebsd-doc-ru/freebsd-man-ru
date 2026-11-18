@@ -1,0 +1,316 @@
+.\"	$NetBSD: ntp_adjtime.2,v 1.6 2003/04/16 13:34:55 wiz Exp $
+.\"
+.\" Copyright (c) 2001 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Thomas Klausner.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/ntp_adjtime.2
+.\" FRDP githash b49b3ccd40bda02f530c679f23f42ba9e0e4b2e2
+.\" FRDP hash256 3b4281595c8c2f74ddb7290483ef71a7de6254657b1f6018205f7a2838ebeec1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 22, 2026
+.Dt NTP_ADJTIME 2
+.Os
+.Sh ИМЯ
+.Nm ntp_adjtime ,
+.Nm ntp_gettime
+.Nd системные вызовы интерфейса демона сетевого протокола времени (ntpd)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/timex.h
+.Ft int
+.Fn ntp_adjtime "struct timex *"
+.Ft int
+.Fn ntp_gettime "struct ntptimeval *"
+.Sh ОПИСАНИЕ
+Два системных вызова
+.Fn ntp_adjtime
+и
+.Fn ntp_gettime
+являются интерфейсом ядра к демону сетевого протокола времени (NTP)
+.Xr ntpd 8 .
+.Pp
+Функция
+.Fn ntp_adjtime
+используется демоном NTP для подстройки системных часов по внешне
+полученному времени.
+Смещение времени и связанные переменные, устанавливаемые
+.Fn ntp_adjtime ,
+используются
+.Fn hardclock
+для подстройки фазы и частоты петли фазовой или частотной автоподстройки
+(ФАПЧ соответственно ЧАПЧ), которая управляет системными часами.
+.Pp
+Функция
+.Fn ntp_gettime
+предоставляет клиентским прикладным программам время, максимальную
+погрешность (расстояние синхронизации) и оценочную погрешность (дисперсию).
+.Pp
+Далее все переменные, относящиеся к PPS, имеют значение только если
+в ядре включена опция
+.Em PPS_SYNC .
+.Pp
+.Fn ntp_adjtime
+принимает в качестве аргумента
+.Va struct timex *
+следующего вида:
+.Bd -literal
+struct timex {
+	unsigned int modes;	/* clock mode bits (wo) */
+	long offset;		/* time offset (us) (rw) */
+	long freq;		/* frequency offset (scaled ppm) (rw) */
+	long maxerror;		/* maximum error (us) (rw) */
+	long esterror;		/* estimated error (us) (rw) */
+	int status;		/* clock status bits (rw) */
+	long constant;		/* pll time constant (rw) */
+	long precision;		/* clock precision (us) (ro) */
+	long tolerance;		/* clock frequency tolerance (scaled
+				 * ppm) (ro) */
+	/*
+	 * The following read-only structure members are implemented
+	 * only if the PPS signal discipline is configured in the
+	 * kernel.
+	 */
+	long ppsfreq;		/* pps frequency (scaled ppm) (ro) */
+	long jitter;		/* pps jitter (us) (ro) */
+	int shift;		/* interval duration (s) (shift) (ro) */
+	long stabil;		/* pps stability (scaled ppm) (ro) */
+	long jitcnt;		/* jitter limit exceeded (ro) */
+	long calcnt;		/* calibration intervals (ro) */
+	long errcnt;		/* calibration errors (ro) */
+	long stbcnt;		/* stability limit exceeded (ro) */
+};
+.Ed
+.Pp
+Члены этой структуры имеют следующие значения при использовании в
+качестве аргумента
+.Fn ntp_adjtime :
+.Bl -tag -width tolerance -compact
+.It Fa modes
+Определяет, какие настройки следует изменить при текущем вызове
+.Fn ntp_adjtime
+(только запись).
+Побитовое ИЛИ следующих значений:
+.Bl -tag -width MOD_TIMECONST -compact -offset indent
+.It MOD_OFFSET
+установить смещение времени
+.It MOD_FREQUENCY
+установить смещение частоты
+.It MOD_MAXERROR
+установить максимальную погрешность времени
+.It MOD_ESTERROR
+установить оценочную погрешность времени
+.It MOD_STATUS
+установить биты состояния часов
+.It MOD_TIMECONST
+установить постоянную времени ФАПЧ
+.It MOD_CLKA
+установить часы A
+.It MOD_CLKB
+установить часы B
+.El
+.It Fa offset
+Смещение времени (в микросекундах), используемое ФАПЧ/ЧАПЧ для подстройки
+системного времени малыми приращениями (чтение-запись).
+.It Fa freq
+Смещение частоты (в масштабированных ppm) (чтение-запись).
+.It Fa maxerror
+Максимальная погрешность (в микросекундах).
+Инициализируется вызовом
+.Fn ntp_adjtime
+и увеличивается ядром раз в секунду для отражения роста верхней границы
+погрешности (чтение-запись).
+.It Fa esterror
+Оценочная погрешность (в микросекундах).
+Устанавливается и читается
+.Fn ntp_adjtime ,
+но не используется ядром (чтение-запись).
+.It Fa status
+Биты состояния системных часов (чтение-запись).
+Побитовое ИЛИ следующих значений:
+.Bl -tag -width STA_PPSJITTER -compact -offset indent
+.It STA_PLL
+Включить обновления ФАПЧ (чтение-запись).
+.It STA_PPSFREQ
+Включить частотную дисциплину PPS (чтение-запись).
+.It STA_PPSTIME
+Включить временную дисциплину PPS (чтение-запись).
+.It STA_FLL
+Выбрать режим частотной автоподстройки (чтение-запись).
+.It STA_INS
+Вставить дополнительную секунду (чтение-запись).
+.It STA_DEL
+Удалить дополнительную секунду (чтение-запись).
+.It STA_UNSYNC
+Часы не синхронизированы (чтение-запись).
+.It STA_FREQHOLD
+Удерживать частоту (чтение-запись).
+.It STA_PPSSIGNAL
+Сигнал PPS присутствует (только чтение).
+.It STA_PPSJITTER
+Джиттер сигнала PPS превышен (только чтение).
+.It STA_PPSWANDER
+Блуждание сигнала PPS превышено (только чтение).
+.It STA_PPSERROR
+Ошибка калибровки сигнала PPS (только чтение).
+.It STA_CLOCKERR
+Аппаратная неисправность часов (только чтение).
+.El
+.It Fa constant
+Постоянная времени ФАПЧ, определяет полосу пропускания, или
+.Dq жёсткость ,
+ФАПЧ (чтение-запись).
+.It Fa precision
+Точность часов (в микросекундах).
+В большинстве случаев совпадает с переменной тика ядра (см.
+.Xr hz 9 ) .
+Если доступен прецизионный счётчик часов или внешний сигнал хронометража,
+она может быть гораздо меньше (и зависеть от состояния сигнала)
+(только чтение).
+.It Fa tolerance
+Максимальная погрешность частоты, или допуск генератора тактовой частоты
+процессора (в масштабированных ppm).
+Обычно является свойством архитектуры, но может изменяться под
+воздействием внешних сигналов хронометража (только чтение).
+.It Fa ppsfreq
+Смещение частоты PPS, полученное медианным фильтром частоты (в
+масштабированных ppm) (только чтение).
+.It Fa jitter
+Джиттер PPS, измеренный медианным фильтром времени, в микросекундах
+(только чтение).
+.It Fa shift
+Логарифм по основанию 2 длительности интервала в секундах (PPS,
+только чтение).
+.It Fa stabil
+Стабильность PPS (в масштабированных ppm); дисперсия (блуждание),
+измеренная медианным фильтром частоты (только чтение).
+.It Fa jitcnt
+Количество секунд, отброшенных из-за того, что джиттер, измеренный
+медианным фильтром времени, превысил предел
+.Em MAXTIME
+(PPS, только чтение).
+.It Fa calcnt
+Количество интервалов калибровки (PPS, только чтение).
+.It Fa errcnt
+Количество интервалов калибровки, которые были отброшены из-за того,
+что блуждание превысило предел
+.Em MAXFREQ ,
+или где джиттер интервала калибровки превысил два тика (PPS,
+только чтение).
+.It Fa stbcnt
+Количество интервалов калибровки, которые были отброшены из-за того,
+что блуждание частоты превысило предел
+.Em MAXFREQ Ns /4
+(PPS, только чтение).
+.El
+После вызова
+.Fn ntp_adjtime
+структура
+.Va struct timex *
+содержит текущие значения соответствующих переменных.
+.Pp
+.Fn ntp_gettime
+принимает в качестве аргумента
+.Va struct ntptimeval *
+со следующими членами:
+.Bd -literal
+struct ntptimeval {
+	struct timeval time;	/* current time (ro) */
+	long maxerror;		/* maximum error (us) (ro) */
+	long esterror;		/* estimated error (us) (ro) */
+};
+.Ed
+.Pp
+Они имеют следующие значения:
+.Bl -tag -width tolerance -compact
+.It Fa time
+Текущее время (только чтение).
+.It Fa maxerror
+Максимальная погрешность в микросекундах (только чтение).
+.It Fa esterror
+Оценочная погрешность в микросекундах (только чтение).
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Fn ntp_adjtime
+и
+.Fn ntp_gettime
+возвращают текущее состояние часов при успехе, или любую из ошибок
+.Xr copyin 9
+и
+.Xr copyout 9 .
+.Fn ntp_adjtime
+может дополнительно возвращать
+.Er EPERM ,
+если пользователь, вызывающий
+.Fn ntp_adjtime ,
+не имеет достаточных прав.
+.Pp
+Возможные состояния часов:
+.Bl -tag -width TIME_ERROR -compact -offset indent
+.It TIME_OK
+Всё в порядке, нет предупреждения о дополнительной секунде.
+.It TIME_INS
+Предупреждение
+.Dq вставить дополнительную секунду .
+В конце дня дополнительная секунда будет вставлена после 23:59:59.
+.It TIME_DEL
+Предупреждение
+.Dq удалить дополнительную секунду .
+В конце дня секунда 23:59:59 будет пропущена.
+.It TIME_OOP
+Дополнительная секунда в процессе.
+.It TIME_WAIT
+Дополнительная секунда произошла в течение последних нескольких секунд.
+.It TIME_ERROR
+Часы не синхронизированы.
+.El
+.Sh ОШИБКИ
+Системный вызов
+.Fn ntp_adjtime
+может возвращать
+.Er EPERM ,
+если вызывающий
+не имеет достаточных прав.
+.Sh СМ. ТАКЖЕ
+.Xr options 4 ,
+.Xr ntpd 8 ,
+.Xr hardclock 9 ,
+.Xr hz 9
+.Bl -tag -width indent
+.It Pa http://www.bipm.fr/enus/5_Scientific/c_time/time_1.html
+.It Pa http://www.boulder.nist.gov/timefreq/general/faq.htm
+.It Pa ftp://time.nist.gov/pub/leap-seconds.list
+.El
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Обратите внимание, что этот
+.Tn API
+крайне сложен и зависит от состояния.
+Пользователям не следует пытаться вносить изменения, не изучив
+предварительно
+.Xr ntpd 8
+исходные тексты в достаточной мере.

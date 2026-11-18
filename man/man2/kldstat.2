@@ -1,0 +1,131 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldstat.2
+.\" FRDP githash f44029e322446469f116bbd26d51ba857083bacb
+.\" FRDP hash256 72b194f1fb1daeaa30d2da1d7657ca85aaf075106b76a1125a7342c91772292a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 28, 2012
+.Dt KLDSTAT 2
+.Os
+.Sh ИМЯ
+.Nm kldstat
+.Nd получить состояние kld-файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldstat "int fileid" "struct kld_file_stat *stat"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kldstat
+записывает информацию о файле, на который ссылается
+.Fa fileid ,
+в
+.Fa stat .
+.Bd -literal
+struct kld_file_stat {
+	int         version;    /* set to sizeof(struct kld_file_stat) */
+	char        name[MAXPATHLEN];
+	int         refs;
+	int         id;
+	caddr_t     address;
+	size_t      size;
+	char        pathname[MAXPATHLEN];
+};
+.Ed
+.Bl -tag -width XXXaddress
+.It version
+Это поле устанавливается в размер вышеупомянутой структуры кодом,
+вызывающим
+.Fn kldstat ,
+а не самим
+.Fn kldstat .
+.It name
+Имя файла, на который ссылается
+.Fa fileid .
+.It refs
+Количество модулей, на которые ссылается
+.Fa fileid .
+.It id
+Идентификатор файла, указанного в
+.Fa fileid .
+.It address
+Адрес загрузки kld-файла.
+.It size
+Объём памяти в байтах, выделенной файлом.
+.It pathname
+Полное имя файла, на который ссылается
+.Fa fileid ,
+включая путь.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std kldstat
+.Sh ОШИБКИ
+Информация о файле, на который ссылается
+.Fa fileid ,
+заполняется в структуру, на которую указывает
+.Fa stat ,
+если только:
+.Bl -tag -width Er
+.It Bq Er ENOENT
+Файл не найден (вероятно, не загружен).
+.It Bq Er EINVAL
+Версия, указанная в поле
+.Fa version
+структуры stat, не является правильной версией.
+Вам потребуется пересобрать world, ядро или ваше приложение, если
+возникла эта ошибка, при условии, что вы правильно заполнили поле
+.Fa version .
+.It Bq Er EFAULT
+Возникла проблема при копировании одного, некоторых или всех полей в
+.Fa stat
+в функции
+.Xr copyout 9 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Pathname может быть неточным, если точки монтирования файловой системы
+изменились с момента загрузки модуля, или если эта функция вызывается
+в среде chroot.

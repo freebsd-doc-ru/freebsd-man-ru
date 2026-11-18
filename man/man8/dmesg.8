@@ -1,0 +1,103 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/dmesg/dmesg.8
+.\" FRDP githash 07b00bed83121043ffc88889edc15aad183227ba
+.\" FRDP hash256 1bf5d64241bbffba1b958ab24de10dead8676d878bd6c19227f37fe843274d64
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 7, 2026
+.Dt DMESG 8
+.Os
+.Sh ИМЯ
+.Nm dmesg
+.Nd вывести буфер сообщений ядра
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ac
+.Op Fl M Ar core Op Fl N Ar system
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает содержимое буфера сообщений ядра.
+Если параметр
+.Fl M
+не указан, буфер читается из текущего работающего ядра
+через интерфейс
+.Xr sysctl 3 .
+В противном случае буфер читается из указанного файла core,
+используя список имён из указанного образа ядра (или из
+образа по умолчанию).
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl a
+Показать все данные в буфере сообщений.
+Это включает любые записи syslog и
+.Pa /dev/console
+вывод.
+.It Fl c
+Очистить буфер ядра после вывода.
+.It Fl M
+Извлечь значения, связанные со списком имён, из указанного файла core.
+.It Fl N
+Если
+.Fl M
+также указан,
+извлечь список имён из указанного файла system вместо значения по умолчанию,
+которым является образ ядра, с которого загрузилась система.
+.El
+.Sh ПЕРЕМЕННЫЕ SYSCTL
+Следующие переменные
+.Xr sysctl 8
+управляют тем, как ядро проставляет временные метки записям в буфере сообщений:
+Значение по умолчанию показано рядом с каждой переменной.
+.Bl -tag -width indent
+.It Va kern.msgbuf_show_timestamp : No 0
+Если установлено в 0, временные метки не добавляются.
+Если установлено в 1, к большинству строк в буфере сообщений будет добавлена временная метка с точностью до 1 секунды.
+Если установлено в 2, будет добавлена временная метка с точностью до микросекунды.
+Это также может быть задано как настраиваемый параметр загрузчика
+.Xr loader 8 .
+Временные метки размещаются в начале большинства строк, которые генерирует ядро.
+У некоторых многострочных сообщений временной меткой будет помечена только первая строка.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /var/run/dmesg.boot
+обычно снимок содержимого буфера,
+сделанный вскоре после монтирования файловых систем
+при загрузке
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sysctl 3 ,
+.Xr syslogd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 3 .

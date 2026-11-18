@@ -1,0 +1,111 @@
+.\"
+.\" Copyright (c) 2003 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by Marshall
+.\" Kirk McKusick and Network Associates Laboratories, the Security
+.\" Research Division of Network Associates, Inc. under DARPA/SPAWAR
+.\" contract N66001-01-C-8035 ("CBOSS"), as part of the DARPA CHATS
+.\" research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/mksnap_ffs/mksnap_ffs.8
+.\" FRDP githash aa1a1e7dc42f954832a63c340de61f771b27278e
+.\" FRDP hash256 0d8d6f18098f4e4c65629561a1b2c72ab2d4c098a03842084cd5247ef2400879
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 22, 2023
+.Dt MKSNAP_FFS 8
+.Os
+.Sh ИМЯ
+.Nm mksnap_ffs
+.Nd создать снимок файловой системы
+.Sh СИНТАКСИС
+.Nm
+.Ar snapshot_name
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт снимок с именем
+.Ar snapshot_name .
+Это имя — путь в файловой системе, для которой создаётся снимок.
+Обычно он находится в каталоге
+.Pa .snap
+в корне файловой системы, но может
+находиться в любом месте файловой системы, для которой создаётся снимок.
+Список снимков можно вывести с помощью команды
+.Xr snapinfo 8 .
+.Pp
+После создания снимок появляется в виде файла.
+Размер файла снимка равен размеру
+файловой системы, из которой он был снят.
+Его можно переместить, переименовать или удалить (при этом снимок удаляется).
+.Pp
+Групповым владельцем файла устанавливается
+.Dq Li operator ;
+владельцем файла остаётся
+.Dq Li root .
+Режим доступа снимка устанавливается так, чтобы он был доступен для чтения владельцу
+или членам группы
+.Dq Li operator .
+.Sh ПРИМЕРЫ
+Создайте снимок файловой системы
+.Pa /home
+и смонтируйте снимок в другом месте:
+.Bd -literal -offset indent
+mksnap_ffs /home/.snap/snap1
+mdconfig -a -t vnode -o readonly -f /home/.snap/snap1
+mount -o ro /dev/md0 /mnt/
+.Ed
+.Pp
+Удалите снимок:
+.Bd -literal -offset indent
+rm /home/.snap/snap1
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr rm 1 ,
+.Xr chmod 2 ,
+.Xr chown 8 ,
+.Xr mdconfig 8 ,
+.Xr mount 8 ,
+.Xr snapinfo 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 5.1 .
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Ситуация с заполнением диска не обрабатывается корректно и может
+привести к панике системы, когда не найдено свободных блоков.
+.Pp
+Каждая файловая система может иметь не более 20 активных снимков.
+При достижении этого предела попытка создать дополнительные снимки
+завершается ошибкой
+.Er ENOSPC ,
+а
+.Nm
+сообщает, что
+.Dq нет места .

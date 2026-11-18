@@ -1,0 +1,302 @@
+.\"	$NetBSD: utimes.2,v 1.13 1999/03/22 19:45:11 garbled Exp $
+.\"
+.\" Copyright (c) 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2012, Jilles Tjoelker
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/utimensat.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 7f0eec3442ed2473de2be84f9df174ce87e033690d5e56ff399416bd634f6880
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 12, 2022
+.Dt UTIMENSAT 2
+.Os
+.Sh ИМЯ
+.Nm futimens ,
+.Nm utimensat
+.Nd установка времени доступа и изменения файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/stat.h
+.Ft int
+.Fn futimens "int fd" "const struct timespec times[2]"
+.Ft int
+.Fo utimensat
+.Fa "int fd"
+.Fa "const char *path"
+.Fa "const struct timespec times[2]"
+.Fa "int flag"
+.Fc
+.Sh ОПИСАНИЕ
+Время доступа и изменения файла, указанного в
+.Fa path
+или на который ссылается
+.Fa fd ,
+изменяется в соответствии с аргументом
+.Fa times .
+Время изменения inode файла устанавливается в текущее время.
+.Pp
+Если
+.Fa path
+задаёт относительный путь,
+он отсчитывается от текущего рабочего каталога, если
+.Fa fd
+равен
+.Dv AT_FDCWD ,
+и в противном случае — от каталога, связанного с файловым дескриптором
+.Fa fd .
+.Pp
+Поле
+.Va tv_nsec
+структуры
+.Vt timespec
+может быть установлено в специальное значение
+.Dv UTIME_NOW
+для установки текущего времени или в
+.Dv UTIME_OMIT
+для оставления времени без изменений.
+В любом случае поле
+.Va tv_sec
+игнорируется.
+.Pp
+Если
+.Fa times
+не равен
+.No non- Ns Dv NULL ,
+предполагается, что он указывает на массив из двух структур timespec.
+Время доступа устанавливается в значение первого элемента, а
+время изменения — в значение второго элемента.
+Для файловых систем, поддерживающих время рождения (создания) файла (например,
+.Dv UFS2 ) ,
+время рождения будет установлено в значение второго элемента,
+если второй элемент старше текущего установленного времени рождения.
+Чтобы установить и время рождения, и время изменения,
+требуется два вызова: первый для установки времени рождения,
+а второй для установки (предположительно более нового) времени изменения.
+В идеале будет добавлен новый системный вызов, позволяющий установить
+все три времени сразу.
+Если
+.Fa times
+равен
+.Dv NULL ,
+это эквивалентно передаче
+указателя на массив из двух структур timespec,
+в котором оба поля
+.Va tv_nsec
+установлены в
+.Dv UTIME_NOW .
+.Pp
+Если оба поля
+.Va tv_nsec
+равны
+.Dv UTIME_OMIT ,
+временные метки остаются без изменений и
+для самого файла разрешения не требуются,
+хотя для префикса пути может потребоваться разрешение на поиск.
+Вызов может как завершиться успешно, так и не завершиться, если указанный файл не существует.
+.Pp
+Если оба поля
+.Va tv_nsec
+равны
+.Dv UTIME_NOW ,
+вызывающий должен быть владельцем файла, иметь разрешение на
+запись в файл или быть суперпользователем.
+.Pp
+Для всех остальных значений временных меток
+вызывающий должен быть владельцем файла или суперпользователем.
+.Pp
+Значения для аргумента
+.Fa flag
+системного вызова
+.Fn utimensat
+формируются побитовым включающим ИЛИ флагов из следующего списка,
+определённых в
+.In fcntl.h :
+.Bl -tag -width indent
+.It Dv AT_SYMLINK_NOFOLLOW
+Если
+.Fa path
+указывает на символическую ссылку, изменяется время самой символической ссылки.
+По умолчанию
+.Fn utimensat
+изменяет время файла, на который ссылается символическая ссылка.
+.It Dv AT_RESOLVE_BENEATH
+Проходить только по путям ниже каталога, указанного дескриптором
+.Ar fd .
+См. описание флага
+.Dv O_RESOLVE_BENEATH
+в руководстве
+.Xr open 2 .
+.It Dv AT_EMPTY_PATH
+Если аргумент
+.Fa path
+является пустой строкой, выполнить операцию над файлом или каталогом,
+на который ссылается дескриптор
+.Fa fd .
+Если
+.Fa fd
+равен
+.Dv AT_FDCWD ,
+выполнить операцию над текущим рабочим каталогом.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Эти системные вызовы завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Аргумент
+.Fa times
+равен
+.Dv NULL ,
+или оба значения
+.Va tv_nsec
+равны
+.Dv UTIME_NOW ,
+и эффективный идентификатор пользователя процесса не
+совпадает с владельцем файла, и не является суперпользователем, и доступ на запись
+запрещён.
+.It Bq Er EFAULT
+Аргумент
+.Fa times
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Компонент
+.Va tv_nsec
+хотя бы одного из значений, заданных аргументом
+.Fa times ,
+имеет значение меньше 0 или больше 999999999 и не равен
+.Dv UTIME_NOW
+или
+.Dv UTIME_OMIT .
+.It Bq Er EIO
+При чтении или записи затронутого inode произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EPERM
+Аргумент
+.Fa times
+не равен
+.Dv NULL ,
+и при этом не оба значения
+.Va tv_nsec
+равны
+.Dv UTIME_NOW
+и не оба значения
+.Va tv_nsec
+равны
+.Dv UTIME_OMIT
+и эффективный идентификатор пользователя вызывающего процесса
+не совпадает с владельцем файла и не является суперпользователем.
+.It Bq Er EPERM
+У указанного файла установлен флаг неизменяемости или только дополнения, см.
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EROFS
+Файловая система, содержащая файл, смонтирована только для чтения.
+.El
+.Pp
+Системный вызов
+.Fn futimens
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не ссылается на допустимый дескриптор.
+.El
+.Pp
+Системный вызов
+.Fn utimensat
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Доступ на поиск запрещён для компонента префикса пути.
+.It Bq Er EBADF
+Аргумент
+.Fa path
+не задаёт абсолютный путь, а аргумент
+.Fa fd
+не равен
+.Dv AT_FDCWD
+и не является допустимым файловым дескриптором.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er ELOOP
+При преобразовании имени пути встречено слишком много символических ссылок.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил
+.Dv NAME_MAX
+символов, или всё имя пути превысило
+.Dv PATH_MAX
+символов.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa path
+не является абсолютным путём, а
+.Fa fd
+не равен
+.Dv AT_FDCWD
+и не является файловым дескриптором, связанным с каталогом.
+.It Bq Er ENOTCAPABLE
+.Fa path
+является абсолютным путём,
+или содержит компонент "..", ведущий в
+каталог вне иерархии каталогов, заданной
+.Fa fd ,
+и процесс находится в режиме возможностей (capability mode), или был указан флаг
+.Dv AT_RESOLVE_BENEATH .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr stat 2 ,
+.Xr symlink 2 ,
+.Xr utimes 2 ,
+.Xr utime 3 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Предполагается, что системные вызовы
+.Fn futimens
+и
+.Fn utimensat
+соответствуют
+.St -p1003.1-2008 .
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn futimens
+и
+.Fn utimensat
+появились в
+.Fx 10.3 .

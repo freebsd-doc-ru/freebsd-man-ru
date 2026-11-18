@@ -1,0 +1,155 @@
+.\"/* Copyright 1988,1990,1993 by Paul Vixie
+.\" * All rights reserved
+.\" */
+.\"
+.\"Copyright (c) 1997 by Internet Software Consortium
+.\"
+.\"Permission to use, copy, modify, and distribute this software for any
+.\"purpose with or without fee is hereby granted, provided that the above
+.\"copyright notice and this permission notice appear in all copies.
+.\"
+.\"THE SOFTWARE IS PROVIDED "AS IS" AND INTERNET SOFTWARE CONSORTIUM DISCLAIMS
+.\"ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+.\"OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL INTERNET SOFTWARE
+.\"CONSORTIUM BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+.\"DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+.\"PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+.\"ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+.\"SOFTWARE.
+.\"
+.\" $Id: crontab.1,v 1.2 1998/08/14 00:32:37 vixie Exp $
+.\"
+.\" FRDP path usr.sbin/cron/crontab/crontab.1
+.\" FRDP githash da9cd485d0950de83c9762ca99532114aeb394d4
+.\" FRDP hash256 06972d16a0d3dc79b0f18e0514785331d599af8379d1e62d15855afdc58fb843
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 20, 2016
+.Dt CRONTAB 1
+.Os
+.Sh ИМЯ
+.Nm crontab
+.Nd обслуживание файлов crontab для отдельных пользователей (V3)
+.Sh СИНТАКСИС
+.Nm
+.Op Fl u Ar user
+.Ar file
+.Nm
+.Op Fl u Ar user
+{
+.Fl l |
+.Fl r Op Fl f
+|
+.Fl e
+}
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это программа, используемая для установки, удаления или вывода списка таблиц,
+которые используются для управления демоном
+.Xr cron 8
+в Vixie Cron.
+Каждый пользователь может иметь собственный crontab, и хотя
+это файлы в
+.Pa /var/cron/tabs ,
+они не предназначены для прямого редактирования.
+.Pp
+Если файл
+.Pa allow
+существует, то вы должны быть в нём перечислены, чтобы вам было разрешено
+использовать эту команду.
+Если файл
+.Pa allow
+не существует, но файл
+.Pa deny
+существует, то вы должны
+.Em не
+быть перечислены в файле
+.Pa deny
+чтобы использовать эту команду.
+Если ни один из этих файлов не существует, то
+в зависимости от параметров конфигурации конкретной системы, только суперпользователю
+будет разрешено использовать эту команду, или все пользователи смогут использовать эту
+команду.
+Формат этих файлов — одно имя пользователя на строку,
+без начальных или конечных пробельных символов.
+Строки другого формата игнорируются,
+поэтому их можно использовать для комментариев.
+.Pp
+Первая форма этой команды используется для установки нового crontab из некоторого
+именованного файла или, если задано псевдоимя файла
+.Sq Fl
+, из стандартного ввода.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl u
+Задаёт имя пользователя, чей crontab нужно
+изменить.
+Если этот параметр не указан,
+.Nm
+просматривает
+.Dq ваш
+crontab, т. е. crontab лица, выполняющего
+команду.
+Обратите внимание, что
+.Xr su 1
+может сбить с толку
+.Nm
+и что, если вы работаете внутри
+.Xr su 1 ,
+вам всегда следует использовать параметр
+.Fl u
+для безопасности.
+.It Fl l
+Показать текущий crontab на стандартный вывод.
+.It Fl r
+Удалить текущий crontab.
+По умолчанию параметр
+.Fl r
+запрашивает подтверждение; добавление параметра
+.Fl f
+приведёт к попытке удалить текущий crontab без подтверждения.
+.It Fl e
+Редактировать текущий crontab с помощью редактора, указанного в
+переменных окружения
+.Ev VISUAL
+или
+.Ev EDITOR .
+Указанный редактор
+.Em должен
+редактировать файл на месте;
+любой редактор, который удаляет файл и создаёт его заново, не может использоваться.
+После выхода
+из редактора изменённый crontab будет установлен автоматически.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/cron/allow -compact
+.It Pa /var/cron/allow
+Список пользователей, которым разрешено использовать crontab
+.It Pa /var/cron/deny
+Список пользователей, которым запрещено использовать crontab
+.It Pa /var/cron/tabs
+Каталог для личных файлов crontab
+.El
+.Sh ДИАГНОСТИКА
+Если запустить её с неправильной командной строкой, появляется довольно информативное сообщение об использовании.
+.Sh СМ. ТАКЖЕ
+.Xr crontab 5 ,
+.Xr cron 8
+.Sh СТАНДАРТЫ
+Команда
+.Nm
+соответствует
+.St -p1003.2
+за исключением того, что опасный вариант вызова
+.Nm
+без имени файла в первой форме команды не допускается этой реализацией.
+Псевдоимя файла
+.Sq Fl
+должно быть указано для чтения со стандартного ввода.
+Новый синтаксис команды
+отличается от предыдущих версий Vixie Cron, а также от классического
+синтаксиса SVR3.
+.Sh АВТОРЫ
+.An Paul Vixie Aq Mt paul@vix.com

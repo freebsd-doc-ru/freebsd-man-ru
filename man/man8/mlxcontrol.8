@@ -1,0 +1,147 @@
+.\"
+.\" Copyright (c) 2000 Michael Smith
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mlxcontrol/mlxcontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a7d719589f0ac12707120da4030f03e8bfe256c8f2a5536ae4efeb9eac4b0b5d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 10, 2000
+.Dt MLXCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm mlxcontrol
+.Nd Утилита управления RAID-массивами семейства Mylex DAC
+.Sh СИНТАКСИС
+.Nm
+.Aq команда
+.Op аргументы
+.Nm
+status
+.Op Fl qv
+.Op Ar диск
+.Nm
+rescan
+.Ar контроллер
+.Op Ar контроллер ...
+.Nm
+detach
+.Ar диск
+.Op Ar диск ...
+.Nm
+detach
+.Fl a
+.Nm
+check
+.Ar диск
+.Nm
+config
+.Ar контроллер
+.Nm
+help
+.Ar команда
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет функции мониторинга состояния и управления
+для устройств, подключённых
+к драйверу
+.Xr mlx 4 .
+.Pp
+где N — номер устройства контроллера.
+где N — номер устройства диска.
+Не указывайте путь к узлу устройства.
+.Bl -tag -width rebuild
+.It status
+Выводит состояние контроллеров и системных дисков.
+Если указан один или несколько дисков,
+выводится информация только об этих дисках;
+в противном случае выводится информация
+обо всех контроллерах и дисках в системе.
+С флагом
+.Fl v
+выводится гораздо более подробная информация.
+С флагом
+.Fl q
+ничего не выводить.
+Эта команда возвращает
+0, если все проверенные диски находятся в рабочем состоянии,
+1, если один или несколько дисков находятся в критическом состоянии, и
+2, если один или несколько неработоспособны.
+.It rescan
+Повторно просканировать один или несколько контроллеров на предмет
+неподключённых системных дисков
+(например, дисков, которые были
+отсоединены или созданы после инициализации драйвера).
+Если указан флаг
+.Fl a ,
+просканировать все контроллеры в системе.
+.It detach
+Отсоединить один или несколько системных дисков.
+Чтобы эта команда выполнилась успешно, диски должны быть размонтированы
+и не открыты никакой другой утилитой.
+Если указан флаг
+.Fl a ,
+отсоединить все системные диски от указанного контроллера.
+.It check
+Запустить проход проверки целостности и восстановления на избыточном системном диске
+(например, RAID1 или RAID5).
+Контроллер просканирует системный диск и исправит любые несоответствия.
+Эта команда возвращает управление немедленно;
+используйте команду
+.Ar status
+для отслеживания хода проверки.
+.It rebuild
+Требует двух аргументов,
+.Ar контроллер
+и
+.Ar physdrive ,
+как указано в
+выводе команды
+.Ar status .
+Все системные диски, использующие пространство на физическом диске
+.Ar physdrive ,
+перестраиваются, при этом все данные на диске реконструируются.
+Учтите, что каждый контроллер может выполнять только одну перестройку за раз.
+Эта команда возвращает управление немедленно; используйте команду
+.Ar status
+для отслеживания хода перестройки.
+.It config
+Выводит текущую конфигурацию указанного контроллера.
+В будущем выпуске эта команда будет обновлена,
+чтобы позволить добавление и удаление системных дисков из конфигурации.
+.It help
+Выводит информацию об использовании для
+.Ar команда .
+.El
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Michael Smith Aq Mt msmith@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Команда
+.Ar config
+пока не поддерживает изменение конфигурации системных дисков.
+.Pp
+Извлечение журнала ошибок пока не поддерживается.

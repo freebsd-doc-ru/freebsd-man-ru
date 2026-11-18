@@ -1,0 +1,117 @@
+.\"
+.\" Copyright (c) 2003 Poul-Henning Kamp
+.\" Copyright (c) 2017 Alexander Motin <mav@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/diskinfo/diskinfo.8
+.\" FRDP githash afe57c12e97d5c8773d829c2914f35462a7cdd0c
+.\" FRDP hash256 2bfbd638adfb77156c13bbcac23d199f78ab157038e9aa882a0a9012742ab309
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 5, 2024
+.Dt DISKINFO 8
+.Os
+.Sh ИМЯ
+.Nm diskinfo
+.Nd получить информацию о дисковом устройстве
+.Sh СИНТАКСИС
+.Nm
+.Op Fl ciStvw
+.Ar диск ...
+.Nm
+.Op Fl l
+.Fl p
+.Ar диск ...
+.Nm
+.Op Fl l
+.Fl s
+.Ar диск ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит информацию о дисковом устройстве
+и при необходимости запускает наивный тест производительности устройства.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width ".Fl c"
+.It Fl c
+Выполнить простое измерение накладных расходов команды чтения ввода-вывода.
+.It Fl i
+Выполнить простой тест IOPS.
+.It Fl l
+В случае режимов
+.Fl p
+или
+.Fl s
+добавлять в начало каждой строки вывода имя устройства, используя символ табуляции
+в качестве разделителя.
+.It Fl p
+Возвратить физический путь диска.
+Это строка, которая идентифицирует физический путь к диску в
+корпусе хранилища.
+.It Fl S
+Выполнить синхронный тест случайной записи (тест ZFS SLOG),
+измеряя время, необходимое для записи блоков данных разного размера и
+сброса кэша диска.
+Блоки размером более 128KB записываются несколькими параллельными операциями.
+.It Fl s
+Возвратить идентификатор диска, обычно серийный номер.
+.It Fl t
+Выполнить простой и довольно наивный тест производительности диска по
+поиску и передаче.
+.It Fl v
+Печатать поля по одному в строке с описательным комментарием.
+.It Fl w
+Разрешить деструктивные тесты записи.
+.El
+.Pp
+Если не задано ни одного аргумента, вывод будет состоять из одной строки на каждое указанное устройство
+со следующими полями: имя устройства, размер сектора, размер носителя в байтах,
+размер носителя в секторах, размер полосы, смещение полосы, цилиндры прошивки,
+головки прошивки и секторы прошивки.
+Последние три поля присутствуют только если информация доступна.
+.Sh ПРИМЕРЫ
+Вывести первые десять (не более)
+.Xr da 4
+устройств с соответствующими серийными номерами:
+.Pp
+.Dl diskinfo -ls /dev/da?
+.Sh СМ. ТАКЖЕ
+.Xr da 4
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 5.1 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+В порядке возрастания серьёзности: ложь,
+наглая ложь, статистика и компьютерные тесты.

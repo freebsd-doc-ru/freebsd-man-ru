@@ -1,0 +1,164 @@
+.\" Copyright (c) 2015 Baptiste Daroussin <bapt@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/sesutil/sesutil.8
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 0d829dae78475e45f3fa41ff776f87358b6a9c55a507392ce6114c353fee544b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt SESUTIL 8
+.Os
+.Sh ИМЯ
+.Nm sesutil
+.Nd Утилита для управления устройством SCSI Enclosure Services (SES)
+.Sh СИНТАКСИС
+.Nm
+.Cm fault
+.Op Fl u Ar /dev/sesN
+.Ar disk Ns | Ns Cm all
+.Cm on Ns | Ns Cm off
+.Nm
+.Cm fault
+.Fl u Ar /dev/sesN
+.Sm off
+.Ar sesid
+.Sm on
+.Cm on Ns | Ns Cm off
+.Nm
+.Cm locate
+.Op Fl u Ar /dev/sesN
+.Ar disk Ns | Ns Cm all
+.Cm on Ns | Ns Cm off
+.Nm
+.Cm locate
+.Fl u Ar /dev/sesN
+.Ar sesid
+.Cm on Ns | Ns Cm off
+.Nm
+.Cm map
+.Op Fl -libxo Ar options
+.Op Fl u Ar /dev/sesN
+.Nm
+.Cm show
+.Op Fl -libxo Ar options
+.Op Fl u Ar /dev/sesN
+.Nm
+.Cm status
+.Op Fl -libxo Ar options
+.Op Fl u Ar /dev/sesN
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для запроса и изменения различных параметров устройств SCSI Enclosure Services (SES).
+.Pp
+Список поддерживаемых команд:
+.Bl -tag -width indent
+.It Cm fault Oo Fl u Ar /dev/sesN Oc Ar disk Ns | Ns Cm all Cm on Ns | Ns Cm off
+Изменить состояние внешнего индикатора неисправности, связанного с
+.Ar disk .
+.Ar disk
+может быть именем устройства диска, например
+.Ql da12 ,
+или
+.Cm all
+чтобы указать все диски, подключенные к контроллерам SES.
+.It Cm fault Fl u Ar /dev/sesN Ar sesid Cm on Ns | Ns Cm off
+Изменить состояние внешнего индикатора неисправности, связанного с элементом,
+подключенным к контроллеру SES.
+.Ar sesid
+должен быть ID элемента допустимого объекта, подключенного к контроллеру.
+Используйте команду
+.Cm map
+для вывода списка элементов, подключенных к контроллеру.
+.It Cm locate Oo Fl u Ar /dev/sesN Oc Ar disk Ns | Ns Cm all Cm on Ns | Ns Cm off
+Изменить состояние внешнего индикатора поиска, связанного с
+.Ar disk .
+.Ar disk
+может быть именем устройства диска, например
+.Ql da12 ,
+или
+.Cm all
+чтобы указать все диски, подключенные к контроллерам SES.
+.It Cm locate Fl u Ar /dev/sesN Ar sesid Cm on Ns | Ns Cm off
+Изменить состояние внешнего индикатора поиска, связанного с элементом,
+подключенным к контроллеру SES.
+.Ar sesid
+должен быть ID элемента допустимого объекта, подключенного к контроллеру.
+Используйте команду
+.Cm map
+для вывода списка элементов, подключенных к контроллеру.
+.It Cm map Oo Fl -libxo Ar options Oc Op Fl u Ar /dev/sesN
+Показать карту всех элементов, подключенных к указанному контроллеру
+.Xr ses 4 .
+Если контроллер не указан, отображаются все контроллеры.
+.It Cm show Oo Fl -libxo Ar options Oc Op Fl u Ar /dev/sesN
+Показать удобное для пользователя краткое описание указанного контроллера
+.Xr ses 4 .
+Если контроллер не указан, отображаются все контроллеры.
+.It Cm status Oo Fl -libxo Ar options Oc Op Fl u Ar /dev/sesN
+Показать статус указанного контроллера
+.Xr ses 4 .
+Если контроллер не указан, возвращается статус каждого контроллера.
+.El
+.Pp
+Общие параметры:
+.Bl -tag -width indent
+.It Fl -libxo Ar options
+Генерировать вывод через
+.Xr libxo 3
+в различных форматах, удобных для человека и машины.
+Смотрите
+.Xr xo_options 7
+.El
+.Sh ПРИМЕРЫ
+Выключить все индикаторы поиска:
+.Pp
+.Dl Nm Cm locate all off
+.Pp
+Включить индикатор поиска для отсека диска, соответствующего
+.Pa da15 :
+.Pp
+.Dl Nm Cm locate da15 on
+.Pp
+Включить индикатор неисправности для отсека диска, не связанного с устройством:
+.Pp
+.Dl Nm Cm fault -u /dev/ses2 7 on
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr ses 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Baptiste Daroussin Aq Mt bapt@FreeBSD.org
+и
+.An Allan Jude Aq Mt allanjude@FreeBSD.org .

@@ -1,0 +1,211 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getdirentries.2
+.\" FRDP githash dd81cc2bc5f25fb2c58bb59bf585deeeae196345
+.\" FRDP hash256 dfb7a046f102fab240343af66fc5e660f53452641d75b0dc3e4708764f50c999
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 8, 2025
+.Dt GETDIRENTRIES 2
+.Os
+.Sh ИМЯ
+.Nm getdirentries ,
+.Nm getdents
+.Nd "получение записей каталога в независимом от файловой системы формате"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In dirent.h
+.Ft ssize_t
+.Fn getdirentries "int fd" "char *buf" "size_t nbytes" "off_t *basep"
+.Ft ssize_t
+.Fn getdents "int fd" "char *buf" "size_t nbytes"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn getdirentries
+и
+.Fn getdents
+читают записи каталога из каталога, на который ссылается файловый дескриптор
+.Fa fd ,
+в буфер, на который указывает
+.Fa buf ,
+в независимом от файловой системы формате.
+Будет передано до
+.Fa nbytes
+байт данных.
+Аргумент
+.Fa nbytes
+должен быть больше или равен размеру блока, связанному с файлом,
+см.
+.Xr stat 2 .
+Некоторые файловые системы могут не поддерживать эти системные вызовы
+с буферами меньше этого размера.
+.Pp
+Данные в буфере представляют собой последовательность структур
+.Vt dirent ,
+каждая из которых содержит следующие элементы:
+.Bd -literal -offset indent
+ino_t     d_fileno;
+off_t     d_off;
+uint16_t  d_reclen;
+uint8_t   d_type;
+uint16_t  d_namlen;
+char      d_name[MAXNAMLEN + 1];	/* see below */
+.Ed
+.Pp
+Элемент
+.Fa d_fileno
+представляет собой число, уникальное для каждого
+отдельного файла в файловой системе.
+Файлы, связанные жёсткими ссылками (см.
+.Xr link 2 ) ,
+имеют одинаковый
+.Fa d_fileno .
+Поле
+.Fa d_off
+возвращает cookie, которое, если оно ненулевое, может быть использовано с
+.Xr lseek 2
+для позиционирования дескриптора каталога на следующую запись.
+Элемент
+.Fa d_reclen
+представляет собой длину записи каталога в байтах.
+Элемент
+.Fa d_type
+представляет собой тип файла, на который указывает запись каталога.
+Значения типа файла определены в
+.Fa <sys/dirent.h> .
+Элемент
+.Fa d_name
+содержит имя файла, завершающееся нулевым байтом.
+Элемент
+.Fa d_namlen
+задаёт длину имени файла без учёта нулевого байта.
+Таким образом, фактический размер
+.Fa d_name
+может варьироваться от 1 до
+.Dv MAXNAMLEN
+\&+ 1.
+.Pp
+Записи могут разделяться дополнительным пространством.
+Элемент
+.Fa d_reclen
+может использоваться как смещение от начала структуры
+.Fa dirent
+до следующей структуры, если она есть.
+.Pp
+Возвращается фактическое количество переданных байт.
+Указатель текущей позиции, связанный с
+.Fa fd ,
+устанавливается на следующий блок записей.
+Указатель может не продвигаться на количество байт, возвращённое
+.Fn getdirentries
+или
+.Fn getdents .
+Значение ноль возвращается, когда
+достигнут конец каталога.
+.Pp
+Если значение указателя
+.Fa basep
+не равно NULL,
+системный вызов
+.Fn getdirentries
+записывает позицию прочитанного блока в место, на которое указывает
+.Fa basep .
+В качестве альтернативы указатель текущей позиции может быть установлен и получен с помощью
+.Xr lseek 2 .
+Указатель текущей позиции следует устанавливать только в значение, возвращённое
+.Xr lseek 2 ,
+в значение, возвращённое в месте, на которое указывает
+.Fa basep
+.Po только для Fn getdirentries
+.Pc ,
+в значение, возвращённое в
+поле
+.Fa d_off ,
+если оно ненулевое,
+или в ноль.
+.Sh ПРИМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Поле
+.Fa d_off
+в настоящее время устанавливается в 0 клиентом NFS, поскольку
+cookie смещения каталога, возвращаемые сервером NFS, не могут
+быть использованы
+.Xr lseek 2
+в настоящее время.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха возвращается количество фактически переданных байт.
+В противном случае возвращается -1 и глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Системный вызов
+.Fn getdirentries
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым файловым дескриптором, открытым для чтения.
+.It Bq Er EFAULT
+Либо
+.Fa buf ,
+либо не равный NULL
+.Fa basep
+указывают за пределы выделенного адресного пространства.
+.It Bq Er EINVAL
+Значение
+.Fa nbytes
+слишком мало для возврата записи каталога или блока записей,
+либо указатель текущей позиции недействителен.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка
+.Tn I/O .
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er ENOENT
+Каталог удалён, но всё ещё открыт.
+.It Bq Er ENOTDIR
+Файл, на который ссылается
+.Fa fd ,
+не является каталогом.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr lseek 2 ,
+.Xr open 2 ,
+.Xr directory 3 ,
+.Xr dir 5
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getdirentries
+впервые появился в
+.Bx 4.4 .
+Системный вызов
+.Fn getdents
+впервые появился в
+.Fx 3.0 .

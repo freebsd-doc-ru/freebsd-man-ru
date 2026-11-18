@@ -1,0 +1,103 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2023 Johannes Totz
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/efiwake/efiwake.8
+.\" FRDP githash 4d846d260e2b9a3d4d0a701462568268cbfe7a5b
+.\" FRDP hash256 e125c40a812f36b02468c10905a9e5fdde2bfee7cb5d475c28eb4d883a26937d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 9, 2023
+.Dt EFIWAKE 8
+.Os
+.Sh ИМЯ
+.Nm efiwake
+.Nd управление таймером пробуждения EFI
+.Sh СИНТАКСИС
+.Nm
+.Nm
+.Fl d
+.Nm
+.Fl e Ar yyyy-mm-ddThh:mm:ss
+.Sh ОПИСАНИЕ
+.Nm
+выводит текущее значение, отключает или включает таймер пробуждения EFI,
+который может разбудить вашу машину из спящего режима S3 в заданное время.
+.Pp
+Если вызвана без аргументов, будут выведены текущее время EFI и текущее
+значение таймера пробуждения, за которыми следуют состояния
+.Em enabled
+и
+.Em pending .
+Время EFI предполагается заданным в UTC.
+Обратите внимание, что оно может быть не синхронизировано с временем ядра.
+Состояние pending сообщает, сработал ли таймер пробуждения недавно; оно
+сбрасывается при чтении.
+.Pp
+Если вызвана с опцией
+.Sy -d ,
+таймер пробуждения сбрасывается и отключается.
+.Pp
+Если вызвана с опцией
+.Sy -e ,
+таймер пробуждения устанавливается на заданные время и дату.
+Если дата или время недопустимы, возвращается ошибка.
+.Pp
+Текущее время EFI выводится всегда.
+.Sh ПРИМЕРЫ
+Без аргументов:
+.Bd -literal -offset indent
+# efiwake
+Current EFI time: 2023-05-04T15:30:45
+EFI wake time: 2023-05-04T10:00:00; enabled=0, pending=1
+.Ed
+.Pp
+Отключение и сброс таймера пробуждения:
+.Bd -literal -offset indent
+# efiwake -d
+Current EFI time: 2023-05-04T15:32:16
+EFI wake time: 2023-05-04T15:32:16; enabled=0, pending=0
+.Ed
+.Pp
+Включение таймера пробуждения с допустимой датой:
+.Bd -literal -offset indent
+# efiwake -e 2023-05-04T15:35:00
+Current EFI time: 2023-05-04T15:34:05
+EFI wake time: 2023-05-04T15:35:00; enabled=1, pending=0
+.Ed
+.Pp
+Попытка включить с недопустимой датой (31 апреля не существует):
+.Bd -literal -offset indent
+# efiwake -e 2023-04-31T15:35:00
+Current EFI time: 2023-05-04T15:35:25
+efiwake: cannot enable EFI wake time: Invalid argument
+.Ed
+.Sh АВТОРЫ
+.An -nosplit
+Утилита и страница Справочника были написаны
+.An Johannes Totz Aq Mt jo@bruelltuete.com .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Качество реализаций EFI сильно различается.
+На реальном оборудовании наблюдалось повреждение даты пробуждения.

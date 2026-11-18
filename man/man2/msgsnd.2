@@ -1,0 +1,181 @@
+.\"	$NetBSD: msgsnd.2,v 1.1 1995/10/16 23:49:24 jtc Exp $
+.\"
+.\" Copyright (c) 1995 Frank van der Linden
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed for the NetBSD Project
+.\"      by Frank van der Linden
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/msgsnd.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 255526cfddd1a2ccf9dcaf219ed6735da67f1677b8cdad58ca9deb260787a48c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 9, 2009
+.Dt MSGSND 2
+.Os
+.Sh ИМЯ
+.Nm msgsnd
+.Nd отправить сообщение в очередь сообщений
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/msg.h
+.Ft int
+.Fn msgsnd "int msqid" "const void *msgp" "size_t msgsz" "int msgflg"
+.Sh ОПИСАНИЕ
+Функция
+.Fn msgsnd
+отправляет сообщение в очередь сообщений, указанную в
+.Fa msqid .
+Аргумент
+.Fa msgp
+указывает на структуру, содержащую сообщение.
+Эта структура должна
+состоять из следующих членов:
+.Bd -literal
+    long mtype;    /* message type */
+    char mtext[1]; /* body of message */
+.Ed
+.Pp
+.Va mtype
+— это целое число больше 0, которое может использоваться для выбора сообщений (см.
+.Xr msgrcv 2 ) ,
+.Va mtext
+— это массив из
+.Fa msgsz
+байтов.
+Аргумент
+.Fa msgsz
+может принимать значения от 0 до системного максимума,
+.Dv MSGMAX .
+.Pp
+Если количество байтов, уже находящихся в очереди сообщений, плюс
+.Fa msgsz
+больше максимального количества байтов в очереди сообщений
+.Pf ( Va msg_qbytes ,
+см.
+.Xr msgctl 2 ) ,
+или количество сообщений во всех очередях в масштабе системы уже равно
+системному пределу,
+.Fa msgflg
+определяет действие
+.Fn msgsnd .
+Если в
+.Fa msgflg
+установлен
+.Dv IPC_NOWAIT
+маска, вызов вернётся немедленно.
+Если в
+.Fa msgflg
+не установлен
+.Dv IPC_NOWAIT
+, вызов будет блокироваться до тех пор, пока:
+.Bl -bullet
+.It
+Условие, которое вызвало блокировку вызова, больше не существует.
+Сообщение будет отправлено.
+.It
+Очередь сообщений удалена, в этом случае будет возвращено -1, а
+.Va errno
+установлено в
+.Er EINVAL .
+.It
+Вызывающий процесс поймал сигнал.
+Вызов вернётся с
+.Va errno
+установленным в
+.Er EINTR .
+.El
+.Pp
+После успешного вызова структура данных, связанная с очередью
+сообщений, обновляется следующим образом:
+.Bl -bullet
+.It
+.Va msg_cbytes
+увеличивается на размер сообщения.
+.It
+.Va msg_qnum
+увеличивается на 1.
+.It
+.Va msg_lspid
+устанавливается в pid вызывающего процесса.
+.It
+.Va msg_stime
+устанавливается в текущее время.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std msgsnd
+.Sh ОШИБКИ
+Функция
+.Fn msgsnd
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa msqid
+не является допустимым идентификатором очереди сообщений.
+.Pp
+Очередь сообщений была удалена, пока
+.Fn msgsnd
+ожидала освобождения ресурса для доставки
+сообщения.
+.Pp
+Аргумент
+.Fa msgsz
+больше
+.Va msg_qbytes .
+.Pp
+Аргумент
+.Fa mtype
+не больше 0.
+.It Bq Er EACCES
+Вызывающий процесс не имеет доступа на запись к очереди сообщений.
+.It Bq Er EAGAIN
+Не было места для этого сообщения ни в очереди, ни во всей
+системе, и
+.Dv IPC_NOWAIT
+был установлен в
+.Fa msgflg .
+.It Bq Er EFAULT
+Аргумент
+.Fa msgp
+указывает на недопустимый адрес.
+.It Bq Er EINTR
+Системный вызов был прерван доставкой сигнала.
+.El
+.Sh ИСТОРИЯ
+Очереди сообщений появились в первом выпуске AT&T Unix System V.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+.Nx
+и
+.Fx
+не определяют значение ошибки
+.Er EIDRM
+, которое должно использоваться
+в случае удалённой очереди сообщений.

@@ -1,0 +1,142 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2011, Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" Copyright (c) 2012, Glen Barber <gjb@FreeBSD.org>
+.\" Copyright (c) 2012, Bryan Drewery <bdrewery@FreeBSD.org>
+.\" Copyright (c) 2013, Steven Hartland <smh@FreeBSD.org>
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright (c) 2014, Xin LI <delphij@FreeBSD.org>
+.\" Copyright (c) 2014-2015, The FreeBSD Foundation, All Rights Reserved.
+.\" Copyright (c) 2016 Nexenta Systems, Inc. All Rights Reserved.
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-jail.8
+.\" FRDP githash 155d5b8a19baa864ebe9d8346d932bd04ea23aca
+.\" FRDP hash256 a160ee2309a58e55c1584897c740c63dce1b61e24a3e1fbafc71b223e93a1ce4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 4, 2025
+.Dt ZFS-JAIL 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-jail
+.Nd подключает файловую систему ZFS к клетке FreeBSD или отключает её
+.Sh СИНТАКСИС
+.Nm zfs Cm jail
+.Ar jailid Ns | Ns Ar jailname
+.Ar filesystem
+.Nm zfs Cm unjail
+.Ar jailid Ns | Ns Ar jailname
+.Ar filesystem
+.
+.Sh ОПИСАНИЕ
+Функциональность
+.Nm
+может использоваться для назначения набора данных работающей клетке системы
+.Fx
+.Xr jail 4 ,
+позволяя запускать утилиты управления
+.Xr zfs 8
+внутри
+.Xr jail 4 .
+.Pp
+Чтобы разрешить управление набором данных изнутри клетки, следует установить свойство
+.Sy jailed
+и должны присутствовать необходимые записи
+.Xr devfs.conf 5
+для предоставления устройства
+.Pa /dev/zfs
+внутри клетки.
+Свойство
+.Sy quota
+нельзя изменить изнутри клетки.
+.Pp
+Чтобы использовать эту функциональность, в клетке необходимо установить параметры
+.Sy allow.mount
+и
+.Sy allow.mount.zfs
+в значение
+.Sy 1 ,
+а параметр
+.Sy enforce_statfs
+— в значение меньше
+.Sy 2 .
+.Pp
+Подкоманды перечислены ниже:
+.Bl -tag -width indent
+.It Xo
+.Cm jail
+.Ar jailid Ns | Ns Ar jailname
+.Ar filesystem
+.Xc
+Прикрепляет указанную
+.Ar filesystem
+к клетке, идентифицированной JID
+.Ar jailid
+или именем
+.Ar jailname .
+С этого момента этим деревом файловой системы можно управлять изнутри клетки, если свойство
+.Sy jailed
+было установлено.
+.Pp
+Нельзя прикреплять дочерние наборы данных набора данных, помеченного свойством jailed, к другой клетке.
+Также нельзя прикреплять корневую файловую систему клетки или любой набор данных, который должен быть смонтирован до запуска rc-скрипта zfs внутри клетки, поскольку он будет прикреплён несмонтированным, пока не будет смонтирован из rc-скрипта внутри клетки.
+.Pp
+После того как набор данных прикреплён к клетке и установлено свойство
+.Sy jailed ,
+файловую систему, помеченную jailed, нельзя смонтировать вне клетки, поскольку администратор клетки мог задать для точки монтирования неприемлемое значение.
+.It Xo
+.Cm unjail
+.Ar jailid Ns | Ns Ar jailname
+.Ar filesystem
+.Xc
+Отсоединяет указанную
+.Ar filesystem
+от клетки, идентифицированной JID
+.Ar jailid
+или именем
+.Ar jailname .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr devfs.conf 5 ,
+.Xr zfsprops 7 ,
+.Xr jail 8
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Корневой каталог клетки нельзя делегировать клетке с помощью этой утилиты, поскольку клетка должна работать с корректным корневым каталогом.
+.Pp
+Клетки — это возможность
+.Fx
+, и они не относятся к другим платформам.
+См.
+.Xr jail 8
+для получения дополнительной информации об управлении клетками или
+.Xr zfs-zone 8
+для эквивалентной функциональности в Linux.

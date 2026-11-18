@@ -1,0 +1,123 @@
+.\"
+.\" Copyright (c) 1995 David Hovemeyer <daveho@infocom.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/shmctl.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 7bb3454052f58a9d83bccf4ec97649195dd51b0d8f8ffa7d6822e57eccb13209
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 10, 2015
+.Dt SHMCTL 2
+.Os
+.Sh ИМЯ
+.Nm shmctl
+.Nd управление разделяемой памятью
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/shm.h
+.Ft int
+.Fn shmctl "int shmid" "int cmd" "struct shmid_ds *buf"
+.Sh ОПИСАНИЕ
+Выполняет действие, указанное в
+.Fa cmd
+над сегментом разделяемой памяти, идентифицируемым
+.Fa shmid :
+.Bl -tag -width SHM_UNLOCKX
+.It Dv IPC_STAT
+Извлекает
+.Fa "struct shmid_ds"
+сегмента и сохраняет её в памяти, на которую указывает
+.Fa buf .
+.It Dv IPC_SET
+Изменяет элементы
+.Fa shm_perm.uid ,
+.Fa shm_perm.gid
+и
+.Fa shm_perm.mode
+структуры
+.Fa "struct shmid_ds"
+сегмента в соответствии с таковыми из структуры, на которую указывает
+.Fa buf .
+Действующий uid вызывающего процесса должен совпадать либо с
+.Fa shm_perm.uid ,
+либо с
+.Fa shm_perm.cuid ,
+или процесс должен обладать правами суперпользователя.
+.It Dv IPC_RMID
+Удаляет сегмент из системы.
+Удаление не вступит в силу до тех пор, пока все процессы, подключившие сегмент, не завершатся.
+Для успешного выполнения операции действующий uid вызывающего процесса должен совпадать с
+.Fa shm_perm.uid
+или
+.Fa shm_perm.cuid ,
+либо процесс должен обладать правами суперпользователя.
+Если переменная
+.Va kern.ipc.shm_allow_removed
+.Xr sysctl 3
+установлена в 0, то после выполнения операции IPC_RMID
+никаким последующим процессам не будет разрешено подключать сегмент.
+.El
+.Pp
+Структура
+.Vt shmid_ds
+определена следующим образом:
+.Bd -literal
+struct shmid_ds {
+    struct ipc_perm shm_perm;   /* operation permission structure */
+    size_t          shm_segsz;  /* size of segment in bytes */
+    pid_t           shm_lpid;   /* process ID of last shared memory op */
+    pid_t           shm_cpid;   /* process ID of creator */
+    int             shm_nattch; /* number of current attaches */
+    time_t          shm_atime;  /* time of last shmat() */
+    time_t          shm_dtime;  /* time of last shmdt() */
+    time_t          shm_ctime;  /* time of last change by shmctl() */
+};
+.Ed
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std shmctl
+.Sh ОШИБКИ
+Системный вызов
+.Fn shmctl
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Неверная операция, или
+не найден сегмент разделяемой памяти, соответствующий
+.Fa shmid .
+.It Bq Er EPERM
+Действующий uid вызывающего процесса не совпадает с uid
+владельца или создателя сегмента разделяемой памяти.
+.It Bq Er EACCES
+Доступ запрещён из-за несоответствия между операцией и режимом
+сегмента разделяемой памяти.
+.El
+.Sh "СМ. ТАКЖЕ"
+.Xr shmat 2 ,
+.Xr shmdt 2 ,
+.Xr shmget 2 ,
+.Xr ftok 3

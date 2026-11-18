@@ -1,0 +1,198 @@
+.\" Copyright (c) 2004 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/ggate/ggatec/ggatec.8
+.\" FRDP githash 975e3605ebb15cbaf5a25c1c9d1f51aed41291d0
+.\" FRDP hash256 af1c014b6be042796e481d5f409150f1e1843f32108f27349e4028426bb755c1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 8, 2016
+.Dt GGATEC 8
+.Os
+.Sh ИМЯ
+.Nm ggatec
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl n
+.Op Fl v
+.Op Fl o Cm ro | wo | rw
+.Op Fl o Cm direct
+.Op Fl p Ar порт
+.Op Fl q Ar размер_очереди
+.Op Fl R Ar размер_буфера_приёма
+.Op Fl S Ar размер_буфера_отправки
+.Op Fl s Ar размер_сектора
+.Op Fl t Ar таймаут
+.Op Fl u Ar номер_устройства
+.Ar хост
+.Ar путь
+.Nm
+.Cm rescue
+.Op Fl n
+.Op Fl v
+.Op Fl o Cm ro | wo | rw
+.Op Fl o Cm direct
+.Op Fl p Ar порт
+.Op Fl R Ar размер_буфера_приёма
+.Op Fl S Ar размер_буфера_отправки
+.Fl u Ar номер_устройства
+.Ar хост
+.Ar путь
+.Nm
+.Cm destroy
+.Op Fl f
+.Fl u Ar номер_устройства
+.Nm
+.Cm list
+.Op Fl v
+.Op Fl u Ar номер_устройства
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это сетевой клиент для класса GEOM Gate.
+Она отвечает за создание устройств
+.Nm ggate
+и пересылку запросов ввода-вывода между
+подсистемой ядра
+.Nm GEOM Gate
+и сетевым демоном
+.Xr ggated 8 .
+Доступные команды:
+.Bl -tag -width indent
+.It Cm create
+Подключиться к демону
+.Xr ggated 8
+на указанном хосте и создать
+провайдер
+.Nm ggate
+для указанного удалённого файла или устройства.
+.It Cm rescue
+Создать новое соединение после завершения или уничтожения процесса
+.Nm .
+Новое соединение с демоном
+.Xr ggated 8
+обрабатывает ожидающие и будущие запросы.
+.It Cm destroy
+Уничтожить заданный
+провайдер
+.Nm ggate .
+.It Cm list
+Вывести список
+провайдеров
+.Nm ggate .
+.El
+.Pp
+Доступные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно уничтожить
+провайдер
+.Nm ggate
+(отменяет все ожидающие запросы).
+.It Fl n
+Не использовать параметр
+.Dv TCP_NODELAY
+на сокетах TCP.
+.It Fl o Ar параметр
+Указать права доступа и параметры для использования при открытии файла или устройства.
+.Bl -tag -width indent
+.It Cm ro
+только для чтения
+.It Cm wo
+только для записи
+.It Cm rw
+для чтения и записи
+.It Cm direct
+открыть с параметром
+.Dv O_DIRECT
+для файла
+.El
+.Pp
+По умолчанию —
+.Cm rw .
+.It Fl p Ar порт
+Порт для подключения на удалённом хосте.
+По умолчанию 3080.
+.It Fl q Ar размер_очереди
+Количество ожидающих запросов ввода-вывода, которые могут быть поставлены в очередь, прежде чем они начнут отменяться.
+По умолчанию 1024.
+.It Fl R Ar размер_буфера_приёма
+Размер используемого буфера приёма.
+По умолчанию 131072 (128\~KiB).
+.It Fl S Ar размер_буфера_отправки
+Размер используемого буфера отправки.
+По умолчанию 131072 (128\~KiB).
+.It Fl s Ar размер_сектора
+Размер сектора для
+провайдера
+.Nm ggate .
+Если не указан, он берётся из устройства или устанавливается в 512\~байт для файлов.
+.It Fl t Ar таймаут
+Количество секунд ожидания перед отменой запроса ввода-вывода.
+По умолчанию 0, что означает отсутствие таймаута.
+.It Fl u Ar номер_устройства
+Номер устройства для использования.
+.It Fl v
+Не порождать новый процесс, работать на переднем плане и выводить отладочную информацию в стандартный вывод.
+.It Ar хост
+Удалённый хост для подключения.
+.It Ar путь
+Путь к обычному файлу или устройству.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе или 1, если команда завершается неудачно.
+Чтобы получить подробности об ошибке,
+.Nm
+следует вызвать с параметром
+.Fl v .
+.Sh ПРИМЕРЫ
+Использование устройства CD-ROM на удалённом хосте.
+.Bd -literal -offset indent
+server# cat /etc/gg.exports
+client RO /dev/cd0
+client RW /tmp/image
+server# ggated
+
+client# ggatec create -o ro server /dev/cd0
+ggate0
+client# mount_cd9660 /dev/ggate0 /cdrom
+client# ggatec create -o rw -o direct server /tmp/image
+ggate1
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr ggated 8 ,
+.Xr ggatel 8 ,
+.Xr mount_cd9660 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org .

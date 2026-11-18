@@ -1,0 +1,156 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) March 1995 Wolfram Schneider <wosch@FreeBSD.org>. Berlin.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\" FRDP path usr.sbin/kbdmap/kbdmap.1
+.\" FRDP githash 580dc180c7ebd84a4aee27938a5f4a62520ac5d9
+.\" FRDP hash256 9ac4fed87be252a3ec0360c2ddda0ea1425621c7e44f0bda9edc630b06955a3a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 7, 2024
+.Dt KBDMAP 1
+.Os
+.Sh ИМЯ
+.Nm kbdmap ,
+.Nm vidfont
+.Nd диалоговые утилиты выбора раскладки клавиатуры и шрифта для системной видеоконсоли
+.Sh СИНТАКСИС
+.Nm
+.Op Fl K
+.Op Fl V
+.Op Fl d | default
+.Op Fl h | help
+.Op Fl l | lang Ar язык
+.Op Fl p | print
+.Op Fl r | restore
+.Op Fl s | show
+.Op Fl v | verbose
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+позволяет легко настраивать доступные раскладки клавиатуры.
+Команда
+.Nm vidfont
+позволяет настраивать шрифты.
+Обе программы обращаются к базе данных раскладок клавиатуры и шрифтов.
+Описания по умолчанию даны на английском языке, но также могут быть
+на других языках.
+Эти программы интерактивны и предполагают запуск
+в терминале для получения необходимых входных данных (например, выбора раскладки клавиатуры)
+от пользователя.
+.Pp
+Настоятельно рекомендуется не выбирать
+.Tn MSDOS
+раскладки клавиатуры
+или шрифты
+для кодовой страницы.
+Используйте
+.Tn ISO
+стандартную версию, если она доступна!
+.Tn X11
+не
+поддерживает
+.Tn MSDOS
+кодовую страницу.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl K
+Запустить как команду
+.Nm .
+.It Fl V
+Запустить как команду
+.Nm vidfont .
+.It Fl d , default
+Использовать язык по умолчанию.
+Игнорировать переменную окружения
+.Ev LANG .
+.It Fl h , help
+Вывести параметры и выйти.
+.It Fl l , lang Ar язык
+Использовать
+.Ar язык
+для описания и меню.
+.It Fl p , print
+Вывести описание доступных раскладок клавиатуры или шрифтов
+в стандартный вывод и выйти.
+.It Fl r , restore
+Загрузить шрифт по умолчанию из
+.Pa /etc/rc.conf .
+.It Fl s , show
+Показать текущие поддерживаемые языки и выйти.
+.It Fl v , verbose
+Выводить больше предупреждений.
+.El
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width LANG -compact
+.It Ev LANG
+предпочитаемый язык
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/share/syscons/keymaps/INDEX.keymaps -compact
+.It Pa /usr/share/syscons/keymaps/INDEX.keymaps
+.It Pa /usr/share/vt/keymaps/INDEX.keymaps
+база данных раскладок клавиатуры
+.It Pa /usr/share/syscons/fonts/INDEX.fonts
+.It Pa /usr/share/vt/fonts/INDEX.fonts
+база данных шрифтов
+.It Pa /etc/rc.conf
+шрифт по умолчанию
+.It Pa /usr/local/share/locale/locale.alias
+описывает распространённые
+.Ev LANG
+значения
+.El
+.Sh СМ. ТАКЖЕ
+.Xr dialog 1 ,
+.Xr kbdcontrol 1 ,
+.Xr vidcontrol 1 ,
+.Xr syscons 4 ,
+.Xr vt 4 ,
+.Xr kbdmap 5 ,
+.Xr rc.conf 5
+.Sh ИСТОРИЯ
+Команды
+.Nm
+и
+.Nm vidfont
+появились в
+.Fx 2.1 .
+.Sh АВТОРЫ
+.An -nosplit
+.An Wolfram Schneider Aq Mt wosch@FreeBSD.org
+написал первоначальную версию на Perl.
+Текущая версия была переписана на C
+.An Jonathan Belson Aq Mt jon@witchspace.com
+для
+.Fx 5.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилиты
+.Nm
+и
+.Nm vidfont
+работают только на (виртуальной) консоли и не работают с
+.Tn X11 .

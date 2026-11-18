@@ -1,0 +1,169 @@
+.\" Copyright (c) 1990, 1991, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/chown/chown.8
+.\" FRDP githash e09104dfb76a36b65a64bd315bd1520941c4beed
+.\" FRDP hash256 e43d61cd1631adacbd8470080e98bcd37556ccfdf55c190f2c05af0fd44544d3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 2026
+.Dt CHOWN 8
+.Os
+.Sh ИМЯ
+.Nm chown
+.Nd изменение владельца и группы файла
+.Sh СИНТАКСИС
+.Nm
+.Op Fl fhvx
+.Oo
+.Fl R
+.Op Fl H | Fl L | Fl P
+.Oc
+.Ar владелец Ns Op : Ns Ar группа
+.Ar
+.Nm
+.Op Fl fhvx
+.Oo
+.Fl R
+.Op Fl H | Fl L | Fl P
+.Oc
+.No : Ns Ar группа
+.Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет идентификатор пользователя и/или идентификатор группы указанных файлов.
+Символические ссылки, указанные в аргументах, молча остаются без изменений, если не используется
+.Fl h .
+.Pp
+Имеются следующие параметры:
+.Bl -tag -width Ds
+.It Fl H
+Если указан параметр
+.Fl R ,
+символические ссылки в командной строке прослеживаются и, следовательно, не затрагиваются командой.
+(Символические ссылки, встречающиеся при обходе, не прослеживаются.)
+.It Fl L
+Если указан параметр
+.Fl R ,
+все символические ссылки прослеживаются.
+.It Fl P
+Если указан параметр
+.Fl R ,
+символические ссылки не прослеживаются.
+Это значение по умолчанию.
+.It Fl R
+Изменять идентификатор пользователя и/или идентификатор группы иерархий файлов, начиная с указанных файлов, а не только самих файлов.
+Остерегайтесь непреднамеренного совпадения жёсткой ссылки на родительский каталог при использовании подстановочных знаков, таких как
+.It Fl f
+Не сообщать о любых ошибках изменения владельца или группы файла и не изменять статус выхода для отражения таких ошибок.
+.It Fl h
+Если файл является символической ссылкой, изменять идентификатор пользователя и/или идентификатор группы самой ссылки.
+.It Fl v
+Заставить
+.Nm
+выводить подробные сообщения, показывая файлы по мере изменения владельца.
+Если флаг
+.Fl v
+указан более одного раза,
+.Nm
+выведет имя файла, за которым следуют старый и новый числовые идентификаторы пользователя/группы.
+.It Fl x
+Точки монтирования файловых систем не обходятся.
+.El
+.Pp
+Параметры
+.Fl H ,
+.Fl L
+и
+.Fl P
+игнорируются, если не указан параметр
+.Fl R .
+Кроме того, эти параметры переопределяют друг друга, и действия команды определяются последним указанным параметром.
+.Pp
+Операнды
+.Ar владелец
+и
+.Ar группа
+оба необязательны, однако один из них должен быть указан.
+Если указан операнд
+.Ar группа ,
+перед ним должно стоять двоеточие (``:'') .
+.Pp
+Операнд
+.Ar владелец
+может быть либо числовым идентификатором пользователя, либо именем пользователя.
+Если имя пользователя также является числовым идентификатором пользователя, операнд используется как имя пользователя.
+Операнд
+.Ar группа
+может быть либо числовым идентификатором группы, либо именем группы.
+Если имя группы также является числовым идентификатором группы, операнд используется как имя группы.
+.Pp
+Изменять владельца файла может только суперпользователь по очевидным соображениям безопасности.
+.Pp
+Если
+.Nm
+получает сигнал
+.Dv SIGINFO
+(см. аргумент
+.Cm status
+для
+.Xr stty 1 ) ,
+то отображаются текущее имя файла, а также старый и новый владелец и группа файла.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СОВМЕСТИМОСТЬ
+В предыдущих версиях утилиты
+.Nm
+для отделения имени группы использовалась точка (``.'') .
+Это было изменено на двоеточие (``:'') , чтобы имена пользователей и групп могли содержать точку.
+.Pp
+В предыдущих версиях этой системы символические ссылки не имели владельцев.
+.Pp
+Параметры
+.Fl v
+и
+.Fl x
+нестандартны, и их использование в сценариях не рекомендуется.
+.Sh СМ. ТАКЖЕ
+.Xr chgrp 1 ,
+.Xr chmod 1 ,
+.Xr find 1 ,
+.Xr chown 2 ,
+.Xr fts 3 ,
+.Xr groups 7 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Ожидается, что утилита
+.Nm
+соответствует
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.At v1 .

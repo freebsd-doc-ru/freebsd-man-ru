@@ -1,0 +1,141 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/thr_kill.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 85c5045565ff2a9143b49bdbbda42a3da1e76b228ad31303da07983374dd265e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 5, 2020
+.Dt THR_KILL 2
+.Os
+.Sh ИМЯ
+.Nm thr_kill
+.Nd отправить сигнал потоку
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/thr.h
+.Ft int
+.Fn thr_kill "long id" "int sig"
+.Ft int
+.Fn thr_kill2 "pid_t pid" "long id" "int sig"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn thr_kill
+и
+.Fn thr_kill2
+позволяют отправить сигнал, заданный аргументом
+.Fa sig ,
+некоторым потокам в процессе.
+Для функции
+.Fn thr_kill
+потоки, которым отправляется сигнал, всегда ограничены текущим процессом.
+Для функции
+.Fn thr_kill2
+аргумент
+.Fa pid
+задаёт процесс, потокам которого отправляется сигнал.
+.Pp
+Аргумент
+.Fa id
+задаёт, какие потоки получат сигнал.
+Если
+.Fa id
+равен \-1, сигнал отправляется всем потокам указанного процесса.
+В противном случае сигнал отправляется только потоку с идентификатором,
+равным этому аргументу.
+.Pp
+Аргумент
+.Fa sig
+определяет доставляемый сигнал.
+Он должен быть допустимым номером сигнала или нулём.
+В последнем случае сигнал фактически не отправляется, а вызов используется для
+проверки работоспособности потока.
+.Pp
+Сигнал доставляется с
+.Dv siginfo
+.Dv si_code
+равным
+.Dv SI_LWP .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном выполнении
+.Fn thr_kill
+и
+.Fn thr_kill2
+возвращают ноль, иначе возвращается \-1, и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Операции
+.Fn thr_kill
+и
+.Fn thr_kill2
+возвращают следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa sig
+не равен нулю и не задаёт допустимый сигнал.
+.It Bq Er ESRCH
+Указанный процесс или поток не найден.
+.El
+.Pp
+Кроме того,
+.Fn thr_kill2
+может возвращать следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Текущий процесс не имеет достаточных привилегий для проверки существования или
+отправки сигнала указанному процессу.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr _umtx_op 2 ,
+.Xr kill 2 ,
+.Xr thr_exit 2 ,
+.Xr thr_new 2 ,
+.Xr thr_self 2 ,
+.Xr thr_set_name 2 ,
+.Xr pthread_kill 3 ,
+.Xr signal 3
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn thr_kill
+и
+.Fn thr_kill2
+являются нестандартными и используются
+.Lb libthr
+для реализации функциональности
+.St -p1003.1-2001
+.Xr pthread 3 .
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn thr_kill
+и
+.Fn thr_kill2
+впервые появились в
+.Fx 5.2 .

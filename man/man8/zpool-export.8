@@ -1,0 +1,76 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-export.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 89045251e34c2072679224b558d3885c6d5bbc5b575495d22278db9e77c4feb9
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-EXPORT 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-export
+.Nd экспорт пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm export
+.Op Fl f
+.Fl a Ns | Ns Ar пул Ns …
+.
+.Sh ОПИСАНИЕ
+Экспортирует указанные пулы из системы.
+Все устройства помечаются как экспортированные, но всё ещё считаются используемыми другими
+подсистемами.
+Устройства можно перемещать между системами
+.Pq даже с другим порядком байтов
+и импортировать, если присутствует достаточное количество устройств.
+.Pp
+Перед экспортом пула все наборы данных в пуле размонтируются.
+Пул нельзя экспортировать, если у него есть общий запасной диск, который в данный момент
+используется.
+.Pp
+Чтобы пулы были переносимыми, команде
+.Nm zpool
+нужно передавать целые диски, а не только разделы, чтобы ZFS могла пометить диски
+переносимыми метками EFI.
+В противном случае драйверы дисков на платформах с другим порядком байтов не распознают
+диски.
+.Bl -tag -width Ds
+.It Fl a
+Экспортирует все пулы, импортированные в системе.
+.It Fl f
+Принудительно размонтирует все наборы данных и разрешает экспорт пулов с активными общими
+запасными дисками.
+.Pp
+Эта команда принудительно экспортирует пул, даже если у него есть общий запасной диск, который
+в данный момент используется.
+Это может привести к возможному повреждению данных.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Экспорт пула хранения ZFS
+Следующая команда экспортирует устройства в пуле
+.Ar tank
+, чтобы их можно было переместить или позже импортировать:
+.Dl # Nm zpool Cm export Ar tank
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpool-import 8

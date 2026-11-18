@@ -1,0 +1,108 @@
+.\" Copyright (c) 1999 Softweyr LLC.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Softweyr LLC AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Softweyr LLC OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_return.2
+.\" FRDP githash e24279e0f9e28ba0c1920cb539fc357568790c0a
+.\" FRDP hash256 98442276f9be88618bea2b7d09425a6397791c92d3359b8d16484a03f2092b53
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 11, 2021
+.Dt AIO_RETURN 2
+.Os
+.Sh ИМЯ
+.Nm aio_return
+.Nd получить статус завершения асинхронной операции ввода-вывода (REALTIME)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft ssize_t
+.Fn aio_return "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn aio_return
+возвращает окончательный статус запроса асинхронного ввода-вывода,
+связанного со структурой, на которую указывает
+.Fa iocb .
+.Pp
+Системный вызов
+.Fn aio_return
+следует вызывать только один раз, чтобы получить окончательный статус
+асинхронной операции ввода-вывода после её завершения
+.Xr ( aio_error 2
+возвращает нечто иное, чем
+.Er EINPROGRESS ) .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если запрос асинхронного ввода-вывода завершён, возвращается статус,
+как описано в
+.Xr read 2 ,
+.Xr readv 2 ,
+.Xr write 2 ,
+.Xr writev 2
+или
+.Xr fsync 2 .
+В противном случае
+.Fn aio_return
+возвращает \-1 и устанавливает
+.Va errno
+для указания условия ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn aio_return
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa iocb
+не ссылается на завершённый запрос асинхронного ввода-вывода.
+.It Bq Er EINVAL
+Операция ввода-вывода была отправлена с помощью
+.Fn lio_listio ,
+и значение
+.Fa aio_lio_opcode
+недопустимо.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_waitcomplete 2 ,
+.Xr aio_write 2 ,
+.Xr fsync 2 ,
+.Xr read 2 ,
+.Xr write 2 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn aio_return
+соответствует стандарту
+.St -p1003.1 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_return
+впервые появился в
+.Fx 3.0 .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Wes Peters Aq Mt wes@softweyr.com .

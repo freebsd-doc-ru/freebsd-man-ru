@@ -1,0 +1,78 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibidsverify.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 6b44f6d7535daea4d58b93a966e2ea0d14dacb204ae479da09a0471657dbd770
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBIDSVERIFY \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ПРОВЕРКА ИДЕНТИФИКАТОРОВ IB В ПОДСЕТИ И ОТЧЁТ ОБ ОШИБКАХ
+.SS СИНТАКСИС
+.sp
+ibidsverify.pl [\-h] [\-R]
+.SS ОПИСАНИЕ
+.sp
+ibidsverify.pl — это сценарий Perl, который использует полный файл топологии,
+созданный ibnetdiscover, сканирует сеть для проверки LID и GUID в подсети.
+Проверка состоит в том, чтобы убедиться, что среди идентификаторов нет нулевых
+или дублирующихся.
+.sp
+Наконец, ibidsverify.pl также может повторно использовать кэшированный вывод
+ibnetdiscover от некоторых других диагностических инструментов, что делает его
+немного быстрее, чем запуск ibnetdiscover с нуля.
+.SS ПАРАМЕТРЫ
+.sp
+\fB\-R\fP
+Пересчитать информацию ibnetdiscover, то есть не использовать кэшированную
+информацию.  Этот параметр медленнее, но его следует использовать, если
+диагностические инструменты не использовались некоторое время или если есть
+другие причины полагать, что фабрика изменилась.
+.sp
+\fB\-C <ca_name>\fP    использовать указанный ca_name.
+.sp
+\fB\-P <ca_port>\fP    использовать указанный ca_port.
+.SS СТАТУС ВЫХОДА
+.sp
+Статус выхода равен 1, если обнаружены ошибки, и 0 в противном случае.
+.SS ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для установки некоторых общих
+параметров для всех инструментов.  Подробности см. в прилагаемом файле
+конфигурации.
+.SS СМ. ТАКЖЕ
+.sp
+\fBibnetdiscover(8)\fP
+.SS АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

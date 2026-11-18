@@ -1,0 +1,265 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/mountd/mountd.8
+.\" FRDP githash 6db916d21a09aebf3e7cb5c95e2ad714ab2b8882
+.\" FRDP hash256 4eb7b073d5af2c117af0497f638bae1af4d603546705894f25cf2f00ef8a7909
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 16, 2024
+.Dt MOUNTD 8
+.Os
+.Sh ИМЯ
+.Nm mountd
+.Nd служба удалённых запросов на монтирование
+.Tn NFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl 2AadelNnRrSs
+.Op Fl h Ar IP-адрес
+.Op Fl p Ar порт
+.Op Ar файл_экспорта ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является сервером для запросов на монтирование
+.Tn NFS
+от других клиентских машин.
+Он прослушивает запросы службы на порту, указанном в
+спецификации сервера
+.Tn NFS ;
+см.
+RFC1094, Приложение A и
+RFC1813, Приложение I.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl 2
+Разрешить администратору заставить клиентов использовать только
+протокол
+.Tn NFS
+версии 2 для монтирования файловых систем с этого сервера.
+.It Fl A
+Подавлять предупреждения, связанные с
+.Dq административными средствами управления .
+Эти предупреждения напоминают пользователям, что экспортированный
+.Dq каталог административного управления , не являющийся точкой
+монтирования локальной файловой системы сервера, фактически экспортирует
+всю локальную файловую систему, а не только поддерево ниже экспортированного
+каталога.
+(См.
+.Xr exports 5 )
+.It Fl a
+Обеспечивать проверку того, что экспортируемый каталог является точкой
+монтирования файловой системы, если в строке файла экспорта в
+.Xr exports 5
+указана опция
+.Fl -alldirs .
+С этой опцией строка exports завершится ошибкой, тогда как
+без этой опции
+.Xr syslog 8
+сгенерирует предупреждение,
+но экспорт будет выполнен.
+.It Fl d
+Выводить отладочную информацию.
+.Nm
+не будет отсоединяться от управляющего терминала и будет выводить
+отладочные сообщения в stderr.
+.It Fl e
+Игнорируется; включена для обратной совместимости.
+.It Fl h Ar IP-адрес
+Указать конкретные IP-адреса, к которым привязываться для запросов TCP и UDP.
+Эту опцию можно указывать несколько раз.
+Если опция
+.Fl h
+не указана,
+.Nm
+будет привязываться к
+.Dv INADDR_ANY .
+Обратите внимание, что при указании IP-адресов с помощью
+.Fl h ,
+.Nm
+автоматически добавит
+.Li 127.0.0.1
+и, если IPv6 включён,
+.Li ::1
+в список.
+.It Fl l
+Записывать в журнал все успешно выполненные запросы
+.Nm .
+.It Fl N
+Заставить
+.Nm
+выполняться на переднем плане, а не в режиме демона.
+.It Fl n
+Разрешить обслуживание запросов на монтирование не от root.
+Это следует указывать, только если есть клиенты, например ПК,
+которым это требуется.
+Она автоматически сбросит флаг sysctl vfs.nfsd.nfs_privport, который
+управляет тем, будет ли ядро принимать запросы NFS только с зарезервированных портов.
+.It Fl p Ar порт
+Заставить
+.Nm
+привязаться к указанному порту для обоих
+семейств адресов
+.Dv AF_INET
+и
+.Dv AF_INET6 .
+Обычно это делается, чтобы гарантировать, что порт, к которому
+.Nm
+привязывается, является известной величиной, которую можно использовать
+в наборах правил межсетевого экрана.
+Если
+.Nm
+не может привязаться к этому порту, соответствующая ошибка будет
+записана в системный журнал, после чего демон завершит работу.
+.It Fl R
+Не поддерживать протокол Mount и не регистрироваться в
+.Xr rpcbind 8 .
+Это можно делать для серверов, работающих только с NFSv4, поскольку протокол
+Mount не используется в NFSv4.
+Полезно для серверов, работающих только с NFSv4, которые не хотят запускать
+.Xr rpcbind 8 .
+.Xr showmount 8
+работать не будет, однако, поскольку монтирования NFSv4 не отображаются
+.Xr showmount 8 ,
+это не должно быть проблемой для сервера, работающего только с NFSv4.
+.It Fl r
+Разрешить обслуживание запросов RPC на монтирование обычных файлов.
+Хотя это, по-видимому, нарушает спецификацию протокола монтирования,
+некоторые бездисковые рабочие станции выполняют запросы на монтирование
+своих файлов подкачки и ожидают, что они будут обычными файлами.
+Поскольку обычный файл нельзя указать в
+.Pa /etc/exports ,
+всю файловую систему, в которой находятся файлы подкачки, придётся
+экспортировать с флагом
+.Fl alldirs .
+.It Ar файл_экспорта
+Указать альтернативное расположение
+файла экспорта.
+Можно указать более одного файла экспорта.
+.It Fl S
+Указать mountd приостанавливать/возобновлять выполнение потоков nfsd
+всякий раз, когда перезагружается список экспорта.
+Это позволяет избежать периодических ошибок доступа у клиентов,
+выполняющих NFS RPC во время перезагрузки экспорта, но вносит
+задержку в ответ RPC, пока перезагрузка продолжается.
+Если
+.Nm
+аварийно завершится во время загрузки экспорта,
+.Nm
+придётся перезапустить, чтобы потоки nfsd снова заработали, если
+используется эта опция.
+.It Fl s
+Заставить
+.Nm
+пропустить автоматическую привязку к localhost для IPv4 и IPv6.
+Эта опция не имеет смысла, если также не использовалась
+.Fl h .
+.El
+.Pp
+Когда
+.Nm
+запускается,
+он загружает адреса хостов экспорта и опции в ядро
+с помощью
+системного вызова
+.Xr nmount 2 .
+После изменения файла экспорта
+демону
+.Nm
+следует отправить сигнал hangup,
+чтобы он перезагрузил информацию экспорта.
+После отправки SIGHUP
+(kill \-s HUP `cat /var/run/mountd.pid`),
+проверьте вывод syslog, чтобы увидеть, зарегистрировал ли
+.Nm
+какие-либо ошибки разбора в файле экспорта.
+.Pp
+Если запущено несколько экземпляров
+.Nm ,
+либо в нескольких клетках, либо как внутри, так и вне клетки,
+необходимо следить за тем, чтобы экспортировать любую заданную файловую
+систему только в одном из экземпляров.
+Обратите внимание, что параметр клетки
+.Va allow.nfsd
+требуется, чтобы позволить
+.Nm
+работать в клетке.
+См.
+.Xr jail 8
+для получения дополнительной информации.
+.Pp
+Если
+.Nm
+обнаружит, что работающее ядро не включает
+поддержку
+.Tn NFS ,
+он попытается загрузить загружаемый модуль ядра, содержащий
+код
+.Tn NFS ,
+с помощью
+.Xr kldload 2 .
+Если это не удастся или доступный KLD
+.Tn NFS
+отсутствует,
+.Nm
+завершится с ошибкой.
+При запуске в клетке
+.Xr kldload 2
+должен быть выполнен вне клетки, обычно путём добавления
+.Dq nfsd
+в
+.Va kld_list
+в файле
+.Xr rc.conf 5
+на хосте клетки.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/run/mountd.pid -compact
+.It Pa /etc/exports
+список экспортированных файловых систем
+.It Pa /var/run/mountd.pid
+PID текущего запущенного mountd
+.It Pa /var/db/mountdtab
+текущий список удалённо смонтированных файловых систем
+.El
+.Sh СМ. ТАКЖЕ
+.Xr nfsstat 1 ,
+.Xr kldload 2 ,
+.Xr nfsv4 4 ,
+.Xr exports 5 ,
+.Xr rc.conf 5 ,
+.Xr jail 8 ,
+.Xr nfsd 8 ,
+.Xr rpcbind 8 ,
+.Xr showmount 8 ,
+.Xr syslog 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 4.4 .

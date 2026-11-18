@@ -1,0 +1,169 @@
+.\" Copyright (c) 2016 The FreeBSD Foundation
+.\"
+.\" This documentation was written by
+.\" Konstantin Belousov <kib@FreeBSD.org> under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigfastblock.2
+.\" FRDP githash dab59af3bcc7cb7ba01569d3044894b3e860ad56
+.\" FRDP hash256 98a2fee3011c99c7a4ce44cdec880d6b8f9b5387e3e864fb6d28dcaae6fd5174
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 13, 2019
+.Dt SIGFASTBLOCK 2
+.Os
+.Sh ИМЯ
+.Nm sigfastblock
+.Nd управляет блокировкой сигналов с помощью простой записи в память
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/signalvar.h
+.Ft int
+.Fn sigfastblock "int cmd" "void *ptr"
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Эта функция не предназначена для непосредственного использования приложениями.
+Функциональность предоставляется для реализации некоторых оптимизаций в
+.Xr ld-elf.so.1 8
+и
+.Lb libthr .
+.Ef
+.Pp
+Функция настраивает механизм ядра, который позволяет потоку
+блокировать доставку асинхронных сигналов одной записью в память
+пространства пользователя, избегая накладных расходов системных вызовов, таких как
+.Xr sigprocmask 2
+для установки критических секций.
+Среда выполнения C использует её для оптимизации реализации
+функциональности, безопасной для асинхронных сигналов.
+.Pp
+Поток может зарегистрировать переменную
+.Dv sigblock
+типа
+.Vt int
+в качестве местоположения, к которому обращается ядро при вычислении
+маски заблокированных сигналов для доставки асинхронных сигналов.
+Если переменная указывает, что запрошена блокировка, то ядро
+фактически действует так, как если бы маска, содержащая все блокируемые сигналы,
+была передана в
+.Xr sigprocmask 2 .
+.Pp
+Переменная должна изменяться только из владеющего потока,
+нет способа гарантировать видимость обновления из другого потока
+для ядра при доставке сигналов.
+.Pp
+Младшие биты переменной sigblock зарезервированы как флаги,
+которые могут быть установлены или сброшены ядром в произвольные моменты.
+Код пространства пользователя должен использовать
+.Xr atomic 9
+операции инкремента и декремента на величину
+.Dv SIGFASTBLOCK_INC
+для рекурсивной блокировки или разблокировки доставки сигналов.
+.Pp
+Если сигнал должен быть доставлен при снятой маске, ядро может установить
+флаг
+.Dv SIGFASTBLOCK_PEND
+.Dq ожидающий сигнал
+в переменной sigblock.
+Пространство пользователя должно выполнить операцию
+.Dv SIGFASTBLOCK_UNBLOCK
+при очистке переменной, если оно замечает, что бит ожидающего сигнала
+установлен, что немедленно доставит ожидающие сигналы.
+В противном случае доставка сигналов может быть отложена.
+.Pp
+Аргумент
+.Fa cmd
+задаёт одну из следующих операций:
+.Bl -tag -width SIGFASTBLOCK_UNSETPTR
+.It Dv SIGFASTBLOCK_SETPTR
+Зарегистрировать переменную типа
+.Vt int
+по адресу, указанному аргументом
+.Fa ptr
+, как переменную sigblock для вызывающего потока.
+.It Dv SIGFASTBLOCK_UNSETPTR
+Отменить регистрацию текущего местоположения sigblock.
+Ядро перестаёт выводить заблокированную маску из ненулевого значения
+счётчика блокировок.
+Новое местоположение может быть зарегистрировано после отмены регистрации предыдущего.
+.It Dv SIGFASTBLOCK_UNBLOCK
+Если имеются ожидающие сигналы, которые должны быть доставлены вызывающему
+потоку, они доставляются перед возвратом из вызова.
+Переменная sigblock должна иметь нулевой счётчик блокировок и указывать,
+что ожидающий сигнал существует.
+Фактически это означает, что переменная должна иметь значение
+.Dv SIGFASTBLOCK_PEND .
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Операция может завершиться со следующими ошибками:
+.Bl -tag -width Er
+.It Bq Er EBUSY
+Была предпринята попытка
+.Dv SIGFASTBLOCK_SETPTR
+, когда адрес sigblock уже был зарегистрирован.
+.Dv SIGFASTBLOCK_UNBLOCK
+была вызвана, когда значение переменной sigblock не равно
+.Dv SIGFASTBLOCK_PEND .
+.It Bq Er EINVAL
+Адрес переменной, переданный в
+.Dv SIGFASTBLOCK_SETPTR
+, не выровнен естественным образом.
+Операция
+.Dv SIGFASTBLOCK_UNSETPTR
+была предпринята без предшествующего успешного вызова
+.Dv SIGFASTBLOCK_SETPTR .
+.It Bq Er EFAULT
+Попытка чтения или записи переменной sigblock завершилась неудачей.
+Обратите внимание, что ядро генерирует сигнал
+.Dv SIGSEGV
+, если попытка чтения переменной sigblock завершилась ошибкой
+во время неявных обращений при входе в системный вызов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kill 2 ,
+.Xr signal 2 ,
+.Xr sigprocmask 2 ,
+.Xr libthr 3 ,
+.Xr ld-elf.so.1 8
+.Sh СТАНДАРТЫ
+Функция
+.Nm
+не является стандартной, хотя аналогичная функциональность является распространённой
+оптимизацией, предоставляемой несколькими другими системами.
+.Sh ИСТОРИЯ
+Функция
+.Nm
+была введена в
+.Fx 13.0 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Символ
+.Nm
+в настоящее время намеренно не экспортируется libc.
+Потребители должны либо использовать символ
+.Dv __sys_fast_sigblock
+из закрытого пространства имён libc, либо задействовать
+.Xr syscall 2 .

@@ -1,0 +1,192 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-get.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 60f72069bd2e533be826d71ad5ae97e34a1c30bff5c3931ffd03024e63f1cdbc
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 12, 2024
+.Dt ZPOOL-GET 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-get
+.Nd получение свойств пулов хранения ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm get
+.Op Fl Hp
+.Op Fl j Op Ar --json-int, --json-pool-key-guid
+.Op Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns …
+.Sy all Ns | Ns Ar свойство Ns Oo , Ns Ar свойство Oc Ns …
+.Oo Ar пул Oc Ns …
+.
+.Nm zpool
+.Cm get
+.Op Fl Hp
+.Op Fl j Op Ar --json-int
+.Op Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns …
+.Sy all Ns | Ns Ar свойство Ns Oo , Ns Ar свойство Oc Ns …
+.Ar пул
+.Oo Sy all-vdevs Ns | Ns
+.Ar vdev Oc Ns …
+.
+.Nm zpool
+.Cm set
+.Ar свойство Ns = Ns Ar значение
+.Ar пул
+.
+.Nm zpool
+.Cm set
+.Ar свойство Ns = Ns Ar значение
+.Ar пул
+.Ar vdev
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zpool
+.Cm get
+.Op Fl Hp
+.Op Fl j Op Ar --json-int, --json-pool-key-guid
+.Op Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns …
+.Sy all Ns | Ns Ar свойство Ns Oo , Ns Ar свойство Oc Ns …
+.Oo Ar пул Oc Ns …
+.Xc
+Извлекает заданный список свойств
+.Po
+или все свойства, если
+.Sy all
+используется
+.Pc
+для указанного пула (пулов) хранения.
+Эти свойства отображаются со следующими полями:
+.Bl -tag -width Ds
+.It Sy name
+Имя пула хранения.
+.It Sy property
+Имя свойства.
+.It Sy value
+Значение свойства.
+.It Sy source
+Источник свойства: либо
+.Sy default , No либо Sy local .
+.El
+.Pp
+См. страницу Справочника
+.Xr zpoolprops 7
+для получения дополнительной информации о доступных свойствах пула.
+.It Fl j , -json Op Ar --json-int, --json-pool-key-guid
+Отображать список свойств в формате JSON.
+Укажите
+.Sy --json-int
+для отображения чисел в целочисленном формате вместо строк в выводе JSON.
+Укажите
+.Sy --json-pool-key-guid
+для установки GUID пула в качестве ключа для объектов пула вместо имени пула.
+.It Fl H
+Режим сценария.
+Не отображать заголовки и разделять поля одним символом табуляции вместо произвольного пробела.
+.It Fl o Ar поле
+Разделённый запятыми список столбцов для отображения; по умолчанию
+.Sy name , Ns Sy property , Ns Sy value , Ns Sy source .
+.It Fl p
+Отображать числа в пригодных для разбора (точных) значениях.
+.It Xo
+.Nm zpool
+.Cm get
+.Op Fl j Op Ar --json-int
+.Op Fl Hp
+.Op Fl o Ar поле Ns Oo , Ns Ar поле Oc Ns …
+.Sy all Ns | Ns Ar свойство Ns Oo , Ns Ar свойство Oc Ns …
+.Ar пул
+.Oo Sy all-vdevs Ns | Ns
+.Ar vdev Oc Ns …
+.Xc
+Извлекает заданный список свойств
+.Po
+или все свойства, если
+.Sy all
+используется
+.Pc
+для указанных vdev
+.Po
+или всех vdev, если
+.Sy all-vdevs
+используется
+.Pc
+в указанном пуле.
+Эти свойства отображаются со следующими полями:
+.Bl -tag -width Ds
+.It Sy name
+Имя vdev.
+.It Sy property
+Имя свойства.
+.It Sy value
+Значение свойства.
+.It Sy source
+Источник свойства: либо
+.Sy default , No либо Sy local .
+.El
+.Pp
+См. страницу Справочника
+.Xr vdevprops 7
+для получения дополнительной информации о доступных свойствах пула.
+.It Fl j , -json Op Ar --json-int
+Отображать список свойств в формате JSON.
+Укажите
+.Sy --json-int
+для отображения чисел в целочисленном формате вместо строк в выводе JSON.
+.It Fl H
+Режим сценария.
+Не отображать заголовки и разделять поля одним символом табуляции вместо произвольного пробела.
+.It Fl o Ar поле
+Разделённый запятыми список столбцов для отображения; по умолчанию
+.Sy name , Ns Sy property , Ns Sy value , Ns Sy source .
+.It Fl p
+Отображать числа в пригодных для разбора (точных) значениях.
+.It Xo
+.Nm zpool
+.Cm set
+.Ar свойство Ns = Ns Ar значение
+.Ar пул
+.Xc
+Устанавливает заданное свойство для указанного пула.
+См. страницу Справочника
+.Xr zpoolprops 7
+для получения дополнительной информации о том, какие свойства можно установить, и о допустимых значениях.
+.It Xo
+.Nm zpool
+.Cm set
+.Ar свойство Ns = Ns Ar значение
+.Ar пул
+.Ar vdev
+.Xc
+Устанавливает заданное свойство для указанного vdev в указанном пуле.
+См. страницу Справочника
+.Xr vdevprops 7
+для получения дополнительной информации о том, какие свойства можно установить, и о допустимых значениях.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr vdevprops 7 ,
+.Xr zpool-features 7 ,
+.Xr zpoolprops 7 ,
+.Xr zpool-list 8

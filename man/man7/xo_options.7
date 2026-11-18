@@ -1,0 +1,112 @@
+.\" #
+.\" # Copyright (c) 2014-2017, Juniper Networks, Inc.
+.\" # All rights reserved.
+.\" # This SOFTWARE is licensed under the LICENSE provided in the
+.\" # ../Copyright file. By downloading, installing, copying, or
+.\" # using the SOFTWARE, you agree to be bound by the terms of that
+.\" # LICENSE.
+.\" # Phil Shafer, July 2014
+.\"
+.\" FRDP path contrib/libxo/libxo/xo_options.7
+.\" FRDP githash fd5e3f3ec6c6248e892c9e7b2f17da3bfe7b6837
+.\" FRDP hash256 1f300cc79edbb73a81e81f8762028811d70865e0840088376a7a2dcc3a8ce103
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 11, 2017
+.Dt LIBXO 3
+.Os
+.Sh ИМЯ
+.Nm xo_options
+.Nd общие параметры для команд на основе libxo
+.Sh ОПИСАНИЕ
+.Pp
+.Nm libxo
+позволяет отображать данные в
+различных стилях вывода, включая
+.Em text ,
+.Em XML ,
+.Em JSON
+и
+.Em HTML .
+.Nm libxo
+использует параметры командной строки для запуска поведения отображения.
+Параметры распознаются в трёх формах:
+.Bl -bullet
+.It
+\-\-libxo <options>
+.It
+\-\-libxo=<options>
+.It
+\-\-libxo:<brief\-options>
+.El
+.Pp
+Первые две формы принимают разделённый запятыми набор слов, описанный
+ниже, а третья форма принимает набор букв, также описанный ниже.
+Вызываемая функциональность идентична.
+.Pp
+Краткие параметры — это набор однобуквенных псевдонимов для более длинных
+терминов, используемых в виде одной строки:
+.Pp
+Большинство этих параметров просты и прямолинейны, но некоторые требуют
+дополнительных сведений:
+.Pp
+выполняет построчную буферизацию, даже когда вывод не направлен на
+устройство TTY.
+.Pp
+.Fa info
+генерирует дополнительные данные для HTML, закодированные в атрибутах с использованием
+.Pp
+.Fa keys
+идентификатор элемента списка.
+.Pp
+.Fa no\-humanize
+.Xr humanize_number 3
+подробности).
+.Pp
+.Fa no\-locale
+предписывает
+.Nm libxo
+избегать перевода вывода на текущую локаль.
+.Pp
+.Fa no\-retain
+отключает возможность
+.Nm libxo
+.Pp
+.Fa underscores
+могут использоваться с
+.Em JSON
+выводом, чтобы изменять
+.Em XML \-friendly
+имена с дефисами на
+.Em JSON \-friendly
+имена с подчёркиваниями.
+.Pp
+.Fa warn
+позволяет
+.Nm libxo
+выдавать предупреждения в stderr, когда код приложения делает некорректные вызовы.
+.Fa warn\-xml заставляет эти предупреждения помещаться в
+.Em XML
+внутри вывода.
+.Sh ПРИМЕРЫ
+Ниже приведены три примера вызова
+.Xr ps 1 :
+.Bd -literal
+      ps \-\-libxo json,pretty,warn \-ux
+
+      ps \-\-libxo=xml \-lg
+
+      ps \-\-libxo:Hxc 1
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libxo 3 ,
+.Xr xo_format 5
+.Sh ИСТОРИЯ
+Библиотека
+.Nm libxo
+впервые появилась в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.Nm libxo
+была написана
+.An Phil Shafer Aq Mt phil@freebsd.org .

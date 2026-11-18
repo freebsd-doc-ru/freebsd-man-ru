@@ -1,0 +1,109 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2006 Maxim Sobolev <sobomax@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+.\" INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+.\" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nvram/nvram.8
+.\" FRDP githash 33fbfceeb4d9daf1145089a10ce7b25110d8840f
+.\" FRDP hash256 cb26e6a9ccc9213f352c14f382d39e74b4d3cb1f8af3ea7721eda3db87fdf7f7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 19, 2020
+.Dt NVRAM 8 powerpc
+.Os
+.Sh ИМЯ
+.Nm nvram
+.Sh СИНТАКСИС
+.Nm
+.Fl p
+.Nm
+.Oo Fl d Ar имя Oc Ar ...
+.Op Ar имя Ns = Ns Ar значение ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет интерфейс для отображения и изменения переменных конфигурации системы,
+содержащихся в EEPROM или NVRAM.
+В первой форме синтаксиса выводятся все доступные переменные конфигурации и их
+текущие значения.
+Во второй форме переменная, выбранная с помощью
+.Ar имя ,
+либо удаляется, либо её значение изменяется на
+.Ar значение ,
+следующее за знаком
+.Ql = .
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl d Ar имя
+Удалить переменную, выбранную с помощью
+.Ar имя ,
+из EEPROM или NVRAM.
+Флаг
+.Fl d
+можно указывать несколько раз; в этом случае будут удалены несколько переменных.
+.It Fl p
+Вывести все доступные переменные конфигурации и их текущие значения.
+.El
+.Sh ПРИМЕРЫ
+Вывести все доступные переменные конфигурации и их текущие значения:
+.Pp
+.Pp
+Удалить переменную с именем
+.Va local-mac-address? :
+.Pp
+.Pp
+Установить значение переменной
+.Va local-mac-address?
+в
+.Dq Li true :
+.Pp
+.Pp
+Обратите внимание, что
+.Ql \e
+в приведённых выше примерах используется для того, чтобы оболочка не интерпретировала
+.Ql \&? .
+.Pp
+Удалить переменные с именами
+.Va foo
+и
+.Va bar
+и установить переменную с именем
+.Va baz
+в
+.Dq Li 100 :
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr powermac_nvram 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 7.0 .
+Она основана на утилите
+.Nm
+из Darwin/Mac OS X.
+.Sh АВТОРЫ
+.An Maxim Sobolev Aq Mt sobomax@FreeBSD.org

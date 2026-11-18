@@ -1,0 +1,115 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-diff.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 95a21ee34edb8619c6175520d947c62f3255048fb57ed865451fbe9d8ec0c9c0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-DIFF 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-diff
+.Nd показать различия между снимками ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm diff
+.Op Fl FHth
+.Ar снимок Ar снимок Ns | Ns Ar файловая_система
+.
+.Sh ОПИСАНИЕ
+Показывает различия между снимком заданной файловой системы и другим снимком
+этой файловой системы, сделанным позже, или текущим содержимым файловой
+системы.
+Первый столбец — это символ, указывающий тип изменения; остальные столбцы
+указывают имя пути, новое имя пути
+.Pq в случае переименования ,
+изменение числа ссылок и, возможно, тип файла и/или время изменения.
+Типы изменений:
+.Bl -tag -width Ds
+.It Sy -
+Путь был удалён
+.It Sy +
+Путь был создан
+.It Sy M
+Путь был изменён
+.It Sy R
+Путь был переименован
+.El
+.Bl -tag -width Ds
+.It Fl F
+Показать индикацию типа файла способом, подобным опции
+.Fl F
+команды
+.Xr ls 1 .
+.Bl -tag -width Ds
+.It Sy B
+Блочное устройство
+.It Sy C
+Символьное устройство
+.It Sy /
+Каталог
+.It Sy >
+Дверь
+.It Sy |\&
+Именованный канал
+.It Sy @
+Символическая ссылка
+.It Sy P
+Порт событий
+.It Sy =
+Сокет
+.It Sy F
+Обычный файл
+.El
+.It Fl H
+Выдавать более удобный для разбора вывод, разделённый табуляциями, без строк
+заголовка и без стрелок.
+.It Fl t
+Показывать время изменения inode пути в качестве первого столбца вывода.
+.It Fl h
+Не выполнять
+.Sy \e0 Ns Ar ooo Ns -escape
+для путей, не входящих в ASCII.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Показ различий между снимком и набором данных ZFS
+В следующем примере показано, как посмотреть, что изменилось между предыдущим
+снимком набора данных ZFS и его текущим состоянием.
+Опция
+.Fl F
+используется для указания информации о типе затронутых файлов.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm diff Fl F Ar tank/test@before tank/test
+M       /       /tank/test/
+M       F       /tank/test/linked      (+1)
+R       F       /tank/test/oldname -> /tank/test/newname
+-       F       /tank/test/deleted
++       F       /tank/test/created
+M       F       /tank/test/modified
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-snapshot 8

@@ -1,0 +1,218 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2004-2005 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/geom/core/geom.8
+.\" FRDP githash 33326a7b91490fd0c826ac4928f6b2b8fc278374
+.\" FRDP hash256 b8d1ef582a2b9d50c39814735ae9c95a7e38fb9cd2246ca253be1cb1a9698287
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 5, 2026
+.Dt GEOM 8
+.Os
+.Sh ИМЯ
+.Nm geom
+.Nd универсальная утилита управления для классов GEOM
+.Sh СИНТАКСИС
+.Nm
+.Ar class
+.Cm help
+.Nm
+.Op Fl -libxo
+.Ar class
+.Cm list
+.Op Fl a
+.Op Ar name ...
+.Nm
+.Op Fl -libxo
+.Ar class
+.Cm status
+.Op Fl ags
+.Op Ar name ...
+.Nm
+.Ar class
+.Cm load
+.Op Fl v
+.Nm
+.Ar class
+.Cm unload
+.Op Fl v
+.Nm
+.Fl p
+.Ar provider-name
+.Nm
+.Fl t
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для управления различными классами GEOM.
+Класс должен знать о методах связи
+.Nm ,
+но также существуют некоторые стандартные команды,
+которые можно использовать для существующих классов,
+не поддерживающих
+.Nm .
+Ниже приведён список стандартных команд:
+.Bl -tag -width indent
+.It Cm help
+Вывести список всех доступных команд для указанного класса.
+.It Cm list
+Вывести подробную информацию (в пределах указанного класса) обо всех
+geom-объектах (если дополнительные аргументы не указаны) или об указанных
+geom-объектах.
+Эта команда доступна только если указанный класс существует в ядре.
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl a
+Выводить информацию для geom-объектов без провайдеров.
+.El
+.It Cm status
+Вывести общую информацию (в пределах указанного класса) обо всех
+geom-объектах (если дополнительные аргументы не указаны) или об указанных
+geom-объектах.
+Эта команда доступна только если указанный класс существует в ядре.
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl a
+При использовании с
+.Fl g
+выводить состояние geom-объектов без провайдеров.
+.It Fl g
+Выводить состояния geom-объектов вместо провайдеров.
+.It Fl s
+Формировать вывод, удобный для использования в скриптах.
+.El
+.It Cm load
+Загрузить модуль ядра, реализующий указанный класс.
+Эта команда доступна только если класс ещё не существует в ядре и
+файл
+.Pa geom_ Ns Ao Ar class Ac Ns Pa .ko
+можно найти в одном из каталогов, указанных в
+.Va kern.module_path
+sysctl.
+.It Cm unload
+Выгрузить модуль ядра, реализующий указанный класс.
+Эта команда доступна только если указанный класс загружен как
+модуль ядра.
+.El
+.Pp
+Дополнительные параметры включают:
+.Bl -tag -width indent
+.It Fl p Ar provider-name
+Вывести подробную информацию о geom-объекте, который предоставляет
+.Ar provider-name .
+.It Fl t
+Отображать иерархию geom-объектов в виде дерева.
+.It Fl -libxo
+Формировать вывод через
+.Xr libxo 3
+в одном из различных форматов, удобочитаемых человеком и машиной.
+Подробные сведения об аргументах командной строки см. в
+.Xr xo_options 7 .
+.El
+.Pp
+Команды для конкретных классов реализованы в виде разделяемых библиотек,
+которые хранятся в каталоге
+.Pa /lib/geom/
+и загружаются с помощью функции
+.Xr dlopen 3 ,
+когда имя класса известно.
+Если разделяемая библиотека для конкретного класса существует, также должна быть
+доступна прямая утилита с именем
+.Nm g Ns Ar class .
+.Pp
+В настоящее время классы, поддерживающие
+.Nm ,
+включают:
+.Pp
+.Bl -column "\(bu CACHE" "\(bu MIRROR" "\(bu SCHED"
+.It \(bu CACHE Ta \(bu MIRROR Ta \(bu SCHED
+.It \(bu CONCAT Ta \(bu MOUNTVER Ta \(bu SHSEC
+.It \(bu DISK Ta \(bu MULTIPATH Ta \(bu STRIPE
+.It \(bu ELI Ta \(bu NOP Ta \(bu UNION
+.It \(bu JOURNAL Ta \(bu PART Ta \(bu VFS
+.It \(bu LABEL Ta \(bu RAID Ta \(bu VIRSTOR
+.It \(bu MD Ta \(bu RAID3
+.El
+.Sh ОКРУЖЕНИЕ
+Следующие переменные окружения влияют на выполнение
+.Nm :
+.Bl -tag -width indent
+.It Ev GEOM_LIBRARY_PATH
+Указывает путь хранения разделяемых библиотек вместо
+.Pa /lib/geom/ .
+Можно указать несколько путей с помощью списка путей, разделённых двоеточиями.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается с ошибкой.
+.Sh ПРИМЕРЫ
+В следующем примере показано, как настроить stripe на трёх дисках для автоматической
+конфигурации:
+.Bd -literal -offset indent
+geom stripe label -v -s 65536 data /dev/da0 /dev/da1 /dev/da2
+.Ed
+.Pp
+или:
+.Bd -literal -offset indent
+gstripe label -v -s 65536 data /dev/da0 /dev/da1 /dev/da2
+.Ed
+.Pp
+Вывести список всех провайдеров класса DISK:
+.Bd -literal -offset indent
+geom disk list
+.Ed
+.Pp
+Выгрузить модуль ядра, реализующий класс MD:
+.Bd -literal -offset indent
+geom md unload
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr libgeom 3 ,
+.Xr geom 4 ,
+.Xr xo_options 7 ,
+.Xr gcache 8 ,
+.Xr gconcat 8 ,
+.Xr geli 8 ,
+.Xr gjournal 8 ,
+.Xr glabel 8 ,
+.Xr gmirror 8 ,
+.Xr gmountver 8 ,
+.Xr gmultipath 8 ,
+.Xr gnop 8 ,
+.Xr gpart 8 ,
+.Xr graid3 8 ,
+.Xr gshsec 8 ,
+.Xr gstripe 8 ,
+.Xr gunion 8 ,
+.Xr gvirstor 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org

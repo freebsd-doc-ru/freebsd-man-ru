@@ -1,0 +1,312 @@
+.\" Copyright (C) 1994, 2001 by Joerg Wunsch, Dresden
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+.\" OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+.\" LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+.\" USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+.\" DAMAGE.
+.\"
+.\" FRDP path usr.sbin/fdcontrol/fdcontrol.8
+.\" FRDP githash 4c736cfc69a7ef81c48c8431b31c7e31746fe816
+.\" FRDP hash256 7b5b627219bbacade867cbe81bae1e4fdfb5b0a4e8f3676f3fa1fe2d6a7d7996
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 16, 2025
+.Dt FDCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm fdcontrol
+.Nd отображает и изменяет параметры гибких дисков
+.Sh СИНТАКСИС
+.Nm
+.Op Fl F
+.Op Fl d Ar dbg
+.Op Fl f Ar fmt
+.Op Fl s Ar fmtstr
+.Op Fl v
+.Ar device
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕВАНИИ
+.Nm
+устарела и может отсутствовать в
+.Fx 16.0
+и более поздних версиях.
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+позволяет изменять поведение во время выполнения драйвера
+.Xr fdc 4
+для устройства, указанного в
+.Ar device .
+.Pp
+Реализованы команды для запроса текущих параметров плотности устройства,
+а также базового оборудования устройства, зарегистрированного в
+драйвере, для управления уровнями отладки и для настройки параметров
+плотности устройства.
+Все операции, изменяющие настройки ядра,
+разрешены только суперпользователю (драйвером устройства), тогда как
+все запросы сведений требуют только доступа на чтение к
+.Ar device .
+.Pp
+Аргумент
+.Ar device
+всегда должен задаваться как полное имя пути, например\&
+.Pa /dev/fd0 .
+.Ss Команды запроса
+Запуск утилиты
+.Nm
+без каких-либо необязательных флагов выведет тип дисковода,
+зарегистрированный в драйвере устройства.
+В самой краткой форме будет возвращена одна строка, описывающая тип
+дисковода.
+Возможные значения:
+.Dq Li 360K ,
+.Dq Li 1.2M ,
+.Dq Li 720K ,
+.Dq Li 1.44M ,
+.Dq Li 2.88M ,
+или
+.Dq Li unknown .
+Эта информация в первую очередь предназначена для лёгкого разбора
+скриптами.
+.Pp
+Чтобы добавить описательный текст, делающий вывод более
+удобочитаемым, можно добавить флаг
+.Fl v .
+.Pp
+Указание флага
+.Fl F
+выведет параметры плотности устройства в форме, пригодной
+для ввода в опцию
+.Fl s Ar fmtstr
+(см. ниже).
+Опять же, вместе с
+.Fl v
+будет выведено больше текста, включая общую ёмкость параметров
+плотности в килобайтах.
+.Ss Управление отладкой
+Утилиты управления
+.Xr fdc 4
+поддерживают два различных варианта указания параметров плотности
+устройства.
+Первая форма использует
+.Fl f Ar fmt
+для указания формата носителя в килобайтах.
+В зависимости от
+базового типа дисковода значение сравнивается с таблицей известных
+часто используемых параметров плотности для этого дисковода, и если
+совпадение найдено, будут использованы эти параметры.
+В настоящее время для соответствующих типов дисководов допустимы
+следующие значения:
+.Bl -item
+.It
+Дисководы 2.88M и 1.44M:
+.Bd -ragged -offset indent -compact
+.TS
+lB lB lB lB lB lB lB
+r l l l l l l.
+KB	sectrac	secsize	ncyls	speed	heads	flags
+1721	21	2 (512)	82	500	2	MFM
+1476	18	2 (512)	82	500	2	MFM
+1440	18	2 (512)	80	500	2	MFM
+1200	15	2 (512)	80	500	2	MFM
+820	10	2 (512)	82	250	2	MFM
+800	10	2 (512)	80	250	2	MFM
+720	9	2 (512)	80	250	2	MFM
+.TE
+.Ed
+.It
+Дисководы 1.2M:
+.Bd -ragged -offset indent -compact
+.TS
+lB lB lB lB lB lB lB
+r l l l l l l.
+KB	sectrac	secsize	ncyls	speed	heads	flags
+1200	15	2 (512)	80	500	2	MFM
+1232	8	3 (1024)	77	500	2	MFM
+1476	18	2 (512)	82	500	2	MFM
+1440	18	2 (512)	80	500	2	MFM
+1200	15	2 (512)	80	500	2	MFM
+820	10	2 (512)	82	300	2	MFM
+800	10	2 (512)	80	300	2	MFM
+720	9	2 (512)	80	300	2	MFM
+360	9	2 (512)	40	300	2	MFM,2STEP
+640	8	2 (512)	80	300	2	MFM
+.TE
+.Ed
+.It
+Дисководы 720K:
+.Bd -ragged -offset indent -compact
+.TS
+lB lB lB lB lB lB lB
+r l l l l l l.
+KB	sectrac	secsize	ncyls	speed	heads	flags
+720	9	2 (512)	80	250	2	MFM
+.TE
+.Ed
+.It
+Дисководы 360K:
+.Bd -ragged -offset indent -compact
+.TS
+lB lB lB lB lB lB lB
+r l l l l l l.
+KB	sectrac	secsize	ncyls	speed	heads	flags
+360	9	2 (512)	40	250	2	MFM
+.TE
+.Ed
+.El
+.Pp
+Вторая форма указания плотности устройства использует
+.Fl s Ar fmtstr
+для явного подробного указания каждого параметра.
+Аргумент
+.Ar fmtstr
+— это список значений, разделённых запятыми, в форме:
+.Pp
+.Sm off
+.Ar sectrac , secsize , datalen , gap , ncyls , speed ,
+.Ar heads , f_gap , f_inter , offs2 , flags
+.Sm on
+.Pp
+Значение параметров:
+.Bl -tag -width indent
+.It Ar sectrac
+Число секторов на дорожку.
+.It Ar secsize
+Код размера сектора: 0 = 128 байт (или меньше), 1 = 256 байт, 2 = 512
+байт, 3 = 1024 байта.
+.It Ar datalen
+Фактический размер сектора, если код размера равен 0, или (игнорируемое)
+значение 0xFF для больших кодов размера.
+.It Ar gap
+Длина параметра gap 3 для операций чтения/записи.
+.It Ar ncyls
+Число цилиндров.
+.It Ar speed
+Скорость передачи в килобайтах в секунду.
+Может быть 250, 300, 500 или
+1000, но каждый тип дисковода поддерживает только подмножество этих значений.
+.It Ar heads
+Число головок.
+.It Ar f_gap
+Длина gap 3 при форматировании носителя.
+.It Ar f_inter
+Чередование секторов, применяемое при форматировании.
+0 означает отсутствие
+чередования, 1 означает 1:1 и т.д.
+.It Ar offs2
+Смещение номеров секторов на стороне 2 (т.е. головке номер 1).
+Обычно нумерация секторов на обеих сторонах начинается с 1.
+.It Ar flags
+Список из одного из следующих значений флагов:
+.Pp
+.Bl -tag -width indent -compact
+.It Cm +mfm
+Использовать кодирование MFM.
+.It Cm -mfm
+Использовать кодирование FM (одинарная плотность).
+.It Cm +2step
+Использовать 2 шага на каждый цилиндр (для доступа к 40-цилиндровым
+носителям в 80-цилиндровых дисководах).
+.It Cm -2step
+Не использовать 2 шага на цилиндр, т.е. обращаться к каждому физическому
+цилиндру дисковода.
+.It Cm +perpend
+Использовать перпендикулярную запись (для носителей 2.88 MB, в настоящее
+время не поддерживается).
+.It Cm -perpend
+Использовать продольную запись.
+.El
+.El
+.Pp
+Для любого отсутствующего параметра будет использовано текущее значение,
+поэтому нужно указывать только фактические изменения.
+Таким образом, чтобы отключить бит флага
+(например,
+.Cm +mfm ,
+который является значением по умолчанию для всех типов дисководов),
+необходимо явно использовать форму с ведущим
+знаком минус.
+.Sh ПРИМЕРЫ
+Простой запрос типа дисковода:
+.Bd -literal -offset indent
+$ fdcontrol /dev/fd0
+1.44M
+.Ed
+.Pp
+То же, что выше, но с подробным выводом.
+Обратите внимание, что результат относится к типу дисковода, а не к
+суб-устройству, поэтому он не зависит от фактического суб-устройства,
+используемого для
+.Ar device .
+.Bd -literal -offset indent
+$ fdcontrol -v /dev/fd0
+.Ed
+.Pp
+Запрос параметров плотности:
+.Bd -literal -offset indent
+$ fdcontrol -F /dev/fd0
+18,512,0xff,0x1b,80,500,2,0x6c,1,0,+mfm
+.Ed
+.Pp
+Флаг подробного вывода делает это удобочитаемым:
+.Bd -literal -offset indent
+/dev/fd0: 1440 KB media type
+        Format:         18,512,0xff,0x1b,80,500,2,0x6c,1,0,+mfm
+        Sector size:    512
+        Sectors/track:  18
+        Heads/cylinder: 2
+        Cylinders/disk: 80
+        Transfer rate:  500 kbps
+        Sector gap:     27
+        Format gap:     108
+        Interleave:     1
+        Side offset:    0
+        Flags           <MFM>
+.Ed
+.Pp
+Как указано, завершающие запятые в списке параметров можно опустить.
+.Pp
+Чтобы получить доступ к архаичным 160 KB носителям 5.25 с одинарной
+плотностью (FM-кодирование) в современном дисководе 1.2M, потребуется
+определение, подобное следующему.
+(Обратите внимание, что не всё аппаратное обеспечение контроллера
+вообще способно обрабатывать FM-кодирование.)
+.Bd -literal
+# fdcontrol -s 16,128,0x80,0x2,40,300,,0x10,,,-mfm,+2step /dev/fd1.1
+.Ed
+.Pp
+контроллеры, при наличии правильной кабельной магии.
+Классический формат 128/26/2/77 можно прочитать с помощью этой записи
+.Bd -literal -offset indent
+fdcontrol -s  26,128,0x80,0x2,77,500,2,0x10,,,-mfm /dev/fd0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr fdc 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 2.0
+и была значительно переработана в
+.Fx 5.0 .
+.Sh АВТОРЫ
+Программа и эта страница Справочника были предоставлены
+.An J\(:org Wunsch ,
+Дрезден.

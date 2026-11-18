@@ -1,0 +1,221 @@
+.\" Copyright (c) 2023 The FreeBSD Foundation
+.\" FRDP path share/man/man7/simd.7
+.\" FRDP githash 65f6088d177525306751e3e03f9089aef0d82d6a
+.\" FRDP hash256 063788c397b35f0f953d55520c907548dcb07a8501e210af572382c879c933d6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.
+.
+.
+.
+.Dd October 21, 2025
+.Dt SIMD 7
+.Os
+.Sh ИМЯ
+.Nm simd
+.Nd улучшения SIMD
+.
+.Sh ОПИСАНИЕ
+На некоторых архитектурах
+.Fx
+.Em libc
+предоставляет улучшенные реализации часто используемых функций, заменяя
+независимые от архитектуры реализации, используемые в остальных случаях.
+В зависимости от архитектуры и функции улучшенная
+реализация функции может либо использоваться всегда, либо
+.Em libc
+во время выполнения определяет, какие расширения набора инструкций SIMD
+поддерживаются, и автоматически выбирает наиболее подходящую реализацию.
+В
+.Cm amd64
+переменную окружения
+.Ev ARCHLEVEL
+можно использовать для переопределения этого механизма.
+.Pp
+Улучшенные функции присутствуют для следующих архитектур:
+.Bl -column FUNCTION_________ aarch64_ arm_ amd64_ i386_ ppc64_ -offset indent
+.It Em ФУНКЦИЯ          Ta Em AARCH64 Ta Em ARM Ta Em AMD64  Ta Em I386 Ta Em PPC64 Ta Em RISC-V
+.It    bcmp              Ta    A       Ta        Ta    S1     Ta    S
+.It    bcopy             Ta    A       Ta    S   Ta    S      Ta    S    Ta    SV    Ta    S
+.It    bzero             Ta    A       Ta    S   Ta    S      Ta    S    Ta          Ta    S
+.It    div               Ta            Ta        Ta    S      Ta    S
+.It    index             Ta    A       Ta        Ta    S1                Ta          Ta    S
+.It    ldiv              Ta            Ta        Ta    S      Ta    S
+.It    lldiv             Ta            Ta        Ta    S
+.It    memchr            Ta    A       Ta        Ta    S1     Ta         Ta          Ta    S
+.It    memcmp            Ta    A       Ta    S   Ta    S1     Ta    S
+.It    memccpy           Ta    A       Ta        Ta    S1
+.It    memcpy            Ta    A       Ta    S   Ta    S      Ta    S    Ta    SV    Ta    S
+.It    memmove           Ta    A       Ta    S   Ta    S      Ta    S    Ta    SV
+.It    memrchr           Ta    A       Ta        Ta    S1
+.It    memset            Ta    A       Ta    S   Ta    S      Ta    S    Ta          Ta    S
+.It    rindex            Ta    A       Ta        Ta    S1     Ta    S    Ta          Ta    S
+.It    stpcpy            Ta    A       Ta        Ta    S1
+.It    stpncpy           Ta            Ta        Ta    S1
+.It    strcat            Ta    A       Ta        Ta    S1     Ta    S
+.It    strchr            Ta    A       Ta        Ta    S1     Ta    S    Ta          Ta    S
+.It    strchrnul         Ta    A       Ta        Ta    S1     Ta         Ta          Ta    S
+.It    strcmp            Ta    A       Ta    S   Ta    S1     Ta    S
+.It    strcpy            Ta    A       Ta        Ta    S1     Ta    S    Ta    S2
+.It    strcspn           Ta    S       Ta        Ta    S2
+.It    strlcat           Ta    A       Ta        Ta    S1
+.It    strlcpy           Ta    A       Ta        Ta    S1
+.It    strlen            Ta    A       Ta    S   Ta    S1     Ta         Ta          Ta    S
+.It    strncat           Ta    A       Ta        Ta    S1
+.It    strncmp           Ta    A       Ta    S   Ta    S1     Ta    S
+.It    strncpy           Ta            Ta        Ta    S1     Ta         Ta    S2
+.It    strnlen           Ta    A       Ta        Ta    S1     Ta         Ta          Ta    S
+.It    strrchr           Ta    A       Ta        Ta    S1     Ta    S    Ta          Ta    S
+.It    strpbrk           Ta    S       Ta        Ta    S2
+.It    strsep            Ta    S       Ta        Ta    S2
+.It    strspn            Ta    S       Ta        Ta    S2
+.It    swab              Ta            Ta        Ta           Ta    S
+.It    timingsafe_bcmp   Ta    A       Ta        Ta    S1
+.It    timingsafe_memcmp Ta    S       Ta        Ta    S
+.It    wcschr            Ta            Ta        Ta           Ta    S
+.It    wcscmp            Ta            Ta        Ta           Ta    S
+.It    wcslen            Ta            Ta        Ta           Ta    S
+.It    wmemchr           Ta            Ta        Ta           Ta    S
+.El
+.Pp
+.Sy S Ns :\ скалярный (без SIMD),
+.Sy 1 Ns :\ базовый уровень amd64,
+.Sy 2 Ns :\ x86-64-v2
+или PowerPC\ 2.05,
+.Sy 3 Ns :\ x86-64-v3,
+.Sy 4 Ns :\ x86-64-v4,
+.Sy V Ns :\ PowerPC\ VSX,
+.Sy A Ns :\ Arm\ ASIMD (NEON).
+.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag
+.It Ev ARCHLEVEL
+В
+.Em amd64
+управляет уровнем используемых улучшений SIMD.
+Если эта переменная установлена в уровень архитектуры из приведённого ниже списка
+и этот уровень архитектуры поддерживается процессором, используются улучшения SIMD
+вплоть до
+.Ev ARCHLEVEL .
+Если
+.Ev ARCHLEVEL
+не задана, не распознана или не поддерживается процессором, используется наивысший
+уровень улучшений SIMD, поддерживаемый процессором.
+.Pp
+Суффикс, начинающийся с
+или
+в
+.Ev ARCHLEVEL ,
+игнорируется и может использоваться для будущих расширений.
+Уровень архитектуры можно предварить
+символом, чтобы принудительно использовать запрошенный уровень архитектуры, даже если
+процессор не заявляет о его поддержке.
+Обычно это приводит к аварийному завершению приложений, и это следует использовать только для
+тестирования или если определение уровня архитектуры даёт неверные
+результаты.
+.Pp
+Уровни архитектуры соответствуют дополнению AMD64 SysV ABI:
+.Bl -tag -width x86-64-v2
+.It Cm scalar
+только скалярные улучшения (без SIMD)
+.It Cm baseline
+cmov, cx8, x87 FPU, fxsr, MMX, osfxsr, SSE, SSE2
+.It Cm x86-64-v2
+cx16, lahf/sahf, popcnt, SSE3, SSSE3, SSE4.1, SSE4.2
+.It Cm x86-64-v3
+AVX, AVX2, BMI1, BMI2, F16C, FMA, lzcnt, movbe, osxsave
+.It Cm x86-64-v4
+AVX-512F/BW/CD/DQ/VL
+.El
+.El
+.
+.Sh ДИАГНОСТИКА
+.Bl -diag
+Печатается
+.Xr sh 1
+если команда завершается доставкой сигнала
+.Dv SIGILL ,
+см.
+.Xr signal 3 .
+.Pp
+Использование неподдерживаемого уровня архитектуры было принудительно включено установкой
+.Ev ARCHLEVEL
+в строку, начинающуюся с
+символа, что привело к аварийному завершению процесса из-за использования неподдерживаемой
+инструкции.
+Снимите
+.Ev ARCHLEVEL ,
+удалите
+префикс или выберите поддерживаемый уровень архитектуры.
+.Pp
+Сообщение также может появляться по не связанным причинам.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr string 3 ,
+.Xr arch 7
+.Rs
+.%A H. J. Lu
+.%A Michael Matz
+.%A Milind Girkar
+.%A Andreas Jaeger
+.%A Mark Mitchell
+.%B System V Application Binary Interface
+.%D May 23, 2023
+.%T AMD64 Architecture Processor Supplement
+.%O Version 1.0
+.Re
+.
+.Sh ИСТОРИЯ
+Улучшенные функции
+.Em libc ,
+специфичные для архитектуры, были добавлены начиная с
+.Fx 2.0
+для
+.Cm i386 ,
+.Fx 6.0
+для
+.Cm arm ,
+.Fx 6.1
+для
+.Cm amd64 ,
+.Fx 11.0
+для
+.Cm aarch64 ,
+.Fx 12.0
+для
+.Cm powerpc64
+и
+.Fx 16.0
+для
+.Cm riscv64 .
+Функции с улучшениями SIMD были впервые добавлены в
+.Fx 13.0
+для
+.Cm powerpc64
+и в
+.Fx 14.1
+для
+.Cm amd64 .
+.Pp
+Страница руководства
+.Nm
+появилась в
+.Fx 14.1 .
+.
+.Sh АВТОР
+.An Robert Clausecker Aq Mt fuz@FreeBSD.org
+.
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Другие части
+.Fx
+такие как криптографические процедуры в ядре или в
+OpenSSL, также могут использовать улучшения SIMD.
+На эти улучшения не распространяется переменная
+.Ev ARCHLEVEL
+и они могут иметь собственный механизм
+конфигурации.
+.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Использование улучшений SIMD нельзя настроить на powerpc64.

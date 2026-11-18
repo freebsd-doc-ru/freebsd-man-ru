@@ -1,0 +1,113 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2018 iXsystems, Inc
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/etdump/etdump.1
+.\" FRDP githash 283be95ea29abd7f867e4084bafe368c47f6c038
+.\" FRDP hash256 607b55c7d48cd6bdf23a8618456c5947403d5958b7fd03b0b71458a41f2a3969
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 18, 2025
+.Dt ETDUMP 1
+.Os
+.Sh ИМЯ
+.Nm etdump
+.Nd вывести информацию о загрузочном каталоге El Torito ISO-9660
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f Ar формат
+.Op Fl o Ar файл
+.Ar
+.Sh ОПИСАНИЕ
+Эта программа читает информацию загрузочного каталога El Torito
+из образа ISO-9660 и выводит её в различных форматах.
+Её можно использовать для проверки каталога в образе или
+для вывода данных каталога в формате, который могут использовать другие инструменты,
+например сценарии командной оболочки.
+.Pp
+Поддерживаются следующие параметры:
+.Bl -tag -width flag
+.It Fl f Ar формат | Fl -format Ar формат
+Выбрать формат вывода.
+Поддерживаются следующие форматы вывода:
+.Bl -tag -width indent
+.It Cm text
+Текст, удобочитаемый человеком (по умолчанию)
+.It Cm shell
+Каждая загрузочная запись выводится в виде строки,
+подходящей для передачи в совместимую с sh команду eval.
+Выводятся следующие переменные:
+.It Dv et_platform
+Идентификатор платформы из заголовка раздела.
+Для начальной (по умолчанию) записи устанавливается в 'default'.
+.It Dv et_system
+Идентификатор системы из загрузочной записи.
+.It Dv et_lba
+Начальный LBA (блоки по 2048 байт) загрузочного образа.
+.It Dv et_sectors
+Количество секторов (секторов по 512 байт), из которых состоит загрузочный образ.
+.El
+.It Fl o Ar файл | Fl -output Ar файл
+Записать вывод в
+.Ar файл .
+Если
+.Ql -
+указан, то используется стандартный вывод.
+.El
+.Sh ПРИМЕРЫ
+Чтобы посмотреть, какие записи содержит заданный загрузочный каталог, запустите
+.Nm
+передав имя файла образа в качестве аргумента, например так:
+.Bd -literal -offset indent
+% etdump bootonly.iso
+Image in bootonly.iso
+Default entry
+	System i386
+	Start LBA 420 (0x1a4), sector count 4 (0x4)
+	Media type: no emulation
+
+Section header: efi, final
+	Section entry
+		System i386
+		Start LBA 20 (0x14), sector count 1600 (0x640)
+		Media type: no emulation
+.Ed
+.Pp
+Чтобы использовать вывод в сценарии командной оболочки, можно применить цикл for
+для перебора записей, возвращаемых с помощью eval:
+.Bd -literal -offset indent
+for entry in `etdump --format shell bootonly.iso`; do
+	eval $entry
+	echo $et_platform $et_system $et_lba $et_sectors
+done
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr cd9660 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.2

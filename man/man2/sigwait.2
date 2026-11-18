@@ -1,0 +1,126 @@
+.\" Copyright (C) 2000 Jason Evans <jasone@FreeBSD.org>.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigwait.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 29d46a24db88a3e7f781b572d11c625b457ffb9fab17fdf0a4c1395be33e1910
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 6, 2013
+.Dt SIGWAIT 2
+.Os
+.Sh ИМЯ
+.Nm sigwait
+.Nd выбор набора сигналов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fn sigwait "const sigset_t * restrict set" "int * restrict sig"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigwait
+выбирает набор сигналов, заданный
+.Fa set .
+Если ни один из выбранных сигналов не находится в состоянии ожидания,
+.Fn sigwait
+ожидает, пока не будет сгенерирован один или несколько выбранных сигналов.
+Затем
+.Fn sigwait
+атомарно удаляет один из выбранных сигналов из набора ожидающих сигналов
+(для процесса или для текущего потока) и записывает в место, указанное
+.Fa sig ,
+номер сигнала, который был удалён.
+.Pp
+Сигналы, заданные
+.Fa set ,
+должны быть заблокированы на момент вызова
+.Fn sigwait .
+.Pp
+Если более одного потока используют
+.Fn sigwait
+для ожидания одного и того же сигнала, не более чем один из этих потоков
+вернётся из
+.Fn sigwait
+с номером сигнала.
+Если более одного потока заблокированы в
+.Fn sigwait
+в ожидании сигнала, когда этот сигнал генерируется для процесса,
+не определено, какой из ожидающих потоков вернётся из
+.Fn sigwait .
+Если сигнал генерируется для конкретного потока, например, посредством
+.Fn pthread_kill ,
+вернётся только этот поток.
+.Pp
+Если выбран какой-либо из нескольких ожидающих сигналов в диапазоне
+от
+.Dv SIGRTMIN
+до
+.Dv SIGRTMAX ,
+то это будет сигнал с наименьшим номером.
+Порядок выбора между сигналами реального времени
+и нереального времени, или между несколькими ожидающими сигналами
+нереального времени, не определён.
+.Sh ЗАМЕЧАНИЯ О РЕАЛИЗАЦИИ
+Функция
+.Fn sigwait
+реализована как обёртка вокруг системного вызова
+.Fn __sys_sigwait ,
+который повторяет вызов при ошибке
+.Er EINTR .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+В случае успеха
+.Fn sigwait
+возвращает 0 и записывает в место, указанное
+.Fa sig ,
+номер удалённого сигнала.
+В противном случае возвращается номер ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigwait
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa set
+задаёт один или несколько недопустимых номеров сигналов.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sigaction 2 ,
+.Xr sigpending 2 ,
+.Xr sigqueue 2 ,
+.Xr sigsuspend 2 ,
+.Xr sigtimedwait 2 ,
+.Xr sigwaitinfo 2 ,
+.Xr pause 3 ,
+.Xr pthread_sigmask 3
+.Sh СТАНДАРТЫ
+Функция
+.Fn sigwait
+соответствует
+.St -p1003.1-96 .

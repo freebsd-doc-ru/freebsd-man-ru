@@ -1,0 +1,266 @@
+.\" Copyright (c) 1997 FreeBSD, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/periodic/periodic.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 dd8b7c8e3b040a82c7c4dd9b11c7e1d9e804ce99093808fad686b621a6a30145
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 18, 2020
+.Dt PERIODIC 8
+.Os
+.Sh ИМЯ
+.Nm periodic
+.Nd запуск периодических системных функций
+.Sh СИНТАКСИС
+.Nm
+.Sm off
+.Cm daily | weekly | monthly | security | Ar каталог
+.Sm on
+.Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для вызова из
+.Xr cron 8
+для выполнения shell-скриптов,
+расположенных в указанном каталоге.
+.Pp
+Один или несколько следующих аргументов должны быть указаны:
+.Bl -tag -width Ar
+.It Cm daily
+Выполнить стандартный ежедневный запуск периодических исполняемых файлов.
+Обычно это происходит ранним утром (по местному времени).
+.It Cm weekly
+Выполнить стандартный еженедельный запуск периодических исполняемых файлов.
+Обычно это происходит очень рано утром в субботу.
+.It Cm monthly
+Выполнить стандартный ежемесячный запуск периодических исполняемых файлов.
+Обычно это происходит в первый день месяца.
+.It Cm security
+Выполнить стандартные ежедневные проверки безопасности.
+Обычно это инициируется запуском
+.Cm daily .
+.It Ar каталог
+Произвольный каталог, содержащий набор исполняемых файлов для запуска.
+.El
+.Pp
+Если аргумент является абсолютным именем каталога, он используется как есть; в противном случае
+он ищется в
+.Pa /etc/periodic
+и любых других каталогах, указанных в настройке
+.Va local_periodic
+в
+.Xr periodic.conf 5
+(см. ниже).
+.Pp
+Утилита
+.Nm
+будет запускать каждый исполняемый файл в указанном каталоге или каталогах.
+Если у файла не установлен бит исполняемости, он молча игнорируется.
+.Pp
+Каждый сценарий должен завершаться с одним из следующих значений:
+.Bl -tag -width 4n
+.It 0
+Сценарий не произвёл ничего примечательного в своём выводе.
+Переменная
+.Ao Ar basedir Ac Ns Va _show_success
+управляет маскированием этого вывода.
+.It 1
+Сценарий произвёл некоторую примечательную информацию в своём выводе.
+Переменная
+.Ao Ar basedir Ac Ns Va _show_info
+управляет маскированием этого вывода.
+.It 2
+Сценарий произвёл некоторые предупреждения из-за недопустимых настроек конфигурации.
+Переменная
+.Ao Ar basedir Ac Ns Va _show_badconfig
+управляет маскированием этого вывода.
+.It >2
+Сценарий произвёл вывод, который не должен маскироваться.
+.El
+.Pp
+Если соответствующая переменная (где
+.Aq Ar basedir
+— базовый каталог, в котором находится сценарий) установлена в
+.Dq Li NO
+в
+.Pa periodic.conf ,
+.Nm
+будет маскировать вывод сценария.
+Если переменная не установлена ни в
+.Dq Li YES ,
+ни в
+.Dq Li NO ,
+ей будет присвоено значение по умолчанию, как описано в
+.Xr periodic.conf 5 .
+.Pp
+Весь остальной вывод сценария доставляется в зависимости от значения настройки
+.Ao Ar basedir Ac Ns Va _output
+.
+.Pp
+Если она установлена в имя пути (начинающееся с символа
+.Ql /
+), вывод просто записывается в этот файл.
+.Xr newsyslog 8
+знает о файлах
+.Pa /var/log/daily.log , /var/log/weekly.log
+и
+.Pa /var/log/monthly.log ,
+и, если они существуют, будет ротировать их в соответствующие моменты.
+Поэтому это хорошие значения, если вы хотите записывать вывод
+.Nm
+в журнал.
+.Pp
+Если значение
+.Ao Ar basedir Ac Ns Va _output
+не начинается с
+.Ql /
+и не пусто, предполагается, что оно содержит список адресов электронной почты, и
+вывод отправляется им по почте.
+Если
+.Ao Ar basedir Ac Ns Va _show_empty_output
+установлено в
+.Dq Li NO ,
+то почта не будет отправлена, если вывод был пуст.
+.Pp
+Если
+.Ao Ar basedir Ac Ns Va _output
+не установлено или пусто, вывод отправляется на стандартный вывод.
+.Sh ОКРУЖЕНИЕ
+Утилита
+.Nm
+устанавливает переменную окружения
+.Ev PATH
+так, чтобы она включала все стандартные системные каталоги, но не дополнительные
+каталоги, такие как
+.Pa /usr/local/bin .
+Если добавляются исполняемые файлы, зависящие от других компонентов пути, каждый
+исполняемый файл должен сам настраивать своё подходящее окружение.
+.Sh ФАЙЛЫ
+.Bl -tag -width "/etc/defaults/periodic.conf" -compact
+.It Pa /etc/crontab
+утилита
+.Nm
+обычно вызывается через записи в системной таблице
+.Xr cron 8
+по умолчанию
+.It Pa /etc/periodic
+каталог верхнего уровня, содержащий подкаталоги
+.Pa daily ,
+.Pa weekly ,
+.Pa monthly
+и
+.Pa security ,
+которые содержат стандартные системные периодические исполняемые файлы
+.It Pa /etc/defaults/periodic.conf
+системный реестр
+.Pa periodic.conf
+содержит переменные, которые управляют поведением
+.Nm
+и стандартных сценариев
+.Pa daily , weekly , monthly ,
+и
+.Pa security
+.It Pa /etc/periodic.conf , ${LOCALBASE}/etc/periodic.conf
+этот файл содержит локальные переопределения для конфигурации
+.Nm
+по умолчанию
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода равен 0 при успехе и 1, если команда завершается неудачно.
+.Sh ПРИМЕРЫ
+Системный crontab должен содержать записи для
+.Nm
+похожие на следующий пример:
+.Bd -literal -offset indent
+# ежедневное/еженедельное/ежемесячное обслуживание
+0      2       *       *       *       root    periodic daily
+0      3       *       *       6       root    periodic weekly
+0      5       1       *       *       root    periodic monthly
+.Ed
+.Pp
+Системный реестр
+.Pa /etc/defaults/periodic.conf
+обычно содержит переменную
+.Va local_periodic
+со следующим значением:
+.Pp
+.Pp
+где
+.Pa ${_localbase}
+устанавливается из
+.Pa /usr/sbin/periodic .
+.Pp
+Чтобы записывать вывод
+.Nm
+в журнал, а не получать его по электронной почте, добавьте следующие строки в
+.Pa /etc/periodic.conf :
+.Bd -literal -offset indent
+daily_output=/var/log/daily.log
+weekly_output=/var/log/weekly.log
+monthly_output=/var/log/monthly.log
+.Ed
+.Pp
+Чтобы видеть только важную информацию из ежедневных периодических заданий, добавьте
+следующие строки в
+.Pa /etc/periodic.conf :
+.Bd -literal -offset indent
+daily_show_success=NO
+daily_show_info=NO
+daily_show_badconfig=NO
+.Ed
+.Sh ДИАГНОСТИКА
+Команда может завершиться неудачно по одной из следующих причин:
+.Bl -diag
+.It использование: periodic <каталог файлов для выполнения>
+Не был передан аргумент с путём к каталогу для
+.Nm ,
+указывающий, где находятся фрагменты сценариев.
+.It <каталог> не найден
+Самоочевидно.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sh 1 ,
+.Xr crontab 5 ,
+.Xr periodic.conf 5 ,
+.Xr cron 8 ,
+.Xr newsyslog 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An Paul Traina Aq Mt pst@FreeBSD.org
+.An Brian Somers Aq Mt brian@Awfulhak.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку информация о каталоге задаётся с помощью shell-переменных,
+содержащих строку
+.Aq Ar basedir ,
+.Aq Ar basedir
+должна содержать только символы, допустимые в имени переменной
+.Xr sh 1 ,
+— буквенно-цифровые символы и символы подчёркивания, — и первый символ
+не может быть цифрой.

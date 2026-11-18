@@ -1,0 +1,78 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\" Copyright (c) 2019, 2020 by Christian Schwarz. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-bookmark.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 b659cf169dd1c66a798b1a5e460da460e0a0bf969f78a1e0331f17397510bda8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-BOOKMARK 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-bookmark
+.Nd создание закладки для снимка ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm bookmark
+.Ar snapshot Ns | Ns Ar bookmark
+.Ar newbookmark
+.
+.Sh ОПИСАНИЕ
+Создаёт новую закладку для указанного снимка или закладки.
+Закладки отмечают момент времени, когда был создан снимок, и могут
+использоваться в качестве источника инкрементальных данных для
+.Nm zfs Cm send .
+.Pp
+При создании закладки из существующей закладки редактирования полученная
+закладка
+.Em не
+является закладкой редактирования.
+.Pp
+Для использования эту функцию необходимо включить.
+См.
+.Xr zpool-features 7
+для получения подробной информации о флагах функций ZFS и функции
+.Sy bookmarks .
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание закладки
+В следующем примере создаётся закладка для снимка.
+Затем эту закладку можно использовать вместо снимка в потоках send.
+.Dl # Nm zfs Cm bookmark Ar rpool Ns @ Ns Ar snapshot rpool Ns # Ns Ar bookmark
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-destroy 8 ,
+.Xr zfs-send 8 ,
+.Xr zfs-snapshot 8

@@ -1,0 +1,101 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/vdev_id.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 98094fb22944673c5af6526a58e82c0e68879ba5b50c58ecedcd56e9a0d6c74e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 26, 2021
+.Dt VDEV_ID 8
+.Os
+.
+.Sh ИМЯ
+.Nm vdev_id
+.Nd генерировать удобные для пользователя имена для дисков JBOD
+.Sh СИНТАКСИС
+.Nm
+.Fl d Ar устройство
+.Fl c Ar файл_конфигурации
+.Fl g Sy sas_direct Ns | Ns Sy sas_switch Ns | Ns Sy scsi
+.Fl m
+.Fl p Ar физ_устройств_на_порт
+.
+.Sh ОПИСАНИЕ
+.Nm
+— вспомогательная программа udev, которая разбирает
+.Xr vdev_id.conf 5
+чтобы сопоставить физический путь в топологии хранения с именем канала.
+Имя канала объединяется с номером слота корпуса дисков, чтобы создать
+псевдоним, отражающий физическое расположение диска.
+Это особенно полезно в таких задачах, как замена отказавших дисков.
+Номера слотов также можно переназначить, если нумерация по умолчанию
+неудовлетворительна.
+Псевдонимы дисков будут созданы как символические ссылки в
+.Pa /dev/disk/by-vdev .
+.Pp
+В настоящее время поддерживаются топологии
+.Sy sas_direct ,
+.Sy sas_switch
+и
+.Sy scsi .
+Поддерживается режим multipath, в котором устройства dm-mpath
+обрабатываются путём проверки первого работающего компонентного диска,
+как сообщает драйвер.
+В режиме multipath файл конфигурации должен содержать
+определение канала с одинаковым именем для каждого пути к данному
+корпусу.
+.Pp
+.Nm
+также поддерживает создание псевдонимов на основе существующих ссылок
+udev в иерархии /dev с использованием ключевого слова
+.Sy alias
+файла конфигурации.
+См.
+.Xr vdev_id.conf 5
+для подробностей.
+.
+.Sh ОПЦИИ
+.Bl -tag -width Ds
+.It Fl d Ar устройство
+Узел устройства для классификации, например
+.Pa /dev/sda .
+.It Fl c Ar файл_конфигурации
+Задаёт путь к альтернативному файлу конфигурации.
+По умолчанию используется
+.Pa /etc/zfs/vdev_id.conf .
+.It Fl g Sy sas_direct Ns | Ns Sy sas_switch Ns | Ns Sy scsi
+Определяет физическую топологию, которая управляет тем, как физические
+пути сопоставляются с каналами:
+.Bl -tag -width Ds
+.It Sy sas_direct No и Sy scsi
+каналы однозначно идентифицируются номером слота PCI и номером порта HBA
+.It Sy sas_switch
+каналы однозначно идентифицируются номером порта коммутатора SAS
+.El
+.It Fl m
+Обрабатывать только устройства dm-multipath.
+Если указано, проверять первый работающий компонентный диск устройства
+dm-multipath, предоставленный драйвером, чтобы определить физический путь.
+.It Fl p Ar физ_устройств_на_порт
+Задаёт количество устройств PHY, связанных с портом SAS HBA или портом
+коммутатора SAS.
+.Nm
+внутренне использует это значение, чтобы определить, к какому порту HBA
+или коммутатора подключено устройство.
+По умолчанию —
+.Sy 4 .
+.It Fl h
+Вывести краткую справку по использованию.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr vdev_id.conf 5

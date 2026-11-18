@@ -1,0 +1,108 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-hold.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 3353020ae7b052eba133ed3f986e7acaf08726e31300239a1d1505b1aab77937
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 8, 2022
+.Dt ZFS-HOLD 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-hold
+.Nd удерживать снимки ZFS, чтобы предотвратить их удаление
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm hold
+.Op Fl r
+.Ar тег Ar снимок Ns …
+.Nm zfs
+.Cm holds
+.Op Fl rHp
+.Ar снимок Ns …
+.Nm zfs
+.Cm release
+.Op Fl r
+.Ar тег Ar снимок Ns …
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm hold
+.Op Fl r
+.Ar тег Ar снимок Ns …
+.Xc
+Добавляет одну ссылку с именем, заданным аргументом
+.Ar тег
+, к указанным снимкам.
+Каждый снимок имеет собственное пространство имён тегов, и теги должны быть уникальными в этом
+пространстве.
+.Pp
+Если на снимке установлено удержание, попытки уничтожить этот снимок с помощью
+.Nm zfs Cm destroy
+возвращают
+.Sy EBUSY .
+.It Fl r
+Указывает, что удержание с заданным тегом рекурсивно применяется к снимкам
+всех дочерних файловых систем.
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm holds
+.Op Fl rHp
+.Ar снимок Ns …
+.Xc
+Выводит список всех существующих пользовательских ссылок для указанного снимка или снимков.
+.It Fl r
+Выводит список удержаний, установленных на указанных дочерних снимках, в дополнение к
+перечислению удержаний на указанном снимке.
+.It Fl H
+Не выводить заголовки, использовать вывод с разделителями-табуляциями.
+.It Fl p
+Выводит временные метки удержаний в формате временных меток Unix epoch.
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm release
+.Op Fl r
+.Ar тег Ar снимок Ns …
+.Xc
+Удаляет одну ссылку с именем, заданным аргументом
+.Ar тег
+, из указанного снимка или снимков.
+Тег должен уже существовать для каждого снимка.
+Если на снимке установлено удержание, попытки уничтожить этот снимок с помощью
+.Nm zfs Cm destroy
+возвращают
+.Sy EBUSY .
+.It Fl r
+Рекурсивно снимает удержание с заданным тегом на снимках всех
+дочерних файловых систем.
+.El
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-destroy 8

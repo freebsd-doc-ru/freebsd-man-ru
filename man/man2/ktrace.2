@@ -1,0 +1,203 @@
+.\" Copyright (c) 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/ktrace.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 8afd406da9a020fec00d875f4462906eb07a788bacb953cb4095d0868f883923
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 2, 2022
+.Dt KTRACE 2
+.Os
+.Sh NAME
+.Nm ktrace
+.Nd трассировка процессов
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/time.h
+.In sys/uio.h
+.In sys/ktrace.h
+.Ft int
+.Fn ktrace "const char *tracefile" "int ops" "int trpoints" "int pid"
+.Sh DESCRIPTION
+Системный вызов
+.Fn ktrace
+включает или отключает трассировку одного или нескольких процессов.
+Пользователи могут трассировать только свои собственные процессы.
+Только суперпользователь может трассировать программы с установленными битами setuid или setgid.
+.Pp
+Аргумент
+.Fa tracefile
+задаёт путь к файлу, который будет использоваться для трассировки.
+Файл должен существовать и быть обычным файлом, доступным для записи вызывающему процессу.
+Все записи трассировки всегда дописываются в конец файла,
+поэтому для отбрасывания предыдущих данных трассировки файл должен быть
+усечён до нулевой длины.
+Если точки трассировки отключаются (см. KTROP_CLEAR ниже),
+.Fa tracefile
+может быть NULL.
+.Pp
+Аргумент
+.Fa ops
+задаёт запрашиваемую операцию ktrace.
+Определены следующие операции:
+.Bl -column KTRFLAG_DESCENDXXX -offset indent
+.It KTROP_SET Ta "Включить точки трассировки, указанные в"
+.Fa trpoints .
+.It KTROP_CLEAR Ta "Отключить точки трассировки, указанные в"
+.Fa trpoints .
+.It KTROP_CLEARFILE Ta "Остановить всю трассировку."
+.It KTRFLAG_DESCEND Ta "Изменение трассировки должно применяться к"
+указанному процессу и всем его текущим потомкам.
+.El
+.Pp
+Аргумент
+.Fa trpoints
+задаёт интересующие точки трассировки.
+Определены следующие точки трассировки:
+.Bl -column KTRFAC_PROCCTORXXX -offset indent
+.It KTRFAC_SYSCALL Ta "Трассировать системные вызовы."
+.It KTRFAC_SYSRET Ta "Трассировать возвращаемые значения системных вызовов."
+.It KTRFAC_NAMEI Ta "Трассировать операции поиска имён."
+.It KTRFAC_GENIO Ta "Трассировать все операции ввода-вывода (учтите, что эта"
+опция может порождать большой объём вывода).
+.It KTRFAC_PSIG Ta "Трассировать доставленные сигналы."
+.It KTRFAC_CSW Ta "Трассировать точки переключения контекста."
+.It KTRFAC_USER Ta "Трассировать события, специфичные для приложения."
+.It KTRFAC_STRUCT Ta "Трассировать определённые структуры данных."
+.It KTRFAC_SYSCTL Ta "Трассировать вызовы sysctl."
+.It KTRFAC_PROCCTOR Ta "Трассировать создание процессов."
+.It KTRFAC_PROCDTOR Ta "Трассировать уничтожение процессов."
+.It KTRFAC_CAPFAIL Ta "Трассировать отказы возможностей (capability)."
+.It KTRFAC_FAULT Ta "Трассировать ошибки страниц (page faults)."
+.It KTRFAC_FAULTEND Ta "Трассировать завершение ошибок страниц."
+.It KTRFAC_STRUCT_ARRAY Ta "Трассировать массивы определённых структур данных."
+.It KTRFAC_INHERIT Ta "Наследовать трассировку будущими потомками."
+.El
+.Pp
+Каждое событие трассировки выводит запись, состоящую из общего заголовка,
+за которым следует структура, специфичная для точки трассировки.
+Общий заголовок имеет вид:
+.Bd -literal
+struct ktr_header {
+	int		ktr_len;		/* length of buf */
+	short		ktr_type;		/* trace record type */
+	pid_t		ktr_pid;		/* process id */
+	char		ktr_comm[MAXCOMLEN+1];	/* command name */
+	struct timeval	ktr_time;		/* timestamp */
+	long		ktr_tid;		/* thread id */
+};
+.Ed
+.Pp
+Поле
+.Va ktr_len
+задаёт длину следующих за этим заголовком данных
+.Va ktr_type .
+Поля
+.Va ktr_pid
+и
+.Va ktr_comm
+задают процесс и команду, сгенерировавшие запись.
+Поле
+.Va ktr_time
+задаёт время (с микросекундным разрешением),
+когда была сгенерирована запись.
+Поле
+.Va ktr_tid
+содержит идентификатор потока.
+.Pp
+За общим заголовком следуют
+.Va ktr_len
+байт записи
+.Va ktr_type .
+Записи, специфичные для типа, определены во включаемом файле
+.In sys/ktrace.h .
+.Sh НАСТРАИВАЕМЫЕ ПАРАМЕТРЫ SYSCTL
+Следующие настраиваемые параметры
+.Xr sysctl 8
+влияют на поведение
+.Fn ktrace :
+.Bl -tag -width indent
+.It Va kern.ktrace.genio_size
+ограничивает объём данных, который трассируемый запрос ввода-вывода
+запишет в файл трассировки.
+.It Va kern.ktrace.request_pool
+ограничивает число одновременно регистрируемых событий трассировки.
+.El
+.Pp
+Настраиваемые параметры sysctl, управляющие возможностью отладки процесса
+(определяется посредством
+.Xr p_candebug 9 ),
+также влияют на работу
+.Fn ktrace .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std ktrace
+.Sh ОШИБКИ
+Системный вызов
+.Fn ktrace
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент пути превысил 255 символов,
+или весь путь превысил 1023 символа.
+.It Bq Er ENOENT
+Указанный файл трассировки не существует.
+.It Bq Er EACCES
+В разрешении поиска для компонента префикса пути отказано.
+.It Bq Er ELOOP
+При преобразовании пути встречено слишком много символических ссылок.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er ENOSYS
+Ядро было скомпилировано без поддержки
+.Nm .
+.El
+.Pp
+Поток может оказаться неспособным зарегистрировать одно или несколько событий
+трассировки из-за временной нехватки ресурсов.
+Это состояние запоминается ядром, и следующий успешный запрос трассировки
+будет иметь установленный флаг
+.Li KTR_DROP
+в своём поле
+.Va ktr_type .
+.Sh СМ. ТАКЖЕ
+.Xr kdump 1 ,
+.Xr ktrace 1 ,
+.Xr utrace 2 ,
+.Xr sysctl 8 ,
+.Xr p_candebug 9
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn ktrace
+впервые появился в
+.Bx 4.4 .

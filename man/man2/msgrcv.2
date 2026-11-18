@@ -1,0 +1,216 @@
+.\"	$NetBSD: msgrcv.2,v 1.1 1995/10/16 23:49:20 jtc Exp $
+.\"
+.\" Copyright (c) 1995 Frank van der Linden
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"      This product includes software developed for the NetBSD Project
+.\"      by Frank van der Linden
+.\" 4. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\"/
+.\" FRDP path lib/libsys/msgrcv.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 2f5f89c63caf4641b6b9b0a07e2447737ae0ed28e2291f18262b65a8b2827fd4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 28, 2016
+.Dt MSGRCV 2
+.Os
+.Sh ИМЯ
+.Nm msgrcv
+.Nd получение сообщения из очереди сообщений
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/msg.h
+.Ft ssize_t
+.Fn msgrcv "int msqid" "void *msgp" "size_t msgsz" "long msgtyp" "int msgflg"
+.Sh ОПИСАНИЕ
+Функция
+.Fn msgrcv
+принимает сообщение из очереди сообщений, указанной в
+.Fa msqid ,
+и помещает его в структуру, на которую указывает
+.Fa msgp .
+Эта структура должна состоять из следующих членов:
+.Bd -literal
+    long mtype;    /* message type */
+    char mtext[1]; /* body of message */
+.Ed
+.Pp
+.Va mtype
+— это целое число, большее 0, которое может использоваться для выбора сообщений,
+.Va mtext
+— это массив байтов, размером до системного предела
+.Pf ( Dv MSGMAX ) .
+.Pp
+Значение
+.Fa msgtyp
+имеет одно из следующих значений:
+.Bl -bullet
+.It
+Аргумент
+.Fa msgtyp
+больше 0.
+Будет получено первое сообщение типа
+.Fa msgtyp .
+.It
+Аргумент
+.Fa msgtyp
+равен 0.
+Будет получено первое сообщение в очереди.
+.It
+Аргумент
+.Fa msgtyp
+меньше 0.
+Будет получено первое сообщение с наименьшим типом сообщения, который
+меньше или равен абсолютному значению
+.Fa msgtyp .
+.El
+.Pp
+Аргумент
+.Fa msgsz
+задаёт максимальную длину запрашиваемого сообщения.
+Если полученное
+сообщение имеет длину больше
+.Fa msgsz ,
+оно будет молча обрезано, если в
+.Fa msgflg
+установлен флаг
+.Dv MSG_NOERROR ,
+в противном случае будет возвращена ошибка.
+.Pp
+Если в очереди сообщений, указанной в
+.Fa msqid ,
+нет подходящего сообщения, поведение
+.Fn msgrcv
+зависит от того, установлен ли флаг
+.Dv IPC_NOWAIT
+в
+.Fa msgflg
+или нет.
+Если
+.Dv IPC_NOWAIT
+установлен,
+.Fn msgrcv
+немедленно вернёт значение -1 и установит
+.Va errno
+в
+.Er ENOMSG .
+Если
+.Dv IPC_NOWAIT
+не установлен, вызывающий процесс будет заблокирован
+до тех пор, пока:
+.Bl -bullet
+.It
+В очереди сообщений не станет доступно сообщение запрошенного типа.
+.It
+Очередь сообщений не будет удалена, и в этом случае будет возвращено -1, а
+.Va errno
+установлено в
+.Er EINVAL .
+.It
+Не будет получен и перехвачен сигнал.
+Возвращается -1, а
+.Va errno
+устанавливается в
+.Er EINTR .
+.El
+.Pp
+Если сообщение успешно получено, структура данных, связанная с
+.Fa msqid ,
+обновляется следующим образом:
+.Bl -bullet
+.It
+.Va msg_cbytes
+уменьшается на размер сообщения.
+.It
+.Va msg_lrpid
+устанавливается в pid вызывающего процесса.
+.It
+.Va msg_lrtime
+устанавливается в текущее время.
+.It
+.Va msg_qnum
+уменьшается на 1.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении
+.Fn msgrcv
+возвращает количество байтов, полученных в поле
+.Va mtext
+структуры, на которую указывает
+.Fa msgp .
+В противном случае возвращается -1, а
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Функция
+.Fn msgrcv
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa msqid
+не является допустимым идентификатором очереди сообщений.
+.Pp
+Очередь сообщений была удалена, пока
+.Fn msgrcv
+ожидала появления в ней сообщения запрошенного типа.
+.Pp
+Аргумент
+.Fa msgsz
+меньше 0.
+.It Bq Er E2BIG
+Было получено подходящее сообщение, но его размер был больше
+.Fa msgsz
+и флаг
+.Dv MSG_NOERROR
+не был установлен в
+.Fa msgflg .
+.It Bq Er EACCES
+Вызывающий процесс не имеет доступа на чтение к очереди сообщений.
+.It Bq Er EFAULT
+Аргумент
+.Fa msgp
+указывает на недопустимый адрес.
+.It Bq Er EINTR
+Системный вызов был прерван доставкой сигнала.
+.It Bq Er ENOMSG
+В очереди сообщений нет доступного сообщения запрошенного типа,
+а
+.Dv IPC_NOWAIT
+установлен в
+.Fa msgflg .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr msgctl 2 ,
+.Xr msgget 2 ,
+.Xr msgsnd 2
+.Sh ИСТОРИЯ
+Очереди сообщений появились в первом выпуске
+.At V .

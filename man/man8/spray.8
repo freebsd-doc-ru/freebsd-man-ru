@@ -1,0 +1,78 @@
+.\"
+.\" Copyright (c) 1994 James A. Jegers
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/spray/spray.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 279e87e092144ad6fb837e0d78da824a993a04df252e87b56dc0a23feac52dff
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 10, 1995
+.Dt SPRAY 8
+.Os
+.Sh ИМЯ
+.Nm spray
+.Nd отправка множества пакетов на узел
+.Sh СИНТАКСИС
+.Nm
+.Op Fl c Ar количество
+.Op Fl d Ar задержка
+.Op Fl l Ar длина
+.Ar узел
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отправляет множество пакетов RPC узлу
+.Ar узел
+и записывает, сколько из них было правильно получено и сколько времени это заняло.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl c Ar количество
+Отправить
+.Ar количество
+пакетов.
+.It Fl d Ar задержка
+Приостанавливать отправку на
+.Ar задержка
+микросекунд между отправкой каждого пакета.
+.It Fl l Ar длина
+Установить длину пакета, содержащего сообщение вызова RPC, в
+.Ar длина
+байт.
+Не все значения
+.Ar длина
+возможны, так как данные RPC кодируются с помощью XDR.
+Утилита
+.Nm
+округляет вверх до ближайшего возможного значения.
+.El
+.Pp
+Утилита
+.Nm
+предназначена для использования при тестировании, измерении и управлении сетью.
+Эта команда
+.Sh СМ. ТАКЖЕ
+.Xr netstat 1 ,
+.Xr ifconfig 8 ,
+.Xr ping 8 ,
+.Xr rpc.sprayd 8

@@ -1,0 +1,49 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-sync.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 a2750b8f8987ca8de4dd71576bb0488eaef6d655697d7f715c6d96a9243b98b1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZPOOL-SYNC 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-sync
+.Nd сбросить данные в основное хранилище пулов ZFS
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm sync
+.Oo Ar пул Oc Ns …
+.
+.Sh ОПИСАНИЕ
+Эта команда заставляет все находящиеся в памяти грязные данные записываться
+в основное хранилище пула, а не в ZIL.
+Она также обновляет административную информацию, включая отчётность по квотам.
+Без аргументов
+.Nm zpool Cm sync
+синхронизирует все пулы в системе.
+В противном случае она синхронизирует только указанные пулы.
+.
+.Sh СМ. ТАКЖЕ
+.Xr zpoolconcepts 7 ,
+.Xr zpool-export 8 ,
+.Xr zpool-iostat 8

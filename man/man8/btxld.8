@@ -1,0 +1,101 @@
+.\" Copyright (c) 1998 Robert Nordier
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+.\" OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+.\" OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/btxld/btxld.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 f1001aea8c5d78fb6738d8c3f5a69fc3324bac2b734648b2f8eef9bf3c4c0b9b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 12, 1998
+.Dt BTXLD 8
+.Os
+.Sh ИМЯ
+.Nm btxld
+.Nd редактор связей для клиентов BTX
+.Sh СИНТАКСИС
+.Nm
+.Op Fl qv
+.Op Fl b Ar файл
+.Op Fl E Ar адрес
+.Op Fl e Ar адрес
+.Op Fl f Ar формат
+.Op Fl l Ar файл
+.Op Fl o Ar имя_файла
+.Op Fl P Ar страница
+.Op Fl W Ar страница
+.Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+связывает указанный исполняемый файл клиента вместе с загрузочной программой BTX
+и ядром BTX и создаёт составной объектный файл, пригодный для загрузки во время
+процесса загрузки.
+.Pp
+Параметры:
+.Bl -tag -width indent
+.It Fl q
+Тихий режим: подавляет предупреждения.
+.It Fl v
+Подробный режим: выводит сведения об обрабатываемых файлах.
+.It Fl b Ar файл
+Указать ядро BTX, которое нужно связать с клиентом.
+.It Fl E Ar адрес
+Задать точку входа клиента.
+.It Fl e Ar адрес
+Задать точку входа загрузчика BTX.
+.It Fl f Ar формат
+Указать выходной формат, где
+.Ar формат
+— один из
+.Sq bin ,
+.Sq aout
+или
+.Sq elf .
+.It Fl l Ar файл
+Указать загрузчик BTX, который нужно связать с клиентом.
+.It Fl o Ar имя_файла
+Задать имя выходного файла.
+По умолчанию используется
+.Dq a.out .
+.It Fl P Ar страница
+Указать первую страницу сегмента клиента, которая должна быть помечена
+.Sq present ,
+где
+.Ar страница
+может быть 0 или 1.
+.It Fl W Ar страница
+Указать первую страницу сегмента клиента, которая должна быть помечена
+.Sq writable ,
+где
+.Ar страница
+может быть 0 и не должна превышать число страниц, занимаемых
+объединёнными сегментами .text и .data образа клиента.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr ld 1 ,
+.Xr boot 8
+.Sh АВТОРЫ
+.An Robert Nordier Aq Mt rnordier@FreeBSD.org

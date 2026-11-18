@@ -1,0 +1,133 @@
+.\" Copyright (c) 2017 Corelight, Inc. and Universita` di Pisa
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/netmap/lb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d4bb3e67b2367cbe933116d078336c9858d662dd8fed07b08a937978f9141198
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 26, 2019
+.Dt LB 8
+.Os
+.Sh ИМЯ
+.Nm lb
+.Nd балансировщик нагрузки на основе netmap
+.Sh СИНТАКСИС
+.Bk -words
+.Nm
+.Op Fl i Ar порт
+.Op Fl p Ar группа_каналов
+.Op Fl B Ar дополнительные_буферы
+.Op Fl b Ar размер_выборки
+.Op Fl w Ar ожидание_связи
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+читает пакеты из входного порта netmap и отправляет их в несколько каналов netmap,
+пытаясь сбалансировать пакеты, поступающие в каждый канал.
+Пакеты, принадлежащие
+одному соединению, всегда будут отправляться в один и тот же канал.
+.Pp
+Параметры командной строки перечислены ниже.
+.Bl -tag -width Ds
+.It Fl i Ar порт
+Имя порта netmap.
+Это имя должно быть указано ровно один раз для идентификации
+входного порта.
+Можно использовать любой тип порта netmap (например, физический интерфейс, коммутатор VALE, канал,
+порт мониторинга).
+.It Fl p Ar имя Ns Cm \&: Ns Ar число | число
+Добавить новую группу каналов из заданного числа каналов.
+Группа каналов будет получать все пакеты, прочитанные из входного порта, с балансировкой
+между доступными каналами.
+Принимающие концы каналов
+будут называться
+от
+.Dq Ar имя Ns Em }0
+до
+.Dq Ar имя No Ns Em } Ns Aq Ar число No - 1 .
+Имя необязательно и по умолчанию совпадает с
+именем входного порта (с удалением любых операторов netmap).
+Если имя опущено, двоеточие также можно опустить.
+.Pp
+Этот параметр можно указывать несколько раз, чтобы задать последовательность групп каналов,
+при этом каждая группа по очереди получает все пакеты.
+.Pp
+Если параметр
+.Fl p
+не задан, предполагается одна группа из двух каналов с именем по умолчанию.
+.Pp
+Разрешается использовать одно и то же имя для нескольких групп.
+Нумерация каналов в каждой
+группе начнётся с того места, где остановилась предыдущая группа с таким же именем.
+.It Fl B Ar дополнительные_буферы
+Попытаться зарезервировать заданное число дополнительных буферов.
+Дополнительные буферы разделяются между
+всеми каналами во всех группах и работают как расширение колец каналов.
+Если кольцо канала заполнено по какой-либо причине,
+.Nm
+пытается использовать дополнительные буферы, прежде чем отбрасывать пакеты, направленные в этот канал.
+.Pp
+Если все дополнительные буферы заняты, некоторые из них забираются у канала с самой длинной
+очередью.
+Это отдаёт предпочтение более новым пакетам перед старыми и не позволяет
+зависшему каналу исчерпать пул дополнительных буферов.
+.It Fl b Ar размер_выборки
+Максимальное число пакетов, обрабатываемых между двумя операциями чтения из входного порта.
+Большие значения размера выборки повышают производительность за счёт сокращения удельных затрат
+на операции чтения,
+но увеличивают риск заполнения внутренних очередей порта.
+.It Fl w Ar ожидание_связи
+указывает число секунд ожидания перед передачей.
+По умолчанию равно 2; может быть полезно при работе с физическими
+портами, чтобы дать завершиться согласованию канала перед началом передачи.
+.El
+.Sh ОГРАНИЧЕНИЯ
+При объединении групп в цепочку предполагается, что приложения на принимающей стороне
+каналов работают только на чтение: они не должны каким-либо образом изменять буферы или слоты
+колец каналов.
+.Pp
+Именование групп в настоящее время реализовано путём создания постоянного порта VALE
+с заданным именем.
+Если
+.Nm
+завершается нештатно, порты не будут удалены.
+Используйте
+.Xr valectl 8
+для удаления любого оставшегося постоянного порта VALE.
+.Sh СМ. ТАКЖЕ
+.Xr netmap 4 ,
+.Xr bridge 8 ,
+.Xr pkt-gen 8
+.Pp
+.Pa http://info.iet.unipi.it/~luigi/netmap/
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Seth Hall
+в Corelight, США.
+Средства, связанные с дополнительными буферами и группами каналов, были добавлены
+.An Giuseppe Lettieri
+в Университете Пизы, Италия, по контракту с Corelight, США.

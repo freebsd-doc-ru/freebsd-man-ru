@@ -1,0 +1,124 @@
+.\"
+.\" Copyright (c) 2015 Netflix, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/pmcstudy/pmcstudy.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 18270ea83ea8330aa87bfb4b44a40356c80ba86a9af8f1f7f0b6fb3c2192f7f0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 26, 2015
+.Dt PMCSTUDY 8
+.Os
+.Sh ИМЯ
+.Nm pmcstudy
+.Nd Выполнять различные исследования общих PMC системы
+.Sh СИНТАКСИС
+.Nm
+.Oo Fl i Ar входной_файл | Fl A |  Fl T | Fl v | Fl m Ar максимум | Fl e выражение | Fl Ar E | Fl h | fl H Oc
+.Nm
+.Fl i Ar входной_файл
+.Nm
+.Fl v
+.Nm
+.Fl m Ar максимум
+.Nm
+.Fl e Ar имя_выражения
+.Nm
+.Fl E Ar ваше_выражение
+.Nm
+.Fl h
+.Nm
+.Fl H
+.Nm
+.Fl T
+.Sh ОПИСАНИЕ
+Программа
+.Nm
+предназначена для выполнения различных тестов производительности вашей системы.
+Имеется примерно 20–22 готовых теста, которые настраивают определённые
+PMC и затем применяют различные формулы к выходной информации.
+NNN — это либо
+2-е, 3-е, 4-е или 5-е поколение, то есть Sandy Bridge, Ivy Bridge, Haswell и Broadwell.
+В настоящее время программа работает только с этими четырьмя типами процессоров Intel.
+.Sh ОПЦИИ
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl i Ar имя_файла
+Если эта опция указана, вместо запуска команды
+.Xr pmcstat 8
+для сбора текущей информации в качестве входных данных вместо этого будет прочитан файл имя_файла.
+.It Fl H
+Эта опция отобразит полный список готовых формул, которые можно запустить, включая их имена, которые можно передать опции
+.Fl e .
+.It Fl e Ar имя
+Выполняет готовый тест
+.Ar имя
+на работающем ядре.
+.It Fl h
+Если вы добавите эту опцию к опции
+.Fl e ,
+тест не будет выполнен, вместо этого будет выдано краткое описание теста, который должен был бы выполниться.
+.It Fl T
+Эта опция выполнит тест каждого PMC, чтобы проверить, работают ли они в вашей системе.
+Если PMC не появляется в этом тесте, скорее всего, драйвер ядра
+.Xr hwpmc 4
+нуждается в обновлении с новой информацией о PMC.
+.It Fl m Ar число
+Эта опция может ограничить количество односекундных выборок, которые будут собраны вашей системой при выполнении теста (она ограничивает время выполнения теста).
+Без этой опции тест будет выполняться 1024 секунды или до тех пор, пока пользователь не нажмёт ctrl-c.
+.It Fl v
+Опция подробного вывода добавляет отладочный вывод к команде.
+.It Fl E Ar выражение
+Эта опция может использоваться теми, у кого есть свои собственные идеи о том, какие формулы они хотят запускать.
+Выражение, переданное
+.Fl E
+Формула может напрямую объявлять PMC по имени, или вы можете использовать сокращение %NNN.
+Чтобы узнать сокращения в вашей системе, вы можете запустить опцию
+.Fl L .
+Пример вашей собственной формулы может быть
+.Fl E
+на машине Haswell вы введёте
+.Fl E
+Вы должны ставить пробелы между каждой записью, и вы можете использовать круглые скобки для указания приоритета операторов.
+Поддерживаются сложение (+), вычитание (-), деление (/) и умножение (*).
+Вы также можете вводить константные числа.
+Например, вы можете выполнить стандартный тест эффективности, такой как
+.Fl E
+.It Fl L
+Эта опция выведет список всех известных PMC и их сокращений (%NNN).
+.It Fl A
+Запускает все готовые тесты.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr pmc 3 ,
+.Xr pmclog 3 ,
+.Xr hwpmc 4 ,
+.Xr pmcstat 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 11.0 .
+.Sh АВТОРЫ
+.An Randall Stewart Aq Mt rrs@FreeBSD.org

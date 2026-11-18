@@ -1,0 +1,208 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2021 The FreeBSD Foundation
+.\"
+.\" This manual page was written by Ka Ho Ng under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/fspacectl.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 834f1fd3dc1f3f035996c85365864c5f4d7d48e4ebda860995c1c2c8fe7aa476
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 25, 2021
+.Dt FSPACECTL 2
+.Os
+.Sh ИМЯ
+.Nm fspacectl
+.Nd управление пространством в файле
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In fcntl.h
+.Ft int
+.Fo fspacectl
+.Fa "int fd"
+.Fa "int cmd"
+.Fa "const struct spacectl_range *rqsr"
+.Fa "int flags"
+.Fa "struct spacectl_range *rmsr"
+.Fc
+.Sh ОПИСАНИЕ
+.Nm
+— системный вызов, выполняющий управление пространством в файле.
+Аргумент
+.Fa fd
+задаёт дескриптор файла, над которым выполняется операция,
+указанная аргументом
+.Fa cmd .
+Аргумент
+.Fa rqsr
+указывает на структуру
+.Fa spacectl_range ,
+содержащую запрошенный диапазон операции.
+Аргумент
+.Fa flags
+управляет поведением выполняемой операции.
+Если аргумент
+.Fa rmsr
+не равен NULL, структура
+.Fa spacectl_range ,
+на которую он указывает, обновляется так, чтобы содержать
+необработанный диапазон операции после возврата из системного вызова.
+.Pp
+При успешном завершении без необработанной части в запрошенном
+диапазоне операции
+.Fa "rmsr->r_len"
+обновляется значением 0, а
+.Fa "rmsr->r_offset"
+обновляется значением
+.Fa "rqsr->r_offset"
+плюс количество байт, обнулённых до конца файла.
+Смещение файла дескриптора не используется и не изменяется системным вызовом.
+Оба аргумента
+.Fa rqsr
+и
+.Fa rmsr
+могут указывать на одну и ту же структуру.
+.Pp
+Структура
+.Fa spacectl_range
+определена как:
+.Bd -literal
+struct spacectl_range {
+	off_t r_offset;
+	off_t r_len;
+};
+.Ed
+.Pp
+Операция, задаваемая аргументом
+.Fa cmd ,
+может быть одной из:
+.Bl -tag -width SPACECTL_DEALLOC
+.It Dv SPACECTL_DEALLOC
+Обнулить область в файле, заданную аргументом
+.Fa rqsr .
+Значение
+.Fa "rqsr->r_offset"
+должно быть больше или равно 0, а значение
+.Fa "rqsr->r_len"
+должно быть больше 0.
+.Pp
+Если файловая система поддерживает вырезание дыр (hole-punching),
+в заданной области может быть выполнено освобождение пространства файловой системы.
+.El
+.Pp
+Аргумент
+.Fa flags
+в настоящее время должен иметь значение 0.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном завершении возвращается значение 0;
+в противном случае возвращается значение -1 и
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+Возможные условия отказа:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+не является допустимым дескриптором файла.
+.It Bq Er EBADF
+Аргумент
+.Fa fd
+ссылается на файл, открытый без разрешения на запись.
+.It Bq Er EINTR
+Во время выполнения был получен сигнал.
+.It Bq Er EINVAL
+Аргумент
+.Fa cmd
+недопустим.
+.It Bq Er EINVAL
+Если аргумент
+.Fa cmd
+равен
+.Dv SPACECTL_DEALLOC ,
+то либо аргумент
+.Fa "rqsr->r_offset"
+был меньше нуля, либо аргумент
+.Fa "rqsr->r_len"
+был меньше или равен нулю.
+.It Bq Er EINVAL
+Значение
+.Fa "rqsr->r_offset" +
+.Fa "rqsr->r_len"
+больше
+.Dv OFF_MAX .
+.It Bq Er EINVAL
+В
+.Fa flags
+включён недопустимый или неподдерживаемый флаг.
+.It Bq Er EINVAL
+Флаг, включённый в
+.Fa flags ,
+не поддерживается операцией, заданной аргументом
+.Fa cmd .
+.It Bq Er EFAULT
+Аргумент
+.Fa rqsr
+или ненулевой аргумент
+.Fa rmsr
+указывают за пределы выделенного адресного пространства процесса.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы были обнаружены повреждённые данные.
+.It Bq Er ENODEV
+Аргумент
+.Fa fd
+не ссылается на файл, поддерживающий
+.Nm .
+.It Bq Er ENOSPC
+На носителе файловой системы осталось недостаточно свободного места.
+.It Bq Er ENOTCAPABLE
+Дескриптор файла
+.Fa fd
+обладает недостаточными правами.
+.It Bq Er ESPIPE
+Аргумент
+.Fa fd
+связан с каналом или FIFO.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr creat 2 ,
+.Xr ftruncate 2 ,
+.Xr open 2 ,
+.Xr unlink 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Nm
+появился в
+.Fx 14.0 .
+.Sh АВТОРЫ
+.Nm
+и эта страница руководства были написаны
+.An Ka Ho Ng Aq Mt khng@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.
