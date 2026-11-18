@@ -1,0 +1,170 @@
+.\"
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/cut/cut.1
+.\" FRDP githash 16f37d97b9500a4fe2d0719161025515d477a5cd
+.\" FRDP hash256 f52fc71bcdfa7419b26bcec5401295e8ff285753e74286ed5ecb2de65a7d1a02
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 6, 2022
+.Dt CUT 1
+.Os
+.Sh ИМЯ
+.Nm cut
+.Nd вырезает выбранные части каждой строки файла
+.Sh СИНТАКСИС
+.Nm
+.Fl b Ar список
+.Op Fl n
+.Op Ar
+.Nm
+.Fl c Ar список
+.Op Ar
+.Nm
+.Fl f Ar список
+.Op Fl w | Fl d Ar разделитель
+.Op Fl s
+.Op Ar
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+вырезает выбранные части каждой строки (как указано в
+.Ar список )
+из каждого
+.Ar файл
+и записывает их в стандартный вывод.
+Если аргументы
+.Ar файл
+не указаны или аргумент файла — это одиночный дефис
+.Pq Sq Fl ,
+.Nm
+читает из стандартного ввода.
+Элементы, указанные в
+.Ar список ,
+могут задаваться в терминах позиции столбца или в терминах полей, разделённых
+специальным символом.
+Нумерация столбцов и полей начинается с 1.
+.Pp
+Аргумент
+.Ar список
+параметра — это разделённый запятыми или пробельными символами набор
+возрастающих чисел и/или диапазонов чисел.
+Диапазоны чисел состоят из числа, дефиса
+.Pq Sq \- ,
+и второго числа
+и выбирают столбцы или поля с первого числа по второе включительно.
+Перед числами или диапазонами чисел может стоять дефис, который выбирает все
+столбцы или поля с 1 по последнее число.
+После чисел или диапазонов чисел может стоять дефис, который выбирает все
+столбцы или поля с последнего числа до конца строки.
+Числа и диапазоны чисел могут повторяться, пересекаться и идти в любом порядке.
+Не является ошибкой выбор столбцов или полей, отсутствующих во входной строке.
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl b Ar список
+Аргумент
+.Ar список
+задаёт позиции байтов.
+.It Fl c Ar список
+Аргумент
+.Ar список
+задаёт позиции символов.
+.It Fl d Ar разделитель
+Использовать
+.Ar разделитель
+в качестве символа-разделителя полей вместо символа табуляции.
+.It Fl f Ar список
+Аргумент
+.Ar список
+задаёт поля, разделённые во входных данных символом-разделителем полей
+(см. параметр
+.Fl d ) .
+Выходные поля разделяются одним вхождением символа-разделителя полей.
+.It Fl n
+Не разбивать многобайтовые символы.
+Символы будут выведены, только если выбран хотя бы один байт и,
+после префикса из нуля или более невыбранных байтов, выбраны остальные
+байты, образующие символ.
+.It Fl s
+Подавлять строки без символов-разделителей полей.
+Если не указано, строки без разделителей передаются без изменений.
+.It Fl w
+Использовать пробельные символы (пробелы и табуляции) в качестве разделителя.
+Последовательные пробелы и табуляции считаются одним разделителем полей.
+.El
+.Sh ОКРУЖЕНИЕ
+Переменные окружения
+.Ev LANG , LC_ALL
+и
+.Ev LC_CTYPE
+влияют на выполнение
+.Nm
+как описано в
+.Xr environ 7 .
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Извлечь имена входа и оболочки пользователей из системного файла
+.Xr passwd 5
+как пары:
+.Dq имя:оболочка
+.Pp
+.Pp
+Показать имена и время входа пользователей, вошедших в систему в данный момент:
+.Pp
+.Sh СМ. ТАКЖЕ
+.Xr colrm 1 ,
+.Xr paste 1
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+соответствует
+.St -p1003.2-92 .
+.Pp
+Флаг
+.Fl w
+является расширением спецификации.
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Bx 4.3 Reno .
+.Sh АВТОРЫ
+.An -nosplit
+Оригинальная версия Bell Labs была написана
+.An Gottfried W. R. Luderer ,
+а версия
+.Bx
+—
+.An Adam S. Moskowitz .

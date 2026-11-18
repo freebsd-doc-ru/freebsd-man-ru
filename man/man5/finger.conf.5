@@ -1,0 +1,91 @@
+.\" Copyright (c) 2000 Mark Knight <markk@knigma.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/finger/finger.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 8655d70306e5d9bca2e900ce73d6f75dbf5c43891596fbe9c82279e1cb32bbe5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 16, 2000
+.Dt FINGER.CONF 5
+.Os
+.Sh ИМЯ
+.Nm finger.conf
+.Nd
+.Xr finger 1
+файл конфигурации псевдонимов
+.Sh ОПИСАНИЕ
+Необязательный файл
+.Nm
+используется для создания псевдонимов, к которым локальные и сетевые пользователи могут обратиться через finger.
+Это может быть полезно, если имя входа пользователя не совпадает с предпочитаемым адресом электронной почты, или для предоставления виртуальных имён входа, к которым можно обратиться через finger.
+.Pp
+Строки, начинающиеся с ``#'', являются комментариями.
+Другие строки должны состоять из
+имени псевдонима и имени цели, разделённых двоеточием.
+Имя цели должно быть либо именем пользователя, либо прямой
+ссылкой на другой псевдоним, либо путём к файлу, доступному для чтения всем пользователям.
+.Pp
+Если псевдоним указывает на файл, содержимое этого файла будет показано,
+когда к псевдониму обращаются через finger.
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/finger.conf -compact
+.It Pa /etc/finger.conf
+.Xr finger 1
+база данных определений псевдонимов
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+# /etc/finger.conf — файл определений псевдонимов
+#
+# Формат alias:(user|alias)
+#
+# Отдельные псевдонимы
+#
+markk:mkn
+john.smith:dev329
+john:dev329
+sue:/etc/finger/sue.txt
+#
+# Сообщение о состоянии сети
+#
+status:/usr/local/etc/status.txt
+#
+# Административные перенаправления
+#
+root:admin
+postmaster:admin
+abuse:admin
+#
+# Пока что 'sod' — системный администратор.
+#
+admin:sod
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr finger 1
+.Sh ИСТОРИЯ
+Поддержка файла
+.Nm
+была предложена Марком Найтом <markk@knigma.org> и впервые появилась в
+.Fx 4.2 .

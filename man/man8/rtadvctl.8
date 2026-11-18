@@ -1,0 +1,105 @@
+.\" Copyright (C) 2011 Hiroki Sato <hrs@FreeBSD.org>.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS
+.\" IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+.\" PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rtadvctl/rtadvctl.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e1f1871bf69d923715a6250368aff8a63edc190a1ad5288bc9140e87166ec65a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2011
+.Dt RTADVCTL 8
+.Os
+.Sh ИМЯ
+.Nm rtadvctl
+.Nd управляющая программа для демона
+.Xr rtadvd 8
+.Sh СИНТАКСИС
+.Nm
+.Op Fl v
+.Ar подкоманда
+.Op Ar интерфейс ...
+.Sh ОПИСАНИЕ
+.Nm
+— это утилита, которая взаимодействует с демоном
+.Xr rtadvd 8
+и отображает информацию о сообщениях Router Advertisement, отправляемых
+на каждом интерфейсе.
+.Pp
+Эта утилита предоставляет несколько параметров и подкоманд.
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl v
+Увеличивает уровень подробности вывода.
+Если указан один раз, утилита
+.Nm
+показывает дополнительную информацию о префиксах, параметрах RDNSS и DNSSL.
+Если указан дважды, дополнительно показывает информацию о
+неактивных интерфейсах и некоторую статистику.
+.El
+.Pp
+Подкоманды следующие:
+.Bl -tag -width indent
+.It reload Op интерфейсы...
+Указывает перезагрузить файл конфигурации.
+Если указан один или несколько
+.Ar интерфейсов
+, записи конфигурации для этих интерфейсов будут перезагружены
+выборочно.
+.It enable интерфейсы...
+Указывает пометить интерфейс как включённый и попытаться перезагрузить
+запись конфигурации.
+Эта подкоманда полезна для динамически добавляемых интерфейсов.
+.Pp
+Демон
+.Xr rtadvd 8
+помечает интерфейс как включённый, если интерфейс существует и
+файл конфигурации содержит для него допустимую запись при его вызове.
+.It disable интерфейсы...
+Указывает пометить интерфейс как отключённый.
+.It shutdown
+Заставляет демон
+.Xr rtadvd 8
+завершить работу.
+Обратите внимание, что демон
+.Xr rtadvd 8
+отправит несколько RA с нулевым временем жизни, чтобы аннулировать старую
+информацию на каждом интерфейсе.
+Это займёт не более девяти секунд.
+.It show Op интерфейсы...
+Отображает информацию о сообщениях Router Advertisement, отправляемых
+на каждом интерфейсе.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rtadvd.conf 5 ,
+.Xr rtadvd 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.Nm
+была написана
+.An Hiroki Sato Aq Mt hrs@FreeBSD.org .

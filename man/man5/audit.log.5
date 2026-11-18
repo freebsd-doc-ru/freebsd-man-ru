@@ -1,0 +1,382 @@
+.\"-
+.\" Copyright (c) 2005-2006 Robert N. M. Watson
+.\" Copyright (c) 2008 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/audit.log.5
+.\" FRDP githash 3008333d442f4daf0318cb1d249240e086208d68
+.\" FRDP hash256 a62f1e98f13e85a10a9e2935442fba27539b9730c06ceb3e8a9fcdb4144604e7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 5, 2006
+.Dt AUDIT.LOG 5
+.Os
+.Sh ИМЯ
+.Nm audit
+.Sh ОПИСАНИЕ
+Формат файла
+.Nm
+основан на формате файла Basic Security Module (BSM) компании Sun — потоке записей на основе токенов, представляющем данные системного аудита.
+Этот формат файла гибок и расширяем, способен описывать широкий диапазон типов данных и легко расширяется для описания новых типов данных умеренно обратно и прямо совместимым способом.
+.Pp
+Потоки токенов BSM обычно начинаются и заканчиваются токеном
+.Dq file
+, который предоставляет информацию о временной метке и имени файла для потока; при обработке потока токенов BSM из потока, а не из одного файлового источника, токены file могут встречаться в любой точке между обычными записями, определяющими, когда начинаются и заканчиваются отдельные части потока.
+Все остальные токены будут появляться в контексте полной записи аудита BSM, которая начинается с токена
+.Dq header
+и заканчивается токеном
+.Dq trailer
+, описывающими запись аудита.
+Между этими двумя токенами будет появляться множество токенов данных, таких как информация о процессе, имена путей к файлам, информация об объектах IPC, метки MAC, информация о сокетах и т. д.
+.Pp
+Формат файла BSM определяет конкретные порядки токенов для каждого типа события записи; однако некоторые вариации могут возникать в зависимости от используемой операционной системы и того, какие системные параметры, такие как обязательный контроль доступа, присутствуют.
+.Pp
+Эта страница руководства документирует распространённые типы токенов и их двоичный формат и предназначена только для справочных целей.
+Рекомендуется, чтобы программисты приложений использовали интерфейс
+.Xr libbsm 3
+для чтения и записи токенов, а не разбирали или создавали записи вручную.
+.Ss Токен file
+Токен
+.Dq file
+используется в начале и конце файла журнала аудита, чтобы указать, когда журнал аудита начинается и заканчивается.
+Он включает имя пути, так что при объединении вместе исходные границы файла остаются наблюдаемыми и можно выявить пропуски в журнале аудита.
+Токен
+.Dq file
+можно создать с помощью
+.Xr au_to_file 3 .
+.Ss Токен header
+Токен
+.Dq header
+используется для обозначения начала полной записи аудита и включает длину всей записи в байтах, номер версии компоновки записи, тип и подтип события, а также время, когда событие произошло.
+32-битный токен
+.Dq header
+можно создать с помощью
+.Xr au_to_header32 3 ;
+64-битный токен
+.Dq header
+можно создать с помощью
+.Xr au_to_header64 3 .
+.Ss Расширенный токен header
+Токен
+.Dq expanded header
+является расширенной версией токена
+.Dq header
+с добавлением IPv4- или IPv6-адреса машины.
+32-битный расширенный токен
+.Dq header
+можно создать с помощью
+.Xr au_to_header32_ex 3 ;
+64-битный расширенный токен
+.Dq header
+можно создать с помощью
+.Xr au_to_header64_ex 3 .
+.Ss Токен trailer
+Токен
+.Dq trailer
+завершает запись аудита BSM и содержит магическое число
+.Dv AUT_TRAILER_MAGIC
+и длину, которые можно использовать для проверки того, что запись была прочитана правильно.
+Токен
+.Dq trailer
+можно создать с помощью
+.Xr au_to_trailer 3 .
+.Ss Токен arbitrary data
+Токен
+.Dq arbitrary data
+содержит поток байтов непрозрачных (нетипизированных) данных.
+Размер данных вычисляется как размер каждой единицы данных, умноженный на количество единиц данных.
+Присутствует поле
+.Dq How to print
+, чтобы указать, как печатать данные, но интерпретация этого поля в настоящее время не определена.
+Токен
+.Dq arbitrary data
+можно создать с помощью
+.Xr au_to_data 3 .
+.Ss Токен in_addr
+Токен
+.Dq in_addr
+содержит IPv4-адрес в сетевом порядке байтов.
+Токен
+.Dq in_addr
+можно создать с помощью
+.Xr au_to_in_addr 3
+для IPv4-адреса.
+.Ss Расширенный токен in_addr
+Токен
+.Dq in_addr_ex
+содержит IPv4- или IPv6-адрес в сетевом порядке байтов.
+Токен
+.Dq in_addr_ex
+можно создать с помощью
+.Xr au_to_in_addr_ex 3
+для IPv6-адреса.
+.Pp
+См. раздел
+.Sx ИЗВЕСТНЫЕ ОШИБКИ
+для получения информации о хранении этого токена.
+.Ss Токен ip
+Токен
+.Dq ip
+содержит заголовок IP-пакета в сетевом порядке байтов.
+Токен
+.Dq ip
+можно создать с помощью
+.Xr au_to_ip 3 .
+.Ss Токен iport
+Токен
+.Dq iport
+хранит номер IP-порта в сетевом порядке байтов.
+Токен
+.Dq iport
+можно создать с помощью
+.Xr au_to_iport 3 .
+.Ss Токен path
+Токен
+.Dq path
+содержит имя пути.
+Токен
+.Dq path
+можно создать с помощью
+.Xr au_to_path 3 .
+.Ss Токен path_attr
+Токен
+.Dq path_attr
+содержит набор имён путей, завершающихся NUL.
+API
+.Xr libbsm 3
+в настоящее время не может создать токен
+.Dq path_attr
+.
+.Ss Токен process
+Токен
+.Dq process
+содержит описание свойств безопасности процесса, участвующего в качестве цели аудируемого события, например получателя доставки сигнала.
+Его не следует путать с токеном
+.Dq subject
+, который описывает субъект, выполняющий аудируемое событие.
+Это включает как традиционные свойства безопасности
+.Ux
+, такие как идентификаторы пользователей и групп, так и информацию аудита, такую как идентификатор пользователя аудита и сеанс.
+Токен
+.Dq process
+можно создать с помощью
+.Xr au_to_process32 3
+или
+.Xr au_to_process64 3 .
+.Ss Расширенный токен process
+Токен
+.Dq expanded process
+содержит содержимое токена
+.Dq process
+с добавлением типа адреса машины и хранилища адреса переменной длины, способного содержать IPv6-адреса.
+Токен
+.Dq expanded process
+можно создать с помощью
+.Xr au_to_process32_ex 3
+или
+.Xr au_to_process64_ex 3 .
+.Ss Токен return
+Токен
+.Dq return
+содержит условие возврата системного вызова или библиотечной функции, включая возвращаемое значение и номер ошибки, связанный с глобальной переменной
+.Er errno .
+Токен
+.Dq return
+можно создать с помощью
+.Xr au_to_return32 3
+или
+.Xr au_to_return64 3 .
+.Ss Токен subject
+Токен
+.Dq subject
+содержит информацию о субъекте, выполняющем операцию, описанную записью аудита, и включает сведения, аналогичные тем, что находятся в токенах
+.Dq process
+и
+.Dq expanded process
+.
+Однако эти токены используются, когда описываемый процесс является целью операции, а не авторизующей стороной.
+Токен
+.Dq subject
+можно создать с помощью
+.Xr au_to_subject32 3
+и
+.Xr au_to_subject64 3 .
+.Ss Расширенный токен subject
+Токен
+.Dq expanded subject
+состоит из тех же элементов, что и токен
+.Dq subject
+, с добавлением информации о типе/длине и адресе машины переменного размера в идентификаторе терминала.
+Токен
+.Dq expanded subject
+можно создать с помощью
+.Xr au_to_subject32_ex 3
+или
+.Xr au_to_subject64_ex 3 .
+.Ss Токен System V IPC
+Токен
+.Dq System V IPC
+содержит дескриптор сообщения System V IPC, дескриптор семафора или дескриптор разделяемой памяти.
+Токен System V IPC может быть создан с помощью
+.Xr au_to_ipc 3 .
+.Ss Токен text
+Токен
+.Dq text
+содержит одну текстовую строку, завершающуюся NUL.
+Токен
+.Dq text
+может быть создан с помощью
+.Xr au_to_text 3 .
+.Ss Токен attribute
+Токен
+.Dq attribute
+описывает атрибуты файла, связанного с событием аудита.
+Поскольку файлы могут идентифицироваться 0, 1 или многими именами путей, имя пути не включается в блок атрибутов файла; необязательные токены
+.Dq path
+также могут присутствовать в записи аудита, указывая, какой путь, если таковой имеется, использовался для доступа к объекту.
+Токен
+.Dq attribute
+можно создать с помощью
+.Xr au_to_attr32 3
+или
+.Xr au_to_attr64 3 .
+.Ss Токен groups
+Токен
+.Dq groups
+содержит список идентификаторов групп, связанных с событием аудита.
+Токен
+.Dq groups
+можно создать с помощью
+.Xr au_to_groups 3 .
+.Ss Токен System V IPC permission
+Токен
+.Dq System V IPC permission
+содержит права доступа System V IPC.
+Токен System V IPC permission может быть создан с помощью
+.Xr au_to_ipc_perm 3 .
+.Ss Токен arg
+Токен
+.Dq arg
+содержит информацию об аргументах системного вызова.
+В зависимости от размера желаемого значения аргумента токен Arg может быть создан с помощью
+.Xr au_to_arg32 3
+или
+.Xr au_to_arg64 3 .
+.Ss Токен exec_args
+Токен
+.Dq exec_args
+содержит информацию об аргументах системного вызова exec().
+Токен exec_args может быть создан с помощью
+.Xr au_to_exec_args 3 .
+.Ss Токен exec_env
+Токен
+.Dq exec_env
+содержит текущие переменные окружения для системного вызова exec().
+Токен exec_env может быть создан с помощью
+.Xr au_to_exec_env 3 .
+.Ss Токен exit
+Токен
+.Dq exit
+содержит информацию о коде выхода/возврата процесса.
+Токен
+.Dq exit
+можно создать с помощью
+.Xr au_to_exit 3 .
+.Ss Токен socket
+Токен
+.Dq socket
+содержит информацию о сокетах домена UNIX и интернет-сокетах.
+Каждый токен имеет четыре или восемь полей.
+В зависимости от типа сокета токен socket может быть создан с помощью
+.Xr au_to_sock_unix 3 ,
+.Xr au_to_sock_inet32 3
+или
+.Xr au_to_sock_inet128 3 .
+.Ss Расширенный токен socket
+Токен
+.Dq expanded socket
+содержит информацию о сокетах IPv4 и IPv6.
+Токен
+.Dq expanded socket
+можно создать с помощью
+.Xr au_to_socket_ex 3 .
+.Ss Токен seq
+Токен
+.Dq seq
+содержит уникальный и монотонно возрастающий идентификатор последовательности событий аудита.
+Из-за ограниченного диапазона 32 бит при сравнении порядковых номеров следует использовать арифметику порядковых номеров и соблюдать осторожность.
+.Ss Токен privilege
+Токен
+.Dq privilege
+…
+.Ss Токен use-of-auth
+Токен
+.Dq use-of-auth
+…
+.Ss Токен command
+Токен
+.Dq command
+…
+.Ss Токен ACL
+Токен
+.Dq ACL
+…
+.Ss Токен zonename
+Токен
+.Dq zonename
+содержит строку, завершающуюся NUL, с именем зоны или клетки, из которой произошла запись.
+Токен
+.Dq zonename
+можно создать с помощью
+.Xr au_to_zonename 3 .
+.Sh СМ. ТАКЖЕ
+.Xr auditreduce 1 ,
+.Xr praudit 1 ,
+.Xr libbsm 3 ,
+.Xr audit 4 ,
+.Xr auditpipe 4 ,
+.Xr audit 8
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для дистрибутива OpenBSM.
+.Sh АВТОРЫ
+Интерфейс Basic Security Module (BSM) к записям аудита и формат потока событий аудита были определены Sun Microsystems.
+.Pp
+Эта страница руководства была написана
+.An Robert Watson Aq rwatson@FreeBSD.org .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поле
+.Dq How to print
+в токене
+.Dq arbitrary data
+имеет неопределённые значения.
+.Pp
+Описанная здесь компоновка токенов
+.Dq in_addr
+и
+.Dq in_addr_ex
+, по-видимому, конфликтует с реализацией
+.Xr libbsm 3
+для
+.Xr au_to_in_addr_ex 3 .

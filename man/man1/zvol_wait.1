@@ -1,0 +1,35 @@
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.illumos.org/license/CDDL.
+.\"
+.\" FRDP path ./sys/contrib/openzfs/man/man1/zvol_wait.1
+.\" FRDP githash 61145dc2b94f12f6a47344fb9aac702321880e43
+.\" FRDP hash256 017efac1cedaea32bd5f0cf769e858a5656f5ab098a86fb80c2f02e7aefcdcbc
+.Dd 27 мая 2021
+.Dt ZVOL_WAIT 1
+.Os
+.
+.Sh ИМЯ
+.Nm zvol_wait
+.Nd ожидание появления ссылок на тома ZFS в /dev
+.Sh СИНТАКСИС
+.Nm
+.
+.Sh ОПИСАНИЕ
+При импорте пула ZFS тома внутри него появятся как блочные устройства.
+В процессе их регистрации,
+.Xr udev 7
+асинхронно создает символические ссылки в
+.Pa /dev/zvol
+используя имена томов.
+.Nm
+будет ожидать создания всех этих символических ссылок перед завершением.
+.
+.Sh СМ. ТАКЖЕ
+.Xr udev 7

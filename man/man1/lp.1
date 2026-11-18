@@ -1,0 +1,121 @@
+.\"
+.\" Copyright (c) 1995 Joerg Wunsch
+.\"
+.\" All rights reserved.
+.\"
+.\" This program is free software.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Joerg Wunsch
+.\" 4. The name of the developer may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/lpr/lp/lp.1
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 41449fdb164f687c51fd2e0014bf9eb8193c46dd6c1467b90b24c23dfb9f51f6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 22, 1995
+.Dt LP 1
+.Os
+.Sh ИМЯ
+.Nm lp
+.Nd интерфейс к диспетчеру печати
+.Sh СИНТАКСИС
+.Nm
+.Op Fl cs
+.Op Fl o Ar параметр
+.Op Fl d Ar принтер
+.Op Fl n Ar число
+.Op Ar имя ...
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕНИИ
+Эта возможность запланирована к удалению до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является интерфейсом к диспетчеру печати, как требуется спецификацией
+.St -p1003.2 .
+Она фактически вызывает
+.Xr lpr 1
+с надлежащим набором аргументов.
+.Pp
+Обычно она печатает указанные файлы на принтере назначения.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl c
+Заставить команду
+.Nm
+завершиться только после того, как дальнейший доступ к любому из входных файлов больше не требуется.
+После этого приложение может безопасно удалять или изменять файлы, не влияя на операцию вывода.
+.It Fl d Ar назначение
+Указать конкретный принтер.
+Если
+.Fl d
+не указан в командной строке, содержимое переменных окружения
+.Ev LPDEST
+или
+.Ev PRINTER
+(с этим приоритетом) принимается в качестве принтера назначения.
+.It Fl m
+Отправить почту по завершении.
+.It Fl n Ar число
+Указать, что должно быть напечатано
+.Ar число
+копий каждого из указанных файлов.
+.It Fl o Ar параметр
+Параметры, специфичные для принтера.
+Не поддерживается; предоставлен только как параметр совместимости для SVR.
+.It Fl s
+Тихий режим работы.
+Не поддерживается; предоставлен только как параметр совместимости для
+.St -susv2 .
+.It Fl t Ar заголовок
+Установить заголовок задания равным
+.Ar заголовок .
+.El
+.Sh ОКРУЖЕНИЕ
+Как описано выше, переменные
+.Ev LPDEST
+и
+.Ev PRINTER
+проверяются для выбора принтера назначения.
+.Sh СМ. ТАКЖЕ
+.Xr lpr 1
+.Sh СТАНДАРТЫ
+Ожидается, что команда
+.Nm
+соответствует спецификации
+.St -p1003.2 .
+.Sh АВТОРЫ
+Эта реализация команды
+.Nm
+была написана
+.An J\(:org Wunsch .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Спецификация
+.St -p1003.2
+не предоставляет никаких средств для печати нетекстовых файлов.
+Она, напротив, требует, чтобы печатаемые файлы были текстовыми файлами с разумной длиной строк и печатными символами.

@@ -1,0 +1,167 @@
+.\" Copyright (c) 1998 HD Associates, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sched_setscheduler.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 fc66007b99599239c3d1d1280f1d142afac904101246e82de4ee3405f4629be1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 12, 1998
+.Dt SCHED_SETSCHEDULER 2
+.Os
+.Sh ИМЯ
+.Nm sched_setscheduler ,
+.Nm sched_getscheduler
+.Nd установка/получение политики планирования и параметров планировщика
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sched.h
+.Ft int
+.Fn sched_setscheduler "pid_t pid" "int policy" "const struct sched_param *param"
+.Ft int
+.Fn sched_getscheduler "pid_t pid"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sched_setscheduler
+устанавливает политику планирования и параметры планирования
+процесса, указанного в
+.Fa pid ,
+в
+.Fa policy
+и параметры, указанные в структуре
+.Vt sched_param ,
+на которую указывает
+.Fa param ,
+соответственно.
+Значение члена
+.Fa sched_priority
+в структуре
+.Fa param
+должно быть целым числом в пределах диапазона приоритетов для
+политики планирования, указанной в
+.Fa policy .
+.Pp
+В данной реализации, если значение
+.Fa pid
+отрицательно, системный вызов завершится с ошибкой.
+.Pp
+Если процесс, указанный в
+.Fa pid ,
+существует и вызывающий процесс имеет разрешение, политика
+планирования и параметры планирования будут установлены для процесса,
+идентификатор которого равен
+.Fa pid .
+.Pp
+Если
+.Fa pid
+равен нулю, политика планирования и параметры
+планирования устанавливаются для вызывающего процесса.
+.Pp
+В данной реализации правила, определяющие, когда процесс может влиять
+на параметры планирования другого процесса, описаны в
+.St -p1003.1b-93
+как операция записи.
+.Pp
+Политики планирования определены в
+.Fa <sched.h> :
+.Bl -tag -width [SCHED_OTHER]
+.It Bq Er SCHED_FIFO
+Планирование с фиксированным приоритетом по принципу «первым пришёл — первым обслужен» без кругового планирования;
+.It Bq Er SCHED_OTHER
+Стандартный планировщик с разделением времени;
+.It Bq Er SCHED_RR
+Круговое планирование среди процессов с одинаковым приоритетом.
+.El
+.Pp
+Структура
+.Vt sched_param
+определена в
+.Fa <sched.h> :
+.Bd -literal -offset indent
+struct sched_param {
+	int sched_priority;	/* scheduling priority */
+};
+.Ed
+.Pp
+Системный вызов
+.Fn sched_getscheduler
+возвращает политику планирования процесса, указанного в
+.Fa pid .
+.Pp
+Если процесс, указанный в
+.Fa pid ,
+существует и вызывающий процесс имеет разрешение,
+возвращаются параметры планирования для процесса, идентификатор которого равен
+.Fa pid .
+.Pp
+В данной реализации правила, определяющие, когда процесс может получать
+параметры планирования другого процесса, подробно описаны в
+.St -p1003.1b-93
+как операция чтения.
+.Pp
+Если
+.Fa pid
+равен нулю, будут возвращены параметры планирования для вызывающего процесса.
+В данной реализации системный вызов
+.Fa sched_getscheduler
+завершится с ошибкой, если
+.Fa pid
+отрицателен.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+В случае ошибки
+.Va errno
+будет установлен в соответствующее значение:
+.Bl -tag -width Er
+.It Bq Er ENOSYS
+Система не настроена для поддержки данной функциональности.
+.It Bq Er EPERM
+Запрашивающий процесс не имеет разрешения, как описано в
+.St -p1003.1b-93 .
+.It Bq Er ESRCH
+Не найден процесс, соответствующий указанному в
+.Fa pid .
+.It Bq Er EINVAL
+Значение аргумента
+.Fa policy
+недопустимо, или один или несколько параметров, содержащихся в
+.Fa param ,
+выходят за допустимый диапазон для указанной политики планирования.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sched_get_priority_max 2 ,
+.Xr sched_get_priority_min 2 ,
+.Xr sched_getparam 2 ,
+.Xr sched_rr_get_interval 2 ,
+.Xr sched_setparam 2 ,
+.Xr sched_yield 2
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn sched_setscheduler
+и
+.Fn sched_getscheduler
+соответствуют
+.St -p1003.1b-93 .

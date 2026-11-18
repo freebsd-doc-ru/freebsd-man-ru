@@ -1,0 +1,83 @@
+.\" Copyright (c) 1997 Peter Wemm <peter@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getsid.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 aa5a13b9a77fc0b27137b2d1ba039cb5d78d3a322e4e6ee61969c4d180a62fe5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 19, 1997
+.Dt GETSID 2
+.Os
+.Sh ИМЯ
+.Nm getsid
+.Nd получить сессию процесса
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft pid_t
+.Fn getsid "pid_t pid"
+.Sh ОПИСАНИЕ
+Идентификатор сессии процесса, определяемого
+.Fa pid ,
+возвращается
+.Fn getsid .
+Если
+.Fa pid
+равен нулю,
+.Fn getsid
+возвращает идентификатор сессии текущего процесса.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном завершении системный вызов
+.Fn getsid
+возвращает идентификатор сессии
+указанного процесса; в противном случае он возвращает значение -1 и
+устанавливает errno для указания ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn getsid
+завершится успешно, если не возникнет следующая ситуация:
+.Bl -tag -width Er
+.It Bq Er ESRCH
+если нет процесса с идентификатором процесса, равным
+.Fa pid .
+.El
+.Pp
+Обратите внимание, что реализация может ограничить этот системный вызов
+процессами в пределах того же идентификатора сессии, что и у вызывающего процесса.
+.Sh СМ. ТАКЖЕ
+.Xr getpgid 2 ,
+.Xr getpgrp 2 ,
+.Xr setpgid 2 ,
+.Xr setsid 2 ,
+.Xr termios 4
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getsid
+появился в
+.Fx 3.0 .
+Системный вызов
+.Fn getsid
+происходит от его использования в
+.At V .

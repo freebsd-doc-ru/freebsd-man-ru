@@ -1,0 +1,195 @@
+.\" Copyright (c) 2018 Jeffrey Roberson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cpuset_getdomain.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 bddd776ce32d6773c0bfac366c3dd862d8afb9ee0f1cd7a63cf02baa57238366
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 18, 2020
+.Dt CPUSET_GETDOMAIN 2
+.Os
+.Sh ИМЯ
+.Nm cpuset_getdomain ,
+.Nm cpuset_setdomain
+.Nd управление политикой доменов памяти
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/domainset.h
+.Ft int
+.Fn cpuset_getdomain "cpulevel_t level" "cpuwhich_t which" "id_t id" "size_t setsize" "domainset_t *mask" "int *policy"
+.Ft int
+.Fn cpuset_setdomain "cpulevel_t level" "cpuwhich_t which" "id_t id" "size_t setsize" "const domainset_t *mask" "int policy"
+.Sh ОПИСАНИЕ
+.Fn cpuset_getdomain
+и
+.Fn cpuset_setdomain
+позволяют манипулировать наборами доменов памяти и политикой выделения,
+доступными процессам, потокам, клеткам и другим ресурсам.
+Эти функции могут манипулировать наборами доменов памяти, содержащими множество
+процессов, или анонимными масками для отдельных объектов, которые влияют только
+на один объект.
+.Pp
+Допустимые значения аргументов
+.Fa level
+и
+.Fa which
+описаны в
+.Xr cpuset 2 .
+Эти аргументы указывают, на какой объект и на какой набор объекта мы
+ссылаемся.
+Не все возможные комбинации допустимы.
+Например, только процессы могут принадлежать нумерованному набору, доступ к
+которому осуществляется через аргумент
+.Fa level
+со значением
+.Dv CPU_LEVEL_CPUSET .
+Однако все ресурсы имеют маску, которой можно манипулировать с помощью
+.Dv CPU_LEVEL_WHICH .
+.Pp
+Маски типа
+.Ft domainset_t
+составляются с использованием макросов
+.Dv DOMAINSET .
+Ядро допускает большие наборы, если все указанные в наборе домены
+существуют.
+Наборы меньше используемых ядром вызывают ошибку при вызовах
+.Fn cpuset_getdomain
+даже если результирующий набор поместился бы в предоставленный пользователем
+набор.
+Вызовы
+.Fn cpuset_setdomain
+допускают малые наборы без ограничений.
+.Pp
+Предоставленная маска должна иметь размер
+.Fa setsize
+байт.
+Этот размер обычно получают вызовом
+.Li sizeof(mask)
+который в конечном счёте определяется значением
+.Dv DOMAINSET_SETSIZE
+как определено в
+.In sys/domainset.h .
+.Pp
+.Fn cpuset_getdomain
+извлекает маску и политику из объекта, указанного аргументами
+.Fa level ,
+.Fa which
+и
+.Fa id ,
+и сохраняет их в пространстве, предоставленном
+.Fa mask
+и
+.Fa policy .
+.Pp
+.Fn cpuset_setdomain
+пытается установить маску и политику для объекта, указанного аргументами
+.Fa level ,
+.Fa which
+и
+.Fa id ,
+в значения
+.Fa mask
+и
+.Fa policy .
+.Sh ПОЛИТИКИ ВЫДЕЛЕНИЯ
+Допустимые значения политики следующие:
+.Bl -tag -width "foo"
+.It Dv DOMAINSET_POLICY_ROUNDROBIN
+Память выделяется по круговому принципу, циклически проходя по каждому домену в
+.Fa mask .
+.It Dv DOMAINSET_POLICY_FIRSTTOUCH
+Память выделяется на домене, локальном для CPU, на котором выполняется
+запрашивающий поток.
+При неудаче выделения из этого домена происходит возврат к круговому
+распределению.
+.It Dv DOMAINSET_POLICY_PREFER
+Память выделяется преимущественно из единственного домена, указанного в маске.
+Если память недоступна, домены, перечисленные в родительском cpuset, будут
+посещены в порядке кругового обхода.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+В
+.Va errno
+могут быть установлены следующие коды ошибок:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa level
+или
+.Fa which
+не был допустимым значением.
+.It Bq Er EINVAL
+Аргумент
+.Fa mask
+или
+.Fa policy
+указанный при вызове
+.Fn cpuset_setdomain
+не был допустимым значением.
+.It Bq Er EDEADLK
+Вызов
+.Fn cpuset_setdomain
+оставил бы поток без допустимого CPU для выполнения, так как набор
+не пересекается с анонимной маской потока.
+.It Bq Er EFAULT
+Переданный указатель маски был недействительным.
+.It Bq Er ESRCH
+Объект, указанный аргументами
+.Fa id
+и
+.Fa which ,
+не удалось найти.
+.It Bq Er ERANGE
+.Fa domainsetsize
+был либо нелепо большим, либо меньше размера набора ядра.
+.It Bq Er EPERM
+Вызывающий процесс не имел учётных данных, необходимых для выполнения
+операции.
+.It Bq Er ECAPMODE
+Вызывающий процесс попытался воздействовать на процесс, отличный от себя,
+находясь в режиме возможностей.
+См.
+.Xr capsicum 4 .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cpuset 1 ,
+.Xr cpuset 2 ,
+.Xr cpuset_getaffinity 2 ,
+.Xr cpuset_getid 2 ,
+.Xr cpuset_setaffinity 2 ,
+.Xr cpuset_setid 2 ,
+.Xr capsicum 4 ,
+.Xr cpuset 9
+.Sh ИСТОРИЯ
+Семейство системных вызовов
+.Nm
+впервые появилось в
+.Fx 12.0 .
+.Sh АВТОРЫ
+.An Jeffrey Roberson Aq Mt jeff@FreeBSD.org

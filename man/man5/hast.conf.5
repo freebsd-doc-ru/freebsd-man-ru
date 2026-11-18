@@ -1,0 +1,427 @@
+.\" Copyright (c) 2010 The FreeBSD Foundation
+.\" Copyright (c) 2010-2012 Pawel Jakub Dawidek <pawel@dawidek.net>
+.\" All rights reserved.
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship from
+.\" the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/hastd/hast.conf.5
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 98459488aac26619c620ee5b75f52f648372916cbfcf07cbcb1bf330321950e8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 25, 2012
+.Dt HAST.CONF 5
+.Os
+.Sh ИМЯ
+.Nm hast.conf
+.Nd файл конфигурации для демона
+.Xr hastd 8
+и утилиты
+.Xr hastctl 8
+.Sh ОПИСАНИЕ
+Файл
+.Nm
+используется как демоном
+.Xr hastd 8 ,
+так и утилитой управления
+.Xr hastctl 8 .
+Файл конфигурации спроектирован так, что точно один и тот же файл может
+(и должен) использоваться на обоих узлах HAST.
+Каждая строка, начинающаяся с #, рассматривается как комментарий и игнорируется.
+.Sh СИНТАКСИС ФАЙЛА КОНФИГУРАЦИИ
+Общий синтаксис файла
+.Nm
+таков:
+.Bd -literal -offset indent
+# Глобальная секция
+control <addr>
+listen <addr>
+replication <mode>
+checksum <algorithm>
+compression <algorithm>
+timeout <seconds>
+exec <path>
+metaflush on | off
+pidfile <path>
+
+on <node> {
+	# Секция узла
+        control <addr>
+        listen <addr>
+        pidfile <path>
+}
+
+on <node> {
+	# Секция узла
+        control <addr>
+        listen <addr>
+        pidfile <path>
+}
+
+resource <name> {
+	# Секция ресурса
+	replication <mode>
+	checksum <algorithm>
+	compression <algorithm>
+	name <name>
+	local <path>
+	timeout <seconds>
+	exec <path>
+	metaflush on | off
+
+	on <node> {
+		# Секция ресурса-узла
+		name <name>
+		# Обязательно
+		local <path>
+		metaflush on | off
+		# Обязательно
+		remote <addr>
+		source <addr>
+	}
+	on <node> {
+		# Секция ресурса-узла
+		name <name>
+		# Обязательно
+		local <path>
+		metaflush on | off
+		# Обязательно
+		remote <addr>
+		source <addr>
+	}
+}
+.Ed
+.Pp
+Большинство различных доступных параметров конфигурации необязательны.
+Если параметр не определён в конкретной секции, он наследуется из
+родительской секции.
+Например, если параметр
+.Ic listen
+не определён в секции узла, он наследуется из
+глобальной секции.
+Если глобальная секция вообще не определяет параметр
+.Ic listen
+, будет использовано значение по умолчанию.
+.Sh ОПИСАНИЕ ФАЙЛА КОНФИГУРАЦИИ
+Аргумент
+.Aq node
+может быть заменён либо полным именем хоста, полученным с помощью
+.Xr gethostname 3 ,
+только первой частью имени хоста, UUID узла, найденным в переменной
+.Va kern.hostuuid
+.Xr sysctl 8
+, или hostid узла, найденным в переменной
+.Va kern.hostid
+.Xr sysctl 8 .
+.Pp
+Доступны следующие операторы:
+.Bl -tag -width indent
+.It Ic control Aq addr
+.Pp
+Адрес для связи с
+.Xr hastctl 8 .
+Каждый из следующих примеров определяет один и тот же адрес управления:
+.Bd -literal -offset indent
+uds:///var/run/hastctl
+unix:///var/run/hastctl
+/var/run/hastctl
+.Ed
+.Pp
+Значение по умолчанию —
+.Pa uds:///var/run/hastctl .
+.It Ic pidfile Aq path
+.Pp
+Файл для хранения идентификатора процесса основного процесса
+.Xr hastd 8 .
+.Pp
+Значение по умолчанию —
+.Pa /var/run/hastd.pid .
+.It Ic listen Aq addr
+.Pp
+Адрес прослушивания в форме:
+.Bd -literal -offset indent
+protocol://protocol-specific-address
+.Ed
+.Pp
+Каждый из следующих примеров определяет один и тот же адрес прослушивания:
+.Bd -literal -offset indent
+0.0.0.0
+0.0.0.0:8457
+tcp://0.0.0.0
+tcp://0.0.0.0:8457
+tcp4://0.0.0.0
+tcp4://0.0.0.0:8457
+.Ed
+.Pp
+Можно указать несколько адресов прослушивания.
+По умолчанию
+.Nm hastd
+прослушивает
+.Pa tcp4://0.0.0.0:8457
+и
+.Pa tcp6://[::]:8457
+, если ядро поддерживает IPv4 и IPv6 соответственно.
+.It Ic replication Aq mode
+.Pp
+Режим репликации должен быть одним из следующих:
+.Bl -tag -width indent
+.It Ic memsync
+.Pp
+Операция записи считается завершённой, когда завершена локальная запись
+и удалённый узел подтвердил получение данных, но до того, как он
+фактически сохранит данные.
+Данные на удалённом узле будут сохранены сразу после отправки
+подтверждения.
+Этот режим предназначен для снижения задержки, но всё же обеспечивает
+очень хорошую надёжность.
+Единственная ситуация, когда может быть потеряно небольшое количество
+данных, — это когда данные сохраняются на первичном узле и отправляются
+на вторичный.
+Затем вторичный узел подтверждает получение данных, а первичный сообщает
+приложению об успехе.
+Однако может случиться, что вторичный узел выйдет из строя до того, как
+полученные данные действительно будут сохранены локально.
+До возвращения вторичного узла первичный узел полностью выходит из строя.
+Когда вторичный узел снова оживает, он становится новым первичным.
+К сожалению, небольшое количество данных, о сохранении которых
+приложению было подтверждено, потеряно.
+Риск такой ситуации очень мал.
+Режим репликации
+.Ic memsync
+является режимом по умолчанию.
+.It Ic fullsync
+.Pp
+Операция записи считается завершённой, когда завершены как локальная,
+так и удалённая запись.
+Это самый безопасный и самый медленный режим репликации.
+.It Ic async
+.Pp
+Операция записи считается завершённой сразу после завершения локальной
+записи.
+Это самый быстрый и самый опасный режим репликации.
+Этот режим следует использовать при репликации на удалённый узел, где
+задержка слишком велика для других режимов.
+.El
+.It Ic checksum Aq algorithm
+.Pp
+Алгоритм контрольной суммы должен быть одним из следующих:
+.Bl -tag -width indent
+.It Ic none
+Для данных, передаваемых по сети, контрольная сумма не вычисляется.
+Это настройка по умолчанию.
+.It Ic crc32
+Будет вычисляться контрольная сумма CRC32.
+.It Ic sha256
+Будет вычисляться контрольная сумма SHA256.
+.El
+.It Ic compression Aq algorithm
+.Pp
+Алгоритм сжатия должен быть одним из следующих:
+.Bl -tag -width indent
+.It Ic none
+Данные, передаваемые по сети, не будут сжиматься.
+.It Ic hole
+Будут сжиматься только блоки, полностью состоящие из нулей.
+Это очень полезно при начальной синхронизации, когда потенциально многие
+блоки всё ещё полностью состоят из нулей.
+При использовании этого алгоритма не должно наблюдаться заметных
+накладных расходов производительности.
+Это настройка по умолчанию.
+.It Ic lzf
+Для сжатия данных, передаваемых по сети, будет использоваться алгоритм LZF
+(Marc Alexander Lehmann).
+LZF — очень быстрый алгоритм сжатия общего назначения.
+.El
+.It Ic timeout Aq seconds
+.Pp
+Тайм-аут соединения в секундах.
+Значение по умолчанию —
+.Va 20 .
+.It Ic exec Aq path
+.Pp
+Выполнять заданную программу при различных событиях HAST.
+Ниже приведён список реализованных в настоящее время событий и аргументов,
+с которыми выполняется заданная программа:
+.Bl -tag -width indent
+.It
+Выполняется на первичном и вторичном узлах при изменении роли ресурса.
+.It
+Выполняется на первичном и вторичном узлах при установлении соединения
+между узлами для заданного ресурса.
+.It
+Выполняется на первичном и вторичном узлах при потере соединения
+между узлами для заданного ресурса.
+.It
+Выполняется на первичном узле при запуске процесса синхронизации
+вторичного узла.
+.It
+Выполняется на первичном узле при успешном завершении процесса
+синхронизации вторичного узла.
+.It
+Выполняется на первичном узле при прерывании процесса синхронизации
+вторичного узла, скорее всего, из-за отказа вторичного узла или сбоя
+соединения между узлами.
+.It
+Выполняется на первичном и вторичном узлах при обнаружении состояния
+разделения мозга (split-brain).
+.El
+.Pp
+Аргумент
+.Aq path
+должен содержать полный путь к исполняемой программе.
+Если заданная программа завершается с кодом, отличным от
+.Va 0 ,
+.Nm hastd
+запишет это в журнал как ошибку.
+.Pp
+Аргумент
+.Aq resource
+— это имя ресурса из файла конфигурации.
+.Pp
+Аргумент
+.Aq oldrole
+— предыдущая роль ресурса (до изменения).
+Может быть одним из:
+.Ar init ,
+.Ar secondary ,
+.Ar primary .
+.Pp
+Аргумент
+.Aq newrole
+— текущая роль ресурса (после изменения).
+Может быть одним из:
+.Ar init ,
+.Ar secondary ,
+.Ar primary .
+.It Ic metaflush on | off
+.Pp
+Если установлено в
+.Va on ,
+сбрасывать кэш записи локального провайдера после каждого обновления
+метаданных (activemap).
+Сброс кэша записи гарантирует, что провайдер не переупорядочит записи
+и что метаданные будут должным образом обновлены до сохранения реальных
+данных.
+Если локальный провайдер не поддерживает сброс кэша записи (он возвращает
+.Er EOPNOTSUPP
+на запрос
+.Cm BIO_FLUSH ),
+.Nm hastd
+автоматически отключит
+.Ic metaflush .
+Значение по умолчанию —
+.Va on .
+.It Ic name Aq name
+.Pp
+Имя провайдера GEOM, которое будет отображаться как
+.Pa /dev/hast/<name> .
+Если имя не определено, в качестве имени провайдера будет использоваться
+имя ресурса.
+.It Ic local Aq path
+.Pp
+Путь к локальному компоненту, который будет использоваться в качестве
+нижележащего провайдера для ресурса.
+Это может быть либо провайдер GEOM, либо обычный файл.
+.It Ic remote Aq addr
+.Pp
+Адрес удалённого демона
+.Nm hastd .
+Формат такой же, как для оператора
+.Ic listen .
+При работе в качестве первичного узла этот адрес будет использоваться
+для подключения к вторичному узлу.
+При работе в качестве вторичного узла будут приниматься только соединения
+с этого адреса.
+.Pp
+Специальное значение
+.Va none
+можно использовать, когда удалённый адрес ещё неизвестен (например, другой
+узел ещё не настроен).
+.It Ic source Aq addr
+.Pp
+Локальный адрес, к которому нужно привязаться перед подключением
+к удалённому демону
+.Nm hastd .
+Формат такой же, как для оператора
+.Ic listen .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/hast.conf
+Файл конфигурации по умолчанию для
+.Xr hastctl 8
+и
+.Xr hastd 8 .
+.It Pa /var/run/hastctl
+Управляющий сокет, используемый утилитой управления
+.Xr hastctl 8
+для связи с демоном
+.Xr hastd 8 .
+.El
+.Sh ПРИМЕРЫ
+Пример файла конфигурации может выглядеть так:
+.Bd -literal -offset indent
+listen tcp://0.0.0.0
+
+on hasta {
+	listen tcp://2001:db8::1/64
+}
+on hastb {
+	listen tcp://2001:db8::2/64
+}
+
+resource shared {
+	local /dev/da0
+
+	on hasta {
+		remote tcp://10.0.0.2
+	}
+	on hastb {
+		remote tcp://10.0.0.1
+	}
+}
+resource tank {
+	on hasta {
+		local /dev/mirror/tanka
+		source tcp://10.0.0.1
+		remote tcp://10.0.0.2
+	}
+	on hastb {
+		local /dev/mirror/tankb
+		source tcp://10.0.0.2
+		remote tcp://10.0.0.1
+	}
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr gethostname 3 ,
+.Xr geom 4 ,
+.Xr hastctl 8 ,
+.Xr hastd 8
+.Sh АВТОРЫ
+.Nm
+был написан
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org
+при поддержке FreeBSD Foundation.

@@ -1,0 +1,83 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2024 The FreeBSD Foundation
+.\"
+.\" Portions of this software were developed by Christos Margiolis
+.\" <christos@FreeBSD.org> under sponsorship from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/mididump/mididump.1
+.\" FRDP githash 27aec148ea4bfa2ccd2170ed1ccc6665aa819607
+.\" FRDP hash256 2d9622eb92dd5b31666a0f7f7a6dd8de6a53a96c8d36fe86a084abee5001ebe2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 14, 2024
+.Dt MIDIDUMP 1
+.Os
+.Sh ИМЯ
+.Nm mididump
+.Nd вывод событий MIDI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl t
+.Ar устройство
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для вывода событий MIDI 1.0 в реальном времени.
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl t
+По умолчанию эти события не выводятся, так как они загромождают вывод.
+.El
+.Pp
+Аргумент
+.Ar устройство
+соответствует MIDI-устройству (например,
+.Pa /dev/umidi0.0 ) .
+.Sh СМ. ТАКЖЕ
+.Rs
+.%T Сводка сообщений MIDI 1.0
+.%U https://midi.org/summary-of-midi-1-0-messages
+.Re
+.Rs
+.%T Расширенный список сообщений MIDI 1.0 (байты состояния)
+.%U https://midi.org/expanded-midi-1-0-messages-list
+.Re
+.Rs
+.%T Стандартная спецификация формата MIDI-файлов 1.1, обновлённая
+.%U https://midimusic.github.io/tech/midispec.html
+.Re
+.Rs
+.%T Список MIDI CC для непрерывных контроллеров
+.%U https://anotherproducer.com/online-tools-for-musicians/midi-cc-list/
+.Re
+.Sh АВТОРЫ
+Утилита
+.Nm
+была реализована
+.An Christos Margiolis Aq Mt christos@FreeBSD.org
+при спонсорской поддержке фонда
+.Fx .

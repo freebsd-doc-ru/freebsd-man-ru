@@ -1,0 +1,129 @@
+.\" Copyright (c) 2016 Luigi Rizzo, Universita` di Pisa
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/netmap/nmreplay.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 027cb798ad4265efb9c1776365cc09f031a98ebdb8c95da1d38031d10b22d049
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 21, 2018
+.Dt NMREPLAY 8
+.Os
+.Sh ИМЯ
+.Nm nmreplay
+.Nd воспроизведение pcap-файла через интерфейс netmap
+.Sh СИНТАКСИС
+.Bk -words
+.Nm
+.Op Fl f Ar pcap-файл
+.Op Fl i Ar netmap-интерфейс
+.Op Fl B Ar пропускная-способность
+.Op Fl D Ar задержка
+.Op Fl L Ar потери
+.Op Fl b Ar размер-пачки
+.Op Fl w Ar ожидание-канала
+.Op Fl v
+.Op Fl C Ar размещение-по-cpu
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+работает как
+.Nm tcpreplay
+для воспроизведения pcap-файла через интерфейс netmap,
+с программируемыми скоростями и, возможно, задержками, потерями
+и изменениями пакетов.
+.Nm
+предназначен для работы на высокой скорости, поэтому расписание передачи
+вычисляется заранее, а поток, отвечающий за передачу,
+должен лишь прокачивать данные через интерфейс.
+.Nm
+может подключаться к любому типу порта netmap.
+.Pp
+Параметры командной строки следующие:
+.Bl -tag -width Ds
+.It Fl f Ar pcap-файл
+Имя воспроизводимого pcap-файла.
+.It Fl i Ar интерфейс
+Имя netmap-интерфейса, используемого для вывода.
+См.
+.Xr netmap 4
+о формате имени интерфейса.
+.It Fl v
+Включить подробный режим
+.It Fl b Ar размер-пачки
+Максимальный размер пачки, используемый при передаче.
+.Nm
+обычно передаёт пакеты по одному, но может использовать
+большие пачки, вплоть до значения, указанного этим параметром,
+при работе на высоких скоростях.
+.It Fl B Ar bps | Cm constant , Ns Ar bps | Cm ether , Ns Ar bps | Cm real Ns Op , Ns Ar speedup
+Пропускная способность, используемая для передачи.
+.Ar bps
+— число с плавающей запятой, за которым необязательно следует символ
+(k, K, m, M, g, G), умножающий значение на 10^3, 10^6 и 10^9
+соответственно.
+.Cm constant
+(можно опустить) означает, что пропускная способность будет вычисляться
+относительно фактического размера пакета (без учёта CRC и обрамления).
+.Cm ether
+указывает, что ethernet-обрамление (160 бит) и CRC (32 бита)
+будут включены в вычисление размера пакета.
+.Cm real
+означает, что передача будет происходить в соответствии с временными метками,
+записанными в трассе.
+Необязательный
+.Ar speedup
+множитель (по умолчанию 1) указывает, насколько быстрее
+или медленнее реального времени должна воспроизводиться трасса.
+.It Fl D Ar dt | Cm constant , Ns Ar dt | Cm uniform , Ns Ar dmin,dmax | Cm exp , Ar dmin,davg
+Добавляет дополнительную задержку к передаче пакета; её распределение
+может быть постоянным, равномерным или экспоненциальным.
+.Ar dt, dmin, dmax, avt
+— времена, выраженные числами с плавающей запятой, за которыми необязательно
+следует символ (s, m, u, n) для указания секунд, миллисекунд,
+микросекунд, наносекунд.
+Задержка добавляется ко времени передачи и корректируется так, чтобы
+никогда не происходило переупорядочивание пакетов.
+.It Fl L Ar x | Cm plr , Ns Ar x | Cm ber , Ns Ar x
+Имитирует ошибки пакетов или битов, вызывая отбрасывание повреждённых пакетов.
+.Ar x
+— число с плавающей запятой, указывающее коэффициент ошибок пакетов или битов.
+.It Fl w Ar ожидание-канала
+Указывает количество секунд ожидания перед началом передачи.
+По умолчанию равно 2; может быть полезно при работе с физическими
+портами, чтобы согласование канала завершилось до начала передачи.
+.El
+.Sh РАБОТА
+.Nm
+создаёт расписание в памяти для всех пакетов, которые нужно передать,
+а затем запускает отдельный поток для передачи,
+пока основной поток каждую секунду выводит статистику.
+.Sh СМ. ТАКЖЕ
+.Xr netmap 4
+.Sh АВТОРЫ
+.An -nosplit
+.Nm
+был написан
+.An Luigi Rizzo, Andrea Beconcini, Francesco Mola и Lorenzo Biagini
+в Universita` di Pisa, Италия.

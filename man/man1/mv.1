@@ -1,0 +1,182 @@
+.\"-
+.\" Copyright (c) 1989, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" the Institute of Electrical and Electronics Engineers, Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"	@(#)mv.1	8.1 (Berkeley) 5/31/93
+.\"
+.\" FRDP path ./bin/mv/mv.1
+.\" FRDP githash 90aea514c6249118e880d75972d063362f4bf492
+.\" FRDP hash256 2e8eb33de5438eac448ee54f25351d4dd35876590dec2dabff561927fb61d735
+.Dd 15 марта 2013
+.Dt MV 1
+.Os
+.Sh ИМЯ
+.Nm mv
+.Nd переместить файлы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl f | i | n
+.Op Fl hv
+.Ar источник цель
+.Nm
+.Op Fl f | i | n
+.Op Fl v
+.Ar источник ... каталог
+.Sh ОПИСАНИЕ
+В первой форме утилита
+.Nm
+переименовывает файл, указанный операндом
+.Ar источник,
+в путь назначения, указанный операндом
+.Ar цель.
+Эта форма предполагается, когда последний операнд не указывает на уже
+существующий каталог.
+.Pp
+Во второй форме
+.Nm
+перемещает каждый файл, указанный операндом
+.Ar источник,
+в файл назначения в существующем каталоге, указанном операндом
+.Ar каталог.
+Путь назначения для каждого операнда — это путь, полученный объединением
+последнего операнда, косой черты и конечного компонента пути указанного файла.
+.Pp
+Доступны следующие опции:
+.Bl -tag -width indent
+.It Fl f
+Не запрашивать подтверждение перед перезаписью пути назначения.
+(Опция
+.Fl f
+отменяет любые предыдущие опции
+.Fl i
+или
+.Fl n.)
+.It Fl h
+Если операнд
+.Ar цель
+является символической ссылкой на каталог,
+не следовать по ней.
+Это заставляет утилиту
+.Nm
+переименовать файл
+.Ar источник
+в путь назначения
+.Ar цель,
+а не перемещать
+.Ar источник
+в каталог, на который ссылается
+.Ar цель.
+.It Fl i
+Заставляет
+.Nm
+выводить запрос в стандартный поток ошибок перед перемещением файла, который
+перезапишет существующий файл.
+Если ответ из стандартного ввода начинается с символа
+.Ql y
+или
+.Ql Y,
+перемещение выполняется.
+(Опция
+.Fl i
+отменяет любые предыдущие опции
+.Fl f
+или
+.Fl n.)
+.It Fl n
+Не перезаписывать существующий файл.
+(Опция
+.Fl n
+отменяет любые предыдущие опции
+.Fl f
+или
+.Fl i.)
+.It Fl v
+Заставляет
+.Nm
+быть подробным, показывая файлы после их перемещения.
+.El
+.Pp
+Ошибкой является указание операндом
+.Ar источник
+каталога, если цель существует и не является каталогом.
+.Pp
+Если путь назначения не имеет режима, разрешающего запись,
+.Nm
+запрашивает подтверждение у пользователя, как указано для опции
+.Fl i.
+.Pp
+Поскольку вызов
+.Xr rename 2
+не работает между файловыми системами,
+.Nm
+использует
+.Xr cp 1
+и
+.Xr rm 1
+для выполнения перемещения.
+Эффект эквивалентен:
+.Bd -literal -offset indent
+rm -f путь_назначения && \e
+cp -pRP исходный_файл назначение && \e
+rm -rf исходный_файл
+.Ed
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Переименовать файл
+.Pa foo
+в
+.Pa bar,
+перезаписав
+.Pa bar,
+если он уже существует:
+.Pp
+.Dl $ mv -f foo bar
+.Sh СОВМЕСТИМОСТЬ
+Опции
+.Fl h,
+.Fl n
+и
+.Fl v
+нестандартны, и их использование в сценариях не рекомендуется.
+.Sh СМ. ТАКЖЕ
+.Xr cp 1 ,
+.Xr rm 1 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Утилита
+.Nm
+ожидается совместимой со
+.St -p1003.2 .
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.At v1 .

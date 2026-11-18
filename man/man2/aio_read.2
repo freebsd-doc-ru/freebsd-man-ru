@@ -1,0 +1,290 @@
+.\" Copyright (c) 1998 Terry Lambert
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_read.2
+.\" FRDP githash 1b37af092211f9947d9f089f452232b791b9eafc
+.\" FRDP hash256 8451d0d7cbf71c5a9904ad8b6c1700027029d8e00ba8a87901c2ac1f2c10165a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 27, 2025
+.Dt AIO_READ 2
+.Os
+.Sh ИМЯ
+.Nm aio_read ,
+.Nm aio_read2 ,
+.Nm aio_readv
+.Nd асинхронное чтение из файла (REALTIME)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fn aio_read "struct aiocb *iocb"
+.Ft int
+.Fn aio_read2 "struct aiocb *iocb" "int flags"
+.In sys/uio.h
+.Ft int
+.Fn aio_readv "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системные вызовы
+.Fn aio_read ,
+.Fn aio_read2
+и
+.Fn aio_readv
+позволяют вызывающему процессу читать
+из дескриптора
+.Fa iocb->aio_fildes .
+Системные вызовы возвращают управление сразу после того, как запрос на чтение
+был поставлен в очередь к дескриптору; чтение может быть или не быть
+завершено к моменту возврата из вызова.
+.Pp
+Для вызовов
+.Fn aio_read
+и
+.Fn aio_readv
+чтение начинается со смещения
+.Fa iocb->aio_offset .
+.Pp
+Вызов
+.Fn aio_read
+читает
+.Fa iocb->aio_nbytes
+в буфер, на который указывает
+.Fa iocb->aio_buf ,
+тогда как
+.Fn aio_readv
+читает данные в
+.Fa iocb->aio_iovcnt
+буферов, заданных элементами массива
+.Fa iocb->aio_iov .
+Для
+.Fn aio_readv
+структура
+.Fa iovec
+определена в
+.Xr readv 2 .
+.Pp
+Вызов
+.Fn aio_read2
+принимает аргумент
+.Fa flags .
+Если
+.Fa flags
+равен нулю, вызов ведёт себя идентично
+.Fn aio_read .
+Следующие флаги могут быть указаны через логическое или:
+.Bl -tag -width AIO_OP2_VECTORED
+.It AIO_OP2_FOFFSET
+Чтение выполняется со смещения файлового дескриптора,
+которое продвигается операцией, как это делает системный вызов
+.Xr read 2 .
+Поле
+.Fa iocb->aio_offset
+игнорируется.
+.It AIO_OP2_VECTORED
+Подобно
+.Fn aio_readv ,
+буферы чтения задаются массивом
+.Fa aiocb->aio_iov .
+.El
+.Pp
+Указатель
+.Fa iocb
+может впоследствии использоваться как аргумент
+.Fn aio_return
+и
+.Fn aio_error
+для определения статуса возврата или ошибки поставленной в очередь операции,
+пока она выполняется.
+.Pp
+Если запрос не может быть поставлен в очередь (обычно из-за недопустимых аргументов),
+то вызов возвращает управление, не поставив запрос в очередь.
+.Pp
+Если запрос успешно поставлен в очередь, значение
+.Fa iocb->aio_offset
+может быть изменено во время выполнения запроса как контекст, поэтому на это значение
+нельзя ссылаться после постановки запроса в очередь.
+.Pp
+Структура
+.Fa iocb->aio_sigevent
+может использоваться для запроса уведомления о завершении операции, как описано в
+.Xr aio 4 .
+.Sh ОГРАНИЧЕНИЯ
+Структура блока управления асинхронным вводом-выводом, на которую указывает
+.Fa iocb ,
+и буфер, на который ссылается элемент
+.Fa iocb->aio_buf
+этой структуры, должны оставаться действительными до завершения
+операции.
+.Pp
+Буфер управления асинхронным вводом-выводом
+.Fa iocb
+следует обнулить перед системными
+вызовами, чтобы не передавать в ядро недостоверную контекстную информацию.
+.Pp
+Модификация структуры блока управления асинхронным вводом-выводом или
+содержимого буфера не допускается, пока запрос находится в очереди.
+.Pp
+Если смещение файла в
+.Fa iocb->aio_offset
+превышает максимальное смещение для
+.Fa iocb->aio_fildes ,
+ввод-вывод не произойдёт.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std aio_read aio_read2 aio_readv
+.Sh ДИАГНОСТИКА
+Нет.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn aio_read ,
+.Fn aio_read2 ,
+и
+.Fn aio_readv
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Запрос не был поставлен в очередь из-за ограничений системных ресурсов.
+.It Bq Er EFAULT
+Часть
+.Fa aio_iov
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Метод асинхронного уведомления в
+.Fa iocb->aio_sigevent.sigev_notify
+недопустим или не поддерживается.
+.It Bq Er EOPNOTSUPP
+Асинхронные операции чтения для файлового дескриптора
+.Fa iocb->aio_fildes
+небезопасны, а небезопасные асинхронные операции ввода-вывода отключены.
+.El
+.Pp
+Следующие условия могут быть обнаружены синхронно при выполнении
+системного вызова
+.Fn aio_read
+или
+.Fn aio_readv
+либо асинхронно в любое время после этого.
+Если они
+обнаруживаются во время вызова,
+вызовы возвращают -1 и устанавливают
+.Va errno
+соответствующим образом; в противном случае необходимо вызвать
+системный вызов
+.Fn aio_return ,
+который вернёт -1, а также
+.Fn aio_error
+для определения фактического значения, которое было бы
+возвращено в
+.Va errno .
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa iocb->aio_fildes
+недопустим.
+.It Bq Er EINVAL
+Смещение
+.Fa iocb->aio_offset
+недопустимо, приоритет, указанный в
+.Fa iocb->aio_reqprio
+не является допустимым приоритетом, либо число байтов, указанное в
+.Fa iocb->aio_nbytes
+недопустимо.
+.It Bq Er EOVERFLOW
+Файл является обычным файлом,
+.Fa iocb->aio_nbytes
+больше нуля, начальное смещение в
+.Fa iocb->aio_offset
+находится до конца файла, но равно или превышает
+максимальное смещение для
+.Fa iocb->aio_fildes .
+.El
+.Pp
+Если запрос успешно поставлен в очередь, но впоследствии отменён
+или произошла ошибка, значение, возвращаемое
+системным вызовом
+.Fn aio_return ,
+соответствует системному вызову
+.Xr read 2 ,
+а значение, возвращаемое
+системным вызовом
+.Fn aio_error ,
+является либо одним из кодов ошибок системного вызова
+.Xr read 2 ,
+либо одним из следующих:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa iocb->aio_fildes
+недопустим для чтения.
+.It Bq Er ECANCELED
+Запрос был явно отменён посредством вызова
+.Fn aio_cancel .
+.It Bq Er EINVAL
+Смещение
+.Fa iocb->aio_offset
+было бы недопустимым.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aio_cancel 2 ,
+.Xr aio_error 2 ,
+.Xr aio_return 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_waitcomplete 2 ,
+.Xr aio_write 2 ,
+.Xr sigevent 3 ,
+.Xr siginfo 3 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn aio_read
+соответствует стандарту
+.St -p1003.1 .
+Системные вызовы
+.Fn aio_read2
+и
+.Fn aio_readv
+являются расширениями
+.Fx
+и не должны использоваться в переносимом коде.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_read
+впервые появился в
+.Fx 3.0 .
+Системный вызов
+.Fn aio_readv
+впервые появился в
+.Fx 13.0 .
+Системный вызов
+.Fn aio_read2
+впервые появился в
+.Fx 14.1 .
+.Sh АВТОРЫ
+Эта
+страница руководства была написана
+.An Terry Lambert Aq Mt terry@whistle.com .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Неверная информация в
+.Fa iocb->_aiocb_private
+может ввести ядро в заблуждение.

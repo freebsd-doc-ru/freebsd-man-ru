@@ -1,0 +1,157 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Ken Arnold.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/fortune/strfile/strfile.8
+.\" FRDP githash bdcbfde31e8e9b343f113a1956384bdf30d1ed62
+.\" FRDP hash256 3a526b74d25ab62410bcd34582cdc84ec1da47d419d1949717c3eb922a12627f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 17, 2005
+.Dt STRFILE 8
+.Os
+.Sh ИМЯ
+.Nm strfile ,
+.Nm unstr
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Ciorsx
+.Op Fl c Ar символ
+.Ar исходный_файл
+.Op Ar выходной_файл
+.Nm unstr
+.Ar исходный_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+читает файл, содержащий группы строк, разделённые строкой, содержащей
+один знак процента
+.Ql %,
+и создаёт файл данных, который содержит
+структуру заголовка и таблицу смещений в файле для каждой группы строк.
+Это позволяет осуществлять произвольный доступ к строкам.
+.Pp
+Выходной файл, если он не указан в командной строке, называется
+.Ar исходный_файл Ns Pa .dat .
+.Pp
+Параметры следующие:
+.Bl -tag -width Ds
+.It Fl C
+Пометить файл как содержащий комментарии.
+Этот параметр устанавливает бит
+.Dv STR_COMMENTS
+в поле
+.Va str_flags
+заголовка.
+Комментарии обозначаются двумя символами-разделителями в начале строки, хотя
+.Nm
+не применяет к строкам комментариев особой обработки.
+.It Fl c Ar символ
+Изменить символ-разделитель со знака процента на
+.Ar символ .
+.It Fl i
+Игнорировать регистр при упорядочивании строк.
+.It Fl o
+Упорядочивать строки в алфавитном порядке.
+Таблица смещений будет отсортирована в алфавитном порядке
+групп строк, на которые есть ссылки.
+Любые начальные неалфавитно-цифровые символы игнорируются.
+Этот параметр устанавливает бит
+.Dv STR_ORDERED
+в поле
+.Va str_flags
+заголовка.
+.It Fl r
+Рандомизировать доступ к строкам.
+Записи в таблице смещений будут упорядочены случайным образом.
+Этот параметр устанавливает бит
+.Dv STR_RANDOM
+в поле
+.Va str_flags
+заголовка.
+.It Fl s
+Работать без вывода; не выдавать итоговое сообщение по завершении.
+.It Fl x
+Отметить, что каждый буквенный символ в группах строк сдвинут
+на 13 позиций с помощью простого шифра Цезаря.
+Этот параметр устанавливает бит
+.Dv STR_ROTATED
+в поле
+.Va str_flags
+заголовка.
+.El
+.Pp
+Формат заголовка:
+.Bd -literal
+#define	VERSION	1
+uint32_t	str_version;	/* номер версии */
+uint32_t	str_numstr;	/* число строк в файле */
+uint32_t	str_longlen;	/* длина самой длинной строки */
+uint32_t	str_shortlen;	/* длина самой короткой строки */
+#define	STR_RANDOM	0x1	/* случайные указатели */
+#define	STR_ORDERED	0x2	/* упорядоченные указатели */
+#define	STR_ROTATED	0x4	/* текст, повёрнутый rot-13 */
+#define	STR_COMMENTS	0x8	/* встроенные комментарии */
+uint32_t	str_flags;	/* битовое поле флагов */
+char		str_delim;	/* символ-разделитель */
+.Ed
+.Pp
+Все поля записываются в сетевом порядке байтов.
+.Pp
+Назначение
+.Nm unstr
+— отменять работу
+.Nm .
+Он выводит строки, содержащиеся в файле
+.Ar исходный_файл ,
+в порядке, в котором они перечислены в
+файле заголовка
+.Ar исходный_файл Ns Pa .dat ,
+на стандартный вывод.
+Можно создавать отсортированные версии входных файлов, используя
+.Fl o
+при запуске
+.Nm
+и затем
+.Nm unstr
+для вывода их в порядке таблицы.
+.Sh ФАЙЛЫ
+.Bl -tag -width Pa
+.It Pa strfile.dat
+выходной файл по умолчанию.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr byteorder 3 ,
+.Xr fortune 6
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Bx 4.4 .

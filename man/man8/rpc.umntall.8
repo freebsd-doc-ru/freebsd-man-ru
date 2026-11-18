@@ -1,0 +1,124 @@
+.\"
+.\" Copyright (c) 1999 Martin Blapp
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rpc.umntall/rpc.umntall.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 4f09371db42c8e0e332aa11d93aa3c610bf538e1513f44501371caccd9690bb0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 17, 1999
+.Dt RPC.UMNTALL 8
+.Os
+.Sh ИМЯ
+.Nm rpc.umntall
+.Nd уведомляет серверы NFS об отмонтированных файловых системах NFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl e Ar срок
+.Op Fl h Ar хост
+.Op Fl k
+.Op Fl p Ar удалённый_путь
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предложена в
+.Tn NFS
+RPC-спецификации; см.
+.Rs
+.Re
+Она использует удалённые вызовы процедур для удаления записей о монтировании из
+.Pa /var/db/mountdtab
+на удалённом сервере NFS.
+Она вызывается автоматически
+без каких-либо параметров во время запуска и завершения работы
+системы.
+Это гарантирует, что
+.Xr showmount 8
+не отображает старые и устаревшие записи.
+Утилита
+.Nm
+нужна только на стороне клиента, где
+.Xr mount_nfs 8
+добавляет запись о монтировании с текущей датой в
+.Pa /var/db/mounttab ,
+а
+.Xr umount 8
+снова удаляет запись.
+Утилита
+.Nm
+заботится обо всех оставшихся записях в этой таблице, которые возникли из-за сбоев
+или неправильного завершения работы.
+.Pp
+Параметры:
+.Bl -tag -width indentxxx
+.It Fl e Ar срок
+Все записи, которые фактически не смонтированы или возраст которых превышает
+.Ar срок
+(секунд), удаляются из
+.Pa /var/db/mounttab .
+Это может происходить
+при изменениях DNS или длительных периодах простоя.
+Время истечения по умолчанию
+— 86400 секунд (один день).
+.It Fl h Ar хост
+Удаляет только указанное имя хоста.
+Отправляет RPC UMNTALL на сервер NFS.
+.It Fl k
+Сохраняет записи для существующих файловых систем NFS.
+Сравнивает файловые системы NFS из
+mounttab со списком монтирования ядра и не отправляет RPC для
+существующих записей о монтировании.
+Полезно во время запуска системы.
+Возможно, что уже есть смонтированные файловые системы NFS, поэтому вызов
+RPC UMOUNT — не лучшая идея.
+Это происходит, если пользователь перезагрузился
+в однопользовательский режим и снова запускает систему.
+.It Fl p Ar путь
+Удаляет только указанный путь монтирования.
+Отправляет RPC UMOUNT на сервер NFS.
+Этот параметр подразумевает
+.Fl host
+параметр.
+.It Fl v
+Подробный режим, для каждой обработанной записи mounttab
+выводится дополнительная информация.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/db/mounttab -compact
+.It Pa /var/db/mounttab
+смонтированные файловые системы NFS
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mount_nfs 8 ,
+.Xr mountd 8 ,
+.Xr umount 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 4.0 .
+.Sh АВТОРЫ
+.An Martin Blapp Aq Mt mb@imp.ch

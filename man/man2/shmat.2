@@ -1,0 +1,150 @@
+.\"
+.\" Copyright (c) 1995 David Hovemeyer <daveho@infocom.com>
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE DEVELOPERS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/shmat.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 75df7a28fa9e0347c221eec7cec83026eb951f882b505fe4bd5a2a2d4cbaac0e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 14, 2019
+.Dt SHMAT 2
+.Os
+.Sh ИМЯ
+.Nm shmat ,
+.Nm shmdt
+.Nd присоединение или отсоединение разделяемой памяти
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/ipc.h
+.In sys/shm.h
+.Ft void *
+.Fn shmat "int shmid" "const void *addr" "int flag"
+.Ft int
+.Fn shmdt "const void *addr"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn shmat
+присоединяет сегмент разделяемой памяти, определяемый
+.Fa shmid ,
+к адресному пространству вызывающего процесса.
+Адрес, по которому присоединяется сегмент,
+определяется следующим образом:
+.Bl -bullet
+.It
+Если
+.Fa addr
+равен 0, сегмент присоединяется по адресу, выбранному
+ядром.
+.It
+Если
+.Fa addr
+ненулевой и
+.Va SHM_RND
+не указан в
+.Fa flag ,
+сегмент присоединяется по указанному адресу.
+.It
+Если
+.Fa addr
+указан и
+.Va SHM_RND
+указан,
+.Fa addr
+округляется вниз до ближайшего кратного SHMLBA.
+.El
+.Pp
+Если указан флаг
+.Va SHM_REMAP
+и переданный
+.Fa addr
+не равен
+.Dv NULL ,
+все существующие отображения в диапазоне виртуальных адресов
+очищаются перед присоединением сегмента.
+Если флаг не указан,
+.Fa addr
+не равен
+.Dv NULL ,
+и диапазон виртуальных адресов содержит
+некоторые существующие отображения, вызов
+.Fn shmat
+завершается неудачей.
+.Pp
+Системный вызов
+.Fn shmdt
+отсоединяет сегмент разделяемой памяти по адресу, указанному в
+.Fa addr ,
+от адресного пространства вызывающего процесса.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном выполнении
+.Fn shmat
+возвращает адрес, по которому присоединён сегмент; в противном случае возвращается -1
+и
+.Va errno
+устанавливается для указания ошибки.
+.Pp
+.Rv -std shmdt
+.Sh ОШИБКИ
+Системный вызов
+.Fn shmat
+завершится неудачей, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Не найден сегмент разделяемой памяти, соответствующий
+.Fa shmid .
+.It Bq Er EINVAL
+Аргумент
+.Fa addr
+не был допустимым адресом.
+.It Bq Er ENOMEM
+Указанный
+.Fa addr
+не может быть использован для отображения, например, из-за того, что объём доступного
+пространства меньше размера сегмента,
+или из-за того, что в диапазоне имеются существующие отображения и не
+указан флаг
+.Va SHM_REMAP .
+.It Bq Er EMFILE
+Не удалось присоединить сегмент разделяемой памяти, поскольку достигнут
+предел
+.Va kern.ipc.shmseg
+.Xr sysctl 3
+для процесса.
+.El
+.Pp
+Системный вызов
+.Fn shmdt
+завершится неудачей, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa addr
+не указывает на сегмент разделяемой памяти.
+.El
+.Sh "СМ. ТАКЖЕ"
+.Xr shmctl 2 ,
+.Xr shmget 2

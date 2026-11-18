@@ -1,0 +1,286 @@
+.\"-
+.\" Copyright (c) 2013 Stacey D. Son
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Support for miscellaneous binary image activators
+.\"
+.\" FRDP path usr.sbin/binmiscctl/binmiscctl.8
+.\" FRDP githash c013ca2cf772194de340aeb452a6ccfe7e1cecd8
+.\" FRDP hash256 dc7870f8319cae4a5413463bac624489eec801f875f4edd06fc929dcae022a90
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 30, 2020
+.Dt BINMISCCTL 8
+.Os
+.Sh ИМЯ
+.Nm binmiscctl
+.Nd управление активаторами двоичных образов
+.Sh СИНТАКСИС
+.Nm
+.Cm add
+.Ar имя
+.Fl -interpreter
+.Ar путь
+.Fl -magic
+.Ar magic
+.Fl -size
+.Ar размер
+.Op Fl -mask Ar маска
+.Op Fl -offset Ar смещение
+.Op Fl -set-enabled
+.Op Fl -pre-open
+.Nm
+.Cm disable
+.Ar имя
+.Nm
+.Cm enable
+.Ar имя
+.Nm
+.Cm list
+.Nm
+.Cm lookup
+.Ar имя
+.Nm
+.Cm remove
+.Ar имя
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для управления настройкой различных активаторов двоичных
+образов в ядре.
+Она позволяет добавлять, удалять, отключать,
+включать и искать интерпретаторы.
+Кроме того, можно вывести список всех интерпретаторов.
+.Pp
+Первый аргумент в командной строке указывает выполняемую
+операцию.
+Операция должна быть одной из следующих:
+.Bl -tag -width indent
+.It Xo
+.Cm add
+.Ar имя
+.Fl -interpreter
+.Ar путь
+.Fl -magic
+.Ar magic
+.Fl -size
+.Ar размер
+.Op Fl -mask Ar маска
+.Op Fl -offset Ar смещение
+.Op Fl -set-enabled
+.Op Fl -pre-open
+.Xc
+Добавить новую запись активатора в ядро.
+Необходимо указать
+уникальное
+.Ar имя ,
+.Ar путь
+к интерпретатору,
+заголовочные
+.Ar magic
+байты, которые однозначно идентифицируют подходящий двоичный файл для активатора,
+и
+.Ar размер
+.Ar magic
+в байтах.
+.Pp
+Дополнительно может быть указана
+.Ar маска
+для выполнения побитового И с байтами заголовка.
+Это фактически позволяет игнорировать поля в заголовке двоичного файла, которые
+не идентифицируют однозначно тип двоичного файла.
+.Pp
+.Ar смещение
+может быть указано для magic-байтов с помощью параметра
+.Fl -offset .
+По умолчанию
+.Ar смещение
+равно нулю.
+.Pp
+Для включения записи активатора используется параметр
+.Fl -set-enabled .
+По умолчанию запись активатора отключена.
+.Pp
+Чтобы интерпретатор был автоматически доступен в клетках и chroot-окружениях,
+используйте параметр
+.Fl -pre-open ,
+чтобы позволить ядру открыть двоичный файл во время настройки,
+а не лениво при запуске интерпретируемой программы.
+.Pp
+Интерпретатор,
+а именно
+.Ar путь ,
+также может содержать аргументы для интерпретатора, включая
+.Ar #a ,
+который заменяется старым значением
+.Dv argv0
+в строке интерпретатора.
+.It Cm disable Ar имя
+Отключить запись активатора с именем
+.Ar имя .
+.It Cm enable Ar имя
+Включить запись активатора с именем
+.Ar имя .
+.It Cm list
+Сделать снимок и вывести все текущие настроенные записи активатора.
+.It Cm lookup Ar имя
+Найти и вывести запись активатора с именем
+.Ar имя .
+.It Cm remove Ar имя
+Удалить запись активатора с именем
+.Ar имя .
+.El
+.Sh ПРИМЕРЫ
+Добавить активатор образов для запуска интерпретатора LLVM
+.Po
+.Xr lli 1
+.Pc
+для скомпилированных в bitcode файлов и установить его состояние в «включено».
+В этом примере
+.Ar #a
+заменяется старым значением
+.Dv argv0 ,
+чтобы
+.Xr lli 1
+мог подменить свой
+.Dv argv0 :
+.Bd -literal -offset indent
+# binmiscctl add llvmbc --interpreter ''/usr/bin/lli \e
+  --fake-argv0=#a'' --magic ''BC\\xc0\\xde'' --size 4 \e
+  --set-enabled
+.Ed
+.Pp
+Установить состояние
+.Ar llvmbc
+активатора образов в «отключено»:
+.Bd -literal -offset indent
+# binmiscctl disable llvmbc
+.Ed
+.Pp
+Установить состояние
+.Ar llvmbc
+активатора образов в «включено»:
+.Bd -literal -offset indent
+# binmiscctl enable llvmbc
+.Ed
+.Pp
+Удалить
+.Ar llvmbc
+активатор образов:
+.Bd -literal -offset indent
+# binmiscctl remove llvmbc
+.Ed
+.Pp
+Найти и вывести запись для
+.Ar llvmbc
+активатора образов:
+.Bd -literal -offset indent
+# binmiscctl lookup llvmbc
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов ARM AARCH64:
+.Bd -literal -offset indent
+# binmiscctl add arm64 \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов ARM little-endian:
+.Bd -literal -offset indent
+# binmiscctl add armelf \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов ARM big-endian:
+.Bd -literal -offset indent
+# binmiscctl add armebelf \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов MIPS32:
+.Bd -literal -offset indent
+# binmiscctl add mips32 \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов MIPS64:
+.Bd -literal -offset indent
+# binmiscctl add mips64 \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов PowerPC:
+.Bd -literal -offset indent
+# binmiscctl add powerpc \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для двоичных файлов PowerPC64:
+.Bd -literal -offset indent
+# binmiscctl add powerpc64 \e
+  --size 20 --set-enabled
+.Ed
+.Pp
+Добавить программу QEMU bsd-user в качестве активатора образов для 64-битных двоичных файлов RISC-V:
+.Bd -literal -offset indent
+# binmiscctl add riscv64 \e
+  --size 20 --set-enabled
+.Ed
+Использовать существующее дерево исходных текстов для сборки chroot-хоста с переопределениями архитектуры:
+.Bd -literal -offset ident
+D=/path/to/chroot
+cd /usr/src
+mkdir -p $D
+make world TARGET=arm TARGET_ARCH=armv7 DESTDIR=$D
+make distribution TARGET=arm TARGET_ARCH=armv7 DESTDIR=$D
+.Ed
+.Pp
+С
+.Pa emulators/qemu-user-static
+из коллекции портов
+.Fx
+эмулятор необходимо скопировать в путь клетки,
+указанный в команде
+.Nm .
+Используя пример выше:
+.Bd -literal -offset indent
+mkdir $D/usr/local/bin
+cp /usr/local/bin/qemu-arm-static $D/usr/local/bin
+.Ed
+.Pp
+Теперь пользователь может нормально войти в окружение через chroot, как root:
+.Bd -literal -offset indent
+chroot $D
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr lli 1 ,
+.Xr execve 2 ,
+.Xr jail 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+была добавлена в
+.Fx 10.1 .
+Она была разработана для поддержки модуля ядра imgact_binmisc.
+.Sh АВТОРЫ
+.An Stacey D Son Aq Mt sson@FreeBSD.org

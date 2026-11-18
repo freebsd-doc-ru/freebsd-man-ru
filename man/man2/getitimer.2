@@ -1,0 +1,191 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getitimer.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 5bc474b47a9bc165707ed3cc57e082ba257ba531f80930014eb2a89259754d94
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 1, 2020
+.Dt GETITIMER 2
+.Os
+.Sh ИМЯ
+.Nm getitimer ,
+.Nm setitimer
+.Nd получить/установить значение интервального таймера
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/time.h
+.Fd "#define ITIMER_REAL      0"
+.Fd "#define ITIMER_VIRTUAL   1"
+.Fd "#define ITIMER_PROF      2"
+.Ft int
+.Fn getitimer "int which" "struct itimerval *value"
+.Ft int
+.Fn setitimer "int which" "const struct itimerval *value" "struct itimerval *ovalue"
+.Sh ОПИСАНИЕ
+Система предоставляет каждому процессу три интервальных таймера,
+определённых в
+.In sys/time.h .
+Системный вызов
+.Fn getitimer
+возвращает текущее значение таймера, указанного в
+.Fa which ,
+в структуре по адресу
+.Fa value .
+Системный вызов
+.Fn setitimer
+устанавливает таймер в указанное
+.Fa value
+(возвращая предыдущее значение таймера, если
+.Fa ovalue
+не является нулевым указателем).
+.Pp
+Значение таймера определяется структурой
+.Fa itimerval :
+.Bd -literal -offset indent
+struct itimerval {
+	struct	timeval it_interval;	/* timer interval */
+	struct	timeval it_value;	/* current value */
+};
+.Ed
+.Pp
+Если
+.Fa it_value
+не равно нулю, оно указывает время до следующего срабатывания таймера.
+Если
+.Fa it_interval
+не равно нулю, оно задаёт значение, используемое для перезагрузки
+.Fa it_value
+при срабатывании таймера.
+Установка
+.Fa it_value
+в 0 отключает таймер независимо от значения
+.Fa it_interval .
+Установка
+.Fa it_interval
+в 0 приводит к отключению таймера после его следующего срабатывания (при условии,
+что
+.Fa it_value
+не равно нулю).
+.Pp
+Значения времени, меньшие разрешения
+системных часов, округляются вверх до этого разрешения
+(обычно 10 миллисекунд).
+.Pp
+Таймер
+.Dv ITIMER_REAL
+уменьшается в реальном времени.
+Сигнал
+.Dv SIGALRM
+доставляется при срабатывании этого таймера.
+.Pp
+Таймер
+.Dv ITIMER_VIRTUAL
+уменьшается в виртуальном времени процесса.
+Он работает только во время выполнения процесса.
+Сигнал
+.Dv SIGVTALRM
+доставляется при его срабатывании.
+.Pp
+Таймер
+.Dv ITIMER_PROF
+уменьшается как в виртуальном времени процесса, так и
+когда система работает от имени процесса.
+Он предназначен
+для использования интерпретаторами при статистическом профилировании выполнения
+интерпретируемых программ.
+Каждый раз, когда таймер
+.Dv ITIMER_PROF
+срабатывает, доставляется сигнал
+.Dv SIGPROF .
+Поскольку этот сигнал может прервать выполняющиеся
+системные вызовы, программы, использующие этот таймер, должны быть готовы к
+перезапуску прерванных системных вызовов.
+.Pp
+Максимальное количество секунд, допускаемое для
+.Fa it_interval
+и
+.Fa it_value
+в
+.Fn setitimer ,
+составляет 100000000.
+.Sh ПРИМЕЧАНИЯ
+Для работы со значениями времени в
+.In sys/time.h
+определены три макроса.
+Макрос
+.Fn timerclear
+устанавливает значение времени в ноль,
+.Fn timerisset
+проверяет, не равно ли значение времени нулю, а
+.Fn timercmp
+сравнивает два значения времени.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы
+.Fn getitimer
+и
+.Fn setitimer
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa value
+указывает на недопустимый адрес.
+.It Bq Er EINVAL
+Аргумент
+.Fa value
+задаёт слишком большое время,
+которое не может быть обработано.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr gettimeofday 2 ,
+.Xr select 2 ,
+.Xr sigaction 2 ,
+.Xr clocks 7
+.Sh СТАНДАРТЫ
+Функции
+.Fn getitimer
+и
+.Fn setitimer
+соответствуют
+.St -p1003.1-2001 .
+Однако более поздняя редакция
+.St -p1003.1-2008
+пометила обе функции как устаревающие,
+рекомендуя вместо них использовать
+.Xr timer_gettime 2
+и
+.Xr timer_settime 2 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getitimer
+появился в
+.Bx 4.2 .

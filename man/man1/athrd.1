@@ -1,0 +1,169 @@
+.\"-
+.\" Copyright (c) 2002-2009 Sam Leffler, Errno Consulting
+.\" All rights reserved.
+.\""
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer,
+.\"    without modification.
+.\" 2. Redistributions in binary form must reproduce at minimum a disclaimer
+.\"    similar to the "NO WARRANTY" disclaimer below ("Disclaimer") and any
+.\"    redistribution must be conditioned upon including a substantially
+.\"    similar Disclaimer requirement for further binary redistribution.
+.\"
+.\" NO WARRANTY
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF NONINFRINGEMENT, MERCHANTIBILITY
+.\" AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+.\" THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR SPECIAL, EXEMPLARY,
+.\" OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+.\" THE POSSIBILITY OF SUCH DAMAGES.
+.\"/
+.\" FRDP path ./tools/tools/ath/athrd/athrd.1
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 d941c1b035e44c8412f6fa61ee180cbc40052800d4aaf7ce5aa0f31cbbc5c7aa
+.Dd 27 января 2009
+.Dt ATHRD 1
+.Os
+.Sh ИМЯ
+.Nm athrd
+.Nd список каналов и мощности передачи для страны/регуляторного домена
+.Sh СИНТАКСИС
+.Nm
+.Op Fl aedlpcfr4ABGT
+.Op Fl m Ar режим
+.Bk
+.Op Ar страна
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+отображает список частот и связанную с ними максимальную мощность передачи,
+разрешенную в рамках регуляторного домена и/или страны.
+.Pp
+Если параметры командной строки не указаны, используется страна по умолчанию (\c
+.Ql US ).
+Названия стран и регуляторных доменов нечувствительны к регистру.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+По умолчанию
+.Nm
+будет отображать каналы B только если они также не помечены как доступные для
+использования в качестве каналов G, и аналогично для каналов A и T.
+С этим параметром
+.Nm
+выведет все каналы.
+.It Fl e
+Рассчитывать каналы без предположения о расширенном режиме каналов.
+.It Fl d
+Включить отладку в коде HAL, который рассчитывает доступные каналы
+и значения мощности передачи.
+.It Fl l
+Предоставить список всех известных названий стран и регуляторных доменов.
+.It Fl m Ar режим
+Рассчитывать каналы и мощность передачи для работы в
+.Ql режиме ;
+один из
+.Ql station ,
+.Ql ibss ,
+.Ql monitor ,
+и
+.Ql ap
+(или первые две буквы).
+.It Fl p
+Помечать каналы пассивного сканирования строчными буквами, а каналы
+активного сканирования — заглавными буквами.
+.It Fl r
+Помечать каналы, требующие DFS, символом
+.Ql * .
+.It Fl 4
+Помечать каналы, имеющие ограничение пакетов в 4 мс, символом
+.Ql 4 .
+.It Fl c
+Отображать номера каналов IEEE вместо частот.
+.It Fl f
+Отображать частоты (по умолчанию).
+.It Fl A
+Отображать только каналы 11A.
+.It Fl B
+Отображать только каналы 11B.
+.It Fl G
+Отображать только каналы 11G.
+.It Fl T
+Отображать только каналы Turbo.
+.El
+.Sh ПРИМЕРЫ
+Следующий пример демонстрирует, как вывести допустимые частоты
+и максимальную мощность передачи на канал для использования в Испании:
+.Bd -literal -offset 2n
+.Li # Ic athrd es
+SPAIN (ES, 0x2d4, 724) NULL1_WORLD (0x3, 3)
+2412G 14.0 2417G 14.0 2422G 14.0 2427G 17.0 2432G 14.0 2437G 17.0
+2442G 14.0 2447G 17.0 2452G 17.0 2457G 14.0 2462G 17.0
+.Ed
+.Pp
+Каждая частота имеет суффикс, который является одним из:
+.Ql G ,
+.Ql B ,
+.Ql A ,
+или
+.Ql T
+в зависимости от того, может ли канал использоваться в режиме 802.11g, 802.11b,
+802.11a или Atheros Turbo.
+Все каналы, перечисленные как
+.Ql G ,
+также могут использоваться в режиме
+.Ql B .
+Аналогично, все каналы, перечисленные как
+.Ql A ,
+могут использоваться в режиме
+.Ql T .
+Каналы, перечисленные как
+.Ql B
+или
+.Ql T ,
+могут использоваться только в этих режимах.
+(Обратите внимание, что при указании параметра
+.Fl p
+каналы пассивного сканирования помечаются строчными буквами
+.Ql g ,
+.Ql b ,
+.Ql a ,
+или
+.Ql t .)
+Мощность передачи указана в единицах дБм.
+.Sh ДИАГНОСТИКА
+Могут возникать различные диагностические сообщения о неизвестных регуляторных доменах и/или кодах стран.
+Используйте параметр
+.Fl l
+для получения списка допустимых названий.
+.Sh СМ. ТАКЖЕ
+.Xr ath 4 ,
+.Xr ath_hal 4
+.Sh СТАНДАРТЫ
+Многое должно быть здесь.
+.Sh ЗАМЕЧАНИЯ
+.Nm
+использует HAL для расчета набора каналов.
+Расчеты мощности передачи выполняются путем эмуляции
+работы HAL.
+Поскольку
+.Nm
+не
+считывает фактические содержимое EEPROM с устройства, эта эмуляция может отставать
+от текущей практики.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Для расчета мощности передачи для каждого канала следует использовать логику сброса HAL
+вместо использования отдельной копии кода.
+Данные, представленные
+.Nm ,
+являются ожидаемыми значениями; для тестирования на соответствие необходимо измерять фактическую
+работу драйвера и HAL.

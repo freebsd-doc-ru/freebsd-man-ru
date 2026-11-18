@@ -1,0 +1,76 @@
+.\" Copyright (c) 1985, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/lpr/lptest/lptest.1
+.\" FRDP githash d57dee7ab66f60537b557cb602be194e3eed253d
+.\" FRDP hash256 dde2d52db99180b231d8e72a73fe204b3e2e0627182fea8ab38a3a2c7dec77cb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 30, 1993
+.Dt LPTEST 1
+.Os
+.Sh ИМЯ
+.Nm lptest
+.Nd генерировать шаблон ряби для построчного принтера
+.Sh СИНТАКСИС
+.Nm
+.Op Ar длина
+.Op Ar количество
+.Sh УВЕДОМЛЕНИЕ ОБ УСТАРЕНИИ
+Эту возможность планируется удалить до выпуска
+.Fx 16.0 .
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+В 96 строках,
+этот шаблон напечатает все 96 печатаемых
+.Tn ASCII
+символов
+в каждой позиции.
+Хотя изначально она была создана для проверки принтеров, она вполне
+полезна для проверки терминалов,
+управления портами терминалов в целях отладки
+или любой другой задачи, где требуется быстро получить случайные данные.
+.Pp
+Аргумент
+.Ar длина
+задаёт длину выходной строки, если значение по умолчанию
+79 не подходит.
+.Pp
+Аргумент
+.Ar количество
+задаёт количество генерируемых выходных строк, если
+значение по умолчанию 200 не подходит.
+Обратите внимание, что если требуется указать
+.Ar количество ,
+то также требуется указать
+.Ar длина .
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.3 .

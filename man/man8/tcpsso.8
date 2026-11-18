@@ -1,0 +1,259 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2022 Michael Tuexen <tuexen@FreeBSD.org>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/tcpsso/tcpsso.8
+.\" FRDP githash 2edac5a60a57a2a6ef80c61079d427c4ee31b7a9
+.\" FRDP hash256 94fe8741b2365029397ece4abab0e7d4b39d35b8a138e856b3f5caf4042e3ad3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 3, 2024
+.Dt TCPSSO 8
+.Os
+.Sh ИМЯ
+.Nm tcpsso
+.Nd установить параметр сокета на конечной точке TCP
+.Sh СИНТАКСИС
+.Nm
+.Fl i Ar идентификатор
+.Op Ar уровень
+.Ar имя_параметра
+.Ar значение_параметра
+.Nm
+.Fl a
+.Op Ar уровень
+.Ar имя_параметра
+.Ar значение_параметра
+.Nm
+.Fl C Ar алгоритм_cc
+.Op Fl S Ar стек
+.Op Fl s Ar состояние
+.Op Ar уровень
+.Ar имя_параметра
+.Ar значение_параметра
+.Nm
+.Op Fl C Ar алгоритм_cc
+.Fl S Ar стек
+.Op Fl s Ar состояние
+.Op Ar уровень
+.Ar имя_параметра
+.Ar значение_параметра
+.Nm
+.Op Fl C Ar алгоритм_cc
+.Op Fl S Ar стек
+.Fl s Ar состояние
+.Op Ar уровень
+.Ar имя_параметра
+.Ar значение_параметра
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+устанавливает для конечной точки TCP из командной строки параметр сокета уровня
+.Ar уровень
+с именем
+.Ar имя_параметра
+и значением
+.Ar значение_параметра .
+.Pp
+Конечные точки TCP в состоянии
+.Dv SYN_RCVD
+могут обрабатываться
+.Nm
+только если их предыдущее состояние было
+.Dv SYN_SENT .
+.Pp
+.Op Ar уровень
+можно указать как неотрицательное число или символьное имя, такое как
+.Dv SOL_SOCKET ,
+.Dv IPPROTO_IP ,
+.Dv IPPROTO_IPV6 ,
+или
+.Dv IPPROTO_TCP .
+Если не указан,
+.Nm
+выводит уровень из
+.Ar имя_параметра ,
+если оно задано как символьное имя.
+Если это не так,
+используется
+.Dv IPPROTO_TCP .
+.Pp
+.Ar имя_параметра
+можно указать как неотрицательное число или символьное имя, такое как
+.Dv SO_DEBUG ,
+.Dv IP_TOS ,
+.Dv IPV6_TCLASS ,
+.Dv TCP_LOG ,
+.Dv TCP_CONGESTION ,
+или
+.Dv TCP_FUNCTION_BLK .
+.Pp
+.Ar значение_параметра
+может быть целочисленным значением, которое будет преобразовано в двоичное значение и
+передано как значение int.
+Если его нельзя разобрать как целочисленное значение, оно будет обработано как строка.
+Если
+.Ar имя_параметра
+равно
+.Dv TCP_FUNCTION_BLK
+то
+.Ar значение_параметра
+преобразуется в
+.Pp
+Если указан
+.Fl i Ar идентификатор
+то
+.Nm
+применит параметр сокета к конечной точке TCP с
+.Dv inp_gencnt
+заданным как
+.Ar идентификатор .
+.Dv inp_gencnt
+для существующих конечных точек TCP можно определить, используя
+.Xr sockstat 1 .
+.Pp
+Если указан
+.Fl a
+то
+.Nm
+применит параметр сокета ко всем конечным точкам TCP с учётом вышеуказанных ограничений состояния.
+.Pp
+Если указан
+.Fl C Ar алгоритм_cc
+то
+.Nm
+применит параметр сокета ко всем конечным точкам TCP, использующим алгоритм
+управления перегрузкой TCP
+.Ar алгоритм_cc
+и с учётом вышеуказанных ограничений состояния.
+.Pp
+Если указан
+.Fl S Ar стек
+то
+.Nm
+применит параметр сокета ко всем конечным точкам TCP, использующим стек TCP
+.Ar стек
+и с учётом вышеуказанных ограничений состояния.
+.Pp
+Если указан
+.Fl s Ar состояние
+то
+.Nm
+применит параметр сокета ко всем конечным точкам TCP, находящимся в состоянии
+.Ar состояние .
+.Ar состояние
+— одно из
+.Dv CLOSED ,
+.Dv LISTEN ,
+.Dv SYN_SENT ,
+.Dv SYN_RCVD ,
+.Dv ESTABLISHED ,
+.Dv CLOSE_WAIT ,
+.Dv FIN_WAIT_1 ,
+.Dv CLOSING ,
+.Dv LAST_ACK ,
+.Dv FIN_WAIT_2,
+или
+.Dv TIME_WAIT .
+Использование
+.Dv SYN_RCVD
+применяется только к конечным точкам TCP в состоянии
+.Dv SYN_RCVD
+если их предыдущее состояние было
+.Dv SYN_SENT .
+.Pp
+Если указано несколько из
+.Fl C Ar алгоритм_cc ,
+.Fl S Ar стек ,
+и
+.Fl s Ar состояние
+,
+.Nm
+применит параметр сокета ко всем конечным точкам TCP, использующим алгоритм
+управления перегрузкой
+.Ar алгоритм_cc ,
+находящимся в состоянии
+.Ar состояние ,
+и использующим стек TCP
+.Ar стек ,
+если указан.
+.Pp
+Если ни один из
+.Fl a ,
+.Fl C ,
+.Fl S ,
+или
+.Fl s
+не указан, то параметр
+.Fl i
+должен быть указан.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Чтобы диагностировать проблему с конкретным TCP-соединением с
+.Xr sshd 8 ,
+сначала определите его
+.Dv inp_gencnt
+с помощью
+.Xr sockstat 1 :
+.Bd -literal -offset indent
+# sockstat -4 -c -i -p 22 -P tcp -q
+root     sshd       827   4  tcp4 \e
+	192.168.1.1:22        192.168.1.2:53736     435
+.Ed
+.Pp
+Затем используйте следующую команду, чтобы включить ведение журнала Black Box для него:
+.Bd -literal -offset indent
+# tcpsso -i 435 TCP_LOG 4
+.Ed
+.Pp
+Чтобы переключить все конечные точки TCP с использования стека freebsd на стек RACK, используйте:
+.Bd -literal -offset indent
+# tcpsso -S freebsd TCP_FUNCTION_BLK rack
+.Ed
+.Pp
+Переключите все конечные точки TCP в состоянии LISTEN на стек RACK, используя:
+.Bd -literal -offset indent
+# tcpsso -s LISTEN TCP_FUNCTION_BLK rack
+.Ed
+.Pp
+Следующая команда установит модуль управления перегрузкой для всех конечных точек TCP,
+в настоящее время использующих cubic в качестве алгоритма управления перегрузкой,
+на алгоритм управления перегрузкой newreno:
+.Bd -literal -offset indent
+# tcpsso -C cubic TCP_CONGESTION newreno
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr sockstat 1 ,
+.Xr setsockopt 2 ,
+.Xr tcp 4 ,
+.Xr tcp_functions 9
+.Sh ИСТОРИЯ
+Команда
+.Nm
+впервые появилась в
+.Fx 14 .
+.Sh АВТОРЫ
+.An Michael Tuexen Aq Mt tuexen@FreeBSD.org

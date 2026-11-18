@@ -1,0 +1,300 @@
+.\" Copyright (c) 2012 The FreeBSD Foundation
+.\" All rights reserved.
+.\"
+.\" This documentation was written by Pawel Jakub Dawidek under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $FreeBSD$
+.\"
+.\" FRDP path contrib/openbsm/bin/auditdistd/auditdistd.conf.5
+.\" FRDP githash b6a05070fa77edc7ce6e60b61623fd806e807be6
+.\" FRDP hash256 6f15ec9145b94c013c864d527f083ff65e81550e8b122250e70903b3e8bfd2bd
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 1, 2015
+.Dt AUDITDISTD.CONF 5
+.Os
+.Sh ИМЯ
+.Nm auditdistd.conf
+.Nd файл конфигурации для
+.Xr auditdistd 8
+демона.
+.Sh ОПИСАНИЕ
+Примечание: файл конфигурации может содержать пароли.
+Следует позаботиться о настройке правильных прав доступа для этого файла
+.Li ( e.g., 0600 ) .
+.Pp
+Каждая строка, начинающаяся с
+.Li #
+считается комментарием и игнорируется.
+.Sh СИНТАКСИС ФАЙЛА КОНФИГУРАЦИИ
+Общий синтаксис файла
+.Nm
+выглядит следующим образом:
+.Bd -literal
+## Глобальная секция.
+
+# Наше имя.
+# По умолчанию используется первая часть имени хоста.
+
+# Таймаут соединения.
+# По умолчанию 5.
+timeout <секунды>
+
+# Путь к pid-файлу.
+
+sender {
+	## Секция отправителя.
+
+	# Исходный адрес для соединений.
+	# Необязательно.
+
+	# Каталог с файлами аудита, управляемый auditdistd.
+	# По умолчанию /var/audit/dist.
+
+	# Конфигурация целевой системы, которой мы хотим отправлять
+	# файлы аудита.
+		# Исходный адрес для соединений.
+		# Необязательно.
+
+		# Адрес получателя auditdistd.
+		# По умолчанию отсутствует. Обязательно.
+
+		# Каталог с файлами аудита, управляемый auditdistd.
+		# По умолчанию /var/audit/dist.
+
+		# Отпечаток открытого ключа получателя при использовании TLS
+		# для соединений.
+		# Пример отпечатка:
+		# SHA256=8F:0A:FC:8A:3D:09:80:AF:D9:AA:38:CC:8A:86:53:E6:8F:B6:1C:55:30:14:D7:F9:AA:8B:3E:73:CD:F5:76:2B
+
+		# Пароль, используемый для аутентификации перед получателем.
+	}
+
+	# В настоящее время локальные файлы аудита могут быть отправлены только одному удаленному
+	# получателю auditdistd, но это может измениться в будущем.
+}
+
+receiver {
+	## Секция получателя.
+
+	# Адрес для прослушивания. Можно указать несколько адресов прослушивания.
+
+	# Базовый каталог.
+	# Если каталог в секции host не является абсолютным, он будет
+        # объединен с этим базовым каталогом.
+
+	# Путь к файлу сертификата получателя.
+
+	# Путь к файлу закрытого ключа получателя.
+
+	# Конфигурация исходной системы, от которой мы хотим получать
+	# файлы аудита.
+		# Адрес отправителя.
+		# По умолчанию отсутствует. Обязательно.
+
+		# Каталог для хранения файлов аудита, полученных
+		# от системы <имя>.
+
+		# Пароль, используемый отправителем для аутентификации.
+	}
+
+	# Можно настроить несколько хостов для получения.
+}
+.Ed
+.Pp
+Большинство различных доступных параметров конфигурации являются необязательными.
+Если параметр не определен в конкретной секции, он будет
+унаследован из родительской секции, если это возможно.
+Например, если параметр
+.Ic source
+не определен в секции
+.Ic host
+, он будет унаследован из секции
+.Ic sender
+.
+В случае, если секция
+.Ic global
+вообще не определяет параметр
+.Ic source
+, будет использовано значение по умолчанию.
+.Sh ОПИСАНИЕ ПАРАМЕТРОВ КОНФИГУРАЦИИ
+Доступны следующие инструкции:
+.Bl -tag -width indent
+.It Ic name Aq имя
+.Pp
+Имя этого хоста.
+Оно отправляется получателю, чтобы он мог правильно распознать нас, если есть
+несколько отправителей, приходящих с одного IP-адреса.
+.It Ic timeout Aq секунды
+.Pp
+Таймаут соединения в секундах.
+Значение по умолчанию —
+.Va 5 .
+.It Ic pidfile Aq путь
+.Pp
+Файл, в котором хранится идентификатор процесса основного
+.Xr auditdistd 8
+процесса.
+.Pp
+Значение по умолчанию —
+.Pa /var/run/auditdistd.pid .
+.It Ic source Aq адрес
+.Pp
+Локальный адрес, к которому нужно привязаться перед подключением к удаленному
+.Nm auditdistd
+демону.
+Формат такой же, как для
+.Ic listen
+инструкции.
+.It Ic directory Aq путь
+.Pp
+Каталог, в котором следует искать файлы аудита в режиме отправителя, или
+каталог, в котором следует хранить полученные файлы аудита.
+Предоставленный путь должен быть абсолютным путем.
+Единственное исключение — когда каталог предоставлен в
+.Ic receiver
+секции; тогда путь, предоставленный в
+.Ic host
+подсекциях, может быть относительным к каталогу в
+.Ic receiver
+секции.
+Значение по умолчанию —
+.Pa /var/audit/dist
+для всей
+.Ic sender
+секции,
+.Pa /var/audit/remote
+для не-хостовой
+.Ic receiver
+секции и
+.Pa /var/audit/remote/<name>
+для
+.Ic host
+подсекций в
+.Ic receiver
+секции, где
+.Aq имя
+— имя хоста.
+.It Ic remote Aq адрес
+.Pp
+Адрес удаленного
+.Nm auditdistd
+демона.
+Формат такой же, как для
+.Ic listen
+инструкции.
+При работе в
+.Ic sender
+режиме этот адрес будет использоваться для подключения к
+.Ic receiver .
+При работе в
+.Ic receiver
+режиме будут приниматься только соединения с этого адреса.
+.It Ic listen Aq адрес
+.Pp
+Адрес для прослушивания в форме:
+.Bd -literal -offset indent
+protocol://protocol-specific-address
+.Ed
+.Pp
+Каждый из следующих примеров определяет один и тот же адрес прослушивания:
+.Bd -literal -offset indent
+0.0.0.0
+0.0.0.0:7878
+tcp://0.0.0.0
+tcp://0.0.0.0:7878
+tcp4://0.0.0.0
+tcp4://0.0.0.0:7878
+.Ed
+.Pp
+Можно указать несколько адресов прослушивания.
+По умолчанию
+.Nm auditdistd
+прослушивает
+.Pa tcp4://0.0.0.0:7878
+и
+.Pa tcp6://[::]:7878 ,
+если ядро поддерживает IPv4 и IPv6 соответственно.
+.It Ic keyfile Aq путь
+.Pp
+Путь к файлу, содержащему закрытый ключ для TLS-соединений.
+.It Ic certfile Aq путь
+.Pp
+Путь к файлу, содержащему сертификат для TLS-соединений.
+.It Ic fingerprint Aq алгоритм=хэш
+.Pp
+Отпечаток открытого ключа получателя.
+В настоящее время поддерживается только алгоритм SHA256.
+Отпечаток открытого ключа сертификата, готовый для вставки в файл конфигурации
+.Nm auditdistd
+, можно получить, выполнив:
+.Bd -literal
+.Ed
+.It Ic password Aq пароль
+.Pp
+Пароль, используемый для аутентификации отправителя перед получателем.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/security/auditdistd.conf
+Файл конфигурации
+.Nm auditdistd
+по умолчанию.
+.El
+.Sh ПРИМЕРЫ
+Примеры файлов конфигурации могут выглядеть следующим образом.
+.Pp
+Веб-сервер:
+.Bd -literal -offset indent
+sender {
+	host backup {
+		remote 10.0.0.4
+	}
+}
+.Ed
+.Pp
+Сервер резервного копирования аудита:
+.Bd -literal -offset indent
+receiver {
+	host webserv {
+		remote 10.0.0.1
+	}
+	host mailserv {
+		remote 10.0.0.2
+	}
+	host dnsserv {
+		remote 10.0.0.3
+	}
+}
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr audit 4 ,
+.Xr auditdistd 8
+.Sh АВТОРЫ
+Демон
+.Nm auditdistd
+был разработан
+.An Pawel Jakub Dawidek Aq pawel@dawidek.net
+при спонсорской поддержке FreeBSD Foundation.

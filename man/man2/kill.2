@@ -1,0 +1,153 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kill.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 1a24ea348c5dbdd47fa6ef10c1f72aa90611d07d0f4ee937a9162fc5bd28d1e2
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 1, 2019
+.Dt KILL 2
+.Os
+.Sh ИМЯ
+.Nm kill
+.Nd послать сигнал процессу
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In signal.h
+.Ft int
+.Fn kill "pid_t pid" "int sig"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kill
+посылает сигнал, заданный в
+.Fa sig ,
+процессу или группе процессов
+.Fa pid .
+Аргумент
+.Fa sig
+может быть одним из сигналов, указанных в
+.Xr sigaction 2 ,
+или он может быть равен 0, и в этом случае
+выполняется проверка ошибок, но сигнал
+фактически не посылается.
+Это можно использовать для проверки корректности
+.Fa pid .
+.Pp
+Чтобы процесс имел право послать сигнал процессу, обозначенному
+через
+.Fa pid ,
+пользователь должен быть суперпользователем, или
+реальный или сохранённый идентификатор пользователя принимающего процесса должен совпадать
+с реальным или эффективным идентификатором пользователя посылающего процесса.
+Единственное исключение — сигнал SIGCONT, который всегда можно послать
+любому процессу с тем же идентификатором сеанса, что и у отправителя.
+Кроме того, если
+.Va security.bsd.conservative_signals
+.Xr sysctl 9
+установлен в 1, пользователь не является суперпользователем, и
+получатель имеет установленный идентификатор пользователя (set-uid), то
+можно посылать только сигналы управления заданиями и терминалом
+(в частности, только SIGKILL, SIGINT, SIGTERM, SIGALRM,
+SIGSTOP, SIGTTIN, SIGTTOU, SIGTSTP, SIGHUP, SIGUSR1, SIGUSR2).
+.Bl -tag -width Ds
+.It \&If Fa pid No \&is greater than zero :
+Сигнал
+.Fa sig
+посылается процессу, идентификатор которого равен
+.Fa pid .
+.It \&If Fa pid No \&is zero :
+Сигнал
+.Fa sig
+посылается всем процессам, идентификатор группы которых равен
+идентификатору группы процессов отправителя и для которых у
+процесса есть разрешение;
+это вариант
+.Xr killpg 2 .
+.It \&If Fa pid No \&is -1 :
+Если пользователь обладает привилегиями суперпользователя,
+сигнал посылается всем процессам, за исключением
+системных процессов
+(с установленным флагом
+.Dv P_SYSTEM ),
+процесса с идентификатором 1
+(обычно
+.Xr init 8 ) ,
+и процесса, посылающего сигнал.
+Если пользователь не является суперпользователем, сигнал посылается всем процессам,
+на которые у вызывающего есть разрешения, за исключением процесса, посылающего сигнал.
+Ошибка не возвращается, если удалось послать сигнал какому-либо процессу.
+.El
+.Pp
+Если номер процесса отрицателен, но не равен -1,
+сигнал посылается всем процессам, идентификатор группы процессов которых
+равен абсолютному значению номера процесса.
+Это вариант
+.Xr killpg 2 .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std kill
+.Sh ОШИБКИ
+Системный вызов
+.Fn kill
+завершится неудачей и никакой сигнал не будет послан, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa sig
+не является допустимым номером сигнала.
+.It Bq Er ESRCH
+Не удаётся найти процесс или группу процессов, соответствующих указанному в
+.Fa pid .
+.It Bq Er EPERM
+Посылающий процесс не имеет разрешения послать
+.Va sig
+какому-либо принимающему процессу.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getpgrp 2 ,
+.Xr getpid 2 ,
+.Xr killpg 2 ,
+.Xr sigaction 2 ,
+.Xr sigqueue 2 ,
+.Xr raise 3 ,
+.Xr init 8
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn kill
+соответствует
+.St -p1003.1-90 .
+.Sh ИСТОРИЯ
+Версия функции
+.Fn kill
+появилась в
+.At v3 .
+Номер сигнала был добавлен к функции
+.Fn kill
+в
+.At v4 .

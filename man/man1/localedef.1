@@ -1,0 +1,276 @@
+.\" Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
+.\" Portions Copyright (c) 2003, Sun Microsystems, Inc.  All Rights Reserved
+.\" Portions Copyright 2013 DEY Storage Systems, Inc.
+.\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
+.\" permission to reproduce portions of its copyrighted documentation.
+.\" Original documentation from The Open Group can be obtained online at
+.\" http://www.opengroup.org/bookstore/.
+.\" The Institute of Electrical and Electronics Engineers and The Open Group,
+.\" have given us permission to reprint portions of their documentation. In
+.\" the following statement, the phrase "this text" refers to portions of the
+.\" system documentation. Portions of this text are reprinted and reproduced
+.\" in electronic form in the Sun OS Reference Manual, from IEEE Std 1003.1,
+.\" 2004 Edition, Standard for Information Technology -- Portable Operating
+.\" System Interface (POSIX), The Open Group Base Specifications Issue 6,
+.\" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics
+.\" Engineers, Inc and The Open Group. In the event of any discrepancy between
+.\" these versions and the original IEEE and The Open Group Standard, the
+.\" original IEEE and The Open Group Standard is the referee document. The
+.\" original Standard can be obtained online at
+.\" http://www.opengroup.org/unix/online.html.
+.\"  This notice shall appear on any product containing this material.
+.\" The contents of this file are subject to the terms of the Common
+.\" Development and Distribution License (the "License").  You may not use
+.\" this file except in compliance with the License.
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE or
+.\" http://www.opensolaris.org/os/licensing.  See the License for the specific
+.\" language governing permissions and limitations under the License.
+.\" When distributing Covered Code, include this CDDL HEADER in each file and
+.\" include the License file at usr/src/OPENSOLARIS.LICENSE.  If applicable,
+.\" add the following below this CDDL HEADER, with the fields enclosed by
+.\" brackets "[]" replaced with your own identifying information:
+.\" Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" FRDP path usr.bin/localedef/localedef.1
+.\" FRDP githash c0367c654a3340c5aa194a3137489f760d556139
+.\" FRDP hash256 26128779c45dec707dda17e8a966b44ffd2603dff53594565a410d76aee5a53c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 29, 2023
+.Dt LOCALEDEF 1
+.Os
+.Sh ИМЯ
+.Nm localedef
+.Nd определение окружения локали
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bcDlUv
+.Op Fl f Ar карта_символов
+.Op Fl i Ar исходный_файл
+.Op Fl u Ar кодировка
+.Op Fl w Ar файл_ширины
+.Ar имя_локали
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+преобразует исходные определения категорий локали
+в формат, пригодный для использования функциями и утилитами, поведение которых
+определяется настройкой переменных окружения локали; см.
+.Xr environ 7 .
+.Pp
+Утилита читает исходные определения для одной или нескольких категорий локали,
+принадлежащих одной и той же локали, из файла, указанного в опции
+.Fl i
+(если он задан), или со стандартного ввода.
+.Pp
+Каждое исходное определение категории идентифицируется соответствующим именем
+переменной окружения и завершается оператором
+.Sy END
+.Em имя_категории .
+Поддерживаются следующие категории:
+.Bl -tag -width indent
+.It Ev LC_CTYPE
+Определяет классификацию символов и преобразование регистра.
+.It Ev LC_COLLATE
+Определяет правила сортировки.
+.It Ev LC_MONETARY
+Определяет формат и символы, используемые при форматировании денежной информации.
+.It Ev LC_NUMERIC
+Определяет десятичный разделитель, группировку и символ группировки для
+редактирования неденежных числовых значений.
+.It Ev LC_TIME
+Определяет формат и содержимое информации о дате и времени.
+.It Ev LC_MESSAGES
+Определяет формат и значения утвердительных и отрицательных ответов.
+.El
+.Pp
+Поддерживаются следующие опции:
+.Bl -tag -width indent
+.It Fl b
+Использовать порядок байтов big-endian для вывода.
+.It Fl c
+Создаёт постоянный вывод, даже если были выданы предупреждающие сообщения.
+.It Fl D
+Вывод в стиле BSD.
+Вместо принятого по умолчанию создания каталога
+.Ar имя_локали
+и файлов, таких как
+.Pa LC_CTYPE ,
+.Pa LC_COLLATE ,
+и т.д.\& в этом каталоге,
+имена выходных файлов имеют формат
+.Dq <имя_локали>.<категория>
+и выгружаются в текущий каталог.
+.It Fl f Ar карта_символов
+Задаёт путь к файлу, содержащему отображение символьных имён и имён элементов
+сортировки в фактические кодировки символов.
+Эту опцию необходимо указать, если используются символьные имена (кроме символов
+сортировки, определённых в ключевом слове
+.Sy collating-symbol ).
+Если опция
+.Fl f
+не указана, будет использоваться отображение символов по умолчанию.
+.It Fl i Ar исходный_файл
+Путь к файлу, содержащему исходные определения.
+Если эта опция не указана, исходные определения будут читаться со
+стандартного ввода.
+.It Fl l
+Использовать порядок байтов little-endian для вывода.
+.It Fl u Ar кодировка
+Задаёт имя кодировки, используемой в качестве целевого отображения символьных
+имён и имён элементов сортировки, значения кодировки которых определены через
+константы позиций стандарта ISO/IEC 10646-1:2000.
+См.
+.Sx ПРИМЕЧАНИЯ .
+.It Fl U
+Игнорировать наличие символьных имён, не имеющих соответствующего определения
+символа.
+Это облегчает использование общего файла определения локали для нескольких
+кодировок, даже когда некоторые символы отсутствуют в данной кодировке.
+.It Fl v
+Выводить подробную отладочную информацию в стандартный вывод.
+.It Fl w Ar файл_ширины
+Путь к файлу, содержащему определения экранной ширины символов.
+Если не указан, будут использоваться экранные ширины по умолчанию, которые,
+как правило, не учитывают восточноазиатские кодировки, требующие для отображения
+более одной знакоместа, а также комбинируемые или диакритические знаки, не
+занимающие дополнительной экранной ширины.
+.It Fl V Ar версия
+Задаёт строку версии, описывающую версию определения локали.
+Эту строку можно получить с помощью
+.Xr querylocale 3 ,
+и она предназначена для того, чтобы приложения могли обнаруживать изменения
+определения локали.
+В настоящее время она сохраняется только для категории
+.Sy LC_COLLATE .
+.El
+.Pp
+Требуются следующие операнды:
+.Bl -tag -width indent
+.It Ar имя_локали
+Идентифицирует локаль.
+Если имя содержит один или несколько символов косой черты,
+.Ar имя_локали
+будет интерпретироваться как путь, по которому будут сохранены созданные
+определения локали.
+Эта возможность может быть ограничена для пользователей с соответствующими
+привилегиями.
+(Как следствие указания одного
+.Ar имя_локали ,
+хотя за один запуск можно обработать несколько категорий, можно обработать только
+категории, принадлежащие одной и той же локали.)
+.El
+.Sh ВЫВОД
+.Nm
+создаёт каталог файлов, представляющий данные локали,
+если не указано иное с помощью опции
+.Fl D
+(вывод BSD).
+Содержимое этого каталога обычно следует копировать в
+соответствующий подкаталог
+.Pa /usr/share/locale ,
+чтобы определения были видны программам, скомпонованным с libc.
+.Sh ОКРУЖЕНИЕ
+См.
+.Xr environ 7
+для описания следующих переменных окружения, влияющих на выполнение
+.Nm :
+.Ev LANG ,
+.Ev LC_ALL ,
+.Ev LC_COLLATE ,
+.Ev LC_CTYPE ,
+.Ev LC_MESSAGES ,
+.Ev LC_MONETARY ,
+.Ev LC_MUMERIC ,
+.Ev LC_TIME ,
+и
+.Ev NLSPATH .
+.Sh СТАТУС ВЫХОДА
+Возвращаются следующие значения выхода:
+.Bl -tag -width XX
+.It 0
+Ошибок не возникло, и локали были успешно созданы.
+.It 1
+Возникли предупреждения, и локали были успешно созданы.
+.It 2
+Спецификация локали превысила ограничения реализации, или используемый набор
+или наборы кодированных символов не поддерживаются реализацией, и локаль не была
+создана.
+.It >3
+Возникли предупреждения или ошибки, и вывод не был создан.
+.El
+.Pp
+Если обнаружена ошибка, постоянный вывод создан не будет.
+.Sh СМ. ТАКЖЕ
+.Xr locale 1 ,
+.Xr iconv_open 3 ,
+.Xr nl_langinfo 3 ,
+.Xr querylocale 3 ,
+.Xr strftime 3 ,
+.Xr environ 7
+.Sh ПРЕДУПРЕЖДЕНИЯ
+Если возникают предупреждения, постоянный вывод будет создан, если была указана
+опция
+.Fl c .
+Следующие условия вызывают выдачу предупреждающих сообщений:
+.Bl -bullet
+.It
+Если в описаниях категорий
+.Sy LC_CTYPE
+или
+.Sy LC_COLLATE
+используется символьное имя, не найденное в файле
+.Pa charmap
+(для других категорий это будет условием ошибки).
+.It
+Если в исходном тексте присутствуют необязательные ключевые слова, не
+поддерживаемые реализацией.
+.El
+.Sh ПРИМЕЧАНИЯ
+Когда используется опция
+.Fl u ,
+аргумент опции
+.Ar кодировка
+интерпретируется как имя кодировки, в которую преобразуются константы позиций
+стандарта ISO/IEC 10646-1:2000.
+Как константы позиций стандарта ISO/IEC 10646-1:2000, так и другие форматы
+(десятичный, шестнадцатеричный или восьмеричный) допустимы в качестве значений
+кодировки в файле карты символов.
+.Ar кодировка
+может быть любой кодировкой, поддерживаемой функцией
+.Fn iconv_open 3 .
+.Pp
+Когда возникают конфликты между спецификацией карты символов для
+.Ar кодировка ,
+.Em mb_cur_max ,
+или
+.Em mb_cur_min
+и соответствующим значением для кодировки, представленной аргументом опции
+.Fl u
+.Ar кодировка ,
+утилита
+.Nm
+завершается с ошибкой.
+.Pp
+Когда возникают конфликты между значениями кодировки карты символов, заданными
+для символьных имён символов переносимого набора символов, и значениями
+кодировки символов, определёнными US-ASCII, результат не определён.
+.Sh ИСТОРИЯ
+.Nm
+впервые появилась в
+.Fx 11 .
+.Pp
+Она была написана
+.An Garrett D'Amore
+.Aq Mt garrett@nexenta.com
+для illumos.
+.An John Marino
+.Aq Mt draco@marino.st
+предоставил изменения, необходимые для чистой компиляции в
+.Dx .
+.An Baptiste Daroussin
+.Aq Mt bapt@FreeBSD.org
+портировал её в
+.Fx
+и преобразовал для использования
+.Xr tree 3 .
