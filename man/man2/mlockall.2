@@ -1,0 +1,149 @@
+.\"	$NetBSD: mlockall.2,v 1.11 2003/04/16 13:34:54 wiz Exp $
+.\"
+.\" Copyright (c) 1999 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Jason R. Thorpe of the Numerical Aerospace Simulation Facility,
+.\" NASA Ames Research Center.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mlockall.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 0c682d1f6a7d7c94f9e2b80f93ac808230d90bde5728a37865cdc19a9d817324
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 13, 2019
+.Dt MLOCKALL 2
+.Os
+.Sh ИМЯ
+.Nm mlockall ,
+.Nm munlockall
+.Nd блокировка (разблокировка) адресного пространства процесса
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn mlockall "int flags"
+.Ft int
+.Fn munlockall "void"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mlockall
+блокирует в памяти физические страницы, связанные с
+адресным пространством процесса, до тех пор, пока адресное пространство не будет разблокировано,
+процесс не завершится или не выполнит exec другого образа программы.
+.Pp
+Следующие флаги влияют на поведение
+.Fn mlockall :
+.Bl -tag -width ".Dv MCL_CURRENT"
+.It Dv MCL_CURRENT
+Заблокировать все страницы, отображённые в адресное пространство процесса в данный момент.
+.It Dv MCL_FUTURE
+Заблокировать все страницы, которые будут отображены в адресное пространство процесса в будущем,
+в момент установления отображения.
+Обратите внимание, что это может привести к сбою будущих отображений, если эти отображения
+приведут к превышению ограничений ресурсов.
+.El
+.Pp
+Поскольку физическая память является потенциально дефицитным ресурсом, процессы
+ограничены в том, сколько они могут заблокировать.
+Один процесс может заблокировать минимум из общесистемного
+предела
+.Dq wired pages
+.Va vm.max_user_wired
+и ресурсного ограничения
+.Dv RLIMIT_MEMLOCK
+для процесса.
+.Pp
+Если
+.Va security.bsd.unprivileged_mlock
+установлено в 0, эти вызовы доступны только суперпользователю.
+Если
+.Va vm.old_mlock
+установлено в 1, ресурсное ограничение
+.Dv RLIMIT_MEMLOCK
+для процесса не будет применяться к
+вызовам
+.Fn mlockall .
+.Pp
+Вызов
+.Fn munlockall
+разблокирует любые заблокированные области памяти в адресном пространстве процесса.
+Любые области, отображённые после вызова
+.Fn munlockall
+не будут заблокированы.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Возвращаемое значение 0 означает, что вызов
+успешно выполнен и все страницы в диапазоне были либо заблокированы, либо разблокированы.
+Возвращаемое значение \-1 означает, что произошла ошибка и состояние блокировки
+всех страниц в диапазоне остаётся неизменным.
+В этом случае глобальная переменная
+.Va errno
+устанавливается для указания ошибки.
+.Sh ОШИБКИ
+.Fn mlockall
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa flags
+равен нулю или включает нереализованные флаги.
+.It Bq Er ENOMEM
+Блокировка указанного диапазона превысит либо системное, либо процессное
+ограничение заблокированной памяти.
+.It Bq Er EAGAIN
+Некоторая часть или вся память, отображённая в адресное пространство процесса,
+не может быть заблокирована в момент вызова.
+.It Bq Er EPERM
+Вызывающий процесс не имеет соответствующих привилегий для выполнения
+запрошенной операции.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mincore 2 ,
+.Xr mlock 2 ,
+.Xr mmap 2 ,
+.Xr munmap 2 ,
+.Xr setrlimit 2
+.Sh СТАНДАРТЫ
+Считается, что функции
+.Fn mlockall
+и
+.Fn munlockall
+соответствуют
+.St -p1003.1-2001 .
+.Sh ИСТОРИЯ
+Функции
+.Fn mlockall
+и
+.Fn munlockall
+впервые появились в
+.Fx 5.1 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Ограничения ресурсов заблокированной памяти для процесса и общесистемные применяются
+к объёму заблокированной виртуальной памяти, а не к количеству заблокированных физических
+страниц.
+Следовательно, два различных заблокированных отображения одной и той же физической страницы учитываются как
+2 страницы против системного ограничения, а также против процессного ограничения,
+если оба отображения принадлежат одной и той же физической карте.

@@ -1,0 +1,197 @@
+.\"
+.\" Copyright (C) 2002 Chad David <davidc@FreeBSD.org>. All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.\" DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+.\" (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.\" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+.\" DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kenv.2
+.\" FRDP githash 4fd518fcb2bbee4c8c41215d6993b923ef57a0e5
+.\" FRDP hash256 254fb2bf44ad3660054dba19513ba12900342be4fd9a17e672369521d41585b3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 22, 2026
+.Dt KENV 2
+.Os
+.Sh NAME
+.Nm kenv
+.Nd окружение ядра
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In kenv.h
+.Ft int
+.Fn kenv "int action" "const char *name" "char *value" "int len"
+.Sh DESCRIPTION
+Системный вызов
+.Fn kenv
+управляет переменными окружения ядра.
+Он поддерживает хорошо известные действия пользовательского пространства по
+получению, установке и снятию
+переменных окружения, а также возможность выгрузки всех записей из
+окружения ядра.
+.Pp
+Аргумент
+.Fa action
+может быть одним из следующих:
+.Bl -tag -width ".Dv KENV_DUMP_LOADER"
+.It Dv KENV_GET
+Получить
+.Fa value
+переменной с заданным
+.Fa name .
+Размер буфера
+.Fa value
+задаётся
+.Fa len ,
+который должен быть не меньше
+.Dv KENV_MVALLEN
++ 1 байт, чтобы избежать усечения и обеспечить завершение NUL.
+.It Dv KENV_SET
+Установить или добавить переменную.
+.Fa name
+и
+.Fa value
+ограничены
+.Dv KENV_MNAMELEN
+и
+.Dv KENV_MVALLEN
+символами соответственно
+.Pq не включая завершающий NUL .
+Аргумент
+.Fa len
+указывает длину
+.Fa value
+и должен включать завершающий NUL.
+Этот параметр доступен только суперпользователю.
+.It Dv KENV_UNSET
+Снять переменную с заданным
+.Fa name .
+Аргументы
+.Fa value
+и
+.Fa len
+игнорируются.
+Этот параметр доступен только суперпользователю.
+.It Dv KENV_DUMP
+Выгрузить столько динамического окружения ядра, сколько поместится в
+.Fa value ,
+размер которого задан в
+.Fa len .
+Если
+.Fa value
+равен
+.Dv NULL ,
+.Fn kenv
+вернёт количество байт, необходимое для копирования всего окружения.
+.Fa name
+игнорируется.
+.It Dv KENV_DUMP_LOADER
+Выгрузить статическое окружение, предоставленное
+.Xr loader 8 ,
+с семантикой, идентичной
+.Dv KENV_DUMP .
+Дублирующиеся и некорректные переменные, изначально присутствующие в этом
+окружении, отбрасываются ядром и не появятся в выводе.
+.It Dv KENV_DUMP_STATIC
+Выгрузить статическое окружение, определённое конфигурацией ядра
+.Xr config 5 .
+Семантика идентична
+.Dv KENV_DUMP_LOADER .
+.El
+.Sh RETURN VALUES
+Системный вызов
+.Fn kenv
+возвращает 0 в случае успеха для
+.Dv KENV_SET
+и
+.Dv KENV_UNSET ,
+и количество байт, скопированных в
+.Fa value
+в случае
+.Dv KENV_DUMP
+и
+.Dv KENV_GET .
+При возникновении ошибки возвращается значение \-1 и
+глобальная переменная
+.Va errno
+устанавливается для указания ошибки.
+.Sh ERRORS
+Системный вызов
+.Fn kenv
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa action
+не является допустимым параметром, или длина
+.Fa value
+меньше 1 для
+.Dv KENV_SET .
+.It Bq Er ENOENT
+Не найдено значение для
+.Fa name
+для
+.Dv KENV_GET
+или
+.Dv KENV_UNSET .
+.It Bq Er ENOENT
+Запрошенное окружение недоступно для
+.Dv KENV_DUMP_LOADER
+или
+.Dv KENV_DUMP_STATIC .
+По умолчанию ядро сконфигурировано на уничтожение этих окружений.
+.It Bq Er EPERM
+Пользователь, отличный от суперпользователя, попытался установить или снять
+переменную окружения ядра.
+.It Bq Er EPERM
+Пользователь, отличный от суперпользователя, попытался получить переменную из
+окружения ядра или выгрузить его, а sysctl
+.Va security.bsd.unprivileged_kenv_read
+установлен в 0.
+.It Bq Er EFAULT
+Встречен неверный адрес при попытке копирования аргументов пользователя
+или копирования значения (значений) наружу.
+.It Bq Er ENAMETOOLONG
+.Fa name
+или
+.Fa value
+длиннее
+.Dv KENV_MNAMELEN
+или
+.Dv KENV_MVALLEN
+символов соответственно, или
+.Fa len
+не включал завершающий NUL для
+.Dv KENV_SET .
+.El
+.Sh SEE ALSO
+.Xr kenv 1
+.Sh AUTHORS
+.An -nosplit
+Эта страница руководства была написана
+.An Chad David Aq Mt davidc@FreeBSD.org .
+.Pp
+Системный вызов
+.Fn kenv
+был написан
+.An Maxime Henrion Aq Mt mux@FreeBSD.org .

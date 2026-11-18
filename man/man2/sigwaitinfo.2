@@ -1,0 +1,220 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sigwaitinfo.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 da5ab079e1c96c00f477c9279e0dd97fb7ccfa286c3d723336ad33453babbb08
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 21, 2022
+.Dt SIGTIMEDWAIT 2
+.Os
+.Sh ИМЯ
+.Nm sigtimedwait , sigwaitinfo
+.Nd "ожидание поставленных в очередь сигналов (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In signal.h
+.Ft int
+.Fo sigtimedwait
+.Fa "const sigset_t *restrict set" "siginfo_t *restrict info"
+.Fa "const struct timespec *restrict timeout"
+.Fc
+.Ft int
+.Fn sigwaitinfo "const sigset_t * restrict set" "siginfo_t * restrict info"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sigtimedwait
+эквивалентен
+.Fn sigwaitinfo
+за исключением того, что если ни один из сигналов, указанных в
+.Fa set ,
+не находится в ожидании,
+.Fn sigtimedwait
+ожидает в течение интервала времени, указанного в структуре
+.Vt timespec ,
+на которую ссылается
+.Fa timeout .
+Если структура
+.Vt timespec ,
+на которую указывает
+.Fa timeout ,
+имеет нулевое значение и ни один из сигналов, указанных в
+.Fa set ,
+не находится в ожидании, то
+.Fn sigtimedwait
+немедленно возвращается с ошибкой.
+Если
+.Fa timeout
+является
+.Dv NULL
+указателем,
+.Fn sigtimedwait
+блокируется на неопределённое время.
+Для измерения интервала времени, указанного в аргументе
+.Fa timeout ,
+используются часы
+.Dv CLOCK_MONOTONIC .
+.Pp
+Системный вызов
+.Fn sigwaitinfo
+выбирает сигнал, находящийся в ожидании, из набора, указанного в
+.Fa set .
+Если должно быть выбран один из нескольких сигналов в диапазоне
+.Dv SIGRTMIN
+до
+.Dv SIGRTMAX
+, находящихся в ожидании, то им должен быть сигнал с наименьшим номером.
+Порядок выбора между сигналами реального времени и сигналами, не
+являющимися сигналами реального времени, или между несколькими сигналами,
+не являющимися сигналами реального времени и находящимися в ожидании,
+не определён.
+Если на момент вызова ни один из сигналов из
+.Fa set
+не находится в ожидании, вызывающий поток приостанавливается до тех пор,
+пока один или несколько сигналов из
+.Fa set
+не перейдут в состояние ожидания или пока он не будет прерван
+незаблокированным перехваченным сигналом.
+.Pp
+Системный вызов
+.Fn sigwaitinfo
+эквивалентен системному вызову
+.Fn sigwait ,
+если аргумент
+.Fa info
+равен
+.Dv NULL .
+Если аргумент
+.Fa info
+не равен
+.Dv NULL ,
+функция
+.Fn sigwaitinfo
+эквивалентна
+.Fn sigwait ,
+за исключением того, что выбранный номер сигнала сохраняется в элементе
+.Va si_signo ,
+а причина сигнала сохраняется в элементе
+.Va si_code .
+Кроме того, системные вызовы
+.Fn sigwaitinfo
+и
+.Fn sigtimedwait
+могут возвращать
+.Er EINTR
+при прерывании сигналом, что недопустимо для функции
+.Fn sigwait .
+.Pp
+Если к выбранному сигналу поставлено в очередь какое-либо значение,
+первое такое поставленное в очередь значение извлекается из очереди и,
+если аргумент info не равен
+.Dv NULL ,
+значение сохраняется в элементе
+.Va si_value
+аргумента
+.Fa info .
+Системный ресурс, использованный для постановки сигнала в очередь,
+освобождается и возвращается системе для другого использования.
+Если никакое значение не поставлено в очередь,
+содержимое элемента
+.Va si_value
+имеет нулевое значение.
+Если для выбранного сигнала больше не поставлено в очередь
+никаких сигналов, индикация ожидания для этого сигнала
+сбрасывается.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении (то есть когда один из сигналов, указанных в
+.Fa set ,
+находится в ожидании или сгенерирован)
+.Fn sigwaitinfo
+и
+.Fn sigtimedwait
+возвращают номер выбранного сигнала.
+В противном случае функции возвращают значение \-1
+и устанавливают глобальную переменную
+.Va errno
+для индикации ошибки.
+.Sh ОШИБКИ
+Системный вызов
+.Fn sigtimedwait
+завершается с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Ни один сигнал, указанный в set, не был сгенерирован в течение указанного
+периода ожидания.
+.El
+.Pp
+Системные вызовы
+.Fn sigtimedwait
+и
+.Fn sigwaitinfo
+завершаются с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINTR
+Ожидание было прервано незаблокированным перехваченным сигналом.
+.El
+.Pp
+Системный вызов
+.Fn sigtimedwait
+также может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa timeout
+задаёт значение
+.Va tv_nsec
+меньше нуля или больше либо равное
+1000 миллионам.
+Ядро проверяет эту ошибку только в том случае, если ни один сигнал
+в наборе не находится в ожидании и необходимо ожидание.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr sigaction 2 ,
+.Xr sigpending 2 ,
+.Xr sigqueue 2 ,
+.Xr sigsuspend 2 ,
+.Xr sigwait 2 ,
+.Xr pause 3 ,
+.Xr pthread_sigmask 3 ,
+.Xr siginfo 3
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn sigtimedwait
+и
+.Fn sigwaitinfo
+соответствуют
+.St -p1003.1-96 .
+POSIX
+оставляет поведение
+.Fn sigtimedwait
+с
+.Dv NULL
+указателем
+.Fa timeout
+неопределённым.

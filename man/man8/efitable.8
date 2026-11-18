@@ -1,0 +1,76 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2021 3mdeb Embedded Systems Consulting <contact@3mdeb.com>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/efitable/efitable.8
+.\" FRDP githash 453cfe97276d2b2e6ffc4c851ae39b5927bd2385
+.\" FRDP hash256 7a85724dec3a8d7e0c4cb768435cd8d5ca04704cb85a678092ea20982163e5b5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt EFITABLE 8
+.Os
+.Sh ИМЯ
+.Nm efitable
+.Nd вывод таблиц UEFI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl g Ar guid | Fl t Ar имя
+.Op Fl -libxo
+.Sh ОПИСАНИЕ
+Эта программа выводит данные из таблиц
+.Dq Unified Extensible Firmware Interface
+.Pq UEFI
+\&.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl -libxo
+Генерировать вывод с помощью
+.Xr libxo 3
+в нескольких различных форматах, читаемых человеком и машиной.
+См.
+.Xr xo_options 7
+для получения подробностей об аргументах командной строки.
+.It Fl g Ar guid | Fl -guid Ar guid
+Указать GUID таблицы для вывода.
+.It Fl t Ar имя | Fl -table Ar имя
+Указать имя таблицы для вывода.
+В настоящее время поддерживаются следующие таблицы:
+.Pp
+.Bl -tag -width indent -compact
+.It Cm esrt
+Таблица системных ресурсов EFI
+.It Cm memory
+Таблица атрибутов памяти EFI
+.It Cm prop
+Таблица свойств EFI
+.El
+.El
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 14.0 .

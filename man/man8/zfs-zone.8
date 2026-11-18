@@ -1,0 +1,121 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2011, Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" Copyright (c) 2012, Glen Barber <gjb@FreeBSD.org>
+.\" Copyright (c) 2012, Bryan Drewery <bdrewery@FreeBSD.org>
+.\" Copyright (c) 2013, Steven Hartland <smh@FreeBSD.org>
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright (c) 2014, Xin LI <delphij@FreeBSD.org>
+.\" Copyright (c) 2014-2015, The FreeBSD Foundation, All Rights Reserved.
+.\" Copyright (c) 2016 Nexenta Systems, Inc. All Rights Reserved.
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\" Copyright 2021 Klara, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-zone.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 dc5a03227c07a50466c34cfccbf756d70382089a0d83888b1170b21935d5eab0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 11, 2022
+.Dt ZFS-ZONE 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-zone ,
+.Nm zfs-unzone
+.Nd подключать файловые системы ZFS к пространствам имён пользователя и отключать их от этих пространств
+.Sh СИНТАКСИС
+.Nm zfs Cm zone
+.Ar nsfile
+.Ar filesystem
+.Nm zfs Cm unzone
+.Ar nsfile
+.Ar filesystem
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm zone
+.Ar nsfile
+.Ar filesystem
+.Xc
+Подключить указанную
+.Ar filesystem
+к пространству имён пользователя, определяемому
+.Ar nsfile .
+С этого момента этим деревом файловой системы можно управлять из пространства имён пользователя, если свойство
+.Sy zoned
+установлено.
+.Pp
+Нельзя подключить дочерние наборы данных зонированного набора данных к другому пространству имён пользователя.
+Вы также не можете подключить корневую файловую систему
+пространства имён пользователя или любой набор данных,
+который должен быть смонтирован до запуска службы zfs
+внутри пространства имён пользователя,
+поскольку он был бы подключён без монтирования, пока не будет
+смонтирован из службы внутри пространства имён пользователя.
+.Pp
+Чтобы разрешить управление набором данных из пространства имён пользователя, необходимо
+установить свойство
+.Sy zoned
+, а пространства имён пользователя должны иметь доступ к
+устройству
+.Pa /dev/zfs .
+Свойство
+.Sy quota
+нельзя изменить из пространства имён пользователя.
+.Pp
+После подключения набора данных к пространству имён пользователя и установки свойства
+.Sy zoned
+зонированную файловую систему нельзя смонтировать вне пространства имён пользователя,
+поскольку администратор пространства имён пользователя мог задать для точки монтирования
+неприемлемое значение.
+.It Xo
+.Nm zfs
+.Cm unzone
+.Ar nsfile
+.Ar filesystem
+.Xc
+Отключить указанную
+.Ar filesystem
+от пространства имён пользователя, определяемого
+.Ar nsfile .
+.El
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : Делегирование набора данных пространству имён пользователя
+В следующем примере набор данных
+.Ar tank/users
+делегируется пространству имён пользователя, определяемому файлом пространства имён
+.Pa /proc/1234/ns/user .
+.Dl # Nm zfs Cm zone Ar /proc/1234/ns/user Ar tank/users
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfsprops 7

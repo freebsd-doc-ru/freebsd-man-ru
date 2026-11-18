@@ -1,0 +1,362 @@
+.\" Copyright (c) 2012 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/menusets.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 b2d586d64db6097b32e5ae4209dfcdd96612674c4d28e6e44f309c6b433c164f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 5, 2012
+.Dt MENUSETS.4TH 8
+.Os
+.Sh ИМЯ
+.Nm menusets.4th
+.Nd Динамический загрузочный модуль подменю FreeBSD
+.Sh ОПИСАНИЕ
+Файл с именем
+.Nm
+представляет собой набор команд, предназначенных для добавления функциональности подменю в систему динамического меню,
+предоставляемую
+.Xr menu.4th 8 .
+Подменю управляются с помощью системы тщательно именованных переменных окружения.
+Самих по себе команд
+.Nm
+недостаточно для большинства применений.
+Обратитесь к примерам ниже для наиболее распространённых ситуаций и к
+.Xr menu.4th 8
+за дополнительными командами.
+.Pp
+Перед использованием любой из команд, предоставляемых в
+.Nm ,
+необходимо включить его с помощью команды:
+.Pp
+.Dl include menusets.4th
+.Pp
+Эта строка присутствует в файле
+.Pa /boot/menu-commands.4th
+по умолчанию, поэтому в обычной конфигурации она не нужна (и не должна повторно добавляться).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width menuset-loadinitial -compact -offset indent
+.It Ic menuset-loadsetnum
+Принимает одно целое число из стека, чтобы определить переменные окружения набора меню,
+которые должны быть активированы (см. переменные окружения ниже).
+.It Ic menuset-loadinitial
+Если $menuset_initial задана, передаёт значение в menuset-loadsetnum.
+Значение должно быть числом.
+.It Ic menusets-unset
+Сбрасывает переменные окружения, связанные со всеми наборами меню.
+Начинает с 1 и останавливается на первом ненастроенном наборе меню.
+Набор меню считается настроенным, если задана подпись для пункта 1.
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootfile -offset indent
+.It Va menuset_initial
+Число, передаваемое в menuset-loadsetnum при вызове menuset-loadinitial.
+.It Va menuset_nameN
+Используется, чтобы задать имя набору меню.
+.El
+.Pp
+Если набору меню НЕ задано имя (по умолчанию),
+набор меню N состоит из следующих переменных окружения:
+.Pp
+.Bl -tag -width menusetN_caption[x][y] -compact -offset indent
+.It Va ansisetN_caption[x]
+-> ansi_caption[x]
+.It Va ansisetN_caption[x][y]
+-> ansi_caption[x][y]
+.It Va menusetN_acpi
+-> menu_acpi
+.It Va menusetN_caption[x]
+-> menu_caption[x]
+.It Va menusetN_caption[x][y]
+-> menu_caption[x][y]
+.It Va menusetN_command[x]
+-> menu_command[x]
+.It Va menusetN_init
+->
+.Dq Li вычисляется
+.It Va menusetN_init[x]
+-> menu_init[x]
+.It Va menusetN_keycode[x]
+-> menu_keycode[x]
+.It Va menusetN_options
+-> menu_options
+.It Va menusetN_optionstext
+-> menu_optionstext
+.It Va menusetN_reboot
+-> menu_reboot
+.It Va toggledsetN_ansi[x]
+-> toggled_ansi[x]
+.It Va toggledsetN_text[x]
+-> toggled_text[x]
+.El
+.Pp
+Если вы решите задать набору меню имя (установив $menuset_nameN),
+набор меню N вместо этого состоит из следующих переменных окружения:
+.Pp
+.Bl -tag -width NAMEmenu_caption[x][y] -compact -offset indent
+.It Va NAMEansi_caption[x]
+-> ansi_caption[x]
+.It Va NAMEansi_caption[x][y]
+-> ansi_caption[x][y]
+.It Va NAMEmenu_acpi
+-> menu_acpi
+.It Va NAMEmenu_caption[x]
+-> menu_caption[x]
+.It Va NAMEmenu_caption[x][y]
+-> menu_caption[x][y]
+.It Va NAMEmenu_command[x]
+-> menu_command[x]
+.It Va NAMEmenu_init
+->
+.Dq Li вычисляется
+.It Va NAMEmenu_init[x]
+-> menu_init[x]
+.It Va NAMEmenu_keycode[x]
+-> menu_keycode[x]
+.It Va NAMEmenu_options
+-> menu_options
+.It Va NAMEmenu_optionstext
+-> menu_optionstext
+.It Va NAMEmenu_reboot
+-> menu_reboot
+.It Va NAMEtoggled_ansi[x]
+-> toggled_ansi[x]
+.It Va NAMEtoggled_text[x]
+-> toggled_text[x]
+.El
+.Pp
+где
+.Dq Li NAME
+— значение $menuset_nameN.
+В случае $NAMEmenu_init ($menusetN_init, когда $menuset_nameN не задана),
+значение вычисляется как оператор FICL.
+Это можно использовать для динамической настройки переменных набора меню непосредственно перед
+активацией меню.
+.Pp
+Кроме того,
+.Nm
+предоставляет следующие слова FICL:
+.Pp
+.Bl -tag -width menuset -compact -offset indent
+.It Ic menuset-checksetnum ( N -- )
+Принимает одно целое число из стека и устанавливает глобальную переменную
+.Va menuset_use_name
+в булево значение в зависимости от того, задана ли $menuset_nameN (истина) или нет (ложь).
+Также устанавливает временную переменную $affix (префикс или инфикс в зависимости от
+menuset_use_name).
+Автоматически вызывается из menuset-loadsetnum и menusets-unset.
+.It Ic menuset-loadvar ( -- )
+Используется косвенно для сокращения синтаксиса и уменьшения размера словаря.
+Требует следующие временные переменные окружения:
+.Pp
+.Bl -tag -width affix -compact -offset indent
+.It Va type
+должна быть установлена в одно из значений: menu toggled ansi
+.It Va var
+должна быть установлена в одно из значений: caption command keycode text ...
+.It Va affix
+либо префикс (menuset_use_name равно истине), либо инфикс (menuset_use_name равно лжи)
+.El
+.Pp
+Если глобальная
+.Va menuset_use_name
+истинна, переменная ${type}_${var} приравнивается к
+значению переменной ${affix}${type}_${var}
+(примечание: в этом случае menuset-checksetnum установила $affix в $menuset_nameN).
+В противном случае (когда
+.Va menuset_use_name
+ложна), переменная ${type}_${var} приравнивается к
+значению переменной ${type}set${affix}_${var}
+(примечание: в этом случае menuset-checksetnum установила $affix в N).
+.Pp
+Как глобальная переменная
+.Va menuset_use_name
+, так и переменная окружения $affix автоматически обрабатываются
+описанной выше menuset-checksetnum (которая автоматически вызывается из
+menuset-loadsetnum).
+.It Ic menuset-unloadvar ( -- )
+Используется косвенно для сокращения синтаксиса и уменьшения размера словаря.
+Аналогична menuset-loadvar, но снимает значение переменной набора меню.
+Если глобальная
+.Va menuset_use_name
+истинна ($affix равно $menuset_nameN),
+переменная ${affix}${type}_${var} сбрасывается.
+В противном случае $affix равно N и переменная ${type}set${affix}_${var} сбрасывается.
+.It Ic menuset-loadmenuvar ( -- )
+Устанавливает $type в
+.Dq menu
+и вызывает menuset-loadvar.
+.It Ic menuset-unloadmenuvar ( -- )
+Устанавливает $type в
+.Dq menu
+и вызывает menuset-unloadvar.
+.It Ic menuset-loadxvar ( -- )
+Аналогична menuset-loadvar, но принимает дополнительную временную переменную $x.
+Если глобальная
+.Va menuset_use_name
+истинна (в результате чего $affix равна $menuset_nameN),
+присваивает переменной ${type}_${var}[${x}] значение переменной ${affix}${type}_${var}[${x}].
+В противном случае (когда $affix равно N) устанавливает ту же переменную вместо этого в
+${type}set{affix}_${var}[${x}].
+.It Ic menuset-unloadxvar ( -- )
+Аналогична menuset-loadxvar, но снимает значение переменной набора меню.
+Если глобальная
+.Va menuset_use_name
+истинна, сбрасывает ${affix}${type}_${var}[${x}].
+В противном случае сбрасывает ${type}set${affix}_${var}[${x}].
+.It Ic menuset-loadansixvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-loadxvar.
+.It Ic menuset-unloadansixvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-unloadxvar.
+.It Ic menuset-loadmenuxvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-loadxvar.
+.It Ic menuset-unloadmenuxvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-unloadxvar.
+.It Ic menuset-loadtoggledxvar ( -- )
+Устанавливает $type в
+.Dq toggled
+и вызывает menuset-loadxvar.
+.It Ic menuset-unloadtoggledxvar ( -- )
+Устанавливает $type в
+.Dq toggled
+и вызывает menuset-unloadxvar.
+.It Ic menuset-loadxyvar ( -- )
+Аналогична menuset-loadxvar, но принимает дополнительную временную переменную $y.
+Если глобальная
+.Va menuset_use_name
+истинна ($affix равно $menuset_nameN),
+присваивает переменной ${type}_${var}[${x}][${y}] значение ${affix}${type}_${var}[${x}][${y}].
+В противном случае ($affix равно N) устанавливает ту же переменную вместо этого в
+${type}set${affix}_${var}[${x}][${y}].
+.It Ic menuset-unloadxyvar ( -- )
+Аналогична menuset-loadxyvar, но снимает значение переменной набора меню.
+Если глобальная
+.Va menuset_use_name
+истинна, сбрасывает ${affix}${type}_${var}[${x}][${y}].
+В противном случае сбрасывает ${type}set${affix}_${var}[${x}][${y}].
+.It Ic menuset-loadansixyvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-loadxyvar.
+.It Ic menuset-unloadansixyvar ( -- )
+Устанавливает $type в
+.Dq ansi
+и вызывает menuset-unloadxyvar.
+.It Ic menuset-loadmenuxyvar ( -- )
+Устанавливает $type в
+.Dq menu
+и вызывает menuset-loadxyvar.
+.It Ic menuset-unloadmenuxyvar ( -- )
+Устанавливает $type в
+.Dq menu
+и вызывает menuset-unloadxyvar.
+.It Ic menuset-setnum-namevar ( N -- C-Addr/U )
+Принимает одно целое число из стека и заменяет его строкой (в формате c-addr/u),
+значением которой является
+.Dq menuset_nameN .
+Например, если передано 1, возвращает
+.Dq menuset_name1 .
+.It Ic menuset-cleanup ( N -- )
+Сбрасывает все различные временные переменные, а именно
+.Va type ,
+.Va var ,
+.Va x ,
+.Va y ,
+и
+.Va affix .
+.El
+.Pp
+Для всех значений
+.Dq Li x
+выше используйте любое число от 1 до 9. Извините, двузначные числа в настоящее время
+не поддерживаются.
+Для всех значений
+.Dq Li N
+выше используйте любое число от 1 до 65535.
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/menu-commands.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/menu.4th
+Модуль динамического меню.
+.It Pa /boot/menu-commands.4th
+Содержит команду goto_menu.
+.It Pa /boot/menusets.4th
+.Nm
+сам.
+.It Pa /boot/loader.rc
+.Xr loader 8
+скрипт начальной загрузки.
+.El
+.Sh ПРИМЕРЫ
+Простое загрузочное меню с подменю:
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/menu.4th
+include /boot/menu-commands.4th
+menu-init
+set menuset_initial=2
+menuset-loadinitial
+menu-display
+.Ed
+.Pp
+То же загрузочное меню с именованными наборами меню:
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/menu.4th
+include /boot/menu-commands.4th
+menu-init
+set menuset_name1=main
+set menuset_name2=sub
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr beastie.4th 8 ,
+.Xr loader 8 ,
+.Xr loader.4th 8 ,
+.Xr menu.4th 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 10.0 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

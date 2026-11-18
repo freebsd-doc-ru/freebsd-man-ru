@@ -1,0 +1,74 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" https://opensource.org/license/CDDL-1.0.
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-rollback.8
+.\" FRDP githash 22649d4dba730d46244fd2dff4fd174903c8379f
+.\" FRDP hash256 fd5c8767d89ffc39d49fe4f63dbc7485ef14c2f71a58214eaaf04cfcde4dc9a1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 28, 2025
+.Dt ZFS-ROLLBACK 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-rollback
+.Nd откатывает набор данных ZFS к снимку
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm rollback
+.Op Fl Rfr
+.Ar снимок
+.
+.Sh ОПИСАНИЕ
+Когда набор данных откатывается, все данные, изменённые после снимка, отбрасываются, а набор данных возвращается к состоянию на момент создания снимка.
+По умолчанию команда отказывается выполнять откат к снимку, отличному от самого последнего.
+Чтобы сделать это, необходимо уничтожить все промежуточные снимки и закладки, указав параметр
+.Fl r
+.
+.Pp
+Параметры
+.Fl rR
+не уничтожают рекурсивно дочерние снимки рекурсивного снимка.
+Только непосредственные снимки указанной файловой системы уничтожаются любым из этих параметров.
+Чтобы полностью откатить рекурсивный снимок, необходимо откатить отдельные дочерние снимки.
+.Bl -tag -width Ds
+.It Fl R
+Уничтожает любые более новые снимки и закладки, а также любые клоны этих снимков.
+.It Fl f
+Используется вместе с параметром
+.Fl R
+для принудительного размонтирования любых клонированных файловых систем, которые должны быть уничтожены.
+.It Fl r
+Уничтожает любые снимки и закладки, более новые, чем указанный.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1: Откат файловой системы ZFS
+Следующая команда возвращает содержимое
+.Ar pool/home/anne
+к снимку с именем
+.Ar yesterday ,
+удаляя все промежуточные снимки:
+.Dl # Nm zfs Cm rollback Fl r Ar pool/home/anne Ns @ Ns Ar yesterday
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs-snapshot 8

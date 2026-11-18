@@ -1,0 +1,523 @@
+.\"
+.\" Copyright (c) 2017 Kyle J. Kneitinger <kyle@kneit.in>
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" FRDP path sbin/bectl/bectl.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 7a4d6b45949d3b0be180e4561b6f52faabd2c7a501d012be622c7a59d689af4a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 4, 2026
+.Dt BECTL 8
+.Os
+.Sh ИМЯ
+.Nm bectl
+.Nd управление средами загрузки ZFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Nm
+.Op Fl r Ar beroot
+.Cm activate
+.Op Fl t | Fl T
+.Ar beName
+.Nm
+.Op Fl r Ar beroot
+.Cm check
+.Nm
+.Op Fl r Ar beroot
+.Cm create
+.Op Fl r
+.Op Fl e Brq Ar nonActiveBe | Ar beName Ns Cm @ Ns Ar snapshot
+.Ar newBeName
+.Nm
+.Op Fl r Ar beroot
+.Cm create
+.Op Fl r
+.Ar beName@snapshot
+.Nm
+.Op Fl r Ar beroot
+.Cm create
+.Fl E
+.Ar newBeName
+.Nm
+.Op Fl r Ar beroot
+.Cm destroy
+.Op Fl \&Fo
+.Ar beName Ns Op Cm @ Ns Ar snapshot
+.Nm
+.Op Fl r Ar beroot
+.Cm export
+.Ar sourceBe
+.Nm
+.Op Fl r Ar beroot
+.Cm import
+.Ar targetBe
+.Nm
+.Op Fl r Ar beroot
+.Cm jail
+.Op Fl bU
+.Oo Bro Fl o Ar key Ns Cm = Ns Ar value | Fl u Ar key Brc Oc Ns ...
+.Ar beName
+.Op Ar utility Op Ar argument ...
+.Nm
+.Op Fl r Ar beroot
+.Cm list
+.Op Fl aDHs
+.Op Fl c Ar property
+.Op Fl C Ar property
+.Oo Bro Fl c Ar property | Fl C Ar property Brc Oc
+.Nm
+.Op Fl r Ar beroot
+.Cm mount
+.Ar beName
+.Op Ar mountpoint
+.Nm
+.Op Fl r Ar beroot
+.Cm rename
+.Ar origBeName
+.Ar newBeName
+.Nm
+.Op Fl r Ar beroot
+.Brq Cm ujail | unjail
+.Brq Ar jailId | jailName | beName
+.Nm
+.Op Fl r Ar beroot
+.Brq Cm umount | unmount
+.Op Fl f
+.Ar beName
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+управляет загружаемыми клонами ZFS, называемыми средами загрузки.
+Среды загрузки позволяют безопасно тестировать изменения системы,
+поскольку их можно выбирать непосредственно из загрузчика
+.Xr loader 8 .
+Эта утилита может
+.Cm create ,
+.Cm list ,
+.Cm mount
+или
+.Cm jail
+среды загрузки.
+После тестирования изменений среду загрузки можно
+.Cm unmount Ns ed ,
+.Cm activate Ns d ,
+.Cm rename Ns d
+и
+.Cm destroy Ns ed .
+.Ss Поддерживаемые подкоманды и флаги
+.Bl -tag -width indent
+.It Fl h
+Вывести информацию об использовании и выйти.
+.It Fl r Ar beroot Sy Ar subcommand
+Указать родительский набор данных для среды загрузки, используемый для
+.Ar subcommand
+при работе с вручную импортированными пулами или необычными компоновками.
+.It Xo
+.Cm activate
+.Op Fl t | Fl T
+.Ar beName
+.Xc
+Активировать указанный
+.Ar beName
+как файловую систему загрузки по умолчанию.
+Если указан флаг
+.Fl t ,
+это действует только для следующей загрузки.
+Флаг
+.Fl T
+удаляет временную конфигурацию однократной загрузки.
+Без временной конфигурации
+следующая загрузка будет использовать набор данных ZFS, указанный в свойстве
+.Ar bootfs
+загрузочного пула.
+.It Xo
+.Cm check
+.Xc
+Выполнить проверку, может ли текущая система использовать среды загрузки.
+Если среды загрузки поддерживаются и используются,
+.Nm
+завершится с кодом состояния 0.
+Любой другой код состояния в настоящее время не определён и в будущем
+может приобрести особое значение для разных степеней сбоев проверки работоспособности.
+.It Xo
+.Cm create
+.Op Fl r
+.Op Fl e Brq Ar nonActiveBe | Ar beName Ns Cm @ Ns Ar snapshot
+.Ar newBeName
+.Xc
+Создать новую среду загрузки с именем
+.Ar newBeName .
+.Pp
+Если указан флаг
+.Fl r ,
+будет создана рекурсивная среда загрузки.
+См.
+.Sx Структуры сред загрузки
+для обсуждения различных компоновок.
+.Pp
+Если указан флаг
+.Fl e ,
+новая среда будет клонирована из указанного
+.Ar nonActiveBe
+или
+.Ar beName Ns Cm @ Ns Ar snapshot .
+В противном случае новая среда будет создана из текущей загруженной среды.
+.Pp
+Если
+.Nm
+создаёт из другой среды загрузки,
+для клонирования будет создан снимок этой среды загрузки.
+.It Xo
+.Cm create
+.Op Fl r
+.Ar beName@snapshot
+.Xc
+Создать снимок среды загрузки с именем
+.Ar beName .
+.Pp
+Если указан флаг
+.Fl r ,
+будет создан рекурсивный снимок среды загрузки.
+Снимок создаётся для каждого дочернего набора данных
+среды загрузки.
+См.
+.Sx Структуры сред загрузки
+для обсуждения различных компоновок.
+.Pp
+Эта подкоманда не создаёт новую среду загрузки.
+.It Xo
+.Cm create
+.Fl E
+.Ar newBeName
+.Xc
+Создать новую пустую среду загрузки с именем
+.Ar newBeName .
+.It Xo
+.Cm destroy
+.Op Fl \&Fo
+.Ar beName Ns Op Cm @ Ns Ar snapshot
+.Xc
+Уничтожить указанную среду загрузки
+.Ar beName
+или снимок
+.Ar beName Ns Cm @ Ns Ar snapshot
+без подтверждения, в отличие от
+.Xr beadm 8 .
+Указание
+.Fl F
+автоматически размонтирует без подтверждения.
+.Pp
+По умолчанию
+.Nm
+предупредит, что не уничтожает источник
+.Ar beName .
+Можно указать флаг
+.Fl o ,
+чтобы также уничтожить источник.
+.It Cm export Ar sourceBe
+Экспортировать
+.Ar sourceBe
+в
+.Xr stdout 4 .
+.Xr stdout 4
+должен быть передан через канал или перенаправлен в файл.
+.It Cm import Ar targetBe
+Импортировать
+.Ar targetBe
+из
+.Xr stdin 4 .
+.It Xo
+.Cm jail
+.Op Fl bU
+.Oo Bro Fl o Ar key Ns Cm = Ns Ar value | Fl u Ar key Brc Oc Ns ...
+.Ar beName
+.Op Ar utility Op Ar argument ...
+.Xc
+Создать клетку для указанной среды загрузки.
+Можно указать несколько аргументов
+.Fl o
+и
+.Fl u .
+.Fl o
+задаёт параметр клетки, а
+.Fl u
+сбрасывает параметр клетки.
+.Pp
+По умолчанию клетки создаются в интерактивном режиме и
+.Pa /bin/sh
+выполняется внутри клетки.
+Если указан
+.Ar utility ,
+он будет выполнен вместо
+.Pa /bin/sh .
+Клетка будет уничтожена, а среда загрузки размонтирована
+после завершения выполнения команды, если не указан аргумент
+.Fl U .
+.Pp
+Аргумент
+.Fl b
+включает пакетный режим, тем самым отключая интерактивный режим.
+Аргумент
+.Fl U
+будет игнорироваться в пакетном режиме.
+.Pp
+Необходимо задать
+.Va name ,
+.Va host.hostname
+и
+.Va path ;
+значения по умолчанию указаны ниже.
+.Pp
+Все пары
+.Ar key Ns Cm = Ns Ar value
+интерпретируются как параметры клетки, как описано в
+.Xr jail 8 .
+Предоставляются следующие параметры по умолчанию:
+.Bl -tag -width indent
+.It Va allow.mount Ta Cm true
+.It Va allow.mount.devfs Ta Cm true
+.It Va enforce_statfs Ta Cm 1
+.It Va name Ta установлено в ID клетки
+.It Va host.hostname Ta Va bootenv
+.It Va path Ta установлен в путь в Pa /tmp
+сгенерированный
+.Xr libbe 3
+.El
+.Pp
+Все параметры по умолчанию могут быть переопределены.
+.It Xo
+.Cm list
+.Op Fl aDHs
+.Oo Bro Fl c Ar property | Fl C Ar property Brc Oc
+.Xc
+.Pp
+Показать все среды загрузки.
+Поле
+.Em Active
+указывает, активна ли среда загрузки сейчас
+.Pq Em \&N ;
+активна при перезагрузке
+.Pq Em \&R ;
+используется при следующей загрузке однократно
+.Pq Em \&T ;
+или их комбинация
+.Pq Em \&NRT .
+.Bl -tag -width indent
+.It Fl a
+Показать все наборы данных.
+.It Fl D
+Показать полное использование пространства для каждой среды загрузки
+при условии, что все другие среды загрузки были уничтожены.
+.It Fl H
+Используется для сценариев.
+Не выводить заголовки и разделять поля одним символом табуляции вместо
+произвольных пробельных символов.
+.It Fl s
+Также показать все снимки.
+.It Fl c Ar property
+Сортировать среды загрузки по указанному свойству набора данных ZFS.
+Поддерживаются следующие свойства:
+.Pp
+.Bl -tag -width 4n -offset indent -compact
+.It name (по умолчанию)
+.It creation
+.It origin
+.It used
+.It usedbydataset
+.It usedbyrefreservation
+.It usedbysnapshots
+.El
+.Pp
+Краткие формы usedds, usedrefreserv и usedsnap также поддерживаются.
+.It Fl C Ar property
+То же, что и параметр
+.Fl c ,
+но отображает в порядке убывания.
+.El
+.Pp
+Параметр
+.Fl D
+игнорируется, если используется параметр
+.Fl s
+или
+.Fl a .
+.It Cm mount Ar beName Op Ar mountpoint
+Смонтировать указанную среду загрузки.
+.Pp
+Если указан несуществующий
+.Ar mountpoint :
+.Nm
+создаст каталог, включая промежуточные каталоги при необходимости.
+.Pp
+Если
+.Ar mountpoint
+не указан:
+.Nm
+создаст каталог, например
+.Pa be_mount.c6Sf
+в
+.Pa /tmp .
+Случайные символы в последних четырёх символах имени каталога
+предотвратят конфликты точек монтирования.
+Размонтирование среды с последующим монтированием той же среды
+без указания
+.Ar mountpoint
+приведёт к другой точке монтирования со случайным именем.
+.It Cm rename Ar origBeName newBeName
+Переименовать указанный
+.Ar origBeName
+в указанный
+.Ar newBeName .
+Среда загрузки не будет размонтирована для выполнения этого переименования.
+.It Cm ujail Brq Ar jailId | jailName | beName
+.It Cm unjail Brq Ar jailId | jailName | beName
+Уничтожить клетку, созданную из указанной среды загрузки.
+.It Xo
+.Cm umount
+.Op Fl f
+.Ar beName
+.Xc
+.It Xo
+.Cm unmount
+.Op Fl f
+.Ar beName
+.Xc
+Размонтировать указанную среду загрузки, если она смонтирована.
+Указание
+.Fl f
+принудительно размонтирует, если занято.
+.Pp
+Размонтирование не удалит точку монтирования.
+.El
+.Ss Структуры сред загрузки
+Традиционная компоновка сред загрузки
+.Fx ,
+создаваемая параметром Auto ZFS в
+.Xr bsdinstall 8 ,
+представляет собой
+.Dq мелкую структуру сред загрузки ,
+в которой наборы данных сред загрузки
+не имеют непосредственно подчинённых наборов данных.
+Вместо этого они организованы в
+.Pa zroot/ROOT
+и полагаются на то, что у наборов данных в других местах пула
+.Dv canmount
+установлено в
+.Dv off .
+Например, упрощённый пул может быть организован следующим образом:
+.Bd -literal -offset indent
+% zfs list -o name,canmount,mountpoint
+NAME			CANMOUNT	MOUNTPOINT
+zroot
+zroot/ROOT		noauto		none
+zroot/ROOT/default	noauto		none
+zroot/home		on		/home
+zroot/usr		off		/usr
+zroot/usr/src		on		/usr/src
+zroot/var		off		/var
+.Ed
+.Pp
+В этом примере у
+.Pa zroot/usr
+.Dv canmount
+установлено в
+.Dv off ,
+поэтому файлы в
+.Pa /usr
+обычно попадают в среду загрузки,
+поскольку этот набор данных не смонтирован.
+.Pa zroot/usr/src
+смонтирован, поэтому файлы в
+.Pa /usr/src
+не входят в среду загрузки.
+.Pp
+Другой используемый стиль сред загрузки, часто называемый
+.Dq глубокие среды загрузки ,
+организует некоторые или все компоненты среды загрузки как подчинённые набору
+данных среды загрузки.
+Например:
+.Bd -literal -offset indent
+% zfs list -o name,canmount,mountpoint
+NAME				CANMOUNT	MOUNTPOINT
+zroot
+zroot/ROOT			noauto		none
+zroot/ROOT/default		noauto		none
+zroot/ROOT/default/usr		noauto		/usr
+zroot/ROOT/default/usr/local	noauto		/usr/local
+zroot/var			on		/var
+.Ed
+.Pp
+Обратите внимание, что у подчинённых наборов данных теперь
+.Dv canmount
+установлено в
+.Dv noauto .
+Они более очевидно являются частью среды загрузки,
+как показывает их расположение в компоновке.
+Эти подчинённые наборы данных будут смонтированы сценарием
+.Dv zfsbe
+.Xr rc 8
+во время загрузки.
+В этом примере
+.Pa /var
+исключён из среды загрузки.
+.Pp
+Подкоманды
+.Nm
+имеющие собственный
+.Fl r
+работают со вторым,
+.Dq глубоким стилем среды загрузки ,
+когда установлен флаг
+.Fl r .
+В будущей версии
+.Nm
+может по умолчанию обрабатывать оба стиля и объявить устаревшими различные
+флаги
+.Fl r .
+.Sh ПРИМЕРЫ
+Создать среду загрузки, названную сегодняшней датой,
+содержащую снимки корневого набора данных и всех дочерних наборов данных:
+.Pp
+.Dl bectl create -r `date +%Y%m%d`
+.Pp
+Смонтировать предыдущую среду загрузки
+.Ar yesterdaysbe
+в
+.Pa /mnt :
+.Pp
+.Dl bectl mount yesterdaysbe /mnt
+.Sh СМ. ТАКЖЕ
+.Xr libbe 3 ,
+.Xr zfsprops 7 ,
+.Xr beinstall.sh 8 ,
+.Xr jail 8 ,
+.Xr loader 8 ,
+.Xr zfs 8 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+.Nm
+и
+.Xr libbe 3
+были написаны
+.An Kyle Kneitinger (kneitinger) Aq Mt kyle@kneit.in
+в рамках проекта Google Summer of Code 2017 года, а наставником был
+.An Allan Jude Aq Mt allanjude@FreeBSD.org .
+.Pp
+.Nm
+и эта страница руководства были созданы на основе
+.Xr beadm 8 .
+.Sh АВТОРЫ
+.An Slawomir Wojciech Wojtczak (vermaden) Aq Mt vermaden@interia.pl
+является создателем и сопровождающим
+.Xr beadm 8 .
+.An Bryan Drewery Aq Mt bdrewery@FreeBSD.org
+участвовал в исправлениях дочерних наборов данных и написал страницу руководства
+.Xr beadm 8 .
+.Pp
+Большинство последующих изменений в
+.Nm
+и в этой странице были написаны
+.An Kyle Evans Aq Mt kevans@FreeBSD.org .

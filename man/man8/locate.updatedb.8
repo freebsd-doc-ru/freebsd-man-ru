@@ -1,0 +1,76 @@
+.\" Copyright (c) 1996
+.\"	Mike Pritchard <mpp@FreeBSD.org>.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by Mike Pritchard.
+.\" 4. Neither the name of the author nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/locate/locate/locate.updatedb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 33e7e7e7a2899088d88a9e48b0470aeab71aa5874c1e59a2173f0b697d859a0d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd February 11, 1996
+.Dt LOCATE.UPDATEDB 8
+.Os
+.Sh ИМЯ
+.Nm locate.updatedb
+.Nd обновление базы данных locate
+.Sh СИНТАКСИС
+.Nm /usr/libexec/locate.updatedb
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+обновляет базу данных, используемую
+.Xr locate 1 .
+Обычно она запускается раз в неделю сценарием
+.Pa /etc/periodic/weekly/310.locate
+.
+.Pp
+Содержимым вновь созданной базы данных можно управлять с помощью файла
+.Pa /etc/locate.rc
+.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width /var/db/locate.database -compact
+.It Pa LOCATE_CONFIG
+путь к файлу конфигурации
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/db/locate.database -compact
+.It Pa /var/db/locate.database
+база данных по умолчанию
+.It Pa /etc/locate.rc
+файл конфигурации
+.El
+.Sh СМ. ТАКЖЕ
+.Xr locate 1 ,
+.Xr periodic 8
+.Rs
+.%A Woods, James A.
+.%D 1983
+.%V 8:1
+.%P pp. 8-10
+.Re

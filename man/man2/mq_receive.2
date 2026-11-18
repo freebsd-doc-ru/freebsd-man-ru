@@ -1,0 +1,219 @@
+.\" Copyright (c) 2005 David Xu <davidxu@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer as
+.\"    the first lines of this file unmodified other than the possible
+.\"    addition of one or more copyright notices.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice(s), this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) ``AS IS'' AND ANY
+.\" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDER(S) BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+.\" BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+.\" WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+.\" OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+.\" EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form
+.\" from IEEE Std 1003.1, 2004 Edition, Standard for Information Technology --
+.\" Portable Operating System Interface (POSIX), The Open Group Base
+.\" Specifications Issue 6, Copyright (C) 2001-2004 by the Institute of
+.\" Electrical and Electronics Engineers, Inc and The Open Group.  In the
+.\" event of any discrepancy between this version and the original IEEE and
+.\" The Open Group Standard, the original IEEE and The Open Group Standard is
+.\" the referee document.  The original Standard can be obtained online at
+.\"	http://www.opengroup.org/unix/online.html.
+.\"
+.\" FRDP path lib/libsys/mq_receive.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 13758334dae930ee7b30966a3d716b58f989756196249304a8e796ca26ce636d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 29, 2005
+.Dt MQ_RECEIVE 2
+.Os
+.Sh ИМЯ
+.Nm mq_receive , mq_timedreceive
+.Nd "приём сообщения из очереди сообщений (REALTIME)"
+.Sh БИБЛИОТЕКА
+.Lb librt
+.Sh SYNOPSIS
+.In mqueue.h
+.Ft ssize_t
+.Fo mq_receive
+.Fa "mqd_t mqdes"
+.Fa "char *msg_ptr"
+.Fa "size_t msg_len"
+.Fa "unsigned *msg_prio"
+.Fc
+.Ft ssize_t
+.Fo mq_timedreceive
+.Fa "mqd_t mqdes"
+.Fa "char *msg_ptr"
+.Fa "size_t msg_len"
+.Fa "unsigned *msg_prio"
+.Fa "const struct timespec *abs_timeout"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mq_receive
+принимает самое старое из сообщений с наивысшим приоритетом из
+очереди сообщений, заданной
+.Fa mqdes .
+Если размер буфера в байтах, заданный аргументом
+.Fa msg_len ,
+меньше атрибута
+.Va mq_msgsize
+очереди сообщений, системный вызов завершится с ошибкой и вернёт
+ошибку.
+В противном случае выбранное сообщение будет удалено из очереди
+и скопировано в буфер, на который указывает аргумент
+.Fa msg_ptr .
+.Pp
+Если аргумент
+.Fa msg_prio
+не равен
+.Dv NULL ,
+приоритет выбранного сообщения будет сохранён в
+месте, на которое ссылается
+.Fa msg_prio .
+Если заданная очередь сообщений пуста и
+.Dv O_NONBLOCK
+не установлен в описании очереди сообщений, связанном с
+.Fa mqdes ,
+.Fn mq_receive
+будет блокироваться до тех пор, пока сообщение не будет поставлено в очередь сообщений или пока
+.Fn mq_receive
+не будет прерван сигналом.
+Если несколько потоков ожидают приёма
+сообщения, когда сообщение поступает в пустую очередь, и поддерживается опция
+планирования с приоритетами, то для приёма сообщения будет выбран поток с наивысшим приоритетом,
+ожидающий дольше всех.
+В противном случае не определено, какой из ожидающих потоков получит сообщение.
+Если заданная очередь сообщений пуста и
+.Dv O_NONBLOCK
+установлен в описании очереди сообщений, связанном с
+.Fa mqdes ,
+ни одно сообщение
+не будет удалено из очереди, и
+.Fn mq_receive
+вернёт ошибку.
+.Pp
+Системный вызов
+.Fn mq_timedreceive
+принимает самое старое из сообщений с наивысшим приоритетом из
+очереди сообщений, заданной
+.Fa mqdes ,
+как описано для системного вызова
+.Fn mq_receive .
+Однако если
+.Dv O_NONBLOCK
+не был указан при открытии очереди сообщений посредством
+системного вызова
+.Fn mq_open
+и в очереди нет сообщения, удовлетворяющего приёму, ожидание
+такого сообщения будет прекращено по истечении заданного тайм-аута.
+Если
+.Dv O_NONBLOCK
+установлен, этот системный вызов эквивалентен
+.Fn mq_receive .
+.Pp
+Тайм-аут истекает, когда проходит абсолютное время, заданное
+.Fa abs_timeout ,
+измеряемое по часам, на которых основаны тайм-ауты (то есть когда
+значение этих часов равно или превышает
+.Fa abs_timeout ) ,
+или если абсолютное время, заданное
+.Fa abs_timeout ,
+уже прошло на момент вызова.
+.Pp
+Тайм-аут основан на часах
+.Dv CLOCK_REALTIME .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При успешном завершении системные вызовы
+.Fn mq_receive
+и
+.Fn mq_timedreceive
+возвращают длину выбранного сообщения в байтах, и
+сообщение удаляется из очереди.
+В противном случае ни одно сообщение не удаляется
+из очереди, системный вызов возвращает значение \-1,
+а глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Sh ОШИБКИ
+Системные вызовы
+.Fn mq_receive
+и
+.Fn mq_timedreceive
+завершатся с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EAGAIN
+Флаг
+.Dv O_NONBLOCK
+установлен в описании очереди сообщений, связанном с
+.Fa mqdes ,
+и заданная очередь сообщений пуста.
+.It Bq Er EBADF
+Аргумент
+.Fa mqdes
+не является допустимым дескриптором очереди сообщений, открытой для чтения.
+.It Bq Er EMSGSIZE
+Заданный размер буфера сообщения,
+.Fa msg_len ,
+меньше атрибута размера сообщения очереди сообщений.
+.It Bq Er EINTR
+Операция
+.Fn mq_receive
+или
+.Fn mq_timedreceive
+была прервана сигналом.
+.It Bq Er EINVAL
+Процесс или поток заблокировался бы, а
+параметр
+.Fa abs_timeout
+задавал значение поля наносекунд меньше нуля или больше
+или равное 1000 миллионам.
+.It Bq Er ETIMEDOUT
+Флаг
+.Dv O_NONBLOCK
+не был установлен при открытии очереди сообщений, но ни одно сообщение не поступило
+в очередь до истечения заданного тайм-аута.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mq_open 2 ,
+.Xr mq_send 2 ,
+.Xr mq_timedsend 2
+.Sh СТАНДАРТЫ
+Системные вызовы
+.Fn mq_receive
+и
+.Fn mq_timedreceive
+соответствуют
+.St -p1003.1-2004 .
+.Sh ИСТОРИЯ
+Поддержка очередей сообщений
+.Tn POSIX
+впервые появилась в
+.Fx 7.0 .
+.Sh АВТОРСКИЕ ПРАВА
+Части этого текста перепечатаны и воспроизведены в электронной форме
+из IEEE Std 1003.1, издания 2004 года, Standard for Information Technology --
+Portable Operating System Interface (POSIX), The Open Group Base
+Specifications Issue 6, Copyright (C) 2001-2004 by the Institute of
+Electrical and Electronics Engineers, Inc and The Open Group.  В
+случае каких-либо расхождений между этой версией и оригинальным стандартом IEEE и
+The Open Group, оригинальный стандарт IEEE и The Open Group является
+арбитражным документом.  Оригинальный стандарт можно получить онлайн по адресу
+http://www.opengroup.org/unix/online.html.

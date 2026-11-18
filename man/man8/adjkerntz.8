@@ -1,0 +1,173 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 1993-1998 by Andrey A. Chernov, Moscow, Russia.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/adjkerntz/adjkerntz.8
+.\" FRDP githash ad57cea9e633cac5ef3f17ce0a82160bc32d7f63
+.\" FRDP hash256 51b026e63e9cfa1bd28fdd258b7761fec3872069332bf446e9812d59b3110c70
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 29, 2024
+.Dt ADJKERNTZ 8
+.Os
+.Sh ИМЯ
+.Nm adjkerntz
+.Nd настройка часов реального времени (rtc) и смещения часового пояса ядра
+.Sh СИНТАКСИС
+.Nm
+.Fl i
+.Nm
+.Fl a Op Fl s
+.Sh ОПИСАНИЕ
+.Nm
+поддерживает правильное соотношение между часами ядра, которые всегда установлены на UTC, и часами реального времени, которые могут быть установлены на местное время.
+.Nm
+также сообщает ядру о сдвигах часового пояса машины, чтобы поддерживать правильные отметки времени для файловых систем с местным временем, таких как файловая система MS-DOS.
+Основная цель правильного поддержания этих отметок времени — синхронизировать отметки времени файловой системы
+.Fx
+MS-DOS и операционной системы MS-DOS, когда они установлены на одной системе, а не исправлять повреждённые отметки времени файлов MS-DOS.
+Если файл
+.Pa /etc/wall_cmos_clock
+существует, это означает, что часы реального времени хранят местное время
+.Pq режим, совместимый с MS-DOS и MS-Windows .
+Если этот файл не существует, это означает, что часы реального времени хранят время UTC.
+.Nm
+передаёт это состояние переменной ядра
+.Va machdep.wall_cmos_clock .
+.Pp
+Корректировка может потребоваться при запуске и завершении работы системы, а также при каждом изменении часового пояса.
+Для обработки этих различных ситуаций
+.Nm
+вызывается двумя способами:
+.Bl -tag -width indent
+.It Fl i
+Эта форма обрабатывает запуск и завершение работы системы.
+.Nm
+вызывается с этой опцией из
+.Pa /etc/rc
+при входе в многопользовательский режим, до запуска любых других демонов.
+.Nm
+переходит в фоновый режим.
+Затем, для часов реального времени, настроенных на местное время,
+.Nm
+считывает из них местное время и устанавливает часы ядра на соответствующее время UTC.
+.Nm
+также сохраняет смещение местного часового пояса в переменной ядра
+.Va machdep.adjkerntz
+для использования последующими вызовами
+.Ql adjkerntz -a
+и файловыми системами с местным временем.
+.Pp
+Для часов реального времени, настроенных на местное время,
+.Ql adjkerntz -i
+приостанавливается и остаётся неактивным в качестве фонового демона, пока не получит SIGTERM.
+SIGTERM обычно отправляется
+.Xr init 8 ,
+когда система выходит из многопользовательского режима
+.Pq обычно потому, что система завершает работу .
+После получения SIGTERM
+.Nm
+считывает часы ядра в UTC и при необходимости обновляет часы реального времени, чтобы они отражали текущий местный часовой пояс.
+Затем
+.Nm
+завершается.
+.It Fl a Op Fl s
+Эта форма используется для обновления часов реального времени, настроенных на местное время, и переменной ядра
+.Va machdep.adjkerntz
+при изменении часового пояса, например при переходе на летнее время или с него.
+.Nm
+использует время UTC часов ядра, ранее сохранённое смещение часового пояса и изменённое правило часового пояса для вычисления нового смещения часового пояса.
+Она сохраняет новое смещение в переменной ядра
+.Va machdep.adjkerntz
+и обновляет часы реального времени на новое местное время.
+Если
+.Ql adjkerntz -a
+был запущен в несуществующее время
+.Pq во время изменения часового пояса ,
+он завершается с предупреждающей диагностикой, если только не была использована опция
+.Fl s ,
+в этом случае
+.Nm
+спит 30 минут и пытается снова.
+.Pp
+Эту форму следует вызывать из
+.Xr crontab 5
+пользователя root каждые полчаса между полуночью и 5 утра, когда происходят большинство современных изменений часового пояса.
+Предупреждение: не используйте опцию
+.Fl s
+в командной строке
+.Xr crontab 5 ,
+иначе несколько экземпляров
+.Ql adjkerntz -a
+могут конфликтовать друг с другом.
+.El
+.Pp
+.Nm
+очищает структуру часового пояса ядра и заставляет часы ядра работать в часовом поясе UTC.
+Для всех операций требуются права суперпользователя.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width /etc/wall_cmos_clock
+.It Ev TZ
+Правило изменения часового пояса, см.
+.Xr tzset 3 ;
+не требуется, когда используются
+.Xr tzsetup 8
+или
+.Xr zic 8 .
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /etc/wall_cmos_clock -compact
+.It Pa /etc/localtime
+Текущий файл zoneinfo, см.
+.Xr tzsetup 8
+и
+.Xr zic 8 .
+.It Pa /etc/wall_cmos_clock
+Пустой файл.
+Его наличие указывает, что часы реального времени машины установлены на местное время, а его отсутствие указывает на часы реального времени в UTC.
+.El
+.Sh ДИАГНОСТИКА
+Диагностика отсутствует.
+Если возникает ошибка,
+.Nm
+записывает сообщение об ошибке через
+.Xr syslog 3
+и завершается с ненулевым кодом возврата.
+.Sh СМ. ТАКЖЕ
+.Xr tzset 3 ,
+.Xr crontab 5 ,
+.Xr mount_msdosfs 8 ,
+.Xr ntpd 8 ,
+.Xr rc 8 ,
+.Xr sysctl 8 ,
+.Xr tzsetup 8 ,
+.Xr zic 8
+.Sh ИСТОРИЯ
+.Nm
+появилась в
+.Fx 1.0 .
+.Sh АВТОРЫ
+.An Andrey A. Chernov Aq Mt ache@astral.msk.su

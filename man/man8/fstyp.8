@@ -1,0 +1,137 @@
+.\" Copyright (c) 2014 The FreeBSD Foundation
+.\"
+.\" This software was developed by Edward Tomasz Napierala under sponsorship
+.\" from the FreeBSD Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/fstyp/fstyp.8
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 f1804bd1f67959343d8fea28fb661c25db4ba3c512123c72a6203641c2270918
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 24, 2019
+.Dt FSTYP 8
+.Os
+.Sh ИМЯ
+.Nm fstyp
+.Nd определение типа файловой системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl l
+.Op Fl s
+.Op Fl u
+.Ar специальный_файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для определения типа файловой системы на заданном устройстве.
+Она может распознавать файловые системы BeFS (BeOS), ISO-9660, exFAT, Ext2, FAT, NTFS и UFS.
+Когда указан флаг
+.Fl u ,
+.Nm
+также распознаёт некоторые дополнительные форматы метаданных, которые не могут быть
+обработаны с помощью
+.Xr mount 8 ,
+такие как провайдеры
+.Xr geli 8 ,
+и пулы ZFS.
+.Pp
+Имя файловой системы выводится в стандартный вывод
+соответственно:
+.Bl -item -offset indent -compact
+.It
+befs
+.It
+cd9660
+.It
+exfat
+.It
+ext2fs
+.It
+geli
+.It
+hammer
+.It
+hammer2
+.It
+msdosfs
+.It
+ntfs
+.It
+ufs
+.It
+zfs
+.El
+.Pp
+Поскольку
+.Nm
+создана специально для определения типов файловых систем, она отличается от
+.Xr file 1
+несколькими способами.
+Вывод пригоден для машинной обработки, поддерживаются метки файловых систем,
+утилита работает в песочнице с использованием
+.Xr capsicum 4
+и не пытается распознать какие-либо форматы файлов, кроме файловых систем.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl l
+В дополнение к типу файловой системы выводить метку файловой системы, если она доступна.
+.It Fl s
+Игнорировать тип файла.
+По умолчанию
+.Nm
+работает только с обычными файлами и узлами устройств, похожих на диски.
+Попытка чтения других типов файлов может привести к неожиданным последствиям или
+бесконечному зависанию.
+.It Fl u
+Включать файловые системы и устройства, которые не могут быть смонтированы напрямую с помощью
+.Xr mount 8 .
+.El
+.Sh СТАТУС ВЫХОДА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и >0, если произошла ошибка или тип файловой системы
+не распознан.
+.Sh СМ. ТАКЖЕ
+.Xr file 1 ,
+.Xr autofs 4 ,
+.Xr capsicum 4 ,
+.Xr geli 8 ,
+.Xr glabel 8 ,
+.Xr mount 8 ,
+.Xr zpool 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 10.2 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была разработана
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при спонсорской поддержке FreeBSD Foundation.
+Поддержка ZFS и GELI была добавлена
+.An Allan Jude Aq Mt allanjude@FreeBSD.org .

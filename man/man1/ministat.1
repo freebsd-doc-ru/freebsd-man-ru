@@ -1,0 +1,187 @@
+.\"
+.\" Copyright (c) 2007 Poul-Henning Kamp. All rights reserved.
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/ministat/ministat.1
+.\" FRDP githash 595e665cb292a70f9d17b779c8ad0470ff3e3964
+.\" FRDP hash256 03b9a562069057b520d4b953c265f6e9e157133c69f304fb6c448a97a467c8d6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 24, 2026
+.Dt MINISTAT 1
+.Os
+.Sh ИМЯ
+.Nm ministat
+.Nd утилита статистики
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Anqs
+.Op Fl C Ar столбец
+.Op Fl c Ar уровень
+.Op Fl d Ar разделители
+.Op Fl w Ar ширина
+.Op Ar
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+вычисляет фундаментальные статистические свойства числовых данных
+в указанных файлах или, если файл не указан, из стандартного ввода.
+.Pp
+Опции следующие:
+.Bl -tag -width Ds
+.It Fl A
+Выводить только статистику входных данных и относительные сравнения,
+не выводить ASCII-график.
+.It Fl C Ar столбец
+Указать, какой столбец данных использовать.
+По умолчанию используется первый столбец входного файла(ов).
+.It Fl c Ar уровень
+Указать желаемый уровень доверия для анализа по t-критерию Стьюдента.
+Возможные значения в процентах:
+.Cm 80 , 90 , 95 , 98 , 99
+и
+.Cm 99.5 .
+.It Fl d Ar разделители
+Указать символы-разделители столбцов; по умолчанию —
+.Ql \ \et
+.Pq т. е. пробел и табуляция .
+Подробности см. в
+.Xr strtok 3 .
+.It Fl n
+Выводить только необработанную статистику входных данных, не выводить
+ASCII-график и относительные сравнения.
+.It Fl q
+Не выводить сводную статистику и имена наборов данных; обычно используется
+вместе с
+.Fl n .
+.It Fl s
+Выводить полосы среднего/медианы/стандартного отклонения на отдельных
+строках ASCII-графика, чтобы избежать перекрытия.
+.It Fl w Ar ширина
+Установить ширину ASCII-графика в символах.
+По умолчанию используется ширина терминала или 74, если стандартный вывод
+не является терминалом.
+.El
+.Pp
+.Nm
+принимает до семи входных файлов.
+.Pp
+Каждый набор данных должен содержать не менее трёх значений.
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Рассмотрим два входных файла.
+Первый будет
+.Dq iguana :
+.Bd -literal -offset indent
+50
+200
+150
+400
+750
+400
+150
+.Ed
+.Pp
+Второй будет
+.Dq chameleon :
+.Bd -literal -offset indent
+150
+400
+720
+500
+930
+.Ed
+.Pp
+Пример вывода может выглядеть так:
+.Bd -literal -offset indent
+$ ministat -s -w 60 iguana chameleon
+x iguana
++ chameleon
++------------------------------------------------------------+
+|x      *  x            *      +              + x           +|
+| |________M______A_______________|                          |
+|             |________________M__A___________________|      |
++------------------------------------------------------------+
+    N        Min        Max     Median        Avg       Stddev
+x   7         50        750        200        300    238.04761
++   5        150        930        500        540    299.08193
+No difference proven at 95.0% confidence
+.Ed
+.Pp
+Если
+.Nm
+сообщает, как в примере выше, что различие не доказано при 95% уровне
+доверия, то два набора данных, которые вы ей передали, для всех
+статистических целей идентичны.
+.Pp
+У вас есть возможность снизить свои стандарты, указав более низкий
+уровень доверия:
+.Bd -literal -offset indent
+$ ministat -s -w 60 -c 80 iguana chameleon
+x iguana
++ chameleon
++------------------------------------------------------------+
+|x      *  x            *      +              + x           +|
+| |________M______A_______________|                          |
+|             |________________M__A___________________|      |
++------------------------------------------------------------+
+    N        Min        Max     Median        Avg       Stddev
+x   7         50        750        200        300    238.04761
++   5        150        930        500        540    299.08193
+Difference at 80.0% confidence
+      240 +/- 212.215
+      80% +/- 102.3%
+      (Student's t, pooled s = 264.159)
+.Ed
+.Pp
+Но более низкий стандарт не делает ваши данные лучше, и этот пример
+приведён здесь только для того, чтобы показать формат вывода, когда
+статистическое различие доказано согласно методу Стьюдента.
+.Sh СМ. ТАКЖЕ
+Любой математический текст по основам статистики, например следующая
+книга, из которой взят приведённый выше пример:
+.Rs
+.%A Larry Gonick
+.%A Woollcott Smith
+.%B The Cartoon Guide to Statistics
+.%D 1993
+.%I HarperPerennial
+.%O ISBN 0-06-273102-5
+.Re
+.Sh ИСТОРИЯ
+Команда
+.Nm
+была написана
+.An Poul-Henning Kamp
+из-за разочарования по поводу всех ложных заявлений о бенчмарках,
+сделанных людьми, которые не понимают важности неопределённости и
+статистики.
+.Pp
+Начиная с
+.Fx 5.2
+она живёт в дереве исходного кода как инструмент разработчика, а с
+.Fx 8.0
+вошла в установленную систему.

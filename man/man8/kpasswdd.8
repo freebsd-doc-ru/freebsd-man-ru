@@ -1,0 +1,107 @@
+.\" Copyright (c) 1997, 2000 - 2005 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path crypto/heimdal/kpasswd/kpasswdd.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 d81f75e4e58f9ed24d33bc6fdc2adee61bce6bcaede19635c26cf76044148eaa
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 19, 1999
+.Dt KPASSWDD 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kpasswdd
+.Nd сервер смены паролей Kerberos 5
+.Sh СИНТАКСИС
+.Nm
+.Bk -words
+.Op Fl Fl addresses= Ns Ar address
+.Op Fl Fl check-library= Ns Ar library
+.Op Fl Fl check-function= Ns Ar function
+.Oo Fl k Ar kspec \*(Ba Xo
+.Fl Fl keytab= Ns Ar kspec
+.Xc
+.Oc
+.Oo Fl r Ar realm \*(Ba Xo
+.Fl Fl realm= Ns Ar realm
+.Xc
+.Oc
+.Oo Fl p Ar string \*(Ba Xo
+.Fl Fl port= Ns Ar string
+.Xc
+.Oc
+.Op Fl Fl version
+.Op Fl Fl help
+.Ek
+.Sh ОПИСАНИЕ
+.Nm
+обслуживает запросы на смену паролей. Он прослушивает UDP-порт 464
+(служба kpasswd) и обрабатывает запросы по мере поступления. Он изменяет
+базу данных напрямую и поэтому должен запускаться только на главном KDC.
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl Fl addresses= Ns Ar address
+При каждом указании аргумента добавлять адрес к списку адресов, которые
+kpasswdd должен прослушивать.
+.It Fl Fl check-library= Ns Ar library
+Если ваша система поддерживает динамическую загрузку разделяемых библиотек,
+можно использовать внешнюю функцию для проверки качества пароля. Эта
+опция указывает, какую библиотеку загружать.
+.It Fl Fl check-function= Ns Ar function
+Это функция, которую нужно вызвать в загруженной библиотеке. Функция
+должна выглядеть так:
+.Pp
+.Ft const char *
+.Pp
+.Fa context
+— инициализированный контекст;
+.Fa principal
+— тот, кто пытается сменить пароли, а
+.Fa password
+— новый пароль. Учтите, что пароль (в
+.Fa password->data )
+не завершается нулевым символом.
+.It Fl k Ar kspec , Fl Fl keytab= Ns Ar kspec
+Keytab, из которого берётся ключ аутентификации.
+.It Fl r Ar realm , Fl Fl realm= Ns Ar realm
+Область по умолчанию.
+.It Fl p Ar string , Fl Fl port= Ns Ar string
+Порт для прослушивания (по умолчанию служба kpasswd — 464).
+.El
+.Sh ДИАГНОСТИКА
+Если возникает ошибка, сообщение об ошибке возвращается пользователю и/или
+записывается в syslog.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Стандартные проверки качества пароля слишком примитивны.
+.Sh СМ. ТАКЖЕ
+.Xr kpasswd 1 ,
+.Xr kdc 8

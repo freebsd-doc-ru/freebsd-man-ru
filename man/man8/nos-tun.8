@@ -1,0 +1,99 @@
+.\"
+.\" ----------------------------------------------------------------------------
+.\" "THE BEER-WARE LICENSE" (Revision 42):
+.\" <phk@FreeBSD.org> wrote this file.  As long as you retain this notice you
+.\" can do whatever you want with this stuff. If we meet some day, and you think
+.\" this stuff is worth it, you can buy me a beer in return.   Poul-Henning Kamp
+.\" ----------------------------------------------------------------------------
+.\"
+.\" FRDP path sbin/nos-tun/nos-tun.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 40d130515521b89fd40a282850442272f0b9c10e80c8818129eeb3933189ddb6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 5, 2016
+.Dt NOS-TUN 8
+.Os
+.Sh ИМЯ
+.Nm nos-tun
+.Nd реализует туннель IP over IP в стиле ``nos'' или ``ka9q''
+.Sh СИНТАКСИС
+.Nm
+.Fl t
+.Ar туннель
+.Fl s
+.Ar источник
+.Fl d
+.Ar назначение
+.Fl p
+.Ar номер_протокола
+.Op Ar источник
+.Ar цель
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для установления туннеля в стиле
+.Em nos
+(также известного как
+.Em ka9q
+или
+.Em IP-IP
+туннель) с использованием интерфейса ядра
+.Xr tun 4 .
+.Pp
+.Ar Туннель
+— это имя туннельного устройства
+.Pa /dev/tun0
+например.
+.Pp
+.Ar Источник
+и
+.Ar назначение
+— это адреса, используемые на туннельном устройстве.
+Если вы настраиваете туннель на стороне маршрутизатора cisco, используйте маску сети
+.Dq 255.255.255.252
+на cisco.
+Это объясняется тем, что туннель является интерфейсом точка-точка
+со стороны
+.Fx
+— концепция, которую cisco на самом деле не реализует.
+.Pp
+.Ar Номер протокола
+задаёт режим туннеля.
+Оригинальный KA9Q NOS использует 94, но многие используют 4
+во всемирной магистрали ampr.org.
+.Pp
+.Ar Цель
+— это адрес удалённого туннельного устройства; он должен совпадать с исходным
+адресом, заданным на удалённой стороне.
+.Sh ПРИМЕРЫ
+На этой стороне — машина
+.Fx
+с адресом 192.168.59.34:
+.Bd -literal -offset indent
+nos-tun -t /dev/tun0 -s 192.168.61.1 -d 192.168.61.2 192.168.56.45
+.Ed
+.Pp
+Удалённый cisco с адресом 192.168.56.45:
+.Bd -literal -offset indent
+interface tunnel 0
+ip address 192.168.61.2 255.255.255.252
+tunnel mode nos
+tunnel destination 192.168.59.34
+tunnel source 192.168.56.45
+.Ed
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An -nosplit
+.An Nickolay N. Dudorov Aq Mt nnd@itfs.nsk.su
+написал программу,
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org
+написал страницу Справочника.
+.An Isao SEKI Aq Mt iseki@gongon.com
+добавил новый флаг — номер IP-протокола.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Мы не позволяем задавать наш исходный адрес для машин с несколькими сетевыми интерфейсами.

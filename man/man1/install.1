@@ -1,0 +1,374 @@
+.\" Copyright (c) 1987, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/xinstall/install.1
+.\" FRDP githash d34870708db9fa1eb8e29b5e085b755de1189b1f
+.\" FRDP hash256 75463e53c6c00516745ff0d7ce7002675743872c9537b4875215747894ecd45d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 19, 2026
+.Dt INSTALL 1
+.Os
+.Sh ИМЯ
+.Nm install
+.Nd устанавливает двоичные файлы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl bCcpSsUv
+.Op Fl B Ar суффикс
+.Op Fl D Ar destdir
+.Op Fl f Ar флаги
+.Op Fl g Ar группа
+.Op Fl h Ar хэш
+.Op Fl l Ar linkflags
+.Op Fl M Ar metalog
+.Op Fl m Ar режим
+.Op Fl N Ar dbdir
+.Op Fl o Ar владелец
+.Op Fl T Ar теги
+.Ar файл1 файл2
+.Nm
+.Op Fl bCcpSsUv
+.Op Fl B Ar суффикс
+.Op Fl D Ar destdir
+.Op Fl f Ar флаги
+.Op Fl g Ar группа
+.Op Fl h Ar хэш
+.Op Fl l Ar linkflags
+.Op Fl M Ar metalog
+.Op Fl m Ar режим
+.Op Fl N Ar dbdir
+.Op Fl o Ar владелец
+.Op Fl T Ar теги
+.Ar файл1 ... файлN каталог
+.Nm
+.Fl d
+.Op Fl Uv
+.Op Fl D Ar destdir
+.Op Fl g Ar группа
+.Op Fl h Ar хэш
+.Op Fl M Ar metalog
+.Op Fl m Ar режим
+.Op Fl N Ar dbdir
+.Op Fl o Ar владелец
+.Op Fl T Ar теги
+.Ar каталог ...
+.Sh ОПИСАНИЕ
+Файл(ы) копируются
+(или создаётся ссылка, если указан параметр
+.Fl l
+) в целевой файл или каталог.
+Если приёмник является каталогом, то
+.Ar файл
+копируется в
+.Ar каталог
+с исходным именем файла.
+Если целевой файл уже существует, он
+либо переименовывается в
+.Ar файл Ns Pa .old
+если указан параметр
+.Fl b
+, либо перезаписывается,
+если позволяют права доступа.
+Альтернативный суффикс резервной копии можно указать через
+аргумент параметра
+.Fl B .
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl B Ar суффикс
+Использовать
+.Ar суффикс
+в качестве суффикса резервной копии, если указан
+.Fl b .
+.It Fl b
+Создавать резервные копии любых существующих файлов перед их перезаписью, переименовывая
+их в
+.Ar файл Ns Pa .old .
+См.
+.Fl B
+для указания другого суффикса резервной копии.
+.It Fl C
+Копировать файл.
+Если целевой файл уже существует и файлы одинаковы,
+то не изменять время модификации целевого файла.
+Если флаги файла и режим целевого файла не нужно изменять,
+то время изменения inode целевого файла также не изменяется.
+.It Fl c
+Копировать файл.
+Фактически это поведение по умолчанию.
+Параметр
+.Fl c
+включён только для обратной совместимости.
+.It Fl D Ar destdir
+Указать
+.Ev DESTDIR
+(вершину иерархии файлов), в которую устанавливаются элементы.
+Если используется
+.Fl M Ar metalog ,
+то начальная строка
+.Dq Ar destdir
+будет удалена из имён файлов, записываемых в
+.Ar metalog .
+Этот параметр не влияет на то, куда устанавливаются сами файлы.
+.It Fl d
+Создавать каталоги.
+Отсутствующие родительские каталоги создаются по мере необходимости.
+.It Fl f Ar флаги
+Указать флаги целевого файла; см.
+.Xr chflags 1
+для списка возможных флагов и их значений.
+.It Fl g Ar группа
+Указать группу.
+Допускается числовой GID.
+.It Fl h Ar хэш
+При копировании вычислять дайджест файлов с помощью
+.Ar хэш
+для сохранения в
+.Fl M Ar metalog .
+Если указан
+.Fl d
+, хэш не выдаётся.
+Поддерживаемые дайджесты:
+.Bl -tag -width rmd160 -offset indent
+.It Sy none
+Без хэша.
+Это значение по умолчанию.
+.It Sy md5
+Криптографический дайджест сообщения MD5.
+.It Sy rmd160
+Криптографический дайджест сообщения RMD-160.
+.It Sy sha1
+Криптографический дайджест сообщения SHA-1.
+.It Sy sha256
+256-битный криптографический дайджест сообщения SHA-2 файла.
+.It Sy sha512
+512-битный криптографический дайджест сообщения SHA-2 файла.
+.El
+.It Fl l Ar linkflags
+Вместо копирования файла создать ссылку на источник.
+Тип ссылки определяется аргументом
+.Ar linkflags .
+Допустимые значения
+.Ar linkflags :
+.Bl -tag -width a -offset indent
+.It Sy a
+абсолютная
+.It Sy r
+относительная
+.It Sy h
+жёсткая
+.It Sy s
+символическая
+.It Sy m
+смешанная
+.El
+.Pp
+Абсолютные и относительные ссылки имеют значение только для символических ссылок.
+Смешанные ссылки
+являются жёсткими ссылками для файлов в одной файловой системе, в противном случае символическими.
+.It Fl M Ar metalog
+Записывать метаданные, связанные с каждым установленным элементом, в
+.Ar metalog
+в виде строки спецификации
+.Xr mtree 8
+.Dq полный путь .
+Метаданные включают: имя файла и тип файла, а в зависимости от
+других параметров — владельца, группу, флаги файла, время модификации и теги.
+.It Fl m Ar режим
+Указать альтернативный режим.
+Режим по умолчанию — rwxr-xr-x (0755).
+Указанный режим может быть восьмеричным или символьным значением; см.
+.Xr chmod 1
+для описания возможных значений режима.
+.It Fl N Ar dbdir
+Использовать текстовый файл базы данных пользователей
+.Pa master.passwd
+и текстовый файл базы данных групп
+.Pa group
+из
+.Ar dbdir ,
+вместо использования результатов системных библиотечных вызовов
+.Xr getpwnam 3
+и
+.Xr getgrnam 3
+(и связанных с ними).
+.It Fl o Ar владелец
+Указать владельца.
+Допускается числовой UID.
+.It Fl p
+Сохранять время доступа и модификации.
+Копировать файл, как если бы был указан параметр
+.Fl C
+(сравнить и скопировать),
+за исключением случаев, когда целевой файл ещё не существует или отличается;
+тогда сохранять время доступа и модификации исходного файла.
+.It Fl S
+Сбрасывать каждый файл на диск после копирования.
+Это оказывает заметное влияние на производительность, но снижает риск
+остаться с частично записанным файлом, если система аварийно завершит работу или потеряет питание
+вскоре после запуска
+.Nm .
+.Pp
+Исторически,
+.Fl S
+также включал использование временных файлов для обеспечения атомарности при
+замене существующего целевого файла.
+Временные файлы больше не являются необязательными.
+.It Fl s
+.Nm
+запускает команду
+.Xr strip 1
+для удаления отладочной информации из двоичных файлов, чтобы
+.Nm
+мог быть переносимым на большое
+число систем и типов двоичных файлов.
+См. ниже, как
+.Nm
+можно указать использовать другую программу для удаления отладочной информации из двоичных файлов.
+Этот параметр несовместим с
+.Fl d
+и
+.Fl l .
+.It Fl T Ar теги
+Указать теги
+.Xr mtree 8
+для записи в файл при использовании
+.Fl M Ar metalog .
+.It Fl U
+Указать, что install запущен без привилегий и что он не должен
+пытаться изменить владельца, группу или флаги файла назначения.
+Информацию, которая была бы обновлена, можно сохранить в файле журнала
+с помощью
+.Fl M Ar metalog .
+.It Fl v
+Заставить
+.Nm
+выводить подробные сообщения,
+показывая файлы по мере их установки или создания резервных копий.
+.El
+.Pp
+По умолчанию
+.Nm
+сохраняет все флаги файлов, за исключением флага
+.Dq nodump .
+.Pp
+Утилита
+.Nm
+пытается предотвратить перемещение файла на самого себя.
+.Pp
+Установка
+.Pa /dev/null
+создаёт пустой файл.
+Установка
+.Pa /dev/stdin
+или
+.Sy -
+копирует данные со стандартного ввода в целевой файл.
+.Sh ОКРУЖЕНИЕ
+Утилита
+.Nm
+проверяет наличие переменной окружения
+.Ev STRIPBIN
+и, если она присутствует,
+использует присвоенное значение как программу для запуска, если и когда
+был указан параметр
+.Fl s .
+.Pp
+Если переменная окружения
+.Ev DONTSTRIP
+присутствует,
+.Nm
+будет игнорировать любое указание параметра
+.Fl s .
+Это в основном используется для отладки коллекции портов
+.Fx .
+.Sh ФАЙЛЫ
+.Bl -tag -width INS@XXXXXX -offset indent
+.It Pa INS@XXXXXX
+Временные файлы с именем
+.Pa INS@XXXXXX ,
+где
+.Pa XXXXXX
+определяется
+.Xr mkstemp 3 ,
+создаются в целевом каталоге.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СОВМЕСТИМОСТЬ
+Исторически
+.Nm
+по умолчанию перемещал файлы.
+Поведение по умолчанию было изменено на копирование в
+.Fx 4.4 .
+.Sh СМ. ТАКЖЕ
+.Xr chflags 1 ,
+.Xr chgrp 1 ,
+.Xr chmod 1 ,
+.Xr cp 1 ,
+.Xr mv 1 ,
+.Xr strip 1 ,
+.Xr getgrnam 3 ,
+.Xr getpwnam 3 ,
+.Xr chown 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Значение параметра
+.Fl M
+изменилось начиная с
+.Fx 9.2 ,
+и теперь он принимает аргумент.
+Командные строки, использовавшие старый
+.Fl M ,
+получат ошибку или в редких случаях будут дописывать журналы в первый из
+нескольких исходных файлов вместо его установки.
+.Pp
+Временные файлы могут остаться в целевом каталоге, если
+.Nm
+завершится аварийно.
+.Pp
+Флаги файлов не могут быть установлены с помощью
+.Xr fchflags 2
+через файловую систему NFS.
+В других файловых системах нет понятия флагов.
+Утилита
+.Nm
+будет только предупреждать, когда флаги не удалось установить в файловой системе,
+которая их не поддерживает.
+.Pp
+Утилита
+.Nm
+с
+.Fl v
+ошибочно сообщает, что файл скопирован, когда
+.Fl C
+разрывает жёсткие ссылки.

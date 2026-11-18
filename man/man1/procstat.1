@@ -1,0 +1,901 @@
+.\"-
+.\" Copyright (c) 2007-2009 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/procstat/procstat.1
+.\" FRDP githash cc61a0793a0e7db8601e5eba1242befb810a5844
+.\" FRDP hash256 37adc9b6a781b59aa41ac5bc13f13904f05c99e563ec75d1174fb25fe4650df3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 16, 2025
+.Dt PROCSTAT 1
+.Os
+.Sh ИМЯ
+.Nm procstat
+.Nd получение подробной информации о процессах
+.Sh СИНТАКСИС
+.Nm
+.Op Fl -libxo
+.Op Fl h
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl w Ar interval
+.Ar command
+.Op Ar pid ... | Ar core ...
+.Nm
+.Op Fl -libxo
+.Fl a
+.Op Fl h
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl w Ar interval
+.Ar command
+.Nm
+.Op Fl -libxo
+.Op Fl h
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl w Ar interval
+.Oo
+.Fl b |
+.Fl c |
+.Fl e |
+.Fl f Oo Fl C Oc |
+.Fl i Oo Fl n Oc |
+.Fl j Oo Fl n Oc |
+.Fl k Oo Fl k Oc |
+.Fl l |
+.Fl r Oo Fl H Oc |
+.Fl s |
+.Fl S |
+.Fl t |
+.Fl v |
+.Fl x
+.Oc
+.Op Ar pid ... | Ar core ...
+.Nm
+.Op Fl -libxo
+.Fl a
+.Op Fl h
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl w Ar interval
+.Oo
+.Fl b |
+.Fl c |
+.Fl e |
+.Fl f Oo Fl C Oc |
+.Fl i Oo Fl n Oc |
+.Fl j Oo Fl n Oc |
+.Fl k Oo Fl k Oc |
+.Fl l |
+.Fl r Oo Fl H Oc |
+.Fl s |
+.Fl S |
+.Fl t |
+.Fl v |
+.Fl x
+.Oc
+.Nm
+.Op Fl -libxo
+.Fl L
+.Op Fl h
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl w Ar interval
+.Ar core ...
+.Nm pargs
+.Op Fl -libxo
+.Ar pid ...
+.Nm penv
+.Op Fl -libxo
+.Ar pid ...
+.Nm pwdx
+.Op Fl -libxo
+.Ar pid ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+выводит подробную информацию о процессах, определяемых аргументами
+.Ar pid ,
+или, если используется флаг
+.Fl a ,
+обо всех процессах.
+Она также может выводить информацию, извлечённую из файла core процесса,
+если файл core задан в качестве аргумента.
+.Pp
+Утилиты
+.Nm pargs ,
+.Nm penv
+и
+.Nm pwdx
+выводят соответственно аргументы, переменные окружения и текущий рабочий
+каталог процесса, указанного аргументом
+.Ar pid .
+Они повторяют поведение одноимённых утилит Solaris.
+.Pp
+Если указан флаг
+.Fl -libxo ,
+вывод формируется через
+.Xr libxo 3
+в одном из различных форматов, удобных для чтения человеком или машиной.
+Подробности об аргументах командной строки см. в
+.Xr xo_options 7 .
+.Pp
+Для
+.Nm
+доступны следующие команды:
+.Bl -tag -width indent
+.It Ar advlock
+Выводить информацию о рекомендательных блокировках файлов.
+Перечисляются все три типа блокировок: блокировки в стиле BSD
+.Xr lockf 2 ,
+блокировки в стиле POSIX
+.Xr fcntl 2
+.Va F_SETLK
+и удалённые блокировки
+.Xr lockd 8 ,
+используемые NFSv3.
+.Pp
+Заметим, что ни параметр
+.Fl a ,
+ни список
+.Va pid
+нельзя использовать для ограничения вывода блокировок, в основном потому,
+что некоторые типы блокировок не имеют локальных (или вообще никаких)
+владеющих процессов.
+.It Ar argument(s) | Fl c
+Показывать аргументы командной строки процесса.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar auxv | Fl x
+Показывать вспомогательный вектор ELF процесса.
+.It Ar basic
+Выводить базовую статистику процесса (используется по умолчанию).
+.It Ar binary | Fl b
+Показывать бинарную информацию о процессе.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar credential(s) | Fl s
+Показывать информацию об учётных данных безопасности процесса.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar cpuset | Ar cs | Fl S
+Показывать информацию cpuset для потока.
+.It Ar environment | Fl e
+Показывать переменные окружения процесса.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar file(s) | Ar fd(s) | Fl f
+Показывать информацию о дескрипторах файлов процесса.
+.Pp
+Если используется флаг подкоманды
+.Fl C ,
+выводится дополнительная информация о возможностях.
+.It Ar kqueue(s) Op Fl v
+Показывать события, зарегистрированные в kqueue процесса.
+Выводятся имя фильтра, специфичный для фильтра идентификатор, флаги,
+специфичные для фильтра флаги, системные и пользовательские данные и
+состояние события.
+Если для подкоманды указан подробный флаг
+.Fl v ,
+также выводятся значения массива ext.
+.Pp
+Для флагов выводится строка, состоящая из следующих символов,
+соответствующих установленным флагам:
+.Bl -tag -width X -compact
+.It O
+.Va EV_ONESHOT
+.It C
+.Va EV_CLEAR
+.It R
+.Va EV_RECEIPT
+.It D
+.Va EV_DISPATCH
+.It d
+.Va EV_DROP
+.It 1
+.Va EV_FLAG1
+.It 2
+.Va EV_FLAG2
+.El
+.Pp
+Для состояния:
+.Bl -tag -width X -compact
+.It A
+.Va KNOTE_STATUS_ACTIVE
+.It Q
+.Va KNOTE_STATUS_QUEUED
+.It D
+.Va KNOTE_STATUS_DISABLED
+.It d
+.Va KNOTE_STATUS_DETACHED
+.It K
+.Va KNOTE_STATUS_KQUEUE
+.El
+.It Ar kstack | Fl k
+Показывать стеки потоков ядра в процессе, исключая стеки потоков,
+которые в данный момент выполняются на CPU в пространстве пользователя.
+.Pp
+Если используется параметр подкоманды
+.Fl v
+(или флаг команды повторён), выводятся смещения функций, а также их имена.
+.It Ar pargs
+Показывать аргументы процесса.
+.It Ar penv
+Показывать переменные окружения процесса.
+.It Ar ptlwpinfo | Fl L
+Показывать информацию LWP процесса, относящуюся к его завершению по сигналу.
+.It Ar pwdx
+Показывать текущий рабочий каталог процесса.
+.It Ar rlimit | Fl l
+Показывать ограничения ресурсов процесса.
+.It Ar rlimitusage
+Показывать использование ограничений ресурсов процесса.
+.It Ar rusage | Fl r
+Показывать информацию об использовании ресурсов процесса.
+.Pp
+Если используется флаг подкоманды
+.Fl v
+.Pq или Fl H ,
+выводится статистика по потокам, а не по процессам.
+Во втором поле таблицы будет указан идентификатор потока, к которому
+относится строка информации.
+.It Ar signal(s) | Fl i
+Показывать информацию об ожидающих сигналах и их диспозиции для процесса.
+.Pp
+Если используется параметр подкоманды
+.Fl n ,
+вместо имён сигналов показываются номера сигналов.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar thread(s) | Fl t
+Показывать информацию о потоках процесса.
+.It Ar tsignal(s) | Fl j
+Показывать информацию об ожидающих и заблокированных сигналах для потоков процесса.
+.Pp
+Если используется параметр подкоманды
+.Fl n ,
+вместо имён сигналов показываются номера сигналов.
+.Pp
+Допускается указывать подстроки команд.
+.It Ar vm | Fl v
+Показывать отображения виртуальной памяти процесса.
+.El
+.Pp
+Все параметры формируют вывод в виде таблицы, первое поле которой —
+идентификатор процесса, к которому относится строка информации.
+Флаг
+.Fl h
+можно использовать для подавления заголовков таблицы.
+.Pp
+Флаг
+.Fl w
+можно использовать для задания интервала ожидания, через который
+повторяется вывод запрошенной информации о процессе.
+Если флаг
+.Fl w
+не указан, вывод не повторяется.
+.Pp
+Информация для параметров VM, дескрипторов файлов и cpuset доступна
+только владельцу процесса или суперпользователю.
+Значение cpuset, отображаемое как -1, означает, что информация либо
+недействительна, либо недоступна.
+.Ss Бинарная информация
+Выводится идентификатор процесса, команда и путь к исполняемому файлу процесса:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It OSREL
+osreldate для исполняемого файла процесса
+.It PATH
+путь к исполняемому файлу процесса (если доступен)
+.El
+.Ss Аргументы командной строки
+Выводится идентификатор процесса, команда и аргументы командной строки:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It ARGS
+аргументы командной строки (если доступны)
+.El
+.Ss Переменные окружения
+Выводится идентификатор процесса, команда и переменные окружения:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It ENVIRONMENT
+переменные окружения (если доступны)
+.El
+.Ss Дескрипторы файлов
+Выводится подробная информация о каждом дескрипторе файла, на который
+ссылается процесс, включая идентификатор процесса, команду, номер
+дескриптора файла и информацию об объекте для каждого дескриптора файла,
+такую как тип объекта и путь в файловой системе.
+По умолчанию выводится следующая информация:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It FD
+номер дескриптора файла или cwd/root/клетка
+.It T
+тип дескриптора файла
+.It V
+тип vnode
+.It FLAGS
+флаги дескриптора файла
+.It REF
+счётчик ссылок дескриптора файла
+.It OFFSET
+смещение дескриптора файла
+.It PRO
+сетевой протокол
+.It NAME
+путь к файлу или адреса сокетов (если доступны)
+.El
+.Pp
+Могут отображаться следующие типы дескрипторов файлов:
+.Pp
+.Bl -tag -width X -compact
+.It e
+семафор POSIX
+.It E
+eventfd
+.It f
+fifo
+.It h
+разделяемая память
+.It i
+дескриптор inotify
+.It k
+kqueue
+.It m
+очередь сообщений
+.It P
+дескриптор процесса
+.It p
+канал
+.It s
+сокет
+.It t
+ведущий псевдотерминал
+.It v
+vnode
+.El
+.Pp
+Могут отображаться следующие типы vnode:
+.Pp
+.Bl -tag -width X -compact
+.It -
+не vnode
+.It b
+блочное устройство
+.It c
+символьное устройство
+.It d
+каталог
+.It f
+fifo
+.It l
+символическая ссылка
+.It r
+обычный файл
+.It s
+сокет
+.It x
+отозванное устройство
+.El
+.Pp
+Могут отображаться следующие флаги дескриптора файла:
+.Pp
+.Bl -tag -width X -compact
+.It r
+чтение
+.It w
+запись
+.It a
+добавление
+.It s
+асинхронный
+.It f
+fsync
+.It n
+неблокирующий
+.It d
+прямой ввод-вывод
+.It l
+удерживается блокировка
+.El
+.Pp
+Если указан флаг
+.Fl C ,
+поля типа vnode, счётчика ссылок и смещения будут опущены, а новое поле
+возможностей будет включено в вывод со списком возможностей, как описано в
+.Xr cap_rights_limit 2 ,
+присутствующих для каждого дескриптора возможностей.
+.Pp
+Могут отображаться следующие сетевые протоколы (сгруппированные по семейству адресов):
+.Pp
+.Dv AF_INET ,
+.Dv AF_INET6
+.Pp
+.Bl -tag -width indent -compact
+.It ICM
+.Dv IPPROTO_ICMP ;
+см.
+.Xr icmp 4 .
+.It IP?
+неизвестный протокол.
+.It RAW
+.Dv IPPROTO_RAW ;
+см.
+.Xr ip 4 .
+.It SCT
+.Dv IPPROTO_SCTP ;
+см.
+.Xr sctp 4 .
+.It TCP
+.Dv IPPROTO_TCP ;
+см.
+.Xr tcp 4 .
+.It UDP
+.Dv IPPROTO_UDP ;
+см.
+.Xr udp 4 .
+.El
+.Pp
+.Dv AF_LOCAL
+.Pp
+.Bl -tag -width indent -compact
+.It UDD
+Сокет датаграмм.
+.It UDS
+Потоковый сокет.
+.It UDQ
+Сокет последовательных пакетов (Sequential Packet Stream).
+.It UD?
+неизвестный протокол.
+.El
+.Pp
+.Dv AF_DIVERT
+.Pp
+.Bl -tag -width indent -compact
+.It IPD
+.Dv сокет divert; см.
+.Xr divert 4 .
+.El
+.Pp
+.Bl -tag -width indent -compact
+.It ?
+неизвестное семейство адресов.
+.El
+.Ss Информация о диспозиции сигналов
+Выводится информация об ожидающих сигналах и их диспозиции для процесса:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It SIG
+имя сигнала
+.It FLAGS
+сведения о диспозиции сигналов процесса, три символа
+.Bl -tag -width X -compact
+.It P
+если сигнал ожидает обработки в глобальной очереди процесса; - иначе.
+.It I
+если диспозиция доставки сигнала —
+.Dv SIG_IGN ;
+- иначе.
+.It C
+если сигнал будет перехвачен; - иначе.
+.El
+.El
+.Pp
+Если задан переключатель
+.Fl n ,
+вместо имён сигналов показываются номера сигналов.
+.Ss Информация о сигналах потоков
+Выводится информация об ожидающих и заблокированных сигналах для потоков процесса:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It TID
+идентификатор потока
+.It COMM
+команда
+.It SIG
+имя сигнала
+.It FLAGS
+состояние доставки сигналов потока, два символа
+.Bl -tag -width X -compact
+.It P
+если сигнал ожидает обработки для потока, - иначе
+.It B
+если сигнал заблокирован в маске сигналов потока, - если не заблокирован
+.El
+.El
+.Pp
+Переключатель
+.Fl n
+действует так же, как для переключателя
+.Fl i :
+вместо имён сигналов показываются номера сигналов.
+.Ss Стеки потоков ядра
+Показывать стеки потоков ядра для процесса, что позволяет дополнительно
+интерпретировать каналы ожидания потоков.
+Если флаг
+.Fl k
+повторён, выводятся смещения функций, а не только их имена.
+.Pp
+Для этой возможности требуется, чтобы в ядро было скомпилировано
+or
+.
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It TID
+идентификатор потока
+.It COMM
+команда
+.It TDNAME
+имя потока
+.It KSTACK
+стек вызовов потока ядра
+.El
+.Ss Ограничения ресурсов
+Выводится информация об ограничениях ресурсов для процесса:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It RLIMIT
+имя ограничения ресурса
+.It SOFT
+мягкое ограничение
+.It HARD
+жёсткое ограничение
+.El
+.Ss Использование ресурсов
+Выводится информация об использовании ресурсов для процесса.
+Если указан флаг
+.Fl H ,
+вместо этого выводится информация об использовании ресурсов отдельными потоками.
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It TID
+идентификатор потока
+.Po
+если
+.Fl H
+указан
+.Pc
+.It COMM
+команда
+.It RESOURCE
+имя ресурса
+.It VALUE
+текущее использование
+.El
+.Ss Учётные данные безопасности
+Выводится информация об учётных данных процесса:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It EUID
+эффективный идентификатор пользователя
+.It RUID
+реальный идентификатор пользователя
+.It SVUID
+сохранённый идентификатор пользователя
+.It EGID
+эффективный идентификатор группы
+.It RGID
+реальный идентификатор группы
+.It SVGID
+сохранённый идентификатор группы
+.It UMASK
+маска режима создания файлов
+.It FLAGS
+флаги учётных данных
+.It GROUPS
+набор групп
+.El
+.Pp
+Могут отображаться следующие флаги учётных данных:
+.Pp
+.Bl -tag -width X -compact
+.It C
+режим возможностей
+.El
+.Ss Информация о потоках
+Выводится информация по каждому потоку, включая идентификатор процесса,
+идентификатор потока, имя, CPU и состояние выполнения:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It TID
+идентификатор потока
+.It COMM
+команда
+.It TDNAME
+имя потока
+.It CPU
+текущий или последний CPU, на котором выполнялся поток
+.It PRI
+приоритет потока
+.It STATE
+состояние потока
+.It WCHAN
+канал ожидания потока
+.El
+.Ss Отображения виртуальной памяти
+Выводится информация об отображениях виртуальной памяти процесса, включая
+адреса, метаданные отображения и информацию об отображённом объекте:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It START
+начальный адрес отображения
+.It END
+конечный адрес отображения
+.It PRT
+флаги защиты
+.It RES
+резидентные страницы
+.It PRES
+приватные резидентные страницы
+.It REF
+счётчик ссылок
+.It SHD
+счётчик теневых страниц
+.It FLAG
+флаги отображения
+.It TP
+тип объекта VM
+.El
+.Pp
+Могут отображаться следующие флаги защиты:
+.Pp
+.Bl -tag -width X -compact
+.It r
+чтение
+.It w
+запись
+.It x
+выполнение
+.El
+.Pp
+Могут отображаться следующие типы объектов VM:
+.Pp
+.Bl -tag -width XX -compact
+.It --
+нет
+.It dd
+мёртвый
+.It df
+по умолчанию
+.It dv
+устройство
+.It md
+устройство с управляемыми страницами
+.Pq GEM/TTM
+.It ph
+физический
+.It sg
+scatter/gather
+.It sw
+swap
+.It vn
+vnode
+.It gd
+защитный (псевдотип)
+.El
+.Pp
+Могут отображаться следующие флаги отображения:
+.Pp
+.Bl -tag -width X -compact
+.It C
+копирование при записи
+.It N
+требуется копирование
+.It S
+используется одно или несколько отображений суперстраниц
+.It D
+растёт вниз (стек сверху вниз)
+.It U
+растёт вверх (стек снизу вверх)
+.It W
+страницы в этом диапазоне заблокированы с помощью
+.Xr mlock 2
+или
+.Xr mlockall 2
+.El
+.Ss Вспомогательный вектор ELF
+Выводятся значения вспомогательного вектора ELF:
+.Pp
+.Bl -tag -width indent -compact
+.It PID
+идентификатор процесса
+.It COMM
+команда
+.It AUXV
+имя вспомогательного вектора
+.It VALUE
+значение вспомогательного вектора
+.El
+.Ss Информация о рекомендательных блокировках
+.Bl -tag -width indent -compact
+.It RW
+Тип чтения/записи,
+.Va RO
+для чтения,
+.Va RW
+для блокировки записи
+.It TYPE
+Тип блокировки, один из
+.Va FLOCK
+для
+.Xr flock 2 ,
+.Va FCNTL
+для
+.Xr fcntl 2 ,
+.Va LOCKD
+для удалённой
+.It PID
+Идентификатор процесса владельца, для
+.Va FCNTL
+и удалённых типов
+.It SYSID
+Идентификатор удалённой системы, если применимо
+.It FSID
+Идентификатор файловой системы, в которой изменяется размер заблокированного файла
+.It RDEV
+rdev для файловой системы
+.It INO
+Уникальный идентификатор файла (номер inode) заблокированного файла
+в файловой системе
+.It START
+Начальное смещение заблокированного диапазона
+.It LEN
+Длина заблокированного диапазона.
+Ноль означает до EOF
+.It PATH
+Если доступен, путь к заблокированному файлу
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Показать бинарную информацию о текущей оболочке:
+.Bd -literal -offset indent
+$ procstat binary $$
+  PID COMM                OSREL PATH
+46620 bash              1201000 /usr/local/bin/bash
+.Ed
+.Pp
+То же, что выше, но с информацией об открытых дескрипторах файлов:
+.Bd -literal -offset indent
+$ procstat files $$
+  PID COMM                FD T V FLAGS    REF  OFFSET PRO NAME
+46620 bash              text v r r-------   -       - -   /usr/local/bin/bash
+46620 bash              ctty v c rw------   -       - -   /dev/pts/12
+46620 bash               cwd v d r-------   -       - -   /tmp
+46620 bash              root v d r-------   -       - -   /
+46620 bash                 0 v c rw------   7  372071 -   /dev/pts/12
+46620 bash                 1 v c rw------   7  372071 -   /dev/pts/12
+46620 bash                 2 v c rw------   7  372071 -   /dev/pts/12
+46620 bash               255 v c rw------   7  372071 -   /dev/pts/12
+.Ed
+.Pp
+Показать аргументы, использованные для запуска
+.Xr init 8 :
+.Bd -literal -offset indent
+$ procstat arguments 1
+  PID COMM             ARGS
+    1 init             /sbin/init --
+.Ed
+.Pp
+Извлечь бинарную информацию из дампа памяти:
+.Bd -literal -offset indent
+$ procstat binary core.36642
+  PID COMM                OSREL PATH
+36642 top               1201000 /usr/bin/top
+.Ed
+.Pp
+Попытка извлечь информацию из core-файла, созданного в другой основной
+версии
+.Fx
+может выдать ошибку следующего вида:
+.Bd -literal -offset indent
+$ procstat mplayer.core
+procstat: kinfo_proc structure size mismatch
+procstat: procstat_getprocs()
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr ps 1 ,
+.Xr sockstat 1 ,
+.Xr cap_enter 2 ,
+.Xr cap_rights_limit 2 ,
+.Xr inotify 2 ,
+.Xr mlock 2 ,
+.Xr mlockall 2 ,
+.Xr libprocstat 3 ,
+.Xr libxo 3 ,
+.Xr signal 3 ,
+.Xr xo_options 7 ,
+.Xr ddb 4 ,
+.Xr divert 4 ,
+.Xr icmp 4 ,
+.Xr ip 4 ,
+.Xr sctp 4 ,
+.Xr tcp 4 ,
+.Xr udp 4 ,
+.Xr stack 9
+.Sh АВТОРЫ
+.An Robert N M Watson Aq Mt rwatson@FreeBSD.org .
+.br
+Поддержка
+.Xr libxo 3
+была добавлена
+.An -nosplit
+Allan Jude
+.Aq Mt allanjude@FreeBSD.org .
+.br
+.An Juraj Lutter
+.Aq Mt juraj@lutter.sk
+добавил функциональность pargs, penv и pwdx.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Отображение путей открытых файлов или отображений памяти реализовано с
+использованием кэша имён ядра.
+Если файловая система не использует кэш имён или путь к файлу отсутствует
+в кэше, путь не будет отображён.
+.Pp
+.Nm
+в настоящее время поддерживает извлечение данных только из работающего ядра,
+а не из дампов падения ядра.

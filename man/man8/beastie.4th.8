@@ -1,0 +1,177 @@
+.\" Copyright (c) 2011-2012 Devin Teske
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path stand/forth/beastie.4th.8
+.\" FRDP githash 3c242182fb4b07cf0a7fb3f3b80b39c879c7b617
+.\" FRDP hash256 b3ab98b850ad1c823b0f1cbfa0b45f5c0a0510931ba851eff2b8219d9697c473
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 6, 2016
+.Dt BEASTIE.4TH 8
+.Os
+.Sh ИМЯ
+.Nm beastie.4th
+.Nd Загрузочный модуль ASCII-графики FreeBSD
+.Sh ОПИСАНИЕ
+Файл, носящий имя
+.Nm
+представляет собой набор команд, предназначенных для отрисовки ASCII-графики талисмана FreeBSD
+\(en известного просто как
+.Em beastie
+\(en справа от меню загрузчика.
+Сами по себе команды
+.Nm
+недостаточны для большинства случаев использования.
+Обратитесь к приведённым ниже примерам для наиболее распространённых ситуаций и к
+.Xr loader 8
+для дополнительных команд.
+.Pp
+Перед использованием любой из команд, предоставляемых в
+.Nm ,
+его необходимо включить с помощью команды:
+.Pp
+.Dl include beastie.4th
+.Pp
+Эта строка присутствует в стандартном файле
+.Pa /boot/loader.rc
+поэтому в обычной конфигурации она не нужна (и не должна добавляться повторно).
+.Pp
+Предоставляемые им команды:
+.Pp
+.Bl -tag -width disable-module_module -compact -offset indent
+.It Ic draw-beastie
+Рисует логотип FreeBSD.
+.Pp
+Логотип, который рисуется, настраивается путём установки переменной
+.Ic loader_logo
+в
+.Xr loader.conf 5
+в одно из значений
+.Dq Li beastie ,
+.Dq Li beastiebw ,
+.Dq Li fbsdbw ,
+.Dq Li orb ,
+и
+.Dq Li orbbw
+(по умолчанию).
+.Pp
+Положение логотипа можно настроить, задав переменные
+.Ic loader_logo_x
+и
+.Ic loader_logo_y
+в
+.Xr loader.conf 5 .
+Значения по умолчанию — 46 (x) и 4 (y).
+.Pp
+.It Ic clear-beastie
+Очищает экран от beastie.
+.Pp
+.It Ic beastie-start
+Инициализирует интерактивное меню загрузчика.
+.Pp
+Переменную
+.Ic loader_delay
+можно настроить в
+.Xr loader.conf 5
+указав число секунд, на которое вы хотите задержать загрузку меню загрузки.
+Во время задержки пользователь может нажать Ctrl-C, чтобы вернуться к
+.Ic autoboot
+или ENTER, чтобы продолжить.
+По умолчанию задержка не выполняется.
+.El
+.Pp
+Переменные окружения, влияющие на его поведение:
+.Bl -tag -width bootfile -offset indent
+.It Va loader_logo
+Выбирает нужный логотип в меню загрузки beastie.
+Возможные значения:
+.Dq Li fbsdbw ,
+.Dq Li beastie ,
+.Dq Li beastiebw ,
+.Dq Li orb ,
+.Dq Li orbbw
+(по умолчанию) и
+.Dq Li none .
+.It Va loader_logo_x
+Задаёт желаемую позицию логотипа по столбцу.
+По умолчанию — 46.
+.It Va loader_logo_y
+Задаёт желаемую позицию логотипа по строке.
+По умолчанию — 4.
+.It Va beastie_disable
+Если установлено в
+.Dq YES ,
+меню загрузки beastie будет пропущено.
+Меню загрузки beastie всегда пропускается при работе на оборудовании, отличном от x86.
+.It Va loader_delay
+Если задано число больше нуля, вводит задержку перед запуском
+меню загрузки beastie.
+Во время задержки пользователь может нажать либо Ctrl-C, чтобы пропустить меню, либо ENTER,
+чтобы перейти к меню.
+По умолчанию при загрузке меню задержка не выполняется.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/loader.4th -compact
+.It Pa /boot/loader
+Загрузчик
+.Xr loader 8 .
+.It Pa /boot/beastie.4th
+.Nm
+сам по себе.
+.It Pa /boot/loader.rc
+Сценарий начальной загрузки
+.Xr loader 8 .
+.El
+.Sh ПРИМЕРЫ
+Стандартный для i386
+.Pa /boot/loader.rc :
+.Pp
+.Bd -literal -offset indent -compact
+include /boot/beastie.4th
+beastie-start
+.Ed
+.Pp
+Задайте другой логотип в
+.Xr loader.conf 5 :
+.Pp
+.Bd -literal -offset indent -compact
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr loader.conf 5 ,
+.Xr loader 8 ,
+.Xr loader.4th 8
+.Sh ИСТОРИЯ
+Набор команд
+.Nm
+впервые появился в
+.Fx 5.1 .
+.Sh АВТОРЫ
+Набор команд
+.Nm
+был написан
+.An -nosplit
+.An Scott Long Aq Mt scottl@FreeBSD.org ,
+.An Aleksander Fafula Aq Mt alex@fafula.com
+и
+.An Devin Teske Aq Mt dteske@FreeBSD.org .

@@ -1,0 +1,117 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/rmdir.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 172d96f233cd443fff012a95cb43f0f33aca304269b6ed819e5ca9a65b80b269
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt RMDIR 2
+.Os
+.Sh NAME
+.Nm rmdir
+.Nd удалить файл каталога
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn rmdir "const char *path"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn rmdir
+удаляет файл каталога,
+имя которого задано в
+.Fa path .
+Каталог не должен содержать записей, кроме
+.Ql .\&
+и
+.Ql \&.. .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std rmdir
+.Sh ОШИБКИ
+Указанный файл удаляется, если только не возникнет одна из следующих ситуаций:
+.Bl -tag -width Er
+.It Bq Er ENOTDIR
+Компонент пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или полное имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Указанный каталог не существует.
+.It Bq Er ELOOP
+При преобразовании имени пути встретилось слишком много символических ссылок.
+.It Bq Er ENOTEMPTY
+Указанный каталог содержит файлы, отличные от
+.Ql .\&
+и
+.Ql ..\& .
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути отказано.
+.It Bq Er EACCES
+В разрешении на запись в каталог, содержащий удаляемую ссылку, отказано.
+.It Bq Er EPERM
+У удаляемого каталога установлен флаг immutable, undeletable или append-only,
+см. страницу руководства
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EPERM
+У родительского каталога удаляемого каталога установлен флаг immutable или
+append-only.
+.It Bq Er EPERM
+Каталог, содержащий удаляемый каталог, помечен как sticky,
+и ни содержащий каталог, ни удаляемый каталог
+не принадлежат действующему идентификатору пользователя.
+.It Bq Er EINVAL
+Последний компонент пути —
+.Ql .\&
+или
+.Ql .. .
+.It Bq Er EBUSY
+Удаляемый каталог является точкой монтирования
+для смонтированной файловой системы.
+.It Bq Er EIO
+Произошла ошибка ввода-вывода при удалении записи каталога
+или освобождении inode.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EROFS
+Удаляемая запись каталога находится на файловой системе, доступной только для чтения.
+.It Bq Er EFAULT
+Аргумент
+.Fa path
+указывает за пределы выделенного адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mkdir 2 ,
+.Xr unlink 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn rmdir
+появился в
+.Bx 4.2 .

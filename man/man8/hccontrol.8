@@ -1,0 +1,221 @@
+.\" Copyright (c) 2001-2002 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id: hccontrol.8,v 1.6 2003/08/06 21:26:38 max Exp $
+.\"
+.\" FRDP path usr.sbin/bluetooth/hccontrol/hccontrol.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 0d6ac43121f8df2a0887100b804ec7bee1cb59285cd2e82d22c008273ac4edbf
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 3, 2020
+.Dt HCCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm hccontrol
+.Nd Утилита конфигурации Bluetooth HCI
+.Sh СИНТАКСИС
+.Nm
+.Op Fl hN
+.Op Fl n Ar HCI_node_name
+.Ar команда
+.Op Ar параметры ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+подключается к указанному узлу Netgraph типа
+.Dv HCI
+или к первому найденному, если ни один не указан, и пытается отправить указанную
+команду узлу HCI Netgraph или связанному устройству Bluetooth.
+Утилита
+.Nm
+выводит результаты в стандартный вывод, а сообщения об ошибках в
+стандартный поток ошибок.
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl h
+Показать сообщение об использовании и выйти.
+.It Fl N
+Показывать адреса Bluetooth как числа.
+Обычно
+.Nm
+пытается разрешить адреса Bluetooth и отображает их символически.
+.It Fl n Ar HCI_node_name
+Подключиться к указанному узлу HCI Netgraph.
+.It Ar команда
+Одна из поддерживаемых команд (см. ниже).
+Специальная команда
+.Cm help
+может использоваться для получения списка всех поддерживаемых команд.
+Чтобы получить больше информации о конкретной команде, используйте
+.Cm help Ar команда .
+.It Ar параметры
+Один или несколько необязательных параметров команды, разделённых пробелами.
+Многие команды требуют адрес удалённого устройства в качестве одного из параметров.
+Адрес удалённого устройства может быть указан как BD_ADDR или имя.
+Если указано имя, то утилита
+.Nm
+попытается разрешить имя с помощью
+.Xr bt_gethostbyname 3 .
+.El
+.Sh КОМАНДЫ
+В настоящее время в
+.Nm
+поддерживаются следующие команды HCI:
+.Pp
+.Bl -tag -width 40n -offset indent -compact
+.It Cm Inquiry
+.It Cm Create_Connection
+.It Cm Disconnect
+.It Cm Add_SCO_Connection
+.It Cm Change_Connection_Packet_Type
+.It Cm Remote_Name_Request
+.It Cm Read_Remote_Supported_Features
+.It Cm Read_Remote_Version_Information
+.It Cm Read_Clock_Offset
+.It Cm Role_Discovery
+.It Cm Switch_Role
+.It Cm Read_Link_Policy_Settings
+.It Cm Write_Link_Policy_Settings
+.It Cm Reset
+.It Cm Read_Pin_Type
+.It Cm Write_Pin_Type
+.It Cm Read_Stored_Link_Key
+.It Cm Write_Stored_Link_Key
+.It Cm Delete_Stored_Link_Key
+.It Cm Change_Local_Name
+.It Cm Read_Local_Name
+.It Cm Read_Connection_Accept_Timeout
+.It Cm Write_Connection_Accept_Timeout
+.It Cm Read_Page_Timeout
+.It Cm Write_Page_Timeout
+.It Cm Read_Scan_Enable
+.It Cm Write_Scan_Enable
+.It Cm Read_Page_Scan_Activity
+.It Cm Write_Page_Scan_Activity
+.It Cm Read_Inquiry_Scan_Activity
+.It Cm Write_Inquiry_Scan_Activity
+.It Cm Read_Authentication_Enable
+.It Cm Write_Authentication_Enable
+.It Cm Read_Encryption_Mode
+.It Cm Write_Encryption_Mode
+.It Cm Read_Class_Of_Device
+.It Cm Write_Class_Of_Device
+.It Cm Read_Voice_Settings
+.It Cm Write_Voice_Settings
+.It Cm Read_Number_Broadcast_Retransmissions
+.It Cm Write_Number_Broadcast_Retransmissions
+.It Cm Read_Hold_Mode_Activity
+.It Cm Write_Hold_Mode_Activity
+.It Cm Read_SCO_Flow_Control_Enable
+.It Cm Write_SCO_Flow_Control_Enable
+.It Cm Read_Link_Supervision_Timeout
+.It Cm Write_Link_Supervision_Timeout
+.It Cm Read_Page_Scan_Period_Mode
+.It Cm Write_Page_Scan_Period_Mode
+.It Cm Read_Page_Scan_Mode
+.It Cm Write_Page_Scan_Mode
+.It Cm Read_LE_Host_Support
+.It Cm Write_LE_Host_Support
+.It Cm Read_Local_Version_Information
+.It Cm Read_Local_Supported_Commands
+.It Cm Read_Local_Supported_Features
+.It Cm Read_Buffer_Size
+.It Cm Read_Country_Code
+.It Cm Read_BD_ADDR
+.It Cm Read_Failed_Contact_Counter
+.It Cm Reset_Failed_Contact_Counter
+.It Cm Get_Link_Quality
+.It Cm Read_RSSI
+.It Cm LE_Enable
+.It Cm LE_Read_Local_Supported_Features
+.It Cm LE_Set_Advertising_Parameters
+.It Cm LE_Read_Advertising_Physical_Channel_Tx_Power
+.It Cm LE_Set_Advertising_Data
+.It Cm LE_Set_Scan_Response_Data
+.It Cm LE_Set_Advertising_Enable
+.It Cm LE_Set_Scan_Parameters
+.It Cm LE_Set_Scan_Enable
+.It Cm LE_Read_Supported_States
+.It Cm LE_Read_Buffer_Size
+.It Cm LE_Scan
+.It Cm LE_Read_White_List_Size
+.It Cm LE_Clear_White_List
+.It Cm LE_Add_Device_To_White_List
+.It Cm LE_Remove_Device_From_White_List
+.It Cm LE_Connect
+.It Cm LE_Read_Channel_Map
+.It Cm LE_Read_Remote_Features
+.It Cm LE_Rand
+.El
+.Pp
+В настоящее время в
+.Nm
+поддерживаются следующие команды узла:
+.Pp
+.Bl -tag -width 40n -offset indent -compact
+.It Cm Read_Node_State
+.It Cm Initialize
+.It Cm Read_Debug_Level
+.It Cm Write_Debug_Level
+.It Cm Read_Node_Buffer_Size
+.It Cm Read_Node_BD_ADDR
+.It Cm Read_Node_Features
+.It Cm Read_Node_Stat
+.It Cm Reset_Node_Stat
+.It Cm Flush_Neighbor_Cache
+.It Cm Read_Neighbor_Cache
+.It Cm Read_Connection_List
+.It Cm Read_Node_Link_Policy_Settings_Mask
+.It Cm Write_Node_Link_Policy_Settings_Mask
+.It Cm Read_Node_Packet_Mask
+.It Cm Write_Node_Packet_Mask
+.It Cm Read_Node_Role_Switch
+.It Cm Write_Node_Role_Switch
+.It Cm Read_Node_List
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+Сделайте хост Bluetooth LE, ubt0hci, доступным для сканирования с помощью команд
+.Xr hccontrol 8 :
+.Bd -literal -offset indent
+hccontrol -n ubt0hci le_set_advertising_enable disable
+hccontrol -n ubt0hci le_set_advertising_param
+hccontrol -n ubt0hci le_read_advertising_channel_tx_power
+hccontrol -n ubt0hci le_set_advertising_data
+hccontrol -n ubt0hci le_set_scan_response -n FBSD_Host
+hccontrol -n ubt0hci le_set_advertising_enable enable
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr bluetooth 3 ,
+.Xr netgraph 3 ,
+.Xr netgraph 4 ,
+.Xr ng_hci 4
+.Sh АВТОРЫ
+.An Maksim Yevmenkin Aq Mt m_evmenkin@yahoo.com
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Скорее всего.
+Пожалуйста, сообщите, если обнаружено.

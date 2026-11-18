@@ -1,0 +1,267 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2021 Daniel Ebdrup Jensen
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/git/git-arc.1
+.\" FRDP githash 20e6354fe78328494176427aa4fc49357d433460
+.\" FRDP hash256 395f044e7248903c01022bc098d00ef68225ab9d5ca3dc097863158de60821b1
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd Janurary 15, 2025
+.Dt GIT-ARC 1
+.Os
+.Sh ИМЯ
+.Nm git-arc
+.Nd обёртка для улучшения интеграции между git и arcanist
+.Sh СИНТАКСИС
+.Nm
+.Cm create
+.Op Fl l
+.Op Fl r Ar рецензент1 Ns Op Cm \&, Ns Ar рецензент2 ...
+.Op Fl s Ar подписчик1 Ns Op Cm \&, Ns Ar подписчик2 ...
+.Op Fl p Ar родитель
+.Op Ar коммит ... Ns | Ns Ar диапазон-коммитов
+.Nm
+.Cm list Ar коммит ... Ns | Ns Ar диапазон-коммитов
+.Nm
+.Cm patch
+.Op Fl c
+.Ar diff1 Ns Op Cm \&, Ns Ar diff2
+.Nm
+.Cm stage
+.Op Fl b Ar ветка
+.Op Ar коммит ... Ns | Ns Ar диапазон-коммитов
+.Nm
+.Cm update
+.Op Fl l
+.Op Fl m Ar сообщение
+.Op Ar коммит ... Ns | Ns Ar диапазон-коммитов
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт и управляет
+.Fx
+ревью Phabricator на основе коммитов git.
+Требуется
+.Pa devel/arcanist
+порт или пакет.
+.Pp
+.Nm
+предполагает взаимно однозначное соответствие между коммитами git и
+ревизиями Differential, и заголовок ревизии Differential должен совпадать
+со строкой сводки соответствующего коммита.
+В частности, сводки коммитов должны быть уникальными среди всех открытых
+ревизий Differential, автором которых является отправитель.
+.Pp
+Первый параметр должен быть глаголом.
+Доступные глаголы:
+.Bl -tag -width indent
+.It Cm create
+Создать новые ревизии Differential из указанных коммитов.
+Принимает параметры:
+.Bl -tag -width indent
+.It Fl l
+Перед обработкой коммита(ов) показать список коммитов для обработки
+и дождаться подтверждения.
+.It Fl r Ar рецензент
+Добавить одного или нескольких рецензентов, разделённых запятыми, в создаваемые ревизии.
+Каждый аргумент должен быть существующим пользователем или группой Phabricator.
+Обратите внимание, что групповых рецензентов нужно указывать с помощью их хэштега.
+.It Fl s Ar подписчик
+Добавить одного или нескольких подписчиков, разделённых запятыми, в создаваемые ревизии.
+Каждый аргумент должен быть существующим пользователем или группой Phabricator.
+.It Fl p Ar родитель
+Указать родителя первого коммита в списке.
+Это полезно при добавлении новых коммитов поверх уже существующего
+стека в Phabricator.
+.El
+.It Cm list
+Вывести связанные ревизии Differential для указанных коммитов.
+.It Cm patch
+Попытаться применить патч из ревизии Differential к текущему
+рабочему дереву.
+.It Cm stage
+Подготовить серию коммитов для отправки в вышестоящий
+.Fx
+репозиторий.
+Коммиты переносятся (cherry-pick) в ветку (по умолчанию ветку
+.Dq main
+), теги ревью добавляются в сообщение коммита, и
+сообщение открывается в редакторе для любых последних
+правок.
+Коммиты не обязаны иметь связанные ревизии Differential.
+.It Cm update
+Синхронизировать ревизии Differential, связанные с
+указанными коммитами.
+Сейчас обновляется только diff; описание ревью и другие
+метаданные не синхронизируются.
+Если сообщение указано с помощью
+.Fl m ,
+это сообщение добавляется как примечание к ревизии Differential.
+Если сообщение не предоставлено,
+откроется редактор пользователя, чтобы предоставить сообщение об обновлении для
+каждой ревизии.
+Если через
+.Fl m
+передано пустое сообщение, то при обновлении ревизий Differential примечания не добавляются.
+.Pp
+Если используется
+.Fl l
+, показать список коммитов для обновления и дождаться подтверждения
+списка, вместо запроса для каждого коммита.
+.El
+.Sh КОНФИГУРАЦИЯ
+Эти параметры управляются с помощью
+.Nm git-config :
+.Bl -tag -width indent
+.It Va arc.assume_yes
+Предполагать ответ
+.Dq да
+на все запросы вместо
+запроса пользователю.
+Эквивалентно
+.Fl y
+флагу.
+По умолчанию false.
+.It Va arc.browse
+Пытаться открыть только что созданные ревью во вкладке браузера.
+По умолчанию false.
+.It Va arc.list
+Всегда использовать
+.Dq режим списка
+.Pq Fl l
+с create и update.
+В этом режиме список ревизий git для использования
+выводится с одним запросом перед созданием или обновлением ревью.
+Diff отдельных коммитов не показываются.
+По умолчанию false.
+.It Va arc.verbose
+Всегда использовать подробный вывод.
+Эквивалентно
+.Fl v
+флагу.
+По умолчанию false.
+.El
+.Sh ПРИМЕРЫ
+Типичное сквозное использование выглядит примерно так.
+.Pp
+Зафиксируйте изменения с сообщением и создайте ревизию Differential:
+.Bd -literal -offset indent
+$ git arc create HEAD
+.Ed
+.Pp
+Внесите изменения в diff на основе отзывов ревью, затем исправьте
+изменения в существующем коммите и обновите ревизию Differential:
+.Bd -literal -offset indent
+$ git commit --amend
+$ git arc update HEAD
+.Ed
+.Pp
+Теперь, когда все рецензенты довольны, пора подготовить коммит и
+отправить его:
+.Bd -literal -offset indent
+$ git arc stage HEAD
+$ git push freebsd HEAD:main
+.Ed
+.Pp
+Создайте ревью Phabricator, используя содержимое самого последнего
+коммита в вашем рабочем дереве git:
+.Bd -literal -offset indent
+$ git arc create -r markj,#jails HEAD
+.Ed
+.Pp
+Заголовок коммита используется как заголовок ревью, сообщение коммита
+используется как описание ревью, и
+.Aq Mt markj@FreeBSD.org
+добавляется как рецензент.
+Также группа рецензентов
+.Dq Jails
+добавляется с помощью её хэштега.
+.Pp
+Создайте серию ревью Phabricator для каждого из HEAD~2, HEAD~ и
+HEAD:
+.Bd -literal -offset indent
+$ git arc create HEAD~3..HEAD
+.Ed
+.Pp
+Пары последовательных коммитов связываются в стек патчей.
+Обратите внимание, что первый коммит в указанном диапазоне исключён.
+.Pp
+Создайте серию отдельных ревью для каждого из следующих коммитов:
+.Bd -literal -offset indent
+$ git arc create b409afcfedcdda ca03ed1345aff0
+.Ed
+.Pp
+Обновите ревью, соответствующее коммиту b409afcfedcdda:
+.Bd -literal -offset indent
+$ git arc update b409afcfedcdda
+.Ed
+.Pp
+Заголовок коммита должен быть таким же, каким он был при создании
+ревью.
+Обратите внимание, что описание ревью не обновляется автоматически.
+.Pp
+Примените патч из ревью D12345 к текущему рабочему дереву
+и подготовьте его:
+.Bd -literal -offset indent
+$ git arc patch D12345
+.Ed
+.Pp
+Примените патч из ревью D23456 к текущему рабочему дереву
+и зафиксируйте его в дереве с сообщением коммита из ревью,
+сделав наилучшее предположение о том, что использовать в качестве автора.
+Если предположение считается ненадёжным, пользователю предлагается решить,
+хочет ли он использовать его (или прервать).
+.Bd -literal -offset indent
+$ git arc patch -c D23456
+.Ed
+.Pp
+Показать статус ревью для всех коммитов в ветке
+.Dq feature :
+.Bd -literal -offset indent
+$ git arc list main..feature
+.Ed
+.Pp
+Обновить ревью для всех коммитов в ветке
+.Dq feature
+после перебазирования:
+.Bd -literal -offset indent
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr build 7 ,
+.Xr development 7
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в коллекции инструментов src в
+.Fx 14.0 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+была написана
+.An -nosplit
+.An Mark Johnston Aq Mt markj@FreeBSD.org
+а страница руководства была написана
+.An Daniel Ebdrup Jensen Aq Mt debdrup@FreeBSD.org .

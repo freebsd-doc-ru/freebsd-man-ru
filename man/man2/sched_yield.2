@@ -1,0 +1,62 @@
+.\" Copyright (c) 1998 HD Associates, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/sched_yield.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 37cf89932eb0fde4bb94c583da7471e87e3fec4e8cfe5d6acdd9106622eef255
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 12, 1998
+.Dt SCHED_YIELD 2
+.Os
+.Sh ИМЯ
+.Nm sched_yield
+.Nd уступить процессор
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sched.h
+.Ft int
+.Fn sched_yield void
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn sched_yield
+заставляет выполняющийся процесс уступить процессор до тех пор, пока он
+снова не станет первым в списке процессов.
+Он не принимает аргументов.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std sched_yield
+.Sh ОШИБКИ
+В случае сбоя
+.Va errno
+будет установлен в соответствующее значение:
+.Bl -tag -width Er
+.It Bq Er ENOSYS
+Система не сконфигурирована для поддержки этой функциональности.
+.El
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn sched_yield
+соответствует
+.St -p1003.1b-93 .

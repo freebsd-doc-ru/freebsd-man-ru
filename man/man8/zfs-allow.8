@@ -1,0 +1,485 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\" Copyright (c) 2026, TrueNAS.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-allow.8
+.\" FRDP githash 2c00a4216378d1c7d21cb983d1621a159c755c27
+.\" FRDP hash256 f8ede025f7dfbe70455808edb1ba2e7c6afe70817c41159efa7a7561b74281e8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 14, 2026
+.Dt ZFS-ALLOW 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-allow
+.Nd делегировать права администрирования ZFS непривилегированным пользователям
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm allow
+.Op Fl dglu
+.Ar пользователь Ns | Ns Ar группа Ns Oo , Ns Ar пользователь Ns | Ns Ar группа Oc Ns …
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm allow
+.Op Fl dl
+.Fl e Ns | Ns Sy everyone
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm allow
+.Fl c
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm allow
+.Fl s No @ Ns Ar имя_набора
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm unallow
+.Op Fl dglru
+.Ar пользователь Ns | Ns Ar группа Ns Oo , Ns Ar пользователь Ns | Ns Ar группа Oc Ns …
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm unallow
+.Op Fl dlr
+.Fl e Ns | Ns Sy everyone
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm unallow
+.Op Fl r
+.Fl c
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Nm zfs
+.Cm unallow
+.Op Fl r
+.Fl s No @ Ns Ar имя_набора
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm allow
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Отображает права, делегированные для указанной файловой системы или
+тома.
+См. другие формы
+.Nm zfs Cm allow
+для получения дополнительной информации.
+.Pp
+Делегирование поддерживается в Linux, за исключением
+.Sy mount ,
+.Sy unmount ,
+.Sy mountpoint ,
+.Sy canmount ,
+.Sy rename ,
+и
+.Sy share .
+Эти права не могут быть делегированы, поскольку команда Linux
+.Xr mount 8
+ограничивает изменения глобального пространства имён пользователем root.
+.It Xo
+.Nm zfs
+.Cm allow
+.Op Fl dglu
+.Ar пользователь Ns | Ns Ar группа Ns Oo , Ns Ar пользователь Ns | Ns Ar группа Oc Ns …
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+.It Xo
+.Nm zfs
+.Cm allow
+.Op Fl dl
+.Fl e Ns | Ns Sy everyone
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Делегирует права администрирования ZFS для файловых систем непривилегированным
+пользователям.
+.It Fl d
+Разрешить только для дочерних файловых систем.
+.It Fl e Ns | Ns Sy everyone
+Указывает, что права делегируются всем.
+.It Fl g Ar группа Ns Oo , Ns Ar группа Oc Ns …
+Явно указать, что права делегируются группе.
+.It Fl l
+Разрешить
+.Qq локально
+только для указанной файловой системы.
+.It Fl u Ar пользователь Ns Oo , Ns Ar пользователь Oc Ns …
+Явно указать, что права делегируются пользователю.
+.It Ar пользователь Ns | Ns Ar группа Ns Oo , Ns Ar пользователь Ns | Ns Ar группа Oc Ns …
+Указывает, кому делегируются права.
+Можно указать несколько сущностей в виде списка, разделённого запятыми.
+Если ни один из параметров
+.Fl gu
+не указан, аргумент интерпретируется в первую очередь как ключевое слово
+.Sy everyone ,
+затем как имя пользователя и в последнюю очередь как имя группы.
+Чтобы указать пользователя или группу с именем
+.Qq everyone ,
+используйте параметры
+.Fl g
+или
+.Fl u .
+Чтобы указать группу с тем же именем, что и пользователь, используйте
+параметры
+.Fl g .
+.It Xo
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Xc
+Права для делегирования.
+Можно указать несколько прав в виде списка, разделённого запятыми.
+Имена прав совпадают с именами подкоманд и свойств ZFS.
+См. список свойств ниже.
+Можно указать имена наборов свойств, которые начинаются с
+.Sy @ .
+Подробности см. в форме
+.Fl s
+ниже.
+.El
+.Pp
+Если ни один из параметров
+.Fl dl
+не указан или указаны оба, права разрешены для файловой системы или тома и всех их
+потомков.
+.Pp
+Права обычно представляют собой возможность использовать подкоманду ZFS или изменять
+свойство ZFS.
+Доступны следующие права:
+.TS
+l l l .
+ИМЯ	ТИП	ПРИМЕЧАНИЯ
+_	_	_
+allow	подкоманда	Необходимо также иметь право, которое делегируется
+bookmark	подкоманда
+clone	подкоманда	Необходимо также иметь права \fBcreate\fR и \fBmount\fR в исходной файловой системе
+create	подкоманда	Необходимо также иметь право \fBmount\fR. Для создания неразрежённого тома необходимо также иметь право \fBrefreservation\fR.
+destroy	подкоманда	Необходимо также иметь право \fBmount\fR
+diff	подкоманда	Позволяет искать пути внутри набора данных по номеру объекта и создавать снимки, необходимые для \fBzfs diff\fR.
+hold	подкоманда	Позволяет добавлять пользовательское удержание к снимку
+load-key	подкоманда	Позволяет загружать и выгружать ключ шифрования (см. \fBzfs load-key\fR и \fBzfs unload-key\fR).
+change-key	подкоманда	Позволяет изменять ключ шифрования с помощью \fBzfs change-key\fR.
+mount	подкоманда	Позволяет монтировать/размонтировать наборы данных ZFS
+promote	подкоманда	Необходимо также иметь права \fBmount\fR и \fBpromote\fR в исходной файловой системе
+receive	подкоманда	Необходимо также иметь права \fBmount\fR и \fBcreate\fR; требуется для \fBzfs receive -F\fR (см. также \fBreceive:append\fR для ограниченного приёма без принудительного режима)
+release	подкоманда	Позволяет снимать пользовательское удержание, что может уничтожить снимок
+rename	подкоманда	Необходимо также иметь права \fBmount\fR и \fBcreate\fR в новом родительском наборе данных
+rollback	подкоманда	Необходимо также иметь право \fBmount\fR
+send	подкоманда	Позволяет отправлять поток репликации набора данных.
+send:raw	подкоманда	Разрешает отправлять только необработанные потоки репликации, не позволяя отправлять зашифрованные наборы данных в расшифрованном виде.
+send:encrypted	подкоманда	Разрешает отправлять только необработанные потоки репликации зашифрованных наборов данных, не позволяя отправлять зашифрованные наборы данных в расшифрованном виде и вообще не позволяя отправлять расшифрованные наборы данных.
+share	подкоманда	Позволяет предоставлять общий доступ к файловым системам по протоколам NFS или SMB
+snapshot	подкоманда	Необходимо также иметь право \fBmount\fR
+
+receive:append	другое	Необходимо также иметь права \fBmount\fR и \fBcreate\fR; ограниченный приём (нельзя выполнить receive -F)
+groupquota	другое	Позволяет обращаться к любому свойству \fBgroupquota@\fI…\fR
+groupobjquota	другое	Позволяет обращаться к любому свойству \fBgroupobjquota@\fI…\fR
+groupused	другое	Позволяет читать любое свойство \fBgroupused@\fI…\fR
+groupobjused	другое	Позволяет читать любое свойство \fBgroupobjused@\fI…\fR
+userprop	другое	Позволяет изменять любое пользовательское свойство
+userquota	другое	Позволяет обращаться к любому свойству \fBuserquota@\fI…\fR
+userobjquota	другое	Позволяет обращаться к любому свойству \fBuserobjquota@\fI…\fR
+userused	другое	Позволяет читать любое свойство \fBuserused@\fI…\fR
+userobjused	другое	Позволяет читать любое свойство \fBuserobjused@\fI…\fR
+projectobjquota	другое	Позволяет обращаться к любому свойству \fBprojectobjquota@\fI…\fR
+projectquota	другое	Позволяет обращаться к любому свойству \fBprojectquota@\fI…\fR
+projectobjused	другое	Позволяет читать любое свойство \fBprojectobjused@\fI…\fR
+projectused	другое	Позволяет читать любое свойство \fBprojectused@\fI…\fR
+
+aclinherit	свойство
+aclmode	свойство
+acltype	свойство
+atime	свойство
+canmount	свойство
+casesensitivity	свойство
+checksum	свойство
+compression	свойство
+context	свойство
+copies	свойство
+dedup	свойство
+defcontext	свойство
+devices	свойство
+dnodesize	свойство
+encryption	свойство
+exec	свойство
+filesystem_limit	свойство
+fscontext	свойство
+keyformat	свойство
+keylocation	свойство
+logbias	свойство
+mlslabel	свойство
+mountpoint	свойство
+nbmand	свойство
+normalization	свойство
+overlay	свойство
+pbkdf2iters	свойство
+primarycache	свойство
+quota	свойство
+readonly	свойство
+recordsize	свойство
+redundant_metadata	свойство
+refquota	свойство
+refreservation	свойство
+relatime	свойство
+reservation	свойство
+rootcontext	свойство
+secondarycache	свойство
+setuid	свойство
+sharenfs	свойство
+sharesmb	свойство
+snapdev	свойство
+snapdir	свойство
+snapshot_limit	свойство
+special_small_blocks	свойство
+sync	свойство
+utf8only	свойство
+version	свойство
+volblocksize	свойство
+volmode	свойство
+volsize	свойство
+vscan	свойство
+xattr	свойство
+zoned	свойство
+.TE
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm allow
+.Fl c
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Устанавливает права
+.Qq времени создания.
+Эти права предоставляются
+.Pq локально
+создателю любой новой дочерней файловой системы.
+.It Xo
+.Nm zfs
+.Cm allow
+.Fl s No @ Ns Ar имя_набора
+.Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns …
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Определяет набор прав или добавляет права в набор прав.
+Этот набор можно использовать в других командах
+.Nm zfs Cm allow
+для указанной файловой системы и её потомков.
+Наборы вычисляются динамически, поэтому изменения в наборе сразу отражаются.
+Имена наборов прав подчиняются тем же ограничениям, что и имена файловых систем ZFS, но должны начинаться с
+.Sy @ ,
+и содержать не более 64 символов.
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm unallow
+.Op Fl dglru
+.Ar пользователь Ns | Ns Ar группа Ns Oo , Ns Ar пользователь Ns | Ns Ar группа Oc Ns …
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+.It Xo
+.Nm zfs
+.Cm unallow
+.Op Fl dlr
+.Fl e Ns | Ns Sy everyone
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+.It Xo
+.Nm zfs
+.Cm unallow
+.Op Fl r
+.Fl c
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Удаляет права, предоставленные командой
+.Nm zfs Cm allow .
+Права явно не запрещаются, поэтому другие предоставленные права продолжают действовать.
+Например, если право предоставлено предком.
+Если права не указаны, удаляются все права для указанного
+.Ar пользователь ,
+.Ar группа
+или
+.Sy everyone .
+Указание
+.Sy everyone
+.Po или использование параметра
+.Fl e
+.Pc
+удаляет только права, предоставленные всем, а не все права каждого пользователя и группы.
+Описание параметров
+.Fl ldugec
+см. в команде
+.Nm zfs Cm allow .
+.It Fl r
+Рекурсивно удалить права из этой файловой системы и всех её потомков.
+.El
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm unallow
+.Op Fl r
+.Fl s No @ Ns Ar имя_набора
+.Oo Ar право Ns | Ns @ Ns Ar имя_набора Ns Oo , Ns Ar право Ns | Ns @ Ns
+.Ar имя_набора Oc Ns … Oc
+.Ar файловая_система Ns | Ns Ar том
+.Xc
+Удаляет права из набора прав.
+Если права не указаны, удаляются все права, и таким образом набор удаляется полностью.
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1: Делегирование прав администрирования ZFS на наборе данных ZFS
+В следующем примере показано, как задать права, чтобы пользователь
+.Ar cindys
+мог создавать, уничтожать, монтировать и создавать снимки на
+.Ar tank/cindys .
+Права на
+.Ar tank/cindys
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Sy cindys create , Ns Sy destroy , Ns Sy mount , Ns Sy snapshot Ar tank/cindys
+.No # Nm zfs Cm allow Ar tank/cindys
+---- Permissions on tank/cindys --------------------------------------
+Local+Descendent permissions:
+        user cindys create,destroy,mount,snapshot
+.Ed
+.Pp
+Поскольку права на точку монтирования
+.Ar tank/cindys
+по умолчанию установлены в 755, пользователь
+.Ar cindys
+не сможет монтировать файловые системы внутри
+.Ar tank/cindys .
+Добавьте ACE, подобный следующему синтаксису, чтобы предоставить доступ к точке монтирования:
+.Dl # Cm chmod No A+user : Ns Ar cindys Ns :add_subdirectory:allow Ar /tank/cindys
+.
+.Ss Пример 2: Делегирование прав времени создания на наборе данных ZFS
+В следующем примере показано, как предоставить любому участнику группы
+.Ar staff
+право создавать файловые системы в
+.Ar tank/users .
+Этот синтаксис также позволяет участникам staff уничтожать свои собственные файловые системы, но не файловые системы других.
+Права на
+.Ar tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Ar staff Sy create , Ns Sy mount Ar tank/users
+.No # Nm zfs Cm allow Fl c Sy destroy Ar tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        destroy
+Local+Descendent permissions:
+        group staff create,mount
+.Ed
+.
+.Ss Пример 3: Определение и предоставление набора прав на наборе данных ZFS
+В следующем примере показано, как определить и предоставить набор прав в файловой системе
+.Ar tank/users .
+Права на
+.Ar tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Fl s No @ Ns Ar pset Sy create , Ns Sy destroy , Ns Sy snapshot , Ns Sy mount Ar tank/users
+.No # Nm zfs Cm allow staff No @ Ns Ar pset tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        @pset create,destroy,mount,snapshot
+Local+Descendent permissions:
+        group staff @pset
+.Ed
+.
+.Ss Пример 4: Делегирование прав на свойства на наборе данных ZFS
+В следующем примере показано, как предоставить возможность устанавливать квоты и резервирования в файловой системе
+.Ar users/home .
+Права на
+.Ar users/home
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm allow Ar cindys Sy quota , Ns Sy reservation Ar users/home
+.No # Nm zfs Cm allow Ar users/home
+---- Permissions on users/home ---------------------------------------
+Local+Descendent permissions:
+        user cindys quota,reservation
+cindys% zfs set quota=10G users/home/marks
+cindys% zfs get quota users/home/marks
+NAME              PROPERTY  VALUE  SOURCE
+users/home/marks  quota     10G    local
+.Ed
+.
+.Ss Пример 5: Удаление делегированных прав ZFS на наборе данных ZFS
+В следующем примере показано, как удалить право snapshot у группы
+.Ar staff
+в файловой системе
+.Sy tank/users .
+Права на
+.Sy tank/users
+также отображаются.
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm unallow Ar staff Sy snapshot Ar tank/users
+.No # Nm zfs Cm allow Ar tank/users
+---- Permissions on tank/users ---------------------------------------
+Permission sets:
+        @pset create,destroy,mount,snapshot
+Local+Descendent permissions:
+        group staff @pset
+.Ed

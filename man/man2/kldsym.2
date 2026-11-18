@@ -1,0 +1,122 @@
+.\" Copyright (c) 2001 Chris Costello <chris@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldsym.2
+.\" FRDP githash f44029e322446469f116bbd26d51ba857083bacb
+.\" FRDP hash256 fedaeb48d01e6cd3d5576795cf67713a81e7ef9104c78cca093a96743ae9858c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 17, 2016
+.Dt KLDSYM 2
+.Os
+.Sh ИМЯ
+.Nm kldsym
+.Nd поиск адреса по имени символа в KLD
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldsym "int fileid" "int cmd" "void *data"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kldsym
+возвращает адрес символа, указанного в
+.Fa data ,
+в модуле, заданном
+.Fa fileid .
+Если
+.Fa fileid
+равен 0, выполняется поиск во всех загруженных модулях.
+В настоящее время единственная реализованная
+.Fa cmd
+—
+.Dv KLDSYM_LOOKUP .
+.Pp
+Аргумент
+.Fa data
+имеет следующую структуру:
+.Bd -literal -offset indent
+struct kld_sym_lookup {
+    int         version;        /* sizeof(struct kld_sym_lookup) */
+    char        *symname;       /* Symbol name we are looking up */
+    u_long      symvalue;
+    size_t      symsize;
+};
+.Ed
+.Pp
+Член
+.Va version
+должен быть установлен
+кодом, вызывающим
+.Fn kldsym ,
+в значение
+.Fn sizeof "struct kld_sym_lookup" .
+Следующие два члена,
+.Va version
+и
+.Va symname ,
+задаются пользователем.
+Последние два,
+.Va symvalue
+и
+.Va symsize ,
+заполняются
+.Fn kldsym
+и содержат адрес, связанный с
+.Va symname ,
+и размер данных, на которые он указывает, соответственно.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std kldsym
+.Sh ОШИБКИ
+Системный вызов
+.Fn kldsym
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Недопустимое значение в
+.Fa data->version
+или
+.Fa cmd .
+.It Bq Er ENOENT
+Аргумент
+.Fa fileid
+недопустим,
+или указанный символ не удалось найти.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldfirstmod 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn kldsym
+впервые появился в
+.Fx 3.0 .

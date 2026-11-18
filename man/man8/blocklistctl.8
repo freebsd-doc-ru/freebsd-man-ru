@@ -1,0 +1,140 @@
+.\" $NetBSD: blocklistctl.8,v 1.6 2025/10/26 13:49:22 christos Exp $
+.\"
+.\" Copyright (c) 2015 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Christos Zoulas.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/blocklist/bin/blocklistctl.8
+.\" FRDP githash 34ffc7073f1786bae5e77593abd423ed31c10024
+.\" FRDP hash256 a3be06a942f7cf0abf53d38383bc2d30f7cd7c1007e74b2883e3c33d96dc2ee0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 25, 2025
+.Dt BLOCKLISTCTL 8
+.Os
+.Sh ИМЯ
+.Nm blocklistctl
+.Nd отображение и изменение состояния базы данных blocklistd
+.Sh СИНТАКСИС
+.Nm
+.Cm dump
+.Op Fl abdnrw
+.Op Fl D Ar dbname
+.Sh ОПИСАНИЕ
+.Nm
+— это программа, используемая для отображения и изменения состояния
+.Xr blocklistd 8
+базы данных.
+Поддерживаются следующие подкоманды:
+.Ss dump
+Для подкоманды
+.Cm dump
+доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl a
+Показать все записи базы данных; по умолчанию показываются только активные.
+Неактивные записи будут показаны с временем последнего доступа (или, при
+.Fl r ,
+оставшимся временем), равным
+.Ql never .
+.It Fl b
+Показать только заблокированные записи.
+.It Fl D Ar dbname
+Указать расположение используемого файла базы данных
+.Ic blocklistd .
+По умолчанию —
+.Pa /var/db/blocklistd.db .
+.It Fl d
+Увеличить уровень отладки.
+.It Fl n
+Не показывать заголовок.
+.It Fl r
+Показывать оставшееся время блокировки вместо времени последней активности.
+.It Fl w
+Обычно ширина адресов достаточна для IPv4; флаг
+.Fl w
+делает вывод достаточно широким для адресов IPv6.
+.El
+.Pp
+Вывод подкоманды
+.Cm dump
+состоит из заголовка (если не был указан
+.Fl n )
+и одной строки для каждой записи в базе данных, где каждая строка содержит
+следующие столбцы:
+.Bl -tag -width indent
+.It Ql rulename
+Имя правила пакетного фильтра, связанного с записью базы данных, обычно
+.Dv blocklistd .
+.It Ql address/ma:port
+Удалённый адрес, маска и номер локального порта клиентского соединения,
+связанного с записью базы данных.
+.It Ql id
+Столбец будет показывать идентификатор правила пакетного фильтра, связанного
+с записью базы данных, хотя это может быть только слово
+.Ql OK
+для пакетных фильтров, которые не создают уникальный идентификатор для каждого
+правила.
+.It Ql nfail
+Количество
+.Em отказов ,
+зарегистрированных для клиента на указанном порту, а также количество
+отказов, разрешённых до блокировки (или, при
+.Fl a ,
+звёздочка
+.Aq * )
+.It So время последнего доступа Sc | So оставшееся время Sc
+Время, когда клиент последний раз был зарегистрирован как пытающийся получить
+доступ, или, при
+.Fl r ,
+время, оставшееся до удаления правила, блокирующего клиента.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr blocklistd 8
+.Sh ПРИМЕЧАНИЯ
+Иногда сообщаемое число неудачных попыток может превышать число попыток,
+которое
+.Xr blocklistd 8
+настроен блокировать.
+Это может произойти либо потому, что правило было удалено вручную, либо
+потому, что было больше попыток в процессе выполнения, пока правило
+блокировки добавлялось.
+Такая ситуация нормальна; в этом случае
+.Xr blocklistd 8
+сначала попытается удалить существующее правило, а затем снова добавит его,
+чтобы убедиться, что активно только одно правило.
+.Sh ИСТОРИЯ
+.Nm
+впервые появился в
+.Nx 7 .
+Поддержка
+.Nm
+в
+.Fx
+была реализована в
+.Fx 11 .
+.Sh АВТОРЫ
+.An Christos Zoulas

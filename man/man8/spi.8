@@ -1,0 +1,210 @@
+.\" Copyright (c) 2018 by S.F.T. Inc.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/spi/spi.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 a9debf1a43d0bbd8d75a62b86003e22f9ecee42706cb9c7ecd5cce7614a2ef83
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 21, 2020
+.Dt SPI 8
+.Os
+.Sh ИМЯ
+.Nm spi
+.Nd обмен данными по шине SPI с подчинёнными устройствами
+.Sh СИНТАКСИС
+.Nm
+.Op Fl A
+.Op Fl b
+.Op Fl L
+.Op Fl v
+.Op Fl C Ar command-bytes
+.Op Fl c Ar count
+.Op Fl d Cm r Ns | Ns Cm w Ns | Ns Cm rw
+.Op Fl f Ar device
+.Op Fl m Ar mode
+.Op Fl s Ar max-speed
+.Nm
+.Op Fl i
+.Op Fl v
+.Op Fl f Ar device
+.Nm
+.Op Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для выполнения необработанных передач данных
+.Pq чтение, запись или одновременное чтение/запись
+с устройствами на шине SPI через устройство
+.Xr spigen 4 .
+.Pp
+Каждое устройство
+.Xr spigen 4
+связано с определённым выводом
+.Dq выбора микросхемы
+.Pq cs
+на spibus, и поэтому должно быть указано.
+Если имя устройства не указано в командной строке,
+.Nm
+предполагает
+.Dq spigen0.0 .
+.Pp
+Дополнительные сведения об устройстве spigen см. в
+.Xr spigen 4 .
+.Pp
+Параметры:
+.Bl -tag -width Ds
+.It Fl A
+Задаёт режим ASCII.
+Данные чтения и записи вводятся и выводятся как
+2-символьные шестнадцатеричные значения, необязательно разделённые пробельными символами,
+например 00 01 02 и т. д.
+При использовании вместе с флагом
+.Fl b
+данные в стандартном вводе остаются последовательностью ASCII шестнадцатеричных
+байтовых значений, но вывод возвращается в двоичный режим.
+.It Fl b
+Двоичный
+.Pq выходной
+режим.
+Действует только если указан
+.Fl A .
+Возвращает вывод обратно в двоичный
+.Pq а не ASCII ,
+оставляя формат ввода без изменений.
+Используйте в сочетании с
+.Fl A ,
+чтобы можно было применять что-то вроде
+.Dq echo
+для передачи шестнадцатеричных значений SPI-устройству, но выводить полученные данные
+в стандартный вывод в двоичном виде.
+.It Fl C Ar command-bytes
+Отправляет один или несколько байтов команды,
+пропуская любые байты, считанные во время передачи.
+Значения байтов следует указывать как параметр в кавычках, аналогично
+формату данных в стандартном вводе для
+.Fl A ,
+то есть 2-символьные шестнадцатеричные значения, необязательно разделённые пробельными символами.
+SPI-устройство обычно требует отправки команды, за которой следуют
+байты данных.
+Можно использовать этот параметр для отправки команды без приёма каких-либо байтов данных
+во время последовательности команды.
+.It Fl c Ar count
+Общее число байтов для передачи в виде десятичного целого.
+Если выполняется транзакция записи или чтения/записи и из стандартного ввода считано меньше
+байтов, чем это число, оставшиеся байты будут отправлены со значением
+.Dq 0 .
+Если длину можно определить по размеру входного файла, можно использовать значение
+.Ar count ,
+равное
+.Dq -1 ,
+чтобы основывать передачу на размере входного файла.
+.It Fl d Cm r Ns | Ns Cm w Ns | Ns Cm rw
+Направление передачи: используйте
+.Cm r
+для чтения,
+.Cm w
+для записи и
+.Cm rw
+для одновременного чтения и записи.
+.It Fl f Ar device
+SPI-устройство для использования
+.Pq по умолчанию — Pa /dev/spigen0 .
+.It Fl h
+Выводит текст справки в стандартный поток ошибок с объяснением параметров командной строки.
+.It Fl i
+Отображает информацию об SPI-устройстве в стандартный поток ошибок.
+При указании этого флага данные не читаются и не записываются, а режим
+и тактовая частота не изменяются.
+.It Fl L
+Порядок битов LSB.
+По умолчанию используется MSB, то есть первым передаётся самый старший бит.
+Указание
+.Fl L
+приводит к тому, что LSB передаётся и читается первым.
+.It Fl m Cm 0 Ns | Ns Cm 1 Ns | Ns Cm 2 Ns | Ns Cm 3
+Режим SPI, от 0 до 3.
+Он определяет фазу и синхронизацию тактового сигнала при чтении и записи
+данных согласно спецификации SPI.
+.It Fl s Ar speed
+Задаёт максимальную скорость тактового сигнала SPI в Гц.
+Шина будет работать на максимально доступной скорости, не превышающей этот максимум.
+.It Fl v
+Задаёт подробный режим.
+Диагностика и информация записываются в стандартный поток ошибок.
+Можно указать
+.Fl v
+несколько раз для повышения уровня подробности.
+.El
+.Sh ПРИМЕРЫ
+Ниже приведено несколько примеров использования утилиты spi:
+.Bl -bullet
+.It
+Получить информацию об SPI-устройстве по умолчанию
+.Bd -literal
+spi -i
+.Ed
+.It
+Установить максимальную тактовую частоту 200 кГц и режим 3 на spigen0.1, но
+не передавать и не принимать данные
+.Bd -literal
+spi -f spigen0.1 -s 200000 -m 3
+.Ed
+.It
+Отправить последовательность команд из 2 байтов и прочитать ещё 2 байта
+из SPI-устройства, используя текущий режим и скорость на устройстве по умолчанию
+.Bd -literal
+.Ed
+.It
+Передать байтовое значение 5 и принять 2 байта, отображая их значения как
+2-байтовые ASCII шестнадцатеричные, с режимом 2 и максимальной тактовой частотой 500 кГц.
+.Bd -literal
+.Ed
+.It
+Отправить двоичный файл и вывести результат SPI через
+.Xr od 1
+в виде шестнадцатеричных байтов, используя текущую максимальную тактовую частоту и режим SPI.
+.Bd -literal
+spi -d rw -c -1 <input_file.bin | od -An -t x1
+.Ed
+.It
+Отправить 2 байта данных, принять всего 4 байта и вывести результат SPI
+в виде двоичных данных, пропущенных через
+.Xr od 1 ,
+отображая их как два шестнадцатеричных значения целого типа unsigned short.
+.Bd -literal
+.Ed
+.It
+Запросить идентификатор производителя и размер у стандартного устройства spiflash,
+отправив командный байт 0x9f и отобразив 3-байтовый ответ в шестнадцатеричном ASCII.
+.Bd -literal
+spi -f spigen0.0 -m 0 -s 1000000 -d r -c 3 -A -C 9f
+.Ed
+.El
+.Sh СМ. ТАКЖЕ
+.Xr spigen 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 11.3 .

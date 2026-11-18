@@ -1,0 +1,380 @@
+.\" Copyright (c) 1983, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/rename.2
+.\" FRDP githash 3055c47f6024b087a90021edb05992304a119827
+.\" FRDP hash256 7a207fa969c80eb02e7a16029e7b347a5a6cdb0175a473d6f0bc08c6bc1c2ad6
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 25, 2024
+.Dt RENAME 2
+.Os
+.Sh ИМЯ
+.Nm rename
+.Nd изменить имя файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In stdio.h
+.Ft int
+.Fn rename "const char *from" "const char *to"
+.Ft int
+.Fn renameat "int fromfd" "const char *from" "int tofd" "const char *to"
+.In sys/fcntl.h
+.In stdio.h
+.Ft int
+.Fo renameat2
+.Fa "int fromfd"
+.Fa "const char *from"
+.Fa "int tofd"
+.Fa "const char *to"
+.Fa "unsigned int flags"
+.Fc
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn rename
+приводит к тому, что ссылка с именем
+.Fa from
+переименовывается в
+.Fa to .
+Если
+.Fa to
+существует, он сначала удаляется.
+Оба
+.Fa from
+и
+.Fa to
+должны быть одного типа (то есть либо оба каталогами, либо оба
+не каталогами), и должны находиться в одной файловой системе.
+.Pp
+Системный вызов
+.Fn rename
+гарантирует, что если
+.Fa to
+уже существует, экземпляр
+.Fa to
+всегда будет существовать, даже если система даст сбой
+в середине операции.
+.Pp
+Если последний компонент
+.Fa from
+является символической ссылкой,
+переименовывается символическая ссылка,
+а не файл или каталог, на который она указывает.
+.Pp
+Если
+.Fa from
+и
+.Fa to
+разрешаются в одну и ту же запись каталога, или в разные записи
+каталога для одного и того же существующего файла,
+.Fn rename
+возвращает успех, не выполняя никаких дальнейших действий.
+.Pp
+Системный вызов
+.Fn renameat
+эквивалентен
+.Fn rename
+за исключением случая, когда либо
+.Fa from
+либо
+.Fa to
+задаёт относительный путь.
+Если
+.Fa from
+является относительным путём, файл, подлежащий переименованию, находится
+относительно каталога, связанного с дескриптором файла
+.Fa fromfd
+вместо текущего рабочего каталога.
+Если
+.Fa to
+является относительным путём, то же самое происходит только относительно каталога, связанного
+с
+.Fa tofd .
+Если
+.Fn renameat
+передаётся специальное значение
+.Dv AT_FDCWD
+в параметре
+.Fa fromfd
+или
+.Fa tofd , используется текущий рабочий каталог для определения
+файла для соответствующего параметра пути.
+.Pp
+Системный вызов
+.Fn renameat2
+принимает дополнительный аргумент
+.Fa flags .
+Если
+.Fa flags
+равен нулю, вызов
+.Fn renameat2
+работает идентично
+.Fn renameat .
+Дополнительно могут быть указаны следующие флаги:
+.Bl -tag -width AT_RENAME_NOREPLACE
+.It Dv AT_RENAME_NOREPLACE
+Если путь, заданный
+.Fa tofd
+и
+.Fa to ,
+существует, запрос завершается с ошибкой
+.Er EEXIST .
+.It Dv AT_RENAME_EXCHANGE
+Атомарно обменять файлы, на которые указывают имена
+.Fa from
+и
+.Fa to .
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std rename
+.Sh ОШИБКИ
+Системный вызов
+.Fn rename
+завершится с ошибкой, и ни один из файлов-аргументов не будет
+затронут, если:
+.Bl -tag -width Er
+.It Bq Er ENAMETOOLONG
+Компонент любого из путей превысил 255 символов,
+или общая длина любого из путей превысила 1023 символа.
+.It Bq Er ENOENT
+Компонент пути
+.Fa from
+не существует,
+или префикс пути
+.Fa to
+не существует.
+.It Bq Er EACCES
+Компонент любого из префиксов пути запрещает поиск.
+.It Bq Er EACCES
+Запрошенная ссылка требует записи в каталог с режимом,
+запрещающим запись.
+.It Bq Er EACCES
+Каталог, на который указывает аргумент
+.Fa from ,
+запрещает запись, и операция переместила бы
+его в другой родительский каталог.
+.It Bq Er EPERM
+Файл, на который указывает аргумент
+.Fa from ,
+имеет установленный флаг неизменяемости, неудаляемости или только-дополнения, см.
+.Xr chflags 2
+для получения дополнительной информации.
+.It Bq Er EPERM
+Родительский каталог файла, на который указывает аргумент
+.Fa from ,
+имеет установленный флаг неизменяемости или только-дополнения.
+.It Bq Er EPERM
+Родительский каталог файла, на который указывает аргумент
+.Fa to ,
+имеет установленный флаг неизменяемости.
+.It Bq Er EPERM
+Каталог, содержащий
+.Fa from ,
+помечен как sticky,
+и ни содержащий каталог, ни
+.Fa from
+не принадлежат эффективному идентификатору пользователя.
+.It Bq Er EPERM
+Файл, на который указывает аргумент
+.Fa to ,
+существует,
+каталог, содержащий
+.Fa to ,
+помечен как sticky,
+и ни содержащий каталог, ни
+.Fa to
+не принадлежат эффективному идентификатору пользователя.
+.It Bq Er ELOOP
+При разборе любого из путей обнаружено слишком много символических ссылок.
+.It Bq Er ENOTDIR
+Компонент любого из префиксов пути не является каталогом.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa from
+является каталогом, но
+.Fa to
+не является каталогом.
+.It Bq Er EISDIR
+Аргумент
+.Fa to
+является каталогом, но
+.Fa from
+не является каталогом.
+.It Bq Er EXDEV
+Ссылка, указанная
+.Fa to ,
+и файл, указанный
+.Fa from ,
+находятся на разных логических устройствах (файловых системах).
+Обратите внимание, что этот код ошибки
+не будет возвращён, если реализация допускает межсетевые
+ссылки.
+.It Bq Er ENOSPC
+Каталог, в который помещается запись для нового имени,
+не может быть расширен, поскольку на файловой системе,
+содержащей каталог, не осталось места.
+.It Bq Er EDQUOT
+Каталог, в который помещается запись для нового имени,
+не может быть расширен, поскольку квота пользователя на дисковые блоки
+на файловой системе, содержащей каталог, исчерпана.
+.It Bq Er EIO
+При создании или обновлении записи каталога произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.It Bq Er EROFS
+Запрошенная ссылка требует записи в каталог на файловой системе,
+доступной только для чтения.
+.It Bq Er EFAULT
+Путь
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EINVAL
+Аргумент
+.Fa from
+является родительским каталогом
+.Fa to ,
+или предпринята попытка переименовать
+.Ql .\&
+или
+.Ql \&.. .
+.It Bq Er EINVAL
+Последний компонент пути
+.Fa to
+недопустим в целевой файловой системе.
+.It Bq Er ENOTEMPTY
+Аргумент
+.Fa to
+является каталогом и не пуст.
+.It Bq Er ECAPMODE
+.Fn rename
+был вызван, а процесс находится в режиме возможностей.
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым
+.Fn rename ,
+.Fn renameat
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa from
+не задаёт абсолютный путь, и аргумент
+.Fa fromfd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска, или аргумент
+.Fa to
+не задаёт абсолютный путь, и аргумент
+.Fa tofd
+не является ни
+.Dv AT_FDCWD ,
+ни допустимым дескриптором файла, открытым для поиска.
+.It Bq Er ENOTDIR
+Аргумент
+.Fa from
+не является абсолютным путём, и
+.Fa fromfd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом, или аргумент
+.Fa to
+не является абсолютным путём, и
+.Fa tofd
+не является ни
+.Dv AT_FDCWD ,
+ни дескриптором файла, связанным с каталогом.
+.It Bq Er ECAPMODE
+Указан
+.Dv AT_FDCWD ,
+и процесс находится в режиме возможностей.
+.It Bq Er ENOTCAPABLE
+.Fa path
+является абсолютным путём или содержит компонент "..", ведущий в каталог
+за пределами иерархии каталогов, заданной
+.Fa fromfd
+или
+.Fa tofd .
+.It Bq Er ENOTCAPABLE
+Дескриптору файла
+.Fa fromfd
+не хватает права
+.Dv CAP_RENAMEAT_SOURCE ,
+или дескриптору файла
+.Fa tofd
+не хватает права
+.Dv CAP_RENAMEAT_TARGET .
+.El
+.Pp
+В дополнение к ошибкам, возвращаемым системным вызовом
+.Fn renameat ,
+системный вызов
+.Fn renameat2
+может завершиться с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EEXIST
+Был указан флаг
+.Dv AT_RENAME_NOREPLACE ,
+и файл существует по пути, заданному
+.Fa to .
+.It Bq Er EOPNOTSUPP
+Один из указанных
+.Fa flags
+не поддерживается файловой системой, в которой находится
+переименовываемый файл.
+.El
+.Sh ПРЕДОСТЕРЕЖЕНИЯ
+Если файловая система, которой принадлежит переименовываемый файл, не
+реализует флаг
+.Dv AT_RENAME_NOREPLACE ,
+возможно, что из-за гонки с созданием целевого файла
+ошибка, возвращаемая системным вызовом
+.Fn renameat2 ,
+будет недетерминированно либо
+.Er EEXIST ,
+либо
+.Er EOPNOTSUPP .
+.Sh СМ. ТАКЖЕ
+.Xr chflags 2 ,
+.Xr open 2 ,
+.Xr symlink 7
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn rename
+соответствует
+.St -p1003.1-96 .
+Системный вызов
+.Fn renameat
+следует спецификации The Open Group Extended API Set 2.
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn renameat
+появился в
+.Fx 8.0 .
+Системный вызов
+.Fn renameat2
+появился в
+.Fx 16.0 .

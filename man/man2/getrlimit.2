@@ -1,0 +1,250 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getrlimit.2
+.\" FRDP githash 54a8d1fbbf65e976132809718525ba051a5525cf
+.\" FRDP hash256 b931c42a1e2a84ccfc490888b43a42a2d80d4490602fb50284c73e4118fc4441
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2024
+.Dt GETRLIMIT 2
+.Os
+.Sh ИМЯ
+.Nm getrlimit ,
+.Nm setrlimit
+.Nd управление максимальным потреблением системных ресурсов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/types.h
+.In sys/time.h
+.In sys/resource.h
+.Ft int
+.Fn getrlimit "int resource" "struct rlimit *rlp"
+.Ft int
+.Fn setrlimit "int resource" "const struct rlimit *rlp"
+.Sh ОПИСАНИЕ
+Ограничения на потребление системных ресурсов текущим процессом
+и каждым создаваемым им процессом могут быть получены с помощью
+системного вызова
+.Fn getrlimit
+и установлены с помощью
+системного вызова
+.Fn setrlimit .
+.Pp
+Аргумент
+.Fa resource
+принимает одно из следующих значений:
+.Bl -tag -width RLIMIT_FSIZEAA
+.It Dv RLIMIT_AS
+Максимальный объём (в байтах) виртуальной памяти, который процесс
+может отобразить.
+.It Dv RLIMIT_CORE
+Наибольший размер (в байтах) файла
+.Xr core 5 ,
+который может быть создан.
+.It Dv RLIMIT_CPU
+Максимальное количество процессорного времени (в секундах), которое
+может использовать каждый процесс.
+.It Dv RLIMIT_DATA
+Максимальный размер (в байтах) сегмента данных процесса;
+он определяет, насколько программа может расширить свою границу с помощью
+функции
+.Xr sbrk 2 .
+.It Dv RLIMIT_FSIZE
+Наибольший размер (в байтах) файла, который может быть создан.
+.It Dv RLIMIT_KQUEUES
+Максимальное количество kqueue, которое разрешено создавать этому
+идентификатору пользователя.
+.It Dv RLIMIT_MEMLOCK
+Максимальный размер (в байтах), который процесс может заблокировать в памяти
+с помощью
+системного вызова
+.Xr mlock 2 .
+.It Dv RLIMIT_NOFILE
+Максимальное количество открытых файлов для этого процесса.
+.It Dv RLIMIT_NPROC
+Максимальное количество одновременных процессов для этого идентификатора
+пользователя.
+.It Dv RLIMIT_NPTS
+Максимальное количество псевдотерминалов, которое разрешено создавать этому
+идентификатору пользователя.
+.It Dv RLIMIT_PIPEBUF
+Максимальный суммарный размер внутриядерных буферов для двунаправленных
+каналов/fifo, который разрешено потреблять этому идентификатору пользователя.
+Буферы для ядерных FIFO, создаваемых при первом открытии объекта
+файловой системы, созданного с помощью
+.Pq Xr mkfifo 2 ,
+также относятся на счёт идентификатора пользователя процесса, открывающего его,
+а не владельца FIFO в файловой системе.
+Хотя это несколько неожиданно, на самом деле это справедливо, поскольку
+пользователь fifo не обязательно является его создателем.
+.It Dv RLIMIT_RSS
+При нехватке памяти и наличии подкачки отдавать приоритет вытеснению
+резидентных страниц процесса сверх этого объёма (в байтах).
+Когда память не испытывает давления, этот rlimit фактически игнорируется.
+.Pp
+Процессы, превысившие установленный
+.Dv RLIMIT_RSS ,
+не получают сигналов и не останавливаются.
+Ограничение является лишь подсказкой демону VM о предпочтительной
+деактивации страниц процессов, превысивших установленный
+.Dv RLIMIT_RSS .
+.It Dv RLIMIT_SBSIZE
+Максимальный размер (в байтах) использования буфера сокета для этого
+пользователя.
+Это ограничивает объём сетевой памяти и, следовательно, количество
+mbuf, которое этот пользователь может удерживать в любой момент времени.
+.It Dv RLIMIT_STACK
+Максимальный размер (в байтах) сегмента стека процесса;
+он определяет, насколько может быть расширен сегмент стека программы.
+Расширение стека выполняется системой автоматически.
+.It Dv RLIMIT_SWAP
+Максимальный размер (в байтах) пространства подкачки, которое может быть
+зарезервировано или использовано всеми процессами этого идентификатора
+пользователя.
+Это ограничение применяется только если установлен бит 1 в sysctl
+.Va vm.overcommit .
+Полное описание этого sysctl см. в
+.Xr tuning 7 .
+.It Dv RLIMIT_UMTXP
+Ограничение количества совместно используемых процессами объектов
+библиотеки posix thread, выделенных идентификатором пользователя.
+.It Dv RLIMIT_VMEM
+Псевдоним для
+.Dv RLIMIT_AS .
+.El
+.Pp
+Ограничение ресурса задаётся как мягкое и жёсткое ограничение.
+При превышении мягкого ограничения процесс может получить или не получить
+сигнал.
+Например, сигналы генерируются при превышении процессорного времени или
+размера файла, но не при превышении ограничения адресного пространства или RSS.
+Программе, превысившей мягкое ограничение, разрешено продолжать выполнение,
+пока она не достигнет жёсткого ограничения или не изменит собственное
+ограничение ресурса.
+Даже достижение жёсткого ограничения не обязательно останавливает процесс.
+Например, при превышении жёсткого ограничения RSS ничего не происходит.
+.Pp
+Структура
+.Vt rlimit
+используется для задания жёсткого и мягкого ограничений ресурса.
+.Bd -literal -offset indent
+struct rlimit {
+	rlim_t	rlim_cur;	/* current (soft) limit */
+	rlim_t	rlim_max;	/* maximum value for rlim_cur */
+};
+.Ed
+.Pp
+Только суперпользователь может повышать максимальные ограничения.
+Остальные пользователи
+могут изменять
+.Fa rlim_cur
+только в диапазоне от 0 до
+.Fa rlim_max
+или (необратимо) понижать
+.Fa rlim_max .
+.Pp
+.Dq Бесконечное
+значение ограничения определяется как
+.Dv RLIM_INFINITY .
+.Pp
+Поскольку эта информация хранится в по-процессной области,
+этот системный вызов должен выполняться непосредственно оболочкой, чтобы
+он повлиял на все будущие процессы, создаваемые оболочкой;
+поэтому
+.Ic limit
+является встроенной командой
+.Xr csh 1 .
+.Pp
+Система отказывается расширять пространство данных или стека, когда
+ограничения были бы превышены обычным образом: функция
+.Xr brk 2
+завершается неудачей при достижении ограничения пространства данных.
+При достижении ограничения стека процесс получает
+ошибку сегментации
+.Pq Dv SIGSEGV ;
+если этот сигнал не перехвачен
+обработчиком, использующим стек сигналов, этот сигнал
+завершит процесс.
+.Pp
+Операция ввода-вывода с файлом, которая привела бы к созданию файла большего
+размера, чем мягкое ограничение процесса, вызовет сбой записи и генерацию
+сигнала
+.Dv SIGXFSZ ;
+обычно это завершает процесс, но сигнал может быть перехвачен.
+При превышении
+мягкого ограничения процессорного времени
+провинному процессу отправляется сигнал
+.Dv SIGXCPU .
+.Pp
+Когда большинство операций потребовало бы выделения больше виртуальной памяти,
+чем допускает мягкое ограничение
+.Dv RLIMIT_AS ,
+операция завершается с ошибкой
+.Dv ENOMEM
+и сигнал не генерируется.
+Примечательным исключением является расширение стека, описанное выше.
+Если расширение стека потребовало бы выделения больше виртуальной памяти, чем
+допускает мягкое ограничение
+.Dv RLIMIT_AS ,
+будет доставлен сигнал
+.Dv SIGSEGV .
+Вызывающая сторона вправе повысить мягкое ограничение адресного пространства
+до жёсткого ограничения и повторить попытку выделения.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы
+.Fn getrlimit
+и
+.Fn setrlimit
+завершаются с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Адрес, указанный для
+.Fa rlp ,
+недопустим.
+.It Bq Er EPERM
+Ограничение, указанное для
+.Fn setrlimit ,
+повысило бы максимальное значение ограничения, а вызывающая сторона
+не является суперпользователем.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr csh 1 ,
+.Xr quota 1 ,
+.Xr quotactl 2 ,
+.Xr sigaction 2 ,
+.Xr sigaltstack 2 ,
+.Xr sysctl 3 ,
+.Xr ulimit 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getrlimit
+появился в
+.Bx 4.2 .

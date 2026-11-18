@@ -1,0 +1,226 @@
+.\"
+.\" Copyright (C) 2008-2009 Semihalf, Michal Hajduk and Bartlomiej Sieka
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/i2c/i2c.8
+.\" FRDP githash c7c3ef8949021696029fb73a513678578a9f8a46
+.\" FRDP hash256 dd17210aa8fc36da159ec45dc6b9280b3d75ba1b41fa3b6fe99ac6167cda6cf3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 22, 2019
+.Dt I2C 8
+.Os
+.Sh ИМЯ
+.Nm i2c
+.Nd проверка шины I2C и подчинённых устройств
+.Sh СИНТАКСИС
+.Nm
+.Cm -a Ar адрес
+.Op Fl f Ar устройство
+.Op Fl d Ar r|w
+.Op Fl w Ar 0|8|16|16LE|16BE
+.Op Fl o Ar смещение
+.Op Fl c Ar количество
+.Op Fl m Ar tr|ss|rs|no
+.Op Fl b
+.Op Fl v
+.Nm
+.Cm -h
+.Nm
+.Cm -i
+.Op Fl v
+.Op Ar команда ...
+.Op Ar -
+.Nm
+.Cm -r
+.Op Fl f Ar устройство
+.Op Fl v
+.Nm
+.Cm -s
+.Op Fl f Ar устройство
+.Op Fl n Ar пропускаемый_адрес
+.Op Fl v
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+может использоваться для выполнения необработанных передач данных (чтения или записи) устройствам
+на шине I2C.
+Она также может сканировать шину на наличие доступных устройств и сбрасывать контроллер I2C.
+.Pp
+Параметры перечислены ниже:
+.Bl -tag -width indent
+.It Fl a Ar адрес
+7-битный адрес устройства I2C, с которым выполняется операция (шестнадцатеричный).
+.It Fl b
+двоичный режим - при выполнении операции чтения данные, считанные с устройства,
+выводятся в двоичном формате в стандартный поток вывода.
+.It Fl c Ar количество
+число байтов для передачи (десятичное).
+.It Fl d Ar r|w
+направление передачи: r - чтение, w - запись.
+Данные для записи считываются из стандартного ввода как двоичные байты.
+.It Fl f Ar устройство
+используемая шина I2C (по умолчанию /dev/iic0).
+.It Fl i
+Режим интерпретации
+.It Fl h
+Справка
+.It Fl m Ar tr|ss|rs|no
+режим адресации, т.е. операции на шине I2C, выполняемые после записи смещения для
+передачи в устройство и перед фактической операцией чтения/записи.
+.Bl -tag -compact -offset indent
+.It Va tr
+полная передача
+.It Va ss
+стоп затем старт
+.It Va rs
+повторный старт
+.It Va no
+нет
+.El
+Некоторое оборудование шины I2C не обеспечивает управление отдельными операциями
+старта, повторного старта и останова.
+Такое оборудование может выполнять только полную передачу смещения и
+данных как одну операцию.
+Режим
+.Va tr
+создаёт управляющие структуры, описывающие передачу, и отправляет их
+драйверу как одну полную транзакцию.
+Этот режим работает на всех типах оборудования I2C.
+.It Fl n Ar пропускаемый_адрес
+адрес(а), которые следует пропускать при сканировании шины.
+Один или несколько адресов ([0x]xx) или диапазонов адресов
+([0x]xx-[0x]xx или [0x]xx..[0x]xx), разделённых запятыми или двоеточиями.
+.It Fl o Ar смещение
+смещение внутри устройства для передачи данных (шестнадцатеричное).
+По умолчанию ноль.
+Используйте
+.Dq -w 0
+чтобы отключить запись смещения в подчинённое устройство.
+.It Fl r
+сбросить контроллер.
+.It Fl s
+сканировать шину на наличие устройств.
+.It Fl v
+подробный вывод.
+.It Fl w Ar 0|8|16|16LE|16BE
+ширина смещения устройства (в битах).
+Используется для определения способа передачи
+.Ar смещение
+указанного с помощью
+.Fl o
+в подчинённое устройство.
+Ноль означает, что смещение игнорируется и вообще не передаётся подчинённому устройству.
+Порядок байтов по умолчанию — little-endian.
+.El
+.Sh РЕЖИМ ИНТЕРПРЕТАЦИИ
+При запуске с
+.Fl i
+все оставшиеся аргументы интерпретируются как команды, и
+если последний аргумент — '-', или аргументы отсутствуют,
+команды будут (также) считываться из стандартного ввода.
+.Pp
+Доступные команды:
+.Bl -tag -compact
+.It 'r' bus address [0|8|16|16LE|16BE] offset count
+Команда чтения, считывается count байтов и выводится в hex-дампе в стандартный вывод.
+.It 'w' bus address [0|8|16|16LE|16BE] offset hexstring
+Команда записи, hexstring (пробелы допускаются) записывается в устройство.
+.It 'p' anything
+Команда печати, вся строка выводится в стандартный вывод.  (Это можно использовать
+для синхронизации.)
+.El
+.Pp
+Все числовые поля принимают каноническую десятичную/восьмеричную/шестнадцатеричную запись.
+.Pp
+Без параметра
+.Fl v
+все ошибки являются фатальными с ненулевым статусом выхода.
+.Pp
+С параметром
+.Fl v
+ошибки не являются фатальными, и все команды вернут управление.
+В случае ошибки подробная диагностика будет предшествовать этому в stderr.
+.Pp
+Пустые строки и строки, начинающиеся с '#', игнорируются.
+.Sh ПРИМЕРЫ
+.Bl -bullet
+.It
+Сканировать устройства на шине по умолчанию (/dev/iic0):
+.Pp
+i2c -s
+.It
+Сканировать устройства на шине по умолчанию (/dev/iic0) и пропустить адреса
+0x45–0x47 (включительно) и 0x56.
+.Pp
+i2c -s -n 0x56,45-47
+.It
+Считать 8 байтов данных с устройства по адресу 0x56 (например, EEPROM):
+.Pp
+i2c -a 0x56 -d r -c 8
+.It
+Записать 16 байтов данных из файла data.bin в устройство 0x56 по смещению 0x10:
+.Pp
+i2c -a 0x56 -d w -c 16 -o 0x10 -b < data.bin
+.It
+Скопировать 4 байта между двумя EEPROM (0x56 на /dev/iic1 в 0x57 на /dev/iic0):
+.Pp
+i2c -a 0x56 -f /dev/iic1 -d r -c 0x4 -b | i2c -a 0x57 -f /dev/iic0 -d w -c 4 -b
+.It
+Сбросить контроллер:
+.Pp
+i2c -f /dev/iic1 -r
+.It
+Считать 8 байтов по адресу 24 в EEPROM:
+.Pp
+i2c -i 'r 0 0x50 16BE 24 8'
+.It
+Считать 2x8 байтов по адресам 24 и 48 в EEPROM:
+.Pp
+echo 'r 0 0x50 16BE 48 8' | i2c -i 'r 0 0x50 16BE 24 8' -
+.El
+.Sh ПРЕДУПРЕЖДЕНИЕ
+Многие системы хранят критическую низкоуровневую информацию в памяти I2C и
+могут содержать другие устройства I2C, такие как датчики температуры или напряжения.
+Чтение из них может нарушить работу прошивки, а запись в них
+.Sh СМ. ТАКЖЕ
+.Xr iic 4 ,
+.Xr iicbus 4 ,
+.Xr smbus 4
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 8.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+и эта страница Справочника были написаны
+.An Bartlomiej Sieka Aq Mt tur@semihalf.com
+и
+.An Michal Hajduk Aq Mt mih@semihalf.com .
+.Pp
+.An Poul-Henning Kamp Aq Mt phk@FreeBSD.org
+добавил режим интерпретации.

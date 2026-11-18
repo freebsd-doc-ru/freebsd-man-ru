@@ -1,0 +1,186 @@
+.\"
+.\" Copyright (c) 2010 Weongyo Jeong.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/usbdump/usbdump.8
+.\" FRDP githash a76cac3a2062d4be107b4dabda0fcdedf71db340
+.\" FRDP hash256 f99f2d813a7e7618ab9cd5905170d87c8f2a77e123fc3aaebf6ad90a2c5535f0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 12, 2026
+.Dt USBDUMP 8
+.Os
+.Sh ИМЯ
+.Nm usbdump
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d Ar [ugen]B
+.Op Fl d Ar [ugen]B.D
+.Op Fl d Ar [ugen]B.D.E
+.Op Fl i Ar ifname
+.Op Fl r Ar file
+.Op Fl s Ar snaplen
+.Op Fl t
+.Op Fl u
+.Op Fl v
+.Op Fl w Ar file
+.Op Fl f Ar filter
+.Op Fl b Ar file
+.Op Fl h
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет способ перехвата USB-пакетов на хост-контроллерах.
+.Pp
+Принимаются следующие параметры:
+.Bl -tag -width Ds
+.It Fl d Ar [ugen]bus
+Сокращение для
+.Fl i
+параметра.
+Параметр можно указывать несколько раз, но указанная шина должна
+быть одной и той же.
+.It Fl d Ar [ugen]bus.device
+Сокращение для
+.Fl i
+и
+.Fl f
+параметров.
+Параметр можно указывать несколько раз, но указанная шина должна
+быть одной и той же.
+.It Fl d Ar [ugen]bus.device.endpoint
+Сокращение для
+.Fl i
+и
+.Fl f
+параметров.
+Параметр можно указывать несколько раз, но указанная шина должна
+быть одной и той же.
+.It Fl b Ar file
+Сохранять часть данных USB-трассировки в двоичном формате в указанный
+.Ar file .
+Этот параметр также работает с параметрами -r и -f.
+.It Fl i Ar ifname
+Прослушивать интерфейс USB-шины
+.Ar ifname .
+.It Fl r Ar file
+Читать необработанные пакеты из
+.Ar file .
+Этот параметр также работает с параметром -f.
+.It Fl s Ar snaplen
+Захватывать
+.Ar snaplen
+байт из каждого пакета.
+.It Fl t
+Не выводить временные метки пакетов.
+.It Fl u
+Небуферизованный вывод.
+.It Fl v
+Включить отладочные сообщения.
+При указании несколько раз уровень подробности увеличивается.
+.It Fl w Ar file
+Записывать необработанные пакеты в
+.Ar file .
+Этот параметр также работает с параметрами -s и -v.
+.It Fl f Ar filter
+Аргумент filter состоит из одного или двух чисел, разделённых точкой.
+Первое указывает номер устройства, которое следует трассировать.
+Второе число, необязательное, указывает конечную точку, которую следует трассировать.
+Чтобы получить весь трафик для управляющей конечной точки, нужно создать
+два фильтра: один для конечной точки 0 и один для конечной точки 128.
+Если к номеру конечной точки добавлено 128, это означает направление IN, иначе подразумевается направление OUT.
+Значение -1 для номера устройства или конечной точки означает игнорировать это поле.
+Если фильтры не указаны, все пакеты проходят через фильтр по умолчанию -1,-1.
+Этот параметр можно указывать несколько раз.
+.It Fl h
+Этот параметр выводит краткую справку по параметрам командной строки.
+.El
+.Sh ПРИМЕРЫ
+Захватить необработанные USB-пакеты на usbus2:
+.Pp
+.Pp
+Сохранить необработанные USB-пакеты usbus2 в файл без ограничения
+размера пакета:
+.Pp
+.Pp
+Сохранить необработанные USB-пакеты usbus2, но только трафик управляющей
+конечной точки устройства с номером 3:
+.Pp
+.Pp
+Прочитать и отобразить необработанные USB-пакеты из предыдущего файла:
+.Pp
+.Sh ФОРМАТ ВЫВОДА
+Формат вывода
+.Nm
+следующий:
+.Pp
+.Pp
+Значение элементов формата вывода следующее:
+.Bl -tag -width Ds
+.It <время>
+Временная метка, предшествующая всем строкам вывода, если не используется
+.Fl t
+параметр.
+часы ядра.
+.It <шина>
+Номер шины USB-хост-контроллера.
+.It <адрес>
+Уникальный номер USB-устройства, назначенный драйвером хост-контроллера.
+.It <конечная_точка>
+Адрес конечной точки USB, указывающий, является ли адрес
+.Dv OUT
+или
+.Dv IN .
+.It <тип_передачи>
+Тип передачи USB.
+Может быть
+.Dv CTRL ,
+.Dv ISOC ,
+.Dv BULK
+или
+.Dv INTR .
+.It <S/D>
+`S' обозначает отправку USB.
+`D' обозначает завершение USB-передачи.
+.It <кадры>
+Число кадров в этих пакетах.
+Если это отправка USB, его значение —
+.Li xfer->nframes
+означающее, сколько кадров допустимо или зарегистрировано для передачи.
+Если это завершение USB,
+.Li xfer->aframes
+— фактическое число кадров.
+.It <длина>
+Общий размер пакета.
+Если это отправка USB, его значение —
+.Li xfer->sumlen .
+Если это завершение USB, его значение —
+.Li xfer->actlen .
+.It <...>
+Необязательное поле, используемое для вывода строки ошибки, если пакет относится к завершению USB.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr usbconfig 8
+.Sh АВТОРЫ
+.An Weongyo Jeong Aq Mt weongyo@FreeBSD.org

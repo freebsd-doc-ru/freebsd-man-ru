@@ -1,0 +1,112 @@
+.\"	$NetBSD: services_mkdb.8,v 1.9 2009/05/13 22:36:39 wiz Exp $
+.\"
+.\" Copyright (c) 1999 The NetBSD Foundation, Inc.
+.\" All rights reserved.
+.\"
+.\" This code is derived from software contributed to The NetBSD Foundation
+.\" by Luke Mewburn.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+.\" BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/services_mkdb/services_mkdb.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 952ebea6147100463e994356be62fe8e1941e285513b820a76471ab87b5a0e20
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 4, 2010
+.Dt SERVICES_MKDB 8
+.Os
+.Sh ИМЯ
+.Nm services_mkdb
+.Nd генерация базы данных служб
+.Sh СИНТАКСИС
+.Nm
+.Op Fl b | l
+.Op Fl q
+.Op Fl o Ar база_данных
+.Op Ar файл
+.Nm
+.Fl u
+.Op Ar файл
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+создаёт базу данных
+.Xr db 3
+для указанного
+.Ar файла .
+Если файл не указан, то используется
+.Pa /etc/services .
+База данных устанавливается в
+.Pa /var/db/services.db .
+Файл должен быть в правильном формате (см.
+.Xr services 5 ) .
+.Pp
+Параметры следующие:
+.Bl -tag -width indent
+.It Fl b
+Использовать порядок байтов big-endian для метаданных базы данных.
+.It Fl l
+Использовать порядок байтов little-endian для метаданных базы данных.
+.It Fl o Ar база_данных
+Поместить выходные базы данных в указанный файл.
+.It Fl q
+Не предупреждать о дублирующихся службах.
+.It Fl u
+Вывести файл services в стандартный вывод, пропуская дублирующиеся записи и комментарии.
+.El
+.Pp
+Базы данных используются подпрограммами служб библиотеки C (см.
+.Xr getservent 3 ) .
+.Pp
+Флаги
+.Fl b
+и
+.Fl l
+взаимоисключающие.
+По умолчанию используется текущий порядок байтов узла.
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /var/db/services.db
+Текущая база данных служб.
+.It Pa /var/db/services.db.tmp
+Временный файл.
+.It Pa /etc/services
+Текущий файл services.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr db 3 ,
+.Xr getservent 3 ,
+.Xr services 5
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Поскольку
+.Nm
+гарантирует, что не установит частичный целевой файл, он должен
+создать временный файл в той же файловой системе и в случае успеха использовать
+.Xr rename 2
+для установки поверх целевого файла.
+.Pp
+Если
+.Nm
+завершится с ошибкой, он оставит предыдущую версию целевого файла нетронутой.

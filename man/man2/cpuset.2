@@ -1,0 +1,305 @@
+.\" Copyright (c) 2008 Christian Brueffer
+.\" Copyright (c) 2008 Jeffrey Roberson
+.\" Copyright (c) 2021 Robert N. M. Watson
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/cpuset.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 c2a2a717a5fb9a2c7c9724fb800c172a2a8a8674281c86f3f14f8cb237e8ef57
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 29, 2023
+.Dt CPUSET 2
+.Os
+.Sh ИМЯ
+.Nm cpuset ,
+.Nm cpuset_getid ,
+.Nm cpuset_setid
+.Nd управление наборами соответствия процессоров
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/cpuset.h
+.Ft int
+.Fn cpuset "cpusetid_t *setid"
+.Ft int
+.Fn cpuset_setid "cpuwhich_t which" "id_t id" "cpusetid_t setid"
+.Ft int
+.Fn cpuset_getid "cpulevel_t level" "cpuwhich_t which" "id_t id" "cpusetid_t *setid"
+.Sh ОПИСАНИЕ
+Семейство системных вызовов
+.Nm
+позволяет приложениям управлять наборами процессоров и доменов памяти
+и назначать процессы и потоки этим наборам.
+Наборы процессоров содержат списки CPU и доменов, на которых могут выполняться
+члены набора, и существуют только до тех пор, пока некоторый процесс является
+членом набора.
+Все процессы в системе имеют назначенный набор.
+Набором по умолчанию для всех процессов в системе является набор с номером 1.
+Потоки принадлежат тому же набору, что и содержащий их процесс,
+однако они могут дополнительно ограничить свой набор с помощью анонимной
+маски для каждого потока, чтобы привязаться к определённому CPU или подмножеству
+CPU и доменов памяти.
+.Pp
+Наборы адресуются по номеру типа
+.Ft cpuset_id_t .
+Каждый поток имеет корневой набор, назначенный набор и анонимную маску.
+Только корневой и назначенный наборы имеют номера.
+Корневой набор — это набор всех CPU и доменов памяти, доступных в системе
+или в разделе системы, в котором выполняется поток.
+Назначенный набор является подмножеством корневого набора и может быть
+административно назначен на основе отдельного процесса.
+Многие процессы и потоки могут быть членами пронумерованного набора.
+.Pp
+Анонимный набор является дальнейшим уточнением назначенного набора,
+специфичным для потока.
+Предполагается, что администраторы будут управлять пронумерованными наборами
+с помощью
+.Xr cpuset 1 ,
+а разработчики приложений будут управлять анонимными наборами с помощью
+.Xr cpuset_setaffinity 2 и
+.Xr cpuset_setdomain 2 .
+.Pp
+Для выбора правильного набора используется значение типа
+.Ft cpulevel_t .
+Поддерживаются следующие значения
+.Fa level :
+.Bl -column CPU_LEVEL_CPUSET -offset indent
+.It Dv CPU_LEVEL_ROOT Ta "Корневой набор"
+.It Dv CPU_LEVEL_CPUSET Ta "Назначенный набор"
+.It Dv CPU_LEVEL_WHICH Ta "Набор, задаваемый аргументом which"
+.El
+.Pp
+Аргумент
+.Fa which
+определяет, как интерпретируется значение
+.Fa id ,
+и имеет тип
+.Ft cpuwhich_t .
+Аргумент
+.Fa which
+может принимать следующие значения:
+.Bl -column CPU_WHICH_INTRHANDLER -offset indent
+.It Dv CPU_WHICH_TID Ta "id является lwpid_t (идентификатор потока)"
+.It Dv CPU_WHICH_PID Ta "id является pid_t (идентификатор процесса)"
+.It Dv CPU_WHICH_TIDPID Ta "id является идентификатором потока или процесса"
+.It Dv CPU_WHICH_JAIL Ta "id является jid (идентификатор клетки)"
+.It Dv CPU_WHICH_CPUSET Ta "id является cpusetid_t (идентификатор cpuset)"
+.It Dv CPU_WHICH_IRQ Ta "id является номером irq"
+.It Dv CPU_WHICH_INTRHANDLER Ta "id является номером irq для обработчика прерывания"
+.It Dv CPU_WHICH_ITHREAD Ta "id является номером irq для ithread"
+.It Dv CPU_WHICH_DOMAIN Ta "id является доменом NUMA"
+.El
+.Pp
+Значение
+.Fa id ,
+равное '-1', может использоваться с
+.Fa which ,
+равным
+.Dv CPU_WHICH_TID ,
+.Dv CPU_WHICH_PID ,
+.Dv CPU_WHICH_TIDPID
+или
+.Dv CPU_WHICH_CPUSET ,
+для обозначения текущего потока, процесса или cpuset текущего потока.
+Все системные вызовы cpuset допускают такое использование.
+.Pp
+Аргумент
+.Fa level ,
+равный
+.Dv CPU_LEVEL_WHICH ,
+в сочетании с аргументом
+.Fa which ,
+отличным от
+.Dv CPU_WHICH_CPUSET ,
+ссылается на анонимную маску объекта.
+Эта маска не имеет идентификатора и может управляться только с помощью
+.Xr cpuset_setaffinity 2 .
+.Pp
+.Fn cpuset
+создаёт новый набор, содержащий те же CPU, что и корневой набор текущего
+процесса, и сохраняет его идентификатор в пространстве, предоставленном
+.Fa setid .
+После успешного завершения вызывающий процесс присоединяется к набору и является
+единственным его членом.
+Дочерние процессы наследуют этот набор после вызова
+.Xr fork 2 .
+.Pp
+.Fn cpuset_setid
+пытается установить идентификатор объекта, указанного аргументом
+.Fa which .
+В настоящее время
+.Dv CPU_WHICH_PID
+является единственным допустимым значением для which, так как
+потоки не имеют идентификатора, отличного от их процесса, и API
+не позволяет изменять идентификатор существующего набора.
+После успешного завершения все потоки в целевом процессе будут
+выполняться на CPU, разрешённых набором.
+.Pp
+.Fn cpuset_getid
+извлекает идентификатор набора из объекта, указанного
+.Fa which ,
+и сохраняет его в пространстве, на которое указывает
+.Fa setid .
+Извлечённый идентификатор может быть идентификатором либо корневого, либо
+назначенного набора в зависимости от значения
+.Fa level .
+.Fa level
+должен быть
+.Dv CPU_LEVEL_CPUSET
+или
+.Dv CPU_LEVEL_ROOT ,
+чтобы получить идентификатор набора от
+процесса или потока, указанного аргументом
+.Fa id .
+Указание
+.Dv CPU_LEVEL_WHICH
+с процессом или потоком не поддерживается, поскольку
+это ссылается на непронумерованную анонимную маску.
+.Pp
+Фактическое содержимое наборов может быть извлечено или изменено с помощью
+.Xr cpuset_getaffinity 2 ,
+.Xr cpuset_setaffinity 2 ,
+.Xr cpuset_getdomain 2 и
+.Xr cpuset_setdomain 2 .
+Макросы
+.Xr cpuset 9
+могут использоваться для управления масками типа
+.Ft cpuset_t ,
+получаемыми и устанавливаемыми с помощью этих API.
+Подробности см. в этих страницах руководства.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ПРИМЕРЫ
+В этом примере маска набора CPU настраивается для ограничения выполнения первым
+CPU с помощью
+.Xr CPU_ZERO 9
+и
+.Xr CPU_SET 9 ,
+являющихся членами программного интерфейса
+.Xr cpuset 9 .
+Затем маска применяется к новому анонимному набору CPU, связанному с
+текущим процессом, с помощью
+.Xr cpuset_setaffinity 2 .
+Эта маска будет использоваться текущим процессом и наследоваться любыми новыми
+дочерними процессами.
+.Bd  -literal -offset indent
+#include <sys/param.h>
+#include <sys/cpuset.h>
+
+#include <sysexits.h>
+
+cpuset_t cpuset_mask;
+
+/* Initialize a CPU mask and enable CPU 0. */
+CPU_ZERO(&cpuset_mask);
+CPU_SET(0, &cpuset_mask);
+
+/* Set affinity for the CPU set for the current process. */
+if (cpuset_setaffinity(CPU_LEVEL_WHICH, CPU_WHICH_PID, -1,
+    sizeof(cpuset_mask), &cpuset_mask) < 0)
+	err(EX_OSERR, "cpuset_setaffinity");
+.Ed
+.Pp
+В следующем примере создаётся именованный набор CPU, содержащий текущий
+процесс, и его соответствие настраивается аналогичным образом.
+Полученный идентификатор набора CPU затем может использоваться для дальнейшего
+внешнего управления соответствием набора.
+.Bd  -literal -offset indent
+#include <sys/param.h>
+#include <sys/cpuset.h>
+
+#include <sysexits.h>
+
+cpusetid_t cpuset_id;
+cpuset_t cpuset_mask;
+
+/* Create new cpuset for the current process. */
+if (cpuset(&cpuset_id) < 0)
+	err(EX_OSERR, "cpuset");
+
+/* Initialize a CPU mask and enable CPU 0. */
+CPU_ZERO(&cpuset_mask);
+CPU_SET(0, &cpuset_mask);
+
+/* Set affinity for the CPU set for the current process. */
+if (cpuset_setaffinity(CPU_LEVEL_SET, CPU_WHICH_CPUSET, cpuset_id,
+    sizeof(cpuset_mask), &cpuset_mask) < 0)
+	err(EX_OSERR, "cpuset_setaffinity");
+.Ed
+.Sh ОШИБКИ
+В
+.Va errno
+могут быть установлены следующие коды ошибок:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa which
+или
+.Fa level
+не был допустимым значением.
+.It Bq Er EDEADLK
+Вызов
+.Fn cpuset_setid
+оставил бы поток без допустимого CPU для выполнения, поскольку набор
+не пересекается с анонимной маской потока.
+.It Bq Er EFAULT
+Указатель setid, переданный в
+.Fn cpuset_getid
+или
+.Fn cpuset ,
+был недопустимым.
+.It Bq Er ESRCH
+Объект, указанный аргументами
+.Fa id
+и
+.Fa which ,
+не может быть найден.
+.It Bq Er EPERM
+Вызывающий процесс не имел учётных данных, необходимых для завершения
+операции.
+.It Bq Er ENFILE
+Не было свободного
+.Ft cpusetid_t
+для выделения.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr cpuset 1 ,
+.Xr cpuset_getaffinity 2 ,
+.Xr cpuset_getdomain 2 ,
+.Xr cpuset_setaffinity 2 ,
+.Xr cpuset_setdomain 2 ,
+.Xr pthread_affinity_np 3 ,
+.Xr pthread_attr_affinity_np 3 ,
+.Xr CPU_SET 9 ,
+.Xr CPU_ZERO 9 ,
+.Xr cpuset 9
+.Sh ИСТОРИЯ
+Семейство системных вызовов
+.Nm
+впервые появилось в
+.Fx 7.1 .
+.Sh АВТОРЫ
+.An Jeffrey Roberson Aq Mt jeff@FreeBSD.org

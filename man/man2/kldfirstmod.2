@@ -1,0 +1,78 @@
+.\"
+.\" Copyright (c) 1999 Chris Costello
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/kldfirstmod.2
+.\" FRDP githash f44029e322446469f116bbd26d51ba857083bacb
+.\" FRDP hash256 e7e6842e7cb66abdbe3b2e0bb4c67ba52784f23bcf3eced8f3bbe8a80cef3f5f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 3, 1999
+.Dt KLDFIRSTMOD 2
+.Os
+.Sh ИМЯ
+.Nm kldfirstmod
+.Nd "возвращает идентификатор первого модуля из указанного файла kld"
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/linker.h
+.Ft int
+.Fn kldfirstmod "int fileid"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn kldfirstmod
+возвращает идентификатор модуля, относящийся к первому модулю, на который
+ссылается
+.Fa fileid .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Fn kldfirstmod
+возвращает идентификатор первого модуля, на который ссылается
+.Fa fileid ,
+или 0, если ссылок нет.
+.Sh ОШИБКИ
+.Bl -tag -width Er
+.It Bq Er ENOENT
+Файл kld, на который ссылается
+.Fa fileid ,
+не найден.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kldfind 2 ,
+.Xr kldload 2 ,
+.Xr kldnext 2 ,
+.Xr kldstat 2 ,
+.Xr kldsym 2 ,
+.Xr kldunload 2 ,
+.Xr modfind 2 ,
+.Xr modfnext 2 ,
+.Xr modnext 2 ,
+.Xr modstat 2 ,
+.Xr kld 4 ,
+.Xr kldstat 8
+.Sh ИСТОРИЯ
+Интерфейс
+.Nm kld
+впервые появился в
+.Fx 3.0 .

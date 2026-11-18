@@ -1,0 +1,250 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright 2013 Darik Horn <dajhorn@vanadac.com>. All rights reserved.
+.\"
+.\" lint-ok: WARNING: sections out of conventional order: Sh SYNOPSIS
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man1/zhack.1
+.\" FRDP githash 2c00a4216378d1c7d21cb983d1621a159c755c27
+.\" FRDP hash256 04d081268e421ac020f218f2893148245b9d0356562d0e73ad603ce77b0c88aa
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 3, 2026
+.Dt ZHACK 1
+.Os
+.
+.Sh ИМЯ
+.Nm zhack
+.Nd инструмент отладки libzpool
+.Sh ОПИСАНИЕ
+Эта утилита вносит изменения конфигурации непосредственно в пул ZFS,
+что опасно и может привести к повреждению данных.
+.Sh СИНТАКСИС
+.Bl -tag -width Ds
+.It Xo
+.Nm zhack
+.Cm feature stat
+.Ar пул
+.Xc
+Вывести список флагов возможностей.
+.
+.It Xo
+.Nm zhack
+.Cm feature enable
+.Op Fl d Ar описание
+.Op Fl r
+.Ar пул
+.Ar guid
+.Xc
+Добавить новую возможность в
+.Ar пул ,
+однозначно идентифицируемую
+.Ar guid ,
+который задаётся в той же форме, что и
+.Xr zfs 8
+пользовательское свойство.
+.Pp
+Аргумент
+.Ar описание
+— это краткое человекочитаемое объяснение новой возможности.
+.Pp
+Флаг
+.Fl r
+указывает, что
+.Ar пул
+можно безопасно открыть в режиме только для чтения системой, которая не понимает
+возможность
+.Ar guid .
+.
+.It Xo
+.Nm zhack
+.Cm feature ref
+.Op Fl d Ns | Ns Fl m
+.Ar пул
+.Ar guid
+.Xc
+Увеличить счётчик ссылок возможности
+.Ar guid
+в
+.Ar пуле .
+.Pp
+Флаг
+.Fl d
+вместо этого уменьшает счётчик ссылок возможности
+.Ar guid
+в
+.Ar пуле .
+.Pp
+Флаг
+.Fl m
+указывает, что возможность
+.Ar guid
+теперь требуется для чтения MOS пула.
+.
+.It Xo
+.Nm zhack
+.Cm label repair
+.Op Fl cu
+.Ar устройство
+.Xc
+Восстановить метки указанного
+.Ar устройства
+согласно опциям.
+.Pp
+Флаги можно комбинировать, чтобы выполнять их функции одновременно.
+.
+.Pp
+Флаг
+.Fl c
+восстанавливает повреждённые контрольные суммы меток
+.
+.Pp
+Флаг
+.Fl u
+восстанавливает метку на отсоединённом устройстве
+.Pp
+Пример:
+.Nm zhack Cm label repair Fl cu Ar устройство
+  Исправить контрольные суммы и отменить отсоединение устройства
+.
+.It Xo
+.Nm zhack
+.Cm mmp reclaim
+.Ar пул
+.Xc
+Импортировать
+.Ar пул ,
+чья заявка uberblock не может достичь каждого плеча зеркала, которое конфигурация всё ещё
+ожидает присутствующим, затем пометить недостижимые листья как offline, чтобы
+обычные импорты завершались успешно, и снова экспортировать его.
+.Pp
+Это существует для одной ситуации: хост вышел из строя вместе с подключёнными к нему
+плечами зеркала, поэтому сохранившиеся метки всё ещё описывают эти плечи как исправные,
+и каждый последующий импорт требует записей в них, которые никто не может выполнить.
+.Pp
+.Sy Это само по себе не делает операцию безопасной .
+Работающий хост, у которого
+.Em все
+плечи невидимы отсюда, невозможно обнаружить никакой схемой записи и чтения, и эта
+команда заберёт у него пул.
+Изолируйте отказавший хост или иным способом докажите, что он выключен, прежде чем запускать
+это.
+.Pp
+Сама проверка активности не изменилась: каждая запись, которую допускают достижимые плечи,
+ожидание и повторное чтение всё ещё выполняются, поэтому конкурирующий хост, разделяющий
+любое плечо с этим, всё ещё обнаруживается, и импорт отклоняется.
+Уменьшается только число записей, которое требует заявка, и только для плеч зеркала,
+которые этот хост не может открыть; каждое из них затем помечается как offline.
+.Pp
+Пул остаётся экспортированным, а импорты выполняются в деградированном режиме с этими листьями
+в состоянии offline.
+Верните каждый из них обратно с помощью
+.Xr zpool-online 8
+когда оборудование вернётся.
+Лист, хранящий единственную копию некоторых данных, нельзя перевести в offline: о нём сообщается,
+он остаётся online, а импорты с других хостов остаются отклонёнными.
+Ни один лист не помечается как offline в пуле, где не установлен
+.Sy multihost
+поскольку для него не выполняется заявка и обычный импорт уже завершается успешно.
+Листья vdev журнала, кэша и запасных vdev не затрагиваются, так как заявка не пишет в них.
+.
+.It Xo
+.Nm zhack
+.Cm metaslab leak
+.Op Fl f
+.Ar пул
+.Xc
+Применить профиль фрагментации, созданный
+.Sy zdb
+к указанному
+.Ar пулу Ns
+\&.
+.Pp
+Флаг
+.Fl f
+заставляет применить профиль, даже если vdev в
+.Ar пуле
+имеют не то же число метаслабов, что и профиль фрагментации.
+.
+.El
+.
+.Sh ГЛОБАЛЬНЫЕ ОПЦИИ
+Следующие параметры можно передать всем вызовам
+.Nm
+перед любой подкомандой:
+.Bl -tag -width Ds
+.It Fl c Ar файл_кэша
+Читать
+конфигурацию
+.Ar пула
+из
+.Ar файла_кэша ,
+который по умолчанию является
+.Pa /etc/zfs/zpool.cache
+.
+.It Fl d Ar каталог
+Искать членов
+.Ar пула
+в
+.Ar каталоге .
+Можно указывать более одного раза.
+.It Fl o Ar переменная Ns = Ns Ar значение
+Установить указанный настраиваемый параметр в заданное значение.
+.El
+.
+.Sh ПРИМЕРЫ
+.Bd -literal
+.No # Nm zhack Cm feature stat Ar tank
+for_read_obj:
+	org.illumos:lz4_compress = 0
+for_write_obj:
+	com.delphix:async_destroy = 0
+	com.delphix:empty_bpobj = 0
+descriptions_obj:
+	com.delphix:async_destroy = Destroy filesystems asynchronously.
+	com.delphix:empty_bpobj = Snapshots use less space.
+	org.illumos:lz4_compress = LZ4 compression algorithm support.
+
+.No # Nm zhack Cm feature enable Fl d No 'Предсказывать будущие отказы дисков.' Ar tank com.example:clairvoyance
+.No # Nm zhack Cm feature ref Ar tank com.example:clairvoyance
+.Ed
+.Pp
+Восстановить пул, чей парный хост вышел из строя вместе со своими плечами зеркала, после
+подтверждения того, что этот хост выключен:
+.Bd -literal
+.No # Nm zpool Cm import Fl f Ar tank
+cannot import 'tank': the multihost claim could not be written to a device
+the pool configuration expects to be present.
+If the device is permanently gone, recover with 'zhack mmp reclaim'.
+.No # Nm zhack Cm mmp reclaim Ar tank
+tank: marked absent leaf 5646371977210937898 offline
+.No # Nm zpool Cm import Ar tank
+.No # Nm zpool Cm online Ar tank Ar /dev/disk/by-id/...
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr ztest 1 ,
+.Xr zpool-features 7 ,
+.Xr zpoolprops 7 ,
+.Xr zfs 8 ,
+.Xr zpool-import 8 ,
+.Xr zpool-online 8

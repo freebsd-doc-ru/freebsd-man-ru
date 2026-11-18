@@ -1,0 +1,120 @@
+.\" Copyright (c) 2001 Mark R V Murray
+.\" All rights reserved.
+.\" Copyright (c) 2001 Networks Associates Technology, Inc.
+.\" All rights reserved.
+.\"
+.\" This software was developed for the FreeBSD Project by ThinkSec AS and
+.\" NAI Labs, the Security Research Division of Network Associates, Inc.
+.\" under DARPA/SPAWAR contract N66001-01-C-8035 ("CBOSS"), as part of the
+.\" DARPA CHATS research program.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libpam/modules/pam_ksu/pam_ksu.8
+.\" FRDP githash 6e1fc0118033f42b7c0d3623c8f67a89ebecabb2
+.\" FRDP hash256 29a63f25df7ccfc144061d4e7dd9e3f294fb4620ec7673ba2cd99d2f7eeca826
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 15, 2002
+.Dt PAM_KSU 8
+.Os
+.Sh ИМЯ
+.Nm pam_ksu
+.Nd Модуль PAM Kerberos 5 SU
+.Sh СИНТАКСИС
+.Op Ar имя-службы
+.Ar тип-модуля
+.Ar флаг-управления
+.Pa pam_ksu
+.Op Ar параметры
+.Sh ОПИСАНИЕ
+Модуль службы аутентификации Kerberos 5 SU для PAM,
+.Nm
+предназначен только для одной категории PAM: аутентификации.
+В терминах параметра
+.Ar тип-модуля
+это функция
+.Dq Li auth .
+Модуль специально разработан для использования с утилитой
+.Xr su 1 .
+.Ss Модуль аутентификации Kerberos 5 SU
+Компонент аутентификации Kerberos 5 SU предоставляет функции для проверки
+подлинности пользователя
+.Pq Fn pam_sm_authenticate ,
+и определения, имеет ли пользователь право на получение
+привилегий целевой учётной записи.
+Если целевая учётная запись —
+.Dq root ,
+то используемый для аутентификации и авторизации принципал Kerberos 5
+будет экземпляром
+.Dq root
+текущего пользователя, например\&
+.Dq Li user/root@REAL.M .
+В противном случае принципал будет просто принципалом текущего пользователя
+по умолчанию, например\&
+.Dq Li user@REAL.M .
+.Pp
+При необходимости у пользователя запрашивается пароль.
+Авторизация выполняется
+путём сравнения принципала Kerberos 5 с перечисленными в файле
+.Pa .k5login
+в домашнем каталоге целевой учётной записи
+(например\&
+.Pa /root/.k5login
+для root).
+.Pp
+Модулю аутентификации можно передать следующие параметры:
+.Bl -tag -width "use_first_pass"
+.It Cm debug
+отладочная информация в
+.Xr syslog 3
+на уровне
+.Dv LOG_DEBUG .
+.It Cm use_first_pass
+Если модуль аутентификации
+не первый в стеке
+и предыдущий модуль
+получил пароль пользователя,
+этот пароль используется
+для аутентификации пользователя.
+Если это не удаётся,
+модуль аутентификации возвращает ошибку
+без запроса пароля у пользователя.
+Этот параметр не действует,
+если модуль аутентификации
+первый в стеке
+или если ни один предыдущий модуль
+не получил пароль пользователя.
+.It Cm try_first_pass
+Этот параметр аналогичен параметру
+.Cm use_first_pass ,
+за исключением того, что если ранее полученный пароль не подходит,
+у пользователя запрашивается другой пароль.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr su 1 ,
+.Xr pam 3 ,
+.Xr syslog 3 ,
+.Xr pam.conf 5

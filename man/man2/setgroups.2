@@ -1,0 +1,168 @@
+.\"-
+.\" SPDX-License-Identifier: BSD-3-Clause
+.\"
+.\" Copyright (c) 1983, 1991, 1993, 1994
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2025 The FreeBSD Foundation
+.\"
+.\" Portions of this documentation were written by Olivier Certner
+.\" <olce@FreeBSD.org> at Kumacom SARL under sponsorship from the FreeBSD
+.\" Foundation.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/setgroups.2
+.\" FRDP githash 6d22cd6b5f8b5604f1fe9e70930b1506f990e31e
+.\" FRDP hash256 b3fbf297a0582cc17a6e109ffed32d06f6d3f5a69f7dede6faea3bf8e56b51b0
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 17, 2025
+.Dt SETGROUPS 2
+.Os
+.Sh ИМЯ
+.Nm setgroups
+.Nd установить дополнительные группы вызывающего процесса
+.Sh LIBRARY
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In unistd.h
+.Ft int
+.Fn setgroups "int ngroups" "const gid_t *gidset"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn setgroups
+устанавливает дополнительные группы вызывающего процесса в соответствии с
+массивом
+.Fa gidset .
+Аргумент
+.Fa ngroups
+указывает количество элементов в массиве и не должен превышать
+.Dv {NGROUPS_MAX} .
+.Pp
+Аргументу
+.Fa ngroups
+может быть присвоено значение ноль, чтобы очистить все дополнительные группы,
+в этом случае
+.Fa gidset
+игнорируется.
+.Pp
+Только суперпользователь может установить новый набор дополнительных групп.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std setgroups
+.Sh ОШИБКИ
+Системный вызов
+.Fn setgroups
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Вызывающий не является суперпользователем.
+.It Bq Er EINVAL
+Число, указанное в аргументе
+.Fa ngroups
+превышает предел
+.Dv {NGROUPS_MAX} .
+.It Bq Er EFAULT
+Часть массива групп, начиная с
+.Fa gidset
+находится вне адресного пространства процесса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getgroups 2 ,
+.Xr setcred 2 ,
+.Xr initgroups 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn setgroups
+появился в
+.Bx 4.2 .
+.Pp
+До
+.Fx 15.0 ,
+системный вызов
+.Fn setgroups
+устанавливал идентификатор эффективной группы процесса в первый элемент
+.Fa gidset ,
+а только остальные элементы как дополнительные группы.
+Несмотря на то, что первый элемент трактовался как устанавливаемый идентификатор
+эффективной группы, он принимал пустой
+.Fa gidset
+.Po
+.Fa ngroups
+равный нулю
+.Pc
+как позицию, требующую отбросить все дополнительные группы, оставляя
+идентификатор эффективной группы без изменений.
+.Sh СООБРАЖЕНИЯ БЕЗОПАСНОСТИ
+Системный вызов
+.Fn setgroups
+устанавливает дополнительные группы процесса в те, что содержатся в массиве
+.Fa gidset .
+В частности, как упомянуто в
+.Sx ИСТОРИЯ ,
+он больше не трактует первый элемент
+.Fa gidset
+отдельно.
+Ранее он устанавливал его как идентификатор эффективной группы, тогда как
+только остальные использовались как дополнительные группы.
+.Pp
+Программы, полагающиеся исключительно на
+.Fn setgroups
+для изменения идентификатора эффективной группы, должны быть изменены, например,
+чтобы также вызывать
+.Xr setegid 2
+или вместо этого использовать
+.Xr setcred 2 ,
+иначе они будут непреднамеренно сохранять свой идентификатор эффективной группы.
+.Pp
+Программы, использующие
+.Fn setgroups
+с идентификатором эффективной группы в качестве первого элемента массива
+.Fa gidset
+и не дублирующие его в остальной части массива, включая те, что используют
+.Fn initgroups ,
+теперь вставляют этот идентификатор группы в набор дополнительных групп.
+Это в целом желательно, как объяснено в
+.Xr initgroups 3
+справочной странице, и имеет следствием то, что последующие изменения
+идентификатора эффективной группы процесса не удаляют членство в исходном
+идентификаторе эффективной группы, поскольку эти изменения не затрагивают
+дополнительные группы.
+Приложения, которые явно не хотят этого, должны быть изменены, чтобы
+прекратить передачу идентификатора эффективной группы в качестве первого
+элемента в
+.Fn setgroups .
+.Pp
+Чтобы очистить все дополнительные группы вызывающего процесса, всегда
+используйте оператор
+.Bd -literal -offset indent
+setgroups(0, NULL);
+.Ed
+.Pp
+который работает также в более старых версиях FreeBSD
+.Po
+см. раздел
+.Sx ИСТОРИЯ
+.Pc .

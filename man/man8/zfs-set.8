@@ -1,0 +1,352 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2009 Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 2011 Joshua M. Clulow <josh@sysmgr.org>
+.\" Copyright (c) 2011, 2019 by Delphix. All rights reserved.
+.\" Copyright (c) 2013 by Saso Kiselkov. All rights reserved.
+.\" Copyright (c) 2014, Joyent, Inc. All rights reserved.
+.\" Copyright (c) 2014 by Adam Stevko. All rights reserved.
+.\" Copyright (c) 2014 Integros [integros.com]
+.\" Copyright 2019 Richard Laager. All rights reserved.
+.\" Copyright 2018 Nexenta Systems, Inc.
+.\" Copyright 2019 Joyent, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zfs-set.8
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 c3e6867fc52262f7f896fd55075107fc6f6e56e5fe4001aa7bbb999d6bbd9f3c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 12, 2024
+.Dt ZFS-SET 8
+.Os
+.
+.Sh ИМЯ
+.Nm zfs-set
+.Nd установка свойств на наборах данных ZFS
+.Sh СИНТАКСИС
+.Nm zfs
+.Cm set
+.Op Fl u
+.Ar property Ns = Ns Ar value Oo Ar property Ns = Ns Ar value Oc Ns …
+.Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns …
+.Nm zfs
+.Cm get
+.Op Fl r Ns | Ns Fl d Ar depth
+.Op Fl Hp
+.Op Fl j Op Ar --json-int
+.Oo Fl o Ar field Ns Oo , Ns Ar field Oc Ns … Oc
+.Oo Fl s Ar source Ns Oo , Ns Ar source Oc Ns … Oc
+.Oo Fl t Ar type Ns Oo , Ns Ar type Oc Ns … Oc
+.Cm all Ns | Ns Ar property Ns Oo , Ns Ar property Oc Ns …
+.Oo Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns | Ns Ar bookmark Oc Ns …
+.Nm zfs
+.Cm inherit
+.Op Fl rS
+.Ar property Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns …
+.
+.Sh ОПИСАНИЕ
+.Bl -tag -width Ds
+.It Xo
+.Nm zfs
+.Cm set
+.Op Fl u
+.Ar property Ns = Ns Ar value Oo Ar property Ns = Ns Ar value Oc Ns …
+.Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns …
+.Xc
+Редактировать можно только некоторые свойства.
+См.
+.Xr zfsprops 7
+для получения дополнительной информации о том, какие свойства можно задать, и о допустимых
+значениях.
+Числовые значения можно указывать как точные значения или в удобочитаемой форме
+с суффиксом
+.Sy B , K , M , G , T , P , E , Z
+.Po для байтов, килобайтов, мегабайтов, гигабайтов, терабайтов, петабайтов, эксабайтов,
+или зеттабайтов соответственно
+.Pc .
+Пользовательские свойства можно задавать на снимках.
+Для получения дополнительной информации см. раздел
+.Em Пользовательские свойства
+в
+.Xr zfsprops 7 .
+.Bl -tag -width Ds
+.It Fl u
+Обновить свойства mountpoint, sharenfs, sharesmb, но не монтировать и не предоставлять общий доступ к
+набору данных.
+.El
+.It Xo
+.Nm zfs
+.Cm get
+.Op Fl r Ns | Ns Fl d Ar depth
+.Op Fl Hp
+.Op Fl j Op Ar --json-int
+.Oo Fl o Ar field Ns Oo , Ns Ar field Oc Ns … Oc
+.Oo Fl s Ar source Ns Oo , Ns Ar source Oc Ns … Oc
+.Oo Fl t Ar type Ns Oo , Ns Ar type Oc Ns … Oc
+.Cm all Ns | Ns Ar property Ns Oo , Ns Ar property Oc Ns …
+.Oo Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns | Ns Ar bookmark Oc Ns …
+.Xc
+Отображает свойства для заданных наборов данных.
+Если наборы данных не указаны, команда отображает свойства для всех
+наборов данных в системе.
+Для каждого свойства отображаются следующие столбцы:
+.Bl -tag -width Ds
+.It Sy name
+Имя набора данных
+.It Sy property
+Имя свойства
+.It Sy value
+Значение свойства
+.It Sy source
+Источник свойства
+.Sy local , default , inherited , temporary , received , No или Sy - Pq none .
+.El
+.Pp
+По умолчанию отображаются все столбцы; это можно изменить с помощью параметра
+.Fl o .
+Эта команда принимает список свойств, разделённых запятыми, как описано в
+.Sx Собственные свойства
+и
+.Sx Пользовательские свойства
+разделах
+.Xr zfsprops 7 .
+.Pp
+Значение
+.Sy all
+можно использовать для отображения всех свойств, применимых к типу заданного набора данных
+.Pq Sy filesystem , volume , snapshot , No или Sy bookmark .
+.Bl -tag -width Ds
+.It Fl j , -json Op Ar --json-int
+Отображать вывод в формате JSON.
+Укажите
+.Sy --json-int
+чтобы отображать числа в целочисленном формате, а не в виде строк, для вывода JSON.
+.It Fl H
+Отображать вывод в форме, более удобной для разбора скриптами.
+Все заголовки опускаются, а поля явно разделяются одним символом табуляции
+вместо произвольного количества пробелов.
+.It Fl d Ar depth
+Рекурсивно отображать всех потомков набора данных, ограничивая рекурсию
+.Ar depth .
+При глубине
+.Sy 1
+будут отображаться только набор данных и его непосредственные потомки.
+.It Fl o Ar field
+Список столбцов для отображения, разделённых запятыми; по умолчанию
+.Sy name , Ns Sy property , Ns Sy value , Ns Sy source .
+.It Fl p
+Отображать числа в пригодном для разбора
+.Pq точном
+виде.
+.It Fl r
+Рекурсивно отображать свойства для всех потомков.
+.It Fl s Ar source
+Список источников для отображения, разделённых запятыми.
+Свойства, источник которых не входит в этот список, игнорируются.
+Каждый источник должен быть одним из следующих:
+.Sy local , default , inherited , temporary , received , No или Sy none .
+Значение по умолчанию — все источники.
+.It Fl t Ar type
+Список типов для отображения, разделённых запятыми, где
+.Ar type
+является одним из
+.Sy filesystem , snapshot , volume , bookmark , No или Sy all .
+.Sy fs ,
+.Sy snap ,
+или
+.Sy vol
+можно использовать как псевдонимы для
+.Sy filesystem ,
+.Sy snapshot ,
+или
+.Sy volume .
+.El
+.It Xo
+.Nm zfs
+.Cm inherit
+.Op Fl rS
+.Ar property Ar filesystem Ns | Ns Ar volume Ns | Ns Ar snapshot Ns …
+.Xc
+Очищает указанное свойство, в результате чего оно наследуется от предка,
+сбрасывается на значение по умолчанию, если ни у одного предка свойство не задано, или, с
+параметром
+.Fl S
+возвращается к полученному значению, если оно существует.
+См.
+.Xr zfsprops 7
+для списка значений по умолчанию и сведений о том, какие свойства можно
+наследовать.
+.Bl -tag -width Ds
+.It Fl r
+Рекурсивно наследовать заданное свойство для всех потомков.
+.It Fl S
+Вернуть свойство к полученному значению, если оно существует;
+в противном случае для ненаследуемых свойств — к значению по умолчанию;
+в противном случае действовать так, как если бы параметр
+.Fl S
+не был указан.
+.El
+.El
+.
+.Sh ПРИМЕРЫ
+.Ss Пример 1 : No Создание иерархии файловой системы ZFS
+Следующие команды создают файловую систему с именем
+.Ar pool/home
+и файловую систему с именем
+.Ar pool/home/bob .
+Точка монтирования
+.Pa /export/home
+задаётся для родительской файловой системы и автоматически наследуется дочерней
+файловой системой.
+.Dl # Nm zfs Cm create Ar pool/home
+.Dl # Nm zfs Cm set Sy mountpoint Ns = Ns Ar /export/home pool/home
+.Dl # Nm zfs Cm create Ar pool/home/bob
+.
+.Ss Пример 2 : No Отключение и включение сжатия файловой системы
+Следующая команда отключает свойство
+.Sy compression
+для всех файловых систем в
+.Ar pool/home .
+Следующая команда явно включает
+.Sy compression
+для
+.Ar pool/home/anne .
+.Dl # Nm zfs Cm set Sy compression Ns = Ns Sy off Ar pool/home
+.Dl # Nm zfs Cm set Sy compression Ns = Ns Sy on Ar pool/home/anne
+.
+.Ss Пример 3 : No Установка квоты на файловой системе ZFS
+Следующая команда устанавливает квоту 50 Гбайт для
+.Ar pool/home/bob :
+.Dl # Nm zfs Cm set Sy quota Ns = Ns Ar 50G pool/home/bob
+.
+.Ss Пример 4 : No Перечисление свойств ZFS
+Следующая команда выводит список всех свойств для
+.Ar pool/home/bob :
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Sy all Ar pool/home/bob
+NAME           PROPERTY              VALUE                  SOURCE
+pool/home/bob  type                  filesystem             -
+pool/home/bob  creation              Tue Jul 21 15:53 2009  -
+pool/home/bob  used                  21K                    -
+pool/home/bob  available             20.0G                  -
+pool/home/bob  referenced            21K                    -
+pool/home/bob  compressratio         1.00x                  -
+pool/home/bob  mounted               yes                    -
+pool/home/bob  quota                 20G                    local
+pool/home/bob  reservation           none                   default
+pool/home/bob  recordsize            128K                   default
+pool/home/bob  mountpoint            /pool/home/bob         default
+pool/home/bob  sharenfs              off                    default
+pool/home/bob  checksum              on                     default
+pool/home/bob  compression           on                     local
+pool/home/bob  atime                 on                     default
+pool/home/bob  devices               on                     default
+pool/home/bob  exec                  on                     default
+pool/home/bob  setuid                on                     default
+pool/home/bob  readonly              off                    default
+pool/home/bob  zoned                 off                    default
+pool/home/bob  snapdir               hidden                 default
+pool/home/bob  acltype               off                    default
+pool/home/bob  aclmode               discard                default
+pool/home/bob  aclinherit            restricted             default
+pool/home/bob  canmount              on                     default
+pool/home/bob  xattr                 on                     default
+pool/home/bob  copies                1                      default
+pool/home/bob  version               4                      -
+pool/home/bob  utf8only              off                    -
+pool/home/bob  normalization         none                   -
+pool/home/bob  casesensitivity       sensitive              -
+pool/home/bob  vscan                 off                    default
+pool/home/bob  nbmand                off                    default
+pool/home/bob  sharesmb              off                    default
+pool/home/bob  refquota              none                   default
+pool/home/bob  refreservation        none                   default
+pool/home/bob  primarycache          all                    default
+pool/home/bob  secondarycache        all                    default
+pool/home/bob  usedbysnapshots       0                      -
+pool/home/bob  usedbydataset         21K                    -
+pool/home/bob  usedbychildren        0                      -
+pool/home/bob  usedbyrefreservation  0                      -
+.Ed
+.Pp
+Следующая команда получает значение одного свойства:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Fl H o Sy value compression Ar pool/home/bob
+on
+.Ed
+.Pp
+Следующая команда рекурсивно получает значение одного свойства в формате JSON:
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Fl j Fl r Sy mountpoint Ar pool/home | Nm jq
+{
+  },
+          }
+        }
+      }
+    },
+          }
+        }
+      }
+    }
+  }
+}
+.Ed
+.Pp
+Следующая команда выводит список всех свойств с локальными настройками для
+.Ar pool/home/bob :
+.Bd -literal -compact -offset Ds
+.No # Nm zfs Cm get Fl r s Sy local Fl o Sy name , Ns Sy property , Ns Sy value all Ar pool/home/bob
+NAME           PROPERTY              VALUE
+pool/home/bob  quota                 20G
+pool/home/bob  compression           on
+.Ed
+.
+.Ss Пример 5 : No Наследование свойств ZFS
+Следующая команда заставляет
+.Ar pool/home/bob No и Ar pool/home/anne
+наследовать свойство
+.Sy checksum
+от их родителя.
+.Dl # Nm zfs Cm inherit Sy checksum Ar pool/home/bob pool/home/anne
+.
+.Ss Пример 6 : No Установка пользовательских свойств
+Следующий пример задаёт определяемое пользователем
+.Ar com.example : Ns Ar department
+свойство для набора данных:
+.Dl # Nm zfs Cm set Ar com.example : Ns Ar department Ns = Ns Ar 12345 tank/accounting
+.
+.Ss Пример 7 : No Установка параметров свойства sharenfs на файловой системе ZFS
+Следующие команды показывают, как задать параметры свойства
+.Sy sharenfs
+чтобы включить доступ для чтения и записи
+для набора IP-адресов и включить доступ root для системы
+.Qq neo
+на файловой системе
+.Ar tank/home :
+.Dl # Nm zfs Cm set Sy sharenfs Ns = Ns ' Ns Ar rw Ns =@123.123.0.0/16:[::1],root= Ns Ar neo Ns ' tank/home
+.Pp
+Если вы используете DNS для разрешения имён хостов,
+укажите полное доменное имя хоста.
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfsprops 7 ,
+.Xr zfs-list 8

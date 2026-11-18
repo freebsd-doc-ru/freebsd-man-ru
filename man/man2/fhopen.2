@@ -1,0 +1,159 @@
+.\"	$NetBSD: fhopen.2,v 1.1 1999/06/30 01:32:15 wrstuden Exp $
+.\"
+.\" Copyright (c) 1999 National Aeronautics & Space Administration
+.\" All rights reserved.
+.\"
+.\" This software was written by William Studenmund of the
+.\" Numerical Aerospace Simulation Facility, NASA Ames Research Center.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the National Aeronautics & Space Administration
+.\"    nor the names of its contributors may be used to endorse or promote
+.\"    products derived from this software without specific prior written
+.\"    permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE NATIONAL AERONAUTICS & SPACE ADMINISTRATION
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE ADMINISTRATION OR CONTRIB-
+.\" UTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+.\" OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/fhopen.2
+.\" FRDP githash 8dfc688a93748d48e33b3da891623e5c865e0523
+.\" FRDP hash256 b638f79d8b26e61570c4d9436d2feffb517f5d7d3690f1e1a59ff01478a66ea8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 20, 2025
+.Dt FHOPEN 2
+.Os
+.Sh ИМЯ
+.Nm fhopen ,
+.Nm fhstat ,
+.Nm fhstatfs
+.Nd доступ к файлу через дескриптор файла
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/mount.h
+.In sys/stat.h
+.Ft int
+.Fn fhopen "const fhandle_t *fhp" "int flags"
+.Ft int
+.Fn fhstat "const fhandle_t *fhp" "struct stat *sb"
+.Ft int
+.Fn fhstatfs "const fhandle_t *fhp" "struct statfs *buf"
+.Sh ОПИСАНИЕ
+Эти системные вызовы предоставляют способ доступа к файлу по заданному
+дескриптору файла
+.Fa fhp .
+Поскольку этот метод обходит ограничения доступа к каталогам, эти вызовы
+разрешены только суперпользователю.
+.Pp
+Системный вызов
+.Fn fhopen
+открывает файл, на который ссылается
+.Fa fhp ,
+для чтения и/или записи, как указано в аргументе
+.Fa flags ,
+и возвращает дескриптор файла вызывающему процессу.
+Аргумент
+.Fa flags
+задаётся путём
+.Em объединения
+флагов, используемых для системного вызова
+.Xr open 2 .
+Все указанные флаги допустимы, кроме
+.Dv O_CREAT .
+Если дескриптор файла ссылается на именованный атрибут или каталог
+именованных атрибутов, необходимо указать флаг
+.Dv O_NAMEDATTR .
+.Pp
+Системные вызовы
+.Fn fhstat
+и
+.Fn fhstatfs
+предоставляют функциональность вызовов
+.Xr fstat 2
+и
+.Xr fstatfs 2
+за исключением того, что они возвращают информацию о файле, на который
+ссылается
+.Fa fhp ,
+а не об открытом файле.
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+При успешном завершении
+.Fn fhopen
+возвращает дескриптор файла для открытого файла;
+в противном случае возвращается значение \-1, а глобальной переменной
+.Va errno
+присваивается значение, указывающее на ошибку.
+.Pp
+.Rv -std fhstat fhstatfs
+.Sh ОШИБКИ
+В дополнение к ошибкам, возвращаемым соответственно
+.Xr open 2 ,
+.Xr fstat 2
+и
+.Xr fstatfs 2 ,
+.Fn fhopen ,
+.Fn fhstat ,
+и
+.Fn fhstatfs
+возвращают
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Вызов
+.Fn fhopen
+с установленным
+.Dv O_CREAT .
+.It Bq Er ENOATTR
+Дескриптор файла не ссылается на именованный атрибут или каталог
+именованных атрибутов, хотя был указан флаг
+.Dv O_NAMEDATTR .
+.It Bq Er ENOATTR
+Дескриптор файла ссылается на именованный атрибут или каталог
+именованных атрибутов, хотя флаг
+.Dv O_NAMEDATTR
+не был указан.
+.It Bq Er ESTALE
+Дескриптор файла
+.Fa fhp
+больше не действителен.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr fstat 2 ,
+.Xr fstatfs 2 ,
+.Xr getfh 2 ,
+.Xr open 2 ,
+.Xr named_attribute 7
+.Sh ИСТОРИЯ
+Системные вызовы
+.Fn fhopen ,
+.Fn fhstat ,
+и
+.Fn fhstatfs
+впервые появились в
+.Nx 1.5
+и были адаптированы для
+.Fx 4.0
+пользователем
+.An Alfred Perlstein .
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An William Studenmund
+для
+.Nx .

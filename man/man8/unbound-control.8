@@ -1,0 +1,1571 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/unbound/doc/unbound-control.8
+.\" FRDP githash b0871018511ca1171d7fee481bdaafb4075eb29c
+.\" FRDP hash256 7a62302143d2567555a935321cbb019373f2103900f6b66ae8fdad009e2a81ea
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH ИМЯ
+unbound-control \- утилита удалённого управления сервером Unbound 1.26.2.
+.SH СИНТАКСИС
+.sp
+\fBunbound\-control\fP [\fB\-hq\fP] [\fB\-c cfgfile\fP] [\fB\-s server\fP] команда
+.SH ОПИСАНИЕ
+.sp
+\fBunbound\-control\fP выполняет удалённое администрирование DNS-сервера
+\fI\%unbound(8)\fP\&.
+Он читает файл конфигурации, связывается с сервером Unbound по TLS, отправляет
+команду и отображает результат.
+.sp
+Доступные параметры:
+.INDENT 0.0
+.TP
+.B \-h
+Показать версию и справку по параметрам командной строки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-c <cfgfile>
+Файл конфигурации с настройками.
+Если не указан, используется файл конфигурации по умолчанию
+\fB/var/unbound/unbound.conf\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-s <server[@port]>
+IPv4- или IPv6-адрес сервера, с которым нужно связаться.
+Если не указан, адрес читается из файла конфигурации.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-q
+Тихий режим; если параметр указан, ничего не выводится при успешной работе.
+.UNINDENT
+.SH КОМАНДЫ
+.sp
+Сервер понимает несколько команд.
+.INDENT 0.0
+.TP
+.B start 
+Запустить сервер.
+Просто выполняет \fI\%unbound(8)\fP\&.
+Исполняемый файл \fBunbound\fP ищется в \fBPATH\fP, заданном в
+окружении.
+Он запускается с файлом конфигурации, указанным с помощью \fI\%\-c\fP, или
+с файлом конфигурации по умолчанию.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B stop 
+Остановить сервер.
+Демон сервера завершается.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B reload 
+Перезагрузить сервер.
+Очищает кэш и заново читает файл конфигурации.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B reload_keep_cache 
+Перезагрузить сервер, но попытаться сохранить кэш RRset и сообщений, если
+(пере)конфигурация это позволяет.
+Это означает, что размеры кэшей и число потоков не должны меняться
+между перезагрузками.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B fast_reload [\fB+dpv\fP] 
+Перезагрузить сервер, но свести простой к минимуму, чтобы пользовательские
+запросы продолжали обслуживаться.
+Для этого код должен быть собран с потоками.
+Конфигурация загружается в потоке и подготавливается, затем сервер ненадолго
+приостанавливается и обновляет параметры конфигурации.
+Цель — чтобы пауза не влияла на обслуживание пользовательских запросов.
+Кэш сохраняется.
+Также сохраняются обрабатываемые пользовательские запросы, и они продолжаются,
+но с новыми параметрами конфигурации.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Эта команда в настоящее время экспериментальная.
+.UNINDENT
+.UNINDENT
+.sp
+Объём временной памяти, необходимый во время fast_reload, вдвое превышает
+объём, необходимый для конфигурации.
+Это связано с тем, что Unbound временно должен хранить как текущие значения
+конфигурации, так и новые во время попытки fast_reload.
+Зоны, загружаемые с диска (зоны авторитетности и зоны RPZ), входят в эти
+потребности в памяти.
+.sp
+Можно изменять параметры для
+\fI\%forwards\fP,
+\fI\%stubs\fP,
+\fI\%views\fP,
+\fI\%authority zones\fP,
+\fI\%RPZ zones\fP и
+\fI\%local zones\fP\&.
+.sp
+Также
+\fI\%access\-control\fP и аналогичные параметры,
+\fI\%interface\-action\fP и аналогичные
+параметры и
+\fI\%tcp\-connection\-limit\fP\&.
+Можно перезагрузить некоторые изменения
+\fI\%define\-tag\fP,
+подробнее об этом ниже.
+Дополнительные параметры включают
+\fI\%insecure\-lan\-zones\fP,
+\fI\%domain\-insecure\fP,
+\fI\%trust\-anchor\-file\fP,
+\fI\%trust\-anchor\fP,
+\fI\%trusted\-keys\-file\fP,
+\fI\%auto\-trust\-anchor\-file\fP,
+\fI\%edns\-client\-string\fP,
+ipset,
+\fI\%log\-identity\fP,
+\fI\%infra\-cache\-numhosts\fP,
+\fI\%msg\-cache\-size\fP,
+\fI\%rrset\-cache\-size\fP,
+\fI\%key\-cache\-size\fP,
+\fI\%ratelimit\-size\fP,
+\fI\%neg\-cache\-size\fP,
+\fI\%num\-queries\-per\-thread\fP,
+\fI\%jostle\-timeout\fP,
+\fI\%use\-caps\-for\-id\fP,
+\fI\%unwanted\-reply\-threshold\fP,
+\fI\%tls\-use\-sni\fP,
+\fI\%outgoing\-tcp\-mss\fP,
+\fI\%ip\-dscp\fP,
+\fI\%max\-reuse\-tcp\-queries\fP,
+\fI\%tcp\-reuse\-timeout\fP,
+\fI\%tcp\-auth\-query\-timeout\fP,
+\fI\%delay\-close\fP\&.
+\fI\%iter\-scrub\-promiscuous\fP\&.
+\fI\%tls\-service\-key\fP\&.
+\fI\%tls\-service\-pem\fP\&.
+.sp
+Это не работает с изменениями
+\fI\%interface\fP и
+\fI\%outgoing\-interface\fP,
+а также не работает с
+\fI\%remote control\fP,
+\fI\%outgoing\-port\-permit\fP,
+\fI\%outgoing\-port\-avoid\fP,
+\fI\%msg\-buffer\-size\fP,
+любыми параметрами \fB*\-slabs\fP и изменениями
+\fI\%statistics\-interval\fP\&.
+.sp
+Для \fI\%dnstap\fP можно изменить следующие параметры:
+\fI\%dnstap\-log\-resolver\-query\-messages\fP,
+\fI\%dnstap\-log\-resolver\-response\-messages\fP,
+\fI\%dnstap\-log\-client\-query\-messages\fP,
+\fI\%dnstap\-log\-client\-response\-messages\fP,
+\fI\%dnstap\-log\-forwarder\-query\-messages\fP и
+\fI\%dnstap\-log\-forwarder\-response\-messages\fP\&.
+.sp
+Это не работает со следующими параметрами:
+\fI\%dnstap\-enable\fP,
+\fI\%dnstap\-bidirectional\fP,
+\fI\%dnstap\-socket\-path\fP,
+\fI\%dnstap\-ip\fP,
+\fI\%dnstap\-tls\fP,
+\fI\%dnstap\-tls\-server\-name\fP,
+\fI\%dnstap\-tls\-cert\-bundle\fP,
+\fI\%dnstap\-tls\-client\-key\-file\fP и
+\fI\%dnstap\-tls\-client\-cert\-file\fP\&.
+.sp
+Параметры
+\fI\%dnstap\-send\-identity\fP,
+\fI\%dnstap\-send\-version\fP,
+\fI\%dnstap\-identity\fP и
+\fI\%dnstap\-version\fP могут загружаться,
+когда \fB+p\fP не используется.
+.sp
+Параметр \fB+v\fP делает вывод подробным, включая время, затраченное
+на перезагрузку.
+С \fB+vv\fP вывод ещё подробнее, включая объём памяти, который
+был временно выделен для выполнения перезагрузки; этот объём памяти может
+быть большим, если конфигурация имеет большой размер.
+В выводе времени время \(aqreload\(aq — это время, в течение которого сервер
+был приостановлен.
+.sp
+Параметр \fB+p\fP не приостанавливает потоки, они продолжают работать.
+Блокировки захватываются, но элементы обновляются последовательно, поэтому
+потоки могут увидеть несогласованное состояние: некоторые параметры из старой
+конфигурации, а некоторые из новой, например параметры TTL кэша из
+старой конфигурации и forwards из новой.
+stubs и forwards обновляются одновременно, поэтому они
+видны согласованно: либо старые, либо новые значения вместе.
+Этот параметр сокращает время перезагрузки, например, до 3 микросекунд вместо 0,3
+миллисекунды, в течение которых рабочие потоки прерываются.
+Таким образом, прерывание гораздо короче, ценой некоторой несогласованности.
+После самой перезагрузки каждый рабочий поток ненадолго опрашивается, чтобы
+заставить его освободить ресурсы; это немного увеличивает время удаления и
+занимает время у рабочего потока, обслуживающего удалённое управление.
+.sp
+С параметром nopause (\fB+p\fP) перезагрузка не позволяет перезагрузить некоторые
+параметры, которые fast reload обрабатывает без nopause:
+\fI\%val\-bogus\-ttl\fP,
+\fI\%val\-override\-date\fP,
+\fI\%val\-sig\-skew\-min\fP,
+\fI\%val\-sig\-skew\-max\fP,
+\fI\%val\-max\-restart\fP,
+\fI\%val\-nsec3\-keysize\-iterations\fP,
+\fI\%target\-fetch\-policy\fP,
+\fI\%outbound\-msg\-retry\fP,
+\fI\%max\-sent\-count\fP,
+\fI\%max\-query\-restarts\fP,
+\fI\%do\-not\-query\-address\fP,
+\fI\%do\-not\-query\-localhost\fP,
+\fI\%private\-address\fP,
+\fI\%private\-domain\fP,
+\fI\%caps\-exempt\fP,
+\fI\%nat64\-prefix\fP,
+\fI\%do\-nat64\fP,
+\fI\%infra\-host\-ttl\fP,
+\fI\%infra\-keep\-probing\fP,
+\fI\%ratelimit\fP,
+\fI\%ip\-ratelimit\fP,
+\fI\%ip\-ratelimit\-cookie\fP,
+\fI\%wait\-limit\-netblock\fP,
+\fI\%wait\-limit\-cookie\-netblock\fP,
+\fI\%ratelimit\-below\-domain\fP,
+\fI\%ratelimit\-for\-domain\fP\&.
+.sp
+Параметр \fB+d\fP заставляет перезагрузку отбрасывать запросы, которые
+обрабатывают рабочие потоки.
+Это аналогично
+\fI\%flush_requestlist\fP\&.
+Без него запросы сохраняются, чтобы пользователи продолжали получать ответы
+на запросы, обрабатываемые в данный момент.
+Отбрасывание приводит к тому, что запросы в течение времени
+обработки видят только старые или только новые параметры конфигурации.
+.sp
+Если есть изменения в тегах конфигурации из параметра
+\fI\%define\-tag\fP,
+то \fB+d\fP неявно включается с выводом предупреждения, и
+запросы отбрасываются.
+Это делается, чтобы остановить ссылки старых запросов на старую
+информацию о тегах.
+Если число тегов в новой загруженной конфигурации увеличивается
+добавлением тегов в конец, то неявный \fB+d\fP не нужен.
+.sp
+Для response ip, то есть действий, связанных с IP-адресами и, возможно,
+пересекающихся с информацией о теге и действии управления доступом, эти настройки
+сохраняются вместе с запросом при его поступлении на основе IP-адреса источника.
+Старая информация сохраняется вместе с запросом до завершения запросов.
+Она исчезает, когда эти запросы разрешены и завершены, или можно
+очистить requestlist с помощью \fB+d\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B verbosity \fInumber\fP 
+Изменить значение подробности для журналирования.
+Те же значения, что у ключевого слова \fBverbosity:\fP в
+\fI\%unbound.conf(5)\fP\&.
+Эта новая настройка действует до перезагрузки сервера (когда конфигурация
+снова берётся из файла) или до следующей команды управления verbosity.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B log_reopen 
+Заново открыть файл журнала: закрыть и открыть его.
+Полезно при ротации журналов, чтобы демон освободил файл, в который
+ведёт журнал.
+Если используется syslog, будет выполнена попытка закрыть и открыть syslog (это
+может не сработать, если используется chroot).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B stats 
+Вывести статистику.
+Сбрасывает внутренние счётчики в ноль; это можно контролировать с помощью
+параметра конфигурации \fBstatistics\-cumulative:\fP\&.
+Статистика выводится по одной строке \fB[name]: [value]\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B stats_noreset 
+Просмотреть статистику.
+Выводит её так же, как команда stats, но не сбрасывает внутренние
+счётчики в ноль.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B status 
+Показать состояние сервера.
+Код выхода 3, если сервер не запущен (соединение с портом отклонено), 1 при
+ошибке, 0 если запущен.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_zone \fIname type\fP 
+Добавить новую локальную зону с именем и типом.
+Аналогично параметру конфигурации local\-zone.
+Если зона уже существует, её тип изменяется на указанный аргумент.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_zone_remove \fIname\fP 
+Удалить локальную зону с указанным именем.
+Удаляет все локальные данные внутри неё.
+Если зоны не существует, команда завершается успешно.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_data \fIRR data...\fP 
+Добавить новые локальные данные — указанную ресурсную запись.
+Как ключевое слово \fBlocal\-data:\fP, за исключением случая, когда нет покрывающей зоны.
+В этом случае данная команда удалённого управления создаёт прозрачную зону с
+тем же именем, что и эта запись.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_data_remove \fIname\fP 
+Удалить все данные RR для локального имени.
+Если у имени уже нет элементов, ничего не происходит.
+Часто приводит к NXDOMAIN для имени (в статической зоне), но если имя
+стало пустым нетерминалом (под удалённым именем всё ещё есть данные в доменных именах),
+для этого имени получаются ответы NOERROR nodata.
+Если вместо доменного имени указана конкретная RR, эта конкретная запись
+удаляется из локальных данных, а не все данные RR.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_zones 
+Добавить локальные зоны, читаемые со stdin unbound\-control.
+Ввод читается построчно: в строке имя, пробел, тип.
+Для массовых добавлений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_zones_remove 
+Удалить локальные зоны, читаемые со stdin unbound\-control.
+Ввод — одно имя на строку.
+Для массовых удалений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_datas 
+Добавить RR локальных данных, читаемые со stdin unbound\-control.
+Ввод — одна RR на строку.
+Для массовых добавлений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B local_datas_remove 
+Удалить RR локальных данных, читаемые со stdin unbound\-control.
+Ввод — одно имя на строку.
+Для массовых удалений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B dump_cache 
+Содержимое кэша выводится в текстовом формате в stdout.
+Можно перенаправить его в файл, чтобы сохранить кэш в файле.
+Не поддерживается для удалённых Unbound при многопроцессной работе.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B load_cache 
+Содержимое кэша загружается из stdin.
+Используется тот же формат, что и в dump_cache.
+Загрузка кэша со старыми или неверными данными может привести к возврату
+клиентам старых или неверных данных.
+Загрузка данных в кэш таким способом поддерживается для облегчения
+отладки.
+Не поддерживается для удалённых Unbound при многопроцессной работе.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B cache_lookup [\fB+t\fP] \fInames\fP 
+Вывести в stdout RRset и сообщения, находящиеся в кэше.
+Для каждого перечисленного имени выводится содержимое на этом имени или под ним.
+Можно указать несколько имён, разделённых пробелами; каждое выводится.
+Если включён subnetcache, также выводятся совпадающие записи из кэша подсетей.
+.sp
+Параметр \fB+t\fP разрешает имена TLD и корневые имена.
+С ним можно использовать имена, такие как \(aqcom\(aq и \(aq.\(aq, но поиск в кэше
+требует больших усилий.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B lookup \fIname\fP 
+Вывести в stdout серверы имён, которые были бы использованы для поиска
+указанного имени.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush [\fB+c\fP] \fIname\fP 
+Удалить имя из кэша.
+Удаляет типы A, AAAA, NS, SOA, CNAME, DNAME, MX, PTR, SRV, NAPTR,
+SVCB и HTTPS.
+Потому что это быстро.
+Другие типы записей можно удалить с помощью \fBflush_type\fP или \fBflush_zone\fP\&.
+.sp
+Параметр \fB+c\fP также удаляет элементы из кэша cachedb.
+Если cachedb используется.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_type [\fB+c\fP] \fIname type\fP 
+Удалить из кэша информацию об имени и типе.
+.sp
+Параметр \fB+c\fP также удаляет элементы из кэша cachedb.
+Если cachedb используется.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_zone [\fB+c\fP] name 
+Удалить из кэша всю информацию на имени или под ним.
+RRset и записи ключей удаляются, чтобы выполнялись новые поиски.
+Для этого нужно пройти и проверить весь кэш; это медленная операция.
+В реализации этой команды записи помечаются как истёкшие (поэтому
+при включённом serve\-expired эти сведения будут отдаваться, но будет запланирована
+предварительная выборка новых сведений).
+.sp
+Параметр \fB+c\fP также удаляет элементы из кэша cachedb.
+Если cachedb используется.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_bogus [\fB+c\fP] 
+Удалить все данные bogus из кэша.
+.sp
+Параметр \fB+c\fP также удаляет элементы из кэша cachedb.
+Если cachedb используется.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_negative [\fB+c\fP] 
+Удалить все отрицательные данные из кэша.
+Это ответы nxdomain, nodata и servfail.
+Также удаляет плохие записи ключей (которые могли возникнуть из-за неудачных поисков)
+из кэша ключей DNSSEC и неудачи поиска последней надежды итератора из
+кэша RRset.
+.sp
+Параметр \fB+c\fP также удаляет элементы из кэша cachedb.
+Если cachedb используется.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_stats 
+Сбросить статистику в ноль.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_requestlist 
+Отбросить обрабатываемые запросы.
+Прекращает работу над запросами, которые сервер обрабатывает сейчас.
+Кэш не затрагивается.
+Для этих запросов ответ не отправляется, что, вероятно, заставит пользователей
+запросить снова позже.
+Полезно, чтобы сервер начал заново обрабатывать запросы с новыми настройками,
+например с более высоким уровнем подробности.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B dump_requestlist 
+Показать, что обрабатывается.
+Выводит все запросы, которые сервер обрабатывает в данный момент.
+Выводит время ожидания пользователей.
+Для внутренних запросов время не выводится.
+Затем выводит состояние модуля.
+Выводит запросы из первого потока, а не запросы, обслуживаемые другими потоками.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B flush_infra \fIall|IP\fP 
+Если указано all, весь кэш infra очищается.
+Если указан конкретный IP-адрес, запись для этого адреса удаляется из
+кэша.
+Он содержит данные EDNS, ping и lameness.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B dump_infra 
+Показать содержимое кэша infra.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B set_option \fIopt: val\fP 
+Установить параметр в заданное значение без перезагрузки.
+Поэтому кэш не очищается.
+Параметр должен заканчиваться \fB\(aq:\(aq\fP, а между параметром и значением должен быть
+пробельный символ.
+Некоторые значения могут не действовать при установке таким способом; новые значения не
+записываются в файл конфигурации; поддерживаются не все параметры.
+Это отличается от вызова set_option в libunbound, где все значения
+работают, потому что Unbound ещё не инициализирован.
+.sp
+Работают следующие значения: statistics\-interval, statistics\-cumulative,
+do\-not\-query\-localhost,  harden\-short\-bufsize, harden\-large\-queries,
+harden\-glue, harden\-dnssec\-stripped, harden\-below\-nxdomain,
+harden\-referral\-path,  prefetch, prefetch\-key, log\-queries, hide\-identity,
+hide\-version, identity, version, val\-log\-level, val\-log\-squelch,
+ignore\-cd\-flag, add\-holddown, del\-holddown, keep\-missing, tcp\-upstream,
+ssl\-upstream, max\-udp\-size, ratelimit, ip\-ratelimit, cache\-max\-ttl,
+cache\-min\-ttl, cache\-max\-negative\-ttl.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B get_option \fIopt\fP 
+Получить значение параметра.
+Укажите имя параметра без завершающего \fB\(aq:\(aq\fP\&.
+Значение выводится.
+Если значение — \fB\(dq\(dq\fP, ничего не выводится и соединение закрывается.
+При ошибке выводится \fB\(aqerror ...\(aq\fP (для неизвестного
+параметра это синтаксическая ошибка).
+Для некоторых параметров выводится список значений, по одному на строку.
+Параметры показываются из файла конфигурации с учётом изменений,
+внесённых set_option.
+Для некоторых параметров могла быть установлена переопределяющая настройка,
+которая не отображается этой командой, как и результаты, например,
+команд управления verbosity и forward.
+Работают не все параметры; для них см. list_stubs, list_forwards, list_local_zones и
+list_local_data.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_stubs 
+Перечислить используемые stub-зоны.
+Они выводятся по одной.
+Включает используемые root hints.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_forwards 
+Перечислить используемые forward-зоны.
+Они выводятся по одной зоне.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_insecure 
+Перечислить зоны с domain\-insecure.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_local_zones 
+Перечислить используемые локальные зоны.
+Выводятся по одной на строку с типом зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_local_data 
+Перечислить используемые RR локальных данных.
+Ресурсные записи выводятся.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B insecure_add \fIzone\fP 
+Добавить domain\-insecure для указанной зоны, как оператор в
+unbound.conf.
+Добавляет в работающий Unbound, не затрагивая содержимое кэша
+(которое может оставаться bogus; используйте flush_zone, чтобы удалить его), и не
+изменяет файл конфигурации.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B insecure_remove \fIzone\fP 
+Удалить domain\-insecure для указанной зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B forward_add [\fB+it\fP] \fIzone addr ...\fP 
+Добавить новую forward-зону в работающий Unbound.
+С параметром \fB+i\fP также добавляет domain\-insecure для зоны (чтобы она могла
+разрешаться небезопасно, если для других имён настроен корневой доверенный ключ DNSSEC).
+addr может быть IP4, IP6 или именем сервера имён, как в конфигурации forward\-zone в
+unbound.conf.
+Параметр \fB+t\fP включает использование TLS для вышестоящих соединений, как
+\fI\%forward\-tls\-upstream: yes\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B forward_remove [\fB+i\fP] \fIzone\fP 
+Удалить forward-зону из работающего Unbound.
+\fB+i\fP также удаляет domain\-insecure для зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B stub_add [\fB+ipt\fP] \fIzone addr ...\fP 
+Добавить новую stub-зону в работающий Unbound.
+С параметром \fB+i\fP также добавляет domain\-insecure для зоны.
+С \fB+p\fP stub-зона устанавливается в prime, без него — в
+notprime.
+addr может быть IP4, IP6 или именем сервера имён, как в конфигурации \fBstub\-zone:\fP
+в unbound.conf.
+Параметр \fB+t\fP включает использование TLS для вышестоящих соединений, как
+\fI\%stub\-tls\-upstream: yes\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B stub_remove [\fB+i\fP] \fIzone\fP 
+Удалить stub-зону из работающего Unbound.
+\fB+i\fP также удаляет domain\-insecure для зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B forward [\fIoff\fP | \fIaddr ...\fP ] 
+Настроить режим перенаправления.
+Определяет, должен ли сервер спрашивать другие вышестоящие серверы имён, идти
+к корневым серверам имён интернета самостоятельно или показать текущую конфигурацию.
+Можно передать серверы имён после обновления по DHCP.
+.sp
+Без аргументов выводится текущий список адресов, на которые перенаправляются все запросы.
+При запуске это данные из конфигурации forward\-zone \fB\(dq.\(dq\fP\&.
+Затем показывается состояние.
+Он выводит off, когда перенаправление не используется.
+.sp
+Если передано off, перенаправление отключается и используются корневые серверы
+имён.
+Это можно использовать, чтобы избежать неисправных серверов имён или серверов без
+поддержки DNSSEC, возвращаемых от DHCP.
+Но может не работать в гостиницах или хот-спотах.
+.sp
+Если задан один или несколько IPv4- или IPv6-адресов, они используются для
+перенаправления запросов.
+Адреса должны быть разделены пробелами.
+С помощью \(aq@port\(aq можно явно задать номер порта (порт по умолчанию — 53
+(DNS)).
+.sp
+По умолчанию используется информация о форвардере из файла конфигурации для корня
+\fB\(dq.\(dq\fP\&.
+Файл конфигурации не изменяется, поэтому после перезагрузки эти изменения исчезнут.
+Другие forward-зоны из файла конфигурации этой командой не затрагиваются.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ratelimit_list [\fB+a\fP] 
+Перечислить домены с ограничением скорости.
+Выводятся по одному на строку с текущей оценкой qps и пределом qps из конфигурации.
+С \fB+a\fP выводятся все домены, а не только ограниченные, с их
+оценкой qps.
+Домены с ограничением возвращают ошибку для некешированных (новых) запросов, но
+кешированные запросы работают как обычно.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B ip_ratelimit_list [\fB+a\fP] 
+Перечислить IP-адреса с ограничением скорости.
+Выводятся по одному на строку с текущей оценкой qps и пределом qps из конфигурации.
+С \fB+a\fP выводятся все IP-адреса, а не только ограниченные, с их
+оценкой qps.
+IP-адреса с ограничением отбрасываются перед проверкой кэша.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B list_auth_zones 
+Перечислить настроенные auth-зоны.
+Выводятся по одной на строку со статусом, указывающим, истекла ли зона,
+и текущим серийным номером.
+Включены настроенные зоны RPZ.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B auth_zone_reload \fIzone\fP 
+Перезагрузить auth-зону (или зону RPZ) из zonefile.
+Файл зоны читается с перезаписью текущего содержимого зоны в памяти.
+Это изменяет содержимое самой auth-зоны, а не содержимое кэша.
+Такое содержимое кэша существует, если Unbound настроен на проверку с
+\fBfor\-upstream: yes\fP, и его можно очистить с помощью \fBflush_zone\fP \fIzone\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B auth_zone_transfer \fIzone\fP 
+Передать auth-зону (или зону RPZ) от master.
+Запускается последовательность опроса auth-зоны, в которой master-серверы опрашиваются
+на наличие обновлённой зоны (с проверкой серийного номера SOA).
+Затем зона передаётся, если есть более новая версия зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B rpz_enable \fIzone\fP 
+Включить зону RPZ, если она была ранее отключена.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B rpz_disable \fIzone\fP 
+Отключить зону RPZ.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_list_local_zones \fIview\fP 
+\fIlist_local_zones\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_zone \fIview name type\fP 
+\fIlocal_zone\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_zone_remove \fIview name\fP 
+\fIlocal_zone_remove\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_list_local_data \fIview\fP 
+\fIlist_local_data\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_data \fIview RR data...\fP 
+\fIlocal_data\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_data_remove \fIview name\fP 
+\fIlocal_data_remove\fP для указанного view.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_datas_remove \fIview\fP 
+Удалить список \fIlocal_data\fP для указанного view из stdin.
+Как \fIlocal_datas_remove\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B view_local_datas \fIview\fP 
+Добавить список \fIlocal_data\fP для указанного view из stdin.
+Как \fIlocal_datas\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B add_cookie_secret \fIsecret\fP 
+Добавить или заменить cookie-секрет с сохранением на диске.
+\fIsecret\fP должен быть 128-битной шестнадцатеричной строкой.
+.sp
+Cookie-секреты могут быть \fBactive\fP или \fBstaging\fP\&.
+\fBActive\fP cookie-секреты используются для создания DNS Cookies, но проверка
+DNS Cookie успешна с любым из \fBactive\fP или \fBstaging\fP cookie-секретов.
+Состояние текущих cookie-секретов можно вывести командой
+\fI\%print_cookie_secrets\fP
+\&.
+.sp
+Если cookie-секреты ещё не настроены, \fIsecret\fP добавляется как
+\fBactive\fP\&.
+Если уже есть \fBactive\fP cookie-секрет, \fIsecret\fP добавляется как
+\fBstaging\fP или заменяет существующий \fBstaging\fP секрет.
+.sp
+Чтобы \(dqперекатить\(dq cookie-секрет, используемый в anycast-наборе.
+Новый секрет нужно добавить как \fBstaging\fP секрет на \fBвсе\fP узлы в
+anycast-наборе.
+Когда \fBвсе\fP узлы могут проверять DNS Cookies с новым секретом, новый
+секрет можно активировать командой
+\fI\%activate_cookie_secret\fP
+\&.
+После того как \fBвсе\fP узлы используют новый секрет как \fBactive\fP не менее одного часа,
+предыдущий секрет можно удалить командой
+\fI\%drop_cookie_secret\fP
+\&.
+.sp
+Сохранение на диске выполняется записью в файл, который настраивается
+параметром
+\fI\%cookie\-secret\-file\fP
+в секции server файла конфигурации.
+По умолчанию это отключено, \(dq\(dq.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B drop_cookie_secret 
+Удалить \fBstaging\fP cookie-секрет.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B activate_cookie_secret 
+Сделать текущий \fBstaging\fP cookie-секрет \fBactive\fP, а текущий
+\fBactive\fP cookie-секрет — \fBstaging\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B print_cookie_secrets 
+Показать текущие настроенные cookie-секреты с их статусом.
+.UNINDENT
+.SH КОД ВЫХОДА
+.sp
+Программа \fBunbound\-control\fP завершается с кодом состояния 1 при ошибке и 0 при
+успехе.
+.SH НАСТРОЙКА
+.sp
+Для настройки требуются самоподписанный сертификат и закрытые ключи как для
+сервера, так и для клиента.
+Скрипт \fBunbound\-control\-setup\fP создаёт их в каталоге запуска по умолчанию
+или с \fB\-d\fP в другом каталоге.
+Изменяя права управления доступом к файлам ключей, можно решить,
+кто может использовать \fBunbound\-control\fP; по умолчанию владелец и группа, но не все пользователи.
+Запустите скрипт под тем же именем пользователя, которое настроено в
+\fBunbound.conf\fP, или от имени root, чтобы демон мог читать
+файлы, например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+sudo \-u unbound unbound\-control\-setup
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Если имя пользователя в \fBunbound.conf\fP не настроено, ключи должны
+быть доступны на чтение учётной записи, под которой запускается демон.
+Скрипт сохраняет закрытые ключи, присутствующие в каталоге.
+После запуска скрипта от имени root включите
+\fI\%control\-enable\fP в
+\fBunbound.conf\fP\&.
+.SH СЧЁТЧИКИ СТАТИСТИКИ
+.sp
+Команды \fI\%stats\fP и
+\fI\%stats_noreset\fP показывают
+ряд счётчиков статистики:
+.INDENT 0.0
+.TP
+.B threadX.num.queries 
+число запросов, полученных потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_ip_ratelimited 
+число запросов, ограниченных по скорости потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_cookie_valid 
+число запросов с действительным DNS Cookie, обработанных потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_cookie_client 
+число запросов, содержащих DNS Cookie только с клиентской частью, обработанных потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_cookie_invalid 
+число запросов с недействительным DNS Cookie, обработанных потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_discard_timeout 
+число запросов, удалённых из-за discard\-timeout, потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_replyaddr_limit 
+число запросов, удалённых из-за ограничений replyaddr, потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_wait_limit 
+число запросов, удалённых из-за wait\-limit, потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.cachehits 
+число запросов, успешно отвеченных с использованием поиска в кэше
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.cachemiss 
+число запросов, потребовавших рекурсивной обработки
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.dnscrypt.crypted 
+число запросов, которые были зашифрованы и успешно деинкапсулированы
+dnscrypt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.dnscrypt.cert 
+число запросов, запрашивавших сертификаты dnscrypt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.dnscrypt.cleartext 
+число запросов, полученных на порту dnscrypt, которые были открытым текстом и не
+являлись запросом сертификатов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.dnscrypt.malformed 
+число запросов, которые не были ни открытым текстом, ни допустимыми сообщениями dnscrypt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.dns_error_reports 
+число отчётов об ошибках DNS, созданных потоком
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.prefetch 
+число выполненных предварительных выборок из кэша.
+Это число включается в cachehits, поскольку исходный запрос получил
+из кэша ответ до предварительной выборки и привёл к рекурсивной обработке,
+заняв место в requestlist.
+Не входит в recursivereplies (или их гистограмму) или cachemiss,
+поскольку был отправлен ответ из кэша.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.expired 
+число ответов, использовавших истёкшую запись кэша.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.queries_timed_out 
+число запросов, отброшенных из-за слишком долгого ожидания в буфере UDP-сокета.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.query.queue_time_us.max 
+Максимальное время ожидания пакетов в буфере сокета в микросекундах.
+Сообщается только при включённом
+\fI\%sock\-queue\-timeout\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.num.recursivereplies 
+Число ответов, отправленных на запросы, которым требовалась рекурсивная обработка.
+Может быть меньше threadX.num.cachemiss, если из-за тайм-аутов для некоторых запросов
+ответы не были отправлены.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.avg 
+Среднее число запросов во внутреннем списке запросов рекурсивной обработки
+при вставке нового входящего запроса рекурсивной обработки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.max 
+Максимальный размер, достигнутый внутренним списком запросов рекурсивной обработки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.overwritten 
+Число запросов в списке запросов, перезаписанных более новыми
+элементами.
+Это происходит при лавине запросов, требующих рекурсивной обработки,
+когда сервер не справляется.
+Счётчик увеличивается, когда во время лавины
+\fI\%jostle\-timeout\fP
+позволяет удалить запрос в пользу нового входящего запроса.
+Старый запрос отбрасывается, чтобы освободить место.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.exceeded 
+Запросы, отброшенные из-за заполнения списка запросов.
+Это происходит при лавине запросов, которым требуется рекурсивная обработка,
+когда сервер не справляется.
+Счётчик увеличивается, когда во время лавины не удаётся освободить место,
+вытеснив старый запрос, и новый запрос отбрасывается.
+Поскольку старые запросы не удаляются (см. настройку
+\fI\%jostle\-timeout\fP), для нового запроса нет места.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.current.all 
+Текущий размер списка запросов, включая внутренне сгенерированные запросы
+(например, priming-запросы и поиск glue).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.current.user 
+Текущий размер списка запросов; только запросы от клиентов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.requestlist.current.replies 
+Текущее число записей ответов, ожидающих на элементах списка запросов.
+Поскольку элемент списка запросов может отправлять результаты на несколько адресов
+ответа, это число может быть больше размера списка запросов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.recursion.time.avg 
+Среднее время ответа на запросы, требовавшие рекурсивной обработки.
+Учтите, что запросы, отвеченные из кэша, не входят в это среднее.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.recursion.time.median 
+Медиана времени ответа на запросы, требовавшие рекурсивной
+обработки.
+Медиана означает, что 50% пользовательских запросов были отвечены менее чем
+за это время.
+Из-за больших выбросов (обычно запросов к неотвечающим серверам)
+среднее может быть больше медианы.
+Эта медиана вычислена интерполяцией по гистограмме.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B threadX.tcpusage 
+Текущее количество занятых TCP-буферов для входящих соединений.
+Мгновенное значение на момент запроса.
+Помогает заметить, заполнены ли буферы incoming\-num\-tcp.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_ip_ratelimited 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_cookie_valid 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_cookie_client 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_cookie_invalid 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_discard_timeout 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_replyaddr_limit 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_wait_limit 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.cachehits 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.cachemiss 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.dnscrypt.crypted 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.dnscrypt.cert 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.dnscrypt.cleartext 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.dnscrypt.malformed 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.dns_error_reports 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.prefetch 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.expired 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.queries_timed_out 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.query.queue_time_us.max 
+максимум значений потоков.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.num.recursivereplies 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.avg 
+среднее по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.max 
+максимум значений requestlist.max потоков.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.overwritten 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.exceeded 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.current.all 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.current.user 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.requestlist.current.replies 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.recursion.time.median 
+среднее по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B total.tcpusage 
+сумма по потокам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B time.now 
+текущее время в секундах с 1970 года.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B time.up 
+время работы с момента загрузки сервера в секундах.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B time.elapsed 
+время с момента последнего вывода статистики в секундах.
+.UNINDENT
+.SH РАСШИРЕННАЯ СТАТИСТИКА
+.INDENT 0.0
+.TP
+.B mem.cache.rrset 
+Память в байтах, используемая кэшем RRset.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.cache.message 
+Память в байтах, используемая кэшем сообщений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.cache.dnscrypt_shared_secret 
+Память в байтах, используемая кэшем общих секретов dnscrypt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.cache.dnscrypt_nonce 
+Память в байтах, используемая кэшем nonce dnscrypt.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.mod.iterator 
+Память в байтах, используемая модулем iterator.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.mod.validator 
+Память в байтах, используемая модулем validator.
+Включает кэш ключей и кэш отрицательных ответов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.streamwait 
+Память в байтах, используемая буферами ожидания потоков TCP и TLS.
+Это ответы, ожидающие записи обратно клиентам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.http.query_buffer 
+Память в байтах, используемая буферами запросов HTTP/2.
+Содержат (частичные) DNS-запросы, ожидающие завершения потока запроса.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.http.response_buffer 
+Память в байтах, используемая буферами ответов HTTP/2.
+Содержат DNS-ответы, ожидающие записи обратно клиентам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B mem.quic 
+Память в байтах, используемая QUIC.
+Содержит информацию о соединениях, потоках, прочитанные запросы и ответы,
+записываемые обратно клиентам.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B histogram.<sec>.<usec>.to.<sec>.<usec> 
+Показывает гистограмму, просуммированную по всем потокам.
+Каждый элемент подсчитывает рекурсивные запросы, время ответа которых попало между
+нижней и верхней границей.
+Время больше или равно нижней границе и меньше верхней границы.
+Имеется 40 корзин, размеры корзин удваиваются.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.type.A 
+Общее число запросов по всем потокам с типом запроса A.
+Также выводится для других типов запросов, но только для типов, по которым
+были получены запросы; таким образом, для краткости записи со значением =0 опускаются.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.type.other 
+Число запросов с типами запросов 256\-65535.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.class.IN 
+Общее число запросов по всем потокам с классом запроса IN
+(internet).
+Также выводится для других классов (например, CH (CHAOS), иногда используемого для
+отладки), или NONE, ANY, используемых динамическим обновлением.
+num.query.class.other выводится для классов 256\-65535.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.opcode.QUERY 
+Общее число запросов по всем потокам с опкодом QUERY.
+Также выводится для других опкодов, UPDATE, ...
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.tcp 
+Число запросов, выполненных по TCP к серверу Unbound.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.tcpout 
+Число запросов, которые сервер Unbound выполнил по TCP в сторону
+других серверов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.udpout 
+Число запросов, которые сервер Unbound выполнил по UDP в сторону
+других серверов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.tls 
+Число запросов, выполненных по TLS к серверу Unbound.
+Они также учитываются в num.query.tcp, поскольку TLS использует TCP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.tls.resume 
+Число возобновлений TLS-сессий; это запросы по TLS к серверу
+Unbound, в которых клиент согласовал ключ возобновления TLS-сессии.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.https 
+Число запросов, выполненных по HTTPS к серверу Unbound.
+Они также учитываются в num.query.tcp и num.query.tls, поскольку HTTPS
+использует TLS и TCP.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.quic 
+Число запросов, выполненных по QUIC к серверу Unbound.
+Они также учитываются в num.query.tls, поскольку для этих запросов
+используется TLS.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.ipv6 
+Число запросов, выполненных по IPv6 к серверу Unbound.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.flags.RD 
+Число запросов, у которых в заголовке установлен флаг RD.
+Также выводится для флагов QR, AA, TC, RA, Z, AD, CD.
+Учтите, что запросы с флагами QR, AA или TC могли быть отклонены из-за
+этого.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.edns.present 
+число запросов, содержавших запись EDNS OPT.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.edns.DO 
+число запросов, содержавших запись EDNS OPT с установленным битом DO (DNSSEC OK).
+Эти запросы также включены в num.query.edns.present.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.ratelimited 
+Число запросов, которые не были отправлены серверу имён из-за
+ограничения скорости.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.dnscrypt.shared_secret.cachemiss 
+Число dnscrypt-запросов, для которых общий секрет не найден в
+кэше.
+Это можно использовать для вычисления частоты попаданий общих секретов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.dnscrypt.replay 
+Число dnscrypt-запросов, для которых nonce найден в кэше nonce
+и поэтому они считаются повторными запросами.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.answer.rcode.NXDOMAIN 
+Число ответов на запросы, из кэша или рекурсии, с кодом возврата NXDOMAIN.
+Также выводится для других кодов возврата.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.answer.rcode.nodata 
+Число ответов на запросы с псевдокодом возврата nodata.
+Это означает, что фактический код возврата — NOERROR, но в ответе дополнительно
+нет данных (так называемый ответ NOERROR/NODATA).
+Эти запросы также включены в num.answer.rcode.NOERROR.
+Часто встречается при поиске AAAA, когда запись A существует, а AAAA нет.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.answer.secure 
+Число ответов, которые были безопасными.
+Ответ прошёл проверку корректно.
+В некоторых из этих ответов мог быть установлен бит AD, если клиент
+сигнализировал (битом DO или AD в запросе), что готов принять бит AD в ответе.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.answer.bogus 
+Число ответов, которые были bogus.
+Эти ответы привели к SERVFAIL для клиента, поскольку ответ не прошёл
+проверку.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.rrset.bogus 
+Число RRset, помеченных валидатором как bogus.
+Увеличивается при каждой неудачной проверке RRset.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.valops 
+Число операций проверки, выполненных валидатором.
+Увеличивается при каждой операции проверки RRSIG независимо от
+результата проверки.
+Комбинация RRSIG и ключа должна сначала пройти некоторые проверки
+корректности, прежде чем Unbound вообще выполнит проверку, например проверки
+длины и протокола.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B unwanted.queries 
+Число запросов, отклонённых или отброшенных из-за несоответствия
+настройкам управления доступом.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B unwanted.replies 
+Ответы, которые были нежелательными или незапрошенными.
+Это мог быть случайный трафик, задержанные дубликаты, очень поздние ответы или
+попытки подмены.
+Для UDP ожидается некоторый низкий уровень поздних ответов и задержанных дубликатов.
+Очень высокие значения могут указывать на угрозу (подмену).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B msg.cache.count 
+Число элементов (DNS-ответов) в кэше сообщений.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B rrset.cache.count 
+Число RRset в кэше RRset.
+Включает RRset, используемые сообщениями в кэше сообщений, а также
+информацию о делегировании.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B infra.cache.count 
+Число элементов в кэше infra.
+Это IP-адреса с информацией о времени и поддерживаемых протоколах.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B key.cache.count 
+Число элементов в кэше ключей.
+Это ключи DNSSEC, по одному элементу на точку делегирования, и их статус
+проверки.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B msg.cache.max_collisions 
+Максимальное число коллизий хеш-таблицы в кэше msg.
+Это число одинаковых хешей при вставке нового элемента в хеш-таблицу.
+Если значение очень велико, например сотни, что-то не так с
+производительностью хеш-таблицы, хеш-значения некорректны или злонамеренны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B rrset.cache.max_collisions 
+Максимальное число коллизий хеш-таблицы в кэше rrset.
+Это число одинаковых хешей при вставке нового элемента в хеш-таблицу.
+Если значение очень велико, например сотни, что-то не так с
+производительностью хеш-таблицы, хеш-значения некорректны или злонамеренны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B dnscrypt_shared_secret.cache.count 
+Число элементов в кэше общих секретов.
+Это предварительно вычисленные общие секреты для заданной пары открытый ключ
+клиента/секретный ключ сервера.
+Вычисление общих секретов требовательно к CPU, и этот кэш позволяет Unbound
+избежать повторного вычисления общего секрета, когда от одного клиента
+отправляется несколько dnscrypt-запросов.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B dnscrypt_nonce.cache.count 
+Число элементов в кэше nonce клиента.
+Этот кэш используется для предотвращения повторного воспроизведения dnscrypt-запросов.
+Nonce клиента должен быть уникальным для каждой пары открытый ключ клиента/секретный
+ключ сервера.
+Этот кэш должен вмещать QPS * интервал \fIreplay window\fP ключей, чтобы
+предотвратить повторное воспроизведение запроса в течение \fIreplay window\fP секунд.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.authzone.up 
+Число запросов, отвеченных из данных auth\-zone, запросы к вышестоящим серверам.
+Эти запросы иначе были бы отправлены (при включённом fallback) в интернет,
+но теперь отвечены из auth-зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.authzone.down 
+Число запросов от нижестоящих клиентов, отвеченных из данных auth\-zone.
+Эти запросы от нижестоящих клиентов и получили ответ из данных
+auth-зоны.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.aggressive.NOERROR 
+Число запросов, отвеченных с использованием кешированных записей NSEC с NODATA RCODE.
+Эти запросы иначе были бы отправлены в интернет, но теперь
+отвечены с использованием кешированных данных.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.aggressive.NXDOMAIN 
+Число запросов, отвеченных с использованием кешированных записей NSEC с NXDOMAIN
+RCODE.
+Эти запросы иначе были бы отправлены в интернет, но теперь
+отвечены с использованием кешированных данных.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.subnet 
+Число запросов, получивших ответ, содержащий данные EDNS client subnet.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.subnet_cache 
+Число запросов, отвеченных из кэша EDNS client subnet.
+Они учитываются основными счётчиками как cachemiss, но попадают в кэш,
+специфичный для клиентской подсети, после обработки модулем EDNS client subnet.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.query.cachedb 
+Число запросов, отвеченных из внешнего кэша cachedb.
+Они учитываются основными счётчиками как cachemiss, но попадают во внешний кэш
+cachedb после обработки модулем cachedb.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B num.rpz.action.<rpz_action> 
+Число запросов, отвеченных с использованием настроенной политики RPZ, по типу
+действия RPZ.
+Возможные действия: nxdomain, nodata, passthru, drop, tcp\-only,
+local\-data, disabled и cname\-override.
+.UNINDENT
+.SH ФАЙЛЫ
+.INDENT 0.0
+.TP
+.B /var/unbound/unbound.conf
+Файл конфигурации Unbound.
+.TP
+.B /var/unbound
+каталог с закрытыми ключами (\fBunbound_server.key\fP и
+\fBunbound_control.key\fP) и самоподписанными сертификатами
+(\fBunbound_server.pem\fP и \fBunbound_control.pem\fP).
+.UNINDENT
+.SH СМ. ТАКЖЕ
+.sp
+\fI\%unbound.conf(5)\fP,
+\fI\%unbound(8)\fP\&.
+.SH АВТОР
+Разработчики Unbound упомянуты в файле CREDITS в дистрибутиве.
+.SH АВТОРСКИЕ ПРАВА
+1999-2026, NLnet Labs
+.

@@ -1,0 +1,85 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/munmap.2
+.\" FRDP githash 724e383bd4c40ea7db4bf2f1e9b8d2c741c6b481
+.\" FRDP hash256 2f6273f559685f90599794e48d95c61a74c707e81299ccdf79ca5e0840ef6786
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd 16 января 2025
+.Dt MUNMAP 2
+.Os
+.Sh ИМЯ
+.Nm munmap
+.Nd удалить отображение
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn munmap "void *addr" "size_t len"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn munmap
+удаляет отображения и защитные области для указанного диапазона адресов
+и приводит к тому, что дальнейшие обращения к адресам в этом диапазоне
+вызывают ошибки недопустимого обращения к памяти.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std munmap
+.Sh ОШИБКИ
+Системный вызов
+.Fn munmap
+завершается неудачно, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргумент
+.Fa len
+был равен нулю, или
+некоторая часть области, которая удаляется из отображения, находится за пределами
+допустимого диапазона адресов процесса.
+.El
+.Sh "СМ. ТАКЖЕ"
+.Xr madvise 2 ,
+.Xr mincore 2 ,
+.Xr mmap 2 ,
+.Xr mprotect 2 ,
+.Xr msync 2 ,
+.Xr getpagesize 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn munmap
+соответствует
+.St -p1003.1-2024 .
+Переносимые программы должны гарантировать, что
+.Fa addr
+является кратным размеру страницы, возвращаемому
+.Xr sysconf 3 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn munmap
+впервые появился в
+.Bx 4.4 .

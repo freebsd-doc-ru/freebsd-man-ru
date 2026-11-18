@@ -1,0 +1,90 @@
+.\"
+.\" lptcontrol - a utility for manipulating the lpt driver
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" FRDP path usr.sbin/lptcontrol/lptcontrol.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 fda5a3b286431ec841e1790242bc444dd4a640d8c9e2559070dd8971a8e50f3f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 1, 2004
+.Dt LPTCONTROL 8
+.Os
+.Sh ИМЯ
+.Nm lptcontrol
+.Nd утилита для управления драйвером принтера lpt
+.Sh СИНТАКСИС
+.Nm
+.Fl e | i | p | s
+.Op Fl d Ar control_device
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для установки либо режима с прерываниями, расширенного, стандартного
+или режима опроса отдельных
+.Xr lpt 4
+устройств.
+При переключении принтера из одного режима в другой это изменение вступит в силу
+только при следующем открытии устройства.
+.Pp
+Расширенный режим — это всё, что может поддерживать интерфейс параллельного порта.
+Для параллельного порта ECP/ISA это может быть FIFO+DMA или ECP.
+.Pp
+Поддерживаются следующие параметры командной строки:
+.Bl -tag -width indent
+.It Fl e
+Включить расширенный режим.
+.It Fl i
+Включить режим с прерываниями.
+.It Fl p
+Включить режим опроса.
+.It Fl s
+Включить стандартный режим, т. е. выключить расширенный режим.
+.It Fl d Ar control_device
+Установить режим управляющего устройства принтера, заданного
+.Ar control_device .
+Значение по умолчанию для
+.Ar control_device
+равно
+.Pa /dev/lpt0.ctl .
+.El
+.Pp
+Один из
+.Fl e , i , p
+или
+.Fl s
+должен быть указан.
+.Sh ФАЙЛЫ
+.Bl -tag -width /sys/i386/conf/GENERIC -compact
+.It Pa /dev/lpt?
+устройства принтера
+.It Pa /dev/lpt?.ctl
+управляющие устройства принтера
+.It Pa /sys/i386/conf/GENERIC
+файл конфигурации ядра
+.It Pa /boot/device.hints
+подсказки устройств для драйвера микросхем параллельного порта,
+.Xr ppc 4
+.El
+.Sh СМ. ТАКЖЕ
+.Xr lpt 4 ,
+.Xr ppc 4 ,
+.Xr device.hints 5
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.Fx 1.1.5
+.Sh АВТОРЫ
+.An Geoffrey M. Rehmet
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Имя управляющего устройства никогда не должно было быть параметром,
+а должно было быть необязательным аргументом.
+Из-за этого единственный аргумент рассматривается как имя устройства.

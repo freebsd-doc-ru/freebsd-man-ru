@@ -1,0 +1,167 @@
+.\" Copyright (c) 2004 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path sbin/ggate/ggated/ggated.8
+.\" FRDP githash 3a27e586a109466ed29d2d4b57379f54f4c39f62
+.\" FRDP hash256 ab274ce252e7f8116346e24a22cadeafc1c49498b43ab435a364f304dd14bc7b
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 8, 2016
+.Dt GGATED 8
+.Os
+.Sh ИМЯ
+.Nm ggated
+.Sh СИНТАКСИС
+.Nm
+.Op Fl h
+.Op Fl n
+.Op Fl v
+.Op Fl a Ar адрес
+.Op Fl p Ar порт
+.Op Fl F Ar PID-файл
+.Op Fl R Ar размер_приёмного_буфера
+.Op Fl S Ar размер_отправляемого_буфера
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является сетевым сервером для класса GEOM Gate.
+Она работает на серверной машине, обслуживая запросы GEOM Gate от рабочих процессов,
+размещённых на клиентской машине.
+Учтите, что соединения между
+.Xr ggatec 8
+и
+.Nm
+не шифруются.
+.Pp
+Доступные параметры:
+.Bl -tag -width indent
+.It Fl a Ar адрес
+Указывает IP-адрес для привязки.
+.It Fl h
+Выводит доступные параметры.
+.It Fl n
+Не использовать
+.Dv TCP_NODELAY
+на TCP-сокетах.
+.It Fl p Ar порт
+Порт, на котором
+.Nm
+прослушивает соединения.
+По умолчанию 3080.
+.It Fl F Ar PID-файл
+PID-файл, который использует
+.Nm .
+.It Fl R Ar размер_приёмного_буфера
+Размер используемого буфера приёма.
+По умолчанию 131072 (128\~КиБ).
+.It Fl S Ar размер_отправляемого_буфера
+Размер используемого буфера отправки.
+По умолчанию 131072 (128\~КиБ).
+.It Fl v
+Не выполнять fork, работать на переднем плане и выводить отладочную информацию в стандартный
+вывод.
+Альтернативное расположение файла экспорта.
+.El
+.Pp
+Формат файла экспорта следующий:
+.Bd -literal -offset indent
+1.2.3.4		RO		/dev/cd0
+1.2.3.0/24	RW		/tmp/test.img
+hostname	WO		/tmp/image
+hostname	RW,DIRECT	/tmp/direct-image
+hostname	RW,NODIRECT	/tmp/nodirect-image
+.Ed
+.Pp
+Первый столбец указывает IP-адрес, сеть с маской сети или имя хоста,
+к которым применяется экспорт.
+.Pp
+Следующий столбец — флаги доступа, применяемые к экспорту
+.Bl -tag -width indent
+.It Cm RO
+Только для чтения: указанный путь будет экспортирован клиенту только для чтения.
+.It Cm WO
+Только для записи: указанный путь будет экспортирован клиенту только для записи.
+.It Cm RW
+Чтение и запись: указанный путь будет экспортирован клиенту с доступом на чтение и запись.
+.It Cm DIRECT
+Указанный путь всегда будет открываться для клиентов с O_DIRECT.
+.It Cm NODIRECT
+Указанный путь никогда не будет открываться для клиентов с O_DIRECT.
+.El
+.Pp
+Последний столбец указывает путь для экспорта.
+.Pp
+Файлы открываются с использованием наименьшего общего набора флагов клиента и
+сервера. Клиент может запросить доступ только для чтения или только для записи к экспорту
+с доступом на чтение и запись, и сервер выполнит запрос клиента и откроет файл в
+запрошенном режиме. Клиент, запрашивающий больший доступ, чем разрешения, перечисленные
+в файле, будет отклонён.
+.Pp
+DIRECT и NODIRECT используются для принудительного использования флага O_DIRECT при
+вызове
+.Xr open 2
+при открытии указанного пути. Если указан DIRECT, путь всегда открывается с O_DIRECT.
+Если указан NODIRECT, путь никогда не открывается с O_DIRECT. Доступ DIRECT
+ограничивает влияние кеширования операций ввода-вывода с файлом. Это приводит к тому,
+что клиенты, обращающиеся к экспортам, не влияют на кеш локальной машины, однако это
+вызывает большую нагрузку ввода-вывода на устройства, на которых находятся файлы.
+.Pp
+Если ни один из них не указан, сервер будет использовать предпочтение, указанное
+клиентом, по умолчанию — не использовать O_DIRECT. Если клиент указывает предпочтение,
+противоречащее конфигурации сервера, предпочтение клиента будет молча проигнорировано.
+.Pp
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /var/run/ggated.pid
+Расположение PID-файла
+.Nm
+по умолчанию.
+.El
+.Sh СТАТУС ВЫХОДА
+Статус выхода — 0 при успехе или 1, если команда завершается неудачно.
+Чтобы получить сведения о сбое,
+.Nm
+следует вызвать с параметром
+.Fl v .
+.Sh ПРИМЕРЫ
+Экспорт устройства CD-ROM, файла и файла с параметром
+.Dv O_DIRECT :
+.Bd -literal -offset indent
+# ggated
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr open 2 ,
+.Xr geom 4 ,
+.Xr ggatec 8 ,
+.Xr ggatel 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.3 .
+.Sh АВТОРЫ
+Утилита
+.Nm
+, а также эта страница руководства были написаны
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org .

@@ -1,0 +1,245 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" This file and its contents are supplied under the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.illumos.org/license/CDDL.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man5/vdev_id.conf.5
+.\" FRDP githash 0cafc294bf1223c9ecad5ff0fdf9c064b7ed3e94
+.\" FRDP hash256 95ca00436086c0b215bafd54842d7e5ce23dbfc57dd70869792e785d91f9b9ab
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 8, 2024
+.Dt VDEV_ID.CONF 5
+.Os
+.
+.Sh ИМЯ
+.Nm vdev_id.conf
+.Nd файл конфигурации для vdev_id(8)
+.Sh ОПИСАНИЕ
+.Nm
+— это файл конфигурации для
+.Xr vdev_id 8 .
+Он управляет поведением по умолчанию
+.Xr vdev_id 8
+при сопоставлении имени дискового устройства с псевдонимом.
+.Pp
+Файл
+.Nm
+использует простой формат, состоящий из ключевого слова, за которым в одной строке следует одно или несколько значений.
+Любая строка, не начинающаяся с распознанного ключевого слова, игнорируется.
+Комментарии могут необязательно начинаться с символа решётки.
+.Pp
+Используются следующие ключевые слова и значения.
+.Bl -tag -width Ds
+.It Sy alias Ar имя Ar devlink
+Сопоставляет ссылку на устройство в иерархии каталога
+.Pa /dev
+с новым именем устройства.
+Правило udev, определяющее ссылку на устройство, должно быть выполнено до
+.Xr vdev_id 8 .
+Заданный псевдоним имеет приоритет над именем, производным от топологии, но в остальном эти два метода именования могут сосуществовать.
+Например, можно именовать диски в JBOD с помощью топологии
+.Sy sas_direct
+, а внутреннее устройство L2ARC — с помощью псевдонима.
+.Pp
+.Ar имя
+— это имя ссылки на устройство, которая будет создана в
+.Pa /dev/disk/by-vdev .
+.Pp
+.Ar devlink
+— это имя ссылки на устройство, уже определённой udev.
+Это может быть абсолютный путь или базовое имя файла.
+.
+.It Sy channel [ Ns Ar pci_slot ] Ar port Ar имя
+Сопоставляет физический путь с именем канала (обычно представляющего собой одну дисковую корзину).
+.
+.It Sy enclosure_symlinks Sy yes Ns | Ns Sy no
+Дополнительно создавать символические ссылки
+.Pa /dev/by-enclosure
+на устройства
+.Em sg
+дисковой корзины, используя схему именования из
+.Pa vdev_id.conf .
+.Sy enclosure_symlinks
+допускается только в режиме
+.Sy sas_direct .
+.
+.It Sy enclosure_symlinks_prefix Ar префикс
+Задаёт префикс для символических ссылок корзины в форме
+.Pa /dev/by-enclosure/ Ns Ao Ar префикс Ac Ns - Ns Ao Ar канал Ac Ns Aq Ar номер
+.Pp
+По умолчанию используется
+.Dq Em enc .
+.
+.It Sy slot Ar префикс Ar новый Op Ar канал
+Сопоставляет номер дискового слота, сообщённый операционной системой, с альтернативным номером слота.
+Если параметр
+.Ar канал
+указан, то сопоставление применяется только к слотам в указанном канале, иначе сопоставление применяется ко всем каналам.
+Первое указанное правило
+.Ar slot
+, которое может соответствовать слоту, имеет приоритет.
+Поэтому сопоставление для конкретного канала для данного слота обычно должно стоять перед общим сопоставлением для того же слота.
+Таким образом, пользовательское сопоставление может быть применено к определённому каналу, а сопоставление по умолчанию — к остальным.
+.
+.It Sy zpad_slot Ar цифр
+Дополнять номера слотов нулями до длины в
+.Ar цифр
+, что может помочь сделать имена дисков одинаковой длины и упростить сортировку.
+.
+.It Sy multipath Sy yes Ns | Ns Sy no
+Указывает, будет ли
+.Xr vdev_id 8
+обрабатывать только устройства dm-multipath.
+Если задано
+.Sy yes
+, то
+.Xr vdev_id 8
+будет проверять первый работающий компонентный диск устройства dm-multipath, предоставленный командой драйвера, чтобы определить физический путь.
+.
+.It Sy topology Sy sas_direct Ns | Ns Sy sas_switch Ns | Ns Sy scsi
+Определяет физическую топологию, которая управляет тем, как физические пути сопоставляются с каналами:
+.Bl -tag -width Ds
+.It Sy sas_direct No и Sy scsi
+каналы однозначно идентифицируются номером слота PCI и номером порта HBA
+.It Sy sas_switch
+каналы однозначно идентифицируются номером порта коммутатора SAS
+.El
+.
+.It Sy phys_per_port Ar число
+Указывает количество устройств PHY, связанных с портом SAS HBA или портом коммутатора SAS.
+.Xr vdev_id 8
+внутренне использует это значение, чтобы определить, к какому порту HBA или коммутатора подключено устройство.
+По умолчанию используется
+.Sy 4 .
+.
+.It Sy slot Sy bay Ns | Ns Sy phy Ns | Ns Sy port Ns | Ns Sy id Ns | Ns Sy lun Ns | Ns Sy bay_lun Ns | Ns Sy ses
+Указывает, из какого элемента идентификатора SAS берётся номер слота.
+По умолчанию используется
+.Sy bay :
+.Bl -tag -width Ds
+.It Sy bay
+читать номер слота из идентификатора отсека.
+.It Sy phy
+читать номер слота из идентификатора phy.
+.It Sy port
+использовать порт SAS как номер слота.
+.It Sy id
+использовать scsi id как номер слота.
+.It Sy lun
+использовать scsi lun как номер слота.
+.It Sy bay_lun
+читать номер слота из идентификатора отсека и добавлять номер lun.
+Полезно для жёстких дисков с несколькими lun и несколькими актуаторами.
+.It Sy ses
+использовать номер слота устройства корзины SCSI Enclosure Services (SES), как сообщается
+.Xr sg_ses 8 .
+Предназначено для использования только в системах, где
+.Sy bay
+не поддерживается, учитывая, что
+.Sy port
+и
+.Sy id
+могут быть нестабильны при замене диска.
+.El
+.El
+.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /etc/zfs/vdev_id.conf
+Файл конфигурации для
+.Xr vdev_id 8 .
+.El
+.
+.Sh ПРИМЕРЫ
+Конфигурация без multipath с непосредственно подключёнными корпусами SAS и произвольным переназначением слотов:
+.Bd -literal -compact -offset Ds
+multipath     no
+topology      sas_direct
+phys_per_port 4
+slot          bay
+
+#       PCI_SLOT ПОРТ HBA  ИМЯ КАНАЛА
+channel 85:00.0  1         A
+channel 85:00.0  0         B
+channel 86:00.0  1         C
+channel 86:00.0  0         D
+
+# Пользовательское сопоставление для канала A
+
+#    Linux      Сопоставлено
+#    Слот       Слот      Канал
+slot 1          7         A
+slot 2          10        A
+slot 3          3         A
+slot 4          6         A
+
+# Сопоставление по умолчанию для B, C и D
+
+slot 1          4
+slot 2          2
+slot 3          1
+slot 4          3
+.Ed
+.Pp
+Топология с коммутатором SAS.
+Обратите внимание, что ключевое слово
+.Ar channel
+в этом примере принимает только два аргумента:
+.Bd -literal -compact -offset Ds
+topology      sas_switch
+
+#       ПОРТ КОММУТАТОРА  ИМЯ КАНАЛА
+channel 1            A
+channel 2            B
+channel 3            C
+channel 4            D
+.Ed
+.Pp
+Конфигурация multipath.
+Обратите внимание, что имена каналов имеют несколько определений — по одному на каждый физический путь:
+.Bd -literal -compact -offset Ds
+multipath yes
+
+#       PCI_SLOT ПОРТ HBA  ИМЯ КАНАЛА
+channel 85:00.0  1         A
+channel 85:00.0  0         B
+channel 86:00.0  1         A
+channel 86:00.0  0         B
+.Ed
+.Pp
+Конфигурация с включённым enclosure_symlinks:
+.Bd -literal -compact -offset Ds
+multipath yes
+enclosure_symlinks yes
+
+#          PCI_ID      ПОРТ HBA     ИМЯ КАНАЛА
+channel    05:00.0     1            U
+channel    05:00.0     0            L
+channel    06:00.0     1            U
+channel    06:00.0     0            L
+.Ed
+В дополнение к символическим ссылкам на диски эта конфигурация создаст:
+.Bd -literal -compact -offset Ds
+/dev/by-enclosure/enc-L0
+/dev/by-enclosure/enc-L1
+/dev/by-enclosure/enc-U0
+/dev/by-enclosure/enc-U1
+.Ed
+.Pp
+Конфигурация с использованием псевдонимов ссылок на устройства:
+.Bd -literal -compact -offset Ds
+#     by-vdev
+#     имя      полностью определённое или базовое имя ссылки на устройство
+alias d1       /dev/disk/by-id/wwn-0x5000c5002de3b9ca
+alias d2       wwn-0x5000c5002def789e
+.Ed
+.
+.Sh СМ. ТАКЖЕ
+.Xr vdev_id 8

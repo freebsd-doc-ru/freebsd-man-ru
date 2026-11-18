@@ -1,0 +1,116 @@
+.\" Copyright (c) 1999 Softweyr LLC.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY Softweyr LLC AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL Softweyr LLC OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/aio_cancel.2
+.\" FRDP githash e24279e0f9e28ba0c1920cb539fc357568790c0a
+.\" FRDP hash256 4a232538316eeb8525c93b2bc039293d8845c41e98afac6ca0f2419ac77776d7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 19, 2000
+.Dt AIO_CANCEL 2
+.Os
+.Sh ИМЯ
+.Nm aio_cancel
+.Nd отмена незавершённой асинхронной операции ввода-вывода (REALTIME)
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In aio.h
+.Ft int
+.Fn aio_cancel "int fildes" "struct aiocb *iocb"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn aio_cancel
+отменяет незавершённый асинхронный запрос ввода-вывода для файлового дескриптора, указанного в
+.Fa fildes .
+Если указан
+.Fa iocb ,
+отменяется только этот конкретный асинхронный запрос ввода-вывода.
+.Pp
+Для отменённых запросов происходит обычное асинхронное уведомление.
+Запросы завершаются с результатом ошибки
+.Er ECANCELED .
+.Sh ОГРАНИЧЕНИЯ
+Системный вызов
+.Fn aio_cancel
+не отменяет асинхронные запросы ввода-вывода для устройств необработанного диска.
+Системный вызов
+.Fn aio_cancel
+всегда будет возвращать
+.Dv AIO_NOTCANCELED
+для файловых дескрипторов, связанных с устройствами необработанного диска.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Системный вызов
+.Fn aio_cancel
+возвращает -1 для указания ошибки или одно из следующих значений:
+.Bl -tag -width Dv
+.It Bq Dv AIO_CANCELED
+Все незавершённые запросы, соответствующие указанным критериям, были отменены.
+.It Bq Dv AIO_NOTCANCELED
+Некоторые запросы не были отменены; состояние этих запросов следует
+проверить с помощью
+.Xr aio_error 2 .
+.It Bq Dv AIO_ALLDONE
+Все запросы, соответствующие критериям, завершены.
+.El
+.Sh ОШИБКИ
+Возврат ошибки из
+.Fn aio_cancel
+указывает на:
+.Bl -tag -width Er
+.It Bq Er EBADF
+Аргумент
+.Fa fildes
+является недопустимым файловым дескриптором.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr aio_error 2 ,
+.Xr aio_read 2 ,
+.Xr aio_return 2 ,
+.Xr aio_suspend 2 ,
+.Xr aio_write 2 ,
+.Xr aio 4
+.Sh СТАНДАРТЫ
+Ожидается, что системный вызов
+.Fn aio_cancel
+соответствует стандарту
+.St -p1003.1 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn aio_cancel
+впервые появился в
+.Fx 3.0 .
+Первая функциональная реализация
+.Fn aio_cancel
+появилась в
+.Fx 4.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Эта страница руководства была первоначально написана
+.An Wes Peters Aq Mt wes@softweyr.com .
+.An Christopher M Sedore Aq Mt cmsedore@maxwell.syr.edu
+обновил её, когда
+.Fn aio_cancel
+был реализован для
+.Fx 4.0 .

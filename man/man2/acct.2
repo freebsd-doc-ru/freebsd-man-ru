@@ -1,0 +1,133 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/acct.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 8fde304bb970874d173da8b8f2ee7491e406bd9127f949bea02d9a74e47fc214
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 30, 2020
+.Dt ACCT 2
+.Os
+.Sh ИМЯ
+.Nm acct
+.Nd включение или отключение учёта процессов
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft int
+.Fn acct "const char *file"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn acct
+включает или отключает сбор записей учёта системы.
+Если аргумент
+.Fa file
+является нулевым указателем, учёт отключается.
+Если
+.Fa file
+является
+.Em существующим
+путём (завершающимся нулевым символом), сбор записей включается и для
+каждого запущенного процесса, который завершается при нормальных
+условиях, запись учёта добавляется в
+.Fa file .
+Аномальными условиями завершения являются перезагрузки
+или другие фатальные системные проблемы.
+Записи для процессов, которые никогда не завершаются, не могут быть
+созданы
+.Fn acct .
+.Pp
+Для получения дополнительной информации о структуре записи, используемой
+.Fn acct ,
+см.
+.In sys/acct.h
+и
+.Xr acct 5 .
+.Pp
+Этот вызов разрешён только суперпользователю.
+.Sh ПРИМЕЧАНИЯ
+Учёт автоматически отключается, когда в файловой системе, на которой
+находится файл учёта, заканчивается место; он включается, когда
+место снова становится доступным.
+Значения, управляющие этим поведением, можно изменить с помощью следующих
+переменных
+.Xr sysctl 8 :
+.Bl -tag -width ".Va kern.acct_chkfreq"
+.It Va kern.acct_chkfreq
+Задаёт частоту (в секундах), с которой должно проверяться свободное дисковое
+пространство.
+.It Va kern.acct_resume
+Процент свободного дискового пространства, выше которого учёт процессов
+возобновляется.
+.It Va kern.acct_suspend
+Процент свободного дискового пространства, ниже которого учёт процессов
+приостанавливается.
+.El
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+При ошибке возвращается -1.
+Файл должен существовать, и вызов может быть выполнен только суперпользователем.
+.Sh ОШИБКИ
+Системный вызов
+.Fn acct
+завершится с ошибкой, если истинно одно из следующих условий:
+.Bl -tag -width Er
+.It Bq Er EPERM
+Вызывающий процесс не является суперпользователем.
+.It Bq Er ENOTDIR
+Компонент префикса пути не является каталогом.
+.It Bq Er ENAMETOOLONG
+Компонент имени пути превысил 255 символов,
+или полное имя пути превысило 1023 символа.
+.It Bq Er ENOENT
+Указанный файл не существует.
+.It Bq Er EACCES
+В разрешении на поиск для компонента префикса пути отказано,
+или имя пути не является обычным файлом.
+.It Bq Er ELOOP
+При преобразовании имени пути встретилось слишком много символических ссылок.
+.It Bq Er EROFS
+Указанный файл находится в файловой системе, доступной только для чтения.
+.It Bq Er EFAULT
+Аргумент
+.Fa file
+указывает за пределы выделенного адресного пространства процесса.
+.It Bq Er EIO
+При чтении из файловой системы или записи в неё произошла ошибка ввода-вывода.
+.It Bq Er EINTEGRITY
+При чтении из файловой системы обнаружены повреждённые данные.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr acct 5 ,
+.Xr accton 8 ,
+.Xr sa 8
+.Sh ИСТОРИЯ
+Функция
+.Fn acct
+появилась в
+.At v7 .

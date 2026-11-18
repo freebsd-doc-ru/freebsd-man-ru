@@ -1,0 +1,133 @@
+.\" Copyright (c) 1988, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/chroot/chroot.8
+.\" FRDP githash 75866d71e8d93fe1a1ff469b8a9c6c6c9908a6c8
+.\" FRDP hash256 7ba11a84d107bde3bc47edfa3791651d7840971ca1ac0c015978a9c208112590
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 25, 2025
+.Dt CHROOT 8
+.Os
+.Sh ИМЯ
+.Nm chroot
+.Nd изменение корневого каталога
+.Sh СИНТАКСИС
+.Nm
+.Op Fl G Ar группа Ns Op Cm \&, Ns Ar группа  ...
+.Op Fl g Ar группа
+.Op Fl u Ar пользователь
+.Op Fl n
+.Ar новый_корень
+.Op Ar команда Op Ar аргумент ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+изменяет свой текущий и корневой каталоги на указанный каталог
+.Ar новый_корень
+, а затем выполняет
+.Ar команда
+с предоставленными аргументами, если они указаны,
+или интерактивную копию оболочки входа пользователя.
+.Pp
+Параметры следующие:
+.Bl -tag -width ".Fl G Ar группа Ns Op Cm \&, Ns Ar группа"
+.It Fl G Ar группа Ns Op Cm \&, Ns Ar группа  ...
+Запустить команду с указанными группами в качестве дополнительных групп.
+.It Fl g Ar группа
+Запустить команду с указанной
+.Ar группа
+в качестве реальной, эффективной и сохранённой группы.
+.It Fl u Ar пользователь
+Запустить команду с указанным
+.Ar пользователь
+в качестве реального, эффективного и сохранённого пользователя.
+.It Fl n
+Использовать команду
+.Dv PROC_NO_NEW_PRIVS_CTL
+.Xr procctl 2
+перед выполнением chroot, что фактически отключает биты SUID/SGID
+для вызывающего процесса и его потомков.
+Если
+.Va security.bsd.unprivileged_chroot
+sysctl установлен в 1, это позволит выполнить chroot без
+привилегий суперпользователя.
+.El
+.Sh ОКРУЖЕНИЕ
+Следующая переменная окружения используется в
+.Nm :
+.Bl -tag -width ".Ev SHELL"
+.It Ev SHELL
+Если задана,
+строка, указанная в
+.Ev SHELL
+, интерпретируется как имя
+оболочки для запуска.
+Если переменная
+.Ev SHELL
+не задана,
+.Pa /bin/sh
+используется.
+.El
+.Sh ПРИМЕРЫ
+.Bl -tag -width 0n
+.It Sy Пример 1\&: Chroot в новый корневой каталог
+.Pp
+Следующая команда открывает
+.Xr csh 1
+оболочку после chroot в стандартный корневой каталог.
+.Bd -literal -offset 2n
+.Li # Ic chroot / /bin/csh
+.Ed
+.It Sy Пример 2\&: Выполнение команды с изменённым корневым каталогом
+.Pp
+Следующая команда изменяет корневой каталог с помощью
+.Nm
+, а затем запускает
+.Xr ls 1
+для вывода содержимого
+.Pa /sbin .
+.Bd -literal -offset 2n
+.Li # Ic chroot /tmp/testroot ls /sbin
+.Ed
+.El
+.Sh СМ. ТАКЖЕ
+.Xr chdir 2 ,
+.Xr chroot 2 ,
+.Xr setgid 2 ,
+.Xr setgroups 2 ,
+.Xr setuid 2 ,
+.Xr getgrnam 3 ,
+.Xr environ 7 ,
+.Xr jail 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в
+.At III
+и
+.Bx 4.3 Reno .

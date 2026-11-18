@@ -1,0 +1,46 @@
+.\"
+.\" FRDP path usr.sbin/accton/accton.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 a4f2305972208aa591775b9dc7e5394a45dfea9f9f6e7d999f458c3d2c27b162
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 21, 1993
+.Dt ACCTON 8
+.Os
+.Sh ИМЯ
+.Nm accton
+.Nd включение/отключение системного учёта
+.Sh СИНТАКСИС
+.Nm
+.Op Ar acctfile
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется
+для включения или отключения системного учёта.
+Если вызвана с аргументом
+.Ar acctfile ,
+системный учёт включается.
+Указанный
+.Ar acctfile
+должен существовать до запуска системного учёта, иначе
+.Nm
+вернёт ошибку.
+Запись о каждом процессе, который запускается системным вызовом
+.Xr execve 2
+и затем завершается, сохраняется в
+.Ar acctfile .
+Команда
+.Xr sa 8
+может использоваться для просмотра записей учёта.
+Если аргументы не указаны, системный учёт отключается.
+.Sh ФАЙЛЫ
+.Bl -tag -width /var/account/acct
+.It Pa /var/account/acct
+файл учёта по умолчанию
+.El
+.Sh СМ. ТАКЖЕ
+.Xr lastcomm 1 ,
+.Xr acct 2 ,
+.Xr acct 5 ,
+.Xr sa 8

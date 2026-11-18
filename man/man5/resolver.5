@@ -1,0 +1,315 @@
+.\" Copyright (c) 1986, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\" Copyright (c) 2026 Dag-Erling Smørgrav
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path share/man/man5/resolver.5
+.\" FRDP githash 506c2dee1777030b1ba5cf63e01d3108bde59c9b
+.\" FRDP hash256 5933ec772e762b902f3dbc074fab660a52bb54701014a49098f58639ffe6f450
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 6, 2026
+.Dt RESOLVER 5
+.Os
+.Sh ИМЯ
+.Nm resolver
+.Nd файл конфигурации resolver
+.Sh СИНТАКСИС
+.Nm resolv.conf
+.Sh ОПИСАНИЕ
+.Xr resolver 3
+— это набор подпрограмм в библиотеке C,
+которые предоставляют доступ к системе доменных имён Интернета.
+Файл конфигурации resolver содержит информацию, которая читается
+подпрограммами resolver при первом их вызове процессом.
+.Pp
+Файл читается построчно.
+Всё, что следует после символа
+.Sq #
+или
+.Sq \&;
+считается комментарием и отбрасывается.
+Пустые строки игнорируются.
+Первое слово каждой непустой строки — это ключевое слово, которое определяет,
+как интерпретируется остаток строки.
+Доступны следующие ключевые слова:
+.Bl -tag -width indent
+.It Cm nameserver Ar адрес
+IPv4- или IPv6-адрес сервера имён, который resolver должен опрашивать.
+На отдельных строках может быть указано до
+.Dv MAXNS
+(в настоящее время 3) серверов имён.
+Если серверов несколько, библиотека resolver опрашивает их в
+указанном порядке, если только не действует
+.Dv RES_ROTATE
+.Po
+См. параметр
+.Cm rotate
+ниже
+.Pc .
+Если записи
+.Cm nameserver
+отсутствуют,
+по умолчанию используется сервер имён на локальной машине.
+(Используемый алгоритм: опробовать сервер имён; если запрос завершается по тайм-ауту,
+перейти к следующему, пока серверы не закончатся;
+затем повторять перебор всех серверов имён,
+пока не будет выполнено максимальное число повторных попыток).
+.It Cm domain Ar имя
+Устанавливает как локальное доменное имя, так и список поиска в значение
+.Ar имя .
+Большинство запросов имён внутри этого домена может использовать короткие имена
+относительно локального домена.
+Если доменное имя не задано, оно выводится из локального имени хоста,
+возвращаемого
+.Xr gethostname 3 ;
+доменная часть берётся как всё, что находится после первой
+.Ql \&. .
+Наконец, если имя хоста не содержит доменной части, предполагается корневой
+домен.
+.It Cm search Ar имя1 Op имя2 ...
+Задаёт список поиска доменов.
+Кроме того, устанавливает локальный домен в
+.Ar имя1 .
+Большинство запросов resolver будет выполняться с использованием каждого компонента
+пути поиска по очереди, пока не будет найдено совпадение.
+Учтите, что этот процесс может быть медленным и породит большой объём сетевого
+трафика, если серверы для перечисленных доменов не являются локальными,
+а также что запросы завершатся по тайм-ауту, если для одного из доменов нет
+доступного сервера.
+.Pp
+В настоящее время список поиска ограничен шестью доменами
+общей длиной 256 символов.
+.It Cm sortlist Ar адрес1 Ns Oo Li / Ns Ar длина_префикса1 Oc Op адрес2 Ns Oo Li / Ns Ar длина_префикса2 Oc ...
+Порядок сортировки результатов запросов в виде списка записей
+.Ar адрес Ns Li / Ns Ar маска
+или
+.Ar адрес Ns Li / Ns Ar длина_префикса
+, например:
+.Bd -literal
+sortlist 198.51.100.0/24 203.0.113.0/255.255.255.0 2001:db8::/32
+.Ed
+.Pp
+Маски поддерживаются только для IPv4.
+Если маска или длина префикса опущена, по умолчанию используется историческая
+классовая адресация для IPv4 и значение 64 для IPv6.
+.Pp
+Результаты запросов, совпадающие с одной из записей списка сортировки, сортируются
+соответствующим образом и располагаются перед результатами запросов, которые не совпадают.
+Если несколько результатов совпадают с одной записью списка сортировки, порядок
+не определён.
+.Pp
+Если встречается несколько строк
+.Cm sortlist
+, записи добавляются в список в порядке их появления, максимум до десяти.
+.It Cm options
+Параметр options позволяет изменять некоторые внутренние переменные resolver.
+Поддерживаются следующие параметры:
+.Bl -tag -width indent
+.It Cm debug
+Устанавливает
+.Dv RES_DEBUG
+в
+.Va _res.options .
+.It Cm usevc
+Устанавливает
+.Dv RES_USEVC
+, чтобы использовать TCP вместо UDP для запросов.
+.It Cm ndots Ns Li : Ns Ar n
+Устанавливает порог количества точек, которые должны присутствовать в имени, переданном
+.Fn res_query
+(см.
+.Xr resolver 3 )
+, прежде чем будет сделан
+.Em первоначальный абсолютный запрос .
+Значение по умолчанию для
+.Em n
+—
+.Dq 1 ,
+что означает: если в имени есть точки, имя сначала будет испробовано как абсолютное,
+прежде чем к нему будут добавлены какие-либо элементы
+.Em списка поиска .
+.It Cm timeout Ns Li : Ns Ar n
+Устанавливает начальное время ожидания resolver ответа от удалённого
+сервера имён перед повторной попыткой запроса через другой сервер имён.
+При последующих повторных попытках текущего запроса resolver может ждать дольше,
+поскольку к значению тайм-аута применяется экспоненциальная задержка.
+Измеряется в секундах; значение по умолчанию —
+.Dv RES_TIMEOUT ,
+допустимый максимум —
+.Dv RES_MAXRETRANS
+(см.
+.In resolv.h ) .
+.It Cm attempts Ns Li : Ns Ar n
+Устанавливает число раз, которое resolver отправит запрос каждому из
+своих серверов имён, прежде чем сдаться и вернуть ошибку вызывающему приложению.
+Значение по умолчанию —
+.Dv RES_DFLRETRY ,
+допустимый максимум —
+.Dv RES_MAXRETRY
+(см.
+.In resolv.h ) .
+.It Cm edns0
+Устанавливает
+.Dv RES_USE_EDNS0 .
+Присоединяет псевдо-RR OPT для расширения EDNS0,
+как указано в RFC 2671.
+Это позволяет resolver объявлять больший размер буфера приёма UDP,
+допуская ответы больше исходного ограничения в 512 байт.
+.It Cm inet6
+Устанавливает
+.Dv RES_USE_INET6 .
+Заставляет resolver
+искать записи AAAA раньше записей A
+и отображать ответы IPv4 в IPv6-адреса.
+Использование этого параметра не рекомендуется.
+.It Cm insecure1
+Устанавливает
+.Dv RES_INSECURE1 .
+Это отключает проверку того, что ответ получен от
+того же сервера, которому был отправлен запрос.
+Использование этого параметра создаёт угрозу безопасности и не рекомендуется.
+.It Cm insecure2
+Устанавливает
+.Dv RES_INSECURE2 .
+Это отключает проверку того, что ответ содержит запрос,
+совпадающий с отправленным.
+Использование этого параметра создаёт угрозу безопасности и не рекомендуется.
+.It Cm no-check-names
+Устанавливает
+.Dv RES_NOCHECKNAME .
+Это отключает проверку входящих имён хостов на наличие недопустимых символов,
+таких как подчёркивание, не-ASCII или управляющие символы.
+.It Cm no-debug
+Сбрасывает
+.Dv RES_DEBUG .
+См.
+.Cm debug
+выше.
+.It Cm no-rotate
+Сбрасывает
+.Dv RES_ROTATE .
+См.
+.Cm rotate
+ниже.
+.It Cm no-tld-query
+Устанавливает
+.Dv RES_NOTLDQUERY .
+Это указывает resolver не пытаться разрешать имя домена верхнего уровня,
+то есть имя, не содержащее точек.
+Использование этого параметра не мешает
+resolver соблюдать стандартные правила
+.Cm domain
+и
+.Cm search
+для заданного имени.
+.It Cm rotate
+Устанавливает
+.Dv RES_ROTATE .
+Это заставляет resolver выполнять круговой перебор настроенных серверов
+имён, распределяя нагрузку запросов вместо постоянной попытки
+первого указанного сервера.
+.It Cm reload-period Ns Li : Ns Ar n
+Resolver проверяет время изменения
+.Pa /etc/resolv.conf
+, если с момента последней проверки прошло более
+.Ar n
+секунд.
+Если файл изменился, он автоматически перезагружается.
+Значение по умолчанию для
+.Ar n
+— две секунды.
+Установка нуля отключает проверку файла.
+.El
+.Pp
+Параметры также можно передать в виде списка, разделённого пробелами или табуляциями, в
+переменной окружения
+.Dv RES_OPTIONS .
+Эта переменная окружения применяется после чтения файла конфигурации.
+.El
+.Pp
+Ключевые слова
+.Cm domain
+и
+.Cm search
+являются взаимоисключающими.
+Если присутствует более одного экземпляра этих ключевых слов,
+последний экземпляр переопределит все предыдущие.
+.Pp
+Ключевое слово и значение должны находиться в одной строке, причём ключевое слово
+.Pq например, Sy nameserver
+должно начинать строку.
+Значение следует за ключевым словом и отделяется от него пробельными символами.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width indent
+.It Dv LOCALDOMAIN
+Если задана, переопределяет локальный домен и список поиска, заданные в файле
+конфигурации resolver.
+.It Dv RES_OPTIONS
+Если задана, её значение разбивается на слова и интерпретируется как параметры
+resolver, как описано для ключевого слова
+.Cm options
+в файле конфигурации resolver.
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width indent
+.It Pa /etc/resolv.conf
+файл конфигурации resolver
+.El
+.Sh ПРИМЕРЫ
+.Bd -literal
+# Установить локальный домен в example.com и список поиска в
+# example.com, example.net, example.org
+search example.com example.net example.org
+
+# Установить локальный домен и список поиска в example.com,
+# полностью переопределив предыдущую строку
+domain example.com
+
+# Используйте это, если запущен локальный кэширующий пересылающий (или
+# рекурсивный) resolver, например local-unbound(8)
+nameserver 127.0.0.1
+
+# IP-адрес локальной службы имён или службы имён провайдера
+nameserver 198.51.100.53
+nameserver 203.0.113.53
+
+# Включить EDNS0, что сообщает серверу имён, что мы способны
+# обрабатывать большие ответы.  Это требуется для DNSSEC.
+options edns0
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr getaddrinfo 3 ,
+.Xr gethostbyname 3 ,
+.Xr gethostname 3 ,
+.Xr resolver 3 ,
+.Xr hostname 7 ,
+.Xr resolvconf 8
+.Sh ИСТОРИЯ
+Формат файла
+.Nm resolv.conf
+появился в
+.Bx 4.3 .

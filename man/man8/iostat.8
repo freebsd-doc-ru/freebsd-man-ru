@@ -1,0 +1,546 @@
+.\"
+.\" Copyright (c) 1997 Kenneth D. Merry.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. The name of the author may not be used to endorse or promote products
+.\"    derived from this software without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/iostat/iostat.8
+.\" FRDP githash 62551ae38bf201654ebf2ffd59cb320ac75107a0
+.\" FRDP hash256 aa7f946fb6ba679ebb506ca3cd5c0531c278b6ed8f2e7126e929ef72922f4f0d
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 26, 2023
+.Dt IOSTAT 8
+.Os
+.Sh ИМЯ
+.Nm iostat
+.Nd отображает
+.Tn I/O
+статистику
+.Sh СИНТАКСИС
+.Nm
+.Op Fl CdhIKoTxz
+.Op Fl c Ar count
+.Op Fl M Ar core
+.Op Fl n Ar devs
+.Op Fl N Ar system
+.Oo
+.Fl t
+.Sm off
+.Ar type , if , pass
+.Sm on
+.Oc
+.Op Fl w Ar wait
+.Op Ar drives
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+отображает статистику
+.Tn I/O
+ядра по операциям терминалов, устройств и ЦП.
+Первая выводимая статистика усредняется за всё время работы системы
+(если не указан
+.Fl I ) .
+Любые упоминания повторений в этой странице руководства неявно включают первый
+вывод статистики.
+Чтобы получить сведения о текущей активности, следует указать подходящий интервал
+ожидания, чтобы последующие наборы выводимой статистики усреднялись за этот
+интервал.
+.Pp
+Параметры следующие:
+.Bl -tag -width flag
+.It Fl C
+Отображать статистику ЦП.
+По умолчанию включено, если не указан
+.Fl d
+или
+.Fl x .
+.It Fl c
+Повторять вывод
+.Ar count
+раз.
+Если
+.Fl c
+не указан, а интервал ожидания задан,
+по умолчанию число повторений бесконечно.
+Если интервал ожидания не задан, по умолчанию число повторений равно 1.
+.It Fl d
+Отображать только статистику устройств.
+Если этот флаг включён, будет отображаться только статистика устройств, если только
+.Fl C
+или
+.Fl T
+также не указан для включения отображения статистики ЦП или TTY.
+.It Fl h
+Перевести
+.Nm
+в
+.Sq top
+-режим.
+В этом режиме
+.Nm
+будет показывать устройства в порядке от наибольшего к наименьшему числу байт
+за цикл измерения.
+.It Fl I
+Отображать суммарную статистику за заданный период времени, а не среднюю
+статистику за каждую секунду этого периода.
+.It Fl K
+В отображении переданных блоков старого стиля
+.Po Fl I
+и
+.Fl o Pc ,
+отображать количество блоков в килобайтах, а не в собственном размере блока устройства.
+.It Fl M
+Извлекать значения, связанные со списком имён, из указанного файла core
+вместо значения по умолчанию
+.Dq Pa /dev/kmem .
+.It Fl N
+Извлекать список имён из указанной системы вместо значения по умолчанию
+.Dq Pa /boot/kernel/kernel .
+.It Fl n
+Отображать до
+.Ar devs
+устройств.
+Утилита
+.Nm
+отобразит меньше устройств, если присутствует меньше
+.Ar devs
+устройств.
+.It Fl o
+Отображать статистику устройств
+.Nm
+старого стиля.
+Отображаются секторы в секунду, передачи в секунду и миллисекунды на поиск.
+Если указан
+.Fl I ,
+отображаются суммарные блоки/секторы, суммарные передачи и
+миллисекунды на поиск.
+.It Fl T
+Отображать статистику TTY.
+По умолчанию включено, если не указан
+.Fl d
+или
+.Fl x .
+.It Fl t
+Указать, какие типы устройств отображать.
+Есть три категории устройств:
+.Pp
+.Bl -tag -width indent -compact
+.It тип устройства:
+.Bl -tag -width 9n -compact
+.It da
+Устройства прямого доступа
+.It sa
+Устройства последовательного доступа
+.It printer
+Принтеры
+.It proc
+Устройства процессора
+.It worm
+Устройства однократной записи и многократного чтения
+.It cd
+CD-устройства
+.It scanner
+Устройства сканирования
+.It optical
+Устройства оптической памяти
+.It changer
+Устройства смены носителей
+.It comm
+Устройства связи
+.It array
+Устройства дисковых массивов
+.It enclosure
+Устройства служб корпуса
+.It floppy
+Флоппи-устройства
+.El
+.Pp
+.It интерфейс:
+.Bl -tag -width 9n -compact
+.It IDE
+Устройства Integrated Drive Electronics
+.It SCSI
+Устройства Small Computer System Interface
+.It NVME
+Устройства интерфейса NVM Express
+.It other
+Любой другой интерфейс устройств
+.El
+.Pp
+.It сквозной доступ:
+.Bl -tag -width 9n -compact
+.It pass
+Устройства сквозного доступа
+.El
+.El
+.Pp
+Пользователь должен указать как минимум один тип устройства и может указать не более
+одного типа устройства из каждой категории.
+Несколько типов устройств в одном выражении типа устройства должны разделяться
+запятыми и объединяться операцией И.
+.Pp
+В командной строке можно указать любое число аргументов
+.Fl t .
+Все аргументы
+.Fl t
+объединяются операцией ИЛИ, образуя выражение соответствия, с которым
+сравниваются все устройства системы.
+Любое устройство, полностью соответствующее любому аргументу
+.Fl t ,
+будет включено в вывод
+.Nm
+до числа устройств, которые можно отобразить в
+80 столбцах, или до максимального числа устройств
+.Pq Fl n ,
+указанного пользователем.
+.It Fl w
+Делать паузу
+.Ar wait
+секунд между каждым отображением.
+Если число повторений
+.Pq Fl c
+не указано, а интервал ожидания задан,
+по умолчанию число повторений бесконечно.
+Если
+.Fl w
+не указан, а число повторений задано,
+интервал по умолчанию равен 1 секунде.
+.Pp
+Команда
+.Nm
+принимает и учитывает нецелое число секунд.
+Обратите внимание, что интервал имеет точность только до миллисекунд.
+Более точные значения будут усечены.
+Например,
+.Dq Li -w1.0001
+то же самое, что
+.Dq Li -w1.000 .
+На интервал также влияют изменения
+.Va kern.hz ,
+поэтому результат может отличаться.
+.It Fl x
+Показывать расширенную статистику дисков.
+Каждый диск отображается в отдельной строке со всей доступной статистикой.
+Если этот флаг включён, будет отображаться только статистика дисков, если только
+.Fl C
+или
+.Fl T
+также не указан для включения отображения статистики ЦП или TTY.
+.It Fl z
+Если указан
+.Fl x ,
+пропускать строки для устройств без активности.
+.El
+.Pp
+Утилита
+.Nm
+отображает сведения в следующем формате:
+.Bl -tag -width flag
+.It tty
+.Bl -tag -width indent -compact
+.It tin
+символы, прочитанные с терминалов
+.It tout
+символы, записанные на терминалы
+.El
+.It устройства
+Операции с устройствами.
+Заголовок поля — это имя устройства и номер устройства.
+Утилита
+.Nm
+отобразит столько устройств, сколько поместится на стандартном экране в 80 столбцов, или
+максимальное число устройств в системе, в зависимости от того, что меньше.
+Если в командной строке указан
+.Fl n ,
+.Nm
+отобразит меньшее из
+запрошенного числа устройств и максимального числа устройств в системе.
+Чтобы заставить
+.Nm
+отображать конкретные диски, их имена можно указать в командной
+строке.
+Утилита
+.Nm
+не будет отображать больше устройств, чем помещается на экране в 80 столбцов, если
+только в командной строке не указан аргумент
+.Fl n
+для задания максимального числа
+отображаемых устройств.
+Если в командной строке указано меньше устройств, чем помещается на экране в 80
+столбцов,
+.Nm
+покажет только указанные устройства.
+.Pp
+Стандартное отображение устройств
+.Nm
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It KB/t
+килобайт на передачу
+.It tps
+передач в секунду
+.It MB/s
+мегабайт в секунду
+.El
+.Pp
+Стандартное отображение устройств
+.Nm
+при указанном флаге
+.Fl I
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It KB/t
+килобайт на передачу
+.It xfrs
+общее число передач
+.It MB
+общее число переданных мегабайт
+.El
+.Pp
+Расширенное отображение устройств
+.Nm
+при указанном флаге
+.Fl x
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It r/s
+операций чтения в секунду
+.It w/s
+операций записи в секунду
+.It kr/s
+килобайт прочитано в секунду
+.It kw/s
+килобайт записано в секунду
+.It qlen
+длина очереди транзакций
+.It ms/r
+средняя длительность транзакций чтения в миллисекундах
+.It ms/w
+средняя длительность транзакций записи в миллисекундах
+.It ms/o
+средняя длительность всех остальных транзакций в миллисекундах
+.It ms/t
+средняя длительность всех транзакций в миллисекундах
+.It %b
+% времени, в течение которого у устройства была одна или более незавершённых транзакций
+.El
+.Pp
+Расширенное отображение устройств
+.Nm
+при указанных флагах
+.Fl x
+и
+.Fl I
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It r/i
+операций чтения за период времени
+.It w/i
+операций записи за период времени
+.It kr/i
+килобайт прочитано за период времени
+.It kw/i
+килобайт записано за период времени
+.It qlen
+длина очереди транзакций
+.It tsvc_t/i
+общая длительность транзакций за период времени в секундах
+.It sb/i
+общее время, в течение которого у устройства была одна или более незавершённых транзакций за период времени, в секундах
+.El
+.Pp
+Отображение
+.Nm
+старого стиля (с использованием
+.Fl o )
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It sps
+секторов передано в секунду
+.It tps
+передач в секунду
+.It msps
+среднее число миллисекунд на транзакцию
+.El
+.Pp
+Отображение
+.Nm
+старого стиля при указанном флаге
+.Fl I
+показывает следующую статистику:
+.Pp
+.Bl -tag -width indent -compact
+.It blk
+всего передано блоков/секторов
+.It xfr
+всего передач
+.It msps
+среднее число миллисекунд на транзакцию
+.El
+.It ЦП
+.Bl -tag -width indent -compact
+.It \&us
+% времени ЦП в пользовательском режиме
+.It \&ni
+% времени ЦП в пользовательском режиме при выполнении процессов с изменённым приоритетом
+.It \&sy
+% времени ЦП в системном режиме
+.It \&in
+% времени ЦП в режиме прерываний
+.It \&id
+% времени ЦП в режиме простоя
+.El
+.El
+.Sh ФАЙЛЫ
+.Bl -tag -width /boot/kernel/kernel -compact
+.It Pa /boot/kernel/kernel
+Список имён ядра по умолчанию.
+.It Pa /dev/kmem
+Файл памяти по умолчанию.
+.El
+.Sh ПРИМЕРЫ
+.Dl iostat -w 1 da0 da1 cd0
+.Pp
+Отображать статистику для первых двух устройств прямого доступа и первого
+устройства CDROM каждую секунду бесконечно.
+.Pp
+.Dl iostat -c 2
+.Pp
+Отображать статистику для первых четырёх устройств системы дважды с
+интервалом отображения в одну секунду.
+.Pp
+.Dl iostat -t da -t cd -w 1
+.Pp
+Отображать статистику для всех устройств CDROM и прямого доступа каждую секунду
+бесконечно.
+.Pp
+.Dl iostat -t da,scsi,pass -t cd,scsi,pass
+.Pp
+Отображать статистику один раз для всех устройств сквозного доступа SCSI, предоставляющих доступ
+к устройствам прямого доступа или CDROM.
+.Pp
+.Dl iostat -h -n 8 -w 1
+.Pp
+Отображать до 8 устройств с наибольшим объёмом ввода-вывода каждую секунду бесконечно.
+.Pp
+.Dl iostat -dh -t da -w 1
+.Pp
+Пропускать отображение TTY и ЦП, показывать устройства в порядке производительности и
+показывать только устройства прямого доступа каждую секунду бесконечно.
+.Pp
+.Dl iostat -Iw 3
+.Pp
+Отображать суммарную статистику каждые три секунды бесконечно.
+.Pp
+.Dl iostat -odICTw 2 -c 9
+.Pp
+Отображать суммарную статистику в формате вывода старого стиля 9 раз
+с двухсекундным интервалом между каждым измерением/отображением.
+Флаг
+.Fl d
+обычно отключает отображение TTY и ЦП, но поскольку заданы флаги
+.Fl T
+и
+.Fl C ,
+отображение TTY и ЦП будет показано.
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr netstat 1 ,
+.Xr nfsstat 1 ,
+.Xr ps 1 ,
+.Xr systat 1 ,
+.Xr devstat 3 ,
+.Xr ctlstat 8 ,
+.Xr gstat 8 ,
+.Xr pstat 8 ,
+.Xr vmstat 8
+.Pp
+Разделы, начинающиеся с ``Интерпретация системной активности'', в
+.Sh ИСТОРИЯ
+Эта версия
+.Nm
+впервые появилась в
+.Fx 3.0 .
+.Sh АВТОРЫ
+.An Kenneth Merry Aq Mt ken@FreeBSD.org
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Использование
+.Nm
+как средства отладки дампов аварийных завершений, вероятно, ограничено, поскольку
+в настоящее время нет способа получить статистику, охватывающую только время непосредственно перед
+аварийным завершением.
+.Pp
+Каждый аргумент
+.Ar drives
+передаётся в
+.Fn isdigit .
+Если
+.Fn isdigit
+возвращает true,
+.Nm
+переключается на недокументированный традиционный синтаксис, и последующие аргументы,
+если они есть, не будут интерпретироваться как имена дисков.
+Это поведение конфликтует с задокументированным в этой странице руководства и мешает
+указывать имена дисков, начинающиеся с цифры.
+Например, следующее
+.Bd -literal -offset indent
+iostat ada0 ada1 2 3 cd0
+.Ed
+.Pp
+Использование в этом документе
+.Dq тип устройства
+вводит в заблуждение.

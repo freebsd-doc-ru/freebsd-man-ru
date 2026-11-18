@@ -1,0 +1,961 @@
+.\" Copyright (c) 1983, 1990, 1992, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.bin/netstat/netstat.1
+.\" FRDP githash c63d3e582ac0712254a9308adcb6fedebe0b8567
+.\" FRDP hash256 d45ef9eb0a4b1cb8fb9fa27f84cce27bb68c47844dd871ab7ff79016084bf765
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 7, 2026
+.Dt NETSTAT 1
+.Os
+.Sh ИМЯ
+.Nm netstat
+.Nd показать состояние сети и статистику
+.Sh СИНТАКСИС
+.Bk -words
+.Bl -tag -width indent
+.It Nm
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46AaCLnPRSTWx
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.It Nm Fl i | I Ar interface
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46abdhnW
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl w Ar wait
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl I Ar interface
+.Op Fl 46d
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl q Ar howmany
+.It Nm Fl s
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46sz
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl i | I Ar interface Fl s
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46s
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl m
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl B
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl z
+.Op Fl I Ar interface
+.It Nm Fl r
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46nW
+.Op Fl F Ar fibnum
+.Op Fl f Ar address_family
+.It Nm Fl rs
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl s
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl g
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46W
+.Op Fl F Ar fibnum
+.Op Fl f Ar address_family
+.It Nm Fl gs
+.Op Fl j Ar jail
+.Op Fl -libxo
+.Op Fl 46s
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.It Nm Fl Q
+.Op Fl j Ar jail
+.Op Fl -libxo
+.It Nm Fl o
+.Fl 4 | Fl 6
+.It Nm Fl O
+.Fl 4 | Fl 6
+.El
+.Ek
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+показывает содержимое различных сетевых структур данных.
+Переданные аргументы определяют, какой из приведённых ниже форматов вывода
+использует команда.
+.Bl -tag -width indent
+.It Xo
+.Bk -words
+.Nm
+.Op Fl 46AaCLnRSTWx
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать список активных сокетов
+(блоков управления протоколом)
+для каждого сетевого протокола.
+.Pp
+Вывод активных сокетов по умолчанию показывает локальные
+и удалённые адреса, размеры очередей отправки и приёма (в байтах), протокол
+и внутреннее состояние протокола.
+Форматы адресов имеют вид
+.Dq host.port
+или
+.Dq network.port ,
+если адрес сокета задаёт сеть, но не конкретный адрес узла.
+Если они известны, адреса узлов и сетей отображаются символически
+согласно базам данных
+.Xr hosts 5
+и
+.Xr networks 5
+соответственно.
+Если символическое имя для адреса неизвестно или
+указан параметр
+.Fl n ,
+адрес выводится в числовом виде в соответствии
+с семейством адресов.
+Дополнительные сведения о
+.Dq точечном формате
+IPv4 в Интернете см. в
+.Xr inet 3 .
+Неуказанные (или
+.Dq подстановочные )
+адреса и порты отображаются как
+.Dq Li * .
+.Bl -tag -width indent
+.It Fl -libxo
+Генерировать вывод через
+.Xr libxo 3
+в различных удобочитаемых и машиночитаемых форматах.
+Подробности об аргументах командной строки см. в
+.Xr xo_options 7 .
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl A
+Показывать адрес блока управления протоколом (PCB),
+связанного с сокетом; используется для отладки.
+.It Fl a
+Показывать состояние всех сокетов;
+обычно сокеты, используемые серверными процессами, не показываются.
+.It Fl c
+Показывать используемый стек TCP для каждого сеанса.
+.It Fl C
+Показывать алгоритм управления перегрузкой и диагностическую информацию TCP-сокетов.
+.It Fl L
+Показывать размеры различных очередей прослушивания.
+Первый счётчик показывает число непринятых соединений,
+второй — количество непринятых неполных соединений,
+а третий — максимальное число соединений в очереди.
+.It Fl n
+Не преобразовывать числовые адреса и номера портов в имена.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl P
+Показывать идентификатор журнала для каждого сокета.
+.It Fl R
+Показывать flowid и flowtype для каждого сокета.
+flowid — это 32-битный аппаратно-зависимый идентификатор для каждого потока.
+flowtype определяет, какие поля протокола хешируются для формирования идентификатора.
+Полный список доступен в
+.Pa sys/mbuf.h
+под
+.Dv M_HASHTYPE_* .
+.It Fl S
+Показывать сетевые адреса как числа (как с
+.Fl n ),
+но порты показывать символически.
+.It Fl T
+Показывать диагностическую информацию из блока управления TCP.
+Поля включают количество пакетов, требующих повторной передачи,
+полученных не по порядку, и тех, которые объявляют окно нулевого размера.
+.It Fl W
+Не усекать адреса, даже если это приводит к переполнению некоторых полей.
+.It Fl x
+Показывать статистику буферов сокетов и таймеров TCP для каждого
+интернет-сокета.
+.Pp
+Флаг
+.Fl x
+заставляет
+.Nm
+выводить всю записанную информацию о данных,
+хранящихся в буферах сокетов.
+Поля:
+.Bl -column
+.It Li R-HIWA Ta Верхняя граница заполнения приёмного буфера, в байтах.
+.It Li S-HIWA Ta Верхняя граница заполнения передающего буфера, в байтах.
+.It Li R-LOWA Ta Нижняя граница заполнения приёмного буфера, в байтах.
+.It Li S-LOWA Ta Нижняя граница заполнения передающего буфера, в байтах.
+.It Li R-BCNT Ta Количество байт в приёмном буфере.
+.It Li S-BCNT Ta Количество байт в передающем буфере.
+.It Li R-BMAX Ta Максимальное количество байт, которое может использоваться в приёмном буфере.
+.It Li S-BMAX Ta Максимальное количество байт, которое может использоваться в передающем буфере.
+.It Li rexmt Ta Время в секундах до срабатывания таймера повторной передачи или 0, если таймер не взведён.
+.It Li persist Ta Время в секундах до срабатывания таймера сохранения соединения или 0, если таймер не взведён.
+.It Li keep Ta Время в секундах до срабатывания таймера Keep Alive или 0, если таймер не взведён.
+.It Li 2msl Ta Время в секундах до срабатывания таймера TIME_WAIT 2*msl или 0, если таймер не взведён.
+.It Li delack Ta Время в секундах до срабатывания таймера отложенного ACK или 0, если таймер не взведён.
+.It Li rcvtime Ta Время в секундах с момента получения последнего пакета.
+.El
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl p Ar protocol
+Фильтровать по
+.Ar протоколу .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl i | I Ar interface
+.Op Fl 46abdhnW
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать состояние всех сетевых интерфейсов или одного
+.Ar интерфейса ,
+которые были автоматически сконфигурированы
+(интерфейсы, статически настроенные в системе, но не
+обнаруженные при загрузке, не показываются).
+Звёздочка
+.Pq Dq Li *
+после имени интерфейса указывает, что интерфейс
+.Dq не работает .
+.Pp
+Когда
+.Nm
+вызывается с
+.Fl i
+.Pq все интерфейсы
+или
+.Fl I Ar interface ,
+он предоставляет таблицу накопительной
+статистики о переданных пакетах, ошибках и коллизиях.
+Также отображаются сетевые адреса интерфейса
+и максимальный размер передаваемого блока
+.Pq Dq mtu .
+Если указаны одновременно
+.Fl i
+и
+.Fl I ,
+.Fl I
+переопределяет все экземпляры
+.Fl i .
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl a
+Многоадресные адреса, используемые в настоящее время, показываются
+для каждого Ethernet-интерфейса и каждого IP-адреса интерфейса.
+Многоадресные адреса отображаются отдельными строками после адреса
+интерфейса, с которым они связаны.
+.It Fl b
+Показывать количество байт на входе и выходе.
+.It Fl d
+Показывать количество отброшенных исходящих пакетов.
+.It Fl h
+Выводить все счётчики в удобочитаемой форме.
+.It Fl n
+Не преобразовывать числовые адреса и номера портов в имена.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl W
+Не усекать адреса, даже если это приводит к переполнению некоторых полей.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+Однако в большинстве случаев ширина полей определяется автоматически при
+использовании параметра
+.Fl i ,
+и этот параметр почти не влияет.
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl w Ar wait
+.Op Fl I Ar interface
+.Op Fl 46d
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl q Ar howmany
+.Op Fl j Ar jail
+.Ek
+.Xc
+С интервалом в
+.Ar wait
+секунд показывать информацию о трафике пакетов на всех
+сконфигурированных сетевых интерфейсах или на одном
+.Ar интерфейсе ,
+если указан
+.Fl I .
+.Pp
+Устаревшая версия этого параметра использовала числовой параметр
+без опции и в настоящее время поддерживается для обратной совместимости.
+.Bl -tag -width indent
+.It Fl I Ar interface
+Показывать только информацию о
+.Ar интерфейсе .
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl d
+Показывать количество отброшенных исходящих пакетов.
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl q
+Выйти после
+.Ar howmany
+выводов.
+Значение ноль означает отсутствие ограничения и используется по умолчанию.
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm netstat
+.Fl o
+.Fl 4 | Fl 6
+.Ek
+.Xc
+Выводить информацию о следующих узлах (nexthop, nhops),
+связанную с записями маршрутизации.
+При использовании с
+.Fl 4
+или
+.Fl 6
+ограничивать вывод маршрутами IPv4 или IPv6 соответственно.
+Этот параметр предоставляет сведения об отдельных адресах следующих узлов,
+используемых при принятии решений о маршрутизации.
+.It Xo
+.Bk -words
+.Nm netstat
+.Fl O
+.Fl 4 | Fl 6
+.Ek
+.Xc
+Выводить информацию о группах следующих узлов (nexthop groups, nhgrp),
+связанную с записями маршрутизации.
+При использовании с
+.Fl 4
+или
+.Fl 6
+ограничивать вывод группами следующих узлов IPv4 или IPv6 соответственно.
+Этот параметр показывает сгруппированные записи следующих узлов для многопутевой или
+балансируемой маршрутизации.
+.It Xo
+.Bk -words
+.Nm
+.Fl s
+.Op Fl 46sz
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать общесистемную статистику для каждого сетевого протокола.
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl s
+Если
+.Fl s
+указан несколько раз, счётчики со значением ноль подавляются.
+.It Fl z
+Сбрасывать счётчики статистики после их отображения.
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl p Ar protocol
+Фильтровать по
+.Ar протоколу .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl i | I Ar interface Fl s
+.Op Fl 46s
+.Op Fl f Ar protocol_family | Fl p Ar protocol
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать статистику по интерфейсам для каждого сетевого протокола.
+Если указаны одновременно
+.Fl i
+и
+.Fl I ,
+.Fl I
+переопределяет все экземпляры
+.Fl i .
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl s
+Если
+.Fl s
+указан несколько раз, счётчики со значением ноль подавляются.
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl p Ar protocol
+Фильтровать по
+.Ar протоколу .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl m
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать статистику, записанную подпрограммами управления памятью
+.Pq Xr mbuf 9 .
+Сеть управляет собственным пулом буферов памяти.
+.Bl -tag -width indent
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl B
+.Op Fl z
+.Op Fl I Ar interface
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать статистику о
+.Xr bpf 4
+партнёрах.
+Сюда входит информация о том,
+сколько пакетов было сопоставлено, отброшено и получено
+устройством bpf, а также сведения о текущих размерах буферов и состояниях устройства.
+.Pp
+Флаги
+.Xr bpf 4 ,
+отображаемые при вызове
+.Nm
+с параметром
+.Fl B ,
+представляют базовые параметры партнёра bpf.
+Каждый флаг представляется одной строчной буквой.
+Соответствие между буквами и флагами в порядке появления:
+.Bl -column
+.It Li p Ta Установлен, если прослушивание ведётся в неразборчивом режиме
+.It Li i Ta .Dv BIOCIMMEDIATE No был установлен на устройстве
+.It Li f Ta .Dv BIOCGHDRCMPLT No статус: адреса канального уровня источника заполняются автоматически
+.It Li s Ta .Dv BIOCGSEESENT No статус: видны пакеты, исходящие локально и удалённо на интерфейсе.
+.It Li a Ta Приём пакета генерирует сигнал
+.It Li l Ta .Dv BIOCLOCK No статус: дескриптор заблокирован
+.El
+.Pp
+Дополнительные сведения об этих флагах см. в
+.Xr bpf 4 .
+.Bl -tag -width indent
+.It Fl z
+Сбрасывать счётчики статистики после их отображения.
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl r
+.Op Fl 46AnW
+.Op Fl F Ar fibnum
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать содержимое таблиц маршрутизации.
+.Pp
+Когда
+.Nm
+вызывается с параметром таблицы маршрутизации
+.Fl r ,
+он перечисляет доступные маршруты и их состояние.
+Каждый маршрут состоит из узла назначения или сети и шлюза, используемого
+для пересылки пакетов.
+Поле флагов содержит набор сведений о маршруте, хранимых
+в виде двоичных значений.
+Отдельные флаги более подробно описаны в
+справочных страницах
+.Xr route 8
+и
+.Xr route 4 .
+Соответствие между буквами и флагами:
+.Bl -column
+.El
+.Pp
+Прямые маршруты создаются для каждого
+интерфейса, подключённого к локальному узлу;
+поле шлюза для таких записей показывает адрес исходящего интерфейса.
+Поле refcnt показывает
+текущее число активных использований маршрута.
+Протоколы с установлением соединения
+обычно удерживают один маршрут на время
+соединения, тогда как протоколы без установления соединения получают маршрут при отправке
+одному и тому же назначению.
+Поле use содержит количество пакетов,
+отправленных с использованием этого маршрута.
+Запись интерфейса указывает сетевой интерфейс, используемый для маршрута.
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl n
+Не преобразовывать числовые адреса и номера портов в имена.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl W
+Показывать MTU пути для каждого маршрута и выводить имена интерфейсов с
+более широким размером поля.
+.It Fl F
+Показывать таблицу маршрутизации с номером
+.Ar fibnum .
+Если указанный
+.Ar fibnum
+равен -1 или
+.Fl F
+не указан,
+отображается таблица маршрутизации по умолчанию.
+.It Fl f
+Показывать таблицу маршрутизации для указанного
+.Ar address_family .
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl rs
+.Op Fl s
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать статистику маршрутизации.
+.Bl -tag -width indent
+.It Fl s
+Если
+.Fl s
+указан несколько раз, счётчики со значением ноль подавляются.
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl g
+.Op Fl 46W
+.Op Fl F Ar fibnum
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать содержимое таблиц виртуальных интерфейсов многоадресной рассылки
+и кэшей пересылки многоадресных пакетов.
+Записи в этих таблицах появляются только тогда, когда ядро
+активно пересылает сеансы многоадресной рассылки.
+Этот параметр применим только к
+.Cm inet
+и
+.Cm inet6
+семействам адресов.
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl W
+Не усекать адреса, даже если это приводит к переполнению некоторых полей.
+.It Fl F
+Показывать таблицу маршрутизации с номером
+.Ar fibnum .
+Если указанный
+.Ar fibnum
+равен -1 или
+.Fl F
+не указан,
+отображается таблица маршрутизации по умолчанию.
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl gs
+.Op Fl 46s
+.Op Fl f Ar address_family
+.Op Fl M Ar core
+.Op Fl N Ar system
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать статистику маршрутизации многоадресной рассылки.
+.Bl -tag -width indent
+.It Fl 4
+Показывать только IPv4.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl 6
+Показывать только IPv6.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl s
+Если
+.Fl s
+указан несколько раз, счётчики со значением ноль подавляются.
+.It Fl f Ar protocol_family
+Фильтровать по
+.Ar protocol_family .
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl M
+Использовать альтернативный core-файл.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl N
+Использовать альтернативный образ ядра.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.It Xo
+.Bk -words
+.Nm
+.Fl Q
+.Op Fl j Ar jail
+.Ek
+.Xc
+Показывать
+.Xr netisr 9
+статистику.
+Поле флагов показывает доступные обработчики ISR:
+.Bl -tag -width indent
+.It Fl j Ar jail
+Запускать внутри клетки.
+См.
+.Sx ОБЩИЕ ПАРАМЕТРЫ .
+.El
+.El
+.Ss ОБЩИЕ ПАРАМЕТРЫ
+Некоторые параметры имеют общее значение:
+.Bl -tag -width flag
+.It Fl 4
+Является сокращением для
+.Fl f
+.Ar inet
+.Pq Показывать только IPv4
+.It Fl 6
+Является сокращением для
+.Fl f
+.Ar inet6
+.Pq Показывать только IPv6
+.It Fl f Ar address_family , Fl p Ar protocol
+Ограничить вывод записями указанного
+.Ar address_family
+или одного
+.Ar protocol .
+Распознаются следующие семейства адресов и протоколы:
+.Pp
+.Bl -tag -width indent
+.It Em Семейство
+.Em Протоколы
+.It Cm inet Pq Dv AF_INET
+.Cm divert , icmp , igmp , ip , ipsec , pim, sctp , tcp , udp
+.It Cm inet6 Pq Dv AF_INET6
+.Cm icmp6 , ip6 , ipsec6 , rip6 , sctp , tcp , udp
+.It Cm pfkey Pq Dv PF_KEY
+.Cm pfkey
+.It Cm netgraph , ng Pq Dv AF_NETGRAPH
+.Cm ctrl , data
+.It Cm unix Pq Dv AF_UNIX
+.It Cm link Pq Dv AF_LINK
+.El
+.Pp
+Программа выдаст сообщение об ошибке, если
+.Ar protocol
+неизвестен или для него нет подпрограммы сбора статистики.
+.It Fl M
+Извлекать значения, связанные со списком имён, из указанного core-файла
+вместо значения по умолчанию
+.Pa /dev/kmem .
+.It Fl N
+Извлекать список имён из указанной системы вместо значения по умолчанию,
+которым является образ ядра, с которого загрузилась система.
+.It Fl n
+Показывать сетевые адреса и порты как числа.
+Обычно
+.Nm
+пытается разрешить адреса и порты
+и отобразить их символически.
+Двукратное указание
+.Fl n
+также отключает вывод ключевого слова
+.Qq Dv default
+для маршрутов IPv4 и IPv6 по умолчанию при отображении содержимого таблиц
+маршрутизации.
+.It Fl W
+Более широкий вывод; расширять поля адресов и т. п., чтобы избежать усечения.
+Нечисловые значения, такие как доменные имена, всё ещё могут быть усечены; при необходимости
+используйте параметр
+.Fl n ,
+чтобы избежать неоднозначности.
+.It Fl j Ar jail
+Выполнять действия внутри
+.Ar клетке .
+Это позволяет получать доступ к сетевому состоянию, даже если
+двоичный файл
+.Cm netstat
+недоступен в
+.Ar клетке .
+.El
+.Sh ПРИМЕРЫ
+Показать информацию о трафике пакетов (пакеты, байты, ошибки, отброшенные пакеты и т. д.) для
+интерфейса re0, обновляемую каждые 2 секунды, и выйти после 5 выводов:
+.Pp
+.Dl netstat -w 2 -q 5 -I re0
+.Pp
+Показать статистику ICMP на любом интерфейсе:
+.Pp
+.Dl netstat -s -p icmp
+.Pp
+Показать таблицы маршрутизации:
+.Pp
+.Dl netstat -r
+.Pp
+То же, что выше, но без преобразования числовых адресов и номеров портов в
+имена:
+.Pp
+.Dl netstat -rn
+.Pp
+Показать прослушиваемые сокеты IPv4:
+.Pp
+.Dl netstat -4l
+.Sh СМ. ТАКЖЕ
+.Xr fstat 1 ,
+.Xr nfsstat 1 ,
+.Xr procstat 1 ,
+.Xr ps 1 ,
+.Xr sockstat 1 ,
+.Xr libxo 3 ,
+.Xr xo_options 7 ,
+.Xr bpf 4 ,
+.Xr inet 4 ,
+.Xr route 4 ,
+.Xr unix 4 ,
+.Xr hosts 5 ,
+.Xr networks 5 ,
+.Xr protocols 5 ,
+.Xr services 5 ,
+.Xr iostat 8 ,
+.Xr route 8 ,
+.Xr vmstat 8 ,
+.Xr mbuf 9
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Bx 4.2 .
+.Pp
+Поддержка IPv6 была добавлена проектом WIDE/KAME.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Понятие ошибок определено нечётко.

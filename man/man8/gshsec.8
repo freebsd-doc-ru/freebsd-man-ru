@@ -1,0 +1,133 @@
+.\"
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.\" Copyright (c) 2005 Pawel Jakub Dawidek <pjd@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/geom/shsec/gshsec.8
+.\" FRDP githash 6d6132d8ca280649b6471f7c1045752828e3ebe5
+.\" FRDP hash256 1565878ec49ff2c01df74d5aa16ef20ed23f22124e3f60e18a6f67d782bfde60
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd October 1, 2013
+.Dt GSHSEC 8
+.Os
+.Sh ИМЯ
+.Nm gshsec
+.Sh СИНТАКСИС
+.Nm
+.Cm label
+.Op Fl hv
+.Ar имя
+.Ar провайдер провайдер ...
+.Nm
+.Cm stop
+.Op Fl fv
+.Ar имя ...
+.Nm
+.Cm clear
+.Op Fl v
+.Ar провайдер ...
+.Nm
+.Cm dump
+.Ar провайдер ...
+.Nm
+.Cm list
+.Nm
+.Cm status
+.Nm
+.Cm load
+.Nm
+.Cm unload
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется для создания устройства, содержащего общий секрет.
+Секрет разделён между заданными провайдерами.
+Для восстановления секрета нужны все провайдеры.
+Если один из компонентов отсутствует, из остальных невозможно получить
+никаких полезных данных.
+Первый аргумент
+.Nm
+указывает действие, которое нужно выполнить:
+.Bl -tag -width indent
+.It Cm label
+Создать устройство с общим секретом из заданных компонентов, используя указанное
+.Ar имя .
+Метаданные хранятся в последнем секторе каждого компонента.
+.It Cm stop
+Отключить существующее устройство с общим секретом, используя его
+.Ar имя .
+Эта команда не изменяет метаданные на диске!
+.It Cm clear
+Очистить метаданные на заданных провайдерах.
+.It Cm dump
+Вывести метаданные, хранящиеся на заданных провайдерах.
+.It Cm list
+См.
+.Xr geom 8 .
+.It Cm status
+См.
+.Xr geom 8 .
+.It Cm load
+См.
+.Xr geom 8 .
+.It Cm unload
+См.
+.Xr geom 8 .
+.El
+.Pp
+Дополнительные параметры:
+.Bl -tag -width indent
+.It Fl f
+Принудительно удалить указанное устройство с общим секретом.
+.It Fl h
+Жёстко задать имена провайдеров в метаданных.
+.It Fl v
+Выводить больше подробностей.
+.El
+.Sh СТАТУС ВЫХОДА
+Код завершения равен 0 при успехе и 1, если команда завершается с ошибкой.
+.Sh ПРИМЕРЫ
+В следующем примере показано, как создать устройство с общим секретом.
+Секрет будет разделён между срезом на локальном диске и USB-флеш-накопителем.
+.Bd -literal -offset indent
+gshsec label -v secret /dev/ada0s1 /dev/da0
+newfs /dev/shsec/secret
+.Ed
+.Pp
+С этого момента, когда USB-флеш-накопитель будет вставлен, он будет автоматически
+обнаружен и подключён, благодаря чему секрет станет доступен через устройство
+.Pa /dev/shsec/secret .
+.Sh СМ. ТАКЖЕ
+.Xr geom 4 ,
+.Xr geom 8 ,
+.Xr newfs 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Fx 5.4 .
+.Sh АВТОРЫ
+.An Pawel Jakub Dawidek Aq Mt pjd@FreeBSD.org

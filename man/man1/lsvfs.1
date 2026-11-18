@@ -1,0 +1,74 @@
+.\" Garrett A. Wollman, September 1994
+.\" This file is in the public domain.
+.\"
+.\" FRDP path usr.bin/lsvfs/lsvfs.1
+.\" FRDP githash 1a720cbec513210fa2e85c3882741ef2f6dc5f35
+.\" FRDP hash256 237abf7ede87e370b85130ed635c51665eaca950d201d7be50f9b5c33d0937d7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 28, 2020
+.Dt LSVFS 1
+.Os
+.Sh ИМЯ
+.Nm lsvfs
+.Nd вывести список установленных виртуальных файловых систем
+.Sh СИНТАКСИС
+.Nm
+.Op Ar vfsname Ar ...
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+выводит информацию о загруженных в настоящее время модулях виртуальных
+файловых систем.
+Если заданы аргументы
+.Ar vfsname ,
+.Nm
+выводит информацию об указанных модулях VFS.
+В противном случае
+.Nm
+выводит список всех загруженных в настоящее время модулей.
+Выводится следующая информация:
+.Pp
+.Bl -tag -compact -width Filesystem
+.It Файловая система
+имя файловой системы, которое используется в параметре
+.Ar type
+для
+.Xr mount 2
+и в опции
+.Fl t
+для
+.Xr mount 8
+.It Номер
+номер типа файловой системы.
+.It Ссылки
+количество ссылок на этот VFS; то есть количество текущих
+смонтированных файловых систем этого типа
+.It Флаги
+биты флагов.
+.El
+.Sh ПРИМЕРЫ
+Показать информацию о файловых системах
+.Ql ufs
+и
+.Xr devfs 4
+и проверить количество монтирований первой:
+.Bd -literal -offset indent
+$ lsvfs ufs devfs
+Filesystem                              Num  Refs  Flags
+-------------------------------- ---------- -----  ---------------
+ufs                              0x00000035     2
+devfs                            0x00000071     1  synthetic, jail
+
+$ mount -t ufs | wc -l
+       2
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr mount 2 ,
+.Xr getvfsbyname 3 ,
+.Xr mount 8
+.Sh ИСТОРИЯ
+Команда
+.Nm
+появилась в
+.Fx 2.0 .

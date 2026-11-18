@@ -1,0 +1,577 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright (c) 2007, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright (c) 2012, 2018 by Delphix. All rights reserved.
+.\" Copyright (c) 2012 Cyril Plisko. All Rights Reserved.
+.\" Copyright (c) 2017 Datto Inc.
+.\" Copyright (c) 2018 George Melikov. All Rights Reserved.
+.\" Copyright 2017 Nexenta Systems, Inc.
+.\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
+.\" Copyright (c) 2024, 2025, Klara, Inc.
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zpool-events.8
+.\" FRDP githash 25c6e6ed725d817764d32f97b589e3447906f783
+.\" FRDP hash256 4ad89b4055cf6c88d710ed6e7e47678b02dfba6709ab11c44c3d563fc6290388
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 3, 2025
+.Dt ZPOOL-EVENTS 8
+.Os
+.
+.Sh ИМЯ
+.Nm zpool-events
+.Nd выводит список недавних событий, сгенерированных ядром
+.Sh СИНТАКСИС
+.Nm zpool
+.Cm events
+.Op Fl vHf
+.Op Ar пул
+.Nm zpool
+.Cm events
+.Fl c
+.
+.Sh ОПИСАНИЕ
+Выводит список всех недавних событий, сгенерированных модулями ядра ZFS.
+Эти события потребляются
+.Xr zed 8
+и используются для автоматизации административных задач, таких как замена отказавшего устройства
+на горячий резерв.
+Для получения дополнительной информации о подклассах и полезных нагрузках событий,
+которые могут генерироваться, см.
+.Sx СОБЫТИЯ
+и следующие разделы.
+.
+.Sh ОПЦИИ
+.Bl -tag -compact -width Ds
+.It Fl c
+Очистить все предыдущие события.
+.It Fl f
+Режим слежения.
+.It Fl H
+Режим сценария.
+Не выводить заголовки и разделять поля одним
+символом табуляции вместо произвольного пробела.
+.It Fl v
+Выводить всю полезную нагрузку для каждого события.
+.El
+.
+.Sh СОБЫТИЯ
+Это различные подклассы событий.
+Полное имя события имеет вид
+.Sy ereport.fs.zfs.\& Ns Em SUBCLASS ,
+но здесь перечислена только последняя часть.
+.Pp
+.Bl -tag -width Ds
+.It Sy checksum
+Выдаётся при обнаружении ошибки контрольной суммы.
+.It Sy io
+Выдаётся при ошибке ввода-вывода в vdev пула.
+.It Sy data
+Выдаётся при наличии ошибок данных в пуле.
+.It Sy deadman
+Выдаётся из-за потерянных событий завершения из-за ненадёжного оборудования или драйверов.
+См.
+.Sy zfs_deadman_failmode
+в
+.Xr zfs 4
+.It Sy delay
+Выдаётся, когда завершённый запрос ввода-вывода превышает максимально допустимое время,
+заданное параметром модуля
+.Sy zio_slow_io_ms .
+Это может указывать на проблемы с нижележащим устройством хранения.
+Количество событий delay ограничивается параметром модуля
+.Sy zfs_slow_io_events_per_second .
+.It Sy dio_verify_rd
+Выдаётся при ошибке проверки контрольной суммы после выдачи чтения Direct I/O.
+.It Sy dio_verify_wr
+Выдаётся при ошибке проверки контрольной суммы после выдачи записи Direct I/O.
+Это событие может произойти, только если параметр модуля
+.Sy zfs_vdev_direct_write_verify
+не равен нулю.
+См.
+.Xr zfs 4
+для получения дополнительных сведений о параметре модуля
+.Sy zfs_vdev_direct_write_verify .
+.It Sy config_sync
+Выдаётся каждый раз при изменении vdev в пуле.
+.It Sy zpool
+Выдаётся, когда пул не может быть импортирован.
+.It Sy pool_create
+Выдаётся при создании пула.
+.It Sy pool_destroy
+Выдаётся при уничтожении пула.
+.It Sy pool_export
+Выдаётся при экспорте пула.
+.It Sy pool_import
+Выдаётся при импорте пула.
+.It Sy pool_reguid
+Выдаётся при обнаружении REGUID (новый уникальный идентификатор пула был перегенерирован).
+.It Sy vdev.unknown
+Выдаётся, когда vdev неизвестен.
+Например, при попытке очистить ошибки устройства на vdev, который отказал/был исключён
+из системы/пула и больше недоступен.
+.It Sy vdev.open_failed
+Выдаётся, когда vdev не удалось открыть (например, потому что его не существует).
+.It Sy vdev.corrupt_data
+Выдаётся при обнаружении повреждённых данных на vdev.
+.It Sy vdev.no_replicas
+Выдаётся, когда больше нет реплик для поддержания пула.
+Это приведёт к переходу пула в состояние
+.Em DEGRADED .
+.It Sy vdev.bad_guid_sum
+Выдаётся при обнаружении отсутствующего устройства в пуле.
+.It Sy vdev.too_small
+Выдаётся, когда система (ядро) удалила устройство, и ZFS
+замечает, что устройства больше нет.
+Обычно за этим следует событие
+.Sy probe_failure .
+.It Sy vdev.bad_label
+Выдаётся, когда метка корректна, но недействительна.
+.It Sy vdev.bad_ashift
+Выдаётся, когда требование выравнивания ashift увеличилось.
+.It Sy vdev_remove
+Выдаётся, когда vdev отсоединяется от зеркала (или резервный диск отсоединяется от
+vdev, где он использовался для замены отказавшего диска — это работает, только если
+исходный диск был повторно добавлен).
+.It Sy vdev_remove_aux
+Выдаётся при удалении вспомогательного vdev.
+.It Sy vdev_remove_dev
+Выдаётся при удалении конкретного устройства из vdev.
+.It Sy vdev_clear
+Выдаётся при очистке ошибок устройств в пуле.
+Например, при выполнении
+.Nm zpool Cm clear
+для устройства в пуле.
+.It Sy vdev_check
+Выдаётся при запуске проверки возможности открытия заданного vdev.
+.It Sy vdev_spare
+Выдаётся, когда резервный диск включился для замены отказавшего устройства.
+.It Sy vdev_autoexpand
+Выдаётся, когда vdev может быть автоматически расширен.
+.It Sy vdev_add
+Выдаётся при добавлении vdev в пул.
+.It Sy vdev_attach
+Выдаётся при присоединении vdev к зеркалу или vdev типа raidz.
+.It Sy vdev_online
+Выдаётся, когда vdev в состоянии offline переводится в online.
+.It Sy io_failure
+Выдаётся при сбое ввода-вывода в vdev пула.
+.It Sy probe_failure
+Выдаётся при сбое проверки (probe) vdev.
+Это происходит, если vdev
+был исключён из системы вне ZFS (например, ядро удалило устройство).
+.It Sy log_replay
+Выдаётся, когда журнал намерений не может быть воспроизведён.
+Это может произойти в случае отсутствующего или повреждённого устройства журнала.
+.It Sy resilver_start
+Выдаётся при запуске resilver.
+.It Sy resilver_finish
+Выдаётся по завершении выполняемого resilver.
+.It Sy scrub_start
+Выдаётся при запуске scrub пула.
+.It Sy scrub_finish
+Выдаётся при завершении scrub пула.
+.It Sy scrub_abort
+Выдаётся при прерывании scrub пула.
+.It Sy scrub_resume
+Выдаётся при возобновлении scrub пула.
+.It Sy scrub_paused
+Выдаётся при приостановке scrub пула.
+.It Sy errorscrub_start
+Выдаётся при запуске errorscrub пула.
+.It Sy errorscrub_finish
+Выдаётся при завершении errorscrub пула.
+.It Sy errorscrub_abort
+Выдаётся при прерывании errorscrub пула.
+.It Sy errorscrub_resume
+Выдаётся при возобновлении errorscrub пула.
+.It Sy errorscrub_paused
+Выдаётся при приостановке errorscrub пула.
+.It Sy trim_start
+Выдаётся при запуске trim пула.
+.It Sy trim_finish
+Выдаётся по завершении trim пула.
+.It Sy trim_cancel
+Выдаётся при отмене trim пула.
+.It Sy trim_resume
+Выдаётся при возобновлении trim пула.
+.It Sy trim_suspend
+Выдаётся при приостановке trim пула.
+.It Sy authentication
+Выдаётся при ошибке расшифровки/аутентификации.
+.It Sy config_cache_write
+Выдаётся, когда файл кэша конфигурации не может быть записан.
+.It Sy bootfs_vdev_attach
+Выдаётся при присоединении vdev к корневому пулу с установленным свойством bootfs.
+.It Sy sitout
+Выдаётся, когда vdev
+.Sy RAIDZ
+или
+.Sy DRAID
+запускает логику
+.Sy autosit .
+Эта логика обнаруживает, когда диск в таком vdev значительно медленнее своих
+соседей, и временно выводит его из работы для сохранения производительности пула.
+.El
+.
+.Sh ПОЛЕЗНЫЕ НАГРУЗКИ
+Это полезная нагрузка (данные, информация), которая сопровождает
+событие.
+.Pp
+Для
+.Xr zed 8
+они переводятся в верхний регистр, и к ним добавляется префикс
+.Sy ZEVENT_ .
+.Pp
+.Bl -tag -width Ds
+.It Sy pool
+Имя пула.
+.It Sy pool_failmode
+Режим отказа —
+.Sy wait ,
+.Sy continue
+или
+.Sy panic .
+См. свойство
+.Sy failmode
+в
+.Xr zpoolprops 7
+для получения дополнительной информации.
+.It Sy pool_guid
+GUID пула.
+.It Sy pool_context
+Состояние загрузки пула (0=none, 1=open, 2=import, 3=tryimport, 4=recover
+5=error).
+.It Sy vdev_guid
+GUID рассматриваемого vdev (отказывающего vdev или vdev, над которым выполняется операция,
+например
+.Nm zpool Cm clear ,
+и т. п.).
+.It Sy vdev_type
+Тип vdev —
+.Sy disk ,
+.Sy file ,
+.Sy mirror
+и т. д.
+См. раздел
+.Sy Виртуальные устройства
+в
+.Xr zpoolconcepts 7
+для получения дополнительной информации о возможных значениях.
+.It Sy vdev_path
+Полный путь vdev, включая любые
+.Em -partX .
+.It Sy vdev_devid
+ID vdev (если есть).
+.It Sy vdev_fru
+Физическое расположение FRU.
+.It Sy vdev_state
+Состояние vdev (0=uninitialized, 1=closed, 2=offline, 3=removed, 4=failed to
+open, 5=faulted, 6=degraded, 7=healthy).
+.It Sy vdev_ashift
+Значение ashift для vdev.
+.It Sy vdev_complete_ts
+Время завершения последнего запроса ввода-вывода для указанного vdev.
+.It Sy vdev_delta_ts
+Время с момента завершения последнего запроса ввода-вывода для указанного vdev.
+.It Sy vdev_spare_paths
+Список резервных дисков, включая полный путь и любые
+.Em -partX .
+.It Sy vdev_spare_guids
+GUID резервных дисков.
+.It Sy vdev_read_errors
+Сколько ошибок чтения обнаружено на vdev.
+.It Sy vdev_write_errors
+Сколько ошибок записи обнаружено на vdev.
+.It Sy vdev_cksum_errors
+Сколько ошибок контрольных сумм обнаружено на vdev.
+.It Sy parent_guid
+GUID родительского vdev.
+.It Sy parent_type
+Тип родительского vdev.
+См.
+.Sy vdev_type .
+.It Sy parent_path
+Путь родительского vdev (если есть).
+.It Sy parent_devid
+ID родительского vdev (если есть).
+.It Sy zio_objset
+Номер набора объектов для данного запроса ввода-вывода.
+.It Sy zio_object
+Номер объекта для данного запроса ввода-вывода.
+.It Sy zio_level
+Косвенный уровень блока.
+Уровень 0 — самый низкий уровень и включает блоки данных.
+Значения > 0 указывают на блоки метаданных соответствующего уровня.
+.It Sy zio_blkid
+ID блока для данного запроса ввода-вывода.
+.It Sy zio_err
+Номер ошибки при сбое обработки данного запроса ввода-вывода,
+совместимый с
+.Xr errno 3 ,
+при этом значение
+.Sy EBADE
+используется для обозначения ошибки контрольной суммы ZFS.
+.It Sy zio_offset
+Смещение в байтах места, куда следует записать запрос ввода-вывода для указанного vdev.
+.It Sy zio_size
+Размер запроса ввода-вывода в байтах.
+.It Sy zio_flags
+Текущие флаги, описывающие, как следует обрабатывать запрос ввода-вывода.
+См. раздел
+.Sy ФЛАГИ ВВОДА-ВЫВОДА
+для полного списка флагов ввода-вывода.
+.It Sy zio_stage
+Текущий этап ввода-вывода в конвейере.
+См. раздел
+.Sy ЭТАПЫ ВВОДА-ВЫВОДА
+для полного списка всех этапов ввода-вывода.
+.It Sy zio_pipeline
+Допустимые этапы конвейера для ввода-вывода.
+См. раздел
+.Sy ЭТАПЫ ВВОДА-ВЫВОДА
+для полного списка всех этапов ввода-вывода.
+.It Sy zio_priority
+Приоритет очереди запроса ввода-вывода.
+См. раздел
+.Sy ПРИОРИТЕТЫ ВВОДА-ВЫВОДА
+для полного списка всех приоритетов ввода-вывода.
+.It Sy zio_tyoe
+Тип запроса ввода-вывода.
+См. раздел
+.Sy ТИПЫ ВВОДА-ВЫВОДА
+для полного списка всех типов ввода-вывода.
+.It Sy zio_delay
+Время (в наносекундах), потраченное на ожидание завершения запроса ввода-вывода
+блочным уровнем.
+В отличие от
+.Sy zio_delta ,
+это не включает время ожидания в очереди vdev и поэтому является
+исключительно мерой производительности блочного уровня.
+.It Sy zio_timestamp
+Время отправки данного запроса ввода-вывода.
+.It Sy zio_delta
+Время, необходимое для обслуживания данного запроса ввода-вывода.
+.It Sy prev_state
+Предыдущее состояние vdev.
+.It Sy cksum_algorithm
+Используемый алгоритм контрольной суммы.
+См.
+.Xr zfsprops 7
+для получения дополнительной информации о доступных алгоритмах контрольных сумм.
+.It Sy cksum_byteswap
+Выполнен ли байтовый обмен данных.
+.It Sy bad_ranges
+.No [\& Ns Ar start , end )
+пары смещений повреждения.
+Смещения всегда выровнены по 64-битной границе
+и могут включать некоторые промежутки без повреждения.
+(См.
+.Sy bad_ranges_min_gap )
+.It Sy bad_ranges_min_gap
+Чтобы ограничить размер массива
+.Sy bad_ranges ,
+промежутки без повреждения длиной не более
+.Sy bad_ranges_min_gap
+байт объединяются с соседними повреждениями.
+Всегда не менее 8 байт, поскольку повреждение обнаруживается на основе 64-битного слова.
+.It Sy bad_range_sets
+Этот массив содержит по одному элементу на каждый диапазон в
+.Sy bad_ranges .
+Каждый элемент содержит
+количество битов в этом диапазоне, которые были чистыми в хороших данных и установлены
+в плохих данных.
+.It Sy bad_range_clears
+Этот массив содержит по одному элементу на каждый диапазон в
+.Sy bad_ranges .
+Каждый элемент содержит
+количество битов для этого диапазона, которые были установлены в хороших данных и чистыми в
+плохих данных.
+.It Sy bad_set_bits
+Если это поле существует, это массив
+.Pq Ar bad data No & ~( Ns Ar good data ) ;
+то есть биты, установленные в плохих данных, которые очищены в хороших данных.
+Каждый элемент соответствует байту, смещение которого находится в диапазоне в
+.Sy bad_ranges ,
+и массив упорядочен по смещению.
+Таким образом, первый элемент — это первый байт в первом диапазоне
+.Sy bad_ranges ,
+а последний элемент — последний байт в последнем диапазоне
+.Sy bad_ranges .
+.It Sy bad_cleared_bits
+Подобно
+.Sy bad_set_bits ,
+но содержит
+.Pq Ar good data No & ~( Ns Ar bad data ) ;
+то есть биты, установленные в хороших данных, которые очищены в плохих данных.
+.El
+.
+.Sh ЭТАПЫ ВВОДА-ВЫВОДА
+Конвейер ввода-вывода ZFS состоит из различных этапов, которые определены ниже.
+Отдельные этапы используются для построения следующих базовых операций
+ввода-вывода: чтение, запись, освобождение, захват, сброс и trim.
+Эти этапы могут
+устанавливаться в событии для описания жизненного цикла данного запроса ввода-вывода.
+.Pp
+.TS
+tab(:);
+l l l .
+Этап:Битовая маска:Операции
+_:_:_
+ZIO_STAGE_OPEN:0x00000001:RWFCXT
+
+ZIO_STAGE_READ_BP_INIT:0x00000002:R-----
+ZIO_STAGE_WRITE_BP_INIT:0x00000004:-W----
+ZIO_STAGE_FREE_BP_INIT:0x00000008:--F---
+ZIO_STAGE_ISSUE_ASYNC:0x00000010:-WF--T
+ZIO_STAGE_WRITE_COMPRESS:0x00000020:-W----
+
+ZIO_STAGE_ENCRYPT:0x00000040:-W----
+ZIO_STAGE_CHECKSUM_GENERATE:0x00000080:-W----
+
+ZIO_STAGE_NOP_WRITE:0x00000100:-W----
+
+ZIO_STAGE_DDT_READ_START:0x00000200:R-----
+ZIO_STAGE_DDT_READ_DONE:0x00000400:R-----
+ZIO_STAGE_DDT_WRITE:0x00000800:-W----
+ZIO_STAGE_DDT_FREE:0x00001000:--F---
+
+ZIO_STAGE_BRT_FREE:0x00002000:--F---
+
+ZIO_STAGE_GANG_ASSEMBLE:0x00004000:RWFC--
+ZIO_STAGE_GANG_ISSUE:0x00008000:RWFC--
+
+ZIO_STAGE_DVA_THROTTLE:0x00010000:-W----
+ZIO_STAGE_DVA_ALLOCATE:0x00020000:-W----
+ZIO_STAGE_DVA_FREE:0x00040000:--F---
+ZIO_STAGE_DVA_CLAIM:0x00080000:---C--
+
+ZIO_STAGE_READY:0x00100000:RWFCIT
+
+ZIO_STAGE_VDEV_IO_START:0x00200000:RW--XT
+ZIO_STAGE_VDEV_IO_DONE:0x00400000:RW--XT
+ZIO_STAGE_VDEV_IO_ASSESS:0x00800000:RW--XT
+
+ZIO_STAGE_CHECKSUM_VERIFY:0x01000000:R-----
+ZIO_STAGE_DIO_CHECKSUM_VERIFY:0x02000000:-W----
+
+ZIO_STAGE_DONE:0x04000000:RWFCXT
+.TE
+.
+.Sh ФЛАГИ ВВОДА-ВЫВОДА
+Каждый запрос ввода-вывода в конвейере содержит набор флагов, которые описывают его
+функцию и используются для управления его поведением.
+Эти флаги устанавливаются в событии как
+элемент полезной нагрузки
+.Sy zio_flags .
+.Pp
+.TS
+tab(:);
+l l .
+Флаг:Битовая маска
+_:_
+ZIO_FLAG_DONT_AGGREGATE:0x00000001
+ZIO_FLAG_IO_REPAIR:0x00000002
+ZIO_FLAG_SELF_HEAL:0x00000004
+ZIO_FLAG_RESILVER:0x00000008
+ZIO_FLAG_SCRUB:0x00000010
+ZIO_FLAG_SCAN_THREAD:0x00000020
+ZIO_FLAG_PHYSICAL:0x00000040
+
+ZIO_FLAG_CANFAIL:0x00000080
+ZIO_FLAG_SPECULATIVE:0x00000100
+ZIO_FLAG_CONFIG_WRITER:0x00000200
+ZIO_FLAG_DONT_RETRY:0x00000400
+ZIO_FLAG_NODATA:0x00001000
+ZIO_FLAG_INDUCE_DAMAGE:0x00002000
+
+ZIO_FLAG_ALLOC_THROTTLED:0x00004000
+ZIO_FLAG_IO_RETRY:0x00008000
+ZIO_FLAG_PROBE:0x00010000
+ZIO_FLAG_TRYHARD:0x00020000
+ZIO_FLAG_OPTIONAL:0x00040000
+
+ZIO_FLAG_DONT_QUEUE:0x00080000
+ZIO_FLAG_DONT_PROPAGATE:0x00100000
+ZIO_FLAG_IO_BYPASS:0x00200000
+ZIO_FLAG_IO_REWRITE:0x00400000
+ZIO_FLAG_RAW_COMPRESS:0x00800000
+ZIO_FLAG_RAW_ENCRYPT:0x01000000
+
+ZIO_FLAG_GANG_CHILD:0x02000000
+ZIO_FLAG_DDT_CHILD:0x04000000
+ZIO_FLAG_GODFATHER:0x08000000
+ZIO_FLAG_NOPWRITE:0x10000000
+ZIO_FLAG_REEXECUTED:0x20000000
+ZIO_FLAG_DELEGATED:0x40000000
+ZIO_FLAG_FASTWRITE:0x80000000
+.TE
+.
+.Sh ТИПЫ ВВОДА-ВЫВОДА
+Каждый запрос ввода-вывода в конвейере имеет одно значение типа.
+Это значение описывает вид низкоуровневой работы, которую представляет ввод-вывод.
+Это значение устанавливается в событии как
+элемент полезной нагрузки
+.Sy zio_type .
+.Pp
+.TS
+tab(:);
+l l l .
+Тип:Значение:Описание
+_:_:_
+ZIO_TYPE_NULL:0x0:внутренняя точка синхронизации ввода-вывода
+ZIO_TYPE_READ:0x1:чтение данных
+ZIO_TYPE_WRITE:0x2:запись данных
+ZIO_TYPE_FREE:0x3:освобождение блока
+ZIO_TYPE_CLAIM:0x4:захват блока (воспроизведение ZIL)
+ZIO_TYPE_FLUSH:0x5:запрос сброса кэша диска
+ZIO_TYPE_TRIM:0x6:trim (discard)
+.TE
+.
+.Sh ПРИОРИТЕТЫ ВВОДА-ВЫВОДА
+Каждый запрос ввода-вывода в конвейере имеет одно значение приоритета.
+Это значение используется кодом очереди для решения, какой ввод-вывод выдавать следующим.
+Это значение устанавливается в событии как
+элемент полезной нагрузки
+.Sy zio_priority .
+.Pp
+.TS
+tab(:);
+l l l .
+Тип:Значение:Описание
+_:_:_
+ZIO_PRIORITY_SYNC_READ:0x0:
+ZIO_PRIORITY_SYNC_WRITE:0x1:ZIL
+ZIO_PRIORITY_ASYNC_READ:0x2:предварительная выборка
+ZIO_PRIORITY_ASYNC_WRITE:0x3:spa_sync()
+ZIO_PRIORITY_SCRUB:0x4:асинхронные чтения scrub/resilver
+ZIO_PRIORITY_REMOVAL:0x5:чтения/записи для удаления vdev
+ZIO_PRIORITY_INITIALIZING:0x6:инициализирующий ввод-вывод
+ZIO_PRIORITY_TRIM:0x7:ввод-вывод trim (discard)
+ZIO_PRIORITY_REBUILD:0x8:чтения/записи для пересборки vdev
+ZIO_PRIORITY_NOW:0xa:непоставленные в очередь операции ввода-вывода (например, освобождение)
+.TE
+.
+.Sh СМ. ТАКЖЕ
+.Xr zfs 4 ,
+.Xr zed 8 ,
+.Xr zpool-wait 8

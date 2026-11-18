@@ -1,0 +1,70 @@
+.\"	$KAME: rip6query.8,v 1.4 2001/03/15 12:35:24 itojun Exp $
+.\"
+.\" Copyright (C) 1998 and 1999 WIDE Project.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the project nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE PROJECT OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     $Id: rip6query.8,v 1.2 2000/01/19 06:24:55 itojun Exp $
+.\"
+.\" FRDP path usr.sbin/rip6query/rip6query.8
+.\" FRDP githash 4b7cdb5a420f518fbe1968a6916b6d017f54025d
+.\" FRDP hash256 d0c51e1a351be432c25d77a52229f1cd6af8ad132b1b8fa744646cf3a4ff2988
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 20, 2025
+.Dt RIP6QUERY 8
+.Os
+.Sh ИМЯ
+.Nm rip6query
+.Nd средство отладки RIPng
+.Sh ПРЕДУПРЕЖДЕНИЕ ОБ УСТАРЕНИИ
+Утилита
+.Nm
+устарела и будет удалена в
+.Fx 16.0 .
+.Sh СИНТАКСИС
+.Nm
+.Op Fl I Ar интерфейс
+.Ar пункт_назначения
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+запрашивает удалённый демон RIPng на
+.Ar пункт_назначения
+вывести информацию о маршрутизации RIPng.
+.Fl I
+позволяет указать исходящий
+.Ar интерфейс
+для пакета запроса
+и полезен, когда
+.Ar пункт_назначения
+задан link-local адресом.
+.Sh СМ. ТАКЖЕ
+.Xr route6d 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+впервые появилась в наборе для стека протоколов IPv6 WIDE Hydrangea.

@@ -1,0 +1,328 @@
+.\" SPDX-License-Identifier: CDDL-1.0
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or https://opensource.org/licenses/CDDL-1.0.
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.\" Copyright 2013 Darik Horn <dajhorn@vanadac.com>. All rights reserved.
+.\" Copyright (c) 2024, 2025, Klara, Inc.
+.\"
+.\" lint-ok: WARNING: sections out of conventional order: Sh SYNOPSIS
+.\"
+.\" FRDP path sys/contrib/openzfs/man/man8/zinject.8
+.\" FRDP githash ce7e1f86a1810038f142c5c68b787c47252b39c5
+.\" FRDP hash256 d6cd51bcf3ef4c5d1f5619d82ef475e1ee5249a6501bef1faad46da1228ed605
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd January 14, 2025
+.Dt ZINJECT 8
+.Os
+.
+.Sh NAME
+.Nm zinject
+.Nd Инжектор сбоев ZFS
+.Sh DESCRIPTION
+.Nm
+создаёт искусственные проблемы в пуле ZFS, имитируя повреждение данных
+или отказы устройств.
+Эта программа опасна.
+.
+.Sh SYNOPSIS
+.Bl -tag -width Ds
+.It Xo
+.Nm zinject
+.Xc
+Вывести записи внедрения.
+.
+.It Xo
+.Nm zinject
+.Fl b Ar objset : Ns Ar object : Ns Ar level : Ns Ar start : Ns Ar end
+.Op Fl f Ar frequency
+.Fl amu
+.Op pool
+.Xc
+Принудительно внедрить ошибку в пул по закладке.
+.
+.It Xo
+.Nm zinject
+.Fl c Ar id Ns | Ns Sy all
+.Xc
+Отменить записи внедрения.
+.
+.It Xo
+.Nm zinject
+.Fl d Ar vdev
+.Fl A Sy degrade Ns | Ns Sy fault
+.Ar pool
+.Xc
+Принудительно перевести vdev в состояние DEGRADED или FAULTED.
+.
+.It Xo
+.Nm zinject
+.Fl d Ar vdev
+.Fl D Ar latency : Ns Ar lanes
+.Op Fl T Ar read|write
+.Ar pool
+.Xc
+Добавить искусственную задержку к запросам ввода-вывода на определённом
+устройстве, чтобы выполнение запросов занимало не менее
+.Ar latency
+миллисекунд.
+Каждая задержка имеет связанное число
+.Ar lanes
+которое определяет количество одновременных
+запросов ввода-вывода, которые могут обрабатываться.
+.Pp
+Например, при задержке в одну полосу 10 мс
+.No (\& Ns Fl D Ar 10 : Ns Ar 1 ) ,
+устройство сможет обслуживать только один запрос ввода-вывода
+за раз, при этом каждый запрос будет выполняться 10 мс.
+Так, если каждые 10 мс подаётся только один запрос,
+средняя задержка составит 10 мс; но если каждые 10 мс
+подаётся более одного запроса, средняя задержка будет больше
+10 мс.
+.Pp
+Аналогично, если задержка 10 мс задана с двумя
+полосами
+.No (\& Ns Fl D Ar 10 : Ns Ar 2 ) ,
+устройство сможет обслуживать
+два запроса одновременно, каждый с минимальной задержкой 10 мс.
+Так, если каждые 10 мс подаётся два запроса,
+средняя задержка составит 10 мс; но если каждые 10 мс подаётся
+более двух запросов, средняя задержка будет больше 10 мс.
+.Pp
+Также учтите, что эти задержки складываются.
+Так, два вызова
+.Fl D Ar 10 : Ns Ar 1
+примерно эквивалентны одному вызову
+.Fl D Ar 10 : Ns Ar 2 .
+Это также означает, что можно задать несколько
+полос с разными целевыми задержками.
+Например, вызов
+.Fl D Ar 10 : Ns Ar 1
+с последующим
+.Fl D Ar 25 : Ns Ar 2
+создаст на устройстве 3 полосы: одну полосу с задержкой
+10 мс и две полосы с задержкой 25 мс.
+.
+.It Xo
+.Nm zinject
+.Fl d Ar vdev
+.Op Fl e Ar device_error
+.Op Fl L Ar label_error
+.Op Fl T Ar failure
+.Op Fl f Ar frequency
+.Op Fl F
+.Ar pool
+.Xc
+Принудительно вызвать ошибку vdev.
+.
+.It Xo
+.Nm zinject
+.Fl i Ar seconds
+.Ar pool
+.Xc
+Добавить искусственную задержку при последующем импорте пула.
+Этот инжектор автоматически очищается после завершения импорта.
+.
+.It Xo
+.Nm zinject
+.Fl E Ar delay
+.Op Fl a
+.Op Fl m
+.Op Fl f Ar freq
+.Op Fl l Ar level
+.Op Fl r Ar range
+.Op Fl T Ar iotype
+.Op Fl t Ar type Ns | Ns Fl b Ar bookmark
+.Xc
+Внедрить задержки стадии готовности конвейера для заданного объекта или закладки.
+Задержка указывается в миллисекундах.
+.
+.It Xo
+.Nm zinject
+.Fl I
+.Op Fl s Ar seconds Ns | Ns Fl g Ar txgs
+.Ar pool
+.Xc
+Смоделировать аппаратный сбой, при котором не выполняется сброс кэша.
+.
+.It Xo
+.Nm zinject
+.Fl p Ar function
+.Ar pool
+.Xc
+Вызвать панику внутри указанной функции.
+.
+.It Xo
+.Nm zinject
+.Fl t Sy data
+.Fl C Ar dvas
+.Op Fl e Ar device_error
+.Op Fl f Ar frequency
+.Op Fl l Ar level
+.Op Fl r Ar range
+.Op Fl amq
+.Ar path
+.Xc
+Принудительно внедрить ошибку в содержимое файла.
+.
+.It Xo
+.Nm zinject
+.Fl t Sy dnode
+.Fl C Ar dvas
+.Op Fl e Ar device_error
+.Op Fl f Ar frequency
+.Op Fl l Ar level
+.Op Fl amq
+.Ar path
+.Xc
+Принудительно внедрить ошибку в metadnode для файла или каталога.
+.
+.It Xo
+.Nm zinject
+.Fl t Ar mos_type
+.Fl C Ar dvas
+.Op Fl e Ar device_error
+.Op Fl f Ar frequency
+.Op Fl l Ar level
+.Op Fl r Ar range
+.Op Fl amqu
+.Ar pool
+.Xc
+Принудительно внедрить ошибку в MOS пула.
+.El
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl a
+Сбросить ARC перед внедрением.
+.It Fl b Ar objset : Ns Ar object : Ns Ar level : Ns Ar start : Ns Ar end
+Принудительно внедрить ошибку в пул по этому кортежу закладки.
+Каждое число задаётся в шестнадцатеричном виде; можно указать только один блок.
+.It Fl C Ar dvas
+Внедрять заданную ошибку только в указанные DVA.
+Маску следует задавать в виде списка DVA с индексацией от 0, разделённых запятыми
+.No (e.g . Ar 0,2 Ns No ).
+Эта опция неприменима к логическим ошибкам данных, таким как
+.Sy decompress
+и
+.Sy decrypt .
+.It Fl d Ar vdev
+vdev, заданный путём или GUID.
+.It Fl e Ar device_error
+Указать
+.Bl -tag -width Ds
+.It Sy checksum
+для ошибки ECKSUM,
+.It Sy decompress
+для ошибки распаковки данных,
+.It Sy decrypt
+для ошибки расшифровки данных,
+.It Sy corrupt
+чтобы инвертировать бит в данных после чтения,
+.It Sy dtl
+для ошибки ECHILD,
+.It Sy io
+для ошибки EIO, когда повторное открытие устройства завершится успешно,
+.It Sy nxio
+для ошибки ENXIO, когда повторное открытие устройства завершится неудачно, или
+.It Sy noop
+чтобы отбросить ввод-вывод без его выполнения и вернуть успех.
+.El
+.Pp
+Зонд просто устанавливает значение ошибки, сообщаемое конвейером ввода-вывода,
+так что кажется, будто чтение или запись завершились неудачно.
+В настоящее время ошибки расшифровки работают только с данными файлов.
+.It Fl f Ar frequency
+Внедрять ошибки только часть времени.
+Выражается как вещественное число в процентах в диапазоне от
+.Sy 0.0001
+до
+.Sy 100 .
+.It Fl F
+Быстрее завершаться с ошибкой.
+Выполнять меньше проверок.
+.It Fl f Ar txgs
+Работать в течение указанного числа групп транзакций перед сообщением о сбое.
+.It Fl h
+Вывести сообщение об использовании.
+.It Fl l Ar level
+Внедрить ошибку на определённом уровне блока.
+По умолчанию —
+.Sy 0 .
+.It Fl L Ar label_error
+Установить область ошибки метки в одну из:
+.Sy nvlist ,
+.Sy pad1 ,
+.Sy pad2
+или
+.Sy uber .
+.It Fl m
+Автоматически перемонтировать базовую файловую систему.
+.It Fl q
+Тихий режим.
+Выводить только номер добавленного обработчика.
+.It Fl r Ar range
+Внедрить ошибку в определённом логическом диапазоне объекта; он
+будет преобразован в соответствующий диапазон blkid в соответствии со
+свойствами объекта.
+.It Fl s Ar seconds
+Работать указанное число секунд перед сообщением о сбое.
+.It Fl T Ar type
+Внедрить ошибку в ввод-вывод этого типа.
+.Bl -tag -width Ds
+.It Sy read , Sy write , Sy flush , Sy claim , Sy free
+Основные типы ввода-вывода
+.It Sy all
+Все основные типы ввода-вывода
+.It Sy probe
+Ввод-вывод зондирования устройства
+.El
+.It Fl t Ar mos_type
+Задать это как
+.Bl -tag -width Ds
+.It Sy mos
+для любых данных в MOS,
+.It Sy mosdir
+для каталога объектов,
+.It Sy config
+для конфигурации пула,
+.It Sy bpobj
+для списка указателей блоков,
+.It Sy spacemap
+для карты пространства,
+.It Sy metaslab
+для metaslab или
+.It Sy errlog
+для постоянного журнала ошибок.
+.El
+.It Fl u
+Выгрузить пул после внедрения.
+.El
+.
+.Sh ENVIRONMENT VARIABLES
+.Bl -tag -width Ds
+.It Ev ZFS_HOSTID
+Запустить
+.Nm
+в режиме отладки.
+.El
+.
+.Sh SEE ALSO
+.Xr zfs 8 ,
+.Xr zpool 8
