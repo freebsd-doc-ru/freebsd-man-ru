@@ -1,0 +1,143 @@
+.\" Copyright (c) 1980, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/vfork.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 af30b50973576a6564092769b4af2c751f2d241dac5657cfbdf9223fc039f569
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 22, 2016
+.Dt VFORK 2
+.Os
+.Sh ИМЯ
+.Nm vfork
+.Nd создать новый процесс без копирования адресного пространства
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft pid_t
+.Fn vfork void
+.Sh ОПИСАНИЕ
+.Bf -symbolic
+Поскольку эту функцию трудно использовать правильно из прикладного
+программного обеспечения, рекомендуется вместо неё использовать
+.Xr posix_spawn 3
+или
+.Xr fork 2 .
+.Ef
+.Pp
+Системный вызов
+.Fn vfork
+может использоваться для создания новых процессов без полного копирования
+адресного пространства старого процесса, что неэффективно в среде
+со страничной организацией памяти.
+Он полезен, когда целью
+.Xr fork 2
+было бы создание нового системного контекста для
+.Xr execve 2 .
+Системный вызов
+.Fn vfork
+отличается от
+.Xr fork 2
+тем, что потомок заимствует адресное пространство родительского процесса
+и стек вызывающего потока
+до вызова
+.Xr execve 2
+или выхода (либо посредством вызова
+.Xr _exit 2 ,
+либо аварийно).
+Вызывающий поток приостанавливается, пока потомок использует его ресурсы.
+Другие потоки продолжают выполняться.
+.Pp
+Системный вызов
+.Fn vfork
+возвращает 0 в контексте потомка и (позднее) PID потомка в
+контексте родителя.
+.Pp
+При замене
+.Xr fork 2
+на
+.Fn vfork
+может возникнуть множество проблем.
+Например, невозможно вернуться, выполня­ясь в контексте потомка,
+из процедуры, вызвавшей
+.Fn vfork ,
+поскольку последующий возврат из
+.Fn vfork
+вернулся бы в уже не существующий кадр стека.
+Кроме того, изменение состояния процесса, частично реализованное в
+пространстве пользователя, например обработчиков сигналов с помощью
+.Xr libthr 3 ,
+повредит состояние родителя.
+.Pp
+Будьте также внимательны и вызывайте
+.Xr _exit 2 ,
+а не
+.Xr exit 3 ,
+если вы не можете выполнить
+.Xr execve 2 ,
+поскольку
+.Xr exit 3
+сбросит и закроет стандартные каналы ввода-вывода и тем самым испортит
+структуры данных стандартного ввода-вывода родительского процесса.
+(Даже с
+.Xr fork 2
+неправильно вызывать
+.Xr exit 3 ,
+так как буферизованные данные были бы тогда сброшены дважды.)
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+То же, что и для
+.Xr fork 2 .
+.Sh СМ. ТАКЖЕ
+.Xr _exit 2 ,
+.Xr execve 2 ,
+.Xr fork 2 ,
+.Xr rfork 2 ,
+.Xr sigaction 2 ,
+.Xr wait 2 ,
+.Xr exit 3 ,
+.Xr posix_spawn 3
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn vfork
+появился в
+.Bx 3 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Чтобы избежать возможной ситуации взаимной блокировки,
+процессам, являющимся потомками в процессе
+.Fn vfork ,
+никогда не посылаются сигналы
+.Dv SIGTTOU
+или
+.Dv SIGTTIN ;
+вместо этого
+вывод или
+вызовы
+.Xr ioctl 2
+разрешаются,
+а попытки ввода приводят к индикации конца файла.

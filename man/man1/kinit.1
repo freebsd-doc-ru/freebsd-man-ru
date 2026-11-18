@@ -1,0 +1,206 @@
+.\" Copyright (c) 1998 - 2003, 2006 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/kuser/kinit.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 b16d1e28b292e9922311022ee9d6f2a2877297c8c8dac310310209757cf153fd
+.Dd April 25, 2006
+.Dt KINIT 1
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm kinit
+.Nd получение начальных билетов
+.Sh СИНТАКСИС
+.Nm kinit
+.Op Fl Fl afslog
+.Oo Fl c Ar cachename \*(Ba Xo
+.Fl Fl cache= Ns Ar cachename
+.Xc
+.Oc
+.Op Fl f | Fl Fl no-forwardable
+.Oo Fl t Ar keytabname \*(Ba Xo
+.Fl Fl keytab= Ns Ar keytabname
+.Xc
+.Oc
+.Oo Fl l Ar time \*(Ba Xo
+.Fl Fl lifetime= Ns Ar time
+.Xc
+.Oc
+.Op Fl p | Fl Fl proxiable
+.Op Fl R | Fl Fl renew
+.Op Fl Fl renewable
+.Oo Fl r Ar time \*(Ba Xo
+.Fl Fl renewable-life= Ns Ar time
+.Xc
+.Oc
+.Oo Fl S Ar principal \*(Ba Xo
+.Fl Fl server= Ns Ar principal
+.Xc
+.Oc
+.Oo Fl s Ar time \*(Ba Xo
+.Fl Fl start-time= Ns Ar time
+.Xc
+.Oc
+.Op Fl k | Fl Fl use-keytab
+.Op Fl v | Fl Fl validate
+.Oo Fl e Ar enctypes \*(Ba Xo
+.Fl Fl enctypes= Ns Ar enctypes
+.Xc
+.Oc
+.Oo Fl a Ar addresses \*(Ba Xo
+.Fl Fl extra-addresses= Ns Ar addresses
+.Xc
+.Oc
+.Op Fl Fl password-file= Ns Ar filename
+.Op Fl Fl fcache-version= Ns Ar version-number
+.Op Fl A | Fl Fl no-addresses
+.Op Fl Fl anonymous
+.Op Fl Fl enterprise
+.Op Fl Fl version
+.Op Fl Fl help
+.Op Ar principal Op Ar command
+.Sh ОПИСАНИЕ
+.Nm
+используется для аутентификации на сервере Kerberos как указанный субъект
+.Ar principal ,
+или, если субъект не указан, используется системное значение по умолчанию (обычно ваше имя для входа в домене по умолчанию), и получения билета для получения билетов (TGT), который впоследствии может быть использован для получения билетов для других служб.
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl c Ar cachename Fl Fl cache= Ns Ar cachename
+Кэш учётных данных для помещения полученного билета, если отличается от значения по умолчанию.
+.It Fl f Fl Fl no-forwardable
+Получить билет, который может быть переслан на другой узел, или, если используется отрицательный флаг, не получать флаг пересылаемости.
+.It Fl t Ar keytabname , Fl Fl keytab= Ns Ar keytabname
+Не запрашивать пароль, а вместо этого получить ключ из указанного файла ключей.
+.It Fl l Ar time , Fl Fl lifetime= Ns Ar time
+Указывает время жизни билета.
+Аргумент может быть указан в секундах или в более удобочитаемом формате, например
+.Sq 1h .
+.It Fl p , Fl Fl proxiable
+Запросить билеты с установленным флагом проксируемости.
+.It Fl R , Fl Fl renew
+Попытаться обновить билет.
+Билет должен иметь установленный флаг
+.Sq renewable
+и не должен быть просрочен.
+.It Fl Fl renewable
+То же, что и
+.Fl Fl renewable-life ,
+с бесконечным временем.
+.It Fl r Ar time , Fl Fl renewable-life= Ns Ar time
+Максимальное время жизни для обновления билета.
+.It Fl S Ar principal , Fl Fl server= Ns Ar principal
+Получить билет для службы, отличной от krbtgt/LOCAL.REALM.
+.It Fl s Ar time , Fl Fl start-time= Ns Ar time
+Получить билет, который начинает действовать через
+.Ar time
+(что может быть общим указанием времени, например
+.Sq 1h )
+секунд в будущем.
+.It Fl k , Fl Fl use-keytab
+То же, что и
+.Fl Fl keytab ,
+но с именем файла ключей по умолчанию (обычно
+.Ar FILE:/etc/krb5.keytab ) .
+.It Fl v , Fl Fl validate
+Попытаться проверить недействительный билет.
+.It Fl e , Fl Fl enctypes= Ns Ar enctypes
+Запросить билеты с этим конкретным типом шифрования.
+.It Fl Fl password-file= Ns Ar filename
+читать пароль из первой строки файла
+.Ar filename .
+Если
+.Ar filename
+это
+.Ar STDIN ,
+пароль будет считан со стандартного ввода.
+.It Fl Fl fcache-version= Ns Ar version-number
+Создать кэш учётных данных версии
+.Ar version-number .
+.It Fl a , Fl Fl extra-addresses= Ns Ar enctypes
+Добавляет набор адресов, которые, в дополнение к локальным адресам системы, будут помещены в билет.
+Это может быть полезно, если не все адреса, которые может использовать клиент, могут быть определены автоматически.
+Одним из таких примеров является случай, когда клиент находится за межсетевым экраном.
+Также может быть установлено через
+.Li libdefaults/extra_addresses
+в
+.Xr krb5.conf 5 .
+.It Fl A , Fl Fl no-addresses
+Запросить билет без адресов.
+.It Fl Fl anonymous
+Запросить анонимный билет (что означает, что билет будет выдан анонимному субъекту, обычно
+.Dq anonymous@REALM ) .
+.It Fl Fl enterprise
+Интерпретировать субъект как предприятие (KRB5-NT-ENTERPRISE) имя. Имена предприятий — это подобные email субъекты, которые хранятся в части имени субъекта, и поскольку присутствуют два символа @, парсеру необходимо знать, что первый не является доменом.
+Пример имени предприятия:
+.Dq lha@e.kth.se@KTH.SE ,
+и эта опция обычно используется с canonicalize, так что субъект, возвращённый от KDC, обычно будет реальным именем субъекта.
+.It Fl Fl afslog
+Получает билеты AFS, преобразует их в формат версии 4 и сохраняет в ядре.
+Полезно только при наличии AFS.
+.El
+.Pp
+Опции
+.Ar forwardable ,
+.Ar proxiable ,
+.Ar ticket_life ,
+и
+.Ar renewable_life
+могут быть установлены в значение по умолчанию из раздела
+.Dv appdefaults
+в krb5.conf, см.
+.Xr krb5_appdefault 3 .
+.Pp
+Если указана
+.Ar command ,
+.Nm
+настроит новые кэши учётных данных и AFS PAG, а затем выполнит данную команду.
+После её завершения учётные данные будут удалены.
+.Sh ОКРУЖЕНИЕ
+.Bl -tag -width Ds
+.It Ev KRB5CCNAME
+Указывает кэш учётных данных по умолчанию.
+.It Ev KRB5_CONFIG
+Имя файла
+.Pa krb5.conf ,
+по умолчанию
+.Pa /etc/krb5.conf .
+.It Ev KRBTKFILE
+Указывает файл билетов Kerberos 4 для хранения билетов версии 4.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kdestroy 1 ,
+.Xr klist 1 ,
+.Xr krb5_appdefault 3 ,
+.Xr krb5.conf 5

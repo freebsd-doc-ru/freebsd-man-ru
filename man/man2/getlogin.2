@@ -1,0 +1,196 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/getlogin.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 5f4258d0041b31245cc99cb99d67e5ba87d5585b565afc602f2ae91024518378
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 9, 2020
+.Dt GETLOGIN 2
+.Os
+.Sh ИМЯ
+.Nm getlogin ,
+.Nm getlogin_r ,
+.Nm setlogin
+.Nd получить/установить имя входа
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In unistd.h
+.Ft char *
+.Fn getlogin void
+.In sys/param.h
+.Ft int
+.Fn getlogin_r "char *name" "size_t len"
+.Ft int
+.Fn setlogin "const char *name"
+.Sh ОПИСАНИЕ
+Функция
+.Fn getlogin
+возвращает имя входа пользователя, связанного с текущим сеансом,
+как оно было ранее установлено с помощью
+.Fn setlogin .
+Имя обычно связывается с командной оболочкой входа
+в момент создания сеанса
+и наследуется всеми процессами, произошедшими от этой командной оболочки входа.
+(Это верно даже если некоторые из этих процессов принимают другой идентификатор пользователя,
+например, когда используется
+.Xr su 1 ).
+.Pp
+Функция
+.Fn getlogin_r
+предоставляет ту же услугу, что и
+.Fn getlogin ,
+за исключением того, что вызывающий должен предоставить буфер
+.Fa name
+длиной
+.Fa len
+байт
+для хранения результата.
+Буфер должен быть не менее
+.Dv MAXLOGNAME
+байт в длину.
+.Pp
+Системный вызов
+.Fn setlogin
+устанавливает имя входа пользователя, связанного с текущим сеансом, в
+.Fa name .
+Этот системный вызов доступен только суперпользователю и
+обычно используется только при создании нового сеанса от имени
+указанного пользователя
+(например, во время входа или при вызове удалённой оболочки).
+.Pp
+.Em ПРИМЕЧАНИЕ :
+На сеанс приходится только одно имя входа.
+.Pp
+.Em КРИТИЧЕСКИ
+важно убедиться, что
+.Fn setlogin
+вызывается только после того, как процесс предпринял надлежащие шаги для обеспечения
+отсоединения от сеанса своего родителя.
+Выполнение системного вызова
+.Fn setsid
+является
+.Em ЕДИНСТВЕННЫМ
+способом сделать это.
+Функция
+.Xr daemon 3
+вызывает
+.Fn setsid ,
+что является идеальным способом отсоединения от управляющего терминала и
+перехода в фоновый режим.
+.Pp
+В частности, выполнение
+.Fn ioctl ttyfd TIOCNOTTY ...\&
+или
+.Fn setpgrp ...\&
+.Em НЕ
+является достаточным.
+.Pp
+После того как родительский процесс выполнил системный вызов
+.Fn setsid ,
+допустимо, чтобы некоторый дочерний процесс этого процесса затем выполнил
+.Fn setlogin ,
+даже если он не является лидером сеанса, но учтите, что ВСЕ процессы
+в сеансе изменят своё имя входа одновременно, даже
+родительский.
+.Pp
+Это не то же самое, что традиционное поведение UNIX наследования привилегий.
+.Pp
+Поскольку системный вызов
+.Fn setlogin
+доступен только суперпользователю, предполагается, что (как и
+для всех других привилегированных программ) программист предпринял надлежащие
+меры предосторожности для предотвращения нарушений безопасности.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Если вызов
+.Fn getlogin
+успешен, он возвращает указатель на строку, завершённую нулевым символом, в статическом буфере,
+или
+.Dv NULL ,
+если имя не было установлено.
+Функция
+.Fn getlogin_r
+возвращает ноль при успехе или номер ошибки при неудаче.
+.Pp
+.Rv -std setlogin
+.Sh ОШИБКИ
+Эти вызовы могут возвращать следующие ошибки:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Аргумент
+.Fa name
+указал на
+недопустимый адрес.
+.It Bq Er EINVAL
+Аргумент
+.Fa name
+указывал на строку, которая была слишком длинной.
+Имена входа ограничены
+.Dv MAXLOGNAME
+(из
+.In sys/param.h )
+символами, в настоящее время 33, включая нулевой.
+.It Bq Er EPERM
+Вызывающий попытался установить имя входа и не был суперпользователем.
+.It Bq Er ERANGE
+Размер буфера меньше возвращаемого результата.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr setsid 2 ,
+.Xr daemon 3
+.Sh СТАНДАРТЫ
+Системный вызов
+.Fn getlogin
+и
+функция
+.Fn getlogin_r
+соответствуют
+.St -p1003.1-96 .
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn getlogin
+впервые появился в
+.Bx 4.4 .
+Возвращаемое значение
+.Fn getlogin_r
+было изменено по сравнению с более ранними версиями
+.Fx
+для соответствия
+.St -p1003.1-96 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+В более ранних версиях системы
+.Fn getlogin
+завершалась неудачей, если процесс не был связан с терминалом входа.
+Текущая реализация (использующая
+.Fn setlogin )
+позволяет getlogin завершиться успешно, даже если у процесса нет управляющего терминала.
+В более ранних версиях системы значение, возвращаемое
+.Fn getlogin ,
+нельзя было доверять без проверки идентификатора пользователя.
+Переносимые программы, вероятно, всё ещё должны выполнять эту проверку.

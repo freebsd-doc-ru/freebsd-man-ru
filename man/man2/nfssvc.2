@@ -1,0 +1,258 @@
+.\" Copyright (c) 1989, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/nfssvc.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 534cd996b28b55c9d00945ab407c4ae0348b65c54d59d93fae5d291e45559eb5
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 9, 1993
+.Dt NFSSVC 2
+.Os
+.Sh ИМЯ
+.Nm nfssvc
+.Nd службы NFS
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/param.h
+.In sys/mount.h
+.In sys/time.h
+.In nfs/rpcv2.h
+.In nfsserver/nfs.h
+.In unistd.h
+.Ft int
+.Fn nfssvc "int flags" "void *argstructp"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn nfssvc
+используется демонами NFS для передачи информации в ядро и из ядра,
+а также для входа в ядро в качестве серверного демона.
+Аргумент
+.Fa flags
+состоит из нескольких битов, которые показывают, какое действие должно быть
+выполнено после входа в ядро, а
+.Fa argstructp
+указывает на одну из трёх структур в зависимости от того, какие биты установлены
+в flags.
+.Pp
+На стороне клиента
+.Xr nfsiod 8
+вызывает
+.Fn nfssvc
+с аргументом
+.Fa flags ,
+установленным в
+.Dv NFSSVC_BIOD ,
+и
+.Fa argstructp ,
+установленным в
+.Dv NULL ,
+чтобы войти в ядро в качестве демона блочного ввода-вывода.
+Для
+.Tn NQNFS
+.Xr mount_nfs 8
+вызывает
+.Fn nfssvc
+с флагом
+.Dv NFSSVC_MNTD ,
+возможно объединённым операцией or с флагами
+.Dv NFSSVC_GOTAUTH
+и
+.Dv NFSSVC_AUTHINFAIL ,
+вместе с указателем на
+.Bd -literal
+struct nfsd_cargs {
+	char		*ncd_dirp;	/* Mount dir path */
+	uid_t		ncd_authuid;	/* Effective uid */
+	int		ncd_authtype;	/* Type of authenticator */
+	int		ncd_authlen;	/* Length of authenticator string */
+	u_char		*ncd_authstr;	/* Authenticator string */
+	int		ncd_verflen;	/* and the verifier */
+	u_char		*ncd_verfstr;
+	NFSKERBKEY_T	ncd_key;	/* Session key */
+};
+.Ed
+.Pp
+структуру.
+При первоначальном вызове установлен только флаг
+.Dv NFSSVC_MNTD ,
+чтобы указать обслуживание для точки монтирования.
+Если точка монтирования использует Kerberos, то утилита
+.Xr mount_nfs 8
+вернётся из
+.Fn nfssvc
+с
+.Va errno
+==
+.Er ENEEDAUTH
+всякий раз, когда на стороне клиента требуется билет аутентификации ``rcmd''
+для пользователя.
+Утилита
+.Xr mount_nfs 8
+попытается получить билет Kerberos и в случае успеха вызовет
+.Fn nfssvc
+с флагами
+.Dv NFSSVC_MNTD
+и
+.Dv NFSSVC_GOTAUTH
+после заполнения билета в поле
+ncd_authstr
+и
+установки полей ncd_authlen и ncd_authtype
+структуры nfsd_cargs.
+Если
+.Xr mount_nfs 8
+не удалось получить билет,
+.Fn nfssvc
+будет вызван с флагами
+.Dv NFSSVC_MNTD ,
+.Dv NFSSVC_GOTAUTH
+и
+.Dv NFSSVC_AUTHINFAIL
+для обозначения неудачной попытки аутентификации.
+.Pp
+На стороне сервера
+.Fn nfssvc
+вызывается с флагом
+.Dv NFSSVC_NFSD
+и указателем на
+.Bd -literal
+struct nfsd_srvargs {
+	struct nfsd	*nsd_nfsd;	/* Pointer to in kernel nfsd struct */
+	uid_t		nsd_uid;	/* Effective uid mapped to cred */
+	uint32_t	nsd_haddr;	/* Ip address of client */
+	struct ucred	nsd_cr;		/* Cred. uid maps to */
+	int		nsd_authlen;	/* Length of auth string (ret) */
+	u_char		*nsd_authstr;	/* Auth string (ret) */
+	int		nsd_verflen;	/* and the verifier */
+	u_char		*nsd_verfstr;
+	struct timeval	nsd_timestamp;	/* timestamp from verifier */
+	uint32_t	nsd_ttl;	/* credential ttl (sec) */
+	NFSKERBKEY_T	nsd_key;	/* Session key */
+};
+.Ed
+.Pp
+чтобы войти в ядро в качестве демона
+.Xr nfsd 8 .
+Всякий раз, когда демон
+.Xr nfsd 8
+получает билет аутентификации Kerberos, он вернётся из
+.Fn nfssvc
+с
+.Va errno
+==
+.Er ENEEDAUTH .
+Утилита
+.Xr nfsd 8
+попытается аутентифицировать билет и сгенерировать набор учётных данных
+на сервере для ``user id'', указанного в поле nsd_uid.
+Это делается путём сначала аутентификации билета Kerberos, а затем отображения
+субъекта Kerberos на локальное имя и получения набора учётных данных для
+этого пользователя посредством
+.Xr getpwnam 3
+и
+.Xr getgrouplist 3 .
+В случае успеха утилита
+.Xr nfsd 8
+вызовет
+.Fn nfssvc
+с установленными флагами
+.Dv NFSSVC_NFSD
+и
+.Dv NFSSVC_AUTHIN
+чтобы передать отображение учётных данных в nsd_cr в
+ядро для кэширования на серверном сокете для этого клиента.
+Если аутентификация не удалась,
+.Xr nfsd 8
+вызывает
+.Fn nfssvc
+с флагами
+.Dv NFSSVC_NFSD
+и
+.Dv NFSSVC_AUTHINFAIL
+для обозначения неудачной аутентификации.
+.Pp
+Главный серверный демон
+.Xr nfsd 8
+вызывает
+.Fn nfssvc
+с флагом
+.Dv NFSSVC_ADDSOCK
+и указателем на
+.Bd -literal
+struct nfsd_args {
+	int	sock;	/* Socket to serve */
+	caddr_t	name;	/* Client address for connection based sockets */
+	int	namelen;/* Length of name */
+};
+.Ed
+.Pp
+чтобы передать серверный сокет
+.Tn NFS
+в ядро для обслуживания демонами
+.Xr nfsd 8 .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+Обычно
+.Fn nfssvc
+не возвращает управление, если только сервер
+не будет завершён сигналом, и тогда возвращается значение 0.
+В противном случае возвращается -1 и глобальной переменной
+.Va errno
+присваивается значение, указывающее ошибку.
+.Sh ОШИБКИ
+.Bl -tag -width Er
+.It Bq Er ENEEDAUTH
+Это особое значение ошибки
+на самом деле используется для поддержки аутентификации, в частности Kerberos,
+как объяснено выше.
+.It Bq Er EPERM
+Вызывающий процесс не является суперпользователем.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr mount_nfs 8 ,
+.Xr nfsd 8 ,
+.Xr nfsiod 8
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn nfssvc
+впервые появился в
+.Bx 4.4 .
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Системный вызов
+.Fn nfssvc
+разработан специально для демонов поддержки
+.Tn NFS
+и, как таковой, специфичен для их требований.
+Ему действительно следовало бы возвращать значения, указывающие на необходимость
+поддержки аутентификации, поскольку
+.Er ENEEDAUTH
+на самом деле не является ошибкой.
+Несколько полей структур аргументов предполагаются допустимыми и
+иногда неизменёнными с момента предыдущего вызова, так что
+.Fn nfssvc
+должен использоваться с чрезвычайной осторожностью.

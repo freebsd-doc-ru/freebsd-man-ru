@@ -1,0 +1,87 @@
+.\" Copyright (c) 1998 Jonathan Lemon
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/i386/i386_get_ioperm.2
+.\" FRDP githash 4bc66c0f9f2c349af86cbf4e77f000b49d819fea
+.\" FRDP hash256 2ac3b27d10c5023b7471669e99b10588863055e7cacf65db64007911c0bbfd83
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd July 27, 1998
+.Dt I386_GET_IOPERM 2
+.Os
+.Sh ИМЯ
+.Nm i386_get_ioperm ,
+.Nm i386_set_ioperm
+.Nd управление доступом процесса к пространству портов ввода-вывода i386
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In machine/sysarch.h
+.Ft int
+.Fn i386_get_ioperm "unsigned int start" "unsigned int *length" "int *enable"
+.Ft int
+.Fn i386_set_ioperm "unsigned int start" "unsigned int length" "int enable"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn i386_get_ioperm
+возвращает разрешение для пространства портов ввода-вывода процесса
+в аргументе
+.Fa *enable .
+Диапазон портов начинается с
+.Fa start ,
+а количество смежных записей возвращается в
+.Fa *length .
+.Pp
+Системный вызов
+.Fn i386_set_ioperm
+устанавливает доступ к диапазону портов ввода-вывода, описываемому
+аргументами
+.Fa start
+и
+.Fa length ,
+в состояние, заданное аргументом
+.Fa enable .
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы
+.Fn i386_get_ioperm
+и
+.Fn i386_set_ioperm
+завершаются с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EINVAL
+Аргументами
+.Fa start
+или
+.Fa length
+задан недопустимый диапазон.
+.It Bq Er EPERM
+Вызывающий i386_set_ioperm не был суперпользователем.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr io 4
+.Sh АВТОРЫ
+Эта страница руководства была написана
+.An Jonathan Lemon .

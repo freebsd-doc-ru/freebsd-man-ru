@@ -1,0 +1,174 @@
+.\" Copyright (c) 2007 Sam Leffler, Errno Consulting
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/wlandebug/wlandebug.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 3d92fc59c4b0bf7a4b04be4ded6a73b915178bf06c147789ce7cfbcaa818a98f
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 17, 2015
+.Dt WLANDEBUG 8
+.Os
+.Sh ИМЯ
+.Nm wlandebug
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d | Fl i Ar ifnet
+.Op Fl flag|+flag Ar ...
+.Sh ОПИСАНИЕ
+Команда
+.Nm
+— это инструмент для включения и отключения
+отладочных сообщений в модуле
+.Xr wlan 4 .
+Запуск
+.Nm
+без каких-либо параметров отображает текущие сообщения,
+включённые для указанного сетевого интерфейса
+(по умолчанию ``wlan0').
+Уровень отладки по умолчанию для новых интерфейсов можно задать,
+указав параметр
+.Fl d .
+При запуске от имени суперпользователя
+.Nm
+может использоваться для включения и/или отключения отладочных сообщений.
+.Pp
+Чтобы включить отладочные сообщения определённого
+.Ar типа ,
+используйте
+.Ar +тип ;
+чтобы отключить такие сообщения, используйте
+.Ar -тип .
+Несколько сообщений можно включить и отключить одной командой.
+.Pp
+Сообщения организованы в следующие группы:
+.Bl -tag -width "debug"
+.It Ar debug
+общие средства отладки; эквивалентно установке параметра debug
+с помощью
+.Xr ifconfig 8 .
+.It Ar dumppkts
+дамп содержимого пакетов при передаче и приёме.
+.It Ar crypto
+работа, связанная с криптографией.
+.It Ar input
+ошибки, возникающие при обработке ввода.
+.It Ar xrate
+обработка расширенного набора скоростей (для 802.11g).
+.It Ar elemid
+обработка информационных элементов в управляющих кадрах 802.11.
+.It Ar node
+управление состоянием отдельных станций.
+.It Ar assoc
+обработка ассоциации станций 802.11; особенно полезна, чтобы
+видеть, когда станции присоединяются к BSS и покидают его.
+.It Ar auth
+обработка аутентификации станций 802.11.
+.It Ar scan
+операция сканирования; особенно полезна для отладки проблем
+с невозможностью найти точку доступа.
+.It Ar output
+ошибки, возникающие при обработке вывода.
+.It Ar state
+работа конечного автомата
+.Xr wlan 4 .
+.It Ar power
+работа режима энергосбережения 802.11; в режиме hostap это включает
+обильную информацию о буферизованных кадрах для станций, работающих
+в режиме энергосбережения.
+.It Ar hwmp
+трассировка обработки протокола Hybrid Wireless Mesh Protocol.
+.It Ar dot1xsm
+работа конечного автомата 802.1x; в настоящее время не имеет смысла, так как поддержка протокола 802.1x
+реализована в пользовательском режиме программой
+.Xr hostapd 8 .
+.It Ar radius
+работа бэкенда RADIUS в части, относящейся к работе 802.1x;
+в настоящее время не имеет смысла, так как поддержка протокола 802.1x
+реализована в пользовательском режиме программой
+.Xr hostapd 8 .
+.It Ar raddump
+дамп пакетов, которыми обмениваются с бэкендом RADIUS для работы 802.1x;
+в настоящее время не имеет смысла, так как поддержка протокола 802.1x
+реализована в пользовательском режиме программой
+.Xr hostapd 8 .
+.It Ar mesh
+трассировка обработки протокола mesh 802.11s.
+.It Ar wpa
+трассировка работы протокола WPA;
+имеет смысл лишь частично, так как поддержка протокола WPA
+в основном реализована в пользовательском режиме программами
+.Xr hostapd 8
+и
+.Xr wpa_supplicant 8 .
+.It Ar acl
+трассировка работы поддержки списков управления доступом (ACL); см.
+.Xr wlan_acl 4
+для получения дополнительных сведений.
+.It Ar wme
+трассировка обработки протокола WME/WMM.
+.It Ar superg
+трассировка обработки протокола Atheros SuperG.
+.It Ar doth
+трассировка обработки протокола IEEE 802.11h.
+.It Ar inact
+трассировка обработки неактивности станций; в частности,
+показывает, когда станции, связанные с точкой доступа, отключаются из-за
+неактивности.
+.It Ar roam
+трассировка роуминга в режиме станции между точками доступа.
+.It Ar rate
+трассировка работы управления скоростью передачи.
+.El
+.Sh ПРИМЕРЫ
+Следующее можно использовать для отладки базовой работы в режиме станции:
+.Pp
+.Pp
+это включает отладочные сообщения во время сканирования, аутентификации
+в точке доступа и ассоциации с точкой доступа.
+.Sh СМ. ТАКЖЕ
+.Xr ifconfig 8
+.Pp
+Каталог
+.Pa /usr/src/tools
+содержит некоторые утилиты, которые могут быть полезны для отладки проблем
+с беспроводной связью.
+.Sh ПРИМЕЧАНИЯ
+Разные беспроводные драйверы поддерживают разные отладочные сообщения.
+Драйверы, такие как
+.Xr ath 4
+и
+.Xr ral 4 ,
+которые зависят от модуля
+.Xr wlan 4
+для обработки протокола 802.11, обычно поддерживают
+большинство отладочных сообщений, тогда как устройства, которые
+реализуют части протокола 802.11 во встроенном ПО, — нет.
+.Pp
+Некоторые отладочные сообщения больше не имеют смысла,
+поскольку обработка протокола переместилась из операционной
+системы в программы пользовательского режима, такие как
+.Xr hostapd 8
+и
+.Xr wpa_supplicant 8 .

@@ -1,0 +1,159 @@
+.\" Man page generated from reStructuredText.
+.\" FRDP path contrib/ofed/infiniband-diags/man/ibping.8
+.\" FRDP githash d6b92ffa990dc57d8a969a98e3ca4e25ba39cbb2
+.\" FRDP hash256 782dc7960033427e4db9d590dbe5c440f2b366786230a3ec61d24e8d4ef1fd41
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.
+.SH ИМЯ
+IBPING \- ping-запрос к адресу InfiniBand
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+..
+.de UNINDENT
+. RE
+.nr rst2man-indent-level -1
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH СИНТАКСИС
+.sp
+ibping [параметры] <dest lid | guid>
+.SH ОПИСАНИЕ
+.sp
+ibping использует vendor MAD-сообщения для проверки связности между узлами IB.
+При выходе выводится результат, подобный (IP) ping. ibping запускается как клиент/сервер.
+По умолчанию запускается как клиент. Также обратите внимание, что ping-сервер
+по умолчанию реализован в ядре.
+.SH ПАРАМЕТРЫ
+.sp
+\fB\-c, \-\-count\fP
+остановиться после count пакетов
+.sp
+\fB\-f, \-\-flood\fP
+лавинная отправка на получателя: отправлять пакеты подряд без задержки
+.sp
+\fB\-o, \-\-oui\fP
+использовать указанный номер OUI для мультиплексирования vendor MAD-сообщений
+.sp
+\fB\-S, \-\-Server\fP
+запуститься в режиме сервера (не завершаться)
+.sp
+\fB\-\-dgid <gid>\fP
+GID назначения: использовать, когда в пакетах требуется GRH (формат IPv6)
+.SS Флаги адресации
+.
+.sp
+\fB\-L, \-\-Lid\fP   Указанный адрес — это LID
+.
+.sp
+\fB\-G, \-\-Guid\fP     Указанный адрес — это Port GUID
+.
+.sp
+\fB\-s, \-\-sm_port <smlid>\fP     использовать \(aqsmlid\(aq в качестве целевого LID для запросов SA.
+.SS Флаги выбора порта
+.
+.sp
+\fB\-C, \-\-Ca <ca_name>\fP    использовать указанный ca_name.
+.
+.sp
+\fB\-P, \-\-Port <ca_port>\fP    использовать указанный ca_port.
+.
+.SS Выбор локального порта
+.sp
+Поддержка нескольких портов/нескольких CA: если устройство или порт IB не указаны,
+порт для использования выбирается по следующим критериям:
+.INDENT 0.0
+.INDENT 3.5
+.INDENT 0.0
+.IP 1. 3
+первый порт, находящийся в состоянии ACTIVE.
+.IP 2. 3
+если он не найден, первый порт, находящийся в состоянии UP (физическое соединение установлено).
+.UNINDENT
+.sp
+Если указан порт и/или имя CA, библиотека libibumad пытается
+выполнить запрос пользователя и завершается ошибкой, если это невозможно.
+.sp
+Например:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+ibaddr                 # использовать первый порт (критерий №1 выше)
+ibaddr \-P 2            # использовать второй (active/up) порт первого доступного устройства IB.
+ibaddr \-C mthca0 \-P 2  # использовать только указанный порт.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Флаги конфигурации
+.
+.sp
+\fB\-\-config, \-z  <config_file>\fP Указать альтернативный файл конфигурации.
+.INDENT 0.0
+.INDENT 3.5
+По умолчанию: /etc/infiniband-diags/ibdiag.conf
+.UNINDENT
+.UNINDENT
+.
+.sp
+\fB\-t, \-\-timeout <timeout_ms>\fP переопределить тайм-аут по умолчанию для запрошенных MAD-сообщений.
+.SS Флаги отладки
+.
+.sp
+\fB\-h, \-\-help\fP      показать сообщение об использовании
+.
+.INDENT 0.0
+.TP
+.B \-d
+повысить уровень отладки IB.
+Можно использовать несколько раз (\-ddd или \-d \-d \-d).
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \-e
+показывать ошибки отправки и приёма (тайм-ауты и другие)
+.UNINDENT
+.
+.INDENT 0.0
+.TP
+.B \fB\-v, \-\-verbose\fP
+повысить уровень подробности вывода приложения.
+Можно использовать несколько раз (\-vv или \-v \-v \-v)
+.UNINDENT
+.
+.sp
+\fB\-V, \-\-version\fP     показать сведения о версии.
+.SH ФАЙЛЫ
+.
+.SS ФАЙЛ КОНФИГУРАЦИИ
+.sp
+/etc/infiniband-diags/ibdiag.conf
+.sp
+Предоставляется глобальный файл конфигурации для задания некоторых общих параметров для всех
+инструментов.  Подробности см. в прилагаемом файле конфигурации.
+.SH АВТОР
+.INDENT 0.0
+.TP
+.B Hal Rosenstock
+< \fI\%halr@voltaire.com\fP >
+.UNINDENT
+.

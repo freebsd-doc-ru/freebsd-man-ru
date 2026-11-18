@@ -1,0 +1,188 @@
+.\"-
+.\" Copyright (c) 2005 Robert N. M. Watson
+.\" Copyright (c) 2008 Apple Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path contrib/openbsm/man/getaudit.2
+.\" FRDP githash 3008333d442f4daf0318cb1d249240e086208d68
+.\" FRDP hash256 50ffdf647747c10c036f74c19baa9ebcb618ec7a9850012102c6cdb1415da898
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd March 14, 2018 
+.Dt GETAUDIT 2
+.Os
+.Sh ИМЯ
+.Nm getaudit ,
+.Nm getaudit_addr
+.Nd "получить состояние сеанса аудита"
+.Sh SYNOPSIS
+.In bsm/audit.h
+.Ft int
+.Fn getaudit "auditinfo_t *auditinfo"
+.Ft int
+.Fn getaudit_addr "auditinfo_addr_t *auditinfo_addr" "u_int length"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn getaudit
+получает состояние активного сеанса аудита для текущего процесса через
+.Vt auditinfo_t
+, на который указывает
+.Fa auditinfo .
+Системный вызов
+.Fn getaudit_addr
+получает расширенное состояние через
+.Fa auditinfo_addr
+и
+.Fa length .
+.Pp
+Структура данных
+.Fa auditinfo_t
+определена следующим образом:
+.Bd -literal -offset indent
+struct auditinfo {
+	au_id_t        ai_auid;         /* Audit user ID */
+	au_mask_t      ai_mask;         /* Audit masks */
+	au_tid_t       ai_termid;       /* Terminal ID */
+	au_asid_t      ai_asid;         /* Audit session ID */
+	au_asflgs_t    ai_flags;        /* Audit session flags. */
+};
+typedef struct auditinfo        auditinfo_t;
+.Ed
+.Pp
+Переменная
+.Fa ai_auid
+содержит идентификатор аудита, который записывается в журнал аудита для
+каждого события, вызванного процессом.
+.Pp
+Структура данных
+.Fa au_mask_t
+определяет битовую маску для аудита успешных и неуспешных событий
+из предопределённого списка классов событий.
+Она определена следующим образом:
+.Bd -literal -offset indent
+struct au_mask {
+	unsigned int    am_success;     /* success bits */
+	unsigned int    am_failure;     /* failure bits */
+};
+typedef struct au_mask  au_mask_t;
+.Ed
+.Pp
+Структура данных
+.Fa au_termid_t
+определяет идентификатор терминала, записываемый с каждым событием,
+вызванным процессом.
+Она определена следующим образом:
+.Bd -literal -offset indent
+struct au_tid {
+	dev_t           port;
+	u_int32_t       machine;
+};
+typedef struct au_tid   au_tid_t;
+.Ed
+.Pp
+Переменная
+.Fa ai_asid
+содержит идентификатор сеанса аудита, который записывается с каждым событием,
+вызванным процессом.
+.Pp
+Системный вызов
+.Fn getaudit_addr
+использует расширенную структуру данных
+.Fa auditinfo_addr_t
+и поддерживает идентификаторы терминалов с большими адресами,
+такими как используемые в IP версии 6.
+Она определена следующим образом:
+.Bd -literal -offset indent
+struct auditinfo_addr {
+	au_id_t         ai_auid;        /* Audit user ID. */
+	au_mask_t       ai_mask;        /* Audit masks. */
+	au_tid_addr_t   ai_termid;      /* Terminal ID. */
+	au_asid_t       ai_asid;        /* Audit session ID. */
+};
+typedef struct auditinfo_addr   auditinfo_addr_t;
+.Ed
+.Pp
+Структура данных
+.Fa au_tid_addr_t
+, которая включает большее поле для хранения адреса и дополнительное
+поле с типом сохранённого адреса:
+.Bd -literal -offset indent
+struct au_tid_addr {
+	dev_t           at_port;
+	u_int32_t       at_type;
+	u_int32_t       at_addr[4];
+};
+typedef struct au_tid_addr      au_tid_addr_t;
+.Ed
+.Pp
+Для завершения этих системных вызовов требуются соответствующие привилегии.
+.Sh ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ
+.Rv -std getaudit getaudit_addr
+.Sh ОШИБКИ
+Функция
+.Fn getaudit
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EFAULT
+Произошёл сбой при передаче данных в ядро или из ядра.
+.It Bq Er EINVAL
+Системным вызовом был передан недопустимый аргумент.
+.It Bq Er EPERM
+Процесс не имеет достаточных прав для завершения
+операции.
+.It Bq Er EOVERFLOW
+Аргумент
+.Fa length
+указывает на то, что произойдёт переполнение.
+.It Bq Er E2BIG
+Адрес слишком велик и, следовательно,
+следует использовать
+.Fn getaudit_addr .
+.El
+.Sh СМ. ТАКЖЕ
+.Xr audit 2 ,
+.Xr auditon 2 ,
+.Xr getauid 2 ,
+.Xr setaudit 2 ,
+.Xr setauid 2 ,
+.Xr libbsm 3
+.Sh ИСТОРИЯ
+Реализация OpenBSM была создана McAfee Research, подразделением безопасности
+McAfee Inc., по контракту с Apple Computer Inc.\& в 2004 году.
+Впоследствии она была принята проектом TrustedBSD в качестве основы для
+дистрибутива OpenBSM.
+.Sh АВТОРЫ
+.An -nosplit
+Это программное обеспечение было создано McAfee Research, подразделением
+исследований безопасности McAfee, Inc., по контракту с Apple Computer Inc.
+Дополнительные авторы включают
+.An Wayne Salamon ,
+.An Robert Watson ,
+и SPARTA Inc.
+.Pp
+Интерфейс модуля базовой безопасности (BSM) к записям аудита и формат
+потока событий аудита были определены Sun Microsystems.
+.Pp
+Эта страница руководства была написана
+.An Robert Watson Aq rwatson@FreeBSD.org .

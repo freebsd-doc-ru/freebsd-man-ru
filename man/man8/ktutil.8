@@ -1,0 +1,129 @@
+.\" Copyright (c) 1997-2004 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path crypto/heimdal/admin/ktutil.8
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 fb3a4a79e26cd7dafea2957460505da34c161d61cef7f652dbc01d5bf8efa7c7
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 14, 2005
+.Dt KTUTIL 8
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm ktutil
+.Nd управление таблицами ключей Kerberos
+.Sh СИНТАКСИС
+.Nm
+.Oo Fl k Ar таблица-ключей \*(Ba Xo
+.Fl Fl keytab= Ns Ar таблица-ключей
+.Xc
+.Oc
+.Op Fl v | Fl Fl verbose
+.Op Fl Fl version
+.Op Fl h | Fl Fl help
+.Ar команда
+.Op Ar аргументы
+.Sh ОПИСАНИЕ
+.Nm
+— программа для управления таблицами ключей.
+Поддерживаемые параметры:
+.Bl -tag -width Ds
+.It Fl v , Fl Fl verbose
+Подробный вывод.
+.El
+.Pp
+.Ar команда
+может быть одной из следующих:
+.Bl -tag -width srvconvert
+.It add Oo Fl p Ar принципал Oc Oo Fl Fl principal= Ns Ar принципал Oc \
+Oo Fl V Ar kvno Oc Oo Fl Fl kvno= Ns Ar kvno Oc Oo Fl e Ar enctype Oc \
+Oo Fl Fl enctype= Ns Ar enctype Oc Oo Fl w Ar пароль Oc \
+Oo Fl Fl password= Ns Ar пароль Oc Oo Fl r Oc Oo Fl Fl random Oc \
+Oo Fl s Oc Oo Fl Fl no-salt Oc Oo Fl H Oc Op Fl Fl hex
+Добавляет ключ в таблицу ключей. Для параметров, которые не указаны,
+будет выдан запрос. Для этого нужно знать пароль или шестнадцатеричный ключ
+принципала, который требуется добавить; если на самом деле вы хотите добавить
+новый принципал в таблицу ключей, рассмотрите команду
+.Ar get ,
+которая взаимодействует с сервером kadmin.
+.It change Oo Fl r Ar область Oc Oo Fl Fl realm= Ns Ar область Oc \
+Oo Fl Fl a Ar хост Oc Oo Fl Fl admin-server= Ns Ar хост Oc \
+Oo Fl Fl s Ar порт Oc Op Fl Fl server-port= Ns Ar порт
+Обновляет один или несколько ключей до новых версий.  По умолчанию
+используется административный сервер для области записи таблицы ключей.
+В противном случае используются значения, указанные в параметрах.
+.Pp
+Если принципалы не заданы, обновляются все, имеющиеся в таблице ключей.
+.It copy Ar исходная-таблица-ключей Ar целевая-таблица-ключей
+Копирует все записи из
+.Ar исходная-таблица-ключей
+в
+.Ar целевая-таблица-ключей .
+.It get Oo Fl p Ar административный принципал Oc \
+Oo Fl Fl principal= Ns Ar административный принципал Oc Oo Fl e Ar enctype Oc \
+Oo Fl Fl enctypes= Ns Ar enctype Oc Oo Fl r Ar область Oc \
+Oo Fl Fl realm= Ns Ar область Oc Oo Fl a Ar административный сервер Oc \
+Oo Fl Fl admin-server= Ns Ar административный сервер Oc Oo Fl s Ar порт сервера Oc \
+Oo Fl Fl server-port= Ns Ar порт сервера Oc Ar принципал ...
+Для каждого
+.Ar принципал
+создаётся новый ключ (если он ещё не существует), и этот ключ помещается
+в таблицу ключей.
+.Pp
+Если
+.Ar область
+не указана, область для работы берётся из первого
+принципала.
+.It list Oo Fl Fl keys Oc Op Fl Fl timestamp
+Выводит ключи, хранящиеся в таблице ключей.
+.It remove Oo Fl p Ar принципал Oc Oo Fl Fl principal= Ns Ar принципал Oc \
+Oo Fl V kvno Oc Oo Fl Fl kvno= Ns Ar kvno Oc Oo Fl e enctype Oc \
+Oo Fl Fl enctype= Ns Ar enctype Oc
+Удаляет указанный ключ или ключи. Если не указан
+.Ar kvno ,
+удаляются ключи с любым номером версии. Если не указан
+.Ar enctype ,
+удаляются ключи любого типа.
+.It rename Ar исходный-принципал Ar целевой-принципал
+Переименовывает все записи в таблице ключей, соответствующие
+.Ar исходный-принципал ,
+в
+.Ar целевой-принципал .
+.It purge Op Fl Fl age= Ns Ar возраст
+Удаляет все старые версии ключа, для которых существует более новая версия
+возрастом не менее
+.Ar возраст
+(по умолчанию одна неделя).
+.El
+.Sh СМ. ТАКЖЕ
+.Xr kadmin 8

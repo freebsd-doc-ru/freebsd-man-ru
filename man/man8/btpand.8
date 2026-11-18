@@ -1,0 +1,239 @@
+.\" $NetBSD: btpand.8,v 1.3 2008/08/17 14:43:07 plunky Exp $
+.\"
+.\" Copyright (c) 2008 Iain Hibbert
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/bluetooth/btpand/btpand.8
+.\" FRDP githash b2c76c41be32f904179efed29c0ca04d53f3996c
+.\" FRDP hash256 0b968cc4e8196be91cdb52f335a513a8880dfc0ae7876a637476361ca95979d8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 17, 2008
+.Dt BTPAND 8
+.Os
+.Sh ИМЯ
+.Nm btpand
+.Nd демон Bluetooth PAN
+.Sh СИНТАКСИС
+.Nm
+.Op Fl i Ar имя_интерфейса
+.Op Fl m Ar режим
+.Fl a Ar адрес
+.Fl d Ar устройство
+.Brq Fl s Ar служба | Fl S Ar служба Op Fl p Ar psm
+.Nm
+.Op Fl c Ar путь
+.Op Fl i Ar имя_интерфейса
+.Op Fl l Ar лимит
+.Op Fl m Ar режим
+.Op Fl p Ar psm
+.Fl d Ar устройство
+.Brq Fl s Ar служба | Fl S Ar служба
+.Sh ОПИСАНИЕ
+Демон
+.Nm
+обслуживает службы персональной сети Bluetooth
+(Bluetooth Personal Area Networking) в системе.
+Он может работать в режиме клиента как пользователь персональной сети
+.Pq PANU
+или в режиме сервера как точка сетевого доступа
+.Pq NAP ,
+групповая ad-hoc сеть
+.Pq GN
+или узел PANU.
+.Nm
+подключается к системе через виртуальное Ethernet-устройство
+.Xr tap 4
+и пересылает Ethernet-пакеты удалённым устройствам Bluetooth, используя
+Bluetooth Network Encapsulation Protocol
+.Pq BNEP .
+.Pp
+Клиент PANU — это устройство, которое использует службу NAP или GN
+либо может напрямую обмениваться данными с узлом PANU по схеме
+перекрёстного кабеля.
+.Pp
+Узел GN пересылает Ethernet-пакеты каждому подключённому пользователю PAN
+по мере необходимости, но не предоставляет доступ к каким-либо дополнительным сетям.
+.Pp
+Служба NAP предоставляет некоторые возможности Ethernet-моста:
+узел NAP пересылает Ethernet-пакеты между каждым из
+подключённых пользователей PAN и другой сетевой средой.
+.Pp
+Обратите внимание: единственные различия между службами NAP и GN в реализации
+.Nm
+заключаются в записи службы SDP.
+Мостовая пересылка пакетов NAP должна настраиваться отдельно.
+.Pp
+Параметры:
+.Bl -tag -width Ds
+.It Fl a Ar адрес
+В режиме клиента — адрес удалённого сервера.
+Может быть задан как BDADDR или имя, и в этом случае
+.Nm
+попытается разрешить адрес с помощью вызова
+.Xr bt_gethostbyname 3 .
+.It Fl c Ar путь
+В режиме сервера укажите
+.Ar путь
+к управляющему сокету
+.Xr sdpd 8 .
+Путь по умолчанию —
+.Pa /var/run/sdp .
+.It Fl d Ar устройство
+Ограничить подключения локальным
+.Ar устройством .
+Может быть задан как BDADDR или имя, и в этом случае
+.Nm
+попытается разрешить адрес с помощью вызова
+.Xr bt_devaddr 3 .
+.Nm
+установит физический адрес интерфейса
+.Xr tap 4
+в BDADDR
+Bluetooth-радио.
+.It Fl i Ar имя_интерфейса
+.Nm
+использует драйвер
+.Xr tap 4
+для создания нового сетевого интерфейса.
+Используйте эту опцию, чтобы выбрать конкретный интерфейс устройства
+.Xr tap 4 ,
+который уже должен быть создан.
+.It Fl l Ar лимит
+В режиме сервера ограничивает число одновременных подключений.
+Лимит по умолчанию — 7 для серверов NAP и GN
+и 1 для сервера PANU.
+.It Fl m Ar режим
+Установить режим канала соединения L2CAP.
+Поддерживаются следующие режимы:
+.Pp
+.Bl -tag -width 8n -compact
+.It auth
+требует, чтобы устройства были сопряжены.
+.It encrypt
+auth, плюс включение шифрования.
+.It secure
+шифрование, плюс смена ключа связи.
+.El
+.Pp
+ПОКА НЕ ПОДДЕРЖИВАЕТСЯ.
+Используйте глобальные настройки устройства для установки аутентификации и шифрования.
+.It Fl p Ar psm
+Использовать альтернативный мультиплексор протокола/службы L2CAP
+.Pq PSM
+в режиме сервера или клиента
+.Pq когда не используется обнаружение служб .
+PSM по умолчанию для BNEP — 15
+.Pq 0x000f .
+.It Fl s Ar служба
+Имя
+.Ar службы
+для предоставления или подключения; распознаются следующие службы:
+.Pp
+.Bl -tag -width 8n -compact
+.It GN
+Групповая ad-hoc сеть.
+.It NAP
+Точка сетевого доступа.
+.It PANU
+Пользователь персональной сети.
+.El
+.It Fl S Ar служба
+Как и
+.Fl s ,
+за исключением того, что
+.Nm
+не будет использовать службы SDP для установки соединения.
+.El
+.Pp
+При предоставлении сетевых служб профиль Bluetooth PAN гласит, что
+свойство
+.Sq Class of Device
+контроллера Bluetooth ДОЛЖНО включать возможность работы в сети
+.Pq установлен бит 0x020000 .
+Подробности см. в
+.Xr hccontrol 8 .
+.Pp
+После того как
+.Nm
+установит клиентское или серверное соединение и откроет
+интерфейс
+.Xr tap 4 ,
+он создаст pid-файл и отсоединится.
+.Sh ФАЙЛЫ
+.Bl -tag -width Ds
+.It Pa /dev/tap
+.It Pa /etc/bluetooth/hosts
+.It Pa /var/run/sdp
+.It Pa /var/run/tap Ns Em N Ns No .pid
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh ПРИМЕРЫ
+.Dl ifconfig tap1 create
+.Dl btpand -a host -d mydevice -s NAP -i tap1
+.Dl dhclient tap1
+.Pp
+Создаст соединение с NAP на
+.Ar узел ,
+и свяжет его с интерфейсом
+.Ar tap1 .
+.Pp
+.Dl btpand -d mydevice -s GN
+.Pp
+Создаст групповую сеть и зарегистрирует службу GN на локальном
+SDP-сервере.
+.Sh СМ. ТАКЖЕ
+.Xr bluetooth 3 ,
+.Xr bridge 4 ,
+.Xr tap 4 ,
+.Xr dhclient 8 ,
+.Xr hccontrol 8 ,
+.Xr ifconfig 8 ,
+.Xr sdpd 8
+.Pp
+Спецификации
+.Qq Personal Area Networking Profile
+и
+.Qq Bluetooth Network Encapsulation Protocol
+доступны по адресу
+.Dl http://www.bluetooth.com/
+.Sh АВТОРЫ
+.An Iain Hibbert
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Нет способа задать альтернативные значения для записи SDP.
+.Pp
+Нет способа установить фильтры типа сети или многоадресных адресов.
+.Pp
+.Nm
+не выполняет маршрутизацию адресов, кроме как для напрямую подключённых
+одноадресных адресов.
+Все остальные пакеты являются многоадресными.
+.Pp
+Так как
+.Nm
+использует BDADDR Bluetooth-радио в качестве физического адреса
+tap, для каждого радио можно запустить только один экземпляр.
+.Pp
+.Nm
+может предоставлять только одну службу.

@@ -1,0 +1,135 @@
+.\" Copyright (c) 1983, 1990, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Robert Elz at The University of Melbourne.
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/quotaon/quotaon.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 6bcbb7c3abbdea6a3481a17db921481760193fe2998fed42f3e931972ef611a3
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 11, 1993
+.Dt QUOTAON 8
+.Os
+.Sh ИМЯ
+.Nm quotaon ,
+.Nm quotaoff
+.Nd включение и выключение квот файловой системы
+.Sh СИНТАКСИС
+.Nm
+.Op Fl g
+.Op Fl u
+.Op Fl v
+.Ar filesystem Ar ...
+.Nm
+.Op Fl g
+.Op Fl u
+.Op Fl v
+.Fl a
+.Nm quotaoff
+.Op Fl g
+.Op Fl u
+.Op Fl v
+.Ar filesystem Ar ...
+.Nm quotaoff
+.Op Fl g
+.Op Fl u
+.Op Fl v
+.Fl a
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+сообщает системе, что дисковые квоты должны быть включены для одной или нескольких
+файловых систем.
+Утилита
+.Nm quotaoff
+сообщает системе, что для указанных
+файловых систем должны быть выключены все дисковые квоты.
+Указанные файловые системы должны иметь записи в
+.Pa /etc/fstab
+и быть смонтированными.
+Утилита
+.Nm
+ожидает, что каждая файловая система имеет файлы квот с именами
+.Pa quota.user
+и
+.Pa quota.group
+в корне соответствующей файловой системы.
+Эти значения по умолчанию можно переопределить в
+.Pa /etc/fstab .
+По умолчанию включены как квоты пользователей, так и квоты групп.
+.Pp
+Доступные параметры:
+.Bl -tag -width indent
+.It Fl a
+Если указан вместо любых имён файловых систем,
+.Nm Ns / Ns Nm quotaoff
+включит/выключит дисковые квоты для всех файловых систем, указанных в
+.Pa /etc/fstab
+как доступные для чтения и записи.
+По умолчанию включаются только типы квот, перечисленные в
+.Pa /etc/fstab .
+.It Fl g
+Должны включаться/выключаться только групповые квоты, перечисленные в
+.Pa /etc/fstab .
+.It Fl u
+Должны включаться/выключаться только квоты пользователей, перечисленные в
+.Pa /etc/fstab .
+.It Fl v
+Заставляют
+.Nm
+и
+.Nm quotaoff
+выводить сообщение для каждой файловой системы, в которой квоты включаются или выключаются.
+.El
+.Pp
+Указание одновременно
+.Fl g
+и
+.Fl u
+эквивалентно значению по умолчанию.
+.Sh ФАЙЛЫ
+.Bl -tag -width quota.group -compact
+.It Pa quota.user
+в корне файловой системы с квотами пользователей
+.It Pa quota.group
+в корне файловой системы с квотами групп
+.It Pa /etc/fstab
+таблица файловых систем
+.El
+.Sh СМ. ТАКЖЕ
+.Xr quota 1 ,
+.Xr quotactl 2 ,
+.Xr fstab 5 ,
+.Xr edquota 8 ,
+.Xr quotacheck 8 ,
+.Xr repquota 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+появилась в
+.Bx 4.2 .

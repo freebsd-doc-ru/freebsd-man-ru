@@ -1,0 +1,219 @@
+.\" Copyright (c) 2016 Eric Badger
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/rctl_add_rule.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 196d4f619bab01ea1cfed1aef66f7cd6a0fe8ce8f44d1c1344a3f018d6491392
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 14, 2016
+.Dt RCTL_ADD_RULE 2
+.Os
+.Sh ИМЯ
+.Nm rctl_add_rule ,
+.Nm rctl_get_limits ,
+.Nm rctl_get_racct ,
+.Nm rctl_get_rules ,
+.Nm rctl_remove_rule
+.Nd манипулирование базой данных ограничений ресурсов и запросы к ней
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/rctl.h
+.Ft int
+.Fo rctl_add_rule
+.Fa "const char *inbufp" "size_t inbuflen" "char *outbufp" "size_t outbuflen"
+.Fc
+.Ft int
+.Fo rctl_get_limits
+.Fa "const char *inbufp" "size_t inbuflen" "char *outbufp" "size_t outbuflen"
+.Fc
+.Ft int
+.Fo rctl_get_racct
+.Fa "const char *inbufp" "size_t inbuflen" "char *outbufp" "size_t outbuflen"
+.Fc
+.Ft int
+.Fo rctl_get_rules
+.Fa "const char *inbufp" "size_t inbuflen" "char *outbufp" "size_t outbuflen"
+.Fc
+.Ft int
+.Fo rctl_remove_rule
+.Fa "const char *inbufp" "size_t inbuflen" "char *outbufp" "size_t outbuflen"
+.Fc
+.Sh ОПИСАНИЕ
+Эти системные вызовы используются для манипулирования базой данных
+ограничений ресурсов и запросов к ней.
+Для всех функций
+.Fa inbuflen
+обозначает длину буфера, на который указывает
+.Fa inbufp ,
+а
+.Fa outbuflen
+обозначает длину буфера, на который указывает
+.Fa outbufp .
+.Pp
+Функция
+.Fn rctl_add_rule
+добавляет правило, на которое указывает
+.Fa inbufp ,
+в базу данных ограничений ресурсов.
+Аргументы
+.Fa outbufp
+и
+.Fa outbuflen
+не используются.
+Формат правила описан в
+.Xr rctl 8 ,
+за исключением отличий, отмеченных в разделе
+.Sx ПРАВИЛА И ФИЛЬТРЫ .
+.Pp
+Функция
+.Fn rctl_get_limits
+возвращает в
+.Fa outbufp
+разделённый запятыми список правил, которые применяются к процессу,
+соответствующему фильтру, заданному в
+.Fa inbufp .
+Сюда входят правила с субъектом, являющимся самим процессом, а также правила
+с другим субъектом (например, пользователем или классом входа), которые
+применяются к процессу.
+.Pp
+Функция
+.Fn rctl_get_racct
+возвращает информацию об использовании ресурсов для заданного субъекта.
+Субъект задаётся путём передачи фильтра в
+.Fa inbufp .
+Синтаксис фильтра описан в
+.Xr rctl 8 ,
+за исключением отличий, отмеченных в разделе
+.Sx ПРАВИЛА И ФИЛЬТРЫ .
+В
+.Fa outbufp
+возвращается разделённый запятыми список ресурсов и объёма каждого из них,
+использованного указанным субъектом.
+Ресурс и объём форматируются как
+.Qq resource=amount .
+.Pp
+Функция
+.Fn rctl_get_rules
+возвращает в
+.Fa outbufp
+разделённый запятыми список правил из базы данных ограничений ресурсов,
+соответствующих фильтру, переданному в
+.Fa inbufp .
+Синтаксис фильтра описан в
+.Xr rctl 8 ,
+за исключением отличий, отмеченных в разделе
+.Sx ПРАВИЛА И ФИЛЬТРЫ .
+Для возврата всех правил можно передать фильтр
+.Va :: .
+.Pp
+Функция
+.Fn rctl_remove_rule
+удаляет все правила, соответствующие фильтру, переданному в
+.Fa inbufp ,
+из базы данных ограничений ресурсов.
+Синтаксис фильтра описан в
+.Xr rctl 8 ,
+за исключением отличий, отмеченных в разделе
+.Sx ПРАВИЛА И ФИЛЬТРЫ .
+.Fa outbufp
+и
+.Fa outbuflen
+не используются.
+.Sh ПРАВИЛА И ФИЛЬТРЫ
+В этом разделе объясняется, чем формат правил и фильтров, описанный в
+.Xr rctl 8 ,
+отличается от формата, передаваемого самим системным вызовам.
+Утилита rctl предоставляет ряд удобств, которых нет у системных вызовов.
+При использовании системного вызова:
+.Bl -dash -offset indent
+.It
+Субъект должен быть указан полностью.
+Например, сокращение
+.Ql user
+до
+.Ql u
+недопустимо.
+.It
+Идентификаторы пользователей и групп должны быть числовыми.
+Например,
+.Ql root
+должен быть записан как
+.Ql 0 .
+.It
+Единицы измерения не допускаются для объёмов ресурсов.
+Например, количество в 1024 байта должно быть записано как
+.Ql 1024 ,
+а не
+.Ql 1k .
+.El
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std
+.Sh ОШИБКИ
+Системные вызовы rctl могут завершиться неудачей, если:
+.Bl -tag -width Er
+.It Bq Er ENOSYS
+Поддержка RACCT/RCTL отсутствует в ядре или sysctl
+.Va kern.racct.enable
+равен 0.
+.It Bq Er EINVAL
+Правило или фильтр, переданный в
+.Fa inbufp ,
+недопустим.
+.It Bq Er EPERM
+У пользователя недостаточно привилегий для выполнения запрошенной операции.
+.It Bq Er E2BIG
+.Fa inbufp
+или
+.Fa outbufp
+слишком велики.
+.It Bq Er ESRCH
+Ни один процесс не соответствует предоставленному правилу или фильтру.
+.It Bq Er ENAMETOOLONG
+Указанное имя класса входа или клетки слишком длинное.
+.It Bq Er ERANGE
+Объём правила выходит за допустимые пределы или
+.Fa outbufp
+слишком мал.
+.It Bq Er EOPNOTSUPP
+Запрошенная операция не поддерживается для данного правила или фильтра.
+.It Bq Er EFAULT
+.Fa inbufp
+или
+.Fa outbufp
+указывают на недопустимые адреса.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr rctl 8
+.Sh ИСТОРИЯ
+Семейство системных вызовов rctl появилось в
+.Fx 9.0 .
+.Sh АВТОРЫ
+.An -nosplit
+Системные вызовы rctl были разработаны
+.An Edward Tomasz Napierala Aq Mt trasz@FreeBSD.org
+при поддержке FreeBSD Foundation.
+Эта страница руководства была написана
+.An Eric Badger Aq Mt badger@FreeBSD.org .

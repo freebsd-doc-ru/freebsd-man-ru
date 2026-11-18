@@ -1,0 +1,130 @@
+.\" Copyright (c) 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path lib/libsys/mprotect.2
+.\" FRDP githash 8269e7673cf033aba67dab8264fe719920c70f87
+.\" FRDP hash256 235b39e22bd2d09a85515829e24402cc0db4fbe7ee03c643b1176e9380869cad
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd September 7, 2021
+.Dt MPROTECT 2
+.Os
+.Sh ИМЯ
+.Nm mprotect
+.Nd управление защитой страниц
+.Sh БИБЛИОТЕКА
+.Lb libc
+.Sh SYNOPSIS
+.In sys/mman.h
+.Ft int
+.Fn mprotect "void *addr" "size_t len" "int prot"
+.Sh ОПИСАНИЕ
+Системный вызов
+.Fn mprotect
+изменяет защиту указанных страниц на
+.Fa prot .
+.Pp
+Аргумент
+.Fa prot
+должен быть
+.Dv PROT_NONE
+(никаких прав доступа)
+или побитовым
+.Em или
+одного или нескольких из следующих значений:
+.Pp
+.Bl -tag -width ".Dv PROT_WRITE" -compact
+.It Dv PROT_READ
+Страницы могут быть прочитаны.
+.It Dv PROT_WRITE
+Страницы могут быть записаны.
+.It Dv PROT_EXEC
+Страницы могут быть исполнены.
+.El
+.Pp
+В дополнение к этим стандартным флагам защиты,
+реализация
+.Fn mprotect
+в
+.Fx
+предоставляет возможность установить максимальную защиту области
+(что предотвращает добавление разрешений
+.Nm
+позже).
+Это достигается путём побитового
+.Em или Ns 'ing
+одного или нескольких значений
+.Dv PROT_
+, обёрнутых в макрос
+.Dv PROT_MAX()
+, в аргумент
+.Fa prot .
+.Sh ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ
+.Rv -std mprotect
+.Sh ОШИБКИ
+Системный вызов
+.Fn mprotect
+завершится с ошибкой, если:
+.Bl -tag -width Er
+.It Bq Er EACCES
+Вызывающему процессу не разрешено изменять
+защиту на значение, указанное в
+аргументе
+.Fa prot .
+.It Bq Er EINVAL
+Диапазон виртуальных адресов, указанный аргументами
+.Fa addr
+и
+.Fa len
+, недопустим.
+.It Bq Er EINVAL
+Аргумент
+.Fa prot
+содержит необрабатываемые биты.
+.It Bq Er ENOTSUP
+Аргумент
+.Fa prot
+содержит разрешения, которые не являются подмножеством указанных
+максимальных разрешений.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr madvise 2 ,
+.Xr mincore 2 ,
+.Xr msync 2 ,
+.Xr munmap 2
+.Sh ИСТОРИЯ
+Системный вызов
+.Fn mprotect
+был впервые задокументирован в
+.Bx 4.2
+и впервые появился в
+.Bx 4.4 .
+.Pp
+Функциональность
+.Dv PROT_MAX
+была введена в
+.Fx 13 .

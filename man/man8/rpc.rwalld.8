@@ -1,0 +1,81 @@
+.\" -*- nroff -*-
+.\"
+.\" Copyright (c) 1985, 1991 The Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path libexec/rpc.rwalld/rpc.rwalld.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 413d15e2f7063cb06e14f1a3ec88b0737dbcb7c10de45e7000cc3780b05af340
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 7, 1993
+.Dt RPC.RWALLD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.rwalld
+.Nd отправлять сообщения пользователям, вошедшим в систему на сервере
+.Sh СИНТАКСИС
+.Nm /usr/libexec/rpc.rwalld
+.Op Fl n
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является сервером, который отправляет сообщение пользователям,
+вошедшим в систему в данный момент.
+Этот сервер
+вызывает команду
+.Xr wall 1
+для фактической записи сообщений в
+систему.
+.Pp
+Доступна следующая опция:
+.Bl -tag -width indent
+.It Fl n
+Не становиться демоном.
+Эта опция доступна только тогда, когда
+.Nm
+не вызывается через
+.Xr inetd 8 .
+.El
+.Pp
+Сообщения отправляются на этот сервер командой
+.Xr rwall 1 .
+Демон
+.Nm
+обычно вызывается
+.Xr inetd 8 .
+.Pp
+Утилита
+.Nm
+использует протокол
+.Tn RPC ,
+определённый в
+.Pa /usr/include/rpcsvc/rwall.x .
+.Sh СМ. ТАКЖЕ
+.Xr rwall 1 ,
+.Xr wall 1 ,
+.Xr inetd 8

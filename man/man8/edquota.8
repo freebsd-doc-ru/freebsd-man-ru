@@ -1,0 +1,258 @@
+.\" Copyright (c) 1983, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" This code is derived from software contributed to Berkeley by
+.\" Robert Elz at The University of Melbourne.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/edquota/edquota.8
+.\" FRDP githash 8a7b61203704d362cfbc66c00619f51b24106b55
+.\" FRDP hash256 ef61eea486948209215e2d75815bac61b9efd11487d3365b3d63ed3ca5747305
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 6, 1993
+.Dt EDQUOTA 8
+.Os
+.Sh ИМЯ
+.Nm edquota
+.Nd редактирование квот пользователей
+.Sh СИНТАКСИС
+.Nm
+.Op Fl uh
+.Op Fl f Ar fspath
+.Op Fl p Ar proto-username
+.Ar username ...
+.Nm
+.Op Fl u
+.Fl e
+.Sm off
+.Ar fspath Op : Ar bslim Op : Ar bhlim Op : Ar islim Op : Ar ihlim
+.Sm on
+.Op Fl e Ar ...
+.Ar username ...
+.Nm
+.Fl g
+.Op Fl h
+.Op Fl f Ar fspath
+.Op Fl p Ar proto-groupname
+.Ar groupname ...
+.Nm
+.Fl g
+.Fl e
+.Sm off
+.Ar fspath Op : Ar bslim Op : Ar bhlim Op : Ar islim Op : Ar ihlim
+.Sm on
+.Op Fl e Ar ...
+.Ar groupname ...
+.Nm
+.Fl t
+.Op Fl u
+.Op Fl f Ar fspath
+.Nm
+.Fl t
+.Fl g
+.Op Fl f Ar fspath
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является редактором квот.
+По умолчанию или если указан флаг
+.Fl u
+,
+в командной строке можно указать одного или нескольких пользователей.
+Для каждого пользователя создаётся временный файл
+с представлением текущих
+дисковых квот для этого пользователя в формате
+.Tn ASCII .
+Список файловых систем с квотами пользователей определяется из
+.Pa /etc/fstab .
+Редактор вызывается для файла
+.Tn ASCII .
+Вызываемый редактор —
+.Xr vi 1
+, если только переменная окружения
+.Ev EDITOR
+не указывает иное.
+.Pp
+Затем квоты можно изменять, добавлять новые квоты и т. д.
+Квоты на блоки можно задавать в байтах (B), килобайтах (K),
+мегабайтах (M), терабайтах (T), петабайтах (P) или эксабайтах (E).
+Если единицы не указаны, предполагаются килобайты.
+Квоты на иноды можно задавать в килоинодах (K),
+мегаинодах (M), тераинодах (T), петаинодах (P) или эксаинодах (E).
+Если единицы не указаны, используется указанное количество инодов.
+Если указан флаг
+.Fl h
+, редактор всегда будет отображать
+использование блоков и лимиты в более удобочитаемом формате,
+а не в традиционном формате килобайтов.
+Установка квоты в ноль означает, что никакая квота не должна применяться.
+Установка жёсткого лимита в единицу означает, что не следует разрешать
+никакие выделения.
+Установка мягкого лимита в единицу при жёстком лимите, равном нулю,
+означает, что выделения должны разрешаться только на временной основе (см.
+.Fl t
+ниже).
+Текущая информация об использовании в файле носит справочный характер;
+изменять можно только жёсткие и мягкие лимиты.
+.Pp
+При выходе из редактора
+.Nm
+читает временный файл и изменяет двоичные файлы квот, чтобы отразить
+внесённые изменения.
+.Pp
+Если указана опция
+.Fl p
+,
+.Nm
+будет дублировать квоты пользователя-прототипа для каждого указанного
+пользователя.
+Это обычный механизм, используемый для инициализации квот для групп
+пользователей.
+Если пользователь, которому назначаются квоты, задан числовым диапазоном uid
+(например,\& 1000-2000), то
+.Nm
+будет дублировать квоты пользователя-прототипа
+для каждого uid в указанном диапазоне.
+Это позволяет легко настроить квоты по умолчанию для группы пользователей.
+Упомянутые uid не обязательно должны быть назначены в
+.Pa /etc/passwd .
+.Pp
+Если указана одна или несколько опций
+.Fl e
+.Sm off
+.Ar fspath Op : Ar bslim Op : Ar bhlim Op : Ar islim Op : Ar ihlim
+.Sm on
+,
+.Nm
+неинтерактивно задаёт квоты, определённые с помощью
+.Ar bslim , bhlim, islim ,
+и
+.Ar ihlim
+в каждой конкретной файловой системе, на которую ссылается
+.Ar fspath .
+Здесь
+.Ar bslim
+— мягкий лимит на количество блоков,
+.Ar bhlim
+— жёсткий лимит на количество блоков,
+.Ar islim
+— мягкий лимит на количество файлов, а
+.Ar ihlim
+— жёсткий лимит на количество файлов.
+Если какое-либо из значений
+.Ar bslim , bhlim, islim ,
+и
+.Ar ihlim
+опущено, оно считается равным нулю, что означает, что никакая конкретная
+квота не должна применяться.
+Квоты на блоки можно задавать в байтах (B), килобайтах (K),
+мегабайтах (M), терабайтах (T), петабайтах (P) или эксабайтах (E).
+Если единицы не указаны, предполагаются килобайты.
+Квоты на иноды можно задавать в килоинодах (K),
+мегаинодах (M), тераинодах (T), петаинодах (P) или эксаинодах (E).
+Если единицы не указаны, используется указанное количество инодов.
+.Pp
+Если вызвана с опцией
+.Fl f
+,
+.Nm
+будет читать и изменять квоты только в файловой системе, указанной
+.Ar fspath .
+Аргумент
+.Ar fspath
+может быть либо специальным устройством, либо точкой монтирования
+файловой системы.
+Основное назначение этой опции — задать область действия для опции
+.Fl p
+, которая иначе перезаписала бы записи квот в каждой
+файловой системе с квотами.
+.Pp
+Если указан флаг
+.Fl g
+,
+.Nm
+вызывается для редактирования квот одной или нескольких групп, указанных
+в командной строке.
+Флаг
+.Fl p
+можно указать вместе с флагом
+.Fl g
+, чтобы задать группу-прототип, квоты которой нужно дублировать
+среди перечисленного набора групп.
+Аналогично, флаг
+.Fl e
+можно указать вместе с флагом
+.Fl g
+, чтобы неинтерактивно настроить квоты для перечисленного набора
+групп.
+.Pp
+Пользователям разрешено превышать свои мягкие лимиты
+в течение льготного периода, который может задаваться для каждой файловой системы.
+После истечения льготного периода
+мягкий лимит применяется как жёсткий лимит.
+Льготный период по умолчанию для файловой системы задаётся в
+.In ufs/ufs/quota.h .
+Флаг
+.Fl t
+можно использовать для изменения льготного периода.
+По умолчанию или при вызове с флагом
+.Fl u
+льготный период устанавливается для всех файловых систем с квотами
+пользователей, указанных в
+.Pa /etc/fstab .
+При вызове с флагом
+.Fl g
+льготный период устанавливается для всех файловых систем с квотами групп,
+указанных в
+.Pa /etc/fstab .
+Льготный период можно задавать в днях, часах, минутах или секундах.
+Установка льготного периода в ноль означает, что должен применяться
+льготный период по умолчанию.
+Установка льготного периода в одну секунду означает, что льготный период
+не должен предоставляться.
+Чтобы новый льготный период вступил в силу, квоты для файловой системы
+необходимо отключить, а затем снова включить.
+.Pp
+Только суперпользователь может редактировать квоты.
+.Sh ФАЙЛЫ
+.Bl -tag -width quota.group -compact
+.It Pa quota.user
+в корне файловой системы с квотами пользователей
+.It Pa quota.group
+в корне файловой системы с квотами групп
+.It Pa /etc/fstab
+для поиска имён и расположения файловых систем
+.El
+.Sh ДИАГНОСТИКА
+Различные сообщения о недоступных файлах; пояснений не требуют.
+.Sh СМ. ТАКЖЕ
+.Xr quota 1 ,
+.Xr quotactl 2 ,
+.Xr fstab 5 ,
+.Xr quotacheck 8 ,
+.Xr quotaon 8 ,
+.Xr repquota 8

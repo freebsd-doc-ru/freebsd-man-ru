@@ -1,0 +1,92 @@
+.\" Copyright (c) 2004 Kungliga Tekniska Högskolan
+.\" (Royal Institute of Technology, Stockholm, Sweden).
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\"
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" 3. Neither the name of the Institute nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $Id$
+.\"
+.\" FRDP path ./crypto/heimdal/kuser/copy_cred_cache.1
+.\" FRDP githash ae77177087c655fc883075af4f425b37e032cd05
+.\" FRDP hash256 69b8aee2f88fffd636df8719a605718ad5653bb9c2dfc037a5bcc97b153dd030
+.Dd 24 апреля 2004
+.Dt COPY_CRED_CACHE 1
+.Os HEIMDAL
+.Sh ИМЯ
+.Nm copy_cred_cache
+.Nd копирование учётных данных из одного кэша в другой
+.Sh СИНТАКСИС
+.Nm
+.Op Fl Fl krbtgt-only
+.Op Fl Fl service= Ns Ar принципал
+.Op Fl Fl enctype= Ns Ar тип_шифрования
+.Op Fl Fl flags= Ns Ar флаги_билета
+.Op Fl Fl valid-for= Ns Ar время
+.Op Fl Fl fcache-version= Ns Ar целое_число
+.Op Aq Ar исходный_кэш
+.Aq Ar целевой_кэш
+.Sh ОПИСАНИЕ
+.Nm
+копирует учётные данные из
+.Aq Ar исходный_кэш
+(или кэша по умолчанию) в
+.Aq Ar целевой_кэш .
+.Pp
+Поддерживаемые опции:
+.Bl -tag -width Ds
+.It Fl Fl krbtgt-only
+Копирует только учётные данные krbtgt для области клиента. Это
+эквивалентно
+.Fl Fl service= Ns Li krbtgt/ Ns Ao Ar ОБЛАСТЬ_КЛИЕНТА Ac Ns Li @ Ns Ao Ar ОБЛАСТЬ_КЛИЕНТА Ac .
+.It Fl Fl service= Ns Ar принципал
+Копирует только учётные данные, соответствующие этому принципалу службы.
+.It Fl Fl enctype= Ns Ar тип_шифрования
+Копирует только учётные данные с соответствующим типом шифрования.
+.It Fl Fl flags= Ns Ar флаги_билета
+Копирует только учётные данные с установленными этими флагами билета.
+.It Fl Fl valid-for= Ns Ar время
+Копирует только учётные данные, действительные как минимум в течение указанного времени. Это
+не учитывает возобновляемые учётные данные.
+.It Fl Fl fcache-version= Ns Ar целое_число
+Созданный кэш, если создаётся стандартный кэш
+.Li FILE ,
+будет иметь эту версию формата файла.
+.El
+.Sh ПРИМЕРЫ
+Чтобы скопировать только учётные данные, действительные как минимум один день и с
+установленным флагом
+.Li initial ,
+попробуйте следующее:
+.Bd -literal -offset indent
+$ copy_cred_cache --valid-for=1d --flags=initial FILE:/some/cache
+.Ed
+.Sh ДИАГНОСТИКА
+Утилита
+.Nm
+завершается с кодом 0 при успехе и \*[Gt]0 при возникновении ошибки или если никакие
+учётные данные не были фактически скопированы.

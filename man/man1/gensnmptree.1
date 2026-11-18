@@ -1,0 +1,218 @@
+.\" FRDP path contrib/bsnmp/gensnmptree/gensnmptree.1
+.\" FRDP githash 4ac8f4067096a9d4a00e41cd53bd5c4fa295fd15
+.\" FRDP hash256 c814420483a9921953d26522932ad076f7216e5a25daeded87c4097898179ce2
+.Dd April 2, 2019
+.Dt GENSNMPTREE 1
+.Os
+.Sh ИМЯ
+.Nm gensnmptree
+.Sh СИНТАКСИС
+.Nm
+.Op Fl dEeFfhlt
+.Op Fl I Ar directory
+.Op Fl i Ar infile
+.Op Fl p Ar prefix
+.Op Ar name Ar ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+используется либо для генерации таблиц и заголовочных файлов на языке C из
+описания MIB, либо для получения числовых OID из описаний MIB.
+Первая форма используется только для сопровождения демона
+.Xr bsnmpd 1
+или авторами модулей.
+Вторая форма может использоваться авторами клиентских программ SNMP.
+.Pp
+Если не используется ни один из параметров
+.Fl e ,
+.Fl E
+или
+.Fl t ,
+.Nm
+читает описание MIB со стандартного ввода и создаёт два файла: файл на C
+.Ar prefix Ns tree.c
+содержащий таблицу, используемую
+.Xr bsnmpd 1
+при обработке PDU,
+и заголовочный файл
+.Ar prefix Ns tree.h
+содержащий соответствующие объявления функций обратного вызова, используемых в этой
+таблице, саму таблицу и определения для всех перечислений.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width indent
+.It Fl d
+Включить отладку.
+.It Fl E
+Извлечь перечисления и битовые конструкции.
+В этом режиме инструмент создаёт
+заголовочный файл, который содержит для каждого типа, заданного в командной строке,
+определение перечисления C и определение препроцессора, которое может использоваться для отображения
+значений в строки.
+.It Fl e
+.Nm
+ожидает имена переменных MIB (только последний компонент) в своей командной строке.
+Он читает спецификацию MIB со стандартного ввода и для каждого имени переменной MIB
+выводит три определения препроцессора C в свой стандартный вывод:
+.Bl -tag -width indent
+.It Va OIDX_ Ns Ar name
+Это определение можно использовать для инициализации
+.Va struct asn_oid
+следующим образом:
+.Pp
+.Dl const struct asn_oid oid_sysDescr = OIDX_sysDescr;
+.It Va OIDLEN_ Ns Ar name
+это длина OID.
+.It Va OID_ Ns Ar name
+это последний компонент OID.
+.El
+.It Fl F
+вывести определения для C-функций, включаемых в C-файл, которые выполняют базовые
+операции с перечислениями, такие как проверка значений и преобразование между значениями и строками.
+.It Fl f
+вывести определения для встроенных C-функций, которые выполняют базовые
+операции с перечислениями, такие как проверка значений и преобразование между значениями и строками.
+.It Fl h
+Вывести краткую справку.
+.It Fl I Ar directory
+Добавить указанный каталог в путь включения непосредственно перед стандартными
+каталогами включения.
+.It Fl i Ar infile
+Читать из указанного файла вместо стандартного ввода.
+.It Fl l
+Генерировать локальные включения препроцессора.
+Это используется для начальной загрузки
+.Xr bsnmpd 1 .
+.It Fl t
+Вместо обычного вывода напечатать полученное дерево.
+.It Fl p Ar prefix
+Добавить
+.Ar prefix
+в начало имён файлов и имени таблицы.
+.El
+.Sh MIB
+Синтаксис файла описания MIB формально можно задать следующим образом:
+.Bd -unfilled -offset indent
+ file := top | top file
+
+ top := tree | typedef | include
+
+ tree := head elements ')'
+
+ entry := head ':' index STRING elements ')'
+
+ leaf := head type STRING ACCESS ')'
+
+ column := head type ACCESS ')'
+
+ type := BASETYPE | BASETYPE '|' subtype | enum | bits
+
+ subtype := STRING
+
+ enum := ENUM '(' value ')'
+
+ bits := BITS '(' value ')'
+
+ value := INT STRING | INT STRING value
+
+ head := '(' INT STRING
+
+ elements := EMPTY | elements element
+
+ element := tree | leaf | column
+
+ index := type | index type
+
+ typedef := 'typedef' STRING type
+
+ include := 'include' filespec
+
+.Ed
+.Pp
+.Ar BASETYPE
+задаёт тип данных SNMP и может быть одним из
+.Bl -bullet -offset indent -compact
+.It
+NULL
+.It
+INTEGER
+.It
+INTEGER32 (то же, что INTEGER)
+.It
+UNSIGNED32 (то же, что GAUGE)
+.It
+OCTETSTRING
+.It
+IPADDRESS
+.It
+OID
+.It
+TIMETICKS
+.It
+COUNTER
+.It
+GAUGE
+.It
+COUNTER64
+.El
+.Pp
+.Ar ACCESS
+задаёт доступность переменной MIB (какую операцию можно
+выполнить) и является одним из
+.Bl -bullet -offset indent -compact
+.It
+GET
+.It
+SET
+.El
+.Pp
+.Ar INT
+это десятичное целое, а
+.Ar STRING
+это любая строка, начинающаяся с буквы или подчёркивания и состоящая из
+букв, цифр, подчёркиваний и минусов, которая не является одним из ключевых слов.
+.Pp
+Директива
+.Ar typedef
+связывает тип с одним именем.
+.Pp
+Директива
+.Ar include
+заменяется содержимым указанного файла.
+.Sh ПРИМЕРЫ
+Следующее описание MIB описывает системную группу:
+.Bd -literal -offset indent
+
+typedef AdminStatus ENUM (
+	1 up
+	2 down
+)
+
+(1 internet
+  (2 mgmt
+    (1 mib-2
+      (1 system
+        (1 sysDescr OCTETSTRING op_system_group GET)
+        (2 sysObjectId OID op_system_group GET)
+        (3 sysUpTime TIMETICKS op_system_group GET)
+        (4 sysContact OCTETSTRING op_system_group GET SET)
+        (5 sysName OCTETSTRING op_system_group GET SET)
+        (6 sysLocation OCTETSTRING op_system_group GET SET)
+        (7 sysServices INTEGER op_system_group GET)
+        (8 sysORLastChange TIMETICKS op_system_group GET)
+        (9 sysORTable
+          (1 sysOREntry : INTEGER op_or_table
+            (1 sysORIndex INTEGER)
+            (2 sysORID OID GET)
+            (3 sysORDescr OCTETSTRING GET)
+            (4 sysORUpTime TIMETICKS GET)
+        ))
+      )
+    )
+  )
+)
+.Ed
+.Sh СМ. ТАКЖЕ
+.Xr bsnmpd 1
+.Sh АВТОРЫ
+.An Hartmut Brandt Aq harti@FreeBSD.org

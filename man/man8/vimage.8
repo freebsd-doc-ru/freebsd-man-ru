@@ -1,0 +1,183 @@
+.\" Copyright (c) 2002, 2003 Marko Zec <zec@fer.hr>
+.\" Copyright (c) 2009 University of Zagreb
+.\" Copyright (c) 2009 FreeBSD Foundation
+.\"
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path tools/tools/vimage/vimage.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 5238129eb692054801102725bbd130398996f38624c937989370db4a03a7aa3a
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd August 25, 2009
+.Dt VIMAGE 8
+.Os
+.Sh ИМЯ
+.Nm vimage
+.Nd управление виртуальными сетевыми стеками
+.Sh СИНТАКСИС
+.Nm
+.Op Fl c | m
+.Ar vname
+.Op Ar param=value ...
+.Nm
+.Fl d
+.Ar vname
+.Nm
+.Fl l
+.Op Fl rvj
+.Op Ar vname
+.Nm
+.Fl i
+.Ar vname ifname
+.Op Ar newifname
+.Nm
+.Ar vi_name
+.Op команда ...
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+— это альтернативный пользовательский интерфейс для управления виртуальными сетевыми стеками в FreeBSD, предназначенный в первую очередь для поддержки устаревших приложений, которые ещё не переведены на использование
+.Xr jail 8 ,
+.Xr jexec 8 ,
+и
+.Xr jls 8 .
+.
+.Ss Обзор
+Виртуальный образ, или vimage, — это клетка с собственным независимым экземпляром сетевого стека.
+Каждый процесс, сокет и сетевой интерфейс, присутствующие в системе, всегда привязаны к одному и только одному экземпляру виртуального сетевого стека (vnet).
+Во время последовательности загрузки системы создаётся vnet по умолчанию, к которому изначально привязаны все настроенные интерфейсы и пользовательские процессы.
+При наличии достаточных системных ресурсов пользователь с достаточными привилегиями может создавать и управлять иерархией подчинённых виртуальных образов.
+Команда
+.Nm
+позволяет создавать, удалять и отслеживать виртуальные образы, а также выполнять произвольные процессы в целевом виртуальном образе.
+.Ss Вызов
+Если
+.Nm
+вызвана без модификаторов, команда запускает новую интерактивную оболочку в виртуальном образе
+.Ar vname .
+Если указаны необязательные дополнительные аргументы после
+.Ar vname ,
+первый из них будет выполнен вместо интерактивной оболочки, а остальные аргументы будут переданы выполняемой команде как аргументы.
+.Pp
+Доступны следующие модификаторы:
+.Bl -tag -width indent
+.It Fl c
+Создать новый виртуальный образ с именем
+.Ar vname .
+Дополнительные аргументы, если они указаны, могут использоваться для задания параметров работы, отличных от значений по умолчанию, в формате
+.Ar param=value .
+См.
+.Xr jail 8
+для получения полного списка доступных параметров.
+.It Fl m
+Изменить параметры виртуального образа с именем
+.Ar vname ,
+используя тот же синтаксис, что и в форме -c команды.
+.It Fl d
+Удалить виртуальный образ
+.Ar vname .
+Чтобы запрос на удаление выполнился успешно, в целевом виртуальном образе не должно быть процессов и/или сокетов.
+Интерфейсы, не являющиеся loopback и находящиеся в целевом виртуальном образе, будут переназначены родительскому виртуальному образу.
+.It Fl l
+Вывести свойства и статистику для виртуальных образов на один уровень ниже текущего в иерархии.
+Если указан необязательный аргумент
+.Ar vname ,
+отображается только информация о целевом виртуальном образе
+.Ar vname .
+Если включён необязательный переключатель
+.Op Ar -r
+, список будет включать все виртуальные образы ниже текущего уровня в иерархии vimage.
+Включение необязательных переключателей
+.Op Ar -v
+или
+.Op Ar -j
+приводит к более подробному выводу.
+.It Fl i
+Переместить интерфейс
+.Ar ifname
+в целевой виртуальный образ
+.Ar vname .
+Интерфейсы будут автоматически переименованы в
+.So
+ethXX
+.Sc ,
+если только не указан необязательный аргумент
+.Op Ar newifname
+,
+задающий желаемое имя интерфейса.
+.El
+.Sh ПРИМЕРЫ
+Создать новый виртуальный образ с именем
+.So v1
+.Sc ,
+которому разрешено создавать и управлять собственной подыерархией vimage:
+.Pp
+.Dl vimage -c v1 children.max=100
+.Pp
+Выполнить команду
+.So ifconfig
+.Sc
+в виртуальном образе
+.So v1
+.Sc :
+.Pp
+.Dl vimage v1 ifconfig
+.Pp
+Переместить интерфейс
+.So vlan0
+.Sc
+в виртуальный образ
+.So v1
+.Sc ,
+переименовав интерфейс в
+.So
+ve0
+.Sc :
+.Pp
+.Dl vimage -i v1 vlan0 ve0
+.Pp
+Показать информацию о состоянии виртуального образа
+.So v1
+.Sc :
+.Pp
+.Dl vimage -lv v1
+.Sh ДИАГНОСТИКА
+Команда
+.Nm
+завершается с кодом 0 при успехе и >0 при возникновении ошибки.
+.Sh СМ. ТАКЖЕ
+.Xr jail 8 ,
+.Xr jexec 8 ,
+.Xr jls 8
+.Sh ИСТОРИЯ
+Фреймворк виртуализации сетевого стека впервые появился как набор патчей для ядра
+.Fx 4.7
+в 2002 году и поддерживался вне основного дерева FreeBSD.
+В результате проекта, спонсированного FreeBSD Foundation и Stiching NLNet, интегрированный виртуализированный сетевой стек впервые появился в
+.Fx 8.0 .
+.Sh АВТОРЫ
+.An Marko Zec Aq Mt zec@fer.hr
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Известно, что удаление vimages / vnets приводит к утечке памяти ядра и не позволяет остановить различные таймеры, что может привести к аварийному завершению системы.

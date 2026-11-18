@@ -1,0 +1,150 @@
+.\" -*- nroff -*-
+.\"
+.\" Copyright (c) 1995 A.R.Gordon, andrew.gordon@net-tel.co.uk
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rpc.statd/rpc.statd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 ccf9a63ae9709ef5a46ab9afb0e31cb8d54c26eb980259af8aff992fe321232c
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd November 21, 2019
+.Dt RPC.STATD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.statd
+.Nd демон мониторинга состояния хостов
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d
+.Op Fl F
+.Op Fl h Ar bindip
+.Op Fl p Ar port
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+является демоном, который взаимодействует с
+.Nm
+демонами на других хостах, чтобы предоставить
+службу мониторинга состояния.
+Демон принимает запросы от
+программ, работающих на локальном хосте (обычно,
+.Xr rpc.lockd 8 ,
+демон блокировки файлов NFS), для мониторинга состояния указанных
+хостов.
+Если наблюдаемый хост аварийно завершает работу и перезагружается, удаленный демон
+уведомит локальный демон, который, в свою очередь, уведомит локальную программу(ы),
+запросившую службу мониторинга.
+И наоборот, если этот хост аварийно завершает работу
+и перезагружается, когда
+.Nm
+перезапускается, он уведомит все хосты, которые наблюдались
+на момент сбоя.
+.Pp
+Доступна следующая опция:
+.Bl -tag -width indent
+.It Fl d
+Вызывать запись отладочной информации в syslog, записывая
+все RPC-транзакции к демону.
+Эти сообщения регистрируются с уровнем
+LOG_DEBUG и средством LOG_DAEMON.
+Ошибки регистрируются независимо
+от этой опции, с использованием уровня LOG_ERR.
+.It Fl F
+Запустить
+.Nm
+в переднем плане, а не переходить в режим демона.
+Это полезно, если какой-либо другой процесс использует
+.Xr fork 2
+и
+.Xr exec 3
+для запуска
+.Nm ,
+и хочет отслеживать, когда и как он завершается.
+.It Fl h Ar bindip
+Указать конкретные IP-адреса для привязки.
+Эта опция может быть указана несколько раз.
+Если опция
+.Fl h
+не указана,
+.Nm
+будет привязан к
+.Dv INADDR_ANY .
+Обратите внимание, что при указании IP-адресов с помощью
+.Fl h ,
+.Nm
+автоматически добавит
+.Li 127.0.0.1
+и, если IPv6 включен,
+.Li ::1
+в список.
+.It Fl p
+Опция
+.Fl p
+позволяет заставить демон привязаться к указанному
+.Ar port ,
+для обоих семейств адресов AF_INET и AF_INET6.
+.El
+.Pp
+Утилита
+.Nm
+НЕ должна запускаться из
+.Xr inetd 8 ,
+потому что протокол предполагает, что демон будет работать с момента запуска системы.
+Вместо этого, она должна запускаться из
+.Xr rc 8
+после запуска сети.
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/include/rpcsvc/sm_inter.x -compact
+.It Pa /var/db/statd.status
+энергонезависимая запись текущих наблюдаемых хостов.
+.It Pa /usr/include/rpcsvc/sm_inter.x
+Спецификация протокола RPC, используемая локальными приложениями для регистрации запросов на мониторинг.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr syslog 3 ,
+.Xr rc 8 ,
+.Xr rpc.lockd 8
+.Sh СТАНДАРТЫ
+Реализация основана на спецификации в X/Open CAE Specification
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Нет способа для демона определить, когда наблюдаемый хост
+исчез навсегда (например, катастрофический отказ оборудования), в отличие
+от временного отказа хоста или промежуточного маршрутизатора.
+В настоящее время
+он будет повторять попытки уведомления через частые интервалы в течение 10 минут,
+затем ежечасно, и, наконец, сдается после 24 часов.
+.Pp
+Протокол требует, чтобы симметричные запросы мониторинга отправлялись как
+локальному, так и удаленному демону для установления наблюдаемых отношений.
+Это удобно для протокола блокировки NFS, но, вероятно, снижает
+полезность системы мониторинга для других приложений.
+.Pp
+Текущая реализация использует более 1 Кбайта на каждый наблюдаемый хост в
+файле состояния (а также в виртуальной памяти).
+Это может быть неэффективно для серверов NFS
+с большим количеством клиентов.

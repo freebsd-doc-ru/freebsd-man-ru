@@ -1,0 +1,90 @@
+.\" Copyright (c) 2004-2005 Gleb Smirnoff <glebius@FreeBSD.org>
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/flowctl/flowctl.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 27bf54270b1f2d80b047937867d3ffa219e11aed58b0ca08964a7921a0acab7e
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd June 8, 2012
+.Dt FLOWCTL 8
+.Os
+.Sh ИМЯ
+.Nm flowctl
+.Nd
+.Xr ng_netflow 4
+утилита управления
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d Ar уровень
+.Ar путь команда
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предназначена для управления узлами
+.Xr ng_netflow 4 .
+У неё есть только одна опция:
+.Bl -tag -width indent
+.It Fl d Ar уровень
+Установить уровень отладки
+.Xr netgraph 3
+в
+.Ar уровень .
+.El
+.Sh КОМАНДЫ
+В настоящее время
+.Nm
+поддерживает только одну команду.
+.Bl -tag -width indent
+.It Cm show Oo Cm ipv4|ipv6 Oc Op Cm human|verbose
+Эта команда является аналогом
+команды маршрутизатора Cisco.
+Она выводит содержимое кэша потоков в формате, подобном Cisco.
+Указание
+.Cm ipv4
+или
+.Cm ipv6
+приведёт к извлечению только потоков IPv4 или IPv6 соответственно.
+У неё есть необязательный параметр
+.Cm verbose ,
+который является аналогом
+команды. Дополнительно,
+.Cm human
+параметр можно указать, чтобы показать выбранные потоки в удобочитаемом формате.
+.El
+.Sh СТАТУС ВЫХОДА
+.Ex -std
+.Sh СМ. ТАКЖЕ
+.Xr netgraph 3 ,
+.Xr ng_netflow 4
+.Sh АВТОРЫ
+.An -nosplit
+Утилита
+.Nm
+была написана
+.An Gleb Smirnoff Aq Mt glebius@FreeBSD.org ,
+на основе
+.Nm ipacctctl ,
+написанной
+.An Roman V. Palagin Aq Mt romanp@unshadow.net .

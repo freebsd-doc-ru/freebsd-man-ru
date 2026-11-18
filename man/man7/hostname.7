@@ -1,0 +1,90 @@
+.\" Copyright (c) 1987, 1990, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)hostname.7	8.2 (Berkeley) 12/30/93
+.\"
+.\" FRDP path share/man/man7/hostname.7
+.\" FRDP githash f10e328cb1921d2f5f0253565f38e0daa667db69
+.\" FRDP hash256 417ec375c3c2aa6d7173dc2f831ee1c638b94883accef77c75935c3e587137a4
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd December 25, 2013
+.Dt HOSTNAME 7
+.Os
+.Sh ИМЯ
+.Nm hostname
+.Nd описание разрешения имён узлов
+.Sh ОПИСАНИЕ
+Имена узлов — это домены, где домен представляет собой иерархический
+список поддоменов, разделённых точками; например, машина monet
+в поддомене Berkeley домена EDU сети Интернет была бы представлена как
+.Pp
+.Dl monet.Berkeley.EDU
+.Pp
+(без завершающей точки).
+.Pp
+Имена узлов часто используются в сетевых клиентских и серверных программах,
+которым обычно необходимо преобразовать имя в адрес для использования.
+(Обычно эту функцию выполняет библиотечная процедура
+.Xr gethostbyname 3 . )
+Имена узлов разрешаются системой разрешения имён Интернета следующим
+образом.
+.Pp
+Если имя состоит из одного компонента, то есть не содержит точек,
+и если переменная окружения
+.Dq Ev HOSTALIASES
+установлена в имя файла,
+в этом файле ищется любая строка, совпадающая с входным именем узла.
+Файл должен состоять из строк, каждая из которых содержит две строки,
+разделённые пробельными символами; первая — это псевдоним имени узла,
+а вторая — полное имя узла, которое нужно подставить вместо этого псевдонима.
+Если найдено совпадение без учёта регистра между разрешаемым именем узла
+и первым полем строки в файле, подставленное имя ищется без дальнейшей обработки.
+.Pp
+Если входное имя заканчивается завершающей точкой,
+эта точка удаляется,
+а оставшееся имя ищется без дальнейшей обработки.
+.Pp
+Если входное имя не заканчивается завершающей точкой, оно ищется
+перебором списка доменов до тех пор, пока не будет найдено совпадение.
+Список поиска по умолчанию включает сначала локальный домен,
+затем его родительские домены, содержащие как минимум 2 компонента имени
+(сначала самые длинные).
+Например,
+в домене CS.Berkeley.EDU имя lithium.CChem будет проверено сначала
+как lithium.CChem.CS.Berkeley.EDU, а затем как lithium.CChem.Berkeley.EDU.
+Lithium.CChem.EDU не будет проверяться, так как от локального домена
+остаётся только один компонент.
+Путь поиска можно изменить по сравнению со значением по умолчанию
+с помощью общесистемного файла конфигурации (см.
+.Xr resolver 5 ) .
+.Sh СМ. ТАКЖЕ
+.Xr gethostbyname 3 ,
+.Xr resolver 5
+.Sh ИСТОРИЯ
+.Nm Hostname появилась в
+.Bx 4.2 .

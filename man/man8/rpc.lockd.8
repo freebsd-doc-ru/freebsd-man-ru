@@ -1,0 +1,160 @@
+.\"	$NetBSD: rpc.lockd.8,v 1.5 2000/06/09 18:51:47 cgd Exp $
+.\"
+.\" Copyright (c) 1995 A.R.Gordon, andrew.gordon@net-tel.co.uk
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/rpc.lockd/rpc.lockd.8
+.\" FRDP githash 44e72c6e2e6bcfa2cba89afb92fa05f6ac4d5660
+.\" FRDP hash256 bfb2d8daed5918dd0db7e850f9d2c83754c50b9ad3301192930137280b45b5d8
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd May 8, 2024
+.Dt RPC.LOCKD 8
+.Os
+.Sh ИМЯ
+.Nm rpc.lockd
+.Nd демон блокировки файлов NFS
+.Sh СИНТАКСИС
+.Nm
+.Op Fl d Ar debug_level
+.Op Fl F
+.Op Fl g Ar льготный период
+.Op Fl h Ar bindip
+.Op Fl p Ar port
+.Sh ОПИСАНИЕ
+Утилита
+.Nm
+предоставляет контролируемые и неконтролируемые службы блокировки файлов и записей
+в среде NFSv3.
+Для отслеживания состояния хостов, запрашивающих блокировки,
+демон блокировки обычно работает совместно
+с
+.Xr rpc.statd 8 .
+.Pp
+Параметры и операнды, доступные для
+.Nm :
+.Bl -tag -width indent
+.It Fl d
+Опция
+.Fl d
+заставляет записывать отладочную информацию в syslog, регистрируя
+все RPC-транзакции к демону.
+Эти сообщения регистрируются с уровнем
+.Dv LOG_DEBUG
+и категорией
+.Dv LOG_DAEMON .
+Указание
+.Ar debug_level
+равным 1 приводит
+к созданию одной строки журнала на каждую протокольную операцию.
+Можно указать более высокие
+уровни отладки, что вызывает отображение аргументов операций
+и внутренних операций демона.
+.It Fl F
+Запустить
+.Nm
+на переднем плане, а не в режиме демона.
+Это полезно, если какой-либо другой процесс использует
+.Xr fork 2
+и
+.Xr exec 3
+для запуска
+.Nm ,
+и хочет отслеживать, когда и как он завершается.
+.It Fl g
+Опция
+.Fl g
+позволяет указать
+.Ar льготный период ,
+в секундах.
+Во время льготного периода
+.Nm
+принимает только запросы от хостов, которые заново инициализируют блокировки,
+существовавшие до перезапуска сервера.
+По умолчанию 30 секунд.
+.It Fl h Ar bindip
+Указать конкретные IP-адреса для привязки.
+Эту опцию можно указывать несколько раз.
+Если ни одна опция
+.Fl h
+не указана,
+.Nm
+будет привязан к
+.Dv INADDR_ANY .
+Обратите внимание, что при указании IP-адресов с
+.Fl h ,
+.Nm
+автоматически добавит
+.Li 127.0.0.1
+и, если IPv6 включён,
+.Li ::1
+в список.
+.It Fl p
+Опция
+.Fl p
+позволяет заставить демон привязаться к указанному
+.Ar port ,
+для обоих семейств адресов AF_INET и AF_INET6.
+.El
+.Pp
+Ошибочные ситуации регистрируются в syslog независимо от уровня отладки,
+используя уровень журнала
+.Dv LOG_ERR
+и категорию
+.Dv LOG_DAEMON .
+.Pp
+Утилита
+.Nm
+НЕ должна вызываться из
+.Xr inetd 8 ,
+поскольку протокол предполагает, что демон будет работать с момента запуска системы.
+Вместо этого её следует настроить в
+.Xr rc.conf 5
+для запуска при загрузке системы.
+.Sh ФАЙЛЫ
+.Bl -tag -width /usr/include/rpcsvc/nlm_prot.x -compact
+.It Pa /usr/include/rpcsvc/nlm_prot.x
+Спецификация протокола RPC для протокола сетевого менеджера блокировок.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr syslog 3 ,
+.Xr nfslockd 4 ,
+.Xr rc.conf 5 ,
+.Xr rpc.statd 8
+.Sh СТАНДАРТЫ
+Реализация основана на спецификации в
+.Rs
+.%O ISBN 1 872630 66 9
+.Re
+.Sh ИСТОРИЯ
+Версия
+.Nm
+появилась в
+.Tn SunOS
+4.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Текущая реализация сериализует запросы блокировок, которые могли бы быть разделяемыми.

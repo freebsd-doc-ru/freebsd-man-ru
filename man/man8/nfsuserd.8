@@ -1,0 +1,143 @@
+.\" Copyright (c) 2009 Rick Macklem, University of Guelph
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" FRDP path usr.sbin/nfsuserd/nfsuserd.8
+.\" FRDP githash fa9896e082a1046ff4fbc75fcba4d18d1f2efc19
+.\" FRDP hash256 e27515dc2231c8cc5f0aa6986cd2cf0c5c480764b815f8ec1d382d842c8676eb
+.\" Copyright (c) 2026 FreeBSD Russian Documentation Project
+.\" SPDX-License-Identifier: BSD-2-Clause
+.Dd April 22, 2023
+.Dt NFSUSERD 8
+.Os
+.Sh ИМЯ
+.Nm nfsuserd
+.Nd загружает информацию о пользователях и группах в ядро для
+.Tn NFSv4
+сервисов, а также поддерживает manage-gids для всех версий NFS
+.Sh СИНТАКСИС
+.Nm nfsuserd
+.Op Fl domain Ar имя_домена
+.Op Fl usertimeout Ar минуты
+.Op Fl usermax Ar макс_размер_кэша
+.Op Fl verbose
+.Op Fl force
+.Op Fl manage-gids
+.Op Ar число_серверов
+.Sh ОПИСАНИЕ
+.Nm
+загружает информацию о пользователях и группах в ядро для NFSv4.
+Для монтирований NFSv4 с Kerberos он должен быть запущен как на клиентах, так и на
+сервере для корректной работы.
+Для монтирований NFSv4 без Kerberos этот демон должен быть запущен, если только все
+клиенты и сервер не настроены помещать номера uid/gid в строки
+owner и owner_group.
+.Pp
+Он также обеспечивает поддержку manage-gids и должен быть запущен на сервере, если
+это используется для любой версии NFS.
+.Pp
+При запуске он загружает в ядро DNS-имя домена машины, а также время ожидания и ограничение размера кэша.
+Затем он предварительно заполняет кэш информацией о группах и пользователях до ограничения размера
+кэша и порождает
+.Ar число_серверов
+(по умолчанию 4) дочерних процессов, которые являются серверами,
+обслуживающими запросы от ядра
+при промахах кэша.
+Главный процесс существует исключительно для завершения
+серверов.
+Чтобы остановить nfsuserd, пошлите SIGUSR1 главному процессу.
+.Pp
+Доступны следующие параметры:
+.Bl -tag -width Ds
+.It Fl domain Ar имя_домена
+Этот параметр позволяет переопределить DNS-имя домена по умолчанию, которое
+получается либо из суффикса имени хоста машины, либо,
+если это имя не является полным доменным именем, из канонического имени, как
+сообщается
+.Xr getaddrinfo 3 .
+.It Fl usertimeout Ar минуты
+Переопределяет время ожидания по умолчанию для записей кэша, в минутах.
+Чем больше
+время ожидания, тем лучше производительность, но тем дольше требуется, чтобы
+увидеть замещённые записи.
+Если ваша система управления базой данных пользователей/групп почти никогда не повторно использует одни и те же имена
+или идентификаторы, рекомендуется большое время ожидания.
+По умолчанию — 1 минута.
+.It Fl usermax Ar макс_размер_кэша
+Переопределяет верхнюю границу размера кэша по умолчанию.
+Чем больше кэш, тем больше памяти ядра используется, но тем лучше производительность.
+Если ваша система может позволить себе такой расход памяти, задайте его равным сумме количества
+записей в ваших базах данных групп и паролей.
+По умолчанию — 200 записей.
+.It Fl verbose
+Если установлен, сервер записывает массу информации в syslog.
+.It Fl force
+Этот флаг необходимо установить, чтобы перезапустить демон после его
+аварийного завершения, когда он отказывается запускаться, так как считает, что nfsuserd уже
+запущен.
+.It Fl manage-gids
+Этот флаг включает manage-gids для сервера NFS
+.Xr nfsd 8 .
+Когда он включён, все NFS-запросы, использующие
+аутентификацию AUTH_SYS, берут uid из RPC-запроса
+и используют список групп для этого uid, предоставленный
+.Xr getgrouplist 3
+на сервере, вместо списка групп, предоставленного в аутентификаторе RPC.
+Это можно использовать, чтобы обойти ограничение в 16 групп для AUTH_SYS.
+.It Ar число_серверов
+Указывает, сколько серверов создать (максимум 20).
+Значение по умолчанию 4 может быть достаточным.
+Следует запускать достаточно серверов, чтобы
+.Xr ps 1
+показывал почти нулевое время работы для одного или двух серверов после того, как система
+работает длительное время.
+Запуск слишком малого числа окажет серьёзное влияние на производительность, тогда как запуск слишком многих
+лишь займёт некоторые ресурсы, такие как запись в таблице процессов и пространство подкачки.
+.El
+.Sh СМ. ТАКЖЕ
+.Xr getgrent 3 ,
+.Xr getgrouplist 3 ,
+.Xr getpwent 3 ,
+.Xr nfsv4 4 ,
+.Xr group 5 ,
+.Xr passwd 5 ,
+.Xr nfsd 8
+.Sh ИСТОРИЯ
+Утилита
+.Nm
+была представлена вместе с экспериментальной подсистемой NFSv4 в 2009 году.
+.Sh ИЗВЕСТНЫЕ ОШИБКИ
+Утилита
+.Nm
+использует
+.Xr getgrent 3 ,
+.Xr getgrouplist 3
+и
+.Xr getpwent 3
+библиотечные вызовы для разрешения запросов и может зависнуть, если серверы, обрабатывающие
+эти запросы, откажут, а библиотечные функции не вернут управление.
+См.
+.Xr group 5
+и
+.Xr passwd 5
+для получения дополнительной информации о том, как осуществляется доступ к базам данных.
