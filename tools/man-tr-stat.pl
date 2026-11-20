@@ -6,6 +6,7 @@
 #   man-tr-stats.pl [-s LIST] [-q] [--no-dedup] <tr-dir> <meta-file>...
 #
 #   -s LIST     секции через запятую (по умолчанию: 1,2,5,7,8)
+#   -p, --percent  показывать проценты в ячейках (по умолчанию — только tr/tot)
 #   -q          тихий режим (только отчёт, без пояснений в stderr)
 #   --no-dedup  не схлопывать дубликаты target_path внутри одного meta-файла
 #
@@ -22,12 +23,13 @@ use warnings;
 
 my @sections = (1, 2, 5, 7, 8);
 my $dedup    = 1;
+my $percent  = 0;      # по умолчанию проценты не выводим
 
-# --- разбор опций ---
 while (@ARGV && $ARGV[0] =~ /^-/) {
     my $opt = shift @ARGV;
-    if    ($opt eq '-q')        {  }
-    elsif ($opt eq '--no-dedup'){ $dedup = 0 }
+    if    ($opt eq '-q')         { }   # принимается для совместимости, отчёт и так единственный вывод
+    elsif ($opt eq '-p' || $opt eq '--percent') { $percent = 1 }
+    elsif ($opt eq '--no-dedup') { $dedup = 0 }
     elsif ($opt eq '-s') {
         die "man-tr-stats.pl: -s требует аргумент\n" unless @ARGV;
         my $list = shift @ARGV;
@@ -38,7 +40,7 @@ while (@ARGV && $ARGV[0] =~ /^-/) {
     else { die "man-tr-stats.pl: неизвестная опция: $opt\n" }
 }
 
-die "Usage: $0 [-s LIST] [-q] [--no-dedup] <tr-dir> <meta-file>...\n"
+die "Usage: $0 [-s LIST] [-p] [-q] [--no-dedup] <tr-dir> <meta-file>...\n"
     unless @ARGV >= 2;
 
 my $tr_dir = shift @ARGV;
@@ -131,10 +133,12 @@ my %total_cell;           # $total_cell{$section}      = "tr/tot (NN%)"
 sub fmt_cell {
     my ($tr, $tot) = @_;
     my $s = sprintf "%d/%d", $tr, $tot;
-    if ($tot > 0) {
-        $s .= sprintf " (%.0f%%)", 100.0 * $tr / $tot;
-    } else {
-        $s .= " (—)";
+    if ($percent) {
+        if ($tot > 0) {
+            $s .= sprintf " (%.0f%%)", 100.0 * $tr / $tot;
+        } else {
+            $s .= " (—)";
+        }
     }
     return $s;
 }
@@ -164,7 +168,7 @@ $ver_w = length("TOTAL") if length("TOTAL") > $ver_w;
 my @col_w;
 for my $i (0 .. $#sections) {
     my $s = $sections[$i];
-    my $w = length("     man$s");                  # заголовок
+    my $w = length(" man$s");                  # заголовок
     for my $v (@versions) {                   # ячейки версий
         my $l = length($cell{$v}{$s});
         $w = $l if $l > $w;
@@ -182,7 +186,7 @@ for my $v (@versions) {
 # --- вывод ---
 printf "%-${ver_w}s", "Version";
 for my $i (0 .. $#sections) {
-    printf "  %-${col_w[$i]}s", "     man$sections[$i]";
+    printf "  %-${col_w[$i]}s", " man$sections[$i]";
 }
 printf "  %-${total_w}s", "TOTAL";
 print "\n";
