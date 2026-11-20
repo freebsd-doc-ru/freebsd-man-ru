@@ -186,6 +186,13 @@ tools/man-tr-candidates.sh meta/main.tsv translations/ru output.txt
 tools/man-tr-candidates.sh meta/releng15.2.tsv translations/ru releng15.2_20261110.txt
 ```
 
+Calculate statistics of translated man pages.
+
+```sh
+tools/man-tr-stat.pl -s 1,2,5,7,8 translations/ru meta/main.tsv meta/releng15.0.tsv \
+    meta/releng15.1.tsv meta/releng15.2.tsv meta/stable15.tsv meta/releng14.5.tsv \
+    meta/releng14.6.tsv meta/stable14.tsv
+```
 
 ## Contributing
 
